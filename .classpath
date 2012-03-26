@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
@@ -16,15 +16,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common-type-system"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/UIMA"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/dependency parser"/>
-	<classpathentry kind="lib" path="/core/lib/log4j-1.2.15.jar"/>
-	<classpathentry kind="lib" path="/core/lib/uimafit-1.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/cleartk-eval-0.8.1.jar"/>
-	<classpathentry kind="lib" path="lib/cleartk-examples-0.6.0.jar"/>
-	<classpathentry kind="lib" path="lib/cleartk-ml-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/cleartk-ml-opennlp-maxent-1.0.2.jar"/>
-	<classpathentry kind="lib" path="lib/cleartk-test-util-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/cleartk-type-system-1.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/cleartk-util-0.8.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
