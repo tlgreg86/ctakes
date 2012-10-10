@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package edu.mayo.bmi.uima.core.test;
+package org.apache.ctakes.core;
 
 import static org.junit.Assert.assertEquals;
 

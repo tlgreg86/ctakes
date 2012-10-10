@@ -19,7 +19,7 @@
 /**
  * 
  */
-package org.apache.ctakes.core.ci.test;
+package org.apache.ctakes.core.ci;
 
 import java.util.ArrayList;
 

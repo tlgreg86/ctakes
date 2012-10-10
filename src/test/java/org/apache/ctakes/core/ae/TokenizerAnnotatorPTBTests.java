@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ctakes.core.ae.test;
+package org.apache.ctakes.core.ae;
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,7 +29,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.junit.Test;
 
-import edu.mayo.bmi.uima.core.test.TestUtil;
+import org.apache.ctakes.core.TestUtil;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.ContractionToken;
 import org.apache.ctakes.typesystem.type.syntax.NumToken;
