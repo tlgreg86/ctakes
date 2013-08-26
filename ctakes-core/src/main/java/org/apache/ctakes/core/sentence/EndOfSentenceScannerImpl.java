@@ -30,7 +30,7 @@ import opennlp.tools.sentdetect.EndOfSentenceScanner;
  */
 public class EndOfSentenceScannerImpl implements EndOfSentenceScanner {
 
-    private static final char[] eosCandidates =  {'.', '!', ')', ']', '>', '\'', '\"', ':', ';'};
+    private static final char[] eosCandidates =  {'.', '!', ')', ']', '>', '\"', ':', ';'}; // CTAKES-227
 
 	public EndOfSentenceScannerImpl() {
         super();
