@@ -101,7 +101,7 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		String sdModelPath = (String) context
 				.getConfigParameterValue(SD_MODEL_FILE_PARAM);
 			InputStream is = FileLocator.getAsStream(sdModelPath);
-			logger.info("POS tagger model file: " + sdModelPath);
+			logger.info("Sentence detector model file: " + sdModelPath);
 			sdmodel = new SentenceModel(is);
 			is.close();
 			EndOfSentenceScannerImpl eoss = new EndOfSentenceScannerImpl();
