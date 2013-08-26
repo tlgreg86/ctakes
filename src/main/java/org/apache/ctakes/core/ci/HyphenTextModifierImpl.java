@@ -52,7 +52,7 @@ public class HyphenTextModifierImpl implements TextModifier {
 	private Tokenizer iv_tokenizer = null;
 
 	/*
-	 * DECPRECATED: Uses InputSteam instead
+	 * DECPRECATED: Use InputSteam instead of filename
 	 */
 	public HyphenTextModifierImpl(String hyphenfilename, int windowSize) {
 		iv_windowSize = windowSize;

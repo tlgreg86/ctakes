@@ -147,7 +147,7 @@ public class KnowtatorXMLParser {
                 if (mentionSlot != null) {
                   annotation.annotationSlots.put(mentionSlot.name, mentionSlot.value);
                 } else {
-                  throw new RuntimeException("no slot for " + slotId);
+                  LOGGER.warn("no simple slot for " + slotId);
                 }
               }
             }
