@@ -209,11 +209,11 @@
         </value>
       </nameValuePair>
     </configurationParameterSettings>
-    <typeSystemDescription>
+  	<typeSystemDescription>
       <imports>
-        <import location="../type_system/SideEffectTypeSystem.xml"/>
+        <import name="org.apache.ctakes.sideeffect.types.TypeSystem"/>
       </imports>
-    </typeSystemDescription>
+    </typeSystemDescription
     <capabilities>
       <capability>
         <inputs/>
