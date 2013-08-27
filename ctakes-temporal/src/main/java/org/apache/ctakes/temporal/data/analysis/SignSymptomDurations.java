@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.ctakes.relationextractor.eval.XMIReader;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
@@ -28,10 +30,14 @@ import org.uimafit.util.JCasUtil;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.Ordering;
 
 /**
  * Extract durations of signs/symptoms.
+ * 
+ * TODO: check drinking.txt; fewer day durations are captured than exist in data.
  * 
  * @author dmitriy dligach
  */
@@ -64,6 +70,9 @@ public class SignSymptomDurations {
 
     // max distance between a time and an evenet
     final int maxDistance = 2;
+
+    // regex to match different time granularities
+    Pattern pattern = Pattern.compile("(second|minute|hour|day|week|month|year)", Pattern.CASE_INSENSITIVE);
     
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -72,6 +81,9 @@ public class SignSymptomDurations {
       String fileName = ids.iterator().next().getDocumentID();
       String signSymptomText = fileName.split("\\.")[0]; // e.g. "smoker.txt"
 
+      // counts of different time granularities for this sign/symptom
+      Multiset<String> durationDistribution = HashMultiset.create();
+      
       for(SignSymptomMention signSymptomMention : JCasUtil.select(jCas, SignSymptomMention.class)) {
 
         if(signSymptomMention.getCoveredText().equals(signSymptomText)) {
@@ -89,9 +101,18 @@ public class SignSymptomDurations {
           Collections.sort(sortedTimeMentions, Ordering.natural().onResultOf(getValue));
 
           if(sortedTimeMentions.size() > 0 && distances.get(sortedTimeMentions.get(0)) <= maxDistance) {
-            System.out.println(signSymptomMention.getCoveredText() + ": " + sortedTimeMentions.get(0).getCoveredText());
+
+            String timex = sortedTimeMentions.get(0).getCoveredText();
+            Matcher matcher = pattern.matcher(timex);
+            while(matcher.find()) {
+              durationDistribution.add(matcher.group());
+            }
           }
         }
+      }
+
+      if(durationDistribution.size() > 0) { 
+        System.out.println(signSymptomText + ": " + durationDistribution);
       }
     }
   }
