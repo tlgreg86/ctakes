@@ -213,7 +213,7 @@
       <imports>
         <import name="org.apache.ctakes.sideeffect.types.TypeSystem"/>
       </imports>
-    </typeSystemDescription
+    </typeSystemDescription>
     <capabilities>
       <capability>
         <inputs/>

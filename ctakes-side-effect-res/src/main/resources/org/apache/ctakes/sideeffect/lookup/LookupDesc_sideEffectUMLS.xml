@@ -226,7 +226,7 @@
 				<properties>
 					<property key="textMetaFields" value="preferred_designation|other_designation"/>
 					<property key="maxPermutationLevel" value="5"/>
-					<property key="windowAnnotations" value="edu.mayo.bmi.uima.lookup.type.DrugLookupWindowAnnotation"/>
+					<property key="windowAnnotations" value="org.apache.ctakes.typesystem.type.textspan.DrugLookupWindowAnnotation"/>
 					<property key="exclusionTags" value="AUX,AUXD,AUXG,AUXN,AUXP,AUXZ,CC,CD,DT,EX,LS,MD,PDT,POS,PP,PP$,RP,TO,WDT,WP,WPS,WRB"/>
 				</properties>
 			</lookupInitializer>
