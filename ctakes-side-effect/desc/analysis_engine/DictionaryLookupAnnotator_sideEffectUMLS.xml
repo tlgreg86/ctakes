@@ -209,7 +209,7 @@
               <nameValuePair>
                 <name>URL</name>
                 <value>
-                  <string>jdbc:hsqldb:file:../ctakes-dictionary-lookup/resources/lookup/umls2011ab/umls</string>
+                  <string>jdbc:hsqldb:res:org/apache/ctakes/dictionary/lookup/umls2011ab/umls</string>
                 </value>
               </nameValuePair>
               <nameValuePair>
