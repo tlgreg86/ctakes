@@ -32,9 +32,9 @@
 	<scm>
 		<!-- In child modules, Maven will append ${artifactId} to the following 
 			URLs -->
-		<connection>scm:svn:https://svn.apache.org/repos/asf/ctakes/tags/ctakes-3.1.0</connection>
-		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/ctakes/tags/ctakes-3.1.0</developerConnection>
-		<url>https://svn.apache.org/repos/asf/ctakes/tags/ctakes-3.1.0</url>
+		<connection>scm:svn:https://svn.apache.org/repos/asf/ctakes/branches/ctakes-3.1.0</connection>
+		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/ctakes/branches/ctakes-3.1.0</developerConnection>
+		<url>https://svn.apache.org/repos/asf/ctakes/branches/ctakes-3.1.0</url>
 	</scm>
 	<issueManagement>
 		<system>jira</system>
