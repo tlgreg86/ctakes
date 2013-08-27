@@ -751,9 +751,9 @@
     <org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation _indexed="1" _id="4839" _ref_sofa="3" begin="247" end="252"/>
     <org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation _indexed="1" _id="4843" _ref_sofa="3" begin="254" end="267"/>
     <org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation _indexed="1" _id="4851" _ref_sofa="3" begin="269" end="282"/>
-    <org.apache.ctakes.typesystem.type.textsem.MedicationEventMention _indexed="1" _id="4863" _ref_sofa="3" begin="167" end="174" id="0" _ref_ontologyConceptArr="4855" typeID="1" segmentID="SIMPLE_SEGMENT" discoveryTechnique="1" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0"/>
-    <org.apache.ctakes.typesystem.type.textsem.MedicationEventMention _indexed="1" _id="4898" _ref_sofa="3" begin="194" end="203" id="1" _ref_ontologyConceptArr="4890" typeID="1" segmentID="SIMPLE_SEGMENT" discoveryTechnique="1" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0"/>
-    <org.apache.ctakes.typesystem.type.textsem.MedicationEventMention _indexed="1" _id="4933" _ref_sofa="3" begin="254" end="261" id="4" _ref_ontologyConceptArr="4925" typeID="1" segmentID="SIMPLE_SEGMENT" discoveryTechnique="1" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationMention _indexed="1" _id="4863" _ref_sofa="3" begin="167" end="174" id="0" _ref_ontologyConceptArr="4855" typeID="1" segmentID="SIMPLE_SEGMENT" discoveryTechnique="1" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationMention _indexed="1" _id="4898" _ref_sofa="3" begin="194" end="203" id="1" _ref_ontologyConceptArr="4890" typeID="1" segmentID="SIMPLE_SEGMENT" discoveryTechnique="1" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationMention _indexed="1" _id="4933" _ref_sofa="3" begin="254" end="261" id="4" _ref_ontologyConceptArr="4925" typeID="1" segmentID="SIMPLE_SEGMENT" discoveryTechnique="1" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0"/>
     <org.apache.ctakes.typesystem.type.refsem.OntologyConcept _id="4928" codingScheme="RXNORM" code="C6666666" oid="C6666666#RXNORM"/>
     <uima.cas.FSArray _id="4925" size="1">
         <i>4928</i>
