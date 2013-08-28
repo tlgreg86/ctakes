@@ -62,7 +62,7 @@ public class NegExCorpusReader extends CollectionReader_ImplBase {
 
 
   public NegExCorpusReader() {
-	  this(true);
+	  this(false);
   }
   
   public NegExCorpusReader(boolean skipReadingValuesJustReadText) {

@@ -19,13 +19,17 @@ public class PolarityCotrainingTrain {
 	protected final static String MIPACQ_TRAIN = AssertionConst.DATA_DIR + "preprocessed_data/mipacq/train";
 	protected final static String NEGEX_TRAIN = AssertionConst.DATA_DIR + "preprocessed_data/negex"; // actually test
 
-	protected final static String SHARP_MODEL = "../ctakes-assertion-res/resources/model/sharptrain";
+	public final static String SHARP_MODEL = "../ctakes-assertion-res/resources/model/sharptrain";
 	protected final static String I2B2_MODEL  = "../ctakes-assertion-res/resources/model/i2b2train";
 	protected final static String MIPACQ_MODEL  = "../ctakes-assertion-res/resources/model/mipacqtrain";
 	protected final static String NEGEX_MODEL  = "../ctakes-assertion-res/resources/model/negextest";
 	protected final static String SHARP_I2B2_MODEL = "../ctakes-assertion-res/resources/model/sharptrain+i2b2train";
 	protected final static String SHARP_MIPACQ_MODEL = "../ctakes-assertion-res/resources/model/sharptrain+mipacqtrain";
 	protected final static String SHARP_NEGEX_MODEL = "../ctakes-assertion-res/resources/model/sharptrain+negextest";
+	protected final static String I2B2_MIPACQ_NEGEX_MODEL = "../ctakes-assertion-res/resources/model/i2b2train+mipacqtrain+negextest";
+	protected final static String SHARP_I2B2_MIPACQ_MODEL = "../ctakes-assertion-res/resources/model/sharptrain+i2b2train+mipacqtrain";
+	protected final static String SHARP_MIPACQ_NEGEX_MODEL = "../ctakes-assertion-res/resources/model/sharptrain+mipacqtrain+negextest";
+	protected final static String SHARP_I2B2_NEGEX_MODEL = "../ctakes-assertion-res/resources/model/sharptrain+i2b2train+negextest";
 	protected final static String SHARP_I2B2_MIPACQ_NEGEX_MODEL = "../ctakes-assertion-res/resources/model/sharpi2b2mipacqnegex";
 
 	public static void main(String[] args) throws Exception {
@@ -40,6 +44,10 @@ public class PolarityCotrainingTrain {
 		trainGrid.put(SHARP_TRAIN+":"+I2B2_TRAIN,	SHARP_I2B2_MODEL);
 		trainGrid.put(SHARP_TRAIN+":"+MIPACQ_TRAIN,	SHARP_MIPACQ_MODEL);
 		trainGrid.put(SHARP_TRAIN+":"+NEGEX_TRAIN,	SHARP_NEGEX_MODEL);
+		trainGrid.put(I2B2_TRAIN+":"+MIPACQ_TRAIN+":"+NEGEX_TRAIN,	I2B2_MIPACQ_NEGEX_MODEL);
+		trainGrid.put(SHARP_TRAIN+":"+I2B2_TRAIN+":"+MIPACQ_TRAIN,	SHARP_I2B2_MIPACQ_MODEL);
+		trainGrid.put(SHARP_TRAIN+":"+MIPACQ_TRAIN+":"+NEGEX_TRAIN,	SHARP_MIPACQ_NEGEX_MODEL);
+		trainGrid.put(SHARP_TRAIN+":"+I2B2_TRAIN+":"+NEGEX_TRAIN,	SHARP_I2B2_NEGEX_MODEL);
 		trainGrid.put(SHARP_TRAIN+":"+I2B2_TRAIN+":"+MIPACQ_TRAIN+":"+NEGEX_TRAIN,	
 				SHARP_I2B2_MIPACQ_NEGEX_MODEL);
 
