@@ -21,9 +21,9 @@ public class TestFeatureSelection {
 		// Extracting features and writing instances
 		Iterable<Instance<String>> instances = InstanceStream.loadFromDirectory(directory);
 		
-		FeatureSelection<String> featureSelection; 
-		featureSelection = PolarityCleartkAnalysisEngine.createFeatureSelection(1f);
-		featureSelection.train(instances);
+//		FeatureSelection<String> featureSelection; 
+//		featureSelection = PolarityCleartkAnalysisEngine.createFeatureSelection(1f);
+//		featureSelection.train(instances);
 //		featureSelection.save(PolarityCleartkAnalysisEngine.createFeatureSelectionURI(directory));
 
 	}

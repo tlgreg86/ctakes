@@ -22,6 +22,7 @@ package org.apache.ctakes.assertion.pipelines;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
@@ -35,7 +36,6 @@ import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 import org.uimafit.pipeline.SimplePipeline;
-
 import org.apache.ctakes.assertion.cr.GoldEntityAndAttributeReader;
 import org.apache.ctakes.assertion.cr.I2B2Challenge2010CollectionReader;
 import org.apache.ctakes.assertion.cr.MiPACQKnowtatorXMLReader;
@@ -289,50 +289,57 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 		logger.info("Finished!");
 	}
 
-	public static void readMiPACQ(File inputDirectory, File preprocessedDirectory)
+	public static void readMiPACQ(File inputDirectory, File preprocessedDirectory, File testDirectory, File devDirectory)
 	throws ResourceInitializationException, UIMAException, IOException {
 
 		TypeSystemDescription typeSystemDescription = 
 			TypeSystemDescriptionFactory.createTypeSystemDescription();
 
-		AggregateBuilder aggregate = new AggregateBuilder();
+		HashMap<File,File> splitMipacq = new HashMap<File,File>();
+		splitMipacq.put(new File(inputDirectory+"/text/train"), preprocessedDirectory);
+		splitMipacq.put(new File(inputDirectory+"/text/test"),  testDirectory);
+		splitMipacq.put(new File(inputDirectory+"/text/dev"),   devDirectory);
+		for (File inDir : splitMipacq.keySet() ) {
+			AggregateBuilder aggregate = new AggregateBuilder();
 
-		CollectionReaderDescription collectionReader = CollectionReaderFactory.createDescription(
-				FilesInDirectoryCollectionReader.class,
-				typeSystemDescription,
-				"InputDirectory",
-				inputDirectory
-				);
-		
-		// read the UMLS_CEM data from Knowtator
-		AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createPrimitiveDescription(
-				MiPACQKnowtatorXMLReader.class,
-				typeSystemDescription,
-				MiPACQKnowtatorXMLReader.PARAM_TEXT_DIRECTORY,
-				preprocessedDirectory
-		);
-		
-		aggregate.add(goldAnnotator);
-		// fill in other values that are necessary for preprocessing
-		AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(
-				"desc/analysis_engine/AttributeDiscoveryPreprocessor"
-		);
-		aggregate.add(preprocessAnnotator);
-
-		if (preprocessedDirectory!=null) {
-			AnalysisEngineDescription xWriter2 = AnalysisEngineFactory.createPrimitiveDescription(
-					XWriter.class,
+			CollectionReaderDescription collectionReader = CollectionReaderFactory.createDescription(
+					FilesInDirectoryCollectionReader.class,
 					typeSystemDescription,
-					XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-					preprocessedDirectory,
-					XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-					CtakesFileNamer.class.getName()
-			);
-			aggregate.add(xWriter2);
-			//		SimplePipeline.runPipeline(collectionReader, goldAnnotator, xWriter, xWriter2);
-		}
+					"InputDirectory",
+					inDir
+					);
 
-		SimplePipeline.runPipeline(collectionReader, aggregate.createAggregateDescription());
+			// read the UMLS_CEM data from Knowtator
+			AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createPrimitiveDescription(
+					MiPACQKnowtatorXMLReader.class,
+					typeSystemDescription,
+					MiPACQKnowtatorXMLReader.PARAM_TEXT_DIRECTORY,
+					inDir
+					);
+
+			aggregate.add(goldAnnotator);
+			// fill in other values that are necessary for preprocessing
+			AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(
+					"desc/analysis_engine/AttributeDiscoveryPreprocessor"
+					);
+			aggregate.add(preprocessAnnotator);
+
+			if (preprocessedDirectory!=null) {
+				AnalysisEngineDescription xWriter2 = AnalysisEngineFactory.createPrimitiveDescription(
+						XWriter.class,
+						typeSystemDescription,
+						XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
+						splitMipacq.get(inDir),
+						XWriter.PARAM_FILE_NAMER_CLASS_NAME,
+						CtakesFileNamer.class.getName()
+						);
+				aggregate.add(xWriter2);
+				//		SimplePipeline.runPipeline(collectionReader, goldAnnotator, xWriter, xWriter2);
+			}
+
+			SimplePipeline.runPipeline(collectionReader, aggregate.createAggregateDescription());
+		}
+			
 		logger.info("Finished!");
 	}
 

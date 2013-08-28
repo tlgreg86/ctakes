@@ -125,8 +125,8 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 
 /**
- * assumes knowtator xml files are in "exported-xml" subdirectory
- * and the original plaintext files are in "text" subdirectory
+ * assumes knowtator xml files are in "exported-xml" subdirectory w/ train/dev/test subsubdirs
+ * and the original plaintext files are in "text" subdirectory w/ train/dev/test subsubdirs
  *
  */
 public class MiPACQKnowtatorXMLReader extends JCasAnnotator_ImplBase {
@@ -168,7 +168,7 @@ public class MiPACQKnowtatorXMLReader extends JCasAnnotator_ImplBase {
 
 	  URI uri;
 	  try {
-		  uri = new URI(textPath);
+		  uri = new URI("file://"+textPath);
 	  } catch (URISyntaxException e) {
 		  throw new AnalysisEngineProcessException(e);
 	  }
@@ -214,6 +214,15 @@ public class MiPACQKnowtatorXMLReader extends JCasAnnotator_ImplBase {
 //		  LOGGER.info("newPath = " + newPath);
 //		  URI newUri =new URI(newPath); 
 //		  LOGGER.info("newUri = " + newUri);
+//		  String[] textPath = this.getTextURI(jCas).toString().split("/");
+//		  String lastDir = "";
+//		  String file = "";
+//		  if (textPath.length>1) {
+//			  lastDir = textPath[textPath.length-2];
+//			  file = textPath[textPath.length-1];
+//		  }
+//		  URI relUri = new URI("../../exported-xml/"+lastDir+"/"+file); // relative to text directory
+//		  URI newUri = this.getTextURI(jCas).resolve(relUri);
 		  URI newUri = new URI(newPath);
 		  return newUri;
 	  } catch (URISyntaxException e) {
@@ -275,7 +284,7 @@ public class MiPACQKnowtatorXMLReader extends JCasAnnotator_ImplBase {
     // determine Knowtator XML file from the CAS
     URI knowtatorURI = this.getKnowtatorURI(jCas);
     if (!new File(knowtatorURI).exists()) {
-      LOGGER.fatal("no such Knowtator XML file " + knowtatorURI);
+      LOGGER.warn("near-FATAL: no such Knowtator XML file " + knowtatorURI);
       return;
     }
 
