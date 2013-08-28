@@ -21,10 +21,10 @@ public class TestAttributeModels {
 		for (String attribute : AssertionConst.annotationTypes) {
 			
 			ArrayList<String> params = new ArrayList<String>();
-//			AssertionEvaluation.useEvaluationLogFile = true;
+			AssertionEvaluation.useEvaluationLogFile = true;
 			
 			params.add("--test-dir"); 	params.add(AssertionConst.testDirectories.get(attribute));
-//			params.add("--models-dir"); params.add(AssertionConst.modelDirectory);
+			params.add("--models-dir"); params.add(AssertionConst.modelDirectory);
 //			params.add("--ytex-negation");
 			params.add("--evaluation-output-dir");	params.add(AssertionConst.evalOutputDir);
 			params.add("--test-only");	
