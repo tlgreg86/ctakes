@@ -276,7 +276,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
 	  resetOptions();
 	  options.parseOptions(args);
 
-	  if (useEvaluationLogFile) {
+	  if (useEvaluationLogFile && evaluationLogFileOut == null) {
 		  evaluationLogFile = new File(evaluationLogFilePath);
 		  evaluationLogFileOut = new BufferedWriter(new FileWriter(evaluationLogFile), 32768);
 	  }
@@ -484,17 +484,20 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     	  String annotationType = currentEntry.getKey();
     	  AnnotationStatisticsCompact stats = currentEntry.getValue();
     	  
-    	  System.out.format("directory: \"%s\"; assertion type: %s%n%n%s%n%n",
+    	  System.out.format("directory: \"%s\"; assertion type: %s%n%s%n%s%n%n",
     	    directory,
     	    annotationType.toUpperCase(),
+    	    options.testDirectory,
     	    stats.toString());
     	  
     	  try {
     		  if (useEvaluationLogFile) {
     			  evaluationLogFileOut.write(
-    					  String.format("%s\t%f\t%s",
+    					  String.format("%s\t%f\t%s\t%s\t%s",
     							  annotationType,
     							  options.featureSelectionThreshold,
+    							  options.modelsDirectory.getName(),
+    							  options.testDirectory.toString(),
     							  stats.toTsv())
     					  );
     			  evaluationLogFileOut.flush();
@@ -556,7 +559,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 		  GoldEntityAndAttributeReaderPipelineForSeedCorpus.readI2B2Challenge2010(rawDir, preprocessedDir);
 		  
 	  } else if (rawDir.getAbsolutePath().contains("mipacq")) {
-		  GoldEntityAndAttributeReaderPipelineForSeedCorpus.readMiPACQ(rawDir, preprocessedDir);
+		  GoldEntityAndAttributeReaderPipelineForSeedCorpus.readMiPACQ(rawDir, preprocessedDir, options.testDirectory, options.devDirectory);
 		  
 	  } else if (rawDir.getAbsolutePath().contains("negex")) {
 		  GoldEntityAndAttributeReaderPipelineForSeedCorpus.readNegexTestSet(rawDir, preprocessedDir);

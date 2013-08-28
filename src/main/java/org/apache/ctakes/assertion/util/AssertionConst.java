@@ -101,8 +101,8 @@ public class AssertionConst {
 //		preprocessRootDirectory.put(SHARP_SEED_CORPUS + "Seattle Group Health/UMLS_CEM", DATA_DIR + "preprocessed_data/sharp/train");
 //		preprocessRootDirectory.put(I2B2_2010_CORPUS, DATA_DIR + "preprocessed_data/i2b2/train");
 //		preprocessRootDirectory.put(I2B2_2010_TEST_CORPUS, DATA_DIR + "preprocessed_data/i2b2/test");
-		preprocessRootDirectory.put(MiPACQ_CORPUS, DATA_DIR + "preprocessed_data/mipacq/train");
-//		preprocessRootDirectory.put(DATA_DIR + "gold_standard/negex", DATA_DIR + "preprocessed_data/negex");
+//		preprocessRootDirectory.put(MiPACQ_CORPUS, DATA_DIR + "preprocessed_data/mipacq/train");
+		preprocessRootDirectory.put(DATA_DIR + "gold_standard/negex", DATA_DIR + "preprocessed_data/negex");
 		
 		// If one of the preprocessRootDirectory entries above is commented out, warn user with a popup
 //		if (preprocessRootDirectory.keySet().size()<4) {
