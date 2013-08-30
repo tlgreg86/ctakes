@@ -54,7 +54,6 @@
 				<include>org.apache.ctakes:ctakes-side-effect</include>
 				<include>org.apache.ctakes:ctakes-smoking-status</include>
 				<include>org.apache.ctakes:ctakes-template-filler</include>
-				<!-- <include>org.apache.ctakes:ctakes-temporal</include> -->
 				<include>org.apache.ctakes:ctakes-type-system</include>
 				<include>org.apache.ctakes:ctakes-utils</include>
 			</includes>
@@ -73,7 +72,7 @@
 
 	<fileSets>
 		<fileSet>
-			<!-- Temporary workaround: Adding in the system scoped libaries. Remove 
+			<!-- Temporary workaround: Adding in the system scoped libraries. Remove 
 				these once they are in Maven Central -->
 			<directory>../ctakes-assertion/lib</directory>
 			<outputDirectory>lib</outputDirectory>

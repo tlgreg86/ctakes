@@ -109,7 +109,6 @@
 		<module>ctakes-pad-term-spotter</module>
 		<module>ctakes-assertion</module>
 		<module>ctakes-assertion-zoner</module>
-		<module>ctakes-temporal</module>
 		<module>ctakes-clinical-pipeline</module>
 		<module>ctakes-distribution</module>
 		<module>ctakes-regression-test</module>
@@ -126,7 +125,6 @@
 		<module>ctakes-relation-extractor-res</module>
 		<module>ctakes-side-effect-res</module>
 		<module>ctakes-smoking-status-res</module>
-		<module>ctakes-temporal-res</module>
 		<module>ctakes-assertion-zoner-res</module>
 		<module>ctakes-drug-ner-res</module>
 		<module>ctakes-ne-contexts-res</module>
@@ -375,20 +373,6 @@
 				</artifactId>
 				<version>${ctakes.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.apache.ctakes</groupId>
-				<artifactId>
-					ctakes-temporal
-				</artifactId>
-				<version>${ctakes.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.ctakes</groupId>
-				<artifactId>
-					ctakes-temporal-res
-				</artifactId>
-				<version>${ctakes.version}</version>
-			</dependency>			
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -734,7 +718,6 @@
 							<additionalClasspathElement>ctakes-relation-extractor-res/src/main/resources</additionalClasspathElement>
 							<additionalClasspathElement>ctakes-side-effect-res/src/main/resources</additionalClasspathElement>
 							<additionalClasspathElement>ctakes-smoking-status-res/src/main/resources</additionalClasspathElement>
-							<additionalClasspathElement>ctakes-temporal-res/src/main/resources</additionalClasspathElement>
 						</additionalClasspathElements>
 					</configuration>
 				</plugin>
