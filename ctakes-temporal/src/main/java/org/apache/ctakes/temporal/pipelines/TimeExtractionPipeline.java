@@ -146,7 +146,7 @@ public class TimeExtractionPipeline {
     aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
         Chunker.class,
         Chunker.CHUNKER_MODEL_FILE_PARAM,
-        FileLocator.locateFile("org/apache/ctakes/chunker/models/chunk-model.claims-1.5.zip"),
+        FileLocator.locateFile("org/apache/ctakes/chunker/models/chunker-model.zip"),
         Chunker.CHUNKER_CREATOR_CLASS_PARAM,
         DefaultChunkCreator.class));
 
