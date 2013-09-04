@@ -39,6 +39,7 @@
         <exclude>**/pom.xml.releaseBackup</exclude>
         <exclude>**/release.properties</exclude>
         <exclude>ctakes-temporal/**</exclude>
+        <exclude>ctakes-temporal-res/**</exclude>
       </excludes>
     </fileSet>
   </fileSets>

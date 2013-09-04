@@ -24,7 +24,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.ctakes</groupId>
 	<artifactId>ctakes</artifactId>
-	<version>3.1.0-SNAPSHOT</version>
+	<version>3.1.0</version>
 	<packaging>pom</packaging>
 	<name>Apache cTAKES</name>
 	<url>http://ctakes.apache.org</url>
@@ -32,9 +32,9 @@
 	<scm>
 		<!-- In child modules, Maven will append ${artifactId} to the following 
 			URLs -->
-		<connection>scm:svn:https://svn.apache.org/repos/asf/ctakes/tags/ctakes-3.1.0</connection>
-		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/ctakes/tags/ctakes-3.1.0</developerConnection>
-		<url>https://svn.apache.org/repos/asf/ctakes/tags/ctakes-3.1.0</url>
+		<connection>scm:svn:https://svn.apache.org/repos/asf/ctakes/tags/ctakes-3.1.0-rc3</connection>
+		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/ctakes/tags/ctakes-3.1.0-rc3</developerConnection>
+		<url>https://svn.apache.org/repos/asf/ctakes/tags/ctakes-3.1.0-rc3</url>
 	</scm>
 	<issueManagement>
 		<system>jira</system>
@@ -76,7 +76,7 @@
 		</mailingList>
 	</mailingLists>
 	<properties>
-		<ctakes.version>3.1.0-SNAPSHOT</ctakes.version>
+		<ctakes.version>3.1.0</ctakes.version>
 		<maven.compiler.source>1.6</maven.compiler.source>
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -109,7 +109,6 @@
 		<module>ctakes-pad-term-spotter</module>
 		<module>ctakes-assertion</module>
 		<module>ctakes-assertion-zoner</module>
-		<module>ctakes-temporal</module>
 		<module>ctakes-clinical-pipeline</module>
 		<module>ctakes-distribution</module>
 		<module>ctakes-regression-test</module>
@@ -126,7 +125,6 @@
 		<module>ctakes-relation-extractor-res</module>
 		<module>ctakes-side-effect-res</module>
 		<module>ctakes-smoking-status-res</module>
-		<module>ctakes-temporal-res</module>
 		<module>ctakes-assertion-zoner-res</module>
 		<module>ctakes-drug-ner-res</module>
 		<module>ctakes-ne-contexts-res</module>
@@ -375,20 +373,6 @@
 				</artifactId>
 				<version>${ctakes.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.apache.ctakes</groupId>
-				<artifactId>
-					ctakes-temporal
-				</artifactId>
-				<version>${ctakes.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.ctakes</groupId>
-				<artifactId>
-					ctakes-temporal-res
-				</artifactId>
-				<version>${ctakes.version}</version>
-			</dependency>			
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -734,7 +718,6 @@
 							<additionalClasspathElement>ctakes-relation-extractor-res/src/main/resources</additionalClasspathElement>
 							<additionalClasspathElement>ctakes-side-effect-res/src/main/resources</additionalClasspathElement>
 							<additionalClasspathElement>ctakes-smoking-status-res/src/main/resources</additionalClasspathElement>
-							<additionalClasspathElement>ctakes-temporal-res/src/main/resources</additionalClasspathElement>
 						</additionalClasspathElements>
 					</configuration>
 				</plugin>
