@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -30,6 +31,7 @@ import org.uimafit.util.JCasUtil;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Ordering;
@@ -38,6 +40,7 @@ import com.google.common.collect.Ordering;
  * Extract durations of signs/symptoms.
  * 
  * TODO: check drinking.txt; fewer day durations are captured than exist in data.
+ * TODO: need to take care of abbreviations (e.g. wk, yr, etc.)
  * 
  * @author dmitriy dligach
  */
@@ -112,8 +115,22 @@ public class SignSymptomDurations {
       }
 
       if(durationDistribution.size() > 0) { 
-        System.out.println(signSymptomText + ": " + durationDistribution);
+        String durationDistributionAsString = convertToString(durationDistribution);
+        System.out.println(signSymptomText + "," + durationDistributionAsString);
       }
+    }
+    
+    private static String convertToString(Multiset<String> durationDistribution) {
+      
+      List<String> durationBins = Arrays.asList("second", "minute", "hour", "day", "week", "month", "year");
+      List<Integer> durationValues = new LinkedList<Integer>();
+      
+      for(String durationBin : durationBins) {
+        durationValues.add(durationDistribution.count(durationBin));
+      }
+
+      Joiner joiner = Joiner.on(',');
+      return joiner.join(durationValues);
     }
   }
   
