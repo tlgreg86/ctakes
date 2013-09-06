@@ -211,7 +211,6 @@ public class SubjectAttributeClassifier {
 		return vfeat;
 	}
 	
-	
 	public static String classifyWithLogic(HashMap<String, Boolean> vfeat) {
 		
 		if (vfeat==null) {

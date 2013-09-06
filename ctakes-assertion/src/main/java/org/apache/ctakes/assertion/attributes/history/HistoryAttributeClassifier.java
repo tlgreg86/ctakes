@@ -21,6 +21,8 @@ package org.apache.ctakes.assertion.attributes.history;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -29,6 +31,7 @@ import java.util.regex.Pattern;
 import org.apache.uima.UIMAException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.jcas.tcas.DocumentAnnotation;
 import org.uimafit.util.JCasUtil;
 import org.xml.sax.SAXException;
 
@@ -53,7 +56,8 @@ public class HistoryAttributeClassifier {
 	private static final String POSTCOORD_NMOD = "donor_srlarg";
 	private static final String DISCUSSION_DEPPATH = "discussion_deppath";
 	private static final String SUBSUMED_CHUNK = "other_token"; 
-	private static final String SUBSUMED_ANNOT = "other_deppath"; 
+	private static final String SUBSUMED_ANNOT = "other_deppath";
+	private static final String IN_HIST_SECTION = "in_history_section";
     public static ArrayList<String> FeatureIndex = new ArrayList<String>();
     static{
             FeatureIndex.add(POSTCOORD_NMOD);
@@ -61,6 +65,19 @@ public class HistoryAttributeClassifier {
             FeatureIndex.add(SUBSUMED_CHUNK);
             FeatureIndex.add(SUBSUMED_ANNOT);
     }
+    
+    private static final String[] GHC_HIST_SECTIONS = 
+    	{
+    	"fh",
+    	"sh",
+    	//"hpi",  // based on 8/30 review of errors, this is a pretty lousy indicator of history 
+    	"pmh", // missed a bunch of these in 8/20 run reviewed on 8/30. am i forgetting lowercase?
+    	"psh",
+    	"social history:",
+    	"family history",
+    	"past medical history",
+    	"pmh/psh" // missed a bunch of these in 8/20 run reviewed on 8/30. am i forgetting lowercase?
+    	};
 
 	// currently goes from entityMention to Sentence to SemanticArgument
 	public static Boolean getHIstory(JCas jCas, IdentifiedAnnotation mention) {
@@ -96,6 +113,49 @@ public class HistoryAttributeClassifier {
 		}
 		return false;
 	}
+	
+	/*
+	 * SRH adding 8/19/13
+	 * Idea is that I want to know if I am in a "sentence" that starts with
+	 * a GH history section name.
+	 * There's some work to be done here.
+	 * Let's define paragraphs as what's delimited by \n in GH docs
+	 * Then we can define these sections as I've seen them by what's in a
+	 * paragraph.
+	 * But a paragraph may have more than one sentence in it.
+	 * So I have to actually not find the first part of the sentence that 
+	 * contains the thing, but the paragraph.
+	 * So actually I have to start from the sentence and search backwards
+	 * for a newline.
+	 * So what's written below works (untested/unerified) in the case that I have
+	 * the starting sentence of a paragraph.
+	 * But I still have to find that first sentence.
+	 */
+	private static boolean isInHistSection(Sentence s) {
+		String sText = s.getCoveredText();
+		
+		for (String secStart : GHC_HIST_SECTIONS)
+		{
+			int slen = secStart.length();
+			
+			if (sText.length() >= slen)
+			{
+				String sentStart = sText.trim().substring(0, slen).toLowerCase();
+				if (sentStart.equals(secStart))
+				{
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	public static class SentComparator implements Comparator<Sentence> {
+		public int compare(Sentence s1, Sentence s2) {
+			return s1.getBegin() - s2.getBegin();
+		}
+	}
 
 
 	public static HashMap<String, Boolean> extract(JCas jCas,
@@ -114,11 +174,89 @@ public class HistoryAttributeClassifier {
 				break;
 			}
 		}
-//		if (sEntity==null)
-//			return null;
+		
+		DocumentAnnotation docAnnot = null;
+		
+		Collection<DocumentAnnotation> docAnnots = 
+				JCasUtil.select(jCas, DocumentAnnotation.class);
+		
+		if (!docAnnots.isEmpty())
+		{
+			Object[] docAnnotArray = docAnnots.toArray();
+			docAnnot = (DocumentAnnotation) docAnnotArray[0];
+		}
 		
 		if (sEntity!=null) {
 			
+			// but I actually need to find out if this sentence is preceded by
+			// a newline or if I have to find the preceding one that does.
+			if (docAnnot != null)
+			{
+				String doctext = docAnnot.getCoveredText();
+				int sentStart = sEntity.getBegin();
+				
+				if (sentStart > 0)
+				{
+					boolean argInHistSection = false;
+					
+					// TOFIX:
+					// What I have to do here is not get the preceding char
+					// but rather get the chars in between prior sent and this
+					// and then check for newline therein.
+					String precedingChar =
+							doctext.substring(sentStart-1, sentStart);
+
+					// sort the sentences
+					// TODO: make it so you don't sort every time for same sentence.
+					ArrayList<Sentence> sentList = new ArrayList<Sentence>(sentences);
+					Collections.sort(sentList, new SentComparator());
+					
+					// get index of sEntity
+					int currind = sentList.indexOf(sEntity);
+					
+					if (currind == 0) {
+						argInHistSection = isInHistSection(sEntity);						
+					} else {
+						currind--;
+						Sentence prevSent = sentList.get(currind);
+						String tweenSents = doctext.substring(prevSent.getEnd(), sentStart);
+						if (tweenSents.indexOf("\n") != -1) {
+							// there is a newline between this sentence and prior sentence
+							argInHistSection = isInHistSection(sEntity);
+						} else if (currind == 0) {
+							argInHistSection = isInHistSection(prevSent);
+						} else {
+							while (currind > 0) {
+								Sentence currSent = prevSent;
+								currind--;
+								prevSent = sentList.get(currind);
+
+								sentStart = currSent.getBegin();
+								int prevSentEnd = prevSent.getEnd();
+								
+								try {
+									tweenSents = doctext.substring(prevSentEnd, sentStart);
+								} catch (StringIndexOutOfBoundsException e) {
+									System.err.println("wtf");
+								}
+
+								if (tweenSents.indexOf("\n") != -1 || currind == 0) {
+									argInHistSection = isInHistSection(currSent);
+									break;
+								} else if (currind == 0) {
+									argInHistSection = isInHistSection(prevSent);
+									break;										
+								}
+							}
+						}
+					}
+
+					// and here do something with argInHistSection.
+					// ie, create the feature
+					vfeat.put(IN_HIST_SECTION, argInHistSection);
+				}
+				
+			}
 
 			// 2) some other identified annotation subsumes this one?
 			List<IdentifiedAnnotation> lsmentions = JCasUtil.selectCovering(jCas, IdentifiedAnnotation.class, arg.getBegin(), arg.getEnd());
@@ -157,15 +295,14 @@ public class HistoryAttributeClassifier {
 			for (Chunk chunk : lschunks) {
 				if ( chunk.getBegin()>arg.getBegin()) {
 					break;
-				} else {
-					if ( chunk.getEnd()<arg.getEnd()) {
-						continue;
-					} else if ( !DependencyUtility.equalCoverage(
-							DependencyUtility.getNominalHeadNode(jCas, chunk), 
-							DependencyUtility.getNominalHeadNode(jCas, arg)) ) {
-						// the case that annot is a superset
-						vfeat.put(SUBSUMED_CHUNK, true);
-					}
+				}
+				if ( chunk.getEnd()<arg.getEnd()) {
+					continue;
+				} else if ( !DependencyUtility.equalCoverage(
+						DependencyUtility.getNominalHeadNode(jCas, chunk), 
+						DependencyUtility.getNominalHeadNode(jCas, arg)) ) {
+					// the case that annot is a superset
+					vfeat.put(SUBSUMED_CHUNK, true);
 				}
 			}
 		}

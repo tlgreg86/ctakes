@@ -63,9 +63,12 @@ public class HistoryFeaturesExtractor implements SimpleFeatureExtractor {
 
 	    // Pull in all the features that were used for the rule-based module
 	    features.addAll( hashToFeatureList(featsMap) );
+	    
 	    // Pull in the result of the rule-based module as well
 	    features.add(new Feature("HISTORY_CLASSIFIER_LOGIC", HistoryAttributeClassifier.classifyWithLogic(featsMap)));
-
+	    
+	    // Add whether it is token preceded by "h/o"
+	    //features.add(new Feature("PRECEDED_BY_H_SLASH_O", HistoryAttributeClassifier.precededByH_O(jCas, arg)));
 	    
 	    return features;
 	}
