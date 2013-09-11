@@ -27,7 +27,7 @@
 <import location="SimpleSegmentAnnotator.xml"/>
 </delegateAnalysisEngine>
 <delegateAnalysisEngine key="SentenceDetectorAnnotator">
-<import location="SentenceDetectorAnnotator.xml"/>
+<import location="../../ctakes-core/desc/analysis_engine/SentenceDetectorAnnotator.xml"/>
 </delegateAnalysisEngine>
 <delegateAnalysisEngine key="TokenizerAnnotator">
 <import location="../../ctakes-core/desc/analysis_engine/TokenizerAnnotator.xml"/>  
