@@ -90,23 +90,11 @@ public class SignSymptomDurations {
       for(SignSymptomMention signSymptomMention : JCasUtil.select(jCas, SignSymptomMention.class)) {
 
         if(signSymptomMention.getCoveredText().equals(signSymptomText)) {
-          // distances to time expressions from this sign/symptom
-          Map<TimeMention, Integer> distances = new HashMap<TimeMention, Integer>();
+          TimeMention nearestTimeMention = getNearestTimeMention(jCas, signSymptomMention);
 
-          for(TimeMention timeMention : JCasUtil.selectFollowing(jCas, TimeMention.class, signSymptomMention, 1)) {
-            int distance = JCasUtil.selectBetween(jCas, BaseToken.class, signSymptomMention, timeMention).size();
-            distances.put(timeMention, distance);
-          }
+          if(nearestTimeMention != null) {
+            Matcher matcher = pattern.matcher(nearestTimeMention.getCoveredText());
 
-          // find closest time to this sign/symptom
-          List<TimeMention> sortedTimeMentions = new ArrayList<TimeMention>(distances.keySet());
-          Function<TimeMention, Integer> getValue = Functions.forMap(distances);
-          Collections.sort(sortedTimeMentions, Ordering.natural().onResultOf(getValue));
-
-          if(sortedTimeMentions.size() > 0 && distances.get(sortedTimeMentions.get(0)) <= maxDistance) {
-
-            String timex = sortedTimeMentions.get(0).getCoveredText();
-            Matcher matcher = pattern.matcher(timex);
             while(matcher.find()) {
               durationDistribution.add(matcher.group());
             }
@@ -115,9 +103,42 @@ public class SignSymptomDurations {
       }
 
       if(durationDistribution.size() > 0) { 
-        String durationDistributionAsString = convertToString(durationDistribution);
-        System.out.println(signSymptomText + "," + durationDistributionAsString);
+        System.out.println(signSymptomText + "," + convertToString(durationDistribution));
+        // System.out.println(signSymptomText + ": " + durationDistribution);
       }
+    }
+    
+    /**
+     * Find nearest time mention. Return null if none found.
+     */
+    private static TimeMention getNearestTimeMention(JCas jCas, SignSymptomMention signSymptomMention) {
+      
+      // max distance between a time and an evenet
+      final int MAXDISTANCE = 2;
+      
+      // distances to time expressions from this sign/symptom
+      Map<TimeMention, Integer> distances = new HashMap<TimeMention, Integer>();
+
+      for(TimeMention timeMention : JCasUtil.selectFollowing(jCas, TimeMention.class, signSymptomMention, 1)) {
+        int distance = JCasUtil.selectBetween(jCas, BaseToken.class, signSymptomMention, timeMention).size();
+        distances.put(timeMention, distance);
+      }
+
+      if(distances.size() < 1) {
+        return null;
+      }
+      
+      // sort time mentions by distance to sign/symptom
+      List<TimeMention> sortedTimeMentions = new ArrayList<TimeMention>(distances.keySet());
+      Function<TimeMention, Integer> getValue = Functions.forMap(distances);
+      Collections.sort(sortedTimeMentions, Ordering.natural().onResultOf(getValue));
+
+      // if the closest one too far away, return null
+      if(distances.get(sortedTimeMentions.get(0)) > MAXDISTANCE) {
+        return null;
+      }
+      
+      return sortedTimeMentions.get(0);
     }
     
     private static String convertToString(Multiset<String> durationDistribution) {
