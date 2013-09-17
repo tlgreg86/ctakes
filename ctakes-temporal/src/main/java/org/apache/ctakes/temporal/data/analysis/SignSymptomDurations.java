@@ -21,6 +21,7 @@ import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.util.Options_ImplBase;
 import org.kohsuke.args4j.Option;
 import org.uimafit.component.JCasAnnotator_ImplBase;
@@ -122,8 +123,8 @@ public class SignSymptomDurations {
       }
 
       if(durationDistribution.size() > 0) { 
-        // System.out.println(signSymptomText + "," + convertToString(durationDistribution));
-        System.out.println(signSymptomText + ": " + durationDistribution);
+        System.out.println(signSymptomText + "," + convertToString(durationDistribution));
+        // System.out.println(signSymptomText + ": " + durationDistribution);
       }
     }
     
@@ -158,6 +159,15 @@ public class SignSymptomDurations {
       }
       
       return sortedTimeMentions.get(0);
+    }
+    
+    private static String getAnnotationContext(Annotation annotation, int maxContextWindowSize) {
+      
+      String text = annotation.getCAS().getDocumentText();
+      int begin = Math.max(0, annotation.getBegin() - maxContextWindowSize);
+      int end = Math.min(text.length(), annotation.getEnd() + maxContextWindowSize);
+      
+      return text.substring(begin, end).replaceAll("[\r\n]", " ");
     }
     
     private static String convertToString(Multiset<String> durationDistribution) {
