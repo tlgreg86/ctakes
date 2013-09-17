@@ -33,6 +33,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Ordering;
 
@@ -40,11 +41,27 @@ import com.google.common.collect.Ordering;
  * Extract durations of signs/symptoms.
  * 
  * TODO: check drinking.txt; fewer day durations are captured than exist in data.
- * TODO: need to take care of abbreviations (e.g. wk, yr, etc.)
  * 
  * @author dmitriy dligach
  */
 public class SignSymptomDurations {
+
+  // regular expression to match temporal durations
+  public final static String REGEX = "(sec|min|hour|hr|day|week|wk|mo|year|yr)";
+  
+  // mapping between temporal durations and their normal forms
+  public final static Map<String, String> MAPPING = ImmutableMap.<String, String>builder()
+      .put("sec", "second")
+      .put("min", "minute")
+      .put("hour", "hour")
+      .put("hr", "hour")
+      .put("day", "day")
+      .put("week", "week")
+      .put("wk", "week")
+      .put("mo", "month")
+      .put("year", "year")
+      .put("yr", "year")
+      .build(); 
 
   public static class Options extends Options_ImplBase {
 
@@ -72,10 +89,10 @@ public class SignSymptomDurations {
   public static class DurationPrinter extends JCasAnnotator_ImplBase {
 
     // max distance between a time and an evenet
-    final int maxDistance = 2;
+    final int MAXDISTANCE = 2;
 
     // regex to match different time granularities
-    Pattern pattern = Pattern.compile("(second|minute|hour|day|week|month|year)", Pattern.CASE_INSENSITIVE);
+    Pattern pattern = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
     
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -96,15 +113,17 @@ public class SignSymptomDurations {
             Matcher matcher = pattern.matcher(nearestTimeMention.getCoveredText());
 
             while(matcher.find()) {
-              durationDistribution.add(matcher.group());
+              String matchedDuration = matcher.group(); // e.g. "wks"
+              String normalizedDuration = MAPPING.get(matchedDuration);
+              durationDistribution.add(normalizedDuration);
             }
           }
         }
       }
 
       if(durationDistribution.size() > 0) { 
-        System.out.println(signSymptomText + "," + convertToString(durationDistribution));
-        // System.out.println(signSymptomText + ": " + durationDistribution);
+        // System.out.println(signSymptomText + "," + convertToString(durationDistribution));
+        System.out.println(signSymptomText + ": " + durationDistribution);
       }
     }
     
