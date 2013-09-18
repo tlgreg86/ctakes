@@ -41,28 +41,9 @@ import com.google.common.collect.Ordering;
 /**
  * Extract durations of signs/symptoms.
  * 
- * TODO: check drinking.txt; fewer day durations are captured than exist in data.
- * 
  * @author dmitriy dligach
  */
 public class SignSymptomDurations {
-
-  // regular expression to match temporal durations
-  public final static String REGEX = "(sec|min|hour|hr|day|week|wk|mo|year|yr)";
-  
-  // mapping between temporal durations and their normal forms
-  public final static Map<String, String> MAPPING = ImmutableMap.<String, String>builder()
-      .put("sec", "second")
-      .put("min", "minute")
-      .put("hour", "hour")
-      .put("hr", "hour")
-      .put("day", "day")
-      .put("week", "week")
-      .put("wk", "week")
-      .put("mo", "month")
-      .put("year", "year")
-      .put("yr", "year")
-      .build(); 
 
   public static class Options extends Options_ImplBase {
 
@@ -81,18 +62,35 @@ public class SignSymptomDurations {
 		List<File> trainFiles = Arrays.asList(options.inputDirectory.listFiles());
     CollectionReader collectionReader = getCollectionReader(trainFiles);
 		
-    AnalysisEngine durationPrinter = AnalysisEngineFactory.createPrimitive(
-    		DurationPrinter.class);
+    AnalysisEngine temporalDurationExtractor = AnalysisEngineFactory.createPrimitive(
+    		TemporalDurationExtractor.class);
     		
-		SimplePipeline.runPipeline(collectionReader, durationPrinter);
+		SimplePipeline.runPipeline(collectionReader, temporalDurationExtractor);
 	}
   
-  public static class DurationPrinter extends JCasAnnotator_ImplBase {
+  public static class TemporalDurationExtractor extends JCasAnnotator_ImplBase {
+    
+    // regular expression to match temporal durations in time mention annotations
+    private final static String REGEX = "(sec|min|hour|hrs|day|week|wk|month|year|yr)";
+    
+    // mapping between temporal durations and their normalized forms
+    private final static Map<String, String> MAPPING = ImmutableMap.<String, String>builder()
+        .put("sec", "second")
+        .put("min", "minute")
+        .put("hour", "hour")
+        .put("hrs", "hour")
+        .put("day", "day")
+        .put("week", "week")
+        .put("wk", "week")
+        .put("month", "month")
+        .put("year", "year")
+        .put("yr", "year")
+        .build(); 
+    
+    // max distance between an event and the time mention that defines the event's duration
+    private final static int MAXDISTANCE = 2;
 
-    // max distance between a time and an evenet
-    final int MAXDISTANCE = 2;
-
-    // regex to match different time granularities
+    // regex to match different time granularities (e.g. 'day', 'month')
     Pattern pattern = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
     
     @Override
@@ -104,15 +102,15 @@ public class SignSymptomDurations {
 
       // counts of different time granularities for this sign/symptom
       Multiset<String> durationDistribution = HashMultiset.create();
-      
+
       for(SignSymptomMention signSymptomMention : JCasUtil.select(jCas, SignSymptomMention.class)) {
-
         if(signSymptomMention.getCoveredText().equals(signSymptomText)) {
+      
           TimeMention nearestTimeMention = getNearestTimeMention(jCas, signSymptomMention);
-
           if(nearestTimeMention != null) {
             Matcher matcher = pattern.matcher(nearestTimeMention.getCoveredText());
 
+            // need the loop to handle things like 'several days/weeks'
             while(matcher.find()) {
               String matchedDuration = matcher.group(); // e.g. "wks"
               String normalizedDuration = MAPPING.get(matchedDuration);
@@ -123,7 +121,7 @@ public class SignSymptomDurations {
       }
 
       if(durationDistribution.size() > 0) { 
-        System.out.println(signSymptomText + "," + convertToString(durationDistribution));
+        // System.out.println(signSymptomText + "," + convertToString(durationDistribution));
         // System.out.println(signSymptomText + ": " + durationDistribution);
       }
     }
@@ -132,9 +130,6 @@ public class SignSymptomDurations {
      * Find nearest time mention. Return null if none found.
      */
     private static TimeMention getNearestTimeMention(JCas jCas, SignSymptomMention signSymptomMention) {
-      
-      // max distance between a time and an evenet
-      final int MAXDISTANCE = 2;
       
       // distances to time expressions from this sign/symptom
       Map<TimeMention, Integer> distances = new HashMap<TimeMention, Integer>();
