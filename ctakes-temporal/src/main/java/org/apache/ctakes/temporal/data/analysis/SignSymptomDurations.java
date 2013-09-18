@@ -105,7 +105,10 @@ public class SignSymptomDurations {
 
       for(SignSymptomMention signSymptomMention : JCasUtil.select(jCas, SignSymptomMention.class)) {
         if(signSymptomMention.getCoveredText().equals(signSymptomText)) {
-      
+          if(isNegated(jCas, signSymptomMention) || isMedicationPattern(jCas, signSymptomMention)) {
+            continue;
+          }
+          
           TimeMention nearestTimeMention = getNearestTimeMention(jCas, signSymptomMention);
           if(nearestTimeMention != null) {
             Matcher matcher = pattern.matcher(nearestTimeMention.getCoveredText());
@@ -122,8 +125,38 @@ public class SignSymptomDurations {
 
       if(durationDistribution.size() > 0) { 
         // System.out.println(signSymptomText + "," + convertToString(durationDistribution));
-        // System.out.println(signSymptomText + ": " + durationDistribution);
+        System.out.println(signSymptomText + ": " + durationDistribution);
       }
+    }
+    
+    /**
+     * Return true if sign/symptom is negated.
+     * TODO: using rules for now; switch to using a negation module
+     */
+    private static boolean isNegated(JCas jCas, SignSymptomMention signSymptomMention) {
+      
+      for(BaseToken token : JCasUtil.selectPreceding(jCas, BaseToken.class, signSymptomMention, 3)) {
+        if(token.getCoveredText().equals("no")) {
+          return true;
+        }
+      }
+      
+      return false;
+    }
+
+    /**
+     * Return true of this is a medication pattern. 
+     * E.g. five (5) ml po qid  (4 times a day) as needed for heartburn for 2 weeks.
+     */
+    private static boolean isMedicationPattern(JCas jCas, SignSymptomMention signSymptomMention) {
+      
+      for(BaseToken token : JCasUtil.selectPreceding(jCas, BaseToken.class, signSymptomMention, 1)) {
+        if(token.getCoveredText().equals("for")) {
+          return true;
+        }
+      }
+           
+      return false;
     }
     
     /**
