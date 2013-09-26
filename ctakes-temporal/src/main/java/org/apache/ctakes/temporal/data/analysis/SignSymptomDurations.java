@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,13 +28,10 @@ import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
-import com.google.common.collect.Ordering;
 
 /**
  * Extract durations of signs/symptoms.
@@ -87,6 +82,16 @@ public class SignSymptomDurations {
         .put("yr", "year")
         .build(); 
     
+    // unique temporal bins; all time mentions will be classified into one of them
+    private final static List<String> BINS = Arrays.asList(
+        "second",
+        "minute",
+        "hour",
+        "day",
+        "week",
+        "month",
+        "year");
+    
     // max distance between an event and the time mention that defines the event's duration
     private final static int MAXDISTANCE = 2;
 
@@ -124,8 +129,7 @@ public class SignSymptomDurations {
       }
 
       if(durationDistribution.size() > 0) { 
-        // System.out.println(signSymptomText + "," + convertToString(durationDistribution));
-        System.out.println(signSymptomText + ": " + durationDistribution);
+        System.out.println(formatDistribution(signSymptomText, durationDistribution, ", ", true));
       }
     }
     
@@ -181,6 +185,7 @@ public class SignSymptomDurations {
       return nearestTimeMention;
     }
     
+    @SuppressWarnings("unused")
     private static String getAnnotationContext(Annotation annotation, int maxContextWindowSize) {
       
       String text = annotation.getCAS().getDocumentText();
@@ -190,7 +195,8 @@ public class SignSymptomDurations {
       return text.substring(begin, end).replaceAll("[\r\n]", " ");
     }
     
-    private static String convertToString(Multiset<String> durationDistribution) {
+    @SuppressWarnings("unused")
+    private static String formatDistribution(Multiset<String> durationDistribution) {
       
       List<String> durationBins = Arrays.asList("second", "minute", "hour", "day", "week", "month", "year");
       List<Integer> durationValues = new LinkedList<Integer>();
@@ -201,6 +207,40 @@ public class SignSymptomDurations {
 
       Joiner joiner = Joiner.on(',');
       return joiner.join(durationValues);
+    }
+    
+    /**
+     * Convert duration distribution multiset to a format that's easy to parse automatically.
+     * Format: <sign/symptom>,<time bin>:<count>, ...
+     * Example: apnea, second:5, minute:1, hour:5, day:10, week:1, month:0, year:0
+     */
+    private static String formatDistribution(
+        String signSymptomText, 
+        Multiset<String> durationDistribution, 
+        String separator,
+        boolean normalize) {
+      
+      List<String> distribution = new LinkedList<String>();
+      distribution.add(signSymptomText);
+
+      double total = 0;
+      if(normalize) {
+        for(String bin : BINS) {
+          total += durationDistribution.count(bin);
+        }
+      }
+      
+      for(String bin : BINS) {
+        if(normalize) {
+          distribution.add(String.format("%s:%.3f", bin, durationDistribution.count(bin) / total));  
+        } else {
+          distribution.add(String.format("%s:%d", bin, durationDistribution.count(bin)));
+        }
+        
+      }
+      
+      Joiner joiner = Joiner.on(separator);
+      return joiner.join(distribution);
     }
   }
   
