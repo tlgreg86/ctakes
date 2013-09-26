@@ -160,33 +160,25 @@ public class SignSymptomDurations {
     }
     
     /**
-     * Find nearest time mention. Return null if none found.
+     * Find nearest time mention that is within allowable distance. 
+     * Return null if none found.
      */
     private static TimeMention getNearestTimeMention(JCas jCas, SignSymptomMention signSymptomMention) {
-      
-      // distances to time expressions from this sign/symptom
-      Map<TimeMention, Integer> distances = new HashMap<TimeMention, Integer>();
 
-      for(TimeMention timeMention : JCasUtil.selectFollowing(jCas, TimeMention.class, signSymptomMention, 1)) {
-        int distance = JCasUtil.selectBetween(jCas, BaseToken.class, signSymptomMention, timeMention).size();
-        distances.put(timeMention, distance);
-      }
-
-      if(distances.size() < 1) {
+      List<TimeMention> timeMentions = JCasUtil.selectFollowing(jCas, TimeMention.class, signSymptomMention, 1);
+      if(timeMentions.size() < 1) {
         return null;
       }
       
-      // sort time mentions by distance to sign/symptom
-      List<TimeMention> sortedTimeMentions = new ArrayList<TimeMention>(distances.keySet());
-      Function<TimeMention, Integer> getValue = Functions.forMap(distances);
-      Collections.sort(sortedTimeMentions, Ordering.natural().onResultOf(getValue));
-
-      // if the closest one too far away, return null
-      if(distances.get(sortedTimeMentions.get(0)) > MAXDISTANCE) {
+      assert timeMentions.size() == 1;
+      
+      TimeMention nearestTimeMention = timeMentions.get(0);
+      int distance = JCasUtil.selectBetween(jCas, BaseToken.class, signSymptomMention, nearestTimeMention).size();
+      if(distance > MAXDISTANCE) {
         return null;
       }
       
-      return sortedTimeMentions.get(0);
+      return nearestTimeMention;
     }
     
     private static String getAnnotationContext(Annotation annotation, int maxContextWindowSize) {
