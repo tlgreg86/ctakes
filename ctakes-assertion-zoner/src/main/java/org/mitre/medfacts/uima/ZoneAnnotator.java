@@ -77,8 +77,11 @@ public class ZoneAnnotator extends JCasAnnotator_ImplBase {
 	public void process(JCas jcas) throws AnalysisEngineProcessException {
 //	  ZonerCliSimplified zonerCli =
 //	      new ZonerCliSimplified(sectionRegexFileUri);
+	  
+	  System.out.println("sectionRegexFileUriString: " + sectionRegexFileUriString);
     URL sectionRegexFileInClasspathUrl = 
         getClass().getClassLoader().getResource(sectionRegexFileUriString);
+    System.out.println("sectionRegexFileInClasspathUrl: " + sectionRegexFileInClasspathUrl);
     URI sectionRegexFileInClasspathUri;
     try
     {

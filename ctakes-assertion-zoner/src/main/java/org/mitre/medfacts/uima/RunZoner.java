@@ -12,6 +12,8 @@ import org.apache.log4j.Logger;
 
 import org.apache.ctakes.core.util.CtakesFileNamer;
 import org.apache.ctakes.core.ae.DocumentIdPrinterAnalysisEngine;
+import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
+import org.apache.ctakes.core.cr.TextReader;
 import org.apache.ctakes.core.cr.XMIReader;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -49,7 +51,7 @@ public class RunZoner
     File inputDirectory = new File(args[0]);
     File outputDirectory = new File(args[1]);
     
-    List<File> inputFiles = listContents(inputDirectory);
+    List<File> inputFiles = listContentsAll(inputDirectory);
     
     RunZoner runner = new RunZoner();
     runner.setInputDirectory(inputDirectory);
@@ -59,7 +61,15 @@ public class RunZoner
     runner.execute();
   }
   
-  public static List<File> listContents(File inputDirectory)
+  public static List<File> listContentsAll(File inputDirectory)
+  {
+    File fileArray[] = inputDirectory.listFiles();
+    
+    List<File> fileList = Arrays.asList(fileArray);
+    return fileList;
+  }
+
+  public static List<File> listContentsXmiOnly(File inputDirectory)
   {
     File fileArray[] = inputDirectory.listFiles(new FilenameFilter()
     {
@@ -81,19 +91,27 @@ public class RunZoner
     
     TypeSystemDescription typeSystemDescription = TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath();
     
+//    CollectionReader reader = 
+//        CollectionReaderFactory.createCollectionReader(
+//          XMIReader.class,
+//          typeSystemDescription,
+//          XMIReader.PARAM_FILES,
+//          inputFiles);
+
     CollectionReader reader = 
-        CollectionReaderFactory.createCollectionReader(
-          XMIReader.class,
-          typeSystemDescription,
-          XMIReader.PARAM_FILES,
-          inputFiles);
+    CollectionReaderFactory.createCollectionReader(
+      TextReader.class,
+      typeSystemDescription,
+      TextReader.PARAM_FILES,
+      inputFiles);
+
     
       AnalysisEngineDescription documentIdPrinter =
           AnalysisEngineFactory.createPrimitiveDescription(DocumentIdPrinterAnalysisEngine.class);
       builder.add(documentIdPrinter);
     
       String generalSectionRegexFileUri =
-        "org/mitre/medfacts/zoner/section_regex.xml";
+        "org/mitre/medfacts/uima/section_regex.xml";
       //URI generalSectionRegexFileUri =
       //  this.getClass().getClassLoader().getResource("org/mitre/medfacts/zoner/section_regex.xml").toURI();
 //      ExternalResourceDescription generalSectionRegexDescription = ExternalResourceFactory.createExternalResourceDescription(
@@ -106,7 +124,7 @@ public class RunZoner
       builder.add(zonerAnnotator);
 
       String mayoSectionRegexFileUri =
-          "org/mitre/medfacts/zoner/mayo_sections.xml";
+          "org/mitre/medfacts/uima/mayo_sections.xml";
 //      URI mayoSectionRegexFileUri =
 //          this.getClass().getClassLoader().getResource("org/mitre/medfacts/zoner/mayo_sections.xml").toURI();
 //        ExternalResourceDescription mayoSectionRegexDescription = ExternalResourceFactory.createExternalResourceDescription(
