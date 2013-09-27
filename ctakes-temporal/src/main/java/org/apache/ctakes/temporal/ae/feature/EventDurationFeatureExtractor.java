@@ -50,14 +50,19 @@ public class EventDurationFeatureExtractor implements RelationFeaturesExtractor 
       Map<String, Map<String, Float>> textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Callback());
       
       Map<String, Float> distribution1 = textToDistribution.get(arg1.getCoveredText());
-      if(distribution1 != null) {
+      if(distribution1 == null) {
+        features.add(new Feature("arg1_no_duration_info"));
+      } else {
         for(String duration : distribution1.keySet()) {
           features.add(new Feature("arg1_" + duration, distribution1.get(duration)));
         }
+        // System.out.println(arg1.getCoveredText() + ": " + features);
       }
       
       Map<String, Float> distribution2 = textToDistribution.get(arg2.getCoveredText());
-      if(distribution2 != null) {
+      if(distribution2 == null) {
+        features.add(new Feature("arg2_no_duration_info"));
+      } else {
         for(String duration : distribution2.keySet()) {
           features.add(new Feature("arg2_" + duration, distribution2.get(duration)));
         }
