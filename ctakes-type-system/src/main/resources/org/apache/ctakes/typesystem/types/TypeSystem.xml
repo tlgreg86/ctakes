@@ -21,17 +21,17 @@
 			<features>
 				<featureDescription>
 					<name>capitalization</name>
-					<description />
+					<description>Whether all caps, initial capitalized, mixed case, or all lower case. See TokenizerAnnotator.TOKEN_CAP_*</description>
 					<rangeTypeName>uima.cas.Integer</rangeTypeName>
 				</featureDescription>
 				<featureDescription>
 					<name>numPosition</name>
-					<description />
+					<description>The position of a number inside a Token. See Token.NUM_*</description>
 					<rangeTypeName>uima.cas.Integer</rangeTypeName>
 				</featureDescription>
 				<featureDescription>
 					<name>suggestion</name>
-					<description />
+					<description>Currently unused - planned to hold a spelling suggestion.</description>
 					<rangeTypeName>uima.cas.String</rangeTypeName>
 				</featureDescription>
 				<featureDescription>
