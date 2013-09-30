@@ -93,6 +93,12 @@
 		<dependency>
 			<groupId>net.sourceforge.openai</groupId>
 			<artifactId>openaifsm</artifactId>
-		</dependency>		
+		</dependency>
+		<dependency>
+			<groupId>org.apache.uima</groupId>
+			<artifactId>uimaj-examples</artifactId> <!--  for XCasWriterCasConsumer -->
+		</dependency>
+		
+				
 	</dependencies>
 </project>
