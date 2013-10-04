@@ -22,12 +22,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
-import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
@@ -45,7 +43,9 @@ public class EventDurationFeatureExtractor implements RelationFeaturesExtractor 
 
     List<Feature> features = new ArrayList<Feature>();
     
-    File durationLookup = new File("/home/dima/thyme/duration/results/duration/distribution.txt");
+    // TODO: add path to event duration data
+    File durationLookup = new File("");
+    
     try {
       Map<String, Map<String, Float>> textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Callback());
       
@@ -56,7 +56,6 @@ public class EventDurationFeatureExtractor implements RelationFeaturesExtractor 
         for(String duration : distribution1.keySet()) {
           features.add(new Feature("arg1_" + duration, distribution1.get(duration)));
         }
-        // System.out.println(arg1.getCoveredText() + ": " + features);
       }
       
       Map<String, Float> distribution2 = textToDistribution.get(arg2.getCoveredText());
@@ -77,7 +76,11 @@ public class EventDurationFeatureExtractor implements RelationFeaturesExtractor 
   private static class Callback implements LineProcessor <Map<String, Map<String, Float>>> {
 
     // map event text to its duration distribution
-    private Map<String, Map<String, Float>> textToDistribution = new HashMap<String, Map<String, Float>>();
+    private Map<String, Map<String, Float>> textToDistribution;
+    
+    public Callback() {
+      textToDistribution = new HashMap<String, Map<String, Float>>();
+    }
     
     public boolean processLine(String line) throws IOException {
 
