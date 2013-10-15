@@ -110,6 +110,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.util.UriUtils;
 import org.jdom2.JDOMException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.component.xwriter.XWriter;
@@ -171,15 +172,16 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
   
   /**
    * Get the URI for the Knowtator XML file that should be loaded
+   * @throws URISyntaxException 
    */
   protected URI getKnowtatorURI(JCas jCas) throws AnalysisEngineProcessException {
     String textURI = this.getTextURI(jCas).toString();
     String xmlURI = textURI.replaceAll("Knowtator[/\\\\]text", "Knowtator_XML") + ".knowtator.xml";
-    try {
-      return new URI(xmlURI);
-    } catch (URISyntaxException e) {
-      throw new AnalysisEngineProcessException(e);
+    File fileTest = new File(URI.create(xmlURI));
+    if(!fileTest.exists()){
+      xmlURI = xmlURI.replace("_XML", " XML");
     }
+    return UriUtils.create(xmlURI);
   }
 
   /**
