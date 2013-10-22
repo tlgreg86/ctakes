@@ -1742,7 +1742,7 @@
         <featureDescription>
           <name>originalText</name>
           <description>The covered text of the span or the disjoint spans that resulted in the creation of this IdentifiedAnnotation. If the covered text is from disjoint spans, they are separated by a delimeter.</description>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
+          <rangeTypeName>uima.cas.FSArray</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>
