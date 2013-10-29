@@ -19,7 +19,7 @@ public class TemporalAttributeFeatureExtractor implements
 			IdentifiedAnnotation arg2) throws AnalysisEngineProcessException {
 		ArrayList<Feature> feats = new ArrayList<Feature>();
 		EventMention event = null;
-		TimeMention time = null;
+		IdentifiedAnnotation time = null;
 
 		// swap the order if necessary:
 		if(arg2.getBegin() <= arg1.getBegin() && arg2.getEnd() <= arg1.getEnd()){
@@ -30,13 +30,13 @@ public class TemporalAttributeFeatureExtractor implements
 
 		if(arg1 instanceof EventMention){
 			event = (EventMention) arg1;
-			time = (TimeMention) arg2;
+			time = arg2;
 			feats.add(new Feature("Arg1-Event-Modality", event.getEvent().getProperties().getContextualModality()));
-			feats.add(new Feature("Arg2-Time-Class-" + time.getTimeClass()));
+			feats.add(new Feature("Arg2-Time-Class-" + time.getClass()));
 		}else{
-			time = (TimeMention) arg1;
+			time = arg1;
 			event = (EventMention) arg2;
-			feats.add(new Feature("Arg1-Timex-", time.getTimeClass()));
+			feats.add(new Feature("Arg1-Timex-", time.getClass()));
 			feats.add(new Feature("Arg2-Event-", event.getEvent().getProperties().getContextualModality()));
 		}
 		
