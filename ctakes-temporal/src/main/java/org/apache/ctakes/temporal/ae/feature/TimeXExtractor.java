@@ -25,8 +25,13 @@ import java.util.Map;
 import java.util.TreeMap;
 //import java.util.logging.Logger;
 
-import org.apache.ctakes.temporal.ae.feature.treekernel.EventTimeFlatTreeFeatureExtractor;
+//import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPETExtractor;
+//import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalSingleTreeExtractor;
+import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
+import org.apache.ctakes.typesystem.type.textsem.DateAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.apache.ctakes.typesystem.type.textsem.TimeAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -41,18 +46,20 @@ import org.uimafit.util.JCasUtil;
 public class TimeXExtractor implements SimpleFeatureExtractor {
 
   private String name;
-  private EventTimeFlatTreeFeatureExtractor path;
+//  private TemporalPETExtractor path;
   private TemporalAttributeFeatureExtractor attr;
   private TimeWordTypeExtractor timewd;
-
+//  private TemporalSingleTreeExtractor treeExt;
+  
 //  private Logger logger = Logger.getLogger(this.getClass().getName());
 
   public TimeXExtractor() throws ResourceInitializationException {
     super();
     this.name = "TimeXFeature";
-    this.path = new EventTimeFlatTreeFeatureExtractor();
+//    this.path = new TemporalPETExtractor();
     this.attr = new TemporalAttributeFeatureExtractor();
     this.timewd = new TimeWordTypeExtractor();
+//    this.treeExt = new TemporalSingleTreeExtractor();
   }
 
   @Override
@@ -66,26 +73,63 @@ public class TimeXExtractor implements SimpleFeatureExtractor {
 	  Collection<Sentence> sentList = coveringMap.get(targetTokenAnnotation);
 	  
 	  //2 get TimeX
-	  Map<Integer, TimeMention> timeDistMap = null;
+	  Map<Integer, IdentifiedAnnotation> timeDistMap = null;
+	  
+//	  List<Feature> treePath = new ArrayList<Feature>();
+	  
+	  //3 get Document Creation Time
+//	  String sofastr = view.getSofaDataString();
+//	  int start = sofastr.indexOf("meta rev_date=");
+//	  int end = sofastr.indexOf(" start_date=");
+//	  System.out.println(sofastr.substring(start, end));
+//	  Collection<SourceData> sources = JCasUtil.select(view, SourceData.class);
+//	  for(SourceData source : sources){
+//			System.out.println("original date: "+source.getSourceOriginalDate());
+//			System.out.println("revision date: "+source.getSourceRevisionDate());
+//		}
 	  
 	  if (sentList != null && !sentList.isEmpty()){
-		  timeDistMap = new TreeMap<Integer, TimeMention>();
+		  timeDistMap = new TreeMap<Integer, IdentifiedAnnotation>();
 		  
 		  for(Sentence sent : sentList) {
 			  for (TimeMention time : JCasUtil.selectCovered(view, TimeMention.class, sent)) {
 				  timeDistMap.put(Math.abs(time.getBegin() - annotation.getBegin()), time);
 			  }
+			  for (TimeAnnotation time : JCasUtil.selectCovered(view, TimeAnnotation.class, sent)) {
+				  timeDistMap.put(Math.abs(time.getBegin() - annotation.getBegin()), time);
+			  }
+			  for (DateAnnotation time : JCasUtil.selectCovered(view, DateAnnotation.class, sent)) {
+				  timeDistMap.put(Math.abs(time.getBegin() - annotation.getBegin()), time);
+			  }
 		  }
 		  
 		  //get the closest Time Expression feature
-		  for (Map.Entry<Integer, TimeMention> entry : timeDistMap.entrySet()) {
+		  for (Map.Entry<Integer, IdentifiedAnnotation> entry : timeDistMap.entrySet()) {
 			  Feature feature = new Feature(this.name, entry.getValue().getCoveredText());
 			  features.add(feature);
 			  //			  logger.info("add time feature: "+ entry.getValue().getCoveredText() + entry.getValue().getTimeClass());
 			  Feature indicator = new Feature("TimeXNearby", this.name);
 			  features.add(indicator);
+			  Feature type = new Feature("TimeXType", entry.getValue().getClass());
+			  features.add(type);
+
+			  //add PP get Heading preposition
+			  for(TreebankNode treebankNode : JCasUtil.selectCovering(
+					  view, 
+					  TreebankNode.class, 
+					  entry.getValue().getBegin(), 
+					  entry.getValue().getEnd())) {
+
+				  if(treebankNode.getNodeType().equals("PP")) {
+					  Feature PPNodeType = new Feature("Timex_PPNodeType", treebankNode.getNodeType());
+					  features.add(PPNodeType);
+					  break;
+				  }
+			  }
+
+			  //add path tree, timex attributes
 			  try {
-				  features.addAll(this.path.extract(view, targetTokenAnnotation, entry.getValue()));//add path between timex and event
+//				  treePath=this.path.extract(view, targetTokenAnnotation, entry.getValue());//add path between timex and event
 				  features.addAll(this.attr.extract(view, targetTokenAnnotation, entry.getValue()));//add temporal attribute features
 				  features.addAll(this.timewd.extract(view, entry.getValue()));
 			  } catch (AnalysisEngineProcessException e) {
@@ -94,7 +138,17 @@ public class TimeXExtractor implements SimpleFeatureExtractor {
 			  break;
 		  }
 	  }
-	  
+
+//	  if (treePath.isEmpty()){
+//		  try {
+//			  features.addAll(this.treeExt.extract(view, targetTokenAnnotation));
+//		  } catch (AnalysisEngineProcessException e) {
+//			  throw new IllegalArgumentException(String.format("error in gererating path feature:", features));
+//		  }
+//	  }else{
+//		  features.addAll(treePath);
+//	  }
+
 
 	  return features;
   }
