@@ -2211,6 +2211,9 @@ public class DrugMentionAnnotator extends JCasAnnotator_ImplBase
 		{
 			if (noPriorMention) {//Look for lowest value on right side 
 				beginChunk = getAdjustedWindowSpan(jcas,  beginChunk, endSpan, true)[0];
+				if (beginChunk == -1) {
+					beginChunk = drugChangeStatus.getEnd();
+				}
 			}
 			String [] changeStatusArray = new String [] {DrugChangeStatusToken.DECREASE, new Integer (drugChangeStatus.getBegin()).toString(), new Integer(drugChangeStatus.getEnd()).toString()};
 			generateDrugMentionsAndAnnotations(jcas,
