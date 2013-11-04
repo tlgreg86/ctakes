@@ -1143,7 +1143,15 @@ public class TokenizerPTB {
 	}
 
 	private void setNumPosition(WordToken wta, String tokenText) {
-
+		if ( tokenText.isEmpty() ) {
+			// was getting ioobE from tokenText.charAt(..)
+			// Possibilities like this (empty, null) should always be checked
+			// - but I wonder that we get (want) empty tokens at all.
+			// I believe that working with zero-length words is a bug, 
+			// and this is not a fix it merely avoids a crash.
+			wta.setNumPosition( TokenizerAnnotator.TOKEN_NUM_POS_NONE );
+			return;
+		}
 	    if (isDigit(tokenText.charAt(0)))  {
 
 		wta.setNumPosition(TokenizerAnnotator.TOKEN_NUM_POS_FIRST);
