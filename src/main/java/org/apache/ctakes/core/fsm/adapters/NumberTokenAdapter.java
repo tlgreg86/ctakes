@@ -21,6 +21,8 @@ package org.apache.ctakes.core.fsm.adapters;
 import org.apache.ctakes.core.fsm.token.NumberToken;
 import org.apache.ctakes.typesystem.type.syntax.NumToken;
 
+import com.google.common.base.Strings;
+
 /**
  * Adapts JCas token annotation to interface expected by the Context Dependent
  * Tokenizer.
@@ -36,7 +38,7 @@ public class NumberTokenAdapter extends BaseTokenAdapter implements NumberToken
 	{
 		super(nta);
 		
-		if (nta.getCoveredText().length() > 0 && nta.getCoveredText().charAt(0) == '-')
+		if (!Strings.isNullOrEmpty(nta.getCoveredText()) && nta.getCoveredText().length() > 0 && nta.getCoveredText().charAt(0) == '-')
 		{
 			iv_isPositive = false;
 		}		
