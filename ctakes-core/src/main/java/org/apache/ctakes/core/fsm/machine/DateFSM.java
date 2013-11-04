@@ -220,16 +220,16 @@ public class DateFSM {
 		startState.addTransition(new AnyCondition(), startState);
 
 		monthFullTextState.addTransition(dayNumCondition, dayNumState);
-		monthFullTextState.addTransition(yearNotDayNumCondition, ntEndState);
+		monthFullTextState.addTransition(yearNotDayNumCondition, endState);
 		monthFullTextState.addTransition(new AnyCondition(), startState);
 
 		monthShortTextState.addTransition(dayNumCondition, dayNumState);
 		monthShortTextState.addTransition(periodCondition, periodState);
-		monthShortTextState.addTransition(yearNotDayNumCondition, ntEndState);
+		monthShortTextState.addTransition(yearNotDayNumCondition, endState);
 		monthShortTextState.addTransition(new AnyCondition(), startState);
 
 		periodState.addTransition(dayNumCondition, dayNumState);
-		periodState.addTransition(yearNotDayNumCondition, ntEndState);
+		periodState.addTransition(yearNotDayNumCondition, endState);
 		periodState.addTransition(new AnyCondition(), startState);
 
 		dayNumState.addTransition(yearNumCondition, endState);

@@ -57,6 +57,7 @@ import org.apache.ctakes.core.fsm.output.RangeToken;
 import org.apache.ctakes.core.fsm.output.RomanNumeralToken;
 import org.apache.ctakes.core.fsm.output.TimeToken;
 import org.apache.ctakes.core.fsm.token.BaseToken;
+import org.apache.ctakes.core.fsm.token.EolToken;
 import org.apache.ctakes.typesystem.type.syntax.ContractionToken;
 import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.syntax.NumToken;
@@ -123,7 +124,10 @@ public class ContextDependentTokenizerAnnotator extends JCasAnnotator_ImplBase {
 				while (btaItr.hasNext()) {
 					org.apache.ctakes.typesystem.type.syntax.BaseToken bta = (org.apache.ctakes.typesystem.type.syntax.BaseToken) btaItr
 							.next();
-					baseTokenList.add(adaptToBaseToken(bta));
+					// ignore newlines, avoid null tokens
+					BaseToken bt = adaptToBaseToken(bta);
+					if(bt != null && !(bt instanceof EolToken))
+						baseTokenList.add(bt);
 				}
 
 				// execute FSM logic
