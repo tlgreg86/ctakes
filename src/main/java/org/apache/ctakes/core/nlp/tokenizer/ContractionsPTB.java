@@ -30,9 +30,6 @@ import java.util.HashMap;
  * @author Mayo Clinic
  */
 public class ContractionsPTB {
-
-
-    static ContractionResult contractionResult = new ContractionResult();
     
     static String[] MultiTokenWords = { "cannot", "gonna", "gotta", "lemme", "wanna", "whaddya", "whatcha", };
     static int[] MultiTokenWordLenToken1 = { 3, 3, 3, 3, 3, 3, 3 };
@@ -224,10 +221,12 @@ public class ContractionsPTB {
 	    
 	    // if exact match with rest (end of sentence)
 	    if (s.equals("n't") && prev=='n' && lowerCasedText.charAt(apostrophePosition+1)=='t' && lowerCasedText.length()==apostrophePosition+1+1) {
-		contractionResult.setContractionTokenLen(3); // n't
+	    ContractionResult contractionResult = new ContractionResult();
+	    contractionResult.setContractionTokenLen(3); // n't
 		contractionResult.setWordTokenLen(apostrophePosition-1 - position);
 		return contractionResult;
 	    } else if (restStartingWithApostrophe.equals(s)) {
+	    ContractionResult contractionResult = new ContractionResult();	    	
 		contractionResult.setContractionTokenLen(s.length());
 		contractionResult.setWordTokenLen(apostrophePosition - position);
 		return contractionResult;
@@ -250,11 +249,12 @@ public class ContractionsPTB {
 	    }
 	    if (restStartingWithApostrophe.startsWith(s) && Character.isLetter(prev) && !Character.isLetter(after)) {
 		// there was at least one letter before the apostrophe and after the apostrophe, and non letter after the contraction
+	    ContractionResult contractionResult = new ContractionResult();	    	
 		contractionResult.setContractionTokenLen(s.length());
 		contractionResult.setWordTokenLen(apostrophePosition - position);
 		return contractionResult;
 	    } else if (s.equals("n't") && prev=='n' && restStartingWithApostrophe.startsWith("'t") && !Character.isLetter(after)) {
-		
+	    ContractionResult contractionResult = new ContractionResult();		
 		contractionResult.setContractionTokenLen(3); // n't
 		contractionResult.setWordTokenLen(apostrophePosition-1 - position);
 		return contractionResult;
