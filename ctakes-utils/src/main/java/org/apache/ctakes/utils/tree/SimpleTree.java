@@ -154,7 +154,7 @@ public class SimpleTree {
 		return children == null || children.size() == 0;
 	}
 
-	public void setGernalizeLeaf(boolean b) {
+	public void setGeneralizeLeaf(boolean b) {
 		generalizeLeaf=b;
 		
 	}
