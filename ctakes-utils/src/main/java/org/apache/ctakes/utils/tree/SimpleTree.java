@@ -46,7 +46,7 @@ public class SimpleTree {
 		generalizeLeaf = g;
 	}
 	
-	private String escapeCat(String c) {
+	public static String escapeCat(String c) {
 		c = c.replaceAll("\\(", "LPAREN");
 		c = c.replaceAll("\\)", "RPAREN");
 		return c;
