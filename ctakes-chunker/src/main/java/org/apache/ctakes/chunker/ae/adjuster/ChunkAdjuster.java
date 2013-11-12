@@ -19,20 +19,20 @@
 package org.apache.ctakes.chunker.ae.adjuster;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
+import org.apache.ctakes.typesystem.type.syntax.Chunk;
+import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorConfigurationException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
-import org.apache.uima.cas.FSIterator;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.resource.ResourceInitializationException;
-
-import org.apache.ctakes.typesystem.type.syntax.Chunk;
-import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.uimafit.util.JCasUtil;
 
 /**
  * UIMA annotator that uses a pattern and a rule about that pattern to adjust
@@ -89,7 +89,8 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 	 * 
 	 * @see org.apache.uima.analysis_engine.annotator.BaseAnnotator#initialize(AnnotatorContext)
 	 */
-	public void initialize(UimaContext aContext)
+	@Override
+  public void initialize(UimaContext aContext)
 			throws ResourceInitializationException {
 
 		super.initialize(aContext);
@@ -132,67 +133,76 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 	 * processed. For each Sentence, look for the pattern, and adjust a chunk if
 	 * the pattern is found.
 	 */
-	public void process(JCas jcas)
+	@Override
+  public void process(JCas jcas)
 			throws AnalysisEngineProcessException {
 
 		logger.info(" process(JCas)");
 
-		String text = jcas.getDocumentText();
-
 		try {
-			JFSIndexRepository indexes = jcas.getJFSIndexRepository();
-			FSIterator sentenceItr = indexes.getAnnotationIndex(Sentence.type)
-					.iterator();
-			while (sentenceItr.hasNext()) {
-				Sentence sentence = (Sentence) sentenceItr.next();
-				int start = sentence.getBegin();
-				int end = sentence.getEnd();
-				annotateRange(jcas, text, start, end);
+			Collection<Sentence> sentences = JCasUtil.select(jcas, Sentence.class);
+			for(Sentence sentence : sentences){
+			  annotateSentence(jcas, sentence);
 			}
 		} catch (Exception e) {
 			throw new AnalysisEngineProcessException(e);
 		}
 	}
 
+	protected void annotateSentence(JCas jcas, Sentence sent) throws AnalysisEngineProcessException{
+    List<Chunk> chunkList = new ArrayList<Chunk>(JCasUtil.selectCovered(jcas, Chunk.class, sent));
+
+    // For each chunk in the Sentence, see if the chunk is the start of a
+    // matching pattern
+    // If so, extend the end offset of the <code>i</code> +
+    // <code>indexOfTokenToInclude</code>
+    for (int i = 0; i < chunkList.size(); i++) {
+
+      boolean matches = true;
+      Chunk chunk = chunkList.get(i);
+
+      while (matches == true) {
+        matches = compareToPattern(chunkList, i);
+        if (matches) {
+          extendChunk(chunk, chunkList.get(i + indexOfTokenToInclude)
+              .getEnd());
+          removeEnvelopedChunks(chunkList, i); // to check again on next
+                          // iteration of while loop
+        }
+      }
+    }
+
+  }
+	
 	/**
 	 * A utility method that annotates a given range.
 	 */
-	protected void annotateRange(JCas jcas, String text, int rangeBegin,
+	protected void annotateRange(JCas jcas, int rangeBegin,
 			int rangeEnd)
 			throws AnalysisEngineProcessException {
-
-		JFSIndexRepository indexes = jcas.getJFSIndexRepository();
 
 		// logger.info("Adjuster: from " + rangeBegin + " to " + rangeEnd);
 
 		// Find the Chunks in this Sentence
 		// For each Chunk, there is a corresponding more specific such as NP,
 		// PP, etc
-		FSIterator chunkItr = indexes.getAnnotationIndex(Chunk.type).iterator();
-		ArrayList<Chunk> list = new ArrayList<Chunk>();
-		while (chunkItr.hasNext()) {
-			Chunk baseChunk = (Chunk) chunkItr.next();
-			if (baseChunk.getBegin() >= rangeBegin
-					&& baseChunk.getEnd() <= rangeEnd) {
-				list.add(baseChunk);
-			}
-		}
+		List<Chunk> chunkList = new ArrayList<Chunk>(JCasUtil.selectCovered(jcas, Chunk.class, rangeBegin, rangeEnd));
 
 		// For each chunk in the Sentence, see if the chunk is the start of a
 		// matching pattern
 		// If so, extend the end offset of the <code>i</code> +
 		// <code>indexOfTokenToInclude</code>
-		for (int i = 0; i < list.size(); i++) {
+		for (int i = 0; i < chunkList.size(); i++) {
 
 			boolean matches = true;
-			Chunk chunk = list.get(i);
+			Chunk chunk = chunkList.get(i);
 
 			while (matches == true) {
-				matches = compareToPattern(list, i);
+				matches = compareToPattern(chunkList, i);
 				if (matches) {
-					extendChunk(chunk, list.get(i + indexOfTokenToInclude)
+					extendChunk(chunk, chunkList.get(i + indexOfTokenToInclude)
 							.getEnd());
-					removeEnvelopedChunks(list, i); // to check again on next
+					removeEnvelopedChunks(chunkList, i); // to check again on next
 													// iteration of while loop
 				}
 			}
@@ -205,11 +215,11 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 	 * This allows the rule to be applied again.
 	 * 
 	 */
-	private void removeEnvelopedChunks(ArrayList<Chunk> list, int i) {
+	private void removeEnvelopedChunks(List<Chunk> list, int i) {
 		for (int j = 0; j < indexOfTokenToInclude; j++) {
-			Chunk chunk = list.remove(i + 1);
-			if (false)
-				logger.info("removed '" + chunk.getCoveredText() + "'");
+			list.remove(i + 1);
+//			if (false)
+//				logger.info("removed '" + chunk.getCoveredText() + "'");
 		}
 	}
 
@@ -228,8 +238,8 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 	 *         false.
 	 * @throws AnnotatorProcessException
 	 */
-	private boolean compareToPattern(ArrayList<Chunk> list, int i)
-			throws AnalysisEngineProcessException {
+	private boolean compareToPattern(List<Chunk> list, int i)
+			{
 
 		boolean match = true;
 		int len = list.size();
@@ -257,7 +267,7 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 	 * @return The updated Chunk
 	 * @throws AnnotatorProcessException
 	 */
-	private Chunk extendChunk(Chunk chunk, int newEnd)
+	private static Chunk extendChunk(Chunk chunk, int newEnd)
 			throws AnalysisEngineProcessException {
 
 		if (newEnd < chunk.getBegin()) {
