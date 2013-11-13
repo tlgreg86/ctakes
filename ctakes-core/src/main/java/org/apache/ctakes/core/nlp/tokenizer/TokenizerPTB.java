@@ -344,11 +344,12 @@ public class TokenizerPTB {
 			        	if (c=='n' || c==APOSTROPHE) { // if a "n't" contraction or a contraction where contraction token starts with '
 			        	    if (tokenLen < 0) throw new RuntimeException("c = " + c + "tokenLen = " + tokenLen + " currentPosition = " + currentPosition);
 			        	    // First create the WordToken (no apostrophe)
-			        	    bta = createToken(tokenClass, textSegment, jcas, currentPosition, currentPosition+tokenLen, offsetAdjustment);
-			        	    //System.out.println("bta = " + bta + " class = " + bta.getClass() + " tokenLen = " + tokenLen + " currentPosition = " + currentPosition);
-			        	    tokens.add(bta);
-			        	    currentPosition+=tokenLen; // currentPosition
-
+			        	    if(tokenLen > 0){
+			        	      bta = createToken(tokenClass, textSegment, jcas, currentPosition, currentPosition+tokenLen, offsetAdjustment);
+			        	      //System.out.println("bta = " + bta + " class = " + bta.getClass() + " tokenLen = " + tokenLen + " currentPosition = " + currentPosition);
+			        	      tokens.add(bta);
+			        	      currentPosition+=tokenLen; // currentPosition
+			        	    }
 			        	    // Set up to create the second token, for other contractions, the next token will start with an 
 			        	    // apostrophe and be handled above... but for "n't" contractions, next token won't start with apostrophe
 			        	    // so just go ahead and handle it here instead of having to keep track of previous 
