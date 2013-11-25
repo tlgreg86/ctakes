@@ -1,6 +1,7 @@
 package org.apache.ctakes.assertion.train;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.ctakes.assertion.eval.AssertionEvaluation;
@@ -15,6 +16,7 @@ import scala.actors.threadpool.Arrays;
  * Note that this uses constants within {@link AssertionConst} for the directory names.
  */
 public class TestAttributeModels {
+	final static String RUN_ID = "ytex_";
 
 	public static void main(String[] args) throws Exception {
 		
@@ -22,10 +24,11 @@ public class TestAttributeModels {
 			
 			ArrayList<String> params = new ArrayList<String>();
 			AssertionEvaluation.useEvaluationLogFile = true;
+			AssertionEvaluation.evaluationLogFilePath = "eval/"+RUN_ID+new Date().toString().replaceAll(" ","_") + ".txt";
 			
 			params.add("--test-dir"); 	params.add(AssertionConst.testDirectories.get(attribute));
 			params.add("--models-dir"); params.add(AssertionConst.modelDirectory);
-//			params.add("--ytex-negation");
+			params.add("--ytex-negation");
 			params.add("--evaluation-output-dir");	params.add(AssertionConst.evalOutputDir);
 			params.add("--test-only");	
 			

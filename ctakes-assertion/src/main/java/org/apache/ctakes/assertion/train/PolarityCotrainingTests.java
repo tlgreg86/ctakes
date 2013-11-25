@@ -1,5 +1,6 @@
 package org.apache.ctakes.assertion.train;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -47,24 +48,27 @@ public class PolarityCotrainingTests {
 		testGrid.add(new TestPair(PolarityCotrainingTrain.NEGEX_MODEL,  	NEGEX_TEST));  // not valid
 		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MODEL,  	SHARP_TEST));
 		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MODEL,  	I2B2_TEST));
-//		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MODEL,  	MIPACQ_TEST)); // not meaningful
-//		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MODEL,  	NEGEX_TEST));  // not meaningful
+		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MODEL,  	MIPACQ_TEST)); // not meaningful
+		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MODEL,  	NEGEX_TEST));  // not meaningful
 		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_MIPACQ_MODEL,  SHARP_TEST));
-//		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_MIPACQ_MODEL,  I2B2_TEST));    // not meaningful
+		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_MIPACQ_MODEL,  I2B2_TEST));    // not meaningful
 		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_MIPACQ_MODEL,  MIPACQ_TEST));
-//		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_MIPACQ_MODEL,  NEGEX_TEST));
-//		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_NEGEX_MODEL,  	SHARP_TEST)); // not meaningful
-//		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_NEGEX_MODEL,  	I2B2_TEST));  //not meaningful
-//		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_NEGEX_MODEL,  	MIPACQ_TEST)); // not meaningful
-//		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_NEGEX_MODEL,  	NEGEX_TEST));  // not valid
+		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_MIPACQ_MODEL,  NEGEX_TEST));
+		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_NEGEX_MODEL,  	SHARP_TEST)); // not meaningful
+		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_NEGEX_MODEL,  	I2B2_TEST));  //not meaningful
+		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_NEGEX_MODEL,  	MIPACQ_TEST)); // not meaningful
+		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_NEGEX_MODEL,  	NEGEX_TEST));  // not valid
 		testGrid.add(new TestPair(PolarityCotrainingTrain.I2B2_MIPACQ_NEGEX_MODEL,  	SHARP_TEST));
 		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_MIPACQ_NEGEX_MODEL,  	I2B2_TEST));
 		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_NEGEX_MODEL,  		MIPACQ_TEST));
+		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MIPACQ_MODEL,  	SHARP_TEST));
+		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MIPACQ_MODEL,  	I2B2_TEST));
+		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MIPACQ_MODEL,  	MIPACQ_TEST));
 		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MIPACQ_MODEL,  	NEGEX_TEST));
 		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MIPACQ_NEGEX_MODEL,  	SHARP_TEST));
 		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MIPACQ_NEGEX_MODEL,  	I2B2_TEST));
 		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MIPACQ_NEGEX_MODEL,  	MIPACQ_TEST));
-//		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MIPACQ_NEGEX_MODEL,  	NEGEX_TEST)); //not valid
+		testGrid.add(new TestPair(PolarityCotrainingTrain.SHARP_I2B2_MIPACQ_NEGEX_MODEL,  	NEGEX_TEST)); //not valid
 
 		
 		String attribute = "polarity";
@@ -72,12 +76,18 @@ public class PolarityCotrainingTests {
 		for (TestPair oneTest : testGrid) {
 			ArrayList<String> params = new ArrayList<String>();
 
+			File instancef = new File("eval/instances_"+
+			oneTest.model.substring(oneTest.model.lastIndexOf("/")+1)+"_"+
+			oneTest.data.substring(oneTest.data.length()-13).replaceAll("\\/", "-"));
+			
 			params.add("--test-dir"); 	params.add(oneTest.data);
 			params.add("--models-dir"); params.add(oneTest.model);
 			//			params.add("--ytex-negation");
 			//		params.add("--evaluation-output-dir");	params.add(AssertionConst.evalOutputDir);
 			params.add("--test-only");	
-//			params.add("--print-errors");
+			params.add("--print-instances");
+			// hack-y way to name this
+			params.add(instancef.getAbsolutePath());
 
 			// Build up an "ignore" string
 			for (String ignoreAttribute : AssertionConst.allAnnotationTypes) {
