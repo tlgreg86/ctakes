@@ -224,6 +224,12 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     public boolean printErrors = false;
 
     @Option(
+    		name = "--print-instances",
+    		usage = "Flag to have test method print out lots of info for statistical significance testing",
+    		required = false)
+    public File printInstances;
+
+    @Option(
     		name = "--eval-only",
     		usage = "Evaluate a CASes (supply the directory as an argument) with both system and gold in them.",
     		required = false)
@@ -421,6 +427,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
 	  options.testOnly = false;
 	  options.noCleartk = false;
 	  options.printErrors = false;
+	  options.printInstances = null;
 	  options.evalOnly = false;
 	  
 	  options.evaluationOutputDirectory = null;
@@ -941,6 +948,9 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 	      if(options.printErrors){
 	    	  printErrors(jCas, goldEntitiesAndEvents, systemEntitiesAndEvents, "polarity", CONST.NE_POLARITY_NEGATION_PRESENT, Integer.class);
 	      }
+	      if(options.printInstances!=null){
+	    	  printInstances(jCas, goldEntitiesAndEvents, systemEntitiesAndEvents, "polarity", CONST.NE_POLARITY_NEGATION_PRESENT, Integer.class, options.printInstances);
+	      }
       }
 
       if (!options.ignoreConditional)
@@ -1212,6 +1222,100 @@ private static void printErrors(JCas jCas,
 	  }
   }
   
+private static void printInstances(JCas jCas,
+		  Collection<IdentifiedAnnotation> goldEntitiesAndEvents,
+		  Collection<IdentifiedAnnotation> systemEntitiesAndEvents, String classifierType, 
+		  Object trueCategory, Class<? extends Object> categoryClass,
+		  File outputfile) 
+				  throws ResourceProcessException, IOException {
+
+	String documentId = DocumentIDAnnotationUtil.getDocumentID(jCas);
+	  BufferedWriter fileOutWriter = new BufferedWriter(new FileWriter(outputfile,true), 32768);
+
+	  Map<HashableAnnotation, IdentifiedAnnotation> goldMap = Maps.newHashMap();
+	  for (IdentifiedAnnotation mention : goldEntitiesAndEvents) {
+		  goldMap.put(new HashableAnnotation(mention), mention);
+	  }
+	  Map<HashableAnnotation, IdentifiedAnnotation> systemMap = Maps.newHashMap();
+	  for (IdentifiedAnnotation relation : systemEntitiesAndEvents) {
+		  systemMap.put(new HashableAnnotation(relation), relation);
+	  }
+	  Set<HashableAnnotation> all = Sets.union(goldMap.keySet(), systemMap.keySet());
+	  List<HashableAnnotation> sorted = Lists.newArrayList(all);
+	  Collections.sort(sorted);
+	  for (HashableAnnotation key : sorted) {
+		  IdentifiedAnnotation goldAnnotation = goldMap.get(key);
+		  IdentifiedAnnotation systemAnnotation = systemMap.get(key);
+		  Object goldLabel=null;
+		  Object systemLabel=null;
+		  if (goldAnnotation == null) {
+			  logger.debug(key + " not found in gold annotations ");
+		  } else {
+			  Feature feature = goldAnnotation.getType().getFeatureByBaseName(classifierType);
+			  goldLabel = getFeatureValue(feature, categoryClass, goldAnnotation);
+			  //  Integer goldLabel = goldAnnotation.getIntValue(feature);
+		  }
+		  
+		  if (systemAnnotation == null) {
+			  logger.info(key + " not found in system annotations ");
+		  } else {
+			  Feature feature = systemAnnotation.getType().getFeatureByBaseName(classifierType);
+			  systemLabel = getFeatureValue(feature, categoryClass, systemAnnotation);
+			  //  Integer systemLabel = systemAnnotation.getIntValue(feature);
+		  }
+		  
+		  String typeId = "X";
+		  String typeName = "IdentifiedAnnotation";
+		  int polarity, uncertainty, historyOf;
+		  boolean conditional, generic;
+		  String subject = "";
+		  String cui, coveredText = "";
+		  String instanceData = "";
+		  if (systemAnnotation!=null && systemAnnotation.getEnd()>=0) {
+			  typeId      = systemAnnotation.getTypeID()+"";
+			  typeName    = systemAnnotation.getClass().getSimpleName();
+			  polarity    = systemAnnotation.getPolarity();
+			  uncertainty = systemAnnotation.getUncertainty();
+			  conditional = systemAnnotation.getConditional();
+			  generic     = systemAnnotation.getGeneric();
+			  subject     = systemAnnotation.getSubject();
+			  historyOf   = systemAnnotation.getHistoryOf();
+			  coveredText = systemAnnotation.getCoveredText().replaceAll("\\n", " ").replaceAll(",",";");
+			  instanceData = documentId+","+polarity+","+uncertainty+","+conditional+","+generic+","+subject+","+historyOf+","+
+					  typeId+","+typeName+","+coveredText;
+		  }
+		  
+		  if (goldLabel==null) {
+			  // skip counting the attribute value since we have no gold label to compare to
+			  logger.debug("Skipping annotation with label " + systemLabel + " because gold label is null");
+		  } else if (instanceData.equals("")) {
+			  continue;
+		  }
+		  else  {
+			  if(!goldLabel.equals(systemLabel)){
+				  if(trueCategory == null){
+					  // used for multi-class case.  Incorrect_system_label(Correct_label):
+					  fileOutWriter.write(classifierType+",F,"+systemLabel+","+goldLabel+","+instanceData+"\n");
+				  }else if(systemLabel.equals(trueCategory)){
+					  fileOutWriter.write(classifierType+",FP,"+systemLabel+","+goldLabel+","+instanceData+"\n");
+				  }else{
+					  fileOutWriter.write(classifierType+",FN,"+systemLabel+","+goldLabel+","+instanceData+"\n");
+				  }
+			  }else{
+			    if(trueCategory == null){
+			      // multi-class case -- probably don't want to print anything?
+			    	fileOutWriter.write(classifierType+ ",T,"+systemLabel+","+goldLabel+","+instanceData+"\n");
+			    }else if(systemLabel.equals(trueCategory)){
+			    	fileOutWriter.write(classifierType+",TP,"+systemLabel+","+goldLabel+","+instanceData+"\n");
+				  }else{
+					  fileOutWriter.write(classifierType+",TN,"+systemLabel+","+goldLabel+","+instanceData+"\n");
+				  }
+			  }
+			  fileOutWriter.flush();
+		  }
+	  }
+	  fileOutWriter.close();
+	}
   private static Object getFeatureValue(Feature feature,
 		  Class<? extends Object> class1, Annotation annotation) throws ResourceProcessException {
 	  if(class1 == Integer.class){

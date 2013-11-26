@@ -20,14 +20,24 @@ package org.apache.ctakes.core.ae;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
+import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.sentdetect.DefaultSDContextGenerator;
+import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
+import opennlp.tools.sentdetect.SentenceSample;
+import opennlp.tools.sentdetect.SentenceSampleStream;
 import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.ObjectStream;
+import opennlp.tools.util.PlainTextByLineStream;
+import opennlp.tools.util.TrainingParameters;
 
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.sentence.EndOfSentenceScannerImpl;
@@ -73,8 +83,6 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 	private SentenceDetectorCtakes sentenceDetector;
 
 	private String NEWLINE = "\n";
-
-	private int sentenceCount = 0;
 
 	public void initialize(UimaContext aContext)
 			throws ResourceInitializationException {
@@ -122,7 +130,7 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 
 		logger.info("Starting processing.");
 
-		sentenceCount = 0;
+		int sentenceCount = 0;
 
 		String text = jcas.getDocumentText();
 
@@ -160,7 +168,7 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 	 * @throws AnnotatorProcessException
 	 */
 	protected int annotateRange(JCas jcas, String text, Segment section,
-			int sentenceCount) throws AnalysisEngineProcessException {
+			int sentenceCount) {
 
 		int b = section.getBegin();
 		int e = section.getEnd();
@@ -289,16 +297,36 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		logger.info("Training new model from " + inFile.getAbsolutePath());
 		logger.info("Using " + numEosc + " end of sentence characters.");
 
-		logger.error("----------------------------------------------------------------------------------");
-		logger.error("Need to update yet for OpenNLP changes "); // TODO
-		logger.error("Commented out code that no longer compiles due to OpenNLP API incompatible changes"); // TODO
-		logger.error("----------------------------------------------------------------------------------");
-		// GISModel mod = SentenceDetectorME.train(inFile, iters, cut, scanner);
-		// SuffixSensitiveGISModelWriter ssgmw = new
-		// SuffixSensitiveGISModelWriter(
-		// mod, outFile);
-		// logger.info("Saving the model as: " + outFile.getAbsolutePath());
-		// ssgmw.persist();
+
+		Charset charset = Charset.forName("UTF-8");
+		
+		FileInputStream inStream = new FileInputStream(inFile);
+		ObjectStream<String> lineStream = new PlainTextByLineStream(inStream, charset);
+		ObjectStream<SentenceSample> sampleStream = new SentenceSampleStream(lineStream);
+		
+		SentenceModel mod;
+		
+		// Training Parameters
+		TrainingParameters mlParams = new TrainingParameters();
+		mlParams.put(TrainingParameters.ALGORITHM_PARAM, "MAXENT");
+		mlParams.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
+		mlParams.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cut));
+		
+		// Abbreviations dictionary
+		// TODO: Actually import a Dictionary of abbreviations
+		Dictionary dict = new Dictionary();
+		    
+		try {
+			mod = SentenceDetectorME.train("en", sampleStream, true, dict, mlParams);
+		} finally {
+			sampleStream.close();
+			inStream.close();
+		}
+		
+		FileOutputStream outStream = new FileOutputStream(outFile);
+		logger.info("Saving the model as: " + outFile.getAbsolutePath());
+		mod.serialize(outStream);
+		outStream.close();
 
 	}
 
