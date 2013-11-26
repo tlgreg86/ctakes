@@ -30,11 +30,11 @@
 	<url>http://ctakes.apache.org</url>
 	<inceptionYear>2012</inceptionYear>
 	<scm>
-		<!-- In child modules, Maven will append ${artifactId} to the following 
-			URLs -->
+		<!-- In child modules, Maven will append ${artifactId} to the following URLs -->
+		<!-- See http://maven.apache.org/pom.html#SCM for description of these elements: -->
 		<connection>scm:svn:https://svn.apache.org/repos/asf/ctakes/tags/ctakes-3.1.1</connection>
-		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/ctakes/tags/ctakes-3.1.1</developerConnection>
-		<url>https://svn.apache.org/repos/asf/ctakes/tags/ctakes-3.1.1</url>
+		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/ctakes/trunk</developerConnection>
+		<url>http://svn.apache.org/viewvc/ctakes/tags/ctakes-3.1.1</url>
 	</scm>
 	<issueManagement>
 		<system>jira</system>
