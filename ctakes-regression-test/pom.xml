@@ -64,6 +64,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
+			<artifactId>ctakes-assertion-zoner</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-dependency-parser</artifactId>
 		</dependency>
 		<dependency>
