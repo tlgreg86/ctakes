@@ -22,6 +22,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
+import org.apache.ctakes.core.fsm.output.StatusIndicator;
 import org.apache.ctakes.necontexts.ContextHit;
 import org.apache.ctakes.necontexts.ContextHitConsumer;
 import org.apache.ctakes.necontexts.NamedEntityContextHitConsumer;
@@ -39,6 +40,10 @@ public class StatusContextHitConsumer extends NamedEntityContextHitConsumer impl
 			IdentifiedAnnotation neAnnot = (IdentifiedAnnotation) focusAnnot;
 			//TODO: currently status is an int in the old system.  Let's update this to a constant string?
 			neAnnot.setUncertainty(status);
+			if(StatusIndicator.HISTORY_STATUS == status 
+					|| StatusIndicator.FAMILY_HISTORY_STATUS == status ) {
+				neAnnot.setHistoryOf(1);
+			}
 		}
 
 		createContextAnnot(jcas, focusAnnot, scope, ctxHit).addToIndexes();
