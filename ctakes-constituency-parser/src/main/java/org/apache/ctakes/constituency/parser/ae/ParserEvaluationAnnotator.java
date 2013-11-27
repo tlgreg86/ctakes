@@ -45,7 +45,6 @@ import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.pipeline.JCasIterable;
 import org.uimafit.util.JCasUtil;
-// import opennlp.tools.lang.english.TreebankParser; // no longer part of OpenNLP as of 1.5
 
 public class ParserEvaluationAnnotator extends JCasAnnotator_ImplBase{
 
