@@ -1,7 +1,6 @@
 package org.apache.ctakes.temporal.data.analysis;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
