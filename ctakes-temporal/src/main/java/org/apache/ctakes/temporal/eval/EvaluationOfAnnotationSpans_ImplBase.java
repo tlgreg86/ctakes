@@ -170,10 +170,12 @@ protected abstract AnalysisEngineDescription getDataWriterDescription(File direc
               int windowEnd = Math.min(text.length(), end + 50);
               String label = goldOnly.contains(annotation) ? "DROPPED:" : "ADDED:  ";
               this.logger.fine(String.format(
-                  "%s  ...%s[!%s!]%s...",
+                  "%s  ...%s[!%s!:%d-%d]%s...",
                   label,
                   text.substring(windowBegin, begin),
                   text.substring(begin, end),
+                  begin,
+                  end,
                   text.substring(end, windowEnd)));
             }
           }
