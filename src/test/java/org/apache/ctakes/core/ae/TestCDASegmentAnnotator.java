@@ -56,9 +56,9 @@ public class TestCDASegmentAnnotator {
 		// SimplePipeline.runPipeline(reader, sectionAnnotator, dumpOutput);
 		JCasIterable casIter = new JCasIterable(reader, sectionAnnotator,
 				dumpOutput);
-		final String expected_hpi_section = "1.3.6.1.4.1.19376.1.5.3.1.3.4";
-		final int expected_begin = 220;
-		final int expected_end = 1610;
+		final String expected_hpi_section = "2.16.840.1.113883.10.20.22.2.20";
+		final int expected_begin = 1634;
+		final int expected_end = 1696;
 		boolean section_exists = false;
 		int section_begin = 0;
 		int section_end = 0;
