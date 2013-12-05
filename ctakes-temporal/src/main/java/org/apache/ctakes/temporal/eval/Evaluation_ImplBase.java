@@ -300,7 +300,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
     aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
         Chunker.class,
         Chunker.CHUNKER_MODEL_FILE_PARAM,
-        FileLocator.locateFile("org/apache/ctakes/chunker/models/chunk-model.claims-1.5.zip"),
+        FileLocator.locateFile("org/apache/ctakes/chunker/models/chunker-model.zip"),
         Chunker.CHUNKER_CREATOR_CLASS_PARAM,
         DefaultChunkCreator.class));
 
@@ -345,7 +345,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
         "LookupDescriptor",
         ExternalResourceFactory.createExternalResourceDescription(
             FileResourceImpl.class,
-            new File("target/unpacked/org/apache/ctakes/dictionary/lookup/LookupDesc_Db.xml").getAbsoluteFile()),
+            FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/LookupDesc_Db.xml")),
         "DbConnection",
         ExternalResourceFactory.createExternalResourceDescription(
             JdbcConnectionResourceImpl.class,
@@ -371,7 +371,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
             "UseMemoryIndex",
             true,
             "IndexDirectory",
-            new File("target/unpacked/org/apache/ctakes/dictionary/lookup/OrangeBook").getAbsoluteFile())));
+            FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/OrangeBook"))));
 
     // add lvg annotator
     String[] XeroxTreebankMap = {
