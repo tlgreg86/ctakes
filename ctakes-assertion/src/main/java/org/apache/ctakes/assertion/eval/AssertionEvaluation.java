@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import org.apache.ctakes.assertion.medfacts.cleartk.ConditionalCleartkAnalysisEn
 import org.apache.ctakes.assertion.medfacts.cleartk.GenericCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.HistoryCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.PolarityFedaCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.SubjectCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.UncertaintyCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.pipelines.GoldEntityAndAttributeReaderPipelineForSeedCorpus;
@@ -248,6 +250,12 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     		usage = "Takes an argument: the Chi^2 feature selection threshold",
     		required = false)
     public Float featureSelectionThreshold = null;
+
+    @Option(
+    		name = "--feda",
+    		usage = "Domain adaptation -- for each semicolon-separated directory in train-dir, creates a domain-specific feature space",
+    		required = false)
+    public boolean feda = false;
   }
   
   protected ArrayList<String> annotationTypes;
@@ -260,7 +268,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
   
   private File evaluationOutputDirectory;
 
-  private String sharpCorpusDirectory;
+//  private static Map<String,String> trainFileToCorpusDir = new HashMap<String,String>();
 
   static public String evaluationLogFilePath;
   static private File evaluationLogFile;
@@ -304,8 +312,10 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     	for (String dir : dirs) {
     		File trainDir = new File(dir);
     		if (trainDir.listFiles()!=null) {
-    			trainFiles.addAll(Arrays.asList(trainDir.listFiles()));
-        		//    	System.out.println(trainFiles.toString());
+    			for (File f : trainDir.listFiles()) {
+    				trainFiles.add(f);
+//    				trainFileToCorpusDir.put(f.getPath(),domainId);
+    			}
     		}
     	}
     }
@@ -381,7 +391,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
       
     } 
     
-    // run on test set
+    // run train and test
     else {
       // train on the entire training set and evaluate on the test set
       List<File> testFiles;
@@ -399,6 +409,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     	  evaluation.train(trainCollectionReader, modelsDir);
       }
       
+      // run testing
       if (!options.trainOnly) {
     	  if (testFiles==null || testFiles.size()==0) {
     		  throw new RuntimeException("testFiles = " + testFiles + " testFiles.size() = " + (testFiles==null ? "null": testFiles.size())) ;
@@ -643,11 +654,22 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     
     if (!options.ignorePolarity)
     {
+    	AnalysisEngineDescription polarityAnnotator;
     	if (options.useYtexNegation) {
-    		AnalysisEngineDescription polarityAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(YTEX_NEGATION_DESCRIPTOR);
-    		builder.add(polarityAnnotator);
+    		 polarityAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(YTEX_NEGATION_DESCRIPTOR);
     	} else {
-    		AnalysisEngineDescription polarityAnnotator = AnalysisEngineFactory.createPrimitiveDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    		if (options.feda) {
+    			polarityAnnotator = AnalysisEngineFactory.createPrimitiveDescription(PolarityFedaCleartkAnalysisEngine.class);
+
+      			ConfigurationParameterFactory.addConfigurationParameters(
+        				polarityAnnotator,
+        				AssertionCleartkAnalysisEngine.FILE_TO_DOMAIN_MAP,
+        				options.trainDirectory
+        				);
+    		} else {
+    			// default: cleartk-based polarity, no domain adaptation
+    			polarityAnnotator = AnalysisEngineFactory.createPrimitiveDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+      		}
     		ConfigurationParameterFactory.addConfigurationParameters(
     				polarityAnnotator,
     				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -663,8 +685,8 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     				AssertionCleartkAnalysisEngine.PARAM_FEATURE_SELECTION_THRESHOLD,
     				featureSelectionThreshold
     				);
-    		builder.add(polarityAnnotator);
     	}
+		builder.add(polarityAnnotator);
     }
 
     if (!options.ignoreConditional)
@@ -1466,11 +1488,23 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 	// Add the ClearTk or the ytex negation (polarity) classifier
 	if (!options.ignorePolarity)
 	{
+		AnalysisEngineDescription polarityAnnotator;
     	if (options.useYtexNegation) {
-    		AnalysisEngineDescription polarityAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(YTEX_NEGATION_DESCRIPTOR);
+    		polarityAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(YTEX_NEGATION_DESCRIPTOR);
     		builder.add(polarityAnnotator);
     	} else {
-    		AnalysisEngineDescription polarityAnnotator = AnalysisEngineFactory.createPrimitiveDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    		if (options.feda) {
+    			polarityAnnotator = AnalysisEngineFactory.createPrimitiveDescription(PolarityFedaCleartkAnalysisEngine.class);
+
+      			ConfigurationParameterFactory.addConfigurationParameters(
+        				polarityAnnotator,
+        				AssertionCleartkAnalysisEngine.FILE_TO_DOMAIN_MAP,
+        				options.testDirectory
+        				);
+    		} else {
+    			// default: cleartk-based polarity, no domain adaptation
+    			polarityAnnotator = AnalysisEngineFactory.createPrimitiveDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+      		}
     		ConfigurationParameterFactory.addConfigurationParameters(
     				polarityAnnotator,
     				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -1931,6 +1965,8 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
     } // end method ReferenceAnnotationsSystemAssertionClearer.process()
   } // end class ReferenceAnnotationsSystemAssertionClearer
 
-  
+
+
+
   
 } // end of class AssertionEvalBasedOnModifier
