@@ -44,36 +44,39 @@ public class EventDurationFeatureExtractor implements RelationFeaturesExtractor 
 
     List<Feature> features = new ArrayList<Feature>();
     File durationLookup = new File("/Users/dima/Boston/Thyme/Duration/Output/Duration/distribution.txt");
-    String text1 = arg1.getCoveredText().toLowerCase();
-    String text2 = arg2.getCoveredText().toLowerCase();
+    String arg1text = arg1.getCoveredText().toLowerCase();
+    String arg2text = arg2.getCoveredText().toLowerCase();
     
+    Map<String, Map<String, Float>> textToDistribution = null;
     try {
-      Map<String, Map<String, Float>> textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Callback());
-      
-      Map<String, Float> distribution1 = textToDistribution.get(text1);
-      if(distribution1 == null) {
-        features.add(new Feature("arg1_no_duration_info"));
-      } else {
-        float expectation = expectedDuration(distribution1);
-        features.add(new Feature("arg1_expected_duration", expectation));
-        System.out.println(text1 + " / " + distribution1 + " / " + expectation / (3600 * 24) + " days");
-      }
-      
-      Map<String, Float> distribution2 = textToDistribution.get(text2);
-      if(distribution2 == null) {
-        features.add(new Feature("arg2_no_duration_info"));
-      } else {
-        float expectation = expectedDuration(distribution2);
-        features.add(new Feature("arg2_expected_duration", expectation));
-        System.out.println(text2 + " / " + distribution2 + " / " + expectation / (3600 * 24) + " days");
-      }
-    } catch (IOException e) {
+      textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Callback());
+    } catch(IOException e) {
       e.printStackTrace();
+      return features;
+    }
+    
+    Map<String, Float> arg1Distribution = textToDistribution.get(arg1text);
+    if(arg1Distribution == null) {
+      features.add(new Feature("arg1_no_duration_info"));
+    } else {
+      float expectation1 = expectedDuration(arg1Distribution);
+      features.add(new Feature("arg1_expected_duration", expectation1));
+    }
+    
+    Map<String, Float> arg2Distribution = textToDistribution.get(arg2text);
+    if(arg2Distribution == null) {
+      features.add(new Feature("arg2_no_duration_info"));
+    } else {
+      float expectation2 = expectedDuration(arg2Distribution);
+      features.add(new Feature("arg2_expected_duration", expectation2));
     }
     
     return features;
   }
 
+  /**
+   * Compute expected duration in seconds (days?).
+   */
   private static float expectedDuration(Map<String, Float> distribution) {
     
     // unit of time -> duration in seconds
@@ -92,7 +95,7 @@ public class EventDurationFeatureExtractor implements RelationFeaturesExtractor 
       expectation = expectation + (converter.get(unit) * distribution.get(unit));
     }
   
-    return expectation;
+    return expectation / converter.get("year");
   }
   
   private static class Callback implements LineProcessor <Map<String, Map<String, Float>>> {
