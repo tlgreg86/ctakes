@@ -18,14 +18,20 @@
  */
 package org.apache.ctakes.assertion.medfacts.cleartk;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
+import org.apache.ctakes.assertion.medfacts.cleartk.extractors.FedaFeatureFunction;
 import org.apache.ctakes.assertion.zoner.types.Zone;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
@@ -50,12 +56,21 @@ import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
 import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import org.cleartk.classifier.feature.extractor.simple.TypePathExtractor;
+import org.cleartk.classifier.feature.function.FeatureFunctionExtractor;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.ConfigurationParameterFactory;
 import org.uimafit.util.JCasUtil;
 //import org.chboston.cnlp.ctakes.relationextractor.ae.ModifierExtractorAnnotator;
 
+
+
+import scala.actors.threadpool.Arrays;
+
+/**
+ * @author swu
+ *
+ */
 public abstract class AssertionCleartkAnalysisEngine extends
     CleartkAnnotator<String>
 {
@@ -64,6 +79,10 @@ public abstract class AssertionCleartkAnalysisEngine extends
   public static final String PARAM_GOLD_VIEW_NAME = "GoldViewName";
 	
   public static int relationId; // counter for error logging
+
+  // additional parameter for domain adaptation
+  public static final String FILE_TO_DOMAIN_MAP = "mapTrainFileToDomain";
+
 
   @ConfigurationParameter(
       name = PARAM_GOLD_VIEW_NAME,
@@ -108,6 +127,13 @@ public abstract class AssertionCleartkAnalysisEngine extends
 
   protected static final String FEATURE_SELECTION_NAME = "SelectNeighborFeatures";
 
+  @ConfigurationParameter(
+		  name = FILE_TO_DOMAIN_MAP,
+		  mandatory = false,
+		  description = "a map of filenames to their respective domains (i.e., directories that contain them)")
+  protected String fileDomainMap;
+  protected Map<String,String> fileToDomain = new HashMap<String,String>();
+  
   protected String lastLabel;
   
   
@@ -137,7 +163,10 @@ public abstract class AssertionCleartkAnalysisEngine extends
   protected List<CleartkExtractor> tokenCleartkExtractors;
   protected List<SimpleFeatureExtractor> entityFeatureExtractors;
   protected CleartkExtractor cuePhraseInWindowExtractor;
-
+  
+  protected List<FeatureFunctionExtractor> featureFunctionExtractors;
+  protected FedaFeatureFunction ffDomainAdaptor;
+  
   protected FeatureSelection<String> featureSelection;
   
   public abstract void setClassLabel(IdentifiedAnnotation entityMention, Instance<String> instance) throws AnalysisEngineProcessException;
@@ -150,6 +179,24 @@ public abstract class AssertionCleartkAnalysisEngine extends
   @SuppressWarnings("deprecation")
   public void initialize(UimaContext context) throws ResourceInitializationException {
     super.initialize(context);
+    
+    // Re-process the "directory" string for domains that were used in the data
+    if (null != fileDomainMap) {
+    	String[] dirs = fileDomainMap.split("[;:]");
+    	for (String dir : dirs) {
+    		
+    		// TODO: normalize dir to real domainId
+    		String domainId = normalizeToDomain(dir);
+    		
+    		File dataDir = new File(dir);
+    		if (dataDir.listFiles()!=null) {
+    			for (File f : dataDir.listFiles()) {
+    				fileToDomain.put( FilenameUtils.removeExtension(f.getName()), domainId );
+    			}
+        		//    	System.out.println(trainFiles.toString());
+    		}
+    	}
+    }
     
     if (this.isTraining() && this.goldViewName == null) {
       throw new IllegalArgumentException(PARAM_GOLD_VIEW_NAME + " must be defined during training");
@@ -229,16 +276,29 @@ public abstract class AssertionCleartkAnalysisEngine extends
 //          new CleartkExtractor.Bag(new CleartkExtractor.Preceding(10)),
 //          new CleartkExtractor.Bag(new CleartkExtractor.Following(10))
           );
-    
+
+    if (!fileToDomain.isEmpty()) {
+    	// set up FeatureFunction for all the laggard, non-Extractor features
+    	ffDomainAdaptor = new FedaFeatureFunction( new ArrayList<String>(new HashSet<String>(fileToDomain.values())) );
+    }
   }
 
   @Override
   public void process(JCas jCas) throws AnalysisEngineProcessException
   {
     DocumentID documentId = JCasUtil.selectSingle(jCas, DocumentID.class);
+    String domainId = "";
+    
+    
     if (documentId != null)
     {
       logger.debug("processing next doc: " + documentId.getDocumentID());
+
+      // set the domain to be FeatureFunction'ed into all extractors
+      if (!fileToDomain.isEmpty()) {
+    	  domainId = fileToDomain.get(documentId.getDocumentID());
+    	  ffDomainAdaptor.setDomain(domainId); // if domain is not found, no warning -- just considers general domain
+      }
     } else
     {
       logger.warn("processing next doc (doc id is null)");
@@ -323,10 +383,14 @@ public abstract class AssertionCleartkAnalysisEngine extends
           instance.addAll(extractor.extract(identifiedAnnotationView, entityMention));
         }
         */
-      for (CleartkExtractor extractor : this.tokenCleartkExtractors) {
-          //instance.addAll(extractor.extractWithin(identifiedAnnotationView, entityMention, sentence));
-    	  instance.addAll(extractor.extract(identifiedAnnotationView, entityOrEventMention));
-        }
+      
+      // only use extract this version if not doing domain adaptation 
+      if (ffDomainAdaptor==null) {
+    	  for (CleartkExtractor extractor : this.tokenCleartkExtractors) {
+    		  //instance.addAll(extractor.extractWithin(identifiedAnnotationView, entityMention, sentence));
+    		  instance.addAll(extractor.extract(identifiedAnnotationView, entityOrEventMention));
+    	  }
+      }
       
 //      List<Feature> cuePhraseFeatures = null;
 //          cuePhraseInWindowExtractor.extract(jCas, entityOrEventMention);
@@ -351,6 +415,14 @@ public abstract class AssertionCleartkAnalysisEngine extends
 //          instance.add(new Feature("ClosestCue_Phrase", closestCue.getCuePhrase()));
           instance.add(new Feature("ClosestCue_PhraseFamily", closestCue.getCuePhraseAssertionFamily()));
           instance.add(new Feature("ClosestCue_PhraseCategory", closestCue.getCuePhraseCategory()));
+          
+          // add hack-ey domain adaptation to these hacked-in features
+          if (!fileToDomain.isEmpty() && ffDomainAdaptor!=null) {
+        	  instance.addAll(ffDomainAdaptor.apply(new Feature("ClosestCue_Word", closestCue.getCoveredText())));
+        	  instance.addAll(ffDomainAdaptor.apply(new Feature("ClosestCue_PhraseFamily", closestCue.getCuePhraseAssertionFamily())));
+              instance.addAll(ffDomainAdaptor.apply(new Feature("ClosestCue_PhraseCategory", closestCue.getCuePhraseCategory())));
+          }
+          
         }
       }
 //      if (cuePhraseFeatures != null && !cuePhraseFeatures.isEmpty())
@@ -365,17 +437,24 @@ public abstract class AssertionCleartkAnalysisEngine extends
           // 7/9/13 srh modified per tmiller so it's binary but not numeric feature
           //instance.add(new Feature("ENTITY_TYPE_" + entityOrEventMention.getTypeID()));
           instance.add(new Feature("ENTITY_TYPE_ANAT_SITE"));
-      } /* This hurts recall more than it helps precision
+          // add hack-ey domain adaptation to these hacked-in features
+          if (!fileToDomain.isEmpty() && ffDomainAdaptor!=null) {
+        	  instance.addAll(ffDomainAdaptor.apply(new Feature("ENTITY_TYPE_ANAT_SITE")));
+          }
+      }
+      /* This hurts recall more than it helps precision
       else if (eemTypeId == CONST.NE_TYPE_ID_DRUG) {
     	  // 7/10 adding drug
     	  instance.add(new Feature("ENTITY_TYPE_DRUG"));
       }
       */
       
-      for (SimpleFeatureExtractor extractor : this.entityFeatureExtractors) {
-        instance.addAll(extractor.extract(jCas, entityOrEventMention));
+      // only extract these features if not doing domain adaptation
+      if (ffDomainAdaptor==null) {
+    	  for (SimpleFeatureExtractor extractor : this.entityFeatureExtractors) {
+    		  instance.addAll(extractor.extract(jCas, entityOrEventMention));
+    	  }
       }
-      
       
       List<Feature> zoneFeatures = extractZoneFeatures(coveringZoneMap, entityOrEventMention);
       if (zoneFeatures != null && !zoneFeatures.isEmpty())
@@ -388,11 +467,19 @@ public abstract class AssertionCleartkAnalysisEngine extends
       
       for(Feature feat : feats){
     	  if(feat.getName() != null && (feat.getName().startsWith("TreeFrag") || feat.getName().startsWith("WORD") || feat.getName().startsWith("NEG"))) continue;
+    	  if(feat.getName() != null && (feat.getName().contains("_TreeFrag") || feat.getName().contains("_WORD") || feat.getName().contains("_NEG"))) continue;
     	  if(feat.getValue() instanceof String){
     		  feat.setValue(((String)feat.getValue()).toLowerCase());
     	  }
       }
 
+      if (!fileToDomain.isEmpty() && ffDomainAdaptor!=null) {
+    	  for (FeatureFunctionExtractor extractor : this.featureFunctionExtractors) {
+    		  // TODO: extend to the case where the extractors take a different argument besides entityOrEventMention
+    		  instance.addAll(extractor.extract(jCas, entityOrEventMention));
+    	  }
+      }
+      
       // grab the output label
       setClassLabel(entityOrEventMention, instance);
 
@@ -445,7 +532,31 @@ public abstract class AssertionCleartkAnalysisEngine extends
 	    return desc;
 	  }
 
+public Map<String, String> getTrainFileToDomain() {
+	return fileToDomain;
+}
 
+public void setTrainFileToDomain(Map<String, String> trainFileToDomain) {
+	this.fileToDomain = trainFileToDomain;
+}
+
+/** Looks in the domain string (path) for meaningful corpus names 
+ * @param dir
+ * @return
+ */
+public static String normalizeToDomain(String dir) {
+	  // TODO: real normalization
+	  String[] p = dir.split("/");
+	  List<String> parts = Arrays.asList(p);
+	  Collections.reverse(parts);
+	  for (String part : parts) {
+		  if ( part.toLowerCase().startsWith("test") || part.toLowerCase().startsWith("train") || part.toLowerCase().startsWith("dev") ) {
+			  continue;
+		  }
+		  return part;
+	  }
+	  return dir;
+}
   
   /*
   public static AnalysisEngineDescription getClassifierDescription(String modelFileName)
