@@ -37,17 +37,17 @@ public class PolarityCotrainingTrain {
 		String attribute = "polarity";
 		
 		HashMap<String,String> trainGrid = new HashMap<String,String>();
-		trainGrid.put(SHARP_TRAIN, 	SHARP_MODEL);
-		trainGrid.put(I2B2_TRAIN, 	I2B2_MODEL);
-		trainGrid.put(MIPACQ_TRAIN,	MIPACQ_MODEL);
-		trainGrid.put(NEGEX_TRAIN,	NEGEX_MODEL);
-		trainGrid.put(SHARP_TRAIN+":"+I2B2_TRAIN,	SHARP_I2B2_MODEL);
-		trainGrid.put(SHARP_TRAIN+":"+MIPACQ_TRAIN,	SHARP_MIPACQ_MODEL);
-		trainGrid.put(SHARP_TRAIN+":"+NEGEX_TRAIN,	SHARP_NEGEX_MODEL);
-		trainGrid.put(I2B2_TRAIN+":"+MIPACQ_TRAIN+":"+NEGEX_TRAIN,	I2B2_MIPACQ_NEGEX_MODEL);
-		trainGrid.put(SHARP_TRAIN+":"+I2B2_TRAIN+":"+MIPACQ_TRAIN,	SHARP_I2B2_MIPACQ_MODEL);
-		trainGrid.put(SHARP_TRAIN+":"+MIPACQ_TRAIN+":"+NEGEX_TRAIN,	SHARP_MIPACQ_NEGEX_MODEL);
-		trainGrid.put(SHARP_TRAIN+":"+I2B2_TRAIN+":"+NEGEX_TRAIN,	SHARP_I2B2_NEGEX_MODEL);
+//		trainGrid.put(SHARP_TRAIN, 	SHARP_MODEL);
+//		trainGrid.put(I2B2_TRAIN, 	I2B2_MODEL);
+//		trainGrid.put(MIPACQ_TRAIN,	MIPACQ_MODEL);
+//		trainGrid.put(NEGEX_TRAIN,	NEGEX_MODEL);
+//		trainGrid.put(SHARP_TRAIN+":"+I2B2_TRAIN,	SHARP_I2B2_MODEL);
+//		trainGrid.put(SHARP_TRAIN+":"+MIPACQ_TRAIN,	SHARP_MIPACQ_MODEL);
+//		trainGrid.put(SHARP_TRAIN+":"+NEGEX_TRAIN,	SHARP_NEGEX_MODEL);
+//		trainGrid.put(I2B2_TRAIN+":"+MIPACQ_TRAIN+":"+NEGEX_TRAIN,	I2B2_MIPACQ_NEGEX_MODEL);
+//		trainGrid.put(SHARP_TRAIN+":"+I2B2_TRAIN+":"+MIPACQ_TRAIN,	SHARP_I2B2_MIPACQ_MODEL);
+//		trainGrid.put(SHARP_TRAIN+":"+MIPACQ_TRAIN+":"+NEGEX_TRAIN,	SHARP_MIPACQ_NEGEX_MODEL);
+//		trainGrid.put(SHARP_TRAIN+":"+I2B2_TRAIN+":"+NEGEX_TRAIN,	SHARP_I2B2_NEGEX_MODEL);
 		trainGrid.put(SHARP_TRAIN+":"+I2B2_TRAIN+":"+MIPACQ_TRAIN+":"+NEGEX_TRAIN,	
 				SHARP_I2B2_MIPACQ_NEGEX_MODEL);
 
@@ -58,7 +58,8 @@ public class PolarityCotrainingTrain {
 			params.add("--train-dir"); 	params.add(oneTrain.getKey());
 			params.add("--models-dir"); params.add(oneTrain.getValue());
 			params.add("--train-only"); 
-			
+			params.add("--feature-selection");	params.add(Float.toString(0.000000000001f));
+
 			// Build up an "ignore" string
 			for (String ignoreAttribute : AssertionConst.allAnnotationTypes) {
 				if (!ignoreAttribute.equals(attribute)) { 

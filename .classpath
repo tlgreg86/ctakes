@@ -34,5 +34,9 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/ctakes-dictionary-lookup/resources"/>
+	<classpathentry kind="lib" path="/ytex-negation-detection/desc"/>
+	<classpathentry kind="lib" path="/ytex-negation-detection/bin"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ytex-negation-lib"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

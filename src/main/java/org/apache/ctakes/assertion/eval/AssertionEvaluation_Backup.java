@@ -114,9 +114,9 @@ import com.google.common.collect.Sets;
 //import org.chboston.cnlp.ctakes.relationextractor.eval.RelationExtractorEvaluation;
 //import org.chboston.cnlp.ctakes.relationextractor.ae.ModifierExtractorAnnotator;
 
-public class AssertionEvaluation extends Evaluation_ImplBase<File, Map<String, AnnotationStatisticsCompact>> {
+public class AssertionEvaluation_Backup extends Evaluation_ImplBase<File, Map<String, AnnotationStatisticsCompact>> {
   
-private static Logger logger = Logger.getLogger(AssertionEvaluation.class); 
+private static Logger logger = Logger.getLogger(AssertionEvaluation_Backup.class); 
 
   private static final String YTEX_NEGATION_DESCRIPTOR = "ytex.uima.NegexAnnotator";
 
@@ -347,7 +347,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     if (!options.ignoreGeneric) { annotationTypes.add("generic"); }
     if (!options.ignoreHistory) { annotationTypes.add("historyOf"); }
     
-    AssertionEvaluation evaluation = new AssertionEvaluation(
+    AssertionEvaluation_Backup evaluation = new AssertionEvaluation_Backup(
         modelsDir,
         evaluationOutputDirectory,
         annotationTypes,
@@ -387,7 +387,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     	  }
       }
       
-      AssertionEvaluation.printScore(overallStats,  "CROSS FOLD OVERALL");
+      AssertionEvaluation_Backup.printScore(overallStats,  "CROSS FOLD OVERALL");
       
     } 
     
@@ -418,7 +418,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     	  CollectionReader testCollectionReader = evaluation.getCollectionReader(testFiles);
     	  Map<String, AnnotationStatisticsCompact> stats = evaluation.test(testCollectionReader, modelsDir);
 
-    	  AssertionEvaluation.printScore(stats,  modelsDir!=null? modelsDir.getAbsolutePath() : "no_model");
+    	  AssertionEvaluation_Backup.printScore(stats,  modelsDir!=null? modelsDir.getAbsolutePath() : "no_model");
       }
     }
     
@@ -532,7 +532,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 
   private String[] trainingArguments;
 
-  public AssertionEvaluation(
+  public AssertionEvaluation_Backup(
       File modelDirectory,
       File evaluationOutputDirectory,
       ArrayList<String> annotationTypes,
@@ -568,7 +568,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
   public static void preprocess(File rawDir ) throws ResourceInitializationException, UIMAException, IOException {
 //	  File devDirectory = new File(options.trainDirectory.getParentFile() + File.separator + "dev");
 	  File preprocessedDir = null;
-	  if (options.trainDirectory.split("[;]").length>1) {
+	  if (options.trainDirectory.split("[;:]").length>1) {
 		  throw new IOException("Assertion preprocess wants to write to one train directory, but you've supplied multiple: " + options.trainDirectory);
 	  } else {
 		  preprocessedDir = new File(options.trainDirectory);
@@ -673,7 +673,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     		ConfigurationParameterFactory.addConfigurationParameters(
     				polarityAnnotator,
     				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-    				AssertionEvaluation.GOLD_VIEW_NAME,
+    				AssertionEvaluation_Backup.GOLD_VIEW_NAME,
 //    				CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
 //    				this.dataWriterFactoryClass.getName(),
     				DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -695,7 +695,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 	    ConfigurationParameterFactory.addConfigurationParameters(
 	        conditionalAnnotator,
 	        AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-	        AssertionEvaluation.GOLD_VIEW_NAME,
+	        AssertionEvaluation_Backup.GOLD_VIEW_NAME,
 //	        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
 //	        this.dataWriterFactoryClass.getName(),
           DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -716,7 +716,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 	    ConfigurationParameterFactory.addConfigurationParameters(
 	        uncertaintyAnnotator,
 	        AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-	        AssertionEvaluation.GOLD_VIEW_NAME,
+	        AssertionEvaluation_Backup.GOLD_VIEW_NAME,
 //	        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
 //	        this.dataWriterFactoryClass.getName(),
           DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -737,7 +737,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 	    ConfigurationParameterFactory.addConfigurationParameters(
 	        subjectAnnotator,
 	        AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-	        AssertionEvaluation.GOLD_VIEW_NAME,
+	        AssertionEvaluation_Backup.GOLD_VIEW_NAME,
 //	        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
 //	        this.dataWriterFactoryClass.getName(),
           DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -758,7 +758,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 		ConfigurationParameterFactory.addConfigurationParameters(
 		    genericAnnotator,
 		    AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-		    AssertionEvaluation.GOLD_VIEW_NAME,
+		    AssertionEvaluation_Backup.GOLD_VIEW_NAME,
 //		    CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
 //		    this.dataWriterFactoryClass.getName(),
         DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -779,7 +779,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     	ConfigurationParameterFactory.addConfigurationParameters(
     			historyAnnotator,
     			AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-    			AssertionEvaluation.GOLD_VIEW_NAME,
+    			AssertionEvaluation_Backup.GOLD_VIEW_NAME,
 //    			CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
 //    			this.dataWriterFactoryClass.getName(),
           DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -1430,7 +1430,7 @@ private void addExternalAttributeAnnotatorsToAggregate(AggregateBuilder builder)
 	ConfigurationParameterFactory.addConfigurationParameters(
 			oldAssertionAnnotator,
 			AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-			AssertionEvaluation.GOLD_VIEW_NAME
+			AssertionEvaluation_Backup.GOLD_VIEW_NAME
 	);
 	builder.add(oldAssertionAnnotator);
 
@@ -1438,7 +1438,7 @@ private void addExternalAttributeAnnotatorsToAggregate(AggregateBuilder builder)
 	ConfigurationParameterFactory.addConfigurationParameters(
 			oldConversionAnnotator,
 			AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-			AssertionEvaluation.GOLD_VIEW_NAME
+			AssertionEvaluation_Backup.GOLD_VIEW_NAME
 	);
 	builder.add(oldConversionAnnotator);
 
@@ -1446,7 +1446,7 @@ private void addExternalAttributeAnnotatorsToAggregate(AggregateBuilder builder)
 	ConfigurationParameterFactory.addConfigurationParameters(
 			oldSubjectAnnotator,
 			AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-			AssertionEvaluation.GOLD_VIEW_NAME
+			AssertionEvaluation_Backup.GOLD_VIEW_NAME
 	);
 	builder.add(oldSubjectAnnotator);
 
@@ -1454,7 +1454,7 @@ private void addExternalAttributeAnnotatorsToAggregate(AggregateBuilder builder)
 	ConfigurationParameterFactory.addConfigurationParameters(
 			oldGenericAnnotator,
 			AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-			AssertionEvaluation.GOLD_VIEW_NAME
+			AssertionEvaluation_Backup.GOLD_VIEW_NAME
 	);
 	builder.add(oldGenericAnnotator);
 }
@@ -1508,7 +1508,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
     		ConfigurationParameterFactory.addConfigurationParameters(
     				polarityAnnotator,
     				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-    				AssertionEvaluation.GOLD_VIEW_NAME,
+    				AssertionEvaluation_Backup.GOLD_VIEW_NAME,
     				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
     				new File(new File(directory, "polarity"), "model.jar").getPath()
     				);
@@ -1523,7 +1523,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 		ConfigurationParameterFactory.addConfigurationParameters(
 				conditionalAnnotator,
 				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-				AssertionEvaluation.GOLD_VIEW_NAME,
+				AssertionEvaluation_Backup.GOLD_VIEW_NAME,
 				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 				new File(new File(directory, "conditional"), "model.jar").getPath()
 		);
@@ -1536,7 +1536,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 		ConfigurationParameterFactory.addConfigurationParameters(
 				uncertaintyAnnotator,
 				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-				AssertionEvaluation.GOLD_VIEW_NAME,
+				AssertionEvaluation_Backup.GOLD_VIEW_NAME,
 				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 				new File(new File(directory, "uncertainty"), "model.jar").getPath()
 		);
@@ -1549,7 +1549,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 		ConfigurationParameterFactory.addConfigurationParameters(
 				subjectAnnotator,
 				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-				AssertionEvaluation.GOLD_VIEW_NAME,
+				AssertionEvaluation_Backup.GOLD_VIEW_NAME,
 				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 				new File(new File(directory, "subject"), "model.jar").getPath()
 		);
@@ -1562,7 +1562,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 		ConfigurationParameterFactory.addConfigurationParameters(
 				genericAnnotator,
 				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-				AssertionEvaluation.GOLD_VIEW_NAME,
+				AssertionEvaluation_Backup.GOLD_VIEW_NAME,
 				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 				new File(new File(directory, "generic"), "model.jar").getPath()
 		);
@@ -1574,7 +1574,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 		ConfigurationParameterFactory.addConfigurationParameters(
 				historyAnnotator,
 				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
-				AssertionEvaluation.GOLD_VIEW_NAME,
+				AssertionEvaluation_Backup.GOLD_VIEW_NAME,
 				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 				new File(new File(directory, "historyOf"), "model.jar").getPath()
 				);

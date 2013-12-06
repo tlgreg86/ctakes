@@ -48,8 +48,8 @@ public class AssertionConst {
 //	public static String modelDirectory = "../ctakes-assertion-res/resources/model/sharptrain-xval-fs";
 //	public static String modelDirectory = "../ctakes-assertion-res/resources/model/sharptrain";
 //	public static String modelDirectory = "../ctakes-assertion-res/resources/model/sharptrain+i2b2train";
-	public static String modelDirectory = "../ctakes-assertion-res/resources/model/mipacqtrain";
-//	public static String modelDirectory = "../ctakes-assertion-res/resources/model/negextest";
+//	public static String modelDirectory = "../ctakes-assertion-res/resources/model/mipacqtrain";
+	public static String modelDirectory = "../ctakes-assertion-res/resources/model/negextest";
 
 	
 	// Specify training directories for each attribute in a (semi)colon-separated list, e.g., "preprocessed_data/dev:preprocessed_data/train"
@@ -70,8 +70,10 @@ public class AssertionConst {
 		
 	public static HashMap<String,String> testDirectories = new HashMap<String,String>();
 	static { 
+		testDirectories.put("polarity", DATA_DIR +  "preprocessed_data/negex");
+//		testDirectories.put("polarity", DATA_DIR +  "preprocessed_data/mipacq/test");
 //		testDirectories.put("polarity", DATA_DIR +  "preprocessed_data/i2b2/test");
-		testDirectories.put("polarity", DATA_DIR +  "preprocessed_data/sharp/test");
+//		testDirectories.put("polarity", DATA_DIR +  "preprocessed_data/sharp/test");
 //		testDirectories.put("polarity", DATA_DIR +  "preprocessed_data/sharp/dev");
 //		testDirectories.put("conditional", DATA_DIR +  "preprocessed_data/sharp/test");
 //		testDirectories.put("uncertainty", DATA_DIR +  "preprocessed_data/sharp/test");

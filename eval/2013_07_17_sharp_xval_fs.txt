@@ -1,0 +1,68 @@
+directory: "CROSS FOLD OVERALL"; assertion type: SUBJECT
+
+P	   R	  F1   #gold	 #system   #correct
+0.994	   0.994  0.994		 10460	   10460	10397	OVERALL
+0.700	   0.837  0.762		 92	   110		77	family_member
+0.000	   0.000  0.000		 19	   2		0	other
+0.997	   0.997  0.997		 10349	   10348	10320	patient
+
+directory: "CROSS FOLD OVERALL"; assertion type: GENERIC
+
+P	   R	  F1   #gold	 #system   #correct
+0.979	   0.979  0.979		 10460	   10460	10245	OVERALL
+0.993	   0.985  0.989		 10225	   10142	10076	false
+0.531	   0.719  0.611		 235	   318		169	true
+
+directory: "CROSS FOLD OVERALL"; assertion type: HISTORYOF
+
+P	   R	  F1   #gold	 #system   #correct
+0.981	   0.981  0.981		 10460	   10460	10263	OVERALL
+0.990	   0.991  0.990		 10228	   10239	10135	0
+0.579	   0.552  0.565		 232	   221		128	1
+
+directory: "CROSS FOLD OVERALL"; assertion type: POLARITY
+
+P	   R	  F1   #gold	 #system   #correct
+0.983	   0.983  0.983		 10460	   10460	10283	OVERALL
+0.927	   0.875  0.900		 910	   859		796	-1
+0.988	   0.993  0.991		 9550	   9601		9487	1
+
+directory: "CROSS FOLD OVERALL"; assertion type: CONDITIONAL
+
+P	   R	  F1   #gold	 #system   #correct
+0.983	   0.983  0.983		 10460	   10460	10283	OVERALL
+0.992	   0.991  0.991		 10316	   10309	10224	false
+0.391	   0.410  0.400		 144	   151		59	true
+
+directory: "CROSS FOLD OVERALL"; assertion type: UNCERTAINTY
+
+P	   R	  F1   #gold	 #system   #correct
+0.971	   0.971  0.971		 10460	   10460	10157	OVERALL
+0.991	   0.979  0.985		 10187	   10062	9973	0
+0.462	   0.674  0.548		 273	   398		184	1
+
+
+directory: "CROSS FOLD OVERALL"; assertion type: SUBJECT
+
+P	   R	  F1   #gold	 #system   #correct
+0.994	   0.994  0.994		 10460	   10460	10397	OVERALL
+0.700	   0.837  0.762		 92	   110		77	family_member
+0.000	   0.000  0.000		 19	   2		0	other
+0.997	   0.997  0.997		 10349	   10348	10320	patient
+
+directory: "CROSS FOLD OVERALL"; assertion type: GENERIC
+
+P	   R	  F1   #gold	 #system   #correct
+0.979	   0.979  0.979		 10460	   10460	10245	OVERALL
+0.993	   0.985  0.989		 10225	   10142	10076	false
+0.531	   0.719  0.611		 235	   318		169	true
+
+directory: "CROSS FOLD OVERALL"; assertion type: HISTORYOF
+
+P	   R	  F1   #gold	 #system   #correct
+0.981	   0.981  0.981		 10460	   10460	10263	OVERALL
+0.990	   0.991  0.990		 10228	   10239	10135	0
+0.579	   0.552  0.565		 232	   221		128	1
+
+
+Finished assertion module at Wed Jul 17 13:05:57 CDT 2013

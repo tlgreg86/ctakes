@@ -1,0 +1,4 @@
+polarity	null	sharptrain+negextest-feda	/projects/data/assertion/data/preprocessed_data/sharp/test	All	0.996	All	0.996	All	0.996	-1	0.957	-1	0.938	-1	0.947	1	0.997	1	0.998	1	0.998	
+polarity	null	sharptrain+negextest-feda	/projects/data/assertion/data/preprocessed_data/i2b2/test	All	0.934	All	0.934	All	0.934	-1	0.961	-1	0.691	-1	0.804	1	0.930	1	0.993	1	0.961	
+polarity	null	sharptrain+negextest-feda	/projects/data/assertion/data/preprocessed_data/mipacq/test	All	0.949	All	0.949	All	0.949	-1	0.933	-1	0.467	-1	0.622	1	0.950	1	0.997	1	0.973	
+polarity	null	sharptrain+negextest-feda	/projects/data/assertion/data/preprocessed_data/negex	All	1.000	All	1.000	All	1.000	-1	1.000	-1	1.000	-1	1.000	1	1.000	1	1.000	1	1.000	

@@ -1,0 +1,1 @@
+polarity	null	mipacqtrain	/projects/data/assertion/data/preprocessed_data/sharp/test	All	0.965	All	0.965	All	0.965	-1	0.569	-1	0.688	-1	0.623	1	0.986	1	0.977	1	0.982	

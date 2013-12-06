@@ -1,0 +1,1 @@
+polarity	null	negextest	/projects/data/assertion/data/preprocessed_data/mipacq/test	All	0.945	All	0.945	All	0.945	-1	0.667	-1	0.765	-1	0.713	1	0.977	1	0.963	1	0.970	

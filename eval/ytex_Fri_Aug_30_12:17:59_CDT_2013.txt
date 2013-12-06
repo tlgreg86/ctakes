@@ -1,0 +1,1 @@
+polarity	null	negextest	/projects/data/assertion/data/preprocessed_data/i2b2/test	All	0.933	All	0.933	All	0.933	-1	0.849	-1	0.795	-1	0.821	1	0.951	1	0.966	1	0.959	

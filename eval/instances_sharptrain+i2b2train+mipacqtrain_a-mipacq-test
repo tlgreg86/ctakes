@@ -1,0 +1,1675 @@
+polarity,TN,1,1,medpedia2-200.txt,1,0,false,false,patient,0,5,ProcedureMention,added to other antiepileptic drugs
+polarity,TN,1,1,medpedia2-200.txt,1,0,false,false,patient,0,5,ProcedureMention,randomized to either KEPPRA or placebo
+polarity,TN,1,1,medpedia2-200.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,epilepsy
+polarity,TN,1,1,medpedia2-200.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Grand Mal seizures on awakening
+polarity,TN,1,1,medpedia2-200.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Each of these syndromes of idiopathic generalized epilepsy
+polarity,TN,1,1,medpedia2-200.txt,1,0,false,false,patient,0,5,ProcedureMention,titrated
+polarity,TN,1,1,medpedia2-200.txt,1,0,false,false,patient,0,5,ProcedureMention,treated at a stable dose of 3000 mg/day
+polarity,TN,1,1,medpedia2-200.txt,1,0,false,false,patient,0,5,ProcedureMention,evaluation
+polarity,TN,1,1,medpedia2-200.txt,1,0,false,false,patient,0,5,ProcedureMention,Study drug was given in 2 equally divided doses per day
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,End-stage renal disease maintained on in-center hemodialysis
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,hemodialysis
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,dialysis
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,Calcium and phosphorus balance
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,phosphorus balance
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,phosphorus restricted diet
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,1,MedicationMention,phosphate binders
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,end-stage renal disease
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,monitor and adjust her erythropoietin
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,End-stage renal disease maintained on in-center hemodialysis
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,hemodialysis
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,Nutritional status
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,Calcium and phosphorus balance
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,phosphorus balance
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,end-stage renal disease
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,Dialysis
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,dialysis
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,3,SignSymptomMention,chronic cough
+polarity,TP,-1,-1,9538532628-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,fever
+polarity,TP,-1,-1,9538532628-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,chills
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,physical examination
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,5,ProcedureMention,labs
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,white blood cell
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood cell
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cell
+polarity,TN,1,1,9538532628-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,platelet
+polarity,TN,1,1,9254029095-9.source,1,0,false,false,patient,0,1,MedicationMention,CO
+polarity,TN,1,1,9254029095-9.source,1,0,false,false,patient,0,5,ProcedureMention,Group Therapy
+polarity,TN,1,1,9254029095-9.source,1,0,false,false,patient,0,5,ProcedureMention,group therapy
+polarity,TN,1,1,9254029095-9.source,1,0,false,false,patient,0,3,SignSymptomMention,throwing up
+polarity,TN,1,1,9254029095-9.source,1,0,false,false,patient,0,1,MedicationMention,Nicotine
+polarity,TN,1,1,9254029095-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Nicotine Dependence
+polarity,TN,1,1,9254029095-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Nicotine Dependence
+polarity,TN,1,1,9254029095-9.source,1,0,false,false,patient,0,1,MedicationMention,Nicotine
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Gonorrhea
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,It
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,mucous membrane
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,skin
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,openings of the body
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,body
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,secretions
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,semen
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Gonorrhea
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,penis
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,tongue
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,vagina
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,anus
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Infections
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,mucous membranes
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,gonorrhea
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,anus
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,rectum
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,vaginal area
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,eye infections
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,eye
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,discharge
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,disease
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,eye
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,hand
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,eye
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,gonorrhea
+polarity,TN,1,1,medpedia2-222.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,hands
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,5,ProcedureMention,Injection site:  Left shoulder glenohumeral joint
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Injection site
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Left shoulder
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,shoulder glenohumeral joint
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,shoulder
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,glenohumeral joint
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,joint
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Rotator cuff disease
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Rotator cuff
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Rotator
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,arthropathy
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,1,MedicationMention,substances
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,infection
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,5,ProcedureMention,Procedural pause
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,1,MedicationMention,Local anesthetic
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,1,MedicationMention,ethyl chloride
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,5,ProcedureMention,Anesthetic used for injection
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,1,MedicationMention,Anesthetic
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,1,MedicationMention,Xylocaine
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,1,MedicationMention,lidocaine hydrochloride
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,1,MedicationMention,anesthetic
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,5,ProcedureMention,anesthetic injected
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,1,MedicationMention,Depo-Medrol
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,1,MedicationMention,methylprednisolone acetate
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,5,ProcedureMention,corticosteroid injected
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,1,MedicationMention,corticosteroid
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,1,MedicationMention,Anesthetic
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,5,ProcedureMention,Anesthetic and corticosteroid were injected
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,5,ProcedureMention,corticosteroid were injected
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,1,MedicationMention,corticosteroid
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Rotator
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Rotator cuff
+polarity,TN,1,1,8678874894-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,tendonitis
+polarity,TN,1,1,907775107-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Major Depressive Disorder
+polarity,TN,1,1,907775107-9.source,1,0,false,false,patient,0,5,ProcedureMention,individual psychotherapy
+polarity,TN,1,1,907775107-9.source,1,0,false,false,patient,0,5,ProcedureMention,session
+polarity,TN,1,1,907775107-9.source,1,0,false,false,patient,0,3,SignSymptomMention,less tearful
+polarity,TN,1,1,907775107-9.source,1,0,false,false,patient,0,3,SignSymptomMention,tearful
+polarity,TN,1,1,907775107-9.source,1,0,false,false,patient,0,5,ProcedureMention,explore her dependency issues
+polarity,TN,1,1,907775107-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,dependency issues
+polarity,TN,1,1,907775107-9.source,1,0,false,false,patient,0,1,MedicationMention,drug
+polarity,TN,1,1,907775107-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,drug abuse
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Kawasaki disease
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,autoimmune disease
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,body
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,cells
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,1,MedicationMention,antibodies
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,immune system
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,1,MedicationMention,attack proteins
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,body
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,1,MedicationMention,Antibodies
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,damage
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Kawasaki disease
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,1,MedicationMention,autoantibodies
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,1,MedicationMention,antibodies
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,body
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Kawasaki
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,5,ProcedureMention,treatments
+polarity,TN,1,1,medpedia2-225.txt,1,0,false,false,patient,0,1,MedicationMention,autoantibodies
+polarity,TN,1,1,medpedia2-227.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,body
+polarity,TN,1,1,medpedia2-227.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,body lice infestation
+polarity,TN,1,1,medpedia2-227.txt,1,0,false,false,patient,0,5,ProcedureMention,improving the personal hygiene of the infested person
+polarity,TN,1,1,medpedia2-227.txt,1,0,false,false,patient,0,5,ProcedureMention,assuring a regular (at least weekly) change of clean clothes
+polarity,TN,1,1,medpedia2-227.txt,1,0,false,false,patient,0,5,ProcedureMention,change of clean clothes
+polarity,TN,1,1,medpedia2-227.txt,1,0,false,false,patient,0,5,ProcedureMention,Clothing; bedding; and towels used by the infested person should be laundered using hot water
+polarity,TN,1,1,medpedia2-227.txt,1,0,false,false,patient,0,5,ProcedureMention,bedding; and towels used by the infested person should be laundered using hot water
+polarity,TN,1,1,medpedia2-227.txt,1,0,false,false,patient,0,5,ProcedureMention,towels used by the infested person should be laundered using hot water
+polarity,TN,1,1,medpedia2-227.txt,1,0,false,false,patient,0,1,MedicationMention,water
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,5,ProcedureMention,Staging
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,5,ProcedureMention,staging process
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,7,EventMention,stage of the disease
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,disease
+polarity,FP,-1,1,medpedia2-253.txt,-1,0,false,false,patient,0,7,EventMention,stages for gastrointestinal carcinoid tumors
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,gastrointestinal carcinoid tumors
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,disease
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,tumor
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,5,ProcedureMention,removed by surgery
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,5,ProcedureMention,surgery
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,5,ProcedureMention,tests
+polarity,TN,1,1,medpedia2-253.txt,1,0,false,false,patient,0,5,ProcedureMention,procedures
+polarity,TN,1,1,medpedia2-256.txt,1,0,false,false,patient,0,5,ProcedureMention,Percutaneous ethanol injection
+polarity,TN,1,1,medpedia2-256.txt,1,0,false,false,patient,0,1,MedicationMention,ethanol
+polarity,TN,1,1,medpedia2-256.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-256.txt,1,0,false,false,patient,0,5,ProcedureMention,cancer treatment
+polarity,TN,1,1,medpedia2-256.txt,1,0,false,false,patient,0,5,ProcedureMention,inject ethanol (alcohol) directly into a tumor
+polarity,TN,1,1,medpedia2-256.txt,1,0,false,false,patient,0,1,MedicationMention,ethanol
+polarity,TN,1,1,medpedia2-256.txt,1,0,false,false,patient,0,1,MedicationMention,alcohol
+polarity,TN,1,1,medpedia2-256.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,tumor
+polarity,TN,1,1,medpedia2-256.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-256.txt,1,0,false,false,patient,0,5,ProcedureMention,intratumoral ethanol injection
+polarity,TN,1,1,medpedia2-256.txt,1,0,false,false,patient,0,1,MedicationMention,ethanol
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Depression
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,medical illnesses
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,heart disease
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,heart
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,stroke
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,HIV/AIDS
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,diabetes
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Parkinson's disease
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,5,ProcedureMention,Studies
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,depression
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,medical illness
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,3,SignSymptomMention,symptoms of both depression
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,3,SignSymptomMention,symptoms of both depression and the medical illness
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,depression
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,medical illness
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,medical condition
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,depression
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,5,ProcedureMention,Research
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,5,ProcedureMention,treating the depression
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,depression
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,5,ProcedureMention,treating the co-occurring illness
+polarity,TN,1,1,medpedia2-251.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,illness
+polarity,TN,1,1,medpedia2-201.txt,1,0,false,false,patient,0,5,ProcedureMention,test the effects of OSA treatment in persons with epilepsy
+polarity,TN,1,1,medpedia2-201.txt,1,0,false,false,patient,0,5,ProcedureMention,definitive phase 3 randomized clinical trial
+polarity,TN,1,1,medpedia2-201.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,OSA
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,5,ProcedureMention,hospitalized
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,choledocholithiasis
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,5,ProcedureMention,Ultrasound showed stones in the gallbladder
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,stones in the gallbladder
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,gallbladder
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,5,ProcedureMention,cholecystectomy
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,5,ProcedureMention,hepatitis C RNA
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,hepatitis C
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,liver
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,inflammation
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Choledocholithiasis
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,1,MedicationMention,hepatitis C antibody
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,hepatitis C
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Hepatitis C
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,5,ProcedureMention,Hepatitis C RNA
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,chronic hepatitis C infection
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,this
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,liver
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,5,ProcedureMention,hepatitis C RNA
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,hepatitis C
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,liver
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Choledocholithiasis
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,hepatitis C
+polarity,TN,1,1,8698957752-8.source,1,0,false,false,patient,0,1,MedicationMention,hepatitis C antibody
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Graves' Disease
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,autoimmune disease
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,thyroid gland
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,hyperthyroidism
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,toxic diffuse goiter
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,thyroid gland
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,body
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,thyroid
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,thyroid
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,1,MedicationMention,thyroid hormones
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,body
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,thyroid
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,1,MedicationMention,thyroid hormones
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,side effects
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,3,SignSymptomMention,weight loss
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,3,SignSymptomMention,rapid heart rate
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,3,SignSymptomMention,nervousness
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,disease
+polarity,TN,1,1,medpedia2-209.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Graves' Disease
+polarity,TN,1,1,medpedia2-229.txt,1,0,false,false,patient,0,1,MedicationMention,prescription medication
+polarity,TN,1,1,medpedia2-229.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment of head lice
+polarity,TN,1,1,medpedia2-229.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,head
+polarity,TN,1,1,medpedia2-229.txt,1,0,false,false,patient,0,1,MedicationMention,Ulesfia (benzyl alcohol) Lotion; 5%
+polarity,TN,1,1,medpedia2-229.txt,1,0,false,false,patient,0,1,MedicationMention,benzyl alcohol
+polarity,TN,1,1,medpedia2-229.txt,1,0,false,false,patient,0,5,ProcedureMention,use in children 6 months of age and older
+polarity,TN,1,1,medpedia2-229.txt,1,0,false,false,patient,0,1,MedicationMention,drug
+polarity,TN,1,1,medpedia2-229.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,head
+polarity,TN,1,1,medpedia2-229.txt,1,0,false,false,patient,0,1,MedicationMention,head lice product
+polarity,TN,1,1,medpedia2-229.txt,1,0,false,false,patient,0,1,MedicationMention,benzyl alcohol
+polarity,TN,1,1,medpedia2-229.txt,1,0,false,false,patient,0,1,MedicationMention,active ingredient
+polarity,TN,1,1,medpedia2-250.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Depression
+polarity,TN,1,1,medpedia2-250.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,other illnesses
+polarity,TN,1,1,medpedia2-250.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,illnesses
+polarity,TN,1,1,medpedia2-250.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,depression
+polarity,TN,1,1,medpedia2-250.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,it
+polarity,TN,1,1,medpedia2-250.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,it
+polarity,TN,1,1,medpedia2-250.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,other illnesses
+polarity,TN,1,1,medpedia2-250.txt,1,0,false,false,patient,0,5,ProcedureMention,diagnosed
+polarity,TN,1,1,medpedia2-250.txt,1,0,false,false,patient,0,5,ProcedureMention,treated
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Esophagitis
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,1,MedicationMention,Prilosec
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,reflux
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,1,MedicationMention,aspirin
+polarity,FP,-1,1,9186668122-1.source,-1,0,false,false,patient,0,1,MedicationMention,OTC anti-inflammatories
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,GI
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,GI bleeding
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,stress
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Esophagitis
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Situational stress
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,stress
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Chest
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,3,SignSymptomMention,chest pain
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,mid-chest
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,3,SignSymptomMention,It
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,3,SignSymptomMention,burning pain
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,TP,-1,-1,9186668122-1.source,-1,0,false,false,patient,0,3,SignSymptomMention,shortness-of-breath
+polarity,FN,1,-1,9186668122-1.source,1,0,false,false,patient,0,3,SignSymptomMention,nausea
+polarity,TP,-1,-1,9186668122-1.source,-1,0,false,false,patient,0,3,SignSymptomMention,vomiting
+polarity,FN,1,-1,9186668122-1.source,1,0,false,false,patient,0,3,SignSymptomMention,diaphoresis
+polarity,TP,-1,-1,9186668122-1.source,-1,0,false,false,patient,0,3,SignSymptomMention,light-headedness
+polarity,FP,-1,1,9186668122-1.source,-1,0,false,false,patient,0,1,MedicationMention,antacids
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,1,MedicationMention,aspirin
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,7,EventMention,NKDA
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,1,MedicationMention,Caffeine
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,1,MedicationMention,Tums
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,1,MedicationMention,Mylanta
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,1,MedicationMention,Zantac
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,1,MedicationMention,Aspirin
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,7,EventMention,96 /minute
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,7,EventMention,130 mmHg
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,7,EventMention,60 mmHg
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,7,EventMention,Alert
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Lungs
+polarity,TP,-1,-1,9186668122-1.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,Abdomen: Slight tenderness is present only in the epigastric area.  No masses
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Abdomen
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,3,SignSymptomMention,tenderness is present only in the epigastric area
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,epigastric area
+polarity,TP,-1,-1,9186668122-1.source,-1,0,false,false,patient,0,3,SignSymptomMention,hepatosplenomegaly
+polarity,TN,1,1,9186668122-1.source,1,0,false,false,patient,0,5,ProcedureMention,vasectomy
+polarity,TN,1,1,medpedia2-205.txt,1,0,false,false,patient,0,1,MedicationMention,Antidepressants
+polarity,TN,1,1,medpedia2-205.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,brain
+polarity,TN,1,1,medpedia2-205.txt,1,0,false,false,patient,0,1,MedicationMention,brain chemicals
+polarity,TN,1,1,medpedia2-205.txt,1,0,false,false,patient,0,1,MedicationMention,neurotransmitters
+polarity,TN,1,1,medpedia2-205.txt,1,0,false,false,patient,0,1,MedicationMention,serotonin
+polarity,TN,1,1,medpedia2-205.txt,1,0,false,false,patient,0,1,MedicationMention,norepinephrine
+polarity,TN,1,1,medpedia2-205.txt,1,0,false,false,patient,0,1,MedicationMention,antidepressants
+polarity,TN,1,1,medpedia2-205.txt,1,0,false,false,patient,0,1,MedicationMention,neurotransmitter
+polarity,TN,1,1,medpedia2-205.txt,1,0,false,false,patient,0,1,MedicationMention,dopamine
+polarity,TN,1,1,medpedia2-205.txt,1,0,false,false,patient,0,5,ProcedureMention,studying depression
+polarity,TN,1,1,medpedia2-205.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,depression
+polarity,TN,1,1,medpedia2-205.txt,1,0,false,false,patient,0,1,MedicationMention,these particular chemicals
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Oropharyngeal cancer
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,5,ProcedureMention,radiation therapy
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,1,MedicationMention,chemotherapy
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Hypothyroidism
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,5,ProcedureMention,increased her dose
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,5,ProcedureMention,increased her dose of Synthroid
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,1,MedicationMention,Synthroid
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,5,ProcedureMention,chest x-ray
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,5,ProcedureMention,liver function tests
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,liver
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Inability to swallow her secretions
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,1,MedicationMention,Scopolamine
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,behind-the-ear
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,tumor
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Oropharyngeal cancer
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,5,ProcedureMention,radiation therapy
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,1,MedicationMention,chemotherapy
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Hypothyroidism
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Inability to swallow her secretions
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,5,ProcedureMention,evaluation of an advanced oropharynx cancer
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,oropharynx cancer
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,oropharynx
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,5,ProcedureMention,radiation therapy
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,1,MedicationMention,chemotherapy
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,tonsil
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,metastatic oropharynx cancer
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,oropharynx
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,3,SignSymptomMention,weight gain
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,3,SignSymptomMention,fatigue
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,3,SignSymptomMention,cold intolerance
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,3,SignSymptomMention,excessive saliva production
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,ear
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,ear pain
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,sore throat
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,6,AnatomicalSiteMention,throat
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,odynophagia
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,hemoptysis
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,shortness-of-breath
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,dyspnea on exertion
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,chest discomfort
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,chest
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,anorexia
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,nausea
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,adenopathy
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,5,ProcedureMention,tracheostomy
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,5,ProcedureMention,feeding tube
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Skin
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,skin abnormalities
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,ENT
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,oral cavity
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,oropharynx
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,telangiectasia of all mucosa
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,mucosa
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,tongue
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,5,ProcedureMention,Examination of the nasal cavity; nasopharynx; oral pharynx; hypopharynx and larynx
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nasal
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nasal cavity
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cavity; nasopharynx; oral
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nasopharynx
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,pharynx
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,hypopharynx
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,larynx
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,mucosal
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,mucosal abnormality worrisome for cancer
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,pharynx
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,epiglottis
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,vocal cords
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,esophagus
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Lymph
+polarity,TP,-1,-1,9347336086-9.source,-1,0,false,false,patient,0,3,SignSymptomMention,mass in the neck or supraclavicular region
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,neck
+polarity,FN,1,-1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,supraclavicular region
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,submandibular region
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Thyroid
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Thyroid
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,1,MedicationMention,sensitive TSH
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,1,MedicationMention,free thyroxine
+polarity,TN,1,1,9347336086-9.source,1,0,false,false,patient,0,1,MedicationMention,TPO antibodies
+polarity,TN,1,1,9864467-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Depression
+polarity,FN,1,-1,9864467-9.source,1,0,false,false,patient,0,1,MedicationMention,Zoloft
+polarity,TN,1,1,9864467-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Depression
+polarity,TN,1,1,9864467-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Depression
+polarity,TN,1,1,9864467-9.source,1,0,false,false,patient,0,3,SignSymptomMention,headaches
+polarity,TP,-1,-1,9864467-9.source,-1,0,false,false,patient,0,1,MedicationMention,Zoloft
+polarity,TN,1,1,9864467-9.source,1,0,false,false,patient,0,3,SignSymptomMention,lost some weight
+polarity,TN,1,1,9864467-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,stress
+polarity,TN,1,1,9864467-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Affect is still somewhat flat
+polarity,TN,1,1,medpedia2-204.txt,1,0,false,false,patient,0,3,SignSymptomMention,trouble sleeping
+polarity,TN,1,1,medpedia2-204.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,bipolar disorder
+polarity,TN,1,1,medpedia2-204.txt,1,0,false,false,patient,0,5,ProcedureMention,change in medications
+polarity,TN,1,1,medpedia2-204.txt,1,0,false,false,patient,0,3,SignSymptomMention,problems
+polarity,TN,1,1,medpedia2-204.txt,1,0,false,false,patient,0,5,ProcedureMention,Certain medications and supplements taken together
+polarity,TN,1,1,medpedia2-204.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,effects
+polarity,TN,1,1,medpedia2-252.txt,1,0,false,false,patient,0,5,ProcedureMention,Treatment options
+polarity,TN,1,1,medpedia2-252.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-252.txt,1,0,false,false,patient,0,3,SignSymptomMention,symptoms
+polarity,TN,1,1,medpedia2-252.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,gastrointestinal carcinoid tumors
+polarity,TN,1,1,medpedia2-221.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,disease
+polarity,TN,1,1,medpedia2-221.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,infection of the brain
+polarity,TN,1,1,medpedia2-221.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,infection of the brain or spinal cord
+polarity,TN,1,1,medpedia2-221.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,brain
+polarity,TN,1,1,medpedia2-221.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,spinal cord
+polarity,TN,1,1,medpedia2-221.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,meningitis
+polarity,TN,1,1,medpedia2-221.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,meningitis
+polarity,TN,1,1,medpedia2-221.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,gonorrhea
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,admitted
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,wheezing
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,wheezing
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,shortness-of-breath
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,cough
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,substernal
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,substernal pressure
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,admission
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,nebulized
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,discharged
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,admission
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,prednisone
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,admission
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,wheezing
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,nebulized
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Solu-Medrol
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,IV
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,asthma attack
+polarity,FN,1,-1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,extremity
+polarity,TP,-1,-1,9201828029-7.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,extremity edema
+polarity,TP,-1,-1,9201828029-7.source,-1,0,false,false,patient,0,3,SignSymptomMention,pleuritic pain
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Asthma
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Anxiety disorder
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Hyperlipidemia
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,tonsillectomy
+polarity,FN,1,-1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Penicillin
+polarity,FN,1,-1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Erythromycin
+polarity,FN,1,-1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Cleocin
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,7,EventMention,24 /minute
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,7,EventMention,100 /minute
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,7,EventMention,134 mmHg
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,7,EventMention,74 mmHg
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,respiratory distress
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,muscles
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Heart
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Soft 1/6 systolic murmur
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,systolic murmur
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,murmur
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,left upper sternal border
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,border
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Lungs
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,bases
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,wheeze on expiration
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,Increased respiratory rate
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,7,EventMention,respiratory rate
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Abdomen
+polarity,TP,-1,-1,9201828029-7.source,-1,0,false,false,patient,0,3,SignSymptomMention,Abdomen:  Soft; nontender
+polarity,TP,-1,-1,9201828029-7.source,-1,0,false,false,patient,0,3,SignSymptomMention,Abdomen:  Soft; nontender.  No masses
+polarity,TP,-1,-1,9201828029-7.source,-1,0,false,false,patient,0,3,SignSymptomMention,Musculoskeletal:  No extremity edema.  No tenderness
+polarity,FN,1,-1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,extremity
+polarity,TP,-1,-1,9201828029-7.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,extremity edema
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Neuro
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,7,EventMention,alert and oriented
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,HEENT
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,mucous membranes
+polarity,FN,1,-1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Pharynx
+polarity,TP,-1,-1,9201828029-7.source,-1,0,false,false,patient,0,3,SignSymptomMention,erythema
+polarity,TP,-1,-1,9201828029-7.source,-1,0,false,false,patient,0,6,AnatomicalSiteMention,cervical lymph nodes
+polarity,FN,1,-1,9201828029-7.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,lymph nodes
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Hgb
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Na
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,K
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Cl
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Bicarb
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,CR
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,GLUC
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,nebulized
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,albuterol
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,metered-dose inhaler (MDI)
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Serevent
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,MDI
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Flovent
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,MDI
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,prednisone
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,oxygen
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,shortness-of-breath
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,shortness-of-breath
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Serevent
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,peak flows
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,bronchospasm
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,lung exam
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,wheezes increased bilaterally
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,wheezes
+polarity,FN,1,-1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Serevent
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,albuterol
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Flovent
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,prednisone
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,5,ProcedureMention,hospitalization
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,cough
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Robitussin
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Tessalon Perles
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Zoloft
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Trazodone
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Flovent
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Ventolin
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Prednisone
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,1,MedicationMention,Tessalon Perles
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,cough
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,3,SignSymptomMention,wheezing
+polarity,TN,1,1,9201828029-7.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Allergy
+polarity,TN,1,1,medpedia2-228.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,Head
+polarity,TN,1,1,medpedia2-228.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,medpedia2-228.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,skin on the head
+polarity,TN,1,1,medpedia2-228.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,head
+polarity,TN,1,1,medpedia2-228.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,hair
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,examine a small piece of kidney tissue with a microscope
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,piece of kidney tissue
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,kidney tissue
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,kidney
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,syndrome
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,collecting a small tissue sample from the kidney
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,tissue sample
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,tissue
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,kidney
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,biopsy
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,long needle passed through the skin
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,skin
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,procedure
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,receive calming drugs and a local painkiller
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,receive calming drugs
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,1,MedicationMention,calming drugs
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,1,MedicationMention,local painkiller
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,3,SignSymptomMention,bleeding problems
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,open surgery
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,biopsy
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,General anesthesia
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,surgery
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,biopsy procedure
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,stay overnight in the hospital
+polarity,TN,1,1,medpedia2-262.txt,1,0,false,false,patient,0,5,ProcedureMention,rest
+polarity,TN,1,1,medpedia2-211.txt,1,0,false,false,patient,0,5,ProcedureMention,Electron micrograph of a negatively stained human papilloma virus
+polarity,TN,1,1,9220984555-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,anxiety
+polarity,TN,1,1,9220984555-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,anxiety
+polarity,TN,1,1,9220984555-9.source,1,0,false,false,patient,0,5,ProcedureMention,evaluated in the emergency department by the lgtexkmqbt service
+polarity,TN,1,1,9220984555-9.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,anxiety
+polarity,TN,1,1,9220984555-9.source,1,0,false,false,patient,0,5,ProcedureMention,physical
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Inverse psoriasis
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nail
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,1,MedicationMention,DesOwen
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Accessory nipple
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nipple
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Inverse psoriasis
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,3,SignSymptomMention,nail involvement
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nail
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Rash
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,recurrent; pruritic; burning eruption
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,pruritic; burning eruption
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,groin
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,navel
+polarity,FN,1,-1,9708627-4.source,1,0,false,false,patient,0,1,MedicationMention,anti-fungal preparations
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,fungal
+polarity,FN,1,-1,9708627-4.source,1,0,false,false,patient,0,1,MedicationMention,Tinactin
+polarity,FN,1,-1,9708627-4.source,1,0,false,false,patient,0,1,MedicationMention,Cruex
+polarity,FN,1,-1,9708627-4.source,1,0,false,false,patient,0,1,MedicationMention,tolnaftate
+polarity,FN,1,-1,9708627-4.source,1,0,false,false,patient,0,1,MedicationMention,zinc oxide
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,1,MedicationMention,Nizoral
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,3,SignSymptomMention,eruption often recurs after clearing
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,eruption
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,5,ProcedureMention,change in his diet
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,eruption
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,back
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,back injury
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,eruption
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,inverted papilloma
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,3,SignSymptomMention,Skin: A complete skin examination was performed.  Involving the umbilicus and inguinal folds bilaterally as well as the scrotum and gluteal cleft are well-circumscribed; brightly; erythematous; scaly
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,3,SignSymptomMention,Skin: A complete skin examination was performed.  Involving the umbilicus and inguinal folds bilaterally as well as the scrotum and gluteal cleft are well-circumscribed; brightly; erythematous; scaly; thin plaques.  There is some maceration
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Skin
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,5,ProcedureMention,complete skin examination
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,skin
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,umbilicus
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,inguinal folds
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,scrotum
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,gluteal cleft
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,3,SignSymptomMention,well-circumscribed; brightly; erythematous; scaly; thin plaques
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,3,SignSymptomMention,erythematous
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,maceration
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,inguinal folds
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,excoriations
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nail
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,fingernails
+polarity,TP,-1,-1,9708627-4.source,-1,0,false,false,patient,0,3,SignSymptomMention,involvement of the scalp; elbows; knees; or posterior auricular region
+polarity,FN,1,-1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,scalp
+polarity,FN,1,-1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,elbows
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,knees
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,knees; or posterior auricular region
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,auricular region
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,L anterior thorax
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,thorax
+polarity,TN,1,1,9708627-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,accessory nipple
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Right L5-S1
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,facet
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,fluoroscopy
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,prepped with Betadine
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,1,MedicationMention,Betadine
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,local anesthesia
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,skin
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,1,MedicationMention,lidocaine
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,Rhizotomy
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,fluoroscopic guidance
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,stimulation
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,sensory stimulation
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,tests
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,1,MedicationMention,lidocaine
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,1,MedicationMention,Depo-Medrol
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,facet
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,procedure
+polarity,TP,-1,-1,8974964-3.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,complications
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,observed for one-hour
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,discharged in stable condition
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,1,MedicationMention,Tylenol #3
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,repeating facet rhizotomy
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,facet
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,pain relief
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,facet
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,facet
+polarity,TN,1,1,8974964-3.source,1,0,false,false,patient,0,5,ProcedureMention,risks and benefits were discussed
+polarity,TN,1,1,medpedia2-220.txt,1,0,false,false,patient,0,3,SignSymptomMention,Symptoms
+polarity,TN,1,1,medpedia2-220.txt,1,0,false,false,patient,0,5,ProcedureMention,Treatment
+polarity,TN,1,1,medpedia2-220.txt,1,0,false,false,patient,0,5,ProcedureMention,Prevention
+polarity,TN,1,1,medpedia2-220.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Gonorrhea
+polarity,TN,1,1,medpedia2-220.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Complications
+polarity,TN,1,1,medpedia2-220.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Complications
+polarity,TN,1,1,medpedia2-223.txt,1,0,false,false,patient,0,1,MedicationMention,drugs
+polarity,TN,1,1,medpedia2-223.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,urinary retention
+polarity,TN,1,1,medpedia2-219.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,vagina
+polarity,TN,1,1,medpedia2-219.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,vaginal yeast infections
+polarity,TN,1,1,medpedia2-219.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,vagina
+polarity,TN,1,1,medpedia2-219.txt,1,0,false,false,patient,0,5,ProcedureMention,measure or study sexual transmission of C. albicans
+polarity,TN,1,1,medpedia2-219.txt,1,0,false,false,patient,0,5,ProcedureMention,study sexual transmission of C. albicans
+polarity,TN,1,1,medpedia2-219.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,sexual transmission of C. albicans
+polarity,TN,1,1,medpedia2-219.txt,1,0,false,false,patient,0,5,ProcedureMention,study
+polarity,TN,1,1,medpedia2-219.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,genital
+polarity,TN,1,1,medpedia2-219.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,recurrent yeast infections
+polarity,TN,1,1,medpedia2-219.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,yeast infections
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,acute cholecystitis
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,3,SignSymptomMention,right upper quadrant pain
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,leukocytosis
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,acute cholecystitis
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,5,ProcedureMention,receiving intravenous antibiotics and IV fluids
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,5,ProcedureMention,receiving intravenous antibiotics
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,5,ProcedureMention,intravenous antibiotics
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,1,MedicationMention,antibiotics
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,1,MedicationMention,fluids
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,liver
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,biliary sludge
+polarity,TP,-1,-1,8059578353-8.source,-1,0,false,false,patient,0,5,ProcedureMention,ERCP
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,abdominal
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,5,ProcedureMention,abdominal ultrasound
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,aortic
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,aortic valve
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,1,MedicationMention,anticoagulation
+polarity,FN,1,-1,8059578353-8.source,1,0,false,false,patient,0,1,MedicationMention,Coumadin
+polarity,TP,-1,-1,8059578353-8.source,-1,0,false,false,patient,0,1,MedicationMention,Coumadin
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,1,MedicationMention,Vitamin K
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Pulmonary
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,3,SignSymptomMention,tachypneic
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,5,ProcedureMention,oxygen saturation
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,5,ProcedureMention,chest x-ray
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,chest
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,5,ProcedureMention,receiving IV fluid
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,1,MedicationMention,fluid
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,pulmonary edema
+polarity,FN,1,-1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,pulmonary
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Coronary artery
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Coronary artery disease
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,artery
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,5,ProcedureMention,sestamibi scan
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cardiac
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Anemia
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,1,MedicationMention,hemoglobin
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,5,ProcedureMention,C. difficile positive stool
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,1,MedicationMention,Flagyl
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,3,SignSymptomMention,right upper quadrant pain
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,7,EventMention,respiratory status
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,3,SignSymptomMention,right-sided abdominal pain
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,abdominal
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,3,SignSymptomMention,breathing is comfortable
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,3,SignSymptomMention,tachypneic
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Heart
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Heart
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Lungs
+polarity,TP,-1,-1,8059578353-8.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,pulmonary edema
+polarity,TP,-1,-1,8059578353-8.source,-1,0,false,false,patient,0,6,AnatomicalSiteMention,pulmonary
+polarity,TN,1,1,8059578353-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Extremities
+polarity,TP,-1,-1,8059578353-8.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,peripheral edema
+polarity,TN,1,1,medpedia2-217.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,gene defect
+polarity,TN,1,1,medpedia2-217.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,hereditary hemochromatosis
+polarity,TN,1,1,medpedia2-217.txt,1,0,false,false,patient,0,3,SignSymptomMention,symptoms
+polarity,TN,1,1,medpedia2-203.txt,1,0,false,false,patient,0,5,ProcedureMention,ECT is administered
+polarity,TN,1,1,medpedia2-203.txt,1,0,false,false,patient,0,5,ProcedureMention,takes a muscle relaxant
+polarity,TN,1,1,medpedia2-203.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,muscle
+polarity,TN,1,1,medpedia2-203.txt,1,0,false,false,patient,0,5,ProcedureMention,put under brief anesthesia
+polarity,TN,1,1,medpedia2-203.txt,1,0,false,false,patient,0,5,ProcedureMention,anesthesia
+polarity,TN,1,1,medpedia2-203.txt,1,0,false,false,patient,0,5,ProcedureMention,electrical impulse administered
+polarity,TN,1,1,medpedia2-224.txt,1,0,false,false,patient,0,5,ProcedureMention,Single intravenous doses of metoclopramide 0.22 to 0.46 mg/kg (mean; 0.35 mg/kg) were administered
+polarity,TN,1,1,medpedia2-224.txt,1,0,false,false,patient,0,1,MedicationMention,metoclopramide
+polarity,TN,1,1,medpedia2-224.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-224.txt,1,0,false,false,patient,0,5,ProcedureMention,chemotherapy
+polarity,TN,1,1,medpedia2-224.txt,1,0,false,false,patient,0,5,ProcedureMention,prophylaxis of cytotoxic-induced vomiting
+polarity,TN,1,1,medpedia2-224.txt,1,0,false,false,patient,0,3,SignSymptomMention,cytotoxic-induced vomiting
+polarity,TN,1,1,medpedia2-224.txt,1,0,false,false,patient,0,3,SignSymptomMention,vomiting
+polarity,TN,1,1,medpedia2-224.txt,1,0,false,false,patient,0,1,MedicationMention,metoclopramide plasma
+polarity,TN,1,1,medpedia2-224.txt,1,0,false,false,patient,0,1,MedicationMention,metoclopramide
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,5,ProcedureMention,received Gardasil
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,1,MedicationMention,Gardasil
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,1,MedicationMention,Gardasil
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,HPV
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cervical cancer
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,genital warts
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cervical cancer
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,precancerous changes
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,other high risk types of HPV
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,types of HPV
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,HPV besides 16 and 18
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,HPV besides 16
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,HPV
+polarity,TN,1,1,medpedia2-213.txt,1,0,false,false,patient,0,5,ProcedureMention,routine pap smears
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,Recheck of elevated blood pressure; elevated triglycerides; and glucose
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,elevated blood pressure
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,7,EventMention,blood pressure
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,triglycerides
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,glucose
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,exercise more regularly
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,exercise
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,increase to five times a week 30-minutes each of a brisk walk
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,increased water intake to six to eight glasses of water per day
+polarity,FN,1,-1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,maintain his weight management
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,support from the dietician to see him on a scheduled basis
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,weight-loss
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,loses another 5 pounds
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,7,EventMention,blood pressure
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,tests
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,glycosylated hemoglobin
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,albumin
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,ALT
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,lipoprotein
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,homocystine
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,microalbumin
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,microalbumin urine test
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,urine
+polarity,FN,1,-1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,decrease weight
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,7,EventMention,blood pressure
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,blood pressure medication
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,triglyceride lowering agent
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,Recheck of elevated blood pressure; elevated cholesterol; and glucose
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,elevated blood pressure
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,7,EventMention,blood pressure
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,cholesterol
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,glucose
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,Recheck of elevated blood pressure; elevated cholesterol; and glucose
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,elevated blood pressure
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,7,EventMention,blood pressure
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,cholesterol
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,glucose
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,triglycerides
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,1,MedicationMention,HDL
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,7,EventMention,blood pressure was 140/100
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,watching his diet
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,exercising at least three-times-a-week for 50 minutes
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,exercising
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,six-hour blood pressure monitoring
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,7,EventMention,blood pressure
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,5,ProcedureMention,trying to lose weight
+polarity,TP,-1,-1,8736125131-8.source,-1,0,false,false,patient,0,3,SignSymptomMention,weight change
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,7,EventMention,101.61 kg(224.02 lbs)
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,7,EventMention,90 /minute
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,7,EventMention,155 mmHg
+polarity,TN,1,1,8736125131-8.source,1,0,false,false,patient,0,7,EventMention,106 mmHg
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,types of treatment
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,gastrointestinal carcinoid tumors
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,treatments
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,tested in clinical trials
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,clinical trials
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,clinical trial
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment clinical trial
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,research study
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,current treatments
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,treatments
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,treatments
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,clinical trials
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,new treatment
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-254.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,1,MedicationMention,Immunoglobulins
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,1,MedicationMention,antibodies
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,1,MedicationMention,proteins
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,body
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,disease
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,1,MedicationMention,immunoglobulins
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,cells
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,5,ProcedureMention,Immunoglobulins that have been taken from other people's blood can be given through the IV (intravenous) line
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,1,MedicationMention,Immunoglobulins
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,certain diseases
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,5,ProcedureMention,IVIG
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,5,ProcedureMention,IVIG
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Kawasaki disease
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,5,ProcedureMention,IVIG
+polarity,TN,1,1,medpedia2-226.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,coronary disease
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,1,MedicationMention,vaccine
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,genital HPV
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,1,MedicationMention,Gardasil
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,1,MedicationMention,vaccine
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,high risk HPVs
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,HPVs
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,HPV 16
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,HPV 16 and 18
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cervical cancers
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,1,MedicationMention,vaccine
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,HPV 6
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,HPV 6 and 11
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,genital warts
+polarity,TN,1,1,medpedia2-212.txt,1,0,false,false,patient,0,1,MedicationMention,vaccine
+polarity,TN,1,1,8823185307-8.source,1,0,false,false,patient,0,5,ProcedureMention,aerobic exercise
+polarity,TN,1,1,8823185307-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,heart
+polarity,TN,1,1,8823185307-8.source,1,0,false,false,patient,0,5,ProcedureMention,exercise prescription
+polarity,TN,1,1,8823185307-8.source,1,0,false,false,patient,0,5,ProcedureMention,pulse-monitoring
+polarity,TN,1,1,8823185307-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,leg
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,5,ProcedureMention,Hormone therapy
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,1,MedicationMention,Hormone
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,5,ProcedureMention,cancer treatment
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,1,MedicationMention,hormones
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,1,MedicationMention,Hormones
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,glands
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,body
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,bloodstream
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,1,MedicationMention,hormones
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancers
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancers to grow
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,5,ProcedureMention,tests
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,1,MedicationMention,hormones
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,1,MedicationMention,receptors
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,1,MedicationMention,drugs
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,5,ProcedureMention,surgery
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,5,ProcedureMention,radiation therapy
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,1,MedicationMention,hormones
+polarity,TN,1,1,medpedia2-257.txt,1,0,false,false,patient,0,1,MedicationMention,them
+polarity,TN,1,1,medpedia2-206.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Acne neonatorum
+polarity,TN,1,1,medpedia2-206.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,acne infantum
+polarity,TN,1,1,medpedia2-206.txt,1,0,false,false,patient,0,3,SignSymptomMention,outbreaks of lesions
+polarity,TN,1,1,medpedia2-206.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,face
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,3,SignSymptomMention,Nausea
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,3,SignSymptomMention,vomiting related to pregnancy
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,1,MedicationMention,clear liquids
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,dehydration
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,3,SignSymptomMention,decreased urine output
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,7,EventMention,urine output
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,3,SignSymptomMention,light-headedness
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,3,SignSymptomMention,Nausea
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,vomiting related to pregnancy
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,7,EventMention,VS
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,3,SignSymptomMention,nausea and vomiting
+polarity,TP,-1,-1,9725652239-0.source,-1,0,false,false,patient,0,3,SignSymptomMention,diarrhea
+polarity,TP,-1,-1,9725652239-0.source,-1,0,false,false,patient,0,3,SignSymptomMention,fever
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,7,EventMention,9 weeks pregnant
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,3,SignSymptomMention,emesis
+polarity,TP,-1,-1,9725652239-0.source,-1,0,false,false,patient,0,3,SignSymptomMention,dry heaves
+polarity,TP,-1,-1,9725652239-0.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,hematemesis
+polarity,TP,-1,-1,9725652239-0.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,hematochezia
+polarity,TP,-1,-1,9725652239-0.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,melena
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,3,SignSymptomMention,0 stools in the last 24-hours
+polarity,TP,-1,-1,9725652239-0.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,vaginal discharge
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,7,EventMention,NKDA
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,1,MedicationMention,Prenatal vit
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Mucous membranes
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,ears
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,5,ProcedureMention,Cardiac exam
+polarity,TP,-1,-1,9725652239-0.source,-1,0,false,false,patient,0,6,AnatomicalSiteMention,heart
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,5,ProcedureMention,Lung exam
+polarity,FN,1,-1,9725652239-0.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Abdomen
+polarity,TP,-1,-1,9725652239-0.source,-1,0,false,false,patient,0,3,SignSymptomMention,Abdomen is normal; no mass
+polarity,FN,1,-1,9725652239-0.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,bowel
+polarity,TP,-1,-1,9725652239-0.source,-1,0,false,false,patient,0,3,SignSymptomMention,rebound tenderness
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Liver
+polarity,FN,1,-1,9725652239-0.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Spleen
+polarity,TN,1,1,9725652239-0.source,1,0,false,false,patient,0,7,EventMention,9 weeks preg
+polarity,TN,1,1,medpedia2-218.txt,1,0,false,false,patient,0,5,ProcedureMention,Quantitative phlebotomy
+polarity,TN,1,1,medpedia2-218.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,medpedia2-218.txt,1,0,false,false,patient,0,5,ProcedureMention,blood removal
+polarity,TN,1,1,medpedia2-218.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,hemochromatosis
+polarity,TN,1,1,medpedia2-218.txt,1,0,false,false,patient,0,5,ProcedureMention,phlebotomy
+polarity,TN,1,1,medpedia2-218.txt,1,0,false,false,patient,0,5,ProcedureMention,giving blood
+polarity,TN,1,1,medpedia2-218.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,medpedia2-218.txt,1,0,false,false,patient,0,5,ProcedureMention,one pint of blood removed
+polarity,TN,1,1,medpedia2-218.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,medpedia2-218.txt,1,0,false,false,patient,0,5,ProcedureMention,This
+polarity,TN,1,1,medpedia2-218.txt,1,0,false,false,patient,0,5,ProcedureMention,procedure
+polarity,TN,1,1,medpedia2-218.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,hemochromatosis
+polarity,FP,-1,1,8896217490-4.source,-1,0,false,false,patient,0,3,SignSymptomMention,symptoms
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,symptoms
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,it
+polarity,FN,1,-1,8896217490-4.source,1,0,false,false,patient,0,1,MedicationMention,Metamucil
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,5,ProcedureMention,refer her to one of the gastroenterologists here at the Ampz Ybrsru
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Colon
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Rectal
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Rectal
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,Rectal pain
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,rectal
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,rectal pain
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,pelvic
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,pelvic and abdominal pain
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,abdominal
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,abdominal pain
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,5,ProcedureMention,exploratory laparoscopy
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,endometriosis
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,FN,1,-1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,fever
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,5,ProcedureMention,laparoscopy
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,rectal pain
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,rectal
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,sick to her stomach
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,stomach
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,right-side
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,rectal pain
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,rectal
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,5,ProcedureMention,surgery
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,bowels
+polarity,TP,-1,-1,8896217490-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,blood in the stool
+polarity,TP,-1,-1,8896217490-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,masses
+polarity,TP,-1,-1,8896217490-4.source,-1,0,false,false,patient,0,3,SignSymptomMention,difficulty with defecation
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,3,SignSymptomMention,constipation
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,5,ProcedureMention,colonoscopy
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,5,ProcedureMention,colonoscopy
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,rectocele
+polarity,TN,1,1,8896217490-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,intussusception
+polarity,TP,-1,-1,8896217490-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,lesions
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,multiple sclerosis
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Catamenial migraines
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,MS
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,illness
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,Avonex
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,interferon
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,MS
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,studies
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,Rebif
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,side-effects
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,side-effects
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,MRI
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,inflammation
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,MRIs
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,black hole
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,MRI
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,MRI
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,Rebif
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,MS
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,disease
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,disease
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,MS
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nerve
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,myelin
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,fatigue
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,aspirin
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,study
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,study
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,multiple sclerosis
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Catamenial migraines
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,MS
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,MS
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,disease
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,myelopathy
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,T4
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,workup
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,MRI of the brain
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,MRI
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,MRI of the brain; cervical and thoracic spine
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,brain
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cervical and thoracic spine
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,thoracic
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,thoracic spine
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,spine
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,cerebrospinal fluid examination
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,autoimmune
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,disease
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,multiple sclerosis
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,imaging
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,periventricular white matter
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cervical spinal cord
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,spinal cord
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,oligoclonal bands
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,white blood cells
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood cells
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cells
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,lymphocytes
+polarity,FN,1,-1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,methylprednisolone
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,exacerbation
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,motor problems
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,rehabilitation
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,fatigue
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,worse exercise tolerance
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,7,EventMention,fully functional
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,numbness
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,weakness
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,poor dexterity
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,poor dexterity with the left-hand
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,7,EventMention,dexterity with the left-hand
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,left-hand
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,footdrop
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,difficulty walking
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,Avonex
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,side-effects
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,nausea
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,mood changes
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,malaise
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,muscle aches
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,muscle
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,muscle aches and pains
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,anxiety
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,symptoms
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,nonsteroidals
+polarity,FP,-1,1,9468550393-4.source,-1,0,false,false,patient,0,5,ProcedureMention,injection
+polarity,FP,-1,1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,side-effects
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,MRI
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,MRI of the brain
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,brain in Ykq 4774; which showed a new enhancing lesion
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,brain
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,lesion
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,MRI
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,lesions in the periventricular area
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,periventricular area
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,T2 and FLAIR sequences
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,FLAIR sequences
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,scan
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,evaluation of her headaches
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,headaches
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,diagnosis
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,diagnosis
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,interferon
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,Rebif
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,Betaseron
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,secondary prevention
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,side-effects
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,neurological dysfunction
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,migraines ever since her teenage years in a catamenial
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,medication
+polarity,FN,1,-1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,Lhermitte's sign
+polarity,FP,-1,1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,sicca
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,forehead
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,sensitive to heat
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,drain her energy
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,fatigue
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,It
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,MS-related exacerbation
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,amantadine
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,3,SignSymptomMention,blurry or double-vision
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,double-vision
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,6,AnatomicalSiteMention,bowel
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,bowel or bladder dysfunction
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,bladder dysfunction
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,speech or swallowing difficulties
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,swallowing difficulties
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,hearing problems
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,3,SignSymptomMention,vertigo
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,3,SignSymptomMention,tinnitus
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,memory or cognitive problems
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,cognitive problems
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,anxiety
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,mood swings
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,3,SignSymptomMention,pseudobulbar symptomatology
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,multiple sclerosis
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,central nervous system
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,central nervous system diseases
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nervous system
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,autoimmune
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,medical issues
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,Neurontin
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,Nonsteroidal anti-inflammatory drugs
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,Avonex
+polarity,FN,1,-1,9468550393-4.source,1,0,false,false,patient,0,1,MedicationMention,Prozac
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Neuro
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,Neurological examination
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,It
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,reduced AMRs
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,left-side
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,upper and in the lower extremities
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,lower extremities
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,extremities
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,left upper extremity
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,upper extremity
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,extremity
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,finger extensors
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,finger
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,interossei
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,wrist
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,wrist extensors
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,lower-extremity
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,lower-extremity; there is some iliopsoas weakness
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,iliopsoas
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,3,SignSymptomMention,toe extensor weakness
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,left-side
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,tendon
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,joint position sense abnormality
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,6,AnatomicalSiteMention,joint
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,gait ataxia
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,vibratory decrease
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,heels
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Cranial nerve
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,5,ProcedureMention,Cranial nerve examination
+polarity,TN,1,1,9468550393-4.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nerve
+polarity,TP,-1,-1,9468550393-4.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,color vision desaturation
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,chronic neck pain
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,neck
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,neck pain
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,cervical injections
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cervical
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,regimen
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,treatment approaches
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,functioning decline
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,further treatment
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Neck
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,Neck pain
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,Neck pain
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Neck
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,review of coping with chronic pain and consideration of other treatment suggestions
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,chronic pain
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,neck
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,scalp laceration
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,scalp
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,repaired
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,released from the hospital
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,neck
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,neck pain
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,pain which has been chronic
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,physical therapy with both active and passive modalities
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,physical therapy
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,treatments
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,muscle
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,interventions
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,1,MedicationMention,medication
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,medication regimens
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,long-term pain relief
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,facet
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,facet injections
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cervical region
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,pain relief
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,pain relief
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,pain
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,regimen
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,injection
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,review in some detail with the patient the details of the car accident
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,post-traumatic stress disorder
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,anxious
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,nervous laugh
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,anxious
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,5,ProcedureMention,injections
+polarity,TP,-1,-1,8819868493-8.source,-1,0,false,false,patient,0,3,SignSymptomMention,psychological symptoms or complaints
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,scalp
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,scalp laceration
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,neck pain
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,anxious
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,distress
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,chronic pain
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,3,SignSymptomMention,physical symptoms
+polarity,TN,1,1,8819868493-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,emotionality
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Nephrotic syndrome
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,nephrotic syndrome
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,minimal change disease
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,5,ProcedureMention,treated with prednisone
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,1,MedicationMention,prednisone
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,kidney disease
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,kidney
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,membranous nephropathy
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,focal segmental glomerulonephritis
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,diseases
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,1,MedicationMention,corticosteroids
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,1,MedicationMention,immunosuppressive drugs
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,1,MedicationMention,cytotoxic agents
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,5,ProcedureMention,treatments
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,nephrotic syndrome
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,disease
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,chronic kidney disease
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,end-stage renal disease
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,kidneys
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,1,MedicationMention,water
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,kidney
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,kidney failure
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,5,ProcedureMention,dialysis
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,kidney
+polarity,TN,1,1,medpedia2-261.txt,1,0,false,false,patient,0,5,ProcedureMention,kidney transplant
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,5,ProcedureMention,Thyroid Stimulating Immunogobulin
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,Thyroid
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,5,ProcedureMention,TSI
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,disease
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Graves' disease eye disorder
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Graves' disease
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,eye
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,thyroid
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,5,ProcedureMention,It
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Graves' disease
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,5,ProcedureMention,TSI
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,hyperthyroidism
+polarity,TN,1,1,medpedia2-210.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Graves' disease
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,5,ProcedureMention,Chemotherapy
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,5,ProcedureMention,cancer treatment
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,1,MedicationMention,drugs
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,5,ProcedureMention,chemotherapy is taken by mouth
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,5,ProcedureMention,chemotherapy
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,5,ProcedureMention,chemotherapy is taken by mouth or injected into a vein
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,5,ProcedureMention,chemotherapy is taken by mouth or injected into a vein or muscle
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,mouth
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,vein
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,muscle
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,1,MedicationMention,drugs
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,bloodstream
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,body
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,5,ProcedureMention,systemic chemotherapy
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,5,ProcedureMention,chemotherapy is placed directly into the spinal column
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,5,ProcedureMention,chemotherapy is placed directly into the spinal column; an organ
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,5,ProcedureMention,chemotherapy
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,5,ProcedureMention,chemotherapy is placed directly into the spinal column; an organ; or a body cavity such as the abdomen
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,spinal column
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,organ
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,body cavity
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,abdomen
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,1,MedicationMention,drugs
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,cancer
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,those areas
+polarity,TN,1,1,medpedia2-255.txt,1,0,false,false,patient,0,5,ProcedureMention,regional chemotherapy
+polarity,TN,1,1,medpedia2-214.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Warts
+polarity,TN,1,1,medpedia2-214.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,infection with a virus called the human papilloma virus
+polarity,TN,1,1,medpedia2-214.txt,1,0,false,false,patient,0,1,MedicationMention,keratin
+polarity,TN,1,1,medpedia2-214.txt,1,0,false,false,patient,0,1,MedicationMention,protein
+polarity,TN,1,1,medpedia2-214.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,top layer of the skin
+polarity,TN,1,1,medpedia2-214.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,skin
+polarity,TN,1,1,medpedia2-214.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,epidermis
+polarity,TN,1,1,medpedia2-214.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,wart
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,anxiety
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Anxiety
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,infection
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,3,SignSymptomMention,shortness-of-breath
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,3,SignSymptomMention,feels much better
+polarity,TP,-1,-1,8691199949-8.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,skin reaction
+polarity,TP,-1,-1,8691199949-8.source,-1,0,false,false,patient,0,3,SignSymptomMention,chest pain
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,5,ProcedureMention,worked-up for atypical chest pain
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,chest
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,8,EntityMention,exercise treadmill
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,chest
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,5,ProcedureMention,EKGs
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,5,ProcedureMention,All this
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,menorrhagia
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,anemia
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,3,SignSymptomMention,problems
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,head
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,3,SignSymptomMention,short of breath
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,3,SignSymptomMention,feel better
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,3,SignSymptomMention,dizzy
+polarity,TP,-1,-1,8691199949-8.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,chronic disease
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,anemia
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Skin
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,ENT
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Thyroid
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,1,MedicationMention,TSH
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Heart
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,7,EventMention,Normal sinus rhythm
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Lungs
+polarity,TN,1,1,8691199949-8.source,1,0,false,false,patient,0,7,EventMention,Clear to auscultation
+polarity,TN,1,1,medpedia2-258.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,metastatic gastrointestinal carcinoid tumor
+polarity,TP,-1,-1,medpedia2-258.txt,-1,0,false,false,patient,0,3,SignSymptomMention,symptoms
+polarity,TN,1,1,medpedia2-258.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-258.txt,1,0,false,false,patient,0,5,ProcedureMention,Treatment of distant metastases of gastrointestinal carcinoid tumors
+polarity,TN,1,1,medpedia2-258.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,distant metastases of gastrointestinal carcinoid tumors
+polarity,TN,1,1,medpedia2-258.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,gastrointestinal carcinoid tumors
+polarity,TN,1,1,medpedia2-258.txt,1,0,false,false,patient,0,5,ProcedureMention,palliative therapy
+polarity,TN,1,1,medpedia2-215.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Common warts
+polarity,TN,1,1,medpedia2-215.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,verruca vulgaris
+polarity,TN,1,1,medpedia2-215.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,They
+polarity,TN,1,1,medpedia2-215.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,hands
+polarity,TN,1,1,medpedia2-215.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,knuckles
+polarity,TN,1,1,medpedia2-215.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,fingers
+polarity,TN,1,1,medpedia2-215.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,elbows
+polarity,TN,1,1,medpedia2-215.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,knees
+polarity,TN,1,1,medpedia2-259.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,immune system
+polarity,TN,1,1,medpedia2-259.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,immune system dysfunction
+polarity,TN,1,1,medpedia2-259.txt,1,0,false,false,patient,0,5,ProcedureMention,review of the patient's history
+polarity,TN,1,1,medpedia2-259.txt,1,0,false,false,patient,0,5,ProcedureMention,physical exam
+polarity,FP,-1,1,medpedia2-259.txt,-1,0,false,false,patient,0,5,ProcedureMention,analyzing laboratory results
+polarity,TN,1,1,medpedia2-259.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,types of infections
+polarity,TN,1,1,medpedia2-259.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,infections
+polarity,TN,1,1,medpedia2-259.txt,1,0,false,false,patient,0,3,SignSymptomMention,symptoms
+polarity,TN,1,1,medpedia2-259.txt,1,0,false,false,patient,0,5,ProcedureMention,laboratory workup
+polarity,TN,1,1,medpedia2-259.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,parts of the immune system
+polarity,TN,1,1,medpedia2-259.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,immune system
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,1,MedicationMention,drug
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,1,MedicationMention,beta blocker
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,3,SignSymptomMention,symptoms
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,5,ProcedureMention,treatments
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,1,MedicationMention,Beta blockers
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,3,SignSymptomMention,symptoms of hyperthyroidism
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,hyperthyroidism
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,3,SignSymptomMention,tremors
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,3,SignSymptomMention,rapid heartbeat
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,3,SignSymptomMention,nervousness
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,3,SignSymptomMention,feel better
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,5,ProcedureMention,taking these drugs
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,1,MedicationMention,drugs
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,1,MedicationMention,Beta blockers
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,thyroid
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,1,MedicationMention,thyroid hormone
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,body
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,1,MedicationMention,thyroid hormone
+polarity,TN,1,1,medpedia2-208.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,thyroid
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,nephrotic syndrome
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,5,ProcedureMention,kidney biopsy
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,kidney
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,5,ProcedureMention,procedure
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,5,ProcedureMention,tiny pieces of the kidney are obtained via ultrasound guidance
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,pieces of the kidney
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,kidney
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,5,ProcedureMention,examination with a microscope
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,5,ProcedureMention,biopsy
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,underlying disease
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,5,ProcedureMention,course of treatment
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,diabetes
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,5,ProcedureMention,patient history
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,5,ProcedureMention,laboratory tests
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,diabetic nephropathy
+polarity,TN,1,1,medpedia2-260.txt,1,0,false,false,patient,0,5,ProcedureMention,biopsy
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,3,SignSymptomMention,complaints
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,lower extremities
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,extremities
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,right leg
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,3,SignSymptomMention,right leg pain
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,leg
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,3,SignSymptomMention,arm pain and numbness
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,3,SignSymptomMention,arm pain
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,arm
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,ulnar
+polarity,TP,-1,-1,8380454822-8.source,-1,0,false,false,patient,0,3,SignSymptomMention,weakness
+polarity,TP,-1,-1,8380454822-8.source,-1,0,false,false,patient,0,3,SignSymptomMention,reflex changes
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,abnormality
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,L3-4
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,5,ProcedureMention,myelogram
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nerve
+polarity,TP,-1,-1,8380454822-8.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,spinal pathology
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,3,SignSymptomMention,symptoms
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,leg
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,3,SignSymptomMention,leg and arm pain
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,arm
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,3,SignSymptomMention,arm pain 
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,3,SignSymptomMention,Arm pain and numbness
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,3,SignSymptomMention,Arm pain
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Arm
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,3,SignSymptomMention,leg pain
+polarity,TN,1,1,8380454822-8.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,leg
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,Full Oesy medical evaluation
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,TIAs
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,stroke
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Coronary artery disease
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Coronary artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Hypertension
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Hyperlipidemia
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,TIAs
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,CVA
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Hypertension
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Carotid artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Carotid artery stenosis
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,condyle
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,aortic
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,aortic prosthesis
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,CABG times three
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Knee
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,Knee replacement
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Lens
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,Lens replacement
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,peptic ulcer disease
+polarity,FP,-1,1,9120560450-1.source,-1,0,false,false,patient,0,7,EventMention,No known drug allergies
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Heart
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Abdomen
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Extremities
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Contracture
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,extremities
+polarity,TP,-1,-1,9120560450-1.source,-1,0,false,false,patient,0,3,SignSymptomMention,cyanosis
+polarity,TP,-1,-1,9120560450-1.source,-1,0,false,false,patient,0,3,SignSymptomMention,edema
+polarity,TP,-1,-1,9120560450-1.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,mental status deficits
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Neuro
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,hemiparesis
+polarity,TP,-1,-1,9120560450-1.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,changes in smell or hearing
+polarity,TP,-1,-1,9120560450-1.source,-1,0,false,false,patient,0,3,SignSymptomMention,changes in smell
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Neck
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,7,EventMention,JVP
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,neck
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,carotid
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,LABS
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,MRI; head; MRA; head and neck--with and without contrast
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,MRI; head
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,head
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,MRA; head and neck--with and without contrast
+polarity,FP,-1,1,9120560450-1.source,-1,0,false,false,patient,0,5,ProcedureMention,MRA; head
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,MRA; head and neck
+polarity,FP,-1,1,9120560450-1.source,-1,0,false,false,patient,0,1,MedicationMention,contrast
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cerebral hemispheres
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,occipital lobes
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cerebellar hemispheres
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Lacunar infarcts
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,basal ganglia
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Wallerian degeneration
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cerebral peduncle
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,small-vessel
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,small-vessel degenerative changes of aging
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cerebellar peduncles
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,MRI
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,posterior cerebral arteries
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cerebral arteries
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,arteries
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cerebral arteries
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,arteries
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,cervical MRA
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,internal carotid artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,carotid artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,internal carotid artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,carotid artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,vertebrobasilar system
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,right vertebral artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,vertebral artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,left vertebral artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,vertebral artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,Ultrasound; carotid arteries
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,carotid arteries
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,arteries
+polarity,FN,1,-1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,arteries
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,atheromatous plaque in the proximal right internal carotid artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,internal carotid artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,carotid artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,stenosis in right carotid artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,carotid artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,artery
+polarity,FN,1,-1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,carotid arteries
+polarity,FN,1,-1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,arteries
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,veins
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,venous system
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,legs
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,X-ray exam of knees
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,knees
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,right knee
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,knee
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,medial compartment
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Degenerative changes
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,joint
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,TKA
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,X-ray of the foot and ankle
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,foot
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,ankle
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,degenerative changes
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Soft-tissue
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,3,SignSymptomMention,Soft-tissue swelling around the ankles
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,ankles
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Right ankle
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,ankle
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Left foot
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,foot
+polarity,TP,-1,-1,9120560450-1.source,-1,0,false,false,patient,0,6,AnatomicalSiteMention,foot
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,TEE
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Atrial septum
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,descending thoracic aorta
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,thoracic
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,thoracic aorta
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,aorta
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,one area of mobile debris
+polarity,FN,1,-1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,aortic
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,left ventricular hypertrophy
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,7,EventMention,normal left ventricular cavity size and systolic function
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,7,EventMention,normal left ventricular cavity size
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,7,EventMention,left ventricular cavity size
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,7,EventMention,systolic function
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,left atrial
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,enlargement
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,Transthoracic ECHO
+polarity,TP,-1,-1,9120560450-1.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,mass
+polarity,TP,-1,-1,9120560450-1.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,effusion
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,transthoracic
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Aortic
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Aortic valve
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,7,EventMention,Normal left ventricular size and function
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,7,EventMention,left ventricular size
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,7,EventMention,left ventricular size and function
+polarity,TP,-1,-1,9120560450-1.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,TIA
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,admission
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,stroke
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,visual loss in the right eye
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,eye
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,lower extremities
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,extremities
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,admission
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,TIAs
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,stroke
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,TIAs
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,CVA
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,TEE
+polarity,TP,-1,-1,9120560450-1.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,PFO
+polarity,TP,-1,-1,9120560450-1.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,anatomic abnormalities
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,evaluate this patient's candidacy for surgical intervention
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,MRI
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,Ultrasound of carotids
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,carotids
+polarity,FN,1,-1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,CEA
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,long-term anticoagulation with warfarin
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,anticoagulation
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,warfarin
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,coronary artery disease
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,admission
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,management of his coronary artery disease
+polarity,FN,1,-1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,coronary artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,coronary artery disease
+polarity,FN,1,-1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,artery
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,medications
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Hyperlipidemia
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,lipid panel
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,Total cholesterol
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,triglycerides
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,HDL
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,LDL
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,Zocor
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Hypertension
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,Lasix
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,propranolol
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,hypertensive
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,initial admission
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,3,SignSymptomMention,blood pressures stabilized
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,7,EventMention,blood pressures
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,blood
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,antihypertensives
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,hypergammaglobulinemia
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,neurogenic bladder
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,bladder
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,SPEP
+polarity,TP,-1,-1,9120560450-1.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,hypergammaglobulinemia
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,Physical therapy
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,physical therapy
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,7,EventMention,current level of function
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,Physical Therapy
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,physical therapy techniques
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,physical therapy
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,Blood
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,Rest of exam
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,admission
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,Warfarin
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,mouth
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,Zocor
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,mouth
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,Propranolol
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,mouth
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,Lasix
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,mouth
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,Zantac 150
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,mouth
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,low-salt; cardiac diet
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,salt
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,cardiac
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,discharge
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,physical therapy
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,Coumadinized
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,contractures
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,precautions against preventing falls
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,physical therapy
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,physical therapy maneuvers and techniques
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,physical therapy
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,physical therapy
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,physical therapy
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,physical therapy
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,hospital admission
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,anticoagulated
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,long-term follow-up for anticoagulation/INR
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,1,MedicationMention,anticoagulation
+polarity,TN,1,1,9120560450-1.source,1,0,false,false,patient,0,5,ProcedureMention,INR
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,URI
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,5,ProcedureMention,increased fluids
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,1,MedicationMention,fluids
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,cold
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,1,MedicationMention,Tessalon perles
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,5,ProcedureMention,Follow-up
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,3,SignSymptomMention,worsening
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,5,ProcedureMention,conservative tx
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,URI
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nasal
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,3,SignSymptomMention,cough
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,chest
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,3,SignSymptomMention,ill
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,3,SignSymptomMention,Symptoms
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,nasal
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,3,SignSymptomMention,nasal congestion
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,3,SignSymptomMention,cough
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,3,SignSymptomMention,facial pain
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,facial
+polarity,TP,-1,-1,8910864972-6.source,-1,0,false,false,patient,0,3,SignSymptomMention,sore throat
+polarity,TP,-1,-1,8910864972-6.source,-1,0,false,false,patient,0,6,AnatomicalSiteMention,throat
+polarity,TP,-1,-1,8910864972-6.source,-1,0,false,false,patient,0,3,SignSymptomMention,fever
+polarity,FN,1,-1,8910864972-6.source,1,0,false,false,patient,0,3,SignSymptomMention,shortness-of-breath
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,6,AnatomicalSiteMention,eye
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,3,SignSymptomMention,symptoms
+polarity,TP,-1,-1,8910864972-6.source,-1,0,false,false,patient,0,2,DiseaseDisorderMention,asthmatic
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,7,EventMention,NKDA
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,1,MedicationMention,latex
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,abuse
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,physically abused
+polarity,FN,1,-1,8910864972-6.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,forced to have sex
+polarity,FN,1,-1,8910864972-6.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,emotionally abused
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,1,MedicationMention,Ultram
+polarity,TN,1,1,8910864972-6.source,1,0,false,false,patient,0,3,SignSymptomMention,NAD
+polarity,TN,1,1,medpedia2-216.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,Warts
+polarity,TN,1,1,medpedia2-216.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,skin cells
+polarity,TN,1,1,medpedia2-216.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,skin cells of a wart
+polarity,TN,1,1,medpedia2-216.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,wart
+polarity,TN,1,1,8295055184-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,Cholelithiasis
+polarity,TN,1,1,8295055184-8.source,1,0,false,false,patient,0,2,DiseaseDisorderMention,IBS
+polarity,TN,1,1,medpedia2-207.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-207.txt,1,0,false,false,patient,0,1,MedicationMention,thyroid hormone
+polarity,TN,1,1,medpedia2-207.txt,1,0,false,false,patient,0,6,AnatomicalSiteMention,thyroid
+polarity,TN,1,1,medpedia2-207.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,long-term complications
+polarity,TN,1,1,medpedia2-207.txt,1,0,false,false,patient,0,2,DiseaseDisorderMention,complications
+polarity,TN,1,1,medpedia2-207.txt,1,0,false,false,patient,0,3,SignSymptomMention,symptoms
+polarity,TN,1,1,medpedia2-207.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-207.txt,1,0,false,false,patient,0,5,ProcedureMention,treatment
+polarity,TN,1,1,medpedia2-207.txt,1,0,false,false,patient,0,1,MedicationMention,medications
+polarity,TN,1,1,medpedia2-207.txt,1,0,false,false,patient,0,5,ProcedureMention,radioiodine therapy
+polarity,TN,1,1,medpedia2-207.txt,1,0,false,false,patient,0,5,ProcedureMention,surgery

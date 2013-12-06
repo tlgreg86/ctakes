@@ -1,0 +1,14 @@
+polarity	null	sharptrain	/projects/data/assertion/data/preprocessed_data/sharp/test	All	0.995	All	0.995	All	0.995	-1	0.977	-1	0.896	-1	0.935	1	0.995	1	0.999	1	0.997	
+polarity	null	sharptrain+i2b2train	/projects/data/assertion/data/preprocessed_data/mipacq/test	All	0.955	All	0.955	All	0.955	-1	0.895	-1	0.567	-1	0.694	1	0.959	1	0.993	1	0.976	
+polarity	null	sharptrain+i2b2train	/projects/data/assertion/data/preprocessed_data/negex	All	0.970	All	0.970	All	0.970	-1	0.973	-1	0.882	-1	0.925	1	0.970	1	0.994	1	0.982	
+polarity	null	sharptrain+mipacqtrain	/projects/data/assertion/data/preprocessed_data/i2b2/test	All	0.941	All	0.941	All	0.941	-1	0.920	-1	0.763	-1	0.834	1	0.945	1	0.984	1	0.964	
+polarity	null	sharptrain+mipacqtrain	/projects/data/assertion/data/preprocessed_data/negex	All	0.890	All	0.890	All	0.890	-1	0.983	-1	0.479	-1	0.644	1	0.880	1	0.998	1	0.935	
+polarity	null	sharptrain+negextest	/projects/data/assertion/data/preprocessed_data/sharp/test	All	0.992	All	0.992	All	0.992	-1	1.000	-1	0.813	-1	0.897	1	0.992	1	1.000	1	0.996	
+polarity	null	sharptrain+negextest	/projects/data/assertion/data/preprocessed_data/i2b2/test	All	0.943	All	0.943	All	0.943	-1	0.937	-1	0.755	-1	0.837	1	0.944	1	0.988	1	0.965	
+polarity	null	sharptrain+negextest	/projects/data/assertion/data/preprocessed_data/mipacq/test	All	0.951	All	0.951	All	0.951	-1	0.870	-1	0.533	-1	0.661	1	0.956	1	0.992	1	0.974	
+polarity	null	sharptrain+negextest	/projects/data/assertion/data/preprocessed_data/negex	All	1.000	All	1.000	All	1.000	-1	1.000	-1	0.998	-1	0.999	1	0.999	1	1.000	1	1.000	
+polarity	null	sharptrain+i2b2train+mipacqtrain	/projects/data/assertion/data/preprocessed_data/sharp/test	All	0.994	All	0.994	All	0.994	-1	1.000	-1	0.854	-1	0.921	1	0.994	1	1.000	1	0.997	
+polarity	null	sharptrain+i2b2train+mipacqtrain	/projects/data/assertion/data/preprocessed_data/i2b2/test	All	0.971	All	0.971	All	0.971	-1	0.952	-1	0.898	-1	0.925	1	0.976	1	0.989	1	0.982	
+polarity	null	sharptrain+i2b2train+mipacqtrain	/projects/data/assertion/data/preprocessed_data/mipacq/test	All	0.961	All	0.961	All	0.961	-1	0.897	-1	0.640	-1	0.747	1	0.966	1	0.993	1	0.979	
+polarity	null	sharptrain+i2b2train+mipacqtrain	/projects/data/assertion/data/preprocessed_data/negex	All	0.903	All	0.903	All	0.903	-1	0.971	-1	0.546	-1	0.699	1	0.894	1	0.996	1	0.942	
+polarity	null	sharpi2b2mipacqnegex	/projects/data/assertion/data/preprocessed_data/sharp/test	All	0.992	All	0.992	All	0.992	-1	1.000	-1	0.813	-1	0.897	1	0.992	1	1.000	1	0.996	

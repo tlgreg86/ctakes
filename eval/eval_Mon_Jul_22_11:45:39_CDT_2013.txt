@@ -1,0 +1,36 @@
+
+polarity	2.0	All	0.983	All	0.983	All	0.983	-1	0.926	-1	0.870	-1	0.897	1	0.988	1	0.993	1	0.991	
+conditional	2.0	All	0.983	All	0.983	All	0.983	false	0.993	false	0.991	false	0.992	true	0.410	true	0.472	true	0.439	
+uncertainty	2.0	All	0.976	All	0.976	All	0.976	0	0.991	0	0.985	0	0.988	1	0.538	1	0.670	1	0.597	
+subject	2.0		All	0.994	All	0.994	All	0.994	family_member	0.708	family_member	0.815	family_member	0.758	other	0.000	other	0.000	other	0.000	patient	0.997	patient	0.997	patient	0.997	
+generic	2.0		All	0.981	All	0.981	All	0.981	false	0.993	false	0.987	false	0.990	true	0.556	true	0.702	true	0.620	
+historyOf	2.0	All	0.982	All	0.982	All	0.982	0	0.990	0	0.992	0	0.991	1	0.615	1	0.543	1	0.577	
+
+polarity	5.0	All	0.982	All	0.982	All	0.982	-1	0.929	-1	0.857	-1	0.891	1	0.986	1	0.994	1	0.990	
+conditional	5.0	All	0.985	All	0.985	All	0.985	false	0.992	false	0.992	false	0.992	true	0.441	true	0.438	true	0.439	
+uncertainty	5.0	All	0.974	All	0.974	All	0.974	0	0.991	0	0.982	0	0.987	1	0.507	1	0.681	1	0.581	
+subject	5.0	All	0.994	All	0.994	All	0.994	family_member	0.688	family_member	0.837	family_member	0.755	other	0.000	other	0.000	other	0.000	patient	0.997	patient	0.997	patient	0.997	
+generic	5.0	All	0.980	All	0.980	All	0.980	false	0.994	false	0.986	false	0.990	true	0.540	true	0.723	true	0.618	
+historyOf	5.0	All	0.982	All	0.982	All	0.982	0	0.989	0	0.992	0	0.991	1	0.597	1	0.530	1	0.562	
+
+polarity	10.0	All	0.983	All	0.983	All	0.983	-1	0.933	-1	0.867	-1	0.899	1	0.987	1	0.994	1	0.991	
+conditional	10.0	All	0.983	All	0.983	All	0.983	false	0.993	false	0.990	false	0.991	true	0.402	true	0.472	true	0.435	
+uncertainty	10.0	All	0.969	All	0.969	All	0.969	0	0.991	0	0.977	0	0.984	1	0.440	1	0.674	1	0.533	
+subject	10.0	All	0.994	All	0.994	All	0.994	family_member	0.681	family_member	0.837	family_member	0.751	other	0.000	other	0.000	other	0.000	patient	0.997	patient	0.997	patient	0.997	
+generic	10.0	All	0.979	All	0.979	All	0.979	false	0.993	false	0.985	false	0.989	true	0.531	true	0.719	true	0.611	
+historyOf	10.0	All	0.980	All	0.980	All	0.980	0	0.989	0	0.991	0	0.990	1	0.560	1	0.526	1	0.542	
+
+polarity	20.0	All	0.982	All	0.982	All	0.982	-1	0.925	-1	0.858	-1	0.891	1	0.987	1	0.993	1	0.990	
+conditional	20.0	All	0.983	All	0.983	All	0.983	false	0.992	false	0.990	false	0.991	true	0.385	true	0.431	true	0.407	
+uncertainty	20.0	All	0.965	All	0.965	All	0.965	0	0.991	0	0.973	0	0.982	1	0.397	1	0.674	1	0.499	
+subject	20.0	All	0.994	All	0.994	All	0.994	family_member	0.669	family_member	0.859	family_member	0.752	other	0.000	other	0.000	other	0.000	patient	0.997	patient	0.997	patient	0.997	
+generic	20.0	All	0.979	All	0.979	All	0.979	false	0.993	false	0.986	false	0.989	true	0.532	true	0.715	true	0.610	
+historyOf	20.0	All	0.980	All	0.980	All	0.980	0	0.990	0	0.990	0	0.990	1	0.552	1	0.552	1	0.552	
+50.0	
+polarity	50.0	All	0.980	All	0.980	All	0.980	-1	0.933	-1	0.836	-1	0.882	1	0.985	1	0.994	1	0.989	
+conditional	50.0	All	0.982	All	0.982	All	0.982	false	0.989	false	0.992	false	0.991	true	0.298	true	0.236	true	0.264	
+uncertainty	50.0	All	0.951	All	0.951	All	0.951	0	0.991	0	0.958	0	0.974	1	0.298	1	0.659	1	0.410	
+subject	50.0	All	0.993	All	0.993	All	0.993	family_member	0.645	family_member	0.848	family_member	0.732	other	0.000	other	0.000	other	0.000	patient	0.997	patient	0.996	patient	0.997	
+generic	50.0	All	0.979	All	0.979	All	0.979	false	0.992	false	0.987	false	0.989	true	0.527	true	0.634	true	0.575	
+historyOf	50.0	All	0.976	All	0.976	All	0.976	0	0.987	0	0.988	0	0.988	1	0.456	1	0.444	1	0.450	
+100.0	

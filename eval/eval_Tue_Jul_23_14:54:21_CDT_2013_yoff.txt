@@ -1,0 +1,37 @@
+polarity	0.001	0.983	0.983	0.983 -1	0.922	-1	0.876	-1	0.899	1	0.988	1	0.993	1	0.991
+conditional	0.001	All	0.981	All	0.981	All	0.981	false	0.994	false	0.986	false	0.990	true	0.375	true	0.604	true	0.463
+uncertainty	0.001	All	0.968	All	0.968	All	0.968	0	0.992	0	0.975	0	0.984	1	0.435	1	0.722	1	0.543	
+subject	0.001	All	0.994	All	0.994	All	0.994	family_member	0.716	family_member	0.848	family_member	0.776	0.001 other	0.000	other	0.000	other	0.000	patient	0.997	patient	0.997	patient	0.997	
+generic	0.001	All	0.978	All	0.978	All	0.978	false	0.993	false	0.984	false	0.989	true	0.514	true	0.719	true	0.599
+historyOf	0.001	All	0.980	All	0.980	All	0.980	0	0.990	0	0.989	0	0.990	1	0.551	1	0.578	1	0.564
+polarity	0.01	All	0.983	All	0.983	All	0.983	-1	0.921	-1	0.877	-1	0.899	1	0.988	1	0.993	1	0.991	
+conditional	0.01	All	0.981	All	0.981	All	0.981	false	0.994	false	0.986	false	0.990	true	0.377	true	0.604	true	0.464	
+uncertainty	0.01	All	0.968	All	0.968	All	0.968	0	0.992	0	0.975	0	0.983	1	0.431	1	0.714	1	0.538	
+subject	0.01	All	0.994	All	0.994	All	0.994	family_member	0.716	family_member	0.848	family_member	0.776	other	0.000	other	0.000	other	0.000	patient	0.997	patient	0.997	patient	0.997	
+generic	0.01	All	0.979	All	0.979	All	0.979	false	0.993	false	0.985	false	0.989	true	0.517	true	0.719	true	0.601	
+historyOf	0.01	All	0.980	All	0.980	All	0.980	0	0.991	0	0.989	0	0.990	1	0.546	1	0.591	1	0.567	
+polarity	0.02	All	0.983	All	0.983	All	0.983	-1	0.922	-1	0.876	-1	0.899	1	0.988	1	0.993	1	0.991	
+conditional	0.02	All	0.981	All	0.981	All	0.981	false	0.994	false	0.986	false	0.990	true	0.380	true	0.604	true	0.466	
+uncertainty	0.02	All	0.968	All	0.968	All	0.968	0	0.992	0	0.975	0	0.984	1	0.436	1	0.722	1	0.543	
+subject	0.02	All	0.994	All	0.994	All	0.994	family_member	0.716	family_member	0.848	family_member	0.776	other	0.000	other	0.000	other	0.000	patient	0.997	patient	0.997	patient	0.997	
+generic	0.02	All	0.979	All	0.979	All	0.979	false	0.993	false	0.985	false	0.989	true	0.520	true	0.719	true	0.604	
+historyOf	0.02	All	0.980	All	0.980	All	0.980	0	0.990	0	0.989	0	0.990	1	0.540	1	0.582	1	0.560	
+polarity	0.05	All	0.983	All	0.983	All	0.983	-1	0.921	-1	0.877	-1	0.899	1	0.988	1	0.993	1	0.991	
+conditional	0.05	All	0.980	All	0.980	All	0.980	false	0.994	false	0.986	false	0.990	true	0.370	true	0.590	true	0.455	
+uncertainty	0.05	All	0.968	All	0.968	All	0.968	0	0.992	0	0.974	0	0.983	1	0.429	1	0.722	1	0.538	
+subject	0.05	All	0.994	All	0.994	All	0.994	family_member	0.709	family_member	0.848	family_member	0.772	0.05	other	0.000	other	0.000	other	0.000	patient	0.997	patient	0.997	patient	0.997	
+generic	0.05	All	0.979	All	0.979	All	0.979	false	0.994	false	0.985	false	0.989	true	0.523	true	0.728	true	0.609	
+historyOf	0.05	All	0.979	All	0.979	All	0.979	0	0.991	0	0.988	0	0.989	1	0.531	1	0.586	1	0.557	
+polarity	0.1	All	0.983	All	0.983	All	0.983	-1	0.923	-1	0.875	-1	0.898	1	0.988	1	0.993	1	0.991	
+conditional	0.1	All	0.980	All	0.980	All	0.980	false	0.994	false	0.986	false	0.990	true	0.358	true	0.576	true	0.441	
+uncertainty	0.1	All	0.968	All	0.968	All	0.968	0	0.992	0	0.975	0	0.983	1	0.431	1	0.714	1	0.538	
+subject	0.1	All	0.994	All	0.994	All	0.994	family_member	0.710	family_member	0.826	family_member	0.764	other	0.000	other	0.000	other	0.000	patient	0.997	patient	0.997	patient	0.997	
+generic	0.1	All	0.979	All	0.979	All	0.979	false	0.994	false	0.985	false	0.989	true	0.518	true	0.723	true	0.604	
+historyOf	0.1	All	0.979	All	0.979	All	0.979	0	0.991	0	0.988	0	0.989	1	0.533	1	0.595	1	0.562	
+polarity	0.2	All	0.983	All	0.983	All	0.983	-1	0.928	-1	0.876	-1	0.901	1	0.988	1	0.994	1	0.991	
+conditional	0.2	All	0.982	All	0.982	All	0.982	false	0.993	false	0.989	false	0.991	true	0.396	true	0.528	true	0.452	
+uncertainty	0.2	All	0.968	All	0.968	All	0.968	0	0.992	0	0.975	0	0.984	1	0.437	1	0.718	1	0.543	
+subject	0.2	All	0.994	All	0.994	All	0.994	family_member	0.717	family_member	0.826	family_member	0.768	other	0.000	other	0.000	other	0.000	patient	0.997	patient	0.997	patient	0.997	
+generic	0.2	All	0.979	All	0.979	All	0.979	false	0.994	false	0.985	false	0.989	true	0.526	true	0.723	true	0.609	
+historyOf	0.2	All	0.980	All	0.980	All	0.980	0	0.990	0	0.989	0	0.990	1	0.536	1	0.582	1	0.558	
+
