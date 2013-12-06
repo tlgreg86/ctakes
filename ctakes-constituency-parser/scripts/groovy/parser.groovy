@@ -6,8 +6,12 @@
 ** 	You can download groovy from http://groovy.codehaus.org/
 ** 	The first run may be slow since it needs to download all of the dependencies.
 **  Usage: $./parser.groovy [inputDir]
-** 	or enable more verbose status $groovy -Dgroovy.grape.report.downloads=true parser.groovy [inputDir]
+**  where inputDir contains the files to be parsed.
+** 	Or enable more verbose status $groovy -Dgroovy.grape.report.downloads=true parser.groovy [inputDir]
 **/
+@GrabResolver(name='opennlp.sf.net',
+      root='http://opennlp.sourceforge.net/maven2')
+      
 @Grab(group='org.apache.ctakes',
       module='ctakes-core',
             version='3.1.0')
