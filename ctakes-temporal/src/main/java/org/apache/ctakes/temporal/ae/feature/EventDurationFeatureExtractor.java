@@ -32,6 +32,7 @@ import org.apache.uima.jcas.JCas;
 import org.cleartk.classifier.Feature;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 
@@ -42,35 +43,56 @@ public class EventDurationFeatureExtractor implements RelationFeaturesExtractor 
       throws AnalysisEngineProcessException {
 
     List<Feature> features = new ArrayList<Feature>();
-    
-    // TODO: add path to event duration data
-    File durationLookup = new File("");
+    File durationLookup = new File("/Users/dima/Boston/Thyme/Duration/Output/Duration/distribution.txt");
+    String text1 = arg1.getCoveredText().toLowerCase();
+    String text2 = arg2.getCoveredText().toLowerCase();
     
     try {
       Map<String, Map<String, Float>> textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Callback());
       
-      Map<String, Float> distribution1 = textToDistribution.get(arg1.getCoveredText());
+      Map<String, Float> distribution1 = textToDistribution.get(text1);
       if(distribution1 == null) {
         features.add(new Feature("arg1_no_duration_info"));
       } else {
-        for(String duration : distribution1.keySet()) {
-          features.add(new Feature("arg1_" + duration, distribution1.get(duration)));
-        }
+        float expectation = expectedDuration(distribution1);
+        features.add(new Feature("arg1_expected_duration", expectation));
+        System.out.println(text1 + " / " + distribution1 + " / " + expectation / (3600 * 24) + " days");
       }
       
-      Map<String, Float> distribution2 = textToDistribution.get(arg2.getCoveredText());
+      Map<String, Float> distribution2 = textToDistribution.get(text2);
       if(distribution2 == null) {
         features.add(new Feature("arg2_no_duration_info"));
       } else {
-        for(String duration : distribution2.keySet()) {
-          features.add(new Feature("arg2_" + duration, distribution2.get(duration)));
-        }
+        float expectation = expectedDuration(distribution2);
+        features.add(new Feature("arg2_expected_duration", expectation));
+        System.out.println(text2 + " / " + distribution2 + " / " + expectation / (3600 * 24) + " days");
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
     
     return features;
+  }
+
+  private static float expectedDuration(Map<String, Float> distribution) {
+    
+    // unit of time -> duration in seconds
+    final Map<String, Integer> converter = ImmutableMap.<String, Integer>builder()
+        .put("second", 1)
+        .put("minute", 60)
+        .put("hour", 60 * 60)
+        .put("day", 60 * 60 * 24)
+        .put("week", 60 * 60 * 24 * 7)
+        .put("month", 60 * 60 * 24 * 30)
+        .put("year", 60 * 60 * 24 * 365)
+        .build();
+
+    float expectation = 0f;
+    for(String unit : distribution.keySet()) {
+      expectation = expectation + (converter.get(unit) * distribution.get(unit));
+    }
+  
+    return expectation;
   }
   
   private static class Callback implements LineProcessor <Map<String, Map<String, Float>>> {
