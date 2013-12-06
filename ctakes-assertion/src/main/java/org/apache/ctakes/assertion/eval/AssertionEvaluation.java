@@ -557,7 +557,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
   public static void preprocess(File rawDir ) throws ResourceInitializationException, UIMAException, IOException {
 //	  File devDirectory = new File(options.trainDirectory.getParentFile() + File.separator + "dev");
 	  File preprocessedDir = null;
-	  if (options.trainDirectory.split("[;:]").length>1) {
+	  if (options.trainDirectory.split("[;]").length>1) {
 		  throw new IOException("Assertion preprocess wants to write to one train directory, but you've supplied multiple: " + options.trainDirectory);
 	  } else {
 		  preprocessedDir = new File(options.trainDirectory);
