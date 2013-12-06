@@ -9,6 +9,9 @@
 **  where inputDir contains the files to be parsed.
 ** 	Or enable more verbose status $groovy -Dgroovy.grape.report.downloads=true parser.groovy [inputDir]
 **/
+
+// The @GrabResolver opennlp.sf.net is needed temporarily, until we use OpenNLP 1.5.3 or later. See CTAKES-276.
+// It should be removed once CTAKES-191 "Update Apache OpenNLP dependency to 1.5.3" is implemented.
 @GrabResolver(name='opennlp.sf.net',
       root='http://opennlp.sourceforge.net/maven2')
       
