@@ -1,34 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="TypeSystemDescription.xsl"?>
 <typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <name>org.apache.ctakes.typesystem.types.TypeSystem</name>
-  <description>This is a Apache cTAKES Common Type System for clinical
-		NLP. It includes general types necessary to store annotations and
-		interface with clinical element models</description>
+  <description>This is a Apache cTAKES Common Type System for clinical NLP. It includes general types necessary to store annotations and interface with clinical element models</description>
   <version>1.0</version>
   <vendor>Apache cTAKES</vendor>
   <types>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.WordToken</name>
-      <description>Differentiates a token as being a word rather than a
-				punctuation, symbol, newline, contraction, or number.
-				Equivalent to
-				cTAKES: edu.mayo.bmi.uima.core.type.WordToken</description>
+      <description>Differentiates a token as being a word rather than a punctuation, symbol, newline, contraction, or number.
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.WordToken</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.BaseToken</supertypeName>
       <features>
         <featureDescription>
           <name>capitalization</name>
-          <description>Whether all caps, initial capitalized, mixed case, or all lower case. See TokenizerAnnotator.TOKEN_CAP_*</description>
+          <description/>
           <rangeTypeName>uima.cas.Integer</rangeTypeName>
         </featureDescription>
         <featureDescription>
           <name>numPosition</name>
-          <description>The position of a number inside a Token. See Token.NUM_*</description>
+          <description/>
           <rangeTypeName>uima.cas.Integer</rangeTypeName>
         </featureDescription>
         <featureDescription>
           <name>suggestion</name>
-          <description>Currently unused - planned to hold a spelling suggestion.</description>
+          <description/>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>
@@ -40,12 +35,8 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.BaseToken</name>
-      <description>A supertype for tokens subsuming word, punctuation,
-				symbol, newline, contraction, or number. Includes parts of speech,
-				which are grammatical categories, e.g., noun (NN) or preposition
-				(IN) that use Penn Treebank tags with a few additions.
-				Equivalent to
-				cTAKES: edu.mayo.bmi.uima.core.type.BaseToken</description>
+      <description>A supertype for tokens subsuming word, punctuation, symbol, newline, contraction, or number.  Includes parts of speech, which are grammatical categories, e.g., noun (NN) or preposition (IN) that use Penn Treebank tags with a few additions.
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.BaseToken</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
@@ -73,17 +64,13 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.ContractionToken</name>
-      <description>Differentiates a token as being a contraction rather
-				than a punctuation, symbol, newline, word, or number.
-				Equivalent to
-				cTAKES: edu.mayo.bmi.uima.core.type.ContractionToken</description>
+      <description>Differentiates a token as being a contraction rather than a punctuation, symbol, newline, word, or number. 
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.ContractionToken</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.BaseToken</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.structured.DocumentID</name>
-      <description>Equivalent to cTAKES:
-				org.apache.ctakes.typesystem.type.DocumentID, but its supertype
-				changed to uima.cas.TOP</description>
+      <description>Equivalent to cTAKES: org.apache.ctakes.typesystem.type.DocumentID, but its supertype changed to uima.cas.TOP</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
@@ -95,10 +82,8 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.Lemma</name>
-      <description>Stores a lemma (canonical form of a token). Inherits
-				from uima.cas.TOP, allowing for reuse of standardized forms across
-				the CAS.
-				Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.Lemma</description>
+      <description>Stores a lemma (canonical form of a token).  Inherits from uima.cas.TOP, allowing for reuse of standardized forms across the CAS. 
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.Lemma</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
@@ -115,18 +100,14 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.NewlineToken</name>
-      <description>Differentiates a token as being a newline rather than a
-				punctuation, symbol, contraction, word, or number.
-				Equivalent to
-				cTAKES: edu.mayo.bmi.uima.core.type.NewlineToken</description>
+      <description>Differentiates a token as being a newline rather than a punctuation, symbol, contraction, word, or number. 
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.NewlineToken</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.BaseToken</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.NumToken</name>
-      <description>Differentiates a token as being a number rather than a
-				punctuation, symbol, newline, word, or contraction.
-				Equivalent to
-				cTAKES: edu.mayo.bmi.uima.core.type.NumToken</description>
+      <description>Differentiates a token as being a number rather than a punctuation, symbol, newline, word, or contraction. 
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.NumToken</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.BaseToken</supertypeName>
       <features>
         <featureDescription>
@@ -138,14 +119,9 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.OntologyConcept</name>
-      <description>Ontologies (e.g., SNOMED-CT) provide an expert semantic
-				representation for concepts. They typically assign a code to a
-				concept and normalize across various textual representations of that
-				concept.
-				IdentifiedAnnotation and Elements may point to these
-				normalized concept representations
-				to indicate clinical concepts.
-				Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.OntologyConcept</description>
+      <description>Ontologies (e.g., SNOMED-CT) provide an expert semantic representation for concepts. They typically assign a code to a concept and normalize across various textual representations of that concept.  
+IdentifiedAnnotation and Elements may point to these normalized concept representations to indicate clinical concepts.
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.OntologyConcept</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
@@ -165,29 +141,22 @@
         </featureDescription>
         <featureDescription>
           <name>oui</name>
-          <description>holds the rxnorm unique identifier for a given drug
-						mention.
-						TODO: change this attribute because of name clash
-						(UMLS/SNOMED)</description>
+          <description>holds the rxnorm unique identifier for a given drug mention.
+							TODO: change this attribute because of name clash (UMLS/SNOMED)</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.PunctuationToken</name>
-      <description>Differentiates a token as being punctuation rather than
-				a contraction, symbol, newline, word, or number.
-				Equivalent to
-				cTAKES: edu.mayo.bmi.uima.core.type.PunctuationToken</description>
+      <description>Differentiates a token as being punctuation rather than a contraction, symbol, newline, word, or number. 
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.PunctuationToken</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.BaseToken</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textspan.Segment</name>
-      <description>A section of a clinical text, e.g., Diagnosis, Current
-				Medications, Problem List. Different segments often have differing
-				sublanguages and clinical relevance.
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.core.type.Segment</description>
+      <description>A section of a clinical text, e.g., Diagnosis, Current Medications, Problem List.  Different segments often have differing sublanguages and clinical relevance.     
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.Segment</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
@@ -197,20 +166,15 @@
         </featureDescription>
         <featureDescription>
           <name>preferredText</name>
-          <description>preferredText is the normalized/resolved section name.
-						Normally, this is populated by the Sectionizer and would contain
-						the HL7/CCDA section name.</description>
+          <description>preferredText is the normalized/resolved section name.  Normally, this is populated by the Sectionizer and would contain the HL7/CCDA section name.</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textspan.Sentence</name>
-      <description>Sentences may or may not be fully-formed and
-				grammatical. They form the unit of analysis for some downstream
-				components (e.g., constituency parsers).
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.core.type.Sentence</description>
+      <description>Sentences may or may not be fully-formed and grammatical.  They form the unit of analysis for some downstream components (e.g., constituency parsers).
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.Sentence</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
@@ -227,21 +191,14 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.SymbolToken</name>
-      <description>Differentiates a token as being a symbol rather than a
-				punctuation, contraction, newline, word, or number.
-				Equivalent to
-				cTAKES: edu.mayo.bmi.uima.core.type.SymbolToken</description>
+      <description>Differentiates a token as being a symbol rather than a punctuation, contraction, newline, word, or number. 
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.SymbolToken</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.BaseToken</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.UmlsConcept</name>
-      <description>Concepts in the Unified Medical Language System (UMLS)
-				Metathesaurus have a concept unique identifier (CUI) and a type
-				unique identifier (TUI, i.e., semantic type) which are curated,
-				normalized codes. For example, "pain" would have a cui=C0030193 and
-				tui=T184.
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.core.type.UmlsConcept</description>
+      <description>Concepts in the Unified Medical Language System (UMLS) Metathesaurus have a concept unique identifier (CUI) and a type unique identifier (TUI, i.e., semantic type) which are curated, normalized codes. For example, "pain" would have a cui=C0030193 and tui=T184.
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.UmlsConcept</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.OntologyConcept</supertypeName>
       <features>
         <featureDescription>
@@ -254,22 +211,12 @@
           <description/>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
-        <featureDescription>
-          <name>preferredText</name>
-          <description>preferredText is the preferred term. normally his is
-						the UMLS preferred name.</description>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>        
       </features>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.Chunk</name>
-      <description>Chunks are syntactic groupings of tokens, and are the
-				results of a shallow parser (chunker). Possible chunkTypes follow
-				Penn Treebank guidelines, e.g., noun phrase (NP) or prepositional
-				phrase (PP)
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.chunker.type.Chunk</description>
+      <description>Chunks are syntactic groupings of tokens, and are the results of a shallow parser (chunker).  Possible chunkTypes follow Penn Treebank guidelines, e.g., noun phrase (NP) or prepositional phrase (PP) 
+Equivalent to cTAKES: edu.mayo.bmi.uima.chunker.type.Chunk</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
@@ -282,79 +229,67 @@
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.NP</name>
       <description>A noun phrase
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.chunker.type.NP</description>
+Equivalent to cTAKES: edu.mayo.bmi.uima.chunker.type.NP</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.Chunk</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.ADJP</name>
       <description>An adjective phrase
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.chunker.type.ADJP</description>
+Equivalent to cTAKES: edu.mayo.bmi.uima.chunker.type.ADJP</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.Chunk</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.ADVP</name>
       <description>An adverb phrase
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.chunker.type.ADVP</description>
+Equivalent to cTAKES: edu.mayo.bmi.uima.chunker.type.ADVP</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.Chunk</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.CONJP</name>
       <description>A phrase-level conjunction
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.chunker.type.CONJP</description>
+Equivalent to cTAKES: edu.mayo.bmi.uima.chunker.type.CONJP</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.Chunk</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.INTJ</name>
       <description>An interjection
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.chunker.type.INTJ</description>
+Equivalent to cTAKES: edu.mayo.bmi.uima.chunker.type.INTJ</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.Chunk</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.LST</name>
       <description>A list item, usually intra-sentential
-				Equivalent to
-				cTAKES: edu.mayo.bmi.uima.chunker.type.LST</description>
+Equivalent to cTAKES: edu.mayo.bmi.uima.chunker.type.LST</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.Chunk</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.PP</name>
       <description>A prepositional phrase
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.chunker.type.PP</description>
+Equivalent to cTAKES: edu.mayo.bmi.uima.chunker.type.PP</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.Chunk</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.PRT</name>
       <description>A particle, e.g., "out" in "rule out"
-				Equivalent to
-				cTAKES: edu.mayo.bmi.uima.chunker.type.PRT</description>
+Equivalent to cTAKES: edu.mayo.bmi.uima.chunker.type.PRT</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.Chunk</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.SBAR</name>
       <description>A subordinate clause
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.chunker.type.SBAR</description>
+Equivalent to cTAKES: edu.mayo.bmi.uima.chunker.type.SBAR</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.Chunk</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.UCP</name>
-      <description>An unlike coordinating phrase, e.g., a NP and a PP
-				conjoined via "and"
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.chunker.type.UCP</description>
+      <description>An unlike coordinating phrase, e.g., a NP and a PP conjoined via "and" 
+Equivalent to cTAKES: edu.mayo.bmi.uima.chunker.type.UCP</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.Chunk</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.VP</name>
       <description>A verb phrase
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.chunker.type.VP</description>
+Equivalent to cTAKES: edu.mayo.bmi.uima.chunker.type.VP</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.Chunk</supertypeName>
     </typeDescription>
     <typeDescription>
@@ -364,50 +299,42 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.RomanNumeralAnnotation</name>
-      <description>Equivalent to cTAKES:
-				edu.mayo.bmi.uima.cdt.type.RomanNumeralAnnotation</description>
+      <description>Equivalent to cTAKES: edu.mayo.bmi.uima.cdt.type.RomanNumeralAnnotation</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.FractionAnnotation</name>
-      <description>Equivalent to cTAKES:
-				edu.mayo.bmi.uima.cdt.type.FractionAnnotation</description>
+      <description>Equivalent to cTAKES: edu.mayo.bmi.uima.cdt.type.FractionAnnotation</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.DateAnnotation</name>
-      <description>Equivalent to cTAKES:
-				edu.mayo.bmi.uima.cdt.type.DateAnnotation</description>
+      <description>Equivalent to cTAKES: edu.mayo.bmi.uima.cdt.type.DateAnnotation</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.TimeAnnotation</name>
-      <description>Equivalent to cTAKES:
-				edu.mayo.bmi.uima.cdt.type.TimeAnnotation</description>
+      <description>Equivalent to cTAKES: edu.mayo.bmi.uima.cdt.type.TimeAnnotation</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.RangeAnnotation</name>
-      <description>Equivalent to cTAKES:
-				edu.mayo.bmi.uima.cdt.type.RangeAnnotation</description>
+      <description>Equivalent to cTAKES: edu.mayo.bmi.uima.cdt.type.RangeAnnotation</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.MeasurementAnnotation</name>
-      <description>Equivalent to cTAKES:
-				edu.mayo.bmi.uima.cdt.type.MeasurementAnnotation</description>
+      <description>Equivalent to cTAKES: edu.mayo.bmi.uima.cdt.type.MeasurementAnnotation</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.PersonTitleAnnotation</name>
-      <description>Equivalent to cTAKES:
-				edu.mayo.bmi.uima.cdt.type.PersonTitleAnnotation</description>
+      <description>Equivalent to cTAKES: edu.mayo.bmi.uima.cdt.type.PersonTitleAnnotation</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.ContextAnnotation</name>
-      <description>Contextual information of an entity. Equivalent to
-				cTAKES: edu.mayo.bmi.uima.context.type.ContextAnnotation</description>
+      <description>Contextual information of an entity. Equivalent to cTAKES: edu.mayo.bmi.uima.context.type.ContextAnnotation</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
       <features>
         <featureDescription>
@@ -424,17 +351,13 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation</name>
-      <description>Defines a window within which dictionary terms may
-				match. An auxiliary spanned type.
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.lookup.type.LookupWindowAnnotation</description>
+      <description>Defines a window within which dictionary terms may match.  An auxiliary spanned type.
+Equivalent to cTAKES: edu.mayo.bmi.uima.lookup.type.LookupWindowAnnotation</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationRoute</name>
-      <description>Means by which the medication was taken or administered.
-				Value set includes Topical, Enteral_Oral, Parenteral_Intravenous,
-				Other, undetermined, etc.</description>
+      <description>Means by which the medication was taken or administered.  Value set includes Topical, Enteral_Oral, Parenteral_Intravenous, Other, undetermined, etc.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -446,8 +369,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationForm</name>
-      <description>Form of this medication. Value set includes tablet,
-				capsule, liquid, inhalant, gel, other, etc.</description>
+      <description>Form of this medication.  Value set includes tablet, capsule, liquid, inhalant, gel, other, etc.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -459,9 +381,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationStrength</name>
-      <description>Strength indicates the strength number and unit of the
-				prescribed drug. E.g. "5 mg" in "one 5 mg tablet twice-a-day for 2
-				weeks"</description>
+      <description>Strength indicates the strength number and unit of the prescribed drug.  E.g. "5 mg" in "one 5 mg tablet twice-a-day for 2 weeks"</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -478,9 +398,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationDuration</name>
-      <description>The amount of time after which a medication should stop
-				being used, e.g., "2 weeks" in "one 5 mg tablet twice-a-day for 2
-				weeks"</description>
+      <description>The amount of time after which a medication should stop being used, e.g., "2 weeks" in "one 5 mg tablet twice-a-day for 2 weeks"</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -492,8 +410,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationDosage</name>
-      <description>Dosage indicates how much of a prescribed drug should be
-				taken. E.g. "one" in "one 5 mg tablet twice-a-day for 2 weeks"</description>
+      <description>Dosage indicates how much of a prescribed drug should be taken.  E.g. "one" in "one 5 mg tablet twice-a-day for 2 weeks"</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -505,8 +422,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationFrequency</name>
-      <description>How often a medication should be used. e.g., BID or
-				b.i.d. or "twice-a-day" would have a number=2 and unit=day.</description>
+      <description>How often a medication should be used. e.g., BID or b.i.d. or "twice-a-day" would have a number=2 and unit=day.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -523,27 +439,20 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationStatusChange</name>
-      <description>Status refers to the whether the medication is currently
-				being taken or not. Value set: start, stop, increase, decrease, no
-				change.</description>
+      <description>Status refers to the whether the medication is currently being taken or not.  Value set: start, stop, increase, decrease, no change.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
           <name>value</name>
-          <description>Indicates the change status of 'stop', 'start',
-						'increase', 'decrease', or 'noChange'.</description>
+          <description>Indicates the change status of 'stop', 'start', 'increase', 'decrease', or 'noChange'.</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.ProcedureDevice</name>
-      <description>Corresponds to the UMLS Devices semantic group: medical
-				device and research device.
-				Example: arterial line has a Medical
-				Device semantic type. This is
-				qualifying information on how a
-				procedure was done.</description>
+      <description>Corresponds to the UMLS Devices semantic group: medical device and research device. 
+Example: arterial line has a Medical Device semantic type. This is qualifying information on how a procedure was done.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -555,11 +464,8 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.ProcedureMethod</name>
-      <description>The way or the equipment used to give or administration
-				something (medication, test). This corresponds to the Procedures
-				UMLS semantic group.
-				More qualifying information on how the procedure
-				was done.</description>
+      <description>The way or the equipment used to give or administration something (medication, test). This corresponds to the Procedures UMLS semantic group.
+More qualifying information on how the procedure was done.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -571,9 +477,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.LabDeltaFlag</name>
-      <description>An indicator to warn that the laboratory test result has
-				changed significantly from the previous identical laboratory test
-				result.</description>
+      <description>An indicator to warn that the laboratory test result has changed significantly from the previous identical laboratory test result.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -585,8 +489,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.LabValue</name>
-      <description>Quantitative results of a laboratory, with number and
-				unit.</description>
+      <description>Quantitative results of a laboratory, with number and unit.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -615,9 +518,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.BodyLaterality</name>
-      <description>The proximity of the location in anatomical terms
-				(distal, proximal, superior, anterior and etc.). This is
-				finer-grained to allow combinations of values.</description>
+      <description>The proximity of the location in anatomical terms (distal, proximal, superior, anterior and etc.). This is finer-grained to allow combinations of values.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -641,9 +542,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Course</name>
-      <description>An indication of progress or decline of a condition.
-				Value set: unmarked (default), changed, increased, decreased,
-				improved, worsened, resolved</description>
+      <description>An indication of progress or decline of a condition.  Value set: unmarked (default), changed, increased, decreased, improved, worsened, resolved</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -655,8 +554,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Severity</name>
-      <description>An explicitly-mentioned indication of the seriousness of
-				a condition. Value Set: unmarked (default), severe, moderate, slight</description>
+      <description>An explicitly-mentioned indication of the seriousness of a condition.  Value Set: unmarked (default), severe, moderate, slight</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -668,9 +566,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.AnatomicalSite</name>
-      <description>A body part or area, corresponding to the UMLS semantic
-				group of Anatomy. An Entity based on generic Clinical Element Models
-				(CEMs)</description>
+      <description>A body part or area, corresponding to the UMLS semantic group of Anatomy.  An Entity based on generic Clinical Element Models (CEMs)</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Entity</supertypeName>
       <features>
         <featureDescription>
@@ -687,9 +583,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Medication</name>
-      <description>This is an Event from the UMLS semantic group of
-				Chemicals and Drugs, pruned by RxNORM source. Based on generic
-				Clinical Element Models (CEMs)</description>
+      <description>This is an Event from the UMLS semantic group of Chemicals and Drugs, pruned by RxNORM source.  Based on generic Clinical Element Models (CEMs)</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Event</supertypeName>
       <features>
         <featureDescription>
@@ -746,9 +640,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Procedure</name>
-      <description>This is an Event from the UMLS semantic group of
-				Procedures (except that Laboratory procedures are separate). Based
-				on generic Clinical Element Models (CEMs)</description>
+      <description>This is an Event from the UMLS semantic group of Procedures (except that Laboratory procedures are separate).  Based on generic Clinical Element Models (CEMs)</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Event</supertypeName>
       <features>
         <featureDescription>
@@ -800,8 +692,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.SignSymptom</name>
-      <description>This is an Event from the UMLS semantic group of Sign or
-				Symtom. Based on generic Clinical Element Models (CEMs)</description>
+      <description>This is an Event from the UMLS semantic group of Sign or Symtom.  Based on generic Clinical Element Models (CEMs)</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Event</supertypeName>
       <features>
         <featureDescription>
@@ -863,9 +754,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.DiseaseDisorder</name>
-      <description>This is an Event from the UMLS semantic group of
-				Disorders (except that Sign and Symptom types are separate). Based
-				on generic Clinical Element Models (CEMs)</description>
+      <description>This is an Event from the UMLS semantic group of Disorders (except that Sign and Symptom types are separate).  Based on generic Clinical Element Models (CEMs)</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Event</supertypeName>
       <features>
         <featureDescription>
@@ -927,9 +816,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Lab</name>
-      <description>This is an Event from the UMLS semantic group of
-				Laboratory Procedures. Based on generic Clinical Element Models
-				(CEMs)</description>
+      <description>This is an Event from the UMLS semantic group of Laboratory Procedures.  Based on generic Clinical Element Models (CEMs)</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Event</supertypeName>
       <features>
         <featureDescription>
@@ -961,10 +848,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Element</name>
-      <description>A basic semantic unit that refers to something in the
-				real world, including Entities, Events, Attributes, Dates. Element
-				inherits from uima.cas.TOP to combine textual mentions of these
-				real-world objects.</description>
+      <description>A basic semantic unit that refers to something in the real world, including Entities, Events, Attributes, Dates.  Element inherits from uima.cas.TOP to combine textual mentions of these real-world objects.</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
@@ -1027,8 +911,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Time</name>
-      <description>A normalized form for Time annotations. Inherits from
-				Element, but some fields may be unused.</description>
+      <description>A normalized form for Time annotations.  Inherits from Element, but some fields may be unused.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Element</supertypeName>
       <features>
         <featureDescription>
@@ -1040,8 +923,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Date</name>
-      <description>A normalized form for dates, namely with day, month, and
-				year. A subtype of Element but may not use all inherited attributes.</description>
+      <description>A normalized form for dates, namely with day, month, and year.  A subtype of Element but may not use all inherited attributes.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Element</supertypeName>
       <features>
         <featureDescription>
@@ -1063,10 +945,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Event</name>
-      <description>A real-world event; similar to Entity, but may bear some
-				temporal properties and relationships. In the constrained clinical
-				context, many concepts are discussed as instances with some temporal
-				component, e.g., Medications, Labs.</description>
+      <description>A real-world event; similar to Entity, but may bear some temporal properties and relationships.  In the constrained clinical context, many concepts are discussed as instances with some temporal component, e.g., Medications, Labs.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Element</supertypeName>
       <features>
         <featureDescription>
@@ -1078,22 +957,17 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Entity</name>
-      <description>A real-world entity such as a body part. For example,
-				multiple Procedures may have the same AnatomicalSite entity for
-				their locations.</description>
+      <description>A real-world entity such as a body part.  For example, multiple Procedures may have the same AnatomicalSite entity for their locations.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Element</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Attribute</name>
-      <description>The semantic encapsulation of a modifer. E.g., for
-				Clinical Elements, Attributes may be used to specify Body Side for a
-				Procedure.</description>
+      <description>The semantic encapsulation of a modifer.  E.g., for Clinical Elements, Attributes may be used to specify Body Side for a Procedure.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Element</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.EventProperties</name>
-      <description>A set of mostly temporal properties that are unique to
-				Events.</description>
+      <description>A set of mostly temporal properties that are unique to Events.</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
@@ -1140,10 +1014,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.relation.Relation</name>
-      <description>A superclass for semantic relationships between
-				Elements. For example, one might consider TemporalRelations or
-				UMLSRelations between a Medication and a Disorder. The "category"
-				feature indicates what kind of relation it is.</description>
+      <description>A superclass for semantic relationships between Elements.  For example, one might consider TemporalRelations or UMLSRelations between a Medication and a Disorder.  The "category" feature indicates what kind of relation it is.</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
@@ -1176,14 +1047,17 @@
           <description/>
           <rangeTypeName>uima.cas.Integer</rangeTypeName>
         </featureDescription>
+        <featureDescription>
+          <name>conditional</name>
+          <description>Whether the relation is conditional/hypothetical. Example: "If the patient's tumor returns, we can treat it with Oxaliplatin."
+This instantiates a manages/treats relation which should be marked as conditional=true, with the "if" marked as the cue.</description>
+          <rangeTypeName>uima.cas.Boolean</rangeTypeName>
+        </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.relation.RelationArgument</name>
-      <description>Relations are like lines connecting two or more
-				endpoints. RelationArguments are used as endpoints that are text
-				spans via the "argument" feature. The directed relations should
-				specify a "role" feature.</description>
+      <description>Relations are like lines connecting two or more endpoints.  RelationArguments are used as endpoints that are text spans via the "argument" feature. The directed relations should specify a "role" feature.</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
@@ -1211,8 +1085,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.relation.BinaryTextRelation</name>
-      <description>A super-type for relationships between two spans of
-				text.</description>
+      <description>A super-type for relationships between two spans of text.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.relation.Relation</supertypeName>
       <features>
         <featureDescription>
@@ -1234,8 +1107,7 @@
       <features>
         <featureDescription>
           <name>members</name>
-          <description>A super-type for relationships between multiple spans
-						of text.</description>
+          <description>A super-type for relationships between multiple spans of text.</description>
           <rangeTypeName>uima.cas.FSList</rangeTypeName>
           <elementType>org.apache.ctakes.typesystem.type.relation.RelationArgument</elementType>
         </featureDescription>
@@ -1243,22 +1115,17 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.relation.UMLSRelation</name>
-      <description>A biomedical relationship between two spans of text that
-				have been mapped to UMLS concepts. Inherits "category" from
-				Relation, with values such as affects, causes, complicates,
-				contraindicates, degree_of, etc.</description>
+      <description>A biomedical relationship between two spans of text that have been mapped to UMLS concepts. Inherits "category" from Relation, with values such as affects, causes, complicates, contraindicates, degree_of, etc.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.relation.BinaryTextRelation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.relation.CoreferenceRelation</name>
-      <description>A coreference pair, with antecedent as arg1 and anaphor
-				as arg2</description>
+      <description>A coreference pair, with antecedent as arg1 and anaphor as arg2</description>
       <supertypeName>org.apache.ctakes.typesystem.type.relation.BinaryTextRelation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.relation.ElementRelation</name>
-      <description>A super-type referring to real-world semantic
-				relationships, e.g., TemporalRelations between two Events.</description>
+      <description>A super-type referring to real-world semantic relationships, e.g., TemporalRelations between two Events.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.relation.Relation</supertypeName>
       <features>
         <featureDescription>
@@ -1275,8 +1142,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.relation.AttributeRelation</name>
-      <description>A real-world relationship between an Element and an
-				Attribute.</description>
+      <description>A real-world relationship between an Element and an Attribute.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.relation.Relation</supertypeName>
       <features>
         <featureDescription>
@@ -1318,8 +1184,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.relation.DegreeOf</name>
-      <description>A UMLS relation between an attribute and an
-				entity/event.</description>
+      <description>A UMLS relation between an attribute and an entity/event.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.relation.AttributeRelation</supertypeName>
     </typeDescription>
     <typeDescription>
@@ -1328,7 +1193,77 @@
       <supertypeName>org.apache.ctakes.typesystem.type.relation.BinaryTextRelation</supertypeName>
     </typeDescription>
     <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.CausesBringsAbout</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.ElementRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.CausesBringsAboutTextRelation</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.BinaryTextRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.ComplicatesDisrupts</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.ElementRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
       <name>org.apache.ctakes.typesystem.type.relation.ComplicatesDisruptsTextRelation</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.BinaryTextRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.Contraindicates</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.ElementRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.ContraindicatesTextRelation</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.BinaryTextRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.Diagnoses</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.ElementRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.DiagnosesTextRelation</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.BinaryTextRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.Indicates</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.ElementRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.IndicatesTextRelation</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.BinaryTextRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.IsIndicatedFor</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.ElementRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.IsIndicatedForTextRelation</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.BinaryTextRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.ManagesTreats</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.ElementRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.Prevents</name>
+      <description/>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.ElementRelation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.PreventsTextRelation</name>
       <description/>
       <supertypeName>org.apache.ctakes.typesystem.type.relation.BinaryTextRelation</supertypeName>
     </typeDescription>
@@ -1369,8 +1304,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.structured.Demographics</name>
-      <description>Demographic information about the patient in a clinical
-				document. Typically comes from structured metadata.</description>
+      <description>Demographic information about the patient in a clinical document.  Typically comes from structured metadata.</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
@@ -1417,8 +1351,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.structured.SourceData</name>
-      <description>Information about the caregiving setting for the
-				clinical document. Typically comes from structured metadata.</description>
+      <description>Information about the caregiving setting for the clinical document.  Typically comes from structured metadata.</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
@@ -1480,8 +1413,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.structured.Metadata</name>
-      <description>Structured data that captures information about the
-				document, patient, or context of the clinical text.</description>
+      <description>Structured data that captures information about the document, patient, or context of the clinical text.</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
@@ -1508,8 +1440,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.TreebankNode</name>
-      <description>A Penn Treebank-style tree node. Conforms to PTB 2.0
-				guidelines.</description>
+      <description>A Penn Treebank-style tree node.  Conforms to PTB 2.0 guidelines.</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
@@ -1545,53 +1476,41 @@
         </featureDescription>
         <featureDescription>
           <name>headIndex</name>
-          <description>The head index tracks the index into the word tokens
-						which is the syntactic head of a phrase.</description>
+          <description>The head index tracks the index into the word tokens which is the syntactic head of a phrase.</description>
           <rangeTypeName>uima.cas.Integer</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.TerminalTreebankNode</name>
-      <description>A Penn Treebank Node; as a terminal, there is an
-				associated word, and the index of the word is a feature.</description>
+      <description>A Penn Treebank Node; as a terminal, there is an associated word, and the index of the word is a feature.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.TreebankNode</supertypeName>
       <features>
         <featureDescription>
           <name>index</name>
-          <description>The index of this node in the top node's list of
-						terminals.</description>
+          <description>The index of this node in the top node's list of terminals.</description>
           <rangeTypeName>uima.cas.Integer</rangeTypeName>
         </featureDescription>
         <featureDescription>
           <name>tokenIndex</name>
-          <description>The tokenIndex of a terminal is n, where the terminal
-						is the nth token in a sentence. The value -1 means that this
-						terminal does not correspond to a token (because it is a trace.)
-						We assume that each token corresponds to a terminal.</description>
+          <description>The tokenIndex of a terminal is n, where the terminal is the nth token in a sentence.  The value -1 means that this terminal does not correspond to a token (because it is a trace.)  We assume that each token corresponds to a terminal.</description>
           <rangeTypeName>uima.cas.Integer</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.TopTreebankNode</name>
-      <description>A Penn Treebank Node; as the top node, this stores the
-				whole subsumed sentence's parse tree as a string. It also stores all
-				the terminals, allowing for traversal of the tree bottom-up
-				(top-down is implied through the TreebankNode's 'children'
-				attribute).</description>
+      <description>A Penn Treebank Node; as the top node, this stores the whole subsumed sentence's parse tree as a string.  It also stores all the terminals, allowing for traversal of the tree bottom-up (top-down is implied through the TreebankNode's 'children' attribute).</description>
       <supertypeName>org.apache.ctakes.typesystem.type.syntax.TreebankNode</supertypeName>
       <features>
         <featureDescription>
           <name>treebankParse</name>
-          <description>A bracketed sentence string representing the parse
-						tree.</description>
+          <description>A bracketed sentence string representing the parse tree.</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>
           <name>terminals</name>
-          <description>Stores the terminal nodes of the parse tree. This
-						allows for bottom-up traversal of a tree.</description>
+          <description>Stores the terminal nodes of the parse tree.  This allows for bottom-up traversal of a tree.</description>
           <rangeTypeName>uima.cas.FSArray</rangeTypeName>
           <elementType>org.apache.ctakes.typesystem.type.syntax.TerminalTreebankNode</elementType>
         </featureDescription>
@@ -1599,14 +1518,12 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode</name>
-      <description>A dependency parser node in the CONLL-X format, namely,
-				where each node is a token with 10 fields.</description>
+      <description>A dependency parser node in the CONLL-X format, namely, where each node is a token with 10 fields.</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
           <name>id</name>
-          <description>The token's position in the sentence. The ROOT node,
-						present in every dependency parse, has id=0.</description>
+          <description>The token's position in the sentence.  The ROOT node, present in every dependency parse, has id=0.</description>
           <rangeTypeName>uima.cas.Integer</rangeTypeName>
         </featureDescription>
         <featureDescription>
@@ -1658,18 +1575,12 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.StanfordDependency</name>
-      <description>Stanford dependencies provide a representation of
-				grammatical relations between words in a sentence. Stanford
-				dependencies are triplets: name of the relation, governor and
-				dependent.</description>
+      <description>Stanford dependencies provide a representation of grammatical relations between words in a sentence. Stanford dependencies are triplets: name of the relation, governor and dependent.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.relation.BinaryTextRelation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</name>
-      <description>Any span of text that has been discovered or flagged for
-				some reason, such as a Named Entity. Allows for mapping to an
-				ontology. Generalized from cTAKES:
-				org.apache.ctakes.typesystem.type.IdentifiedAnnotation.</description>
+      <description>Any span of text that has been discovered or flagged for some reason, such as a Named Entity.  Allows for mapping to an ontology.  Generalized from cTAKES: org.apache.ctakes.typesystem.type.IdentifiedAnnotation.</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
@@ -1695,8 +1606,7 @@
         </featureDescription>
         <featureDescription>
           <name>sentenceID</name>
-          <description>contains the sentence id of the sentence that contains
-						the NE's text span</description>
+          <description>contains the sentence id of the sentence that contains the NE's text span</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>
@@ -1740,16 +1650,15 @@
           <rangeTypeName>uima.cas.Integer</rangeTypeName>
         </featureDescription>
         <featureDescription>
-          <name>originalText</name>
-          <description>The covered text of the span or the disjoint spans that resulted in the creation of this IdentifiedAnnotation. If the covered text is from disjoint spans, they are separated by a delimeter.</description>
-          <rangeTypeName>uima.cas.FSArray</rangeTypeName>
+          <name>preferredText</name>
+          <description>preferredText is the preferred name. normally his is the UMLS preferred name.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.temporary.assertion.AssertionCuePhraseAnnotation</name>
-      <description>A cue phrase indicating potential negation, uncertainty,
-				or conditional</description>
+      <description>A cue phrase indicating potential negation, uncertainty, or conditional</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
@@ -1764,8 +1673,7 @@
         </featureDescription>
         <featureDescription>
           <name>cuePhraseAssertionFamily</name>
-          <description>which assertion family this cue phrase belongs to
-						(negation, uncertainty, or conditional)</description>
+          <description>which assertion family this cue phrase belongs to (negation, uncertainty, or conditional)</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>
@@ -1782,8 +1690,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.EntityMention</name>
-      <description>A text string (IdentifiedAnnotation) that refers to an
-				Entity.</description>
+      <description>A text string (IdentifiedAnnotation) that refers to an Entity.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
       <features>
         <featureDescription>
@@ -1795,8 +1702,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.EventMention</name>
-      <description>A text string (IdentifiedAnnotation) that refers to an
-				Event.</description>
+      <description>A text string (IdentifiedAnnotation) that refers to an Event.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
       <features>
         <featureDescription>
@@ -1808,8 +1714,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.MedicationEventMention</name>
-      <description>As of cTAKEs 3.1, see
-				org.apache.ctakes.typesystem.type.textsem.MedicationMention.</description>
+      <description>As of cTAKEs 3.1, see org.apache.ctakes.typesystem.type.textsem.MedicationMention.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.EventMention</supertypeName>
       <features>
         <featureDescription>
@@ -1861,8 +1766,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.TimeMention</name>
-      <description>A text string (IdentifiedAnnotation) that refers to a
-				Time (i.e., TIMEX3).</description>
+      <description>A text string (IdentifiedAnnotation) that refers to a Time (i.e., TIMEX3).</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
       <features>
         <featureDescription>
@@ -1884,8 +1788,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.Modifier</name>
-      <description>A text string (IdentifiedAnnotation) that refers to an
-				Attribute.</description>
+      <description>A text string (IdentifiedAnnotation) that refers to an Attribute.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
       <features>
         <featureDescription>
@@ -1902,9 +1805,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.Predicate</name>
-      <description>Predicates are typically verbs and may participate in
-				SemanticRoleRelations. Follows PropBank standards with a few
-				clinical additions.</description>
+      <description>Predicates are typically verbs and may participate in SemanticRoleRelations.  Follows PropBank standards with a few clinical additions.</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
@@ -1922,10 +1823,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.SemanticArgument</name>
-      <description>SemanticArguments are used for predicate-argument
-				structures (SemanticRoleRelations). The "label" features should
-				contain the type of semantic role (e.g., ARG0, ARGM) that this
-				argument has w.r.t. the predicate.</description>
+      <description>SemanticArguments are used for predicate-argument structures (SemanticRoleRelations).  The "label" features should contain the type of semantic role (e.g., ARG0, ARGM) that this argument has w.r.t. the predicate.</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
@@ -1942,8 +1840,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.SemanticRoleRelation</name>
-      <description>Predicate-argument structure used for semantic role
-				labeling output.</description>
+      <description>Predicate-argument structure used for semantic role labeling output.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.relation.Relation</supertypeName>
       <features>
         <featureDescription>
@@ -1960,14 +1857,12 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textspan.Paragraph</name>
-      <description>A text span corresponding to a paragraph, typically
-				containing multiple sentences.</description>
+      <description>A text span corresponding to a paragraph, typically containing multiple sentences.</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textspan.List</name>
-      <description>A semi-structured text span, containing other
-				Annotations (typically Sentences, other Lists, etc).</description>
+      <description>A semi-structured text span, containing other Annotations (typically Sentences, other Lists, etc).</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
@@ -1986,8 +1881,7 @@
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.util.Pair</name>
       <description>An Attribute-Value tuple.
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.core.type.Property</description>
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.Property</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
@@ -2004,9 +1898,8 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.util.Pairs</name>
-      <description>A brute force "hash" that stores multiple Pairs in a
-				list.
-				Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.Properties</description>
+      <description>A brute force "hash" that stores multiple Pairs in a list. 
+Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.Properties</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
@@ -2019,8 +1912,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.util.ProbabilityDistribution</name>
-      <description>A brute force probability distribution for discrete
-				variables.</description>
+      <description>A brute force probability distribution for discrete variables.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.util.Pairs</supertypeName>
     </typeDescription>
     <typeDescription>
@@ -2037,17 +1929,13 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation</name>
-      <description>Defines a window within which dictionary terms may
-				match. An auxiliary spanned type.
-				Equivalent to cTAKES:
-				edu.mayo.bmi.uima.lookup.type.LookupWindowAnnotation</description>
+      <description>Defines a window within which dictionary terms may match.  An auxiliary spanned type.
+Equivalent to cTAKES: edu.mayo.bmi.uima.lookup.type.LookupWindowAnnotation</description>
       <supertypeName>uima.tcas.Annotation</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationRoute</name>
-      <description>Means by which the medication was taken or administered.
-				Value set includes Topical, Enteral_Oral, Parenteral_Intravenous,
-				Other, undetermined, etc.</description>
+      <description>Means by which the medication was taken or administered.  Value set includes Topical, Enteral_Oral, Parenteral_Intravenous, Other, undetermined, etc.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2059,8 +1947,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationForm</name>
-      <description>Form of this medication. Value set includes tablet,
-				capsule, liquid, inhalant, gel, other, etc.</description>
+      <description>Form of this medication.  Value set includes tablet, capsule, liquid, inhalant, gel, other, etc.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2072,9 +1959,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationStrength</name>
-      <description>Strength indicates the strength number and unit of the
-				prescribed drug. E.g. "5 mg" in "one 5 mg tablet twice-a-day for 2
-				weeks"</description>
+      <description>Strength indicates the strength number and unit of the prescribed drug.  E.g. "5 mg" in "one 5 mg tablet twice-a-day for 2 weeks"</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2091,9 +1976,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationDuration</name>
-      <description>The amount of time after which a medication should stop
-				being used, e.g., "2 weeks" in "one 5 mg tablet twice-a-day for 2
-				weeks"</description>
+      <description>The amount of time after which a medication should stop being used, e.g., "2 weeks" in "one 5 mg tablet twice-a-day for 2 weeks"</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2105,8 +1988,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationDosage</name>
-      <description>Dosage indicates how much of a prescribed drug should be
-				taken. E.g. "one" in "one 5 mg tablet twice-a-day for 2 weeks"</description>
+      <description>Dosage indicates how much of a prescribed drug should be taken.  E.g. "one" in "one 5 mg tablet twice-a-day for 2 weeks"</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2118,8 +2000,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationFrequency</name>
-      <description>How often a medication should be used. e.g., BID or
-				b.i.d. or "twice-a-day" would have a number=2 and unit=day.</description>
+      <description>How often a medication should be used. e.g., BID or b.i.d. or "twice-a-day" would have a number=2 and unit=day.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2136,27 +2017,20 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.MedicationStatusChange</name>
-      <description>Status refers to the whether the medication is currently
-				being taken or not. Value set: start, stop, increase, decrease, no
-				change.</description>
+      <description>Status refers to the whether the medication is currently being taken or not.  Value set: start, stop, increase, decrease, no change.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
           <name>value</name>
-          <description>Indicates the change status of 'stop', 'start',
-						'increase', 'decrease', or 'noChange'.</description>
+          <description>Indicates the change status of 'stop', 'start', 'increase', 'decrease', or 'noChange'.</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.ProcedureDevice</name>
-      <description>Corresponds to the UMLS Devices semantic group: medical
-				device and research device.
-				Example: arterial line has a Medical
-				Device semantic type. This is
-				qualifying information on how a
-				procedure was done.</description>
+      <description>Corresponds to the UMLS Devices semantic group: medical device and research device. 
+Example: arterial line has a Medical Device semantic type. This is qualifying information on how a procedure was done.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2168,11 +2042,8 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.ProcedureMethod</name>
-      <description>The way or the equipment used to give or administration
-				something (medication, test). This corresponds to the Procedures
-				UMLS semantic group.
-				More qualifying information on how the procedure
-				was done.</description>
+      <description>The way or the equipment used to give or administration something (medication, test). This corresponds to the Procedures UMLS semantic group.
+More qualifying information on how the procedure was done.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2184,9 +2055,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.LabDeltaFlag</name>
-      <description>An indicator to warn that the laboratory test result has
-				changed significantly from the previous identical laboratory test
-				result.</description>
+      <description>An indicator to warn that the laboratory test result has changed significantly from the previous identical laboratory test result.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2198,8 +2067,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.LabValue</name>
-      <description>Quantitative results of a laboratory, with number and
-				unit.</description>
+      <description>Quantitative results of a laboratory, with number and unit.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2228,9 +2096,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.BodyLaterality</name>
-      <description>The proximity of the location in anatomical terms
-				(distal, proximal, superior, anterior and etc.). This is
-				finer-grained to allow combinations of values.</description>
+      <description>The proximity of the location in anatomical terms (distal, proximal, superior, anterior and etc.). This is finer-grained to allow combinations of values.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2254,9 +2120,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Course</name>
-      <description>An indication of progress or decline of a condition.
-				Value set: unmarked (default), changed, increased, decreased,
-				improved, worsened, resolved</description>
+      <description>An indication of progress or decline of a condition.  Value set: unmarked (default), changed, increased, decreased, improved, worsened, resolved</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2268,8 +2132,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.refsem.Severity</name>
-      <description>An explicitly-mentioned indication of the seriousness of
-				a condition. Value Set: unmarked (default), severe, moderate, slight</description>
+      <description>An explicitly-mentioned indication of the seriousness of a condition.  Value Set: unmarked (default), severe, moderate, slight</description>
       <supertypeName>org.apache.ctakes.typesystem.type.refsem.Attribute</supertypeName>
       <features>
         <featureDescription>
@@ -2281,80 +2144,59 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.MedicationRouteModifier</name>
-      <description>Means by which the medication was taken or administered.
-				Value set includes Topical, Enteral_Oral, Parenteral_Intravenous,
-				Other, undetermined, etc.</description>
+      <description>Means by which the medication was taken or administered.  Value set includes Topical, Enteral_Oral, Parenteral_Intravenous, Other, undetermined, etc.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.MedicationFormModifier</name>
-      <description>Form of this medication. Value set includes tablet,
-				capsule, liquid, inhalant, gel, other, etc.</description>
+      <description>Form of this medication.  Value set includes tablet, capsule, liquid, inhalant, gel, other, etc.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.MedicationStrengthModifier</name>
-      <description>Strength indicates the strength number and unit of the
-				prescribed drug. E.g. "5 mg" in "one 5 mg tablet twice-a-day for 2
-				weeks"</description>
+      <description>Strength indicates the strength number and unit of the prescribed drug.  E.g. "5 mg" in "one 5 mg tablet twice-a-day for 2 weeks"</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.MedicationDurationModifier</name>
-      <description>The amount of time after which a medication should stop
-				being used, e.g., "2 weeks" in "one 5 mg tablet twice-a-day for 2
-				weeks"</description>
+      <description>The amount of time after which a medication should stop being used, e.g., "2 weeks" in "one 5 mg tablet twice-a-day for 2 weeks"</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.MedicationDosageModifier</name>
-      <description>Dosage indicates how much of a prescribed drug should be
-				taken. E.g. "one" in "one 5 mg tablet twice-a-day for 2 weeks"</description>
+      <description>Dosage indicates how much of a prescribed drug should be taken.  E.g. "one" in "one 5 mg tablet twice-a-day for 2 weeks"</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.MedicationFrequencyModifier</name>
-      <description>How often a medication should be used. e.g., BID or
-				b.i.d. or "twice-a-day" would have a number=2 and unit=day.</description>
+      <description>How often a medication should be used. e.g., BID or b.i.d. or "twice-a-day" would have a number=2 and unit=day.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.MedicationStatusChangeModifier</name>
-      <description>Status refers to the whether the medication is currently
-				being taken or not. Value set: start, stop, increase, decrease, no
-				change.</description>
+      <description>Status refers to the whether the medication is currently being taken or not.  Value set: start, stop, increase, decrease, no change.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.ProcedureDeviceModifier</name>
-      <description>Corresponds to the UMLS Devices semantic group: medical
-				device and research device.
-				Example: arterial line has a Medical
-				Device semantic type. This is
-				qualifying information on how a
-				procedure was done.</description>
+      <description>Corresponds to the UMLS Devices semantic group: medical device and research device. 
+Example: arterial line has a Medical Device semantic type. This is qualifying information on how a procedure was done.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.ProcedureMethodModifier</name>
-      <description>The way or the equipment used to give or administration
-				something (medication, test). This corresponds to the Procedures
-				UMLS semantic group.
-				More qualifying information on how the procedure
-				was done.</description>
+      <description>The way or the equipment used to give or administration something (medication, test). This corresponds to the Procedures UMLS semantic group.
+More qualifying information on how the procedure was done.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.LabDeltaFlagModifier</name>
-      <description>An indicator to warn that the laboratory test result has
-				changed significantly from the previous identical laboratory test
-				result.</description>
+      <description>An indicator to warn that the laboratory test result has changed significantly from the previous identical laboratory test result.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.LabValueModifier</name>
-      <description>Quantitative results of a laboratory, with number and
-				unit.</description>
+      <description>Quantitative results of a laboratory, with number and unit.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
@@ -2364,9 +2206,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.BodyLateralityModifier</name>
-      <description>The proximity of the location in anatomical terms
-				(distal, proximal, superior, anterior and etc.). This is
-				finer-grained to allow combinations of values.</description>
+      <description>The proximity of the location in anatomical terms (distal, proximal, superior, anterior and etc.). This is finer-grained to allow combinations of values.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
@@ -2376,23 +2216,17 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.CourseModifier</name>
-      <description>An indication of progress or decline of a condition.
-				Value set: unmarked (default), changed, increased, decreased,
-				improved, worsened, resolved</description>
+      <description>An indication of progress or decline of a condition.  Value set: unmarked (default), changed, increased, decreased, improved, worsened, resolved</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.SeverityModifier</name>
-      <description>An explicitly-mentioned indication of the seriousness of
-				a condition. Value Set: unmarked (default), severe, moderate, slight</description>
+      <description>An explicitly-mentioned indication of the seriousness of a condition.  Value Set: unmarked (default), severe, moderate, slight</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.PolarityModifier</name>
-      <description>Used to indicate that a procedure or assertion did not
-				occur or does not exist. If indicated, negation is present and
-				polarity should be -1. If not indicated, negation is not present and
-				polarity should be +1 by default.</description>
+      <description>Used to indicate that a procedure or assertion did not occur or does not exist. If indicated, negation is present and polarity should be -1.  If not indicated, negation is not present and polarity should be +1 by default.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
       <features>
         <featureDescription>
@@ -2404,10 +2238,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.ConditionalModifier</name>
-      <description>The Conditional modifier refers to mentions which could
-				exist under certain circumstances. If indicated, there are
-				conditions under which an associated Named Entity mention might not
-				be truly asserted.</description>
+      <description>The Conditional modifier refers to mentions which could exist under certain circumstances.  If indicated, there are conditions under which an associated Named Entity mention might not be truly asserted.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
       <features>
         <featureDescription>
@@ -2419,8 +2250,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.UncertaintyModifier</name>
-      <description>An introduction of a measure of doubt into a statement.
-				If indicated, there is uncertainty.</description>
+      <description>An introduction of a measure of doubt into a statement.  If indicated, there is uncertainty.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
       <features>
         <featureDescription>
@@ -2432,9 +2262,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.GenericModifier</name>
-      <description>The Generic modifier indicates that a named entity
-				mention is generic, i.e., not related to the instance of a disorder,
-				sign/symptom, etc.</description>
+      <description>The Generic modifier indicates that a named entity mention is generic, i.e., not related to the instance of a disorder, sign/symptom, etc.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
       <features>
         <featureDescription>
@@ -2446,9 +2274,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.SubjectModifier</name>
-      <description>The person the observation is on, i.e., a Person
-				mention. This modifier refers to the entity experiencing the
-				disorder.</description>
+      <description>The person the observation is on, i.e., a Person mention. This modifier refers to the entity experiencing the disorder.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
       <features>
         <featureDescription>
@@ -2460,8 +2286,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.HistoryOfModifier</name>
-      <description>An indication of explicit mentioning of a past history.
-				The indicator captures only very explicit mentions of historicity.</description>
+      <description>An indication of explicit mentioning of a past history. The indicator captures only very explicit mentions of historicity.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
       <features>
         <featureDescription>
@@ -2473,9 +2298,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.LabInterpretationModifier</name>
-      <description>Test result interpretations organized in a valued list
-				e.g., "rare cells seen" or "few cells seen" in urinalysis, now
-				combined with very_abnormal and abnormal.</description>
+      <description>Test result interpretations organized in a valued list e.g., "rare cells seen" or "few cells seen" in urinalysis, now combined with very_abnormal and abnormal.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
       <features>
         <featureDescription>
@@ -2487,8 +2310,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.MedicationAllergyModifier</name>
-      <description>Indication of whether the medication is mentioned in the
-				context of Allergies.</description>
+      <description>Indication of whether the medication is mentioned in the context of Allergies.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
       <features>
         <featureDescription>
@@ -2500,9 +2322,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.LabEstimatedModifier</name>
-      <description>Signals that the lab value was estimated, e.g., "GFR
-				(estimated): 81". True means that there is an indicator signalling
-				that there was an estimation of the value.</description>
+      <description>Signals that the lab value was estimated, e.g., "GFR (estimated): 81".  True means that there is an indicator signalling that there was an estimation of the value.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.Modifier</supertypeName>
       <features>
         <featureDescription>
@@ -2514,9 +2334,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention</name>
-      <description>A text string that refers to a (AnatomicalSite) Entity.
-				A body part or area, corresponding to the UMLS semantic group of
-				Anatomy. Based on generic Clinical Element Models (CEMs)</description>
+      <description>A text string that refers to a (AnatomicalSite) Entity.  A body part or area, corresponding to the UMLS semantic group of Anatomy.  Based on generic Clinical Element Models (CEMs)</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.EntityMention</supertypeName>
       <features>
         <featureDescription>
@@ -2533,10 +2351,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.MedicationMention</name>
-      <description>A text string that refers to a (Medication) Event. This
-				is an Event from the UMLS semantic group of Chemicals and Drugs,
-				pruned by RxNORM source. Based on generic Clinical Element Models
-				(CEMs)</description>
+      <description>A text string that refers to a (Medication) Event.  This is an Event from the UMLS semantic group of Chemicals and Drugs, pruned by RxNORM source.  Based on generic Clinical Element Models (CEMs)</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.EventMention</supertypeName>
       <features>
         <featureDescription>
@@ -2598,10 +2413,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.ProcedureMention</name>
-      <description>A text string that refers to a (Procedure) Event. This
-				is from the UMLS semantic group of Procedures (except that
-				Laboratory procedures are separate). Based on generic Clinical
-				Element Models (CEMs)</description>
+      <description>A text string that refers to a (Procedure) Event.  This is from the UMLS semantic group of Procedures (except that Laboratory procedures are separate).  Based on generic Clinical Element Models (CEMs)</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.EventMention</supertypeName>
       <features>
         <featureDescription>
@@ -2653,9 +2465,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.SignSymptomMention</name>
-      <description>A text string that refers to a (SignSymptom) Event. This
-				is from the UMLS semantic group of Sign or Symtom. Based on generic
-				Clinical Element Models (CEMs)</description>
+      <description>A text string that refers to a (SignSymptom) Event.  This is from the UMLS semantic group of Sign or Symtom.  Based on generic Clinical Element Models (CEMs)</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.EventMention</supertypeName>
       <features>
         <featureDescription>
@@ -2717,10 +2527,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.DiseaseDisorderMention</name>
-      <description>A text string that refers to a (DiseaseDisorder) Event.
-				This is from the UMLS semantic group of Disorders (except that Sign
-				and Symptom types are separate). Based on generic Clinical Element
-				Models (CEMs)</description>
+      <description>A text string that refers to a (DiseaseDisorder) Event.  This is from the UMLS semantic group of Disorders (except that Sign and Symptom types are separate).  Based on generic Clinical Element Models (CEMs)</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.EventMention</supertypeName>
       <features>
         <featureDescription>
@@ -2787,9 +2594,7 @@
     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.textsem.LabMention</name>
-      <description>A text string that refers to a (Lab) Event. This is from
-				the UMLS semantic group of Laboratory Procedures. Based on generic
-				Clinical Element Models (CEMs)</description>
+      <description>A text string that refers to a (Lab) Event.  This is from the UMLS semantic group of Laboratory Procedures.  Based on generic Clinical Element Models (CEMs)</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.EventMention</supertypeName>
       <features>
         <featureDescription>
