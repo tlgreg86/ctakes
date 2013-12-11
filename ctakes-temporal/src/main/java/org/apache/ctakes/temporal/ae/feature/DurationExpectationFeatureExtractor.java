@@ -21,10 +21,10 @@ package org.apache.ctakes.temporal.ae.feature;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.temporal.ae.feature.DurationDistributionFeatureExtractor.Callback;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.Feature;
@@ -34,9 +34,8 @@ import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
-import com.google.common.io.LineProcessor;
 
-public class ExpectedDurationFeatureExtractor implements SimpleFeatureExtractor {
+public class DurationExpectationFeatureExtractor implements SimpleFeatureExtractor {
 
   @Override
   public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException { 
@@ -86,34 +85,5 @@ public class ExpectedDurationFeatureExtractor implements SimpleFeatureExtractor 
     }
   
     return expectation / converter.get("year");
-  }
-  
-  private static class Callback implements LineProcessor <Map<String, Map<String, Float>>> {
-
-    // map event text to its duration distribution
-    private Map<String, Map<String, Float>> textToDistribution;
-    
-    public Callback() {
-      textToDistribution = new HashMap<String, Map<String, Float>>();
-    }
-    
-    public boolean processLine(String line) throws IOException {
-
-      String[] elements = line.split(", "); // e.g. pain, second:0.000, minute:0.005, hour:0.099, ...
-      Map<String, Float> distribution = new HashMap<String, Float>();
-      
-      for(int durationBinNumber = 1; durationBinNumber < elements.length; durationBinNumber++) {
-        String[] durationAndValue = elements[durationBinNumber].split(":"); // e.g. "day:0.475"
-        distribution.put(durationAndValue[0], Float.parseFloat(durationAndValue[1]));
-      }
-      
-      textToDistribution.put(elements[0], distribution);
-      return true;
-    }
-
-    public Map<String, Map<String, Float>> getResult() {
-
-      return textToDistribution;
-    }
   }
 }

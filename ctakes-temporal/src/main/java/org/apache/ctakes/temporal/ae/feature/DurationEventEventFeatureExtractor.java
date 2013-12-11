@@ -21,22 +21,20 @@ package org.apache.ctakes.temporal.ae.feature;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.DurationDistributionFeatureExtractor.Callback;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.classifier.Feature;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
-import com.google.common.io.LineProcessor;
 
-public class EventDurationFeatureExtractor implements RelationFeaturesExtractor {
+public class DurationEventEventFeatureExtractor implements RelationFeaturesExtractor {
 
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2)
@@ -59,7 +57,7 @@ public class EventDurationFeatureExtractor implements RelationFeaturesExtractor 
     if(arg1Distribution == null) {
       features.add(new Feature("arg1_no_duration_info"));
     } else {
-      float expectation1 = ExpectedDurationFeatureExtractor.expectedDuration(arg1Distribution);
+      float expectation1 = DurationExpectationFeatureExtractor.expectedDuration(arg1Distribution);
       features.add(new Feature("arg1_expected_duration", expectation1));
     }
     
@@ -67,39 +65,10 @@ public class EventDurationFeatureExtractor implements RelationFeaturesExtractor 
     if(arg2Distribution == null) {
       features.add(new Feature("arg2_no_duration_info"));
     } else {
-      float expectation2 = ExpectedDurationFeatureExtractor.expectedDuration(arg2Distribution);
+      float expectation2 = DurationExpectationFeatureExtractor.expectedDuration(arg2Distribution);
       features.add(new Feature("arg2_expected_duration", expectation2));
     }
     
     return features;
-  }
-  
-  private static class Callback implements LineProcessor <Map<String, Map<String, Float>>> {
-
-    // map event text to its duration distribution
-    private Map<String, Map<String, Float>> textToDistribution;
-    
-    public Callback() {
-      textToDistribution = new HashMap<String, Map<String, Float>>();
-    }
-    
-    public boolean processLine(String line) throws IOException {
-
-      String[] elements = line.split(", "); // e.g. pain, second:0.000, minute:0.005, hour:0.099, ...
-      Map<String, Float> distribution = new HashMap<String, Float>();
-      
-      for(int durationBinNumber = 1; durationBinNumber < elements.length; durationBinNumber++) {
-        String[] durationAndValue = elements[durationBinNumber].split(":"); // e.g. "day:0.475"
-        distribution.put(durationAndValue[0], Float.parseFloat(durationAndValue[1]));
-      }
-      
-      textToDistribution.put(elements[0], distribution);
-      return true;
-    }
-
-    public Map<String, Map<String, Float>> getResult() {
-
-      return textToDistribution;
-    }
   }
 }

@@ -65,7 +65,7 @@ public class DurationDistributionFeatureExtractor implements SimpleFeatureExtrac
     return features;
   }
 
-  private static class Callback implements LineProcessor <Map<String, Map<String, Float>>> {
+  public static class Callback implements LineProcessor <Map<String, Map<String, Float>>> {
 
     // map event text to its duration distribution
     private Map<String, Map<String, Float>> textToDistribution;
