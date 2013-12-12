@@ -66,6 +66,7 @@ public class HistoryAttributeClassifier {
             FeatureIndex.add(SUBSUMED_ANNOT);
     }
     
+    // Only enter lower-case strings here for comparison with sentences in isInHistSection
     private static final String[] GHC_HIST_SECTIONS = 
     	{
     	"fh",
@@ -80,7 +81,7 @@ public class HistoryAttributeClassifier {
     	};
 
 	// currently goes from entityMention to Sentence to SemanticArgument
-	public static Boolean getHIstory(JCas jCas, IdentifiedAnnotation mention) {
+	public static Boolean getHistory(JCas jCas, IdentifiedAnnotation mention) {
 		
 		HashMap<String, Boolean> vfeat = extract(jCas, mention);
 		
