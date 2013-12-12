@@ -57,16 +57,22 @@ public class DurationEventEventFeatureExtractor implements RelationFeaturesExtra
     if(arg1Distribution == null) {
       features.add(new Feature("arg1_no_duration_info"));
     } else {
-      float expectation1 = DurationExpectationFeatureExtractor.expectedDuration(arg1Distribution);
-      features.add(new Feature("arg1_expected_duration", expectation1));
+//      float expectation1 = DurationExpectationFeatureExtractor.expectedDuration(arg1Distribution);
+//      features.add(new Feature("arg1_expected_duration", expectation1));
+      for(String timeUnit : arg1Distribution.keySet()) {
+        features.add(new Feature("duration_" + timeUnit, arg1Distribution.get(timeUnit)));  
+      }
     }
     
     Map<String, Float> arg2Distribution = textToDistribution.get(arg2text);
     if(arg2Distribution == null) {
       features.add(new Feature("arg2_no_duration_info"));
     } else {
-      float expectation2 = DurationExpectationFeatureExtractor.expectedDuration(arg2Distribution);
-      features.add(new Feature("arg2_expected_duration", expectation2));
+//      float expectation2 = DurationExpectationFeatureExtractor.expectedDuration(arg2Distribution);
+//      features.add(new Feature("arg_expected_duration", expectation2));
+      for(String timeUnit : arg2Distribution.keySet()) {
+        features.add(new Feature("duration_" + timeUnit, arg2Distribution.get(timeUnit)));  
+      }
     }
     
     return features;
