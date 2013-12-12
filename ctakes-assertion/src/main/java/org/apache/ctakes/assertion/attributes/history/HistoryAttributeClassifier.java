@@ -199,13 +199,6 @@ public class HistoryAttributeClassifier {
 				{
 					boolean argInHistSection = false;
 					
-					// TOFIX:
-					// What I have to do here is not get the preceding char
-					// but rather get the chars in between prior sent and this
-					// and then check for newline therein.
-					String precedingChar =
-							doctext.substring(sentStart-1, sentStart);
-
 					// sort the sentences
 					// TODO: make it so you don't sort every time for same sentence.
 					ArrayList<Sentence> sentList = new ArrayList<Sentence>(sentences);
