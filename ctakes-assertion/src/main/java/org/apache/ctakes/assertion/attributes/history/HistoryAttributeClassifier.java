@@ -253,11 +253,19 @@ public class HistoryAttributeClassifier {
 			}
 
 			// 2) some other identified annotation subsumes this one?
-			List<IdentifiedAnnotation> lsmentions = JCasUtil.selectCovering(jCas, IdentifiedAnnotation.class, arg.getBegin(), arg.getEnd());
-			//lsmentions.addAll(JCasUtil.selectFollowing(jCas, IdentifiedAnnotation.class, arg, 5));
+			
+			// Get all IdentifiedAnnotations covering the boundaries of the
+			// annotation
+			List<IdentifiedAnnotation> lsmentions = JCasUtil.selectCovering(jCas,
+													IdentifiedAnnotation.class, arg.getBegin(),
+													arg.getEnd());
+
+			// NB: arg is annotation input to this method. annot is current
+			// lsmentions in loop
 			for (IdentifiedAnnotation annot : lsmentions) {
 				if ( annot.getBegin()>arg.getBegin()) {
-					// it's okay to break here b/c of the ordering?
+					// annot starts after our arg, so if ordered correctly(?)
+					// then I break b/c I won't find any more that cover arg
 					break;
 				}
 				
@@ -270,11 +278,10 @@ public class HistoryAttributeClassifier {
 						DependencyUtility.getNominalHeadNode(jCas, arg)) ) {
 					// INVARIANT: arg start at or before annot starts
 					// INVARIANT: arg ends at or before annot ends
-					// INVARIANT: arg falls within bounds of annot
-					// plus there's that deal that they don't have the same head node
-					// but now we have to verify that annot is an EventMention or EntityMention
+					// INVARIANT: ergo, arg falls within bounds of annot
+					// now verify that annot is an EventMention or EntityMention
 					if ((annot instanceof EntityMention) || (annot instanceof EventMention)) {
-						// Here annot has boundaries at or exceeding those of arg
+						// annot has boundaries at or exceeding those of arg.
 						// They also have different head nodes (I guess)
 						// and annot is either an EntityMention of EventMention
 						vfeat.put(SUBSUMED_ANNOT, true);		
