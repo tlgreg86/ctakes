@@ -110,7 +110,7 @@ def downloadFile(String url, String filename) {
 	  System.out.println("File already exists:" + filename);
 	  return;
 	}
-    def f = new FileOutputStream(url.tokenize("/")[-1])
+    def f = new FileOutputStream(file)
     def out = new BufferedOutputStream(f)
     out << new URL(url).openStream()
     out.close()
