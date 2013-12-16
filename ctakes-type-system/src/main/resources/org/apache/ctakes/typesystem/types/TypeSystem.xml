@@ -145,6 +145,16 @@ Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.OntologyConcept</description>
 							TODO: change this attribute because of name clash (UMLS/SNOMED)</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
+        <featureDescription>
+          <name>score</name>
+          <description>Word Sense disambiguation: if this named entity is assigned multiple ontologyConcepts, the score represents how similar this sense is to surrounding senses (higher scores = more likely to be the correct sense)</description>
+          <rangeTypeName>uima.cas.Double</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>disambiguated</name>
+          <description>Word Sense disambiguation: if this named entity is assigned multiple ontologyConcepts, then the OntologyConcept with disambiguated=true is the most likely sense</description>
+          <rangeTypeName>uima.cas.Boolean</rangeTypeName>
+        </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
