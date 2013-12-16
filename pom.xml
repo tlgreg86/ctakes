@@ -1,26 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	you under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
-
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.ctakes</groupId>
 	<artifactId>ctakes</artifactId>
@@ -132,6 +123,9 @@
 		<module>ctakes-ne-contexts-res</module>
 		<module>ctakes-template-filler</module>
 		<module>ctakes-examples</module>
+		<module>ctakes-ytex-res</module>
+		<module>ctakes-ytex</module>
+		<module>ctakes-ytex-uima</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -155,7 +149,7 @@
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-core-res</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-dictionary-lookup</artifactId>
@@ -165,7 +159,7 @@
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-dictionary-lookup-res</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-preprocessor</artifactId>
@@ -180,7 +174,7 @@
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-pos-tagger-res</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-chunker</artifactId>
@@ -190,7 +184,7 @@
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-chunker-res</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-lvg</artifactId>
@@ -200,7 +194,7 @@
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-lvg-res</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -228,7 +222,7 @@
 					ctakes-pad-term-spotter-res
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -242,7 +236,7 @@
 					ctakes-ne-contexts-res
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>							
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -256,21 +250,21 @@
 					ctakes-assertion-res
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
 					ctakes-assertion-zoner
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>		
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
 					ctakes-assertion-zoner-res
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>				
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -284,7 +278,7 @@
 					ctakes-constituency-parser-res
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -298,21 +292,21 @@
 					ctakes-coreference-res
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
 					ctakes-drug-ner
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>	
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
 					ctakes-drug-ner-res
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>					
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -326,7 +320,7 @@
 					ctakes-side-effect-res
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -340,7 +334,7 @@
 					ctakes-smoking-status-res
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -354,7 +348,7 @@
 					ctakes-dependency-parser-res
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -368,7 +362,7 @@
 					ctakes-relation-extractor-res
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -380,6 +374,27 @@
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
 					ctakes-temporal-res
+				</artifactId>
+				<version>${ctakes.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.ctakes</groupId>
+				<artifactId>
+					ctakes-ytex-res
+				</artifactId>
+				<version>${ctakes.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.ctakes</groupId>
+				<artifactId>
+					ctakes-ytex
+				</artifactId>
+				<version>${ctakes.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.ctakes</groupId>
+				<artifactId>
+					ctakes-ytex-uima
 				</artifactId>
 				<version>${ctakes.version}</version>
 			</dependency>			
@@ -423,7 +438,7 @@
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-queries</artifactId>
 				<version>4.0.0</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-queryparser</artifactId>
@@ -433,7 +448,7 @@
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-analyzers-common</artifactId>
 				<version>4.0.0</version>
-			</dependency>	
+			</dependency>
 			<dependency>
 				<groupId>org.apache.opennlp</groupId>
 				<artifactId>opennlp-maxent</artifactId>
@@ -462,6 +477,11 @@
 					<exclusion>
 						<groupId>commons-io</groupId>
 						<artifactId>commons-io</artifactId>
+					</exclusion>
+					<!--  uima fit is pulling in spring 3.1.0, we want spring 3.1.2 -->
+					<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-context</artifactId>
 					</exclusion>
 				</exclusions>
 			</dependency>
@@ -529,6 +549,11 @@
 				<version>3.1.2.RELEASE</version>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>3.1.2.RELEASE</version>
+			</dependency>
+			<dependency>
 				<groupId>edu.mit.findstruct</groupId>
 				<artifactId>structmulti</artifactId>
 				<version>0.0.1</version>
@@ -542,12 +567,12 @@
 				<groupId>com.googlecode.armbrust-file-utils</groupId>
 				<artifactId>sqlwrapper</artifactId>
 				<version>0.0.1</version>
-			</dependency>	
+			</dependency>
 			<dependency>
 				<groupId>net.sourceforge.openai</groupId>
 				<artifactId>openaifsm</artifactId>
 				<version>0.0.1</version>
-			</dependency>										
+			</dependency>
 			<dependency>
 				<groupId>gov.nih.nlm.nls.lvg</groupId>
 				<artifactId>lvg2010dist</artifactId>
@@ -557,7 +582,7 @@
 				<groupId>com.googlecode.clearnlp</groupId>
 				<artifactId>clearnlp</artifactId>
 				<version>1.3.1</version>
-			</dependency>			
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<build>
@@ -624,7 +649,7 @@
 						</properties>
 						<strictCheck>true</strictCheck>
 					</configuration>
-				</plugin>						
+				</plugin>
 				<plugin>
 					<artifactId>maven-assembly-plugin</artifactId>
 					<version>2.3</version>
@@ -662,14 +687,14 @@
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>2.4</version>
 					<configuration>
-			          <includes>
-			          <!-- Resources will be copied by the assembly
-			          No need for it to be inside the jar -->
-			            <include>**/*.class</include>
-			            <include>**/types/*.xml</include>			            
-			            <include>**/META-INF/**</include>
-			          </includes>
-	        		</configuration>
+						<includes>
+							<!-- Resources will be copied by the assembly No need for it to be 
+								inside the jar -->
+							<include>**/*.class</include>
+							<include>**/types/*.xml</include>
+							<include>**/META-INF/**</include>
+						</includes>
+					</configuration>
 				</plugin>
 				<plugin>
 					<artifactId>maven-javadoc-plugin</artifactId>
@@ -678,12 +703,12 @@
 				<plugin>
 					<artifactId>maven-release-plugin</artifactId>
 					<version>2.3</version>
-	                   <configuration>
-	                      <useReleaseProfile>false</useReleaseProfile>
-	                      <goals>deploy</goals>
-	                      <arguments>-Papache-release</arguments>
-	                      <mavenExecutorId>forked-path</mavenExecutorId> 
-	                    </configuration>
+					<configuration>
+						<useReleaseProfile>false</useReleaseProfile>
+						<goals>deploy</goals>
+						<arguments>-Papache-release</arguments>
+						<mavenExecutorId>forked-path</mavenExecutorId>
+					</configuration>
 				</plugin>
 				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
@@ -692,7 +717,7 @@
 				<plugin>
 					<artifactId>maven-dependency-plugin</artifactId>
 					<version>2.6</version>
-				</plugin>				
+				</plugin>
 				<plugin>
 					<artifactId>maven-site-plugin</artifactId>
 					<version>3.1</version>
@@ -716,66 +741,66 @@
 						<argLine>-Xmx1536m</argLine>
 						<forkedProcessTimeoutInSeconds>900</forkedProcessTimeoutInSeconds>
 						<additionalClasspathElements>
-						    <additionalClasspathElement>ctakes-assertion-res/src/main/resources</additionalClasspathElement>						    
-						    <additionalClasspathElement>ctakes-assertion-zoner-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-chunker-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-constituency-parser-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-core-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-coreference-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-dependency-parser-res/src/main/resources</additionalClasspathElement>	
-						    <additionalClasspathElement>ctakes-dictionary-lookup-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-drug-ner-res/src/main/resources</additionalClasspathElement>						    						    					    						    						    						    						    
-						    <additionalClasspathElement>ctakes-lvg-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-ne-contexts-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-pad-term-spotter-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-pos-tagger-res/src/main/resources</additionalClasspathElement>						    
-						    <additionalClasspathElement>ctakes-relation-extractor-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-side-effect-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-smoking-status-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-temporal-res/src/main/resources</additionalClasspathElement>						    						    						    						    						    						    						    
-						</additionalClasspathElements>						
+							<additionalClasspathElement>ctakes-assertion-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-assertion-zoner-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-chunker-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-constituency-parser-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-core-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-coreference-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-dependency-parser-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-dictionary-lookup-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-drug-ner-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-lvg-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-ne-contexts-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-pad-term-spotter-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-pos-tagger-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-relation-extractor-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-side-effect-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-smoking-status-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-temporal-res/src/main/resources</additionalClasspathElement>
+							<additionalClasspathElement>ctakes-ytex-res/src/main/resources</additionalClasspathElement>
+						</additionalClasspathElements>
 					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.rat</groupId>
 					<artifactId>apache-rat-plugin</artifactId>
-					<version>0.8</version>		
+					<version>0.8</version>
 					<executions>
 						<execution>
- 							<phase>verify</phase> 
-	                        <goals> 
-	                            <goal>check</goal> 
-	                        </goals>						
+							<phase>verify</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
 							<id>default-cli</id>
 						</execution>
 					</executions>
-					<configuration>	
-							<excludes>
-								<!-- File generated by maven-release-plugin -->
-								<exclude>release.properties</exclude>
-								<!-- Eclipse launch files -->
-        						<exclude>**/*.launch</exclude>
-        						<!-- Exclude target and eclipse files
-        						The default RAT ignoreEclipse doesn't work
-        						if there is a submodule that is commented out
-        						So excluding it explictly here -->
-        						<exclude>**/.classpath</exclude>
-        						<exclude>**/.project</exclude>
-								<exclude>**/.settings/**</exclude>	        							        													
-        						<exclude>**/target/**</exclude>
-        						<exclude>**/MANIFEST.MF</exclude>
-								<!-- Exclude bin/model resources -->
-								<exclude>**/resources/models/**</exclude>								
-								<exclude>**/src/main/resources/**</exclude>
-								<exclude>**/src/test/resources/**</exclude>
-								<exclude>**/META-INF/org.uimafit/types.txt</exclude>								
-								<!-- Exclude test data files -->
-								<exclude>**/data/test/**</exclude>
-								<exclude>**/data/**</exclude>
-								<exclude>**/output/**</exclude>	
-								<exclude>**/sample_note.txt</exclude>																							
-							</excludes>
-						<numUnapprovedLicenses>0</numUnapprovedLicenses>								
+					<configuration>
+						<excludes>
+							<!-- File generated by maven-release-plugin -->
+							<exclude>release.properties</exclude>
+							<!-- Eclipse launch files -->
+							<exclude>**/*.launch</exclude>
+							<!-- Exclude target and eclipse files The default RAT ignoreEclipse 
+								doesn't work if there is a submodule that is commented out So excluding it 
+								explictly here -->
+							<exclude>**/.classpath</exclude>
+							<exclude>**/.project</exclude>
+							<exclude>**/.settings/**</exclude>
+							<exclude>**/target/**</exclude>
+							<exclude>**/MANIFEST.MF</exclude>
+							<!-- Exclude bin/model resources -->
+							<exclude>**/resources/models/**</exclude>
+							<exclude>**/src/main/resources/**</exclude>
+							<exclude>**/src/test/resources/**</exclude>
+							<exclude>**/META-INF/org.uimafit/types.txt</exclude>
+							<!-- Exclude test data files -->
+							<exclude>**/data/test/**</exclude>
+							<exclude>**/data/**</exclude>
+							<exclude>**/output/**</exclude>
+							<exclude>**/sample_note.txt</exclude>
+						</excludes>
+						<numUnapprovedLicenses>0</numUnapprovedLicenses>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -786,10 +811,8 @@
 						<lifecycleMappingMetadata>
 							<pluginExecutions>
 								<pluginExecution>
-								<!-- 
-								This is needed to execute/unpack resources in m2e eclipse ide
-								Currently used in the ctakes-dictionary-lookup project  
-								-->
+									<!-- This is needed to execute/unpack resources in m2e eclipse ide 
+										Currently used in the ctakes-dictionary-lookup project -->
 									<pluginExecutionFilter>
 										<groupId>org.apache.maven.plugins</groupId>
 										<artifactId>maven-dependency-plugin</artifactId>
@@ -805,10 +828,9 @@
 									</action>
 								</pluginExecution>
 								<pluginExecution>
-								<!--
-								Ignore the Maven remote resources plugin in Eclipse. We don't use it from Eclipse,
-								and it causes a warning if m2e is not configured to ignore it as below.
-								-->								
+									<!-- Ignore the Maven remote resources plugin in Eclipse. We don't 
+										use it from Eclipse, and it causes a warning if m2e is not configured to 
+										ignore it as below. -->
 									<pluginExecutionFilter>
 										<groupId>org.apache.maven.plugins</groupId>
 										<artifactId>maven-remote-resources-plugin</artifactId>
@@ -820,7 +842,7 @@
 									<action>
 										<ignore />
 									</action>
-								</pluginExecution>																
+								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
