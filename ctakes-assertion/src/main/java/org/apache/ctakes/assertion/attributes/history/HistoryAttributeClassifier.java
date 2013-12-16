@@ -152,11 +152,30 @@ public class HistoryAttributeClassifier {
 		return false;
 	}
 	
-	public static class SentComparator implements Comparator<Sentence> {
-		public int compare(Sentence s1, Sentence s2) {
-			return s1.getBegin() - s2.getBegin();
+	
+	/*
+	 * This comparator compares two Annotations for location for purposes of
+	 * sorting. Annotations are equal in location iff begin and end locations are equal.
+	 * Otherwise, the annotation that has the earlier begin sorts above later begin.
+	 * If begins are equal but ends are not, then that with earlier end sorts higher.
+	 */
+	public static class AnnotLocationComparator implements Comparator<Annotation> {
+		public int compare(Annotation a1, Annotation a2) {
+			int answer;
+			
+			if (a1.getBegin() == a2.getBegin())
+			{
+				answer = a1.getEnd() - a2.getEnd();
+			} else
+			{
+				answer = a1.getBegin() - a2.getBegin();
+			}
+			
+			return answer;
+
 		}
 	}
+
 
 
 	public static HashMap<String, Boolean> extract(JCas jCas,
@@ -203,7 +222,7 @@ public class HistoryAttributeClassifier {
 					// sort the sentences
 					// TODO: make it so you don't sort every time for same sentence.
 					ArrayList<Sentence> sentList = new ArrayList<Sentence>(sentences);
-					Collections.sort(sentList, new SentComparator());
+					Collections.sort(sentList, new AnnotLocationComparator());
 					
 					// get index of sEntity
 					int currind = sentList.indexOf(sEntity);
@@ -213,7 +232,16 @@ public class HistoryAttributeClassifier {
 					} else {
 						currind--;
 						Sentence prevSent = sentList.get(currind);
-						String tweenSents = doctext.substring(prevSent.getEnd(), sentStart);
+						String tweenSents = "";
+						try
+						{
+							tweenSents = doctext.substring(prevSent.getEnd(), sentStart);
+						} catch (IndexOutOfBoundsException e)
+						{
+							// this is of no consequence
+							tweenSents = "";
+						}
+						
 						if (tweenSents.indexOf("\n") != -1) {
 							// there is a newline between this sentence and prior sentence
 							argInHistSection = isInHistSection(sEntity);
@@ -231,7 +259,7 @@ public class HistoryAttributeClassifier {
 								try {
 									tweenSents = doctext.substring(prevSentEnd, sentStart);
 								} catch (StringIndexOutOfBoundsException e) {
-									System.err.println("wtf");
+									tweenSents = "";
 								}
 
 								if (tweenSents.indexOf("\n") != -1 || currind == 0) {
@@ -259,6 +287,8 @@ public class HistoryAttributeClassifier {
 			List<IdentifiedAnnotation> lsmentions = JCasUtil.selectCovering(jCas,
 													IdentifiedAnnotation.class, arg.getBegin(),
 													arg.getEnd());
+			
+			Collections.sort(lsmentions, new AnnotLocationComparator());
 
 			// NB: arg is annotation input to this method. annot is current
 			// lsmentions in loop
