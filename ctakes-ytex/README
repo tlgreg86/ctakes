@@ -1,0 +1,36 @@
+Contents
+
+############
+Introduction
+############
+
+Need buildhelper m2e plugin
+
+== Developing ==
+YTEX is driven by a property file, ytex.properties.  The property file used when running ytex java programs 
+(aside from junit tests) is src\main\resources\org\apache\ctakes\ytex\ytex.properties.  Create this file
+for use when running java programs.
+
+YTEX relies on some config files generated from templates via an ant build script.  These config files are 
+generated automatically by the maven build (which runs the ant build script).  
+M2E is a bit (understatement) buggy, you may have to run the maven
+build from the command line so that things work correctly.
+
+== Testing ==
+
+YTEX is dependent upon a database which is set up by the ant script scripts\data\build.xml
+
+Note that all ytex-related tables in these databases will be dropped and recreated every time 
+the maven build is run (don't put data you want to keep there).
+  
+Maven runs the ant script prior to running the tests. 
+By default, we set up an hsqldb database for testing in the TEMP dir.
+Override this by:
+ * passing -Ddb.type=[mysql|mssql|orcl] to the maven command line.  If you do that,
+ we will use the \src\test\resources\org\apache\ctakes\ytex\ytex.${db.type}.properties
+ which point to the ytex_test schema (mysql/orcl) or catalog (mssql).
+ * or dropping your own ytex.properties in 
+ \src\test\resources\org\apache\ctakes\ytex.
+ 
+
+

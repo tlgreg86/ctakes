@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.apache.ctakes.ytex.umls.model">
+	<class name="UmlsAuiFirstWord" table="umls_aui_fword">
+		<id name="aui" />
+		<property name="fword" />
+		<property name="fstem" />
+		<property name="stemmedStr" column="stem_str" />
+		<property name="tokenizedStr" column="tok_str" />
+	</class>
+	<query name="getFirstAuiStr"><![CDATA[
+		select aui,str
+		from MRCONSO
+		where length(aui) > 0
+		and length(str) < 200
+		and lat = 'ENG'
+		order by aui
+	]]></query>
+	<query name="getNextAuiStr"><![CDATA[
+		select aui,str
+		from MRCONSO
+		where aui > :aui
+		and length(aui) > 0
+		and length(str) < 200
+		and lat = 'ENG'
+		order by aui
+	]]></query>
+	<query name="getLastAui"><![CDATA[
+		select max(aui)
+		from UmlsAuiFirstWord
+	]]></query>
+	<query name="getRXNORMCuis"><![CDATA[
+		select distinct(cui)
+		from MRCONSO
+		where sab = 'RXNORM'
+	]]></query>
+	<query name="isRXNORMCui"><![CDATA[
+		select count(*)
+		from MRCONSO
+		where sab = 'RXNORM'
+		and cui = :cui
+	]]></query>
+</hibernate-mapping>

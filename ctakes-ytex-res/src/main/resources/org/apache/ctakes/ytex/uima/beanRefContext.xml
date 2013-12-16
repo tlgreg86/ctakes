@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean name="ytexApplicationContext"
+		class="org.springframework.context.support.ClassPathXmlApplicationContext">
+		<constructor-arg>
+			<list>
+				<value>org/apache/ctakes/ytex/beans-datasource.xml</value>
+				<value>org/apache/ctakes/ytex/beans-kernel.xml</value>
+				<value>org/apache/ctakes/ytex/beans-kernel-sim.xml</value>
+				<value>org/apache/ctakes/ytex/uima/beans-uima.hbm.xml</value>
+				<value>org/apache/ctakes/ytex/uima/beans-uima-dao.xml</value>
+				<value>org/apache/ctakes/ytex/uima/beans-uima-mapper.xml</value>
+			</list>
+		</constructor-arg>
+	</bean>
+</beans>
