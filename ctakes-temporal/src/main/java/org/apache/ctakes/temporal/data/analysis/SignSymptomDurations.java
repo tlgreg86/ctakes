@@ -3,6 +3,8 @@ package org.apache.ctakes.temporal.data.analysis;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +21,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.util.Options_ImplBase;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.factory.AnalysisEngineFactory;
@@ -39,7 +41,7 @@ import com.google.common.collect.Multiset;
  */
 public class SignSymptomDurations {
 
-  public static class Options extends Options_ImplBase {
+  public static class Options  {
 
     @Option(
         name = "--input-dir",
@@ -50,9 +52,11 @@ public class SignSymptomDurations {
   
 	public static void main(String[] args) throws Exception {
 		
-		Options options = new Options();
-		options.parseOptions(args);
-
+	  Options options = new Options();
+	  CmdLineParser parser = new CmdLineParser(options);
+	  parser.parseArgument(args);
+	  
+	  
 		List<File> trainFiles = Arrays.asList(options.inputDirectory.listFiles());
     CollectionReader collectionReader = getCollectionReader(trainFiles);
 		
@@ -65,7 +69,7 @@ public class SignSymptomDurations {
   public static class TemporalDurationExtractor extends JCasAnnotator_ImplBase {
     
     // regular expression to match temporal durations in time mention annotations
-    private final static String REGEX = "(sec|min|hour|hrs|day|week|wk|month|year|yr)";
+    private final static String REGEX = "(sec|min|hour|hrs|day|week|wk|month|year|yr|decade)";
     
     // mapping between temporal durations and their normalized forms
     private final static Map<String, String> MAPPING = ImmutableMap.<String, String>builder()
@@ -79,6 +83,7 @@ public class SignSymptomDurations {
         .put("month", "month")
         .put("year", "year")
         .put("yr", "year")
+        .put("decade", "decade")
         .build(); 
     
     // unique temporal bins; all time mentions will be classified into one of them
@@ -89,7 +94,8 @@ public class SignSymptomDurations {
         "day",
         "week",
         "month",
-        "year");
+        "year",
+        "decade");
     
     // max distance between an event and the time mention that defines the event's duration
     private final static int MAXDISTANCE = 2;
@@ -128,7 +134,9 @@ public class SignSymptomDurations {
       }
 
       if(durationDistribution.size() > 0) { 
-        System.out.println(formatDistribution(signSymptomText, durationDistribution, ", ", true));
+        System.out.println(formatDistribution(signSymptomText, durationDistribution, ", ", true) + "[" + durationDistribution.size() + " instances]");
+      }else{
+        System.out.println(signSymptomText + ": No duration information found.");
       }
     }
     
@@ -197,7 +205,7 @@ public class SignSymptomDurations {
     @SuppressWarnings("unused")
     private static String formatDistribution(Multiset<String> durationDistribution) {
       
-      List<String> durationBins = Arrays.asList("second", "minute", "hour", "day", "week", "month", "year");
+      List<String> durationBins = Arrays.asList("second", "minute", "hour", "day", "week", "month", "year", "decade");
       List<Integer> durationValues = new LinkedList<Integer>();
       
       for(String durationBin : durationBins) {
@@ -246,6 +254,7 @@ public class SignSymptomDurations {
   private static CollectionReader getCollectionReader(List<File> items) throws Exception {
 
     String[] paths = new String[items.size()];
+    Collections.sort(items, new FileSizeComparator());
     for (int i = 0; i < paths.length; ++i) {
       paths[i] = items.get(i).getPath();
     }
@@ -254,5 +263,19 @@ public class SignSymptomDurations {
         XMIReader.class,
         XMIReader.PARAM_FILES,
         paths);
+  }
+  
+  public static class FileSizeComparator implements Comparator<File> {
+
+    @Override
+    public int compare(File o1, File o2) {
+      if(o1.length() > o2.length()){
+        return 1;
+      }else if(o1.length() < o2.length()){
+        return -1;
+      }else{
+        return 0;
+      }
+    } 
   }
 }
