@@ -32,8 +32,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.mitre.medfacts.i2b2.api.ApiConcept;
 import org.mitre.medfacts.zoner.CharacterOffsetToLineTokenConverter;
 import org.mitre.medfacts.zoner.LineAndTokenPosition;
-
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 
 public class CharacterOffsetToLineTokenConverterCtakesImpl implements CharacterOffsetToLineTokenConverter
@@ -78,11 +78,13 @@ public class CharacterOffsetToLineTokenConverterCtakesImpl implements CharacterO
 	  for (Annotation current : annotationIndex)
 	  {
 		  BaseToken bt = (BaseToken)current;
-		  int begin = bt.getBegin();
-		  int end = bt.getEnd();
-		  
-		  tokenBeginEndTreeSet.add(begin);
-		  tokenBeginEndTreeSet.add(end);
+		  // filter out NewlineToken
+		  if (!(bt instanceof NewlineToken)) {
+			  int begin = bt.getBegin();
+			  int end = bt.getEnd();
+		  	  tokenBeginEndTreeSet.add(begin);
+		  	  tokenBeginEndTreeSet.add(end);
+		  }
 	  }
   }
   
