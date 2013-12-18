@@ -26,7 +26,7 @@
 	<parent>
 		<groupId>org.apache.ctakes</groupId>
 		<artifactId>ctakes</artifactId>
-		<version>3.1.2-SNAPSHOT</version>
+		<version>3.2.0-SNAPSHOT</version>
 	</parent>
 	<dependencies>
 		<dependency>
@@ -46,7 +46,12 @@
 			<groupId>org.uimafit</groupId>
 			<artifactId>uimafit</artifactId>
 		</dependency>
-    <dependency>
+		<!-- we excluded spring-context uimafit transitive dependency in the parent pom, include it here -->
+		<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
       <groupId>org.apache.ctakes</groupId>
       <artifactId>ctakes-core</artifactId>
     </dependency>
