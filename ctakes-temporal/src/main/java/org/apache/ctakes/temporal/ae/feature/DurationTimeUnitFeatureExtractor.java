@@ -27,7 +27,9 @@ import info.bethard.timenorm.TimeSpanSet;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -56,9 +58,11 @@ public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtract
       scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
       while(iterator.hasNext()) {
         TemporalUnit unit = iterator.next();
-        features.add(new Feature("time_unit", unit.getName()));
+        Map<String, Float> distribution = convertToDistribution(unit.getName());
+        float expectedDuration = DurationExpectationFeatureExtractor.expectedDuration(distribution);
+        features.add(new Feature("expected_duration", expectedDuration));
       }
-    }
+    } 
 
     return features; 
   }
@@ -87,5 +91,27 @@ public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtract
     }
     
     return units;
+  }
+  
+  /**
+   * Take a time unit and return a probability distribution
+   * in which p(this time unit) = 1 and all others are zero.
+   */
+  public static Map<String, Float> convertToDistribution(String timeUnit) {
+    
+    String[] bins = {"second", "minute", "hour", "day", "week", "month", "year"};
+    Map<String, Float> distribution = new HashMap<String, Float>();
+    
+    for(String bin: bins) {
+      // convert things like "Hours" to "hour"
+      String normalized = timeUnit.substring(0, timeUnit.length() - 1).toLowerCase(); 
+      if(bin.equals(normalized)) {
+        distribution.put(bin, 1.0f);
+      } else {
+        distribution.put(bin, 0.0f);
+      }
+    }
+    
+    return distribution;
   }
 }
