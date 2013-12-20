@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ctakes.temporal.ae.feature;
+package org.apache.ctakes.temporal.ae.feature.duration;
 
 import info.bethard.timenorm.Period;
 import info.bethard.timenorm.PeriodSet;

@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ctakes.temporal.ae.feature;
+package org.apache.ctakes.temporal.ae.feature.duration;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ctakes.temporal.ae.feature.DurationDistributionFeatureExtractor.Callback;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.Feature;
@@ -34,8 +34,9 @@ import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
+import com.google.common.io.LineProcessor;
 
-public class DurationExpectationFeatureExtractor implements SimpleFeatureExtractor {
+public class DurationDistributionFeatureExtractor implements SimpleFeatureExtractor {
 
   @Override
   public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException { 
@@ -52,38 +53,44 @@ public class DurationExpectationFeatureExtractor implements SimpleFeatureExtract
       return features;
     }
     
-    Map<String, Float> argDistribution = textToDistribution.get(annotationText);
-    if(argDistribution == null) {
-      features.add(new Feature("arg1_no_duration_info"));
+    Map<String, Float> distribution = textToDistribution.get(annotationText);
+    if(distribution == null) {
+      features.add(new Feature("no_duration_info"));
     } else {
-      float expectation1 = expectedDuration(argDistribution);
-      features.add(new Feature("arg1_expected_duration", expectation1));
+      for(String timeUnit : distribution.keySet()) {
+        features.add(new Feature("duration_" + timeUnit, distribution.get(timeUnit)));  
+      }
     }
     
     return features;
   }
 
-  /**
-   * Compute expected duration in seconds. Normalize by number of seconds in a year.
-   */
-  public static float expectedDuration(Map<String, Float> distribution) {
-    
-    // unit of time -> duration in seconds
-    final Map<String, Integer> converter = ImmutableMap.<String, Integer>builder()
-        .put("second", 1)
-        .put("minute", 60)
-        .put("hour", 60 * 60)
-        .put("day", 60 * 60 * 24)
-        .put("week", 60 * 60 * 24 * 7)
-        .put("month", 60 * 60 * 24 * 30)
-        .put("year", 60 * 60 * 24 * 365)
-        .build();
+  public static class Callback implements LineProcessor <Map<String, Map<String, Float>>> {
 
-    float expectation = 0f;
-    for(String unit : distribution.keySet()) {
-      expectation = expectation + (converter.get(unit) * distribution.get(unit));
+    // map event text to its duration distribution
+    private Map<String, Map<String, Float>> textToDistribution;
+    
+    public Callback() {
+      textToDistribution = new HashMap<String, Map<String, Float>>();
     }
-  
-    return expectation / converter.get("year");
+    
+    public boolean processLine(String line) throws IOException {
+
+      String[] elements = line.split(", "); // e.g. pain, second:0.000, minute:0.005, hour:0.099, ...
+      Map<String, Float> distribution = new HashMap<String, Float>();
+      
+      for(int durationBinNumber = 1; durationBinNumber < elements.length; durationBinNumber++) {
+        String[] durationAndValue = elements[durationBinNumber].split(":"); // e.g. "day:0.475"
+        distribution.put(durationAndValue[0], Float.parseFloat(durationAndValue[1]));
+      }
+      
+      textToDistribution.put(elements[0], distribution);
+      return true;
+    }
+
+    public Map<String, Map<String, Float>> getResult() {
+
+      return textToDistribution;
+    }
   }
 }
