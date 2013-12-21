@@ -19,6 +19,7 @@
 package org.apache.ctakes.temporal.eval;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -51,6 +52,16 @@ public class EvaluationOfClearTKEventSpans extends EvaluationOfAnnotationSpans_I
     List<Integer> patientSets = options.getPatients().getList();
     List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
     List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
+    List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
+    
+    List<Integer> allTraining = new ArrayList<Integer>(trainItems);
+    List<Integer> allTest;
+    if (options.getTest()) {
+      allTraining.addAll(devItems);
+      allTest = new ArrayList<Integer>(testItems);
+    } else {
+      allTest = new ArrayList<Integer>(devItems);
+    }
     EvaluationOfClearTKEventSpans evaluation = new EvaluationOfClearTKEventSpans(
         new File("target/eval/cleartk-event-spans"),
         options.getRawTextDirectory(),
@@ -59,7 +70,7 @@ public class EvaluationOfClearTKEventSpans extends EvaluationOfAnnotationSpans_I
         options.getXMIDirectory());
     evaluation.prepareXMIsFor(patientSets);
     evaluation.setLogging(Level.FINE, new File("target/eval/cleartk-event-errors.log"));
-    AnnotationStatistics<String> stats = evaluation.trainAndTest(trainItems, devItems);
+    AnnotationStatistics<String> stats = evaluation.trainAndTest(allTraining, allTest);
     System.err.println(stats);
   }
 

@@ -44,7 +44,6 @@ import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.util.JCasUtil;
 
 import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
 
 public class EvaluationOfClearTKTimeSpans extends EvaluationOfAnnotationSpans_ImplBase {
  
@@ -56,11 +55,11 @@ public class EvaluationOfClearTKTimeSpans extends EvaluationOfAnnotationSpans_Im
     List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
     
     List<Integer> allTraining = new ArrayList<Integer>(trainItems);
-    List<Integer> allTest = null;
-    if(options.getTest()){
+    List<Integer> allTest;
+    if (options.getTest()) {
       allTraining.addAll(devItems);
       allTest = new ArrayList<Integer>(testItems);
-    }else{
+    } else {
       allTest = new ArrayList<Integer>(devItems);
     }
     
