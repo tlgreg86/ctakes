@@ -20,6 +20,7 @@ package org.apache.ctakes.temporal.eval;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -76,6 +77,17 @@ public class EvaluationOfClearTKEventProperties extends
     List<Integer> patientSets = options.getPatients().getList();
     List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
     List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
+    List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
+    
+    List<Integer> allTraining = new ArrayList<Integer>(trainItems);
+    List<Integer> allTest = null;
+    if(options.getTest()){
+      allTraining.addAll(devItems);
+      allTest = new ArrayList<Integer>(testItems);
+    }else{
+      allTest = new ArrayList<Integer>(devItems);
+    }
+    
     EvaluationOfClearTKEventProperties evaluation = new EvaluationOfClearTKEventProperties(
         new File("target/eval/event-properties"),
         options.getRawTextDirectory(),
@@ -84,7 +96,7 @@ public class EvaluationOfClearTKEventProperties extends
         options.getXMIDirectory());
     evaluation.prepareXMIsFor(patientSets);
     evaluation.logClassificationErrors(new File("target/eval"), "ctakes-event-property-errors");
-    Map<String, AnnotationStatistics<String>> stats = evaluation.trainAndTest(trainItems, devItems);
+    Map<String, AnnotationStatistics<String>> stats = evaluation.trainAndTest(allTraining, allTest);
     for (String name : PROPERTY_NAMES) {
       System.err.println("====================");
       System.err.println(name);
