@@ -63,7 +63,7 @@ public class DictionaryLookupAnnotatorTest {
 		String text = "Dr. Doolitle asked patient\nto take a deep breath\nand exhale slowly.  Patient coughed and complained of abdominal pain.  Patient was administered acetaminophen.";
 		AggregateBuilder builder = new AggregateBuilder();
 		addDescriptor(builder,
-				"desc/analysis_engine/AggregatePlaintextUMLSProcessor.xml");
+				"desc/analysis_engine/AggregatePlaintextUMLSProcessorMinimal.xml");
 		// addDescriptor(builder,
 		// "desc/analysis_engine/SentenceDetectorAnnotator.xml");
 		// addDescriptor(builder,

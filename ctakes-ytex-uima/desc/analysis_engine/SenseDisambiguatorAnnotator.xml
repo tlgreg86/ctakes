@@ -2,7 +2,7 @@
 <analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
 	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
 	<primitive>true</primitive>
-	<annotatorImplementationName>ytex.uima.annotators.SenseDisambiguatorAnnotator
+	<annotatorImplementationName>org.apache.ctakes.ytex.uima.annotators.SenseDisambiguatorAnnotator
 	</annotatorImplementationName>
 	<analysisEngineMetaData>
 		<name>SenseDisambiguatorAnnotator</name>
@@ -26,7 +26,7 @@
 		<configurationParameterSettings />
 		<typeSystemDescription>
 			<imports>
-				<import name="ytex.uima.YTEXTypes" />
+				<import name="org.apache.ctakes.ytex.types.TypeSystem" />
 			</imports>
 		</typeSystemDescription>
 		<typePriorities />
@@ -34,7 +34,7 @@
 		<capabilities>
 			<capability>
 				<inputs>
-					<type allAnnotatorFeatures="true">edu.mayo.bmi.uima.core.type.NamedEntity
+					<type allAnnotatorFeatures="true">org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation
 					</type>
 				</inputs>
 				<outputs />

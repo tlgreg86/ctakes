@@ -23,6 +23,7 @@ public class DBUtil {
 	private static boolean oracle;
 	private static boolean mysql;
 	private static boolean mssql;
+	private static boolean hsql;
 	private static String escapeBegin;
 	private static String escapeEnd;
 
@@ -34,17 +35,18 @@ public class DBUtil {
 			ytexProperties.load(ytexPropsIn);
 			oracle = "orcl".equals(ytexProperties.getProperty("db.type"));
 			mysql = "mysql".equals(ytexProperties.getProperty("db.type"));
-			mssql = "mssql".equals(ytexProperties.getProperty("db.type"));
+			hsql = "hsql".equals(ytexProperties.getProperty("db.type"));
+			
 			if (mssql) {
 				escapeBegin = "[";
 				escapeEnd = "]";
 			} else if (mysql) {
 				escapeBegin = "`";
 				escapeEnd = "`";
-			} else if (oracle) {
+			} else  {
 				escapeBegin = "";
 				escapeEnd = "";
-			}
+			} 
 		} catch (Exception e) {
 			log.error("initalizer", e);
 		} finally {

@@ -38,7 +38,8 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				<prop key="hibernate.jdbc.batch_size">${hibernate.jdbc.batch_size}</prop>
 				<prop key="hibernate.order_inserts">${hibernate.order_inserts}</prop>
 				<prop key="hibernate.order_updates">${hibernate.order_updates}</prop>
-				<prop key="hibernate.cache.provider_configuration_file_resource_path">/org/apache/ctakes/ytex/kernel/ehcache.xml</prop>
+				<prop key="net.sf.ehcache.configurationResourceName">org/apache/ctakes/ytex/kernel/ehcache.xml</prop>
+				<prop key="hibernate.cache.provider_configuration_file_resource_path">org/apache/ctakes/ytex/kernel/ehcache.xml</prop>
 				<!-- <prop key="hibernate.connection.isolation">1</prop> -->
 			</props>
 		</property>

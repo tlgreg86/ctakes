@@ -81,11 +81,10 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- begin dependencies added from ctakes-assertion-->
-		<!-- maven is so friggin 
-			pedantic and won't load the transitive dependencies of ctakes-assertion because 
-			of ctakes-assertion pom not being absolutely perfect arghh. manually add 
-			dependencies here -->
+		<!-- begin dependencies added from ctakes-assertion -->
+		<!-- maven is so friggin pedantic and won't load the transitive dependencies 
+			of ctakes-assertion because of ctakes-assertion pom not being absolutely 
+			perfect arghh. manually add dependencies here -->
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
@@ -98,7 +97,7 @@
 			<version>0.4.0</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- end dependencies added from ctakes-assertion-->		
+		<!-- end dependencies added from ctakes-assertion -->
 		<!-- <dependency> <groupId>org.apache.ctakes</groupId> <artifactId>ctakes-core-res</artifactId> 
 			<scope>test</scope> </dependency> -->
 		<dependency>
@@ -170,7 +169,6 @@
 
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.12</version>
 				<configuration>
 					<includes>
 						<include>**/Test*.java</include>
@@ -178,7 +176,13 @@
 						<include>**/*Tests.java</include>
 						<include>**/*TestCase.java</include>
 					</includes>
+					<systemPropertyVariables>
+						<log4j.configuration>file:${project.build.testOutputDirectory}/log4j.properties</log4j.configuration>
+					</systemPropertyVariables>
 					<argLine>-Xmx1536m</argLine>
+					<forkMode>always</forkMode>
+					<forkCount>1</forkCount>
+					<reuseForks>false</reuseForks>
 					<forkedProcessTimeoutInSeconds>900</forkedProcessTimeoutInSeconds>
 					<additionalClasspathElements>
 						<additionalClasspathElement>${project.basedir}/../ctakes-assertion-res/src/main/resources</additionalClasspathElement>

@@ -17,7 +17,6 @@ db.url=jdbc:mysql://localhost:3306/ytex?autoReconnect=true
 db.type=mysql
 db.driver=com.mysql.jdbc.Driver
 db.initStatements=
-ytex.beanRefContext=classpath*:beanRefContext.xml
 hibernate.dialect=org.hibernate.dialect.MySQLMyISAMDialect
 
 # transaction isolation level

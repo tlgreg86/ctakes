@@ -29,15 +29,15 @@ public class ConceptDaoTest {
 
 	@Before
 	public void setUp() throws Exception {
-		 ClassLoader cl = ClassLoader.getSystemClassLoader();
-		 
-		URL[] urls = ((URLClassLoader)cl).getURLs();
-	 
-	        for(URL url: urls){
-	        	System.out.println(url.getFile());
-	        }		
-		URL is = this.getClass().getClassLoader().getResource("org/apache/ctakes/ytex/kernelBeanRefContext.xml");
-		System.out.println(is);
+//		 ClassLoader cl = ClassLoader.getSystemClassLoader();
+//		 
+//		URL[] urls = ((URLClassLoader)cl).getURLs();
+//	 
+//	        for(URL url: urls){
+//	        	System.out.println(url.getFile());
+//	        }		
+//		URL is = this.getClass().getClassLoader().getResource("org/apache/ctakes/ytex/kernelBeanRefContext.xml");
+//		System.out.println(is);
 		appCtx = (ApplicationContext) ContextSingletonBeanFactoryLocator
 				.getInstance("classpath*:org/apache/ctakes/ytex/kernelBeanRefContext.xml")
 				.useBeanFactory("kernelApplicationContext").getFactory();
@@ -65,7 +65,8 @@ public class ConceptDaoTest {
 				.execute("insert into test_concepts values ('root', 'bacteria')");
 		jdbcTemplate
 				.execute("insert into test_concepts values ('bacteria', 'e coli')");
-		conceptDao.createConceptGraph("test",
+		System.out.println("Create concept graph"); 
+		conceptDao.createConceptGraph(null, "test",
 				"select child, parent from test_concepts", true,
 				Collections.EMPTY_SET);
 		ConceptGraph cg = conceptDao.getConceptGraph("test");

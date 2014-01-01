@@ -1,33 +1,25 @@
 package org.apache.ctakes.ytex.uima.annotators;
 
-import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.ctakes.ytex.uima.ApplicationContextHolder;
+import org.apache.ctakes.ytex.uima.TestUtils;
 import org.apache.ctakes.ytex.uima.types.DocKey;
 import org.apache.ctakes.ytex.uima.types.KeyValuePair;
 import org.apache.uima.UIMAException;
-import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
-import org.apache.uima.util.InvalidXMLException;
-import org.apache.uima.util.XMLInputSource;
-import org.apache.uima.util.XMLParser;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.uimafit.factory.AggregateBuilder;
 
 import com.google.common.base.Strings;
 
@@ -38,6 +30,12 @@ import com.google.common.base.Strings;
  * 
  */
 public class DBConsumerTest {
+	static ApplicationContext ctx = null;
+
+	@BeforeClass
+	public static void setup() {
+		ctx = ApplicationContextHolder.getApplicationContext();
+	}
 
 	/**
 	 * hsql will not write data unless the connection is explicitly closed. for
@@ -50,7 +48,7 @@ public class DBConsumerTest {
 	 */
 	@AfterClass
 	public static void cleanup() {
-
+		((ConfigurableApplicationContext)ctx).close();
 		// ApplicationContext ctx = ApplicationContextHolder
 		// .getApplicationContext();
 		// DataSource ds = ctx.getBean(DataSource.class);
@@ -95,14 +93,7 @@ public class DBConsumerTest {
 		// JCas jCas =
 		// JCasFactory.createJCasFromPath("src/main/resources/org/apache/ctakes/ytex/types/TypeSystem.xml");
 		String text = "Title: US Abdomen\n\nDr. Doolitle asked patient\nto take a deep breath\nand exhale slowly.  Patient coughed.  Prescribed acetominophen";
-		AggregateBuilder builder = new AggregateBuilder();
-		addDescriptor(builder, "desc/analysis_engine/SegmentRegexAnnotator.xml");
-		addDescriptor(builder,
-				"desc/analysis_engine/SentenceDetectorAnnotator.xml");
-		addDescriptor(builder,
-				"../ctakes-core/desc/analysis_engine/TokenizerAnnotator.xml");
-		addDescriptor(builder, "desc/analysis_engine/DBConsumer.xml");
-		AnalysisEngine engine = builder.createAggregate();
+		AnalysisEngine engine = TestUtils.createTokenizerAE(null);
 		JCas jCas = engine.newJCas();
 		jCas.setDocumentText(text);
 		// create a docKey so we can find the doc
@@ -117,8 +108,6 @@ public class DBConsumerTest {
 		docKey.addToIndexes();
 		// run the analysis engine
 		engine.process(jCas);
-		ApplicationContext ctx = ApplicationContextHolder
-				.getApplicationContext();
 		DataSource ds = ctx.getBean(DataSource.class);
 		Properties ytexProperties = (Properties) ctx.getBean("ytexProperties");
 		String schema = ytexProperties.getProperty("db.schema");
@@ -142,11 +131,4 @@ public class DBConsumerTest {
 		Assert.assertTrue(query, jt.queryForInt(query) > 1);
 	}
 
-	private void addDescriptor(AggregateBuilder builder, String path)
-			throws IOException, InvalidXMLException {
-		File fileCtakes = new File(path);
-		XMLParser parser = UIMAFramework.getXMLParser();
-		XMLInputSource source = new XMLInputSource(fileCtakes);
-		builder.add(parser.parseAnalysisEngineDescription(source));
-	}
 }

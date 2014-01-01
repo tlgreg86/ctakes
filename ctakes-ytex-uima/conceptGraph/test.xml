@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
-<properties>
-<comment>created on Mon Nov 18 21:58:59 EST 2013</comment>
-<entry key="org.apache.ctakes.ytex.conceptGraphQuery">select child, parent from test_concepts</entry>
-<entry key="org.apache.ctakes.ytex.conceptGraphName">test</entry>
-<entry key="org.apache.ctakes.ytex.checkCycle">true</entry>
-</properties>

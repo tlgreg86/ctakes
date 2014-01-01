@@ -7,14 +7,33 @@ Introduction
 Need buildhelper m2e plugin
 
 == Developing ==
+We have currently tested mysql and ms sql server, oracle is pending.  HSQL is used only for unit testing.  
+
 YTEX is driven by a property file, ytex.properties.  The property file used when running ytex java programs 
-(aside from junit tests) is src\main\resources\org\apache\ctakes\ytex\ytex.properties.  Create this file
-for use when running java programs.
+(aside from junit tests) is src\main\resources\org\apache\ctakes\ytex\ytex.properties.  Refer to the example
+properties files under /ctakes-ytex-res/src/main/resources/org/apache/ctakes/ytex
 
 YTEX relies on some config files generated from templates via an ant build script.  These config files are 
 generated automatically by the maven build (which runs the ant build script).  
-M2E is a bit (understatement) buggy, you may have to run the maven
-build from the command line so that things work correctly.
+The maven eclipse integration is a bit buggy; you should run the maven build from the command line so that 
+things work correctly.
+
+For development, you must set up a database.  There are 2 types of database setups, depending on if you have a UMLS
+installation (and you've configured ytex to use it):
+* With UMLS - YTEX will generate a dictionary lookup table from your UMLS database.  This requires tokenizing every 
+string in MRCONSO which will take a while.  If you have UMLS installed and want to use it, configure the 
+umls.schema/umls.catalog properties in ytex.properties.
+* Without UMLS - YTEX will load a pre-fabricated dictionary lookup table generated from the UMLS 2013AA.  This is included
+in the ctakes-resources zip from sourceforge.  You have to copy v_snomed_fword_lookup.txt to ctakes-ytex\scripts\data\umls\.
+
+After running the maven build, run the ant script to set up your database.  Make sure java and ant are in your path, 
+and run the following commands
+* Windows
+cd ctakes-ytex\scripts\data
+ant -Dconfig.local=..\..\target\classes all > ..\..\target\build.out 2>&1
+* Linux
+cd ctakes-ytex/scripts/data
+ant -Dconfig.local=../../target/classes all > ../../target/build.out 2>&1
 
 == Testing ==
 

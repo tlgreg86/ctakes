@@ -2,6 +2,7 @@ package org.apache.ctakes.ytex.uima.annotators;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import javax.sql.DataSource;
 
@@ -19,7 +20,7 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,17 +30,21 @@ import com.google.common.collect.Lists;
 
 public class SenseDisambiguatorAnnotatorTest {
 	ConceptDao conceptDao;
-	ApplicationContext appCtx;
-
 	@Before
 	public void setUp() throws Exception {
-		appCtx = (ApplicationContext) ContextSingletonBeanFactoryLocator
+		BeanFactory appCtx = ContextSingletonBeanFactoryLocator
 				.getInstance("classpath*:org/apache/ctakes/ytex/kernelBeanRefContext.xml")
 				.useBeanFactory("kernelApplicationContext").getFactory();
 		conceptDao = appCtx.getBean(ConceptDao.class);
 		JdbcTemplate jdbcTemplate = new JdbcTemplate();
 		jdbcTemplate.setDataSource(appCtx.getBean(DataSource.class));
-		jdbcTemplate.execute("drop table if exists test_concepts");
+		Properties ytexProperties = (Properties)appCtx.getBean("ytexProperties");
+		String dbtype = ytexProperties.getProperty("db.type");
+		if("hsql".equals(dbtype) || "mysql".equals(dbtype))
+			jdbcTemplate.execute("drop table if exists test_concepts");
+		if("mssql".equals(dbtype))
+			jdbcTemplate.execute("if exists(select * from sys.objects where object_id = object_id('test_concepts')) drop table test_concepts");
+		//TODO if("orcl".equals(dbtype)))
 		jdbcTemplate
 				.execute("create table test_concepts(parent varchar(20), child varchar(20))");
 		jdbcTemplate
@@ -54,7 +59,7 @@ public class SenseDisambiguatorAnnotatorTest {
 				.execute("insert into test_concepts values ('root', 'bacteria')");
 		jdbcTemplate
 				.execute("insert into test_concepts values ('bacteria', 'e coli')");
-		conceptDao.createConceptGraph("test",
+		conceptDao.createConceptGraph(null, "test",
 				"select child, parent from test_concepts", true,
 				Collections.EMPTY_SET);
 		ConceptGraph cg = conceptDao.getConceptGraph("test");
@@ -94,7 +99,7 @@ public class SenseDisambiguatorAnnotatorTest {
 		em3.addToIndexes();
 		
 		SenseDisambiguatorAnnotator sda = new SenseDisambiguatorAnnotator();
-		sda.wsd = ApplicationContextHolder.getSimApplicationContext().getBean(
+		sda.wsd = ApplicationContextHolder.getApplicationContext().getBean(
 				WordSenseDisambiguator.class);
 		sda.process(jCas);
 		AnnotationIndex<Annotation> annoIdx = jCas.getAnnotationIndex(EntityMention.type);

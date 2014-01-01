@@ -73,8 +73,7 @@
 		<!--
 		<pathelement location="${ctakes.home}/ctakes-ytex-uima/target/classes" />
 		-->
-		<fileset dir="${ctakes.home}/ctakes-ytex/target/lib" includes="**/*.jar" excludes="**/ant-*.jar" />
-		<fileset dir="${ctakes.home}/ctakes-ytex-uima/target/lib" includes="**/*.jar" excludes="**/ant-*.jar" />
+		<fileset dir="${ctakes.home}" includes="ctakes-assertion/lib/*.jar,ctakes-ytex/target/lib/*.jar,ctakes-ytex-uima/target/lib/*.jar" excludes="**/ant-*.jar" />
 	</path>
 	<path id="kernel.cp.prod">
 		<pathelement location="${config.local}" />
