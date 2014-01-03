@@ -395,6 +395,12 @@
 			<directoryMode>755</directoryMode>
     	</fileSet>    	    	
 		<fileSet>
+		    <directory>../ctakes-ytex-uima/src/main/resources</directory>
+		    <outputDirectory>resources</outputDirectory>
+			<fileMode>644</fileMode>
+			<directoryMode>755</directoryMode>
+    	</fileSet>    	    	
+		<fileSet>
 		    <directory>../ctakes-ytex/scripts</directory>
 		    <outputDirectory>bin/ctakes-ytex/scripts</outputDirectory>
 			<fileMode>644</fileMode>
