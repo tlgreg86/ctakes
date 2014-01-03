@@ -19,11 +19,13 @@
 package org.apache.ctakes.assertion.medfacts.i2b2.api;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.text.AnnotationIndex;
@@ -43,6 +45,7 @@ public class CharacterOffsetToLineTokenConverterCtakesImpl implements CharacterO
   
   protected TreeMap<Integer, Sentence> beginTreeMap;
   protected TreeSet<Integer> tokenBeginEndTreeSet;
+  protected Map<Sentence, List<BaseToken>> sentenceToTokenNumberMap;
   
   public CharacterOffsetToLineTokenConverterCtakesImpl()
   {
@@ -54,6 +57,7 @@ public class CharacterOffsetToLineTokenConverterCtakesImpl implements CharacterO
     this.jcas = jcas;
     buildSentenceBoundaryMap();
     buildTokenBoundaryMap();
+    buildSentenceToTokenNumberMap();
   }
   
   public void buildSentenceBoundaryMap()
@@ -86,6 +90,20 @@ public class CharacterOffsetToLineTokenConverterCtakesImpl implements CharacterO
 		  	  tokenBeginEndTreeSet.add(end);
 		  }
 	  }
+  }
+  
+  protected void buildSentenceToTokenNumberMap() {
+      sentenceToTokenNumberMap = new HashMap<Sentence, List<BaseToken>>();
+      for (Sentence s : beginTreeMap.values()) {
+              FSIterator<Annotation> tokensInSentenceIterator = jcas
+                              .getAnnotationIndex(BaseToken.type).subiterator(s);
+              List<BaseToken> btList = new ArrayList<BaseToken>();
+              BaseToken bt = null;
+              while ((bt = this.getNextNonEOLToken(tokensInSentenceIterator)) != null) {
+                      btList.add(bt);
+              }
+              sentenceToTokenNumberMap.put(s, btList);
+      }
   }
   
   public Sentence findPreviousOrCurrentSentence(int characterOffset)
@@ -173,36 +191,29 @@ public class CharacterOffsetToLineTokenConverterCtakesImpl implements CharacterO
     int lineNumber = sentence.getSentenceNumber() + 1;
     
     
-    FSIterator<Annotation> tokensInSentenceIterator =
-        jcas.getAnnotationIndex(baseTokenTypeId).subiterator(sentence);
-    
-    if (!tokensInSentenceIterator.hasNext())
-    {
-      throw new RuntimeException("First token in sentence not found!!");
-    }
-    Annotation firstTokenAnnotation = tokensInSentenceIterator.next();
-    BaseToken firstToken = (BaseToken)firstTokenAnnotation;
-    int firstTokenInSentenceNumber = firstToken.getTokenNumber();
-    
-    
-    FSIterator<Annotation> beginTokenInSentenceIterator =
-        constraintConstructorFindContainedBy.createFilteredIterator(
-          characterOffset, characterOffset, baseTokenType);
-    
-    if (!beginTokenInSentenceIterator.hasNext())
-    {
-      throw new RuntimeException("First token in sentence not found!! (character offset request = " + characterOffset);
-    }
-    Annotation beginTokenAnnotation = beginTokenInSentenceIterator.next();
-    BaseToken beginToken = (BaseToken)beginTokenAnnotation;
-    int beginTokenNumber = beginToken.getTokenNumber();
-    int beginTokenWordNumber = beginTokenNumber - firstTokenInSentenceNumber;
-    
-    LineAndTokenPosition b = new LineAndTokenPosition();
-    b.setLine(lineNumber);
-    b.setTokenOffset(beginTokenWordNumber);
-
-    return b;
+    FSIterator<Annotation> beginTokenInSentenceIterator = constraintConstructorFindContainedBy
+            .createFilteredIterator(characterOffset, characterOffset,
+                            baseTokenType);
+	BaseToken beginToken = this
+	            .getNextNonEOLToken(beginTokenInSentenceIterator);
+	int beginTokenWordNumber = this.sentenceToTokenNumberMap.get(sentence)
+	            .indexOf(beginToken);
+	LineAndTokenPosition b = new LineAndTokenPosition();
+	b.setLine(lineNumber);
+	b.setTokenOffset(beginTokenWordNumber);
+	
+	return b;
+  }
+  
+  public BaseToken getNextNonEOLToken(
+          FSIterator<Annotation> tokensInSentenceIterator) {
+	  while (tokensInSentenceIterator.hasNext()) {
+	          BaseToken bt = (BaseToken) tokensInSentenceIterator.next();
+	          if (!(bt instanceof NewlineToken)) {
+	                  return bt;
+	          }
+	  }
+	  return null;
   }
 
   public List<LineAndTokenPosition> calculateBeginAndEndOfConcept
@@ -214,79 +225,82 @@ public class CharacterOffsetToLineTokenConverterCtakesImpl implements CharacterO
   public List<LineAndTokenPosition> calculateBeginAndEndOfConcept(
       int problemBegin, int problemEnd)
   {
-    //int externalId = problem.getExternalId();
-    //int sentenceTypeId = Sentence.type;
-    int baseTokenTypeId = BaseToken.type;
-    //jcas.getAnnotationIndex(sentenceTypeId);
-    
-    ConstraintConstructorFindContainedBy constraintConstructorFindContainedBy = new ConstraintConstructorFindContainedBy(jcas);
-    ConstraintConstructorFindContainedWithin constraintConstructorFindContainedWithin = new ConstraintConstructorFindContainedWithin(jcas);
-    
-    //AnnotationIndex<Annotation> sentenceAnnotationIndex = jcas.getAnnotationIndex(sentenceTypeId);
-    Type sentenceType = jcas.getTypeSystem().getType(Sentence.class.getName());
-    Type baseTokenType = jcas.getTypeSystem().getType(BaseToken.class.getName());
-    ///
-    FSIterator<Annotation> filteredIterator =
-        constraintConstructorFindContainedBy.createFilteredIterator(
-          problemBegin, problemEnd, sentenceType);
-    ///
-    if (!filteredIterator.hasNext())
-    {
-      throw new RuntimeException("Surrounding sentence annotation not found!!");
-    }
-    Annotation sentenceAnnotation = filteredIterator.next();
-    Sentence sentence = (Sentence)sentenceAnnotation;
-    int lineNumber = sentence.getSentenceNumber() + 1;
-    
-    
-    FSIterator<Annotation> tokensInSentenceIterator =
-        jcas.getAnnotationIndex(baseTokenTypeId).subiterator(sentence);
-    
-    if (!tokensInSentenceIterator.hasNext())
-    {
-      throw new RuntimeException("First token in sentence not found!!");
-    }
-    Annotation firstTokenAnnotation = tokensInSentenceIterator.next();
-    BaseToken firstToken = (BaseToken)firstTokenAnnotation;
-    int firstTokenInSentenceNumber = firstToken.getTokenNumber();
-    
-    
-    FSIterator<Annotation> beginTokenInSentenceIterator =
-        constraintConstructorFindContainedWithin.createFilteredIterator(
-          problemBegin, problemEnd, baseTokenType);
-    
-    if (!beginTokenInSentenceIterator.hasNext())
-    {
-      throw new RuntimeException("First token in sentence not found!!");
-    }
-    Annotation beginTokenAnnotation = beginTokenInSentenceIterator.next();
-    BaseToken beginToken = (BaseToken)beginTokenAnnotation;
-    int beginTokenNumber = beginToken.getTokenNumber();
-    int beginTokenWordNumber = beginTokenNumber - firstTokenInSentenceNumber;
-    
-    
-    beginTokenInSentenceIterator.moveToLast();
-    if (!beginTokenInSentenceIterator.hasNext())
-    {
-      throw new RuntimeException("First token in sentence not found!!");
-    }
-    Annotation endTokenAnnotation = beginTokenInSentenceIterator.next();
-    BaseToken endToken = (BaseToken)endTokenAnnotation;
-    int endTokenNumber = endToken.getTokenNumber();
-    int endTokenWordNumber = endTokenNumber - firstTokenInSentenceNumber;
-    
+      // int externalId = problem.getExternalId();
+      // int sentenceTypeId = Sentence.type;
+      int baseTokenTypeId = BaseToken.type;
+      // jcas.getAnnotationIndex(sentenceTypeId);
 
-    ArrayList<LineAndTokenPosition> list = new ArrayList<LineAndTokenPosition>();
-    LineAndTokenPosition b = new LineAndTokenPosition();
-    b.setLine(lineNumber);
-    b.setTokenOffset(beginTokenWordNumber);
-    list.add(b);
-    LineAndTokenPosition e = new LineAndTokenPosition();
-    e.setLine(lineNumber);
-    e.setTokenOffset(endTokenWordNumber);
-    System.out.println("Adding lineTokenEnding " + lineNumber + " offset = " + endTokenWordNumber);
-    list.add(e);
-    return list;
+      ConstraintConstructorFindContainedBy constraintConstructorFindContainedBy = new ConstraintConstructorFindContainedBy(
+                      jcas);
+      ConstraintConstructorFindContainedWithin constraintConstructorFindContainedWithin = new ConstraintConstructorFindContainedWithin(
+                      jcas);
+
+      // AnnotationIndex<Annotation> sentenceAnnotationIndex =
+      // jcas.getAnnotationIndex(sentenceTypeId);
+      Type sentenceType = jcas.getTypeSystem().getType(
+                      Sentence.class.getName());
+      Type baseTokenType = jcas.getTypeSystem().getType(
+                      BaseToken.class.getName());
+      // /
+      FSIterator<Annotation> filteredIterator = constraintConstructorFindContainedBy
+                      .createFilteredIterator(problemBegin, problemEnd, sentenceType);
+      // /
+      if (!filteredIterator.hasNext()) {
+              throw new RuntimeException(
+                              "Surrounding sentence annotation not found!!");
+      }
+      Annotation sentenceAnnotation = filteredIterator.next();
+      Sentence sentence = (Sentence) sentenceAnnotation;
+      int lineNumber = sentence.getSentenceNumber() + 1;
+
+      // FSIterator<Annotation> tokensInSentenceIterator = jcas
+      // .getAnnotationIndex(baseTokenTypeId).subiterator(sentence);
+      //
+      // if (!tokensInSentenceIterator.hasNext()) {
+      // throw new RuntimeException("First token in sentence not found!!");
+      // }
+      // Annotation firstTokenAnnotation = tokensInSentenceIterator.next();
+      // BaseToken firstToken = (BaseToken) firstTokenAnnotation;
+      // int firstTokenInSentenceNumber = firstToken.getTokenNumber();
+
+      FSIterator<Annotation> beginTokenInSentenceIterator = constraintConstructorFindContainedWithin
+                      .createFilteredIterator(problemBegin, problemEnd, baseTokenType);
+
+      // if (!beginTokenInSentenceIterator.hasNext()) {
+      // throw new RuntimeException("First token in sentence not found!!");
+      // }
+      // Annotation beginTokenAnnotation =
+      // beginTokenInSentenceIterator.next();
+      // BaseToken beginToken = (BaseToken) beginTokenAnnotation;
+      // int beginTokenNumber = beginToken.getTokenNumber();
+      // int beginTokenWordNumber = beginTokenNumber
+      // - firstTokenInSentenceNumber;
+      BaseToken beginToken = this
+                      .getNextNonEOLToken(beginTokenInSentenceIterator);
+      int beginTokenWordNumber = this.sentenceToTokenNumberMap.get(sentence)
+                      .indexOf(beginToken);
+
+      beginTokenInSentenceIterator.moveToLast();
+      if (!beginTokenInSentenceIterator.hasNext()) {
+              throw new RuntimeException("First token in sentence not found!!");
+      }
+      Annotation endTokenAnnotation = beginTokenInSentenceIterator.next();
+      BaseToken endToken = (BaseToken) endTokenAnnotation;
+      // int endTokenNumber = endToken.getTokenNumber();
+      // int endTokenWordNumber = endTokenNumber - firstTokenInSentenceNumber;
+      int endTokenWordNumber = this.sentenceToTokenNumberMap.get(sentence)
+                      .indexOf(endToken);
+
+      ArrayList<LineAndTokenPosition> list = new ArrayList<LineAndTokenPosition>();
+      LineAndTokenPosition b = new LineAndTokenPosition();
+      b.setLine(lineNumber);
+      b.setTokenOffset(beginTokenWordNumber);
+      list.add(b);
+      LineAndTokenPosition e = new LineAndTokenPosition();
+      e.setLine(lineNumber);
+      e.setTokenOffset(endTokenWordNumber);
+      list.add(e);
+      return list;
   }
 
 }
