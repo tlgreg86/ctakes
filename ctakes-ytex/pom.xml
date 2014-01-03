@@ -50,19 +50,17 @@
 		<!-- download from ms: http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774, 
 			install to local maven repo: mvn install:install-file -Dfile=sqljdbc4.jar 
 			-DgroupId=com.microsoft.sqlserver -DartifactId=sqljdbc -Dversion=4.0 -Dpackaging=jar -->
-		<dependency>
-			<groupId>com.microsoft.sqlserver</groupId>
-			<artifactId>sqljdbc</artifactId>
-			<version>4.0</version>
-		</dependency>
+		<!-- Do *not* check this in with this depency uncommented - this will break 
+			builds in environments where the driver has not been added to the local repo 
+			<dependency> <groupId>com.microsoft.sqlserver</groupId> <artifactId>sqljdbc</artifactId> 
+			<version>4.0</version> </dependency> -->
 		<!-- download from oracle http://www.oracle.com/technetwork/database/features/jdbc/jdbc-drivers-12c-download-1958347.html, 
 			install to local maven repo: mvn install:install-file -Dfile=ojdbc7_g.jar 
 			-DgroupId=oracle.jdbc -DartifactId=ojdbc7_g -Dversion=12.1.0.1.0 -Dpackaging=jar -->
-		<dependency>
-			<groupId>oracle.jdbc</groupId>
-			<artifactId>ojdbc7_g</artifactId>
-			<version>12.1.0.1.0</version>
-		</dependency>
+		<!-- Do *not* check this in with this depency uncommented - this will break 
+			builds in environments where the driver has not been added to the local repo 
+			<dependency> <groupId>oracle.jdbc</groupId> <artifactId>ojdbc7_g</artifactId> 
+			<version>12.1.0.1.0</version> </dependency> -->
 		<!-- end non ASF compliant dependencies -->
 
 		<dependency>
@@ -242,6 +240,34 @@
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.hibernate</groupId>
+									<artifactId>hibernate-core</artifactId>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.hibernate</groupId>
+									<artifactId>hibernate-ehcache</artifactId>
+								</artifactItem>
+								<artifactItem>
+									<groupId>nz.ac.waikato.cms.weka</groupId>
+									<artifactId>weka-stable</artifactId>
+								</artifactItem>
+								<artifactItem>
+									<groupId>mysql</groupId>
+									<artifactId>mysql-connector-java</artifactId>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${project.build.directory}/nonasf-lib</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
