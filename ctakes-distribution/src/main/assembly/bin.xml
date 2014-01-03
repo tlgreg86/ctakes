@@ -57,10 +57,18 @@
 				<!-- <include>org.apache.ctakes:ctakes-temporal</include> -->
 				<include>org.apache.ctakes:ctakes-type-system</include>
 				<include>org.apache.ctakes:ctakes-utils</include>
+				<include>org.apache.ctakes:ctakes-ytex</include>
+				<include>org.apache.ctakes:ctakes-ytex-uima</include>
 			</includes>
 			
             <excludes>
 	        	<exclude>net.sourceforge.ctakesresources:*</exclude>
+	        	<!-- exclude non-asf compliant dependencies used by ytex -->
+	        	<exclude>org.hibernate:*</exclude>
+	        	<exclude>nz.ac.waikato.cms.weka:*</exclude>
+	        	<exclude>mysql:*</exclude>
+	        	<exclude>com.microsoft.sqlserver:*</exclude>
+	        	<exclude>oracle.jdbc:*</exclude>
 	        </excludes>			
 			<unpack>false</unpack>
 			<useProjectArtifact>false</useProjectArtifact>
@@ -377,6 +385,18 @@
 		<fileSet>
 		    <directory>../ctakes-utils/src/main/resources</directory>
 		    <outputDirectory>resources</outputDirectory>
+			<fileMode>644</fileMode>
+			<directoryMode>755</directoryMode>
+    	</fileSet>    	    	
+		<fileSet>
+		    <directory>../ctakes-ytex-res/src/main/resources</directory>
+		    <outputDirectory>resources</outputDirectory>
+			<fileMode>644</fileMode>
+			<directoryMode>755</directoryMode>
+    	</fileSet>    	    	
+		<fileSet>
+		    <directory>../ctakes-ytex/scripts</directory>
+		    <outputDirectory>bin/ctakes-ytex/scripts</outputDirectory>
 			<fileMode>644</fileMode>
 			<directoryMode>755</directoryMode>
     	</fileSet>    	    	

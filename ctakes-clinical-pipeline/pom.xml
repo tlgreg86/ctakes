@@ -81,6 +81,18 @@
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-dependency-parser-res</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.ctakes</groupId>
+			<artifactId>ctakes-ytex</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ctakes</groupId>
+			<artifactId>ctakes-ytex-res</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ctakes</groupId>
+			<artifactId>ctakes-ytex-uima</artifactId>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>

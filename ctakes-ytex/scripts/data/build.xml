@@ -69,7 +69,7 @@ Database connection parameters are taken from ytex.properties.
 		<echo>db.type ${db.type}</echo>
 	</target>
 	<target name="dbping" description="verify db connection params" unless="hsql">
-		<java classname="ytex.tools.DBPing" fork="yes" classpathref="${kernel.cp}" failonerror="yes">
+		<java classname="org.apache.ctakes.ytex.tools.DBPing" fork="yes" classpathref="${kernel.cp}" failonerror="yes">
 			<jvmarg value="${log4j.arg}" />
 			<jvmarg value="-Xmx64m" />
 			<arg value="${config.local}/org/apache/ctakes/ytex/ytex.properties" />
@@ -260,10 +260,18 @@ Database connection parameters are taken from ytex.properties.
 			<fileset dir="${java.io.tmpdir}" includes="MRREL.RRF,MRCONSO.RRF,MRSTY.RRF,umls_aui_fword.txt" />
 		</delete>
 	</target>
-	<target name="umls.import.view" depends="init.conn">
-		<echo>import v_snomed_fword_lookup.  Be patient, this can take a while.</echo>
+	<target name="umls.import.view" depends="init.conn" description="load v_snomed_fword_lookup.txt. Use file from resources directory if it exists and if ytex.test is not defined">
+		<condition property="view.jdl.data" value="${ytex.resources.home}/org/apache/ctakes/ytex/dictionary/lookup/v_snomed_fword_lookup.txt" else="${basedir}/umls/v_snomed_fword_lookup.txt">
+			<and>
+				<available file="${ytex.resources.home}/org/apache/ctakes/ytex/dictionary/lookup/v_snomed_fword_lookup.txt" />
+				<not>
+					<isset property="ytex.test" />
+				</not>
+			</and>
+		</condition>
+		<echo>import v_snomed_fword_lookup from ${view.jdl.data}.  Be patient, this can take a while.</echo>
 		<antcall target="jdl">
-			<param name="jdl.data" value="${umls.data}/v_snomed_fword_lookup.txt" />
+			<param name="jdl.data" value="${view.jdl.data}" />
 			<param name="jdl.format" value="${basedir}/umls/v_snomed_fword_lookup.xml" />
 		</antcall>
 	</target>
@@ -279,7 +287,7 @@ Database connection parameters are taken from ytex.properties.
 				</copy>
 			</then>
 			<else>
-				<copy file="${sql.dir}/umls/insert_view.sql" tofile="${java.io.tmpdir}/insert_view.template.sql" overwrite="yes"/>
+				<copy file="${sql.dir}/umls/insert_view.sql" tofile="${java.io.tmpdir}/insert_view.template.sql" overwrite="yes" />
 			</else>
 		</if>
 		<antcall target="jdbc.sqlcmd">
@@ -341,8 +349,8 @@ Database connection parameters are taken from ytex.properties.
 		<property name="sql.catalog" value="${db.name}" />
 		<property name="sql.schema" value="${db.schema}" />
 		<property name="sql.file" value="${sql.dir}/${sqlcmd.dir}/${sqlcmd.script}" />
-		<tempfile property="sql.src" suffix=".sql"  destdir="${java.io.tmpdir}" />
-		<tempfile property="use.sql.file" suffix="use.sql"  destdir="${java.io.tmpdir}" />
+		<tempfile property="sql.src" suffix=".sql" destdir="${java.io.tmpdir}" />
+		<tempfile property="use.sql.file" suffix="use.sql" destdir="${java.io.tmpdir}" />
 		<echo>execute ${sql.file}</echo>
 		<!-- <property name="sql.src" value="${java.io.tmpdir}/${sqlcmd.script}" /> -->
 		<if>
@@ -413,7 +421,7 @@ ${sql.delimiter}
 		<echo>jdl.format ${jdl.format}</echo>
 		<echo>jdl.data ${jdl.data}</echo>
 		<echo>umls.prefix ${umls.prefix}</echo>
-		<tempfile property="jdl.format.file" suffix=".xml" deleteonexit="true" destdir="${java.io.tmpdir}"/>
+		<tempfile property="jdl.format.file" suffix=".xml" deleteonexit="true" destdir="${java.io.tmpdir}" />
 		<copy file="${jdl.format}" tofile="${jdl.format.file}" overwrite="true">
 			<filterset>
 				<filter token="umls.prefix" value="${umls.prefix}" />

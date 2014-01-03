@@ -14,7 +14,6 @@ import java.text.Format;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVStrategy;
 import org.apache.commons.lang.BooleanUtils;
@@ -55,13 +54,13 @@ public class CsvLoader extends Loader {
 			throws FileNotFoundException {
 		InputStream inputStrem = new FileInputStream(file);
 		Reader reader = new InputStreamReader(inputStrem);
-		CSVStrategy strategy = CSVStrategy.DEFAULT_STRATEGY;
-		strategy.setDelimiter(CharUtils.toChar(loader.getDelimiter()));
-		if (loader.getEncapsulator() == null
-				|| loader.getEncapsulator().length() == 0)
-			strategy.setEncapsulator(DISABLED);
-		else
-			strategy.setEncapsulator(CharUtils.toChar(loader.getEncapsulator()));
+		char delimiter = CharUtils.toChar(loader.getDelimiter());
+		char encapsulator = (loader.getEncapsulator() == null || loader
+				.getEncapsulator().length() == 0) ? CSVStrategy.ENCAPSULATOR_DISABLED
+				: CharUtils.toChar(loader.getEncapsulator());
+		log.info(String.format("delimiter %d encapsulator %d", (int)delimiter, (int)encapsulator));
+		CSVStrategy strategy = new CSVStrategy(delimiter, encapsulator, CSVStrategy.COMMENTS_DISABLED,
+				CSVStrategy.ESCAPE_DISABLED, true, true, false, true);
 		parser = new CSVParser(reader, strategy);
 		this.loader = loader;
 		formatMap = new HashMap<String, Format>();
@@ -105,7 +104,7 @@ public class CsvLoader extends Loader {
 	@Override
 	public final void dataInsert(final JdlConnection jdlConnection) {
 		String sql = getSqlInsert(loader);
-		if(log.isInfoEnabled())
+		if (log.isInfoEnabled())
 			log.info(sql);
 		Number ncommit = loader.getCommit();
 		int rs = (loader.getSkip() == null) ? 0 : loader.getSkip().intValue();
