@@ -25,6 +25,8 @@ import info.bethard.timenorm.TemporalExpressionParser;
 import info.bethard.timenorm.TimeSpan;
 import info.bethard.timenorm.TimeSpanSet;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.duration.DurationDistributionFeatureExtractor.Callback;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
@@ -42,6 +45,12 @@ import org.threeten.bp.temporal.TemporalUnit;
 import scala.collection.immutable.Set;
 import scala.util.Try;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
+/**
+ * Assumes all relations whose argument have no duration data have been deleted.
+ */
 public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtractor {
 
   @Override
@@ -49,19 +58,31 @@ public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtract
       throws AnalysisEngineProcessException {
 
     List<Feature> features = new ArrayList<Feature>();
+    
+    String eventText = arg1.getCoveredText().toLowerCase(); // arg1 is an event
     String timeText = arg2.getCoveredText().toLowerCase();  // arg2 is a time mention
 
+    File durationLookup = new File("/Users/dima/Boston/Thyme/Duration/Output/Duration/distribution.txt");
+    Map<String, Map<String, Float>> textToDistribution = null;
+    try {
+      textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Callback());
+    } catch(IOException e) {
+      e.printStackTrace();
+      return features;
+    }
+
+    System.out.println("event text: " + eventText );
+    Map<String, Float> eventDistribution = textToDistribution.get(eventText);
+    float eventExpectedDuration = DurationExpectationFeatureExtractor.expectedDuration(eventDistribution);
+
     Set<TemporalUnit> units = normalize(timeText);
-    if(units == null) {
-      features.add(new Feature("time_unit", "not_available"));
-    } else {
-      scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
-      while(iterator.hasNext()) {
-        TemporalUnit unit = iterator.next();
-        Map<String, Float> distribution = convertToDistribution(unit.getName());
-        float expectedDuration = DurationExpectationFeatureExtractor.expectedDuration(distribution);
-        features.add(new Feature("expected_duration", expectedDuration));
-      }
+    scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
+    while(iterator.hasNext()) {
+      TemporalUnit unit = iterator.next();
+      Map<String, Float> distribution = convertToDistribution(unit.getName());
+      float timeExpectedDuration = DurationExpectationFeatureExtractor.expectedDuration(distribution);
+      features.add(new Feature("expected_duration_difference", timeExpectedDuration - eventExpectedDuration));
+      continue; // ignore multiple time units (almost never happens)
     } 
 
     return features; 
