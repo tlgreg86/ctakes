@@ -116,30 +116,40 @@ public class ConceptDaoImpl implements ConceptDao {
 			CommandLineParser parser = new GnuParser();
 			CommandLine line = parser.parse(options, args);
 			String name = line.getOptionValue("name");
-			URL url = ConceptDaoImpl.class.getClassLoader().getResource(
-					CONCEPT_GRAPH_PATH + "/" + name + ".xml");
-			File fDir = null;
-			if (url != null) {
-				if ("file".equals(url.getProtocol())) {
-					File f;
-					try {
-						f = new File(url.toURI());
-					} catch (URISyntaxException e) {
-						f = new File(url.getPath());
-					}
-					fDir = f.getParentFile();
-				}
+			String propRes = CONCEPT_GRAPH_PATH + name + ".xml";
+			URL url = ConceptDaoImpl.class.getClassLoader()
+					.getResource(propRes);
+			if (url == null) {
+				System.out.println("properties file could not be located: "
+						+ propRes);
+				return;
 			}
-			Properties props = FileUtil.loadProperties(
-					line.getOptionValue("prop"), true);
-			String conceptGraphName = props
-					.getProperty("org.apache.ctakes.ytex.conceptGraphName");
+			// load properties
+			Properties props = new Properties();
+			InputStream is = ConceptDaoImpl.class.getClassLoader()
+					.getResourceAsStream(propRes);
+			try {
+				props.loadFromXML(is);
+			} finally {
+				is.close();
+			}
+			// determine directory for concept graph - attempt to put in same
+			// dir as props
+			File fDir = null;
+			if ("file".equals(url.getProtocol())) {
+				File f;
+				try {
+					f = new File(url.toURI());
+				} catch (URISyntaxException e) {
+					f = new File(url.getPath());
+				}
+				fDir = f.getParentFile();
+			}
 			String conceptGraphQuery = props
-					.getProperty("org.apache.ctakes.ytex.conceptGraphQuery");
-			String strCheckCycle = props.getProperty(
-					"org.apache.ctakes.ytex.checkCycle", "true");
+					.getProperty("ytex.conceptGraphQuery");
+			String strCheckCycle = props.getProperty("ytex.checkCycle", "true");
 			String forbiddenConceptList = props
-					.getProperty("org.apache.ctakes.ytex.forbiddenConcepts");
+					.getProperty("ytex.forbiddenConcepts");
 			Set<String> forbiddenConcepts;
 			if (forbiddenConceptList != null) {
 				forbiddenConcepts = new HashSet<String>();
@@ -152,13 +162,15 @@ public class ConceptDaoImpl implements ConceptDao {
 			if ("false".equalsIgnoreCase(strCheckCycle)
 					|| "no".equalsIgnoreCase(strCheckCycle))
 				checkCycle = false;
-			if (conceptGraphName != null && conceptGraphQuery != null) {
+			if (!Strings.isNullOrEmpty(name)
+					&& !Strings.isNullOrEmpty(conceptGraphQuery)) {
 				KernelContextHolder
 						.getApplicationContext()
 						.getBean(ConceptDao.class)
-						.createConceptGraph(fDir.getAbsolutePath(),
-								conceptGraphName, conceptGraphQuery,
-								checkCycle, forbiddenConcepts);
+						.createConceptGraph(
+								fDir != null ? fDir.getAbsolutePath() : null,
+								name, conceptGraphQuery, checkCycle,
+								forbiddenConcepts);
 			} else {
 				printHelp(options);
 			}
@@ -259,6 +271,14 @@ public class ConceptDaoImpl implements ConceptDao {
 			if (log.isWarnEnabled())
 				log.warn("createConceptGraph(): concept graph already exists, will not create a new one.  Delete existing concept graph if you want to recreate it.");
 		} else {
+			String outputDir = dir;
+			if (Strings.isNullOrEmpty(outputDir)) {
+				outputDir = getDefaultConceptGraphDir();
+			}
+			if (Strings.isNullOrEmpty(outputDir)) {
+				throw new IllegalArgumentException(
+						"could not determine default concept graph directory; please set property org.apache.ctakes.ytex.conceptGraphDir");
+			}
 			if (log.isInfoEnabled())
 				log.info("createConceptGraph(): file not found, creating concept graph from database.");
 			final ConceptGraph cg = new ConceptGraph();
@@ -300,14 +320,12 @@ public class ConceptDaoImpl implements ConceptDao {
 			cg.setRoot(rootId);
 			// can't get the maximum depth unless we're sure there are no
 			// cycles
-			// if (checkCycle)
-			// cg.setDepthMax(calculateDepthMax(rootId, cg.getConceptMap()));
 			if (checkCycle) {
 				log.info("computing intrinsic info for concept graph: " + name);
 				this.intrinsicInfoContentEvaluator
-						.evaluateIntrinsicInfoContent(name, dir, cg);
+						.evaluateIntrinsicInfoContent(name, outputDir, cg);
 			}
-			writeConceptGraph(dir, name, cg);
+			writeConceptGraph(outputDir, name, cg);
 		}
 	}
 
@@ -322,8 +340,9 @@ public class ConceptDaoImpl implements ConceptDao {
 		ConceptGraph cg = this.readConceptGraph(name);
 		if (cg != null) {
 			this.initializeConceptGraph(cg);
-			if(log.isInfoEnabled()) {
-				log.info(String.format("concept graph %s, vertices: %s", name, cg.getConceptList().size()));
+			if (log.isInfoEnabled()) {
+				log.info(String.format("concept graph %s, vertices: %s", name,
+						cg.getConceptList().size()));
 			}
 		}
 		return cg;
@@ -554,13 +573,6 @@ public class ConceptDaoImpl implements ConceptDao {
 	private void writeConceptGraph(String dir, String name, ConceptGraph cg) {
 		ObjectOutputStream os = null;
 		String outputDir = dir;
-		if (Strings.isNullOrEmpty(outputDir)) {
-			outputDir = getDefaultConceptGraphDir();
-		}
-		if (Strings.isNullOrEmpty(outputDir)) {
-			throw new IllegalArgumentException(
-					"could not determine default concept graph directory; please set property org.apache.ctakes.ytex.conceptGraphDir");
-		}
 		File cgFile = new File(outputDir + "/" + name + ".gz");
 		log.info("writing concept graph: " + cgFile.getAbsolutePath());
 		if (!cgFile.getParentFile().exists())

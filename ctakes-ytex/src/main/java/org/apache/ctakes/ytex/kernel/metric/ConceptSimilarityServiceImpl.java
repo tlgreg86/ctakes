@@ -52,7 +52,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import com.google.common.collect.ImmutableMap;
 
-
 /**
  * compute concept similarity
  * 
@@ -685,24 +684,31 @@ public class ConceptSimilarityServiceImpl implements ConceptSimilarityService {
 
 	public void init() {
 		log.info("begin initialization for concept graph: " + conceptGraphName);
-		TransactionTemplate t = new TransactionTemplate(this.transactionManager);
-		t.setPropagationBehavior(TransactionTemplate.PROPAGATION_REQUIRES_NEW);
-		t.execute(new TransactionCallback<Object>() {
-			@Override
-			public Object doInTransaction(TransactionStatus arg0) {
-				cg = conceptDao.getConceptGraph(conceptGraphName);
-				if (cg == null) {
-					log.warn("concept graph null, name: " + conceptGraphName);
-					return null;
+		cg = conceptDao.getConceptGraph(conceptGraphName);
+		if (cg == null) {
+			log.warn("concept graph null, name: " + conceptGraphName);
+		} else {
+			initSimilarityMetricMap();
+			if (isPreload()) {
+				try {
+					TransactionTemplate t = new TransactionTemplate(
+							this.transactionManager);
+					t.setPropagationBehavior(TransactionTemplate.PROPAGATION_REQUIRES_NEW);
+					t.execute(new TransactionCallback<Object>() {
+						@Override
+						public Object doInTransaction(TransactionStatus arg0) {
+							initInfoContent();
+							initCuiTuiMapFromCorpus();
+							return null;
+						}
+					});
+				} catch (Exception e) {
+					log.info("could not initialize cui-tui map: "
+							+ e.getMessage()
+							+ ".  This is expected if you do not have umls installed in your db.");
 				}
-				if (isPreload()) {
-					initInfoContent();
-					initCuiTuiMapFromCorpus();
-				}
-				initSimilarityMetricMap();
-				return null;
 			}
-		});
+		}
 		log.info("end initialization for concept graph: " + conceptGraphName);
 	}
 
@@ -784,8 +790,8 @@ public class ConceptSimilarityServiceImpl implements ConceptSimilarityService {
 		// }
 		// fill corpusIC
 		log.info("loading corpus infocontent for corpusName=" + corpusName
-					+ ", conceptGraphName=" + conceptGraphName
-					+ ", conceptSetName=" + conceptSetName);
+				+ ", conceptGraphName=" + conceptGraphName
+				+ ", conceptSetName=" + conceptSetName);
 		Map<String, Double> corpusICMap = classifierEvaluationDao
 				.getInfoContent(corpusName, conceptGraphName,
 						this.conceptSetName);
@@ -877,7 +883,8 @@ public class ConceptSimilarityServiceImpl implements ConceptSimilarityService {
 	// /*
 	// * (non-Javadoc)
 	// *
-	// * @see org.apache.ctakes.ytex.kernel.ConceptSimilarity#lch(java.lang.String,
+	// * @see
+	// org.apache.ctakes.ytex.kernel.ConceptSimilarity#lch(java.lang.String,
 	// * java.lang.String)
 	// */
 	// public double lch(String concept1, String concept2) {

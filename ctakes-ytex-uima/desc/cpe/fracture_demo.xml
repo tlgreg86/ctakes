@@ -3,13 +3,19 @@
     <collectionReader>
         <collectionIterator>
             <descriptor>
-                <import location="../../../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml"/>
+                <import location="../collection_reader/DBCollectionReader.xml"/>
             </descriptor>
             <configurationParameterSettings>
                 <nameValuePair>
-                    <name>InputDirectory</name>
+                    <name>queryGetDocumentKeys</name>
                     <value>
-                        <string>resources/data/text-files</string>
+                        <string>select note_id instance_id from fracture_demo</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>queryGetDocument</name>
+                    <value>
+                        <string>select note_text from fracture_demo where note_id = :instance_id</string>
                     </value>
                 </nameValuePair>
             </configurationParameterSettings>

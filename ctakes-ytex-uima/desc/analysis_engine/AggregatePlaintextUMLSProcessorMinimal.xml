@@ -18,12 +18,17 @@
 			with the following changes:
 			substitute ytex SegmentRegexAnnotator for
 			SimpleSegmentAnnotator;
-			(TODO substitute ytex SentenceDetectorAnnotator for
-			SentenceDetectorAnnotator);
+			substitute ytex SentenceDetectorAnnotator for
+			SentenceDetectorAnnotator;
 			substitute ytex DictionaryLookupAnnotator
 			for
-			DictionaryLookupAnnotatorUMLS
-			add SenseDisambiguatorAnnotator
+			DictionaryLookupAnnotatorUMLS;
+			add SenseDisambiguatorAnnotator;
+			Remove LvgAnnotator, DependencyParser, SemanticRoleLabeler,
+			AssertionAnnotator,
+			StatusAnnotator, NegationAnnotator,
+			ExtractionPrepAnnotator;
+			Add NegexAnnotator
 		</description>
 	</analysisEngineMetaData>
 	<primitive>false</primitive>
@@ -42,20 +47,8 @@
 		<delegateAnalysisEngine key="DictionaryLookupAnnotatorDB">
 			<import location="./DictionaryLookupAnnotator.xml" />
 		</delegateAnalysisEngine>
-		<delegateAnalysisEngine key="StatusAnnotator">
-			<import location="../../../ctakes-ne-contexts/desc/StatusAnnotator.xml" />
-		</delegateAnalysisEngine>
-		<delegateAnalysisEngine key="NegationAnnotator">
-			<import location="../../../ctakes-ne-contexts/desc/NegationAnnotator.xml" />
-		</delegateAnalysisEngine>
 		<delegateAnalysisEngine key="SentenceDetectorAnnotator">
-		<!-- 
-		With newlines in sentences CoNLL dependency goes into infinite loop for some reason.
-		Needs to be investigated
-		<import location="./SentenceDetectorAnnotator.xml" />
-		 -->
-		 <import
-				location="../../../ctakes-core/desc/analysis_engine/SentenceDetectorAnnotator.xml" />
+			<import location="./SentenceDetectorAnnotator.xml" />
 		</delegateAnalysisEngine>
 		<delegateAnalysisEngine key="SenseDisambiguatorAnnotator">
 			<import location="./SenseDisambiguatorAnnotator.xml" />
@@ -78,26 +71,8 @@
 		<delegateAnalysisEngine key="POSTagger">
 			<import location="../../../ctakes-pos-tagger/desc/POSTagger.xml" />
 		</delegateAnalysisEngine>
-		<!-- <delegateAnalysisEngine key="ClearPOSTagger"> <import location="../../../ctakes-pos-tagger/desc/ClearNLPPOSTagger.xml"/> 
-			</delegateAnalysisEngine> -->
-		<delegateAnalysisEngine key="LvgAnnotator">
-			<import location="../../../ctakes-lvg/desc/analysis_engine/LvgAnnotator.xml" />
-		</delegateAnalysisEngine>
-		<delegateAnalysisEngine key="AssertionAnnotator">
-			<import
-				location="../../../ctakes-assertion/desc/AssertionMiniPipelineAnalysisEngine.xml" />
-		</delegateAnalysisEngine>
-		<delegateAnalysisEngine key="DependencyParser">
-			<import
-				location="../../../ctakes-dependency-parser/desc/analysis_engine/ClearNLPDependencyParserAE.xml" />
-		</delegateAnalysisEngine>
-		<delegateAnalysisEngine key="SemanticRoleLabeler">
-			<import
-				location="../../../ctakes-dependency-parser/desc/analysis_engine/ClearNLPSemanticRoleLabelerAE.xml" />
-		</delegateAnalysisEngine>
-		<delegateAnalysisEngine key="ExtractionPrepAnnotator">
-			<import
-				location="../../../ctakes-clinical-pipeline/desc/analysis_engine/ExtractionPrepAnnotator.xml" />
+		<delegateAnalysisEngine key="NegexAnnotator">
+			<import location="./NegexAnnotator.xml" />
 		</delegateAnalysisEngine>
 	</delegateAnalysisEngineSpecifiers>
 	<analysisEngineMetaData>
@@ -139,21 +114,15 @@
 				<node>SegmentRegexAnnotator</node>
 				<node>SentenceDetectorAnnotator</node>
 				<node>TokenizerAnnotator</node>
-				<node>LvgAnnotator</node>
 				<node>ContextDependentTokenizerAnnotator</node>
 				<node>POSTagger</node>
-				<!-- <node>ClearPOSTagger</node> -->
 				<node>Chunker</node>
 				<node>AdjustNounPhraseToIncludeFollowingNP</node>
 				<node>AdjustNounPhraseToIncludeFollowingPPNP</node>
 				<node>LookupWindowAnnotator</node>
 				<node>DictionaryLookupAnnotatorDB</node>
 				<node>SenseDisambiguatorAnnotator</node>
-				<node>DependencyParser</node>
-				<node>SemanticRoleLabeler</node>
-				<node>AssertionAnnotator</node>
-				<!-- <node>StatusAnnotator</node> <node>NegationAnnotator</node> -->
-				<node>ExtractionPrepAnnotator</node>
+				<node>NegexAnnotator</node>
 			</fixedFlow>
 		</flowConstraints>
 		<typePriorities>

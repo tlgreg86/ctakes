@@ -53,3 +53,15 @@ Override this by:
  
 
 
+############
+Creating the ctakes-ytex-resources-3.1.2-SNAPSHOT.zip 
+############
+* Create the v_snomed_fword_lookup.txt file
+Install umls in mysql, run ytex db setup - will create v_snomed_fword_lookup table.
+Export the file:
+  - set permissions: grant FILE on *.* to 'ytex'@'localhost'
+  - export: mysqldump --user=ytex --password=ytex --tab=c:\temp ytex v_snomed_fword_lookup
+  - replace \N with empty string in c:\temp\v_snomed_fword_lookup.txt
+* Create the concept graph
+
+

@@ -67,6 +67,7 @@ import org.apache.uima.resource.metadata.FsIndexDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.tools.docanalyzer.AnnotationViewerDialog;
 import org.apache.uima.tools.docanalyzer.PrefsMediator;
+import org.apache.uima.tools.images.Images;
 import org.apache.uima.tools.stylemap.ColorParser;
 import org.apache.uima.tools.stylemap.StyleMapEntry;
 import org.apache.uima.tools.util.gui.AboutDialog;
@@ -90,8 +91,7 @@ import org.xml.sax.SAXException;
  * Main Annotation Viewer GUI. Allows user to choose directory of XCAS or XMI
  * files, then launches the AnnotationViewerDialog.
  * 
- * copied from AnnotationViewerMain.
- * Modified to load CAS from database.
+ * copied from AnnotationViewerMain. Modified to load CAS from database.
  */
 public class DBAnnotationViewerMain extends JFrame {
 	private static final long serialVersionUID = -3201723535833938833L;
@@ -176,11 +176,7 @@ public class DBAnnotationViewerMain extends JFrame {
 
 		// Set frame icon image
 		try {
-			// this.setIconImage(Images.getImage(Images.MICROSCOPE));
-			// new
-			// ImageIcon(getClass().getResource(FRAME_ICON_IMAGE)).getImage());
-			this.setIconImage(ImageIO.read(this.getClass().getResource(
-					"/ytex/tools/docanalyzer/icon.gif")));
+			 this.setIconImage(Images.getImage(Images.MICROSCOPE));
 		} catch (IOException e) {
 			System.err.println("Image could not be loaded: " + e.getMessage());
 		}
@@ -302,7 +298,7 @@ public class DBAnnotationViewerMain extends JFrame {
 
 		// add banner
 		JLabel banner = new JLabel(new ImageIcon(this.getClass().getResource(
-				"/ytex/tools/docanalyzer/logo.gif")));
+				"/org/apache/ctakes/ctakes_logo.jpg")));
 		contentPanel.add(banner, BorderLayout.NORTH);
 
 		// Add the view Button to run TAE
@@ -363,16 +359,16 @@ public class DBAnnotationViewerMain extends JFrame {
 				casDescriptor = CasCreationUtils
 						.createCas((AnalysisEngineDescription) descriptor);
 				styleMapFile = getStyleMapFile(
-						(AnalysisEngineDescription) descriptor, descriptorFile
-								.getPath());
+						(AnalysisEngineDescription) descriptor,
+						descriptorFile.getPath());
 			} else if (descriptor instanceof TypeSystemDescription) {
 				TypeSystemDescription tsDesc = (TypeSystemDescription) descriptor;
 				tsDesc.resolveImports();
 				casDescriptor = CasCreationUtils.createCas(tsDesc, null,
 						new FsIndexDescription[0]);
 				styleMapFile = getStyleMapFile(
-						(TypeSystemDescription) descriptor, descriptorFile
-								.getPath());
+						(TypeSystemDescription) descriptor,
+						descriptorFile.getPath());
 			} else {
 				displayError("Invalid Descriptor File \""
 						+ descriptorFile.getPath()
@@ -399,8 +395,8 @@ public class DBAnnotationViewerMain extends JFrame {
 		 * viewerDialog.pack(); viewerDialog.setModal(true);
 		 * viewerDialog.setVisible(true);
 		 */
-		this.launchThatViewer(this.documentIDField.getText(), casDescriptor
-				.getTypeSystem(), null, javaViewerRB.isSelected(),
+		this.launchThatViewer(this.documentIDField.getText(),
+				casDescriptor.getTypeSystem(), null, javaViewerRB.isSelected(),
 				javaViewerUCRB.isSelected(), xmlRB.isSelected(), styleMapFile,
 				createTempDir());
 	}
@@ -485,8 +481,8 @@ public class DBAnnotationViewerMain extends JFrame {
 	 */
 	public void savePreferences() {
 		// prefs.put("inDir", inputFileSelector.getSelected());
-		prefs.put("taeDescriptorFile", this.taeDescriptorFileSelector
-				.getSelected());
+		prefs.put("taeDescriptorFile",
+				this.taeDescriptorFileSelector.getSelected());
 	}
 
 	/**
@@ -532,8 +528,8 @@ public class DBAnnotationViewerMain extends JFrame {
 			}
 		}
 
-		JOptionPane.showMessageDialog(DBAnnotationViewerMain.this, buf
-				.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(DBAnnotationViewerMain.this,
+				buf.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 	}
 
 	/**
@@ -603,8 +599,7 @@ public class DBAnnotationViewerMain extends JFrame {
 				if (javaViewerUCRBisSelected)
 					getColorsForTypesFromFile(viewer, styleMapFile);
 				else
-					viewer
-							.setHiddenTypes(new String[] { "uima.cpm.FileLocation" });
+					viewer.setHiddenTypes(new String[] { "uima.cpm.FileLocation" });
 				// launch viewer in a new dialog
 				viewer.setCAS(cas);
 				JDialog dialog = new JDialog(this,
@@ -685,13 +680,12 @@ public class DBAnnotationViewerMain extends JFrame {
 		} else {
 			String taeDir = prefsMed.getTAEfile();
 			JFileChooser chooser = new JFileChooser(taeDir);
-			chooser
-					.setDialogTitle("Select the Analysis Engine that Generated this Output");
+			chooser.setDialogTitle("Select the Analysis Engine that Generated this Output");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			int returnVal = chooser.showOpenDialog(this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				XMLInputSource in = new XMLInputSource(chooser
-						.getSelectedFile());
+				XMLInputSource in = new XMLInputSource(
+						chooser.getSelectedFile());
 				return UIMAFramework.getXMLParser()
 						.parseAnalysisEngineDescription(in);
 			} else {
@@ -819,7 +813,8 @@ public class DBAnnotationViewerMain extends JFrame {
 	private Properties loadJDBCProperties() throws IOException {
 		InputStream is = null;
 		try {
-			is = this.getClass().getResourceAsStream("org/apache/ctakes/ytex/ytex.properties");
+			is = this.getClass().getResourceAsStream(
+					"/org/apache/ctakes/ytex/ytex.properties");
 			this.jdbcProperties = new Properties();
 			this.jdbcProperties.load(is);
 			// make sure required properties are specified
@@ -856,16 +851,16 @@ public class DBAnnotationViewerMain extends JFrame {
 		Properties jdbcProperties = loadJDBCProperties();
 
 		CAS cas = CasCreationUtils.createCas(Collections.EMPTY_LIST,
-				typeSystem, UIMAFramework
-						.getDefaultPerformanceTuningProperties());
+				typeSystem,
+				UIMAFramework.getDefaultPerformanceTuningProperties());
 		try {
 			Class.forName(jdbcProperties.getProperty("db.driver"));
-			conn = DriverManager.getConnection(jdbcProperties
-					.getProperty("db.url"), jdbcProperties
-					.containsKey("db.username") ? jdbcProperties
-					.getProperty("db.username") : null, jdbcProperties
-					.containsKey("db.password") ? jdbcProperties
-					.getProperty("db.password") : null);
+			conn = DriverManager.getConnection(
+					jdbcProperties.getProperty("db.url"),
+					jdbcProperties.containsKey("db.username") ? jdbcProperties
+							.getProperty("db.username") : null,
+					jdbcProperties.containsKey("db.password") ? jdbcProperties
+							.getProperty("db.password") : null);
 			String strSQL = jdbcProperties.containsKey("db.schema") ? "select cas from "
 					+ jdbcProperties.getProperty("db.schema")
 					+ ".document where document_id = ?"
@@ -874,8 +869,8 @@ public class DBAnnotationViewerMain extends JFrame {
 			ps.setInt(1, Integer.parseInt(documentID));
 			rs = ps.executeQuery();
 			if (rs.next()) {
-				gzIS = new GZIPInputStream(new BufferedInputStream(rs
-						.getBinaryStream(1)));
+				gzIS = new GZIPInputStream(new BufferedInputStream(
+						rs.getBinaryStream(1)));
 				XmlCasDeserializer.deserialize(gzIS, cas, true);
 			} else {
 				throw new RuntimeException("No document with id = "
@@ -910,8 +905,8 @@ public class DBAnnotationViewerMain extends JFrame {
 	 * copied from AnnotationViewerDialog.
 	 */
 	private File createTempDir() {
-		File temp = new File(System.getProperty("java.io.tmpdir"), System
-				.getProperty("user.name"));
+		File temp = new File(System.getProperty("java.io.tmpdir"),
+				System.getProperty("user.name"));
 		temp.mkdir();
 		return temp;
 	}
