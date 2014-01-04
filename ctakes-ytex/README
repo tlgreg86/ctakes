@@ -1,12 +1,29 @@
-Contents
+############
+Overview
+############
+Contains the following components:
+* Semantic Similarity - compute the similarity between concepts
+* Word Sense Disambiguation - use semantic similarity to disambiguate terms that have multiple meanings
+* Bag-of-Words exporter - export sparse matrices from a database
+* YTEX Database setup scripts
+* Java Data Loader - simple utility for loading delimited files into database tables
 
 ############
-Introduction
+Cheat Sheet
 ############
+To get started, do the following:
+* Create ytex.properties: create src\main\resources\org\apache\ctakes\ytex\ytex.properties (see examples in ctakes-ytex-res/src/main/resources/org/apache/ctakes/ytex)
+* Add jdbc drivers to maven repo: if you are using ms sql server / or oracle, add the jdbc driver(s) to your local maven repo (see comments in dependencies section of pom.xml)
+* Add ms sql auth dlls to path: if you are using ms sql server with integrated auth, make sure the ms sql jdbc auth directory is in your system PATH (sqljdbc_4.0\enu\auth\x64)
+* Unzip ctakes-ytex-resources.zip: extract to  ctakes-ytex-res/src/main
+* run the maven build from the command line for ctakes-ytex-res, ctakes-ytex, ctakes-ytex-uima projects.  From the ctakes root directory:
+mvn -pl ctakes-ytex-res,ctakes-ytex,ctakes-ytex-uima -DskipTests
 
-Need buildhelper m2e plugin
+You should be all set now
 
-== Developing ==
+############
+Developing
+############
 We have currently tested mysql and ms sql server, oracle is pending.  HSQL is used only for unit testing.  
 
 YTEX is driven by a property file, ytex.properties.  The property file used when running ytex java programs 
@@ -52,16 +69,9 @@ Override this by:
  \src\test\resources\org\apache\ctakes\ytex.
  
 
-
 ############
-Creating the ctakes-ytex-resources-3.1.2-SNAPSHOT.zip 
+Creating the ctakes-ytex-resources.zip 
 ############
-* Create the v_snomed_fword_lookup.txt file
-Install umls in mysql, run ytex db setup - will create v_snomed_fword_lookup table.
-Export the file:
-  - set permissions: grant FILE on *.* to 'ytex'@'localhost'
-  - export: mysqldump --user=ytex --password=ytex --tab=c:\temp ytex v_snomed_fword_lookup
-  - replace \N with empty string in c:\temp\v_snomed_fword_lookup.txt
-* Create the concept graph
+See scripts/build-nonasf.xml
 
 
