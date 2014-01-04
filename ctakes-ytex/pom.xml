@@ -63,6 +63,27 @@
 			<version>12.1.0.1.0</version> </dependency> -->
 		<!-- end non ASF compliant dependencies -->
 
+		<!-- begin ASF compliant hibernate dependencies. we need to explicitly 
+			include them so that get distributed with ctakes -->
+		<!-- public domain -->
+		<dependency>
+			<groupId>antlr</groupId>
+			<artifactId>antlr</artifactId>
+			<version>2.7.7</version>
+		</dependency>
+		<!-- bsd -->
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<!-- triple license including ASF -->
+		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.15.0-GA</version>
+		</dependency>
+		<!-- end ASF compliant hibernate dependencies -->
 		<dependency>
 			<groupId>ant-contrib</groupId>
 			<artifactId>ant-contrib</artifactId>
@@ -240,34 +261,6 @@
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>org.hibernate</groupId>
-									<artifactId>hibernate-core</artifactId>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.hibernate</groupId>
-									<artifactId>hibernate-ehcache</artifactId>
-								</artifactItem>
-								<artifactItem>
-									<groupId>nz.ac.waikato.cms.weka</groupId>
-									<artifactId>weka-stable</artifactId>
-								</artifactItem>
-								<artifactItem>
-									<groupId>mysql</groupId>
-									<artifactId>mysql-connector-java</artifactId>
-								</artifactItem>
-							</artifactItems>
-							<outputDirectory>${project.build.directory}/nonasf-lib</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>

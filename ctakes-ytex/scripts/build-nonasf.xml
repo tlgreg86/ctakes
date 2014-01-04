@@ -28,7 +28,7 @@ Before running this:
 		<delete file="../target/ctakes-ytex-lib.zip" quiet="yes" />
 		<zip destfile="../target/ctakes-ytex-lib.zip">
 			<!-- non-asf libraries -->
-			<zipfileset prefix="lib" dir="../target/nonasf-lib" includes="*.jar" />
+			<zipfileset prefix="lib" dir="../target/lib" includes="hibernate-*.jar,jboss-*.jar,weka-*.jar,mysql-*.jar" />
 			<!-- mssql jdbc driver and authentication dlls -->
 			<zipfileset prefix="lib" dir="${sqljdbc.home}" includes="sqljdbc4.jar,auth/**/*.*" />
 			<!-- mssql jdbc readmes -->
