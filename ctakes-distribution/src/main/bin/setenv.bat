@@ -17,20 +17,19 @@
 @REM under the License.
 @REM
 
+
+@rem determine CTAKES_HOME - set it to the parent of the directory in which this file is located
+@set CURDIR=%cd%
+@set BINDIR=%~dp0
+@rem change to CTAKES_HOME dir and save the directory
+@cd %BINDIR%..
+@set CTAKES_HOME=%cd%
+@rem change back to the original directory
+@cd %CURDIR%
+
 @rem -------------------------------------------
 @rem customize these variables to match your environment
 @rem -------------------------------------------
-@rem where java JDK is installed
-@set JAVA_HOME=C:\java\jdk1.7.0_25
-
-@rem where ctakes is/will be installed
-@set CTAKES_HOME=C:\java\apache-ctakes-3.1.2-SNAPSHOT
-
-@rem where metamap is installed (optional)
-@set MM_HOME=c:\java\public_mm
-
-@rem use a minimal path
-@set PATH=%JAVA_HOME%\bin;%CTAKES_HOME%\bin;%SystemRoot%;%SystemRoot%\System32;%SystemRoot%\System32\wbem
 
 @rem add 64-bit MS SQL Server authentication library to path
 @rem modify this accordingly if you are using the 32-bit jdk
