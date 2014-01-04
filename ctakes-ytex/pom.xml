@@ -279,6 +279,7 @@
 							<target>
 								<ant antfile="build-setup.xml" dir="scripts" target="templateToConfig">
 									<property name="config.generated.dir" value="${project.build.outputDirectory}" />
+									<property name="ctakes.home" value="${project.basedir}/.." />
 								</ant>
 							</target>
 						</configuration>
@@ -295,9 +296,11 @@
 								<ant antfile="build-setup.xml" dir="scripts"
 									target="generateTestYtexProperties">
 									<property name="config.local" value="${project.build.testOutputDirectory}" />
+									<property name="ctakes.home" value="${project.basedir}/.." />
 								</ant>
 								<ant antfile="build-setup.xml" dir="scripts" target="templateToConfig">
 									<property name="config.local" value="${project.build.testOutputDirectory}" />
+									<property name="ctakes.home" value="${project.basedir}/.." />
 								</ant>
 							</target>
 						</configuration>
@@ -315,11 +318,13 @@
 								<ant antfile="build-setup.xml" dir="scripts" target="deleteTestDb">
 									<property name="config.local" value="${project.build.testOutputDirectory}" />
 									<property name="db.type" value="${db.type}" />
+									<property name="ctakes.home" value="${project.basedir}/.." />
 								</ant>
 								<ant antfile="build.xml" dir="scripts/data" target="all">
 									<property name="config.local" value="${project.build.testOutputDirectory}" />
 									<property name="db.type" value="${db.type}" />
 									<property name="ytex.test" value="true" />
+									<property name="ctakes.home" value="${project.basedir}/.." />
 								</ant>
 							</target>
 						</configuration>

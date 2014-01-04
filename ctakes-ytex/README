@@ -45,13 +45,23 @@ in the ctakes-resources zip from sourceforge.  You have to copy v_snomed_fword_l
 
 After running the maven build, run the ant script to set up your database.  Make sure java and ant are in your path, 
 and run the following commands
-* Windows
-cd ctakes-ytex\scripts\data
-ant -Dconfig.local=..\..\target\classes all > ..\..\target\build.out 2>&1
-* Linux
-cd ctakes-ytex/scripts/data
-ant -Dconfig.local=../../target/classes all > ../../target/build.out 2>&1
 
+* Open a shell/command prompt
+* Set the CTAKES_HOME variable to be the checkout directory of ctakes (i.e. the parent of this file's directory) and run the ant script:
+
+{{{
+Windows
+set CTAKES_HOME=xxx
+cd %CTAKES_HOME%\ctakes-ytex\scripts\data
+ant -Dconfig.local=..\..\target\classes all > ..\..\target\build.out 2>&1
+}}}
+* Linux
+{{{
+CTAKES_HOME=xxx
+export CTAKES_HOME
+cd ${CTAKES_HOME}/ctakes-ytex/scripts/data
+ant -Dconfig.local=../../target/classes all > ../../target/build.out 2>&1
+}}}
 == Testing ==
 
 YTEX is dependent upon a database which is set up by the ant script scripts\data\build.xml
