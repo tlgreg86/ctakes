@@ -58,9 +58,6 @@ umls.schema/umls.catalog properties in ytex.properties.
 * Without UMLS - YTEX will load a pre-fabricated dictionary lookup table generated from the UMLS 2013AA.  This is included
 in the ctakes-resources zip from sourceforge.  You have to copy v_snomed_fword_lookup.txt to ctakes-ytex\scripts\data\umls\.
 
-After running the maven build, run the ant script to set up your database.  Make sure java and ant are in your path, 
-and run the following commands
-
 == Testing ==
 
 YTEX is dependent upon a database which is set up by the ant script scripts\data\build.xml

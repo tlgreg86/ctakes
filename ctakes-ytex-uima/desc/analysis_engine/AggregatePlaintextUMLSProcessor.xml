@@ -18,12 +18,15 @@
 			with the following changes:
 			substitute ytex SegmentRegexAnnotator for
 			SimpleSegmentAnnotator;
-			(TODO substitute ytex SentenceDetectorAnnotator for
+			(TODO substitute ytex
+			SentenceDetectorAnnotator for
 			SentenceDetectorAnnotator);
-			substitute ytex DictionaryLookupAnnotator
+			substitute
+			ytex DictionaryLookupAnnotator
 			for
 			DictionaryLookupAnnotatorUMLS
-			add SenseDisambiguatorAnnotator
+			add
+			SenseDisambiguatorAnnotator
 		</description>
 	</analysisEngineMetaData>
 	<primitive>false</primitive>
@@ -49,13 +52,7 @@
 			<import location="../../../ctakes-ne-contexts/desc/NegationAnnotator.xml" />
 		</delegateAnalysisEngine>
 		<delegateAnalysisEngine key="SentenceDetectorAnnotator">
-		<!-- 
-		With newlines in sentences CoNLL dependency goes into infinite loop for some reason.
-		Needs to be investigated
-		<import location="./SentenceDetectorAnnotator.xml" />
-		 -->
-		 <import
-				location="../../../ctakes-core/desc/analysis_engine/SentenceDetectorAnnotator.xml" />
+			<import location="./SentenceDetectorAnnotator.xml" />
 		</delegateAnalysisEngine>
 		<delegateAnalysisEngine key="SenseDisambiguatorAnnotator">
 			<import location="./SenseDisambiguatorAnnotator.xml" />
