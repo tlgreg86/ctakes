@@ -56,7 +56,7 @@ public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtract
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2)
       throws AnalysisEngineProcessException {
-
+    
     List<Feature> features = new ArrayList<Feature>();
     
     String eventText = arg1.getCoveredText().toLowerCase(); // arg1 is an event
@@ -71,7 +71,6 @@ public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtract
       return features;
     }
 
-    System.out.println("event text: " + eventText );
     Map<String, Float> eventDistribution = textToDistribution.get(eventText);
     float eventExpectedDuration = DurationExpectationFeatureExtractor.expectedDuration(eventDistribution);
 
