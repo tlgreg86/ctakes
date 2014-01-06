@@ -50,7 +50,8 @@ public class PreserveCertainEventTimeRelationsInGold extends JCasAnnotator_ImplB
       throw new AnalysisEngineProcessException(e);                                                                           
     }                                                                                                                                                                                                                                         
     
-    for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(goldView, BinaryTextRelation.class))) {            
+    // remove relations where one or both arguments have no duration data
+    for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(goldView, BinaryTextRelation.class))) {            
       RelationArgument arg1 = relation.getArg1();                                                                             
       RelationArgument arg2 = relation.getArg2(); 
       
@@ -76,6 +77,26 @@ public class PreserveCertainEventTimeRelationsInGold extends JCasAnnotator_ImplB
       arg1.removeFromIndexes();                                                                                            
       arg2.removeFromIndexes();                                                                                            
       relation.removeFromIndexes();
-    }                                                                                                                        
+    }
+    
+    // remove events (that didn't participate in relations) that have no data
+    for(EventMention mention : Lists.newArrayList(JCasUtil.select(goldView, EventMention.class))) {
+      if(textToDistribution.containsKey(mention.getCoveredText().toLowerCase())) {
+        // these are the kind we keep
+        continue;
+      } 
+      mention.removeFromIndexes();
+    }
+    
+    // finally remove time expressions (that didn't participate in relations) that have no data
+    for(TimeMention mention : Lists.newArrayList(JCasUtil.select(goldView, TimeMention.class))) {
+      String timeText = mention.getCoveredText().toLowerCase();
+      Set<TemporalUnit> units = DurationTimeUnitFeatureExtractor.normalize(timeText);
+      if(units != null) {
+        // these are the kind we keep
+        continue;
+      }
+      mention.removeFromIndexes();
+    }
   }                                                                                                                          
 }                                                                                                                            
