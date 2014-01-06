@@ -30,6 +30,7 @@ import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
+import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.textsem.Predicate;
 import org.apache.ctakes.typesystem.type.textsem.SemanticArgument;
 import org.apache.ctakes.typesystem.type.textsem.SemanticRoleRelation;
@@ -170,29 +171,35 @@ final String language = AbstractReader.LANG_EN;
       String[] deprels = new String[tokens.size()];
 
       // Initialize Token / Sentence info for the ClearNLP Semantic Role Labeler
+      // we are filtering out newline tokens
+      // use idIter as the non-newline token index counter 
+      int idIter = 0;
       for (int i = 0; i < tokens.size(); i++) {
         BaseToken token = tokens.get(i);
-
-        // Determine HeadId
-        List<ConllDependencyNode> casDepNodes = JCasUtil.selectCovered(jCas, ConllDependencyNode.class, token);
-        
-        ConllDependencyNode casDepNode = casDepNodes.get(0);
-        if(casDepNode.getId() == 0) casDepNode = casDepNodes.get(1);
-
-        deprels[i] = casDepNode.getDeprel();
-        ConllDependencyNode head = casDepNode.getHead();
-
-        // If there is no head, this is the head node, set node to 0
-        headIDs[i] = (head == null) ? 0 : depNodeToID.get(head);
-
-        // Populate Dependency Node / Tree information
-        int id = i + 1;
-        String form = casDepNode.getForm();
-        String pos = casDepNode.getPostag();
-        String lemma = casDepNode.getLemma();
-        
-        DEPNode node = new DEPNode(id, form, lemma, pos, new DEPFeat());
-        tree.add(node);
+        // ignore newline tokens within a sentence - newline = whitespace = non-token
+        if(!(token instanceof NewlineToken)) {
+	        // Determine HeadId
+	        List<ConllDependencyNode> casDepNodes = JCasUtil.selectCovered(jCas, ConllDependencyNode.class, token);
+	        
+	        ConllDependencyNode casDepNode = casDepNodes.get(0);
+	        if(casDepNode.getId() == 0) casDepNode = casDepNodes.get(1);
+	
+	        deprels[i] = casDepNode.getDeprel();
+	        ConllDependencyNode head = casDepNode.getHead();
+	
+	        // If there is no head, this is the head node, set node to 0
+	        headIDs[i] = (head == null) ? 0 : depNodeToID.get(head);
+	
+	        // Populate Dependency Node / Tree information
+	        int id = idIter + 1;
+	        String form = casDepNode.getForm();
+	        String pos = casDepNode.getPostag();
+	        String lemma = casDepNode.getLemma();
+	        
+	        DEPNode node = new DEPNode(id, form, lemma, pos, new DEPFeat());
+	        tree.add(node);
+	        idIter++;
+        }
       }
 
       for (int i=1; i<tree.size(); i++)
