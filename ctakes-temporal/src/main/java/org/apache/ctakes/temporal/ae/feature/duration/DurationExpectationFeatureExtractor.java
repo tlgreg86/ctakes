@@ -41,8 +41,8 @@ public class DurationExpectationFeatureExtractor implements SimpleFeatureExtract
   public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException { 
 
     List<Feature> features = new ArrayList<Feature>();
-    File durationLookup = new File("/Users/dima/Boston/Thyme/Duration/Output/Duration/distribution.txt");
-    String annotationText = annotation.getCoveredText().toLowerCase();
+    File durationLookup = new File("/Users/Dima/Boston/Thyme/Duration/Output/Duration/distribution.txt");
+    String eventText = annotation.getCoveredText().toLowerCase();
     
     Map<String, Map<String, Float>> textToDistribution = null;
     try {
@@ -52,12 +52,12 @@ public class DurationExpectationFeatureExtractor implements SimpleFeatureExtract
       return features;
     }
     
-    Map<String, Float> argDistribution = textToDistribution.get(annotationText);
-    if(argDistribution == null) {
-      features.add(new Feature("arg1_no_duration_info"));
+    Map<String, Float> eventDistribution = textToDistribution.get(eventText);
+    if(eventDistribution == null) {
+      features.add(new Feature("no_duration_info"));
     } else {
-      float expectation1 = expectedDuration(argDistribution);
-      features.add(new Feature("arg1_expected_duration", expectation1));
+      float expectation = expectedDuration(eventDistribution);
+      features.add(new Feature("expected_duration", expectation));
     }
     
     return features;
