@@ -32,7 +32,6 @@ import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 
@@ -42,8 +41,8 @@ public class DurationDistributionFeatureExtractor implements SimpleFeatureExtrac
   public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException { 
 
     List<Feature> features = new ArrayList<Feature>();
-    File durationLookup = new File("/Users/dima/Boston/Thyme/Duration/Output/Duration/distribution.txt");
-    String annotationText = annotation.getCoveredText().toLowerCase();
+    File durationLookup = new File("/Users/Dima/Boston/Thyme/Duration/Output/Duration/distribution.txt");
+    String eventText = annotation.getCoveredText().toLowerCase();
     
     Map<String, Map<String, Float>> textToDistribution = null;
     try {
@@ -53,7 +52,7 @@ public class DurationDistributionFeatureExtractor implements SimpleFeatureExtrac
       return features;
     }
     
-    Map<String, Float> distribution = textToDistribution.get(annotationText);
+    Map<String, Float> distribution = textToDistribution.get(eventText);
     if(distribution == null) {
       features.add(new Feature("no_duration_info"));
     } else {
