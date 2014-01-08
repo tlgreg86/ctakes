@@ -205,6 +205,12 @@
 					</additionalClasspathElements>
 				</configuration>
 			</plugin>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<failOnError>false</failOnError>
+				</configuration>
+			</plugin>			
 		</plugins>
 		<pluginManagement>
 			<plugins>
