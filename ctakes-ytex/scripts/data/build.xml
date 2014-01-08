@@ -349,8 +349,8 @@ Database connection parameters are taken from ytex.properties.
 		<property name="sql.catalog" value="${db.name}" />
 		<property name="sql.schema" value="${db.schema}" />
 		<property name="sql.file" value="${sql.dir}/${sqlcmd.dir}/${sqlcmd.script}" />
-		<tempfile property="sql.src" suffix=".sql" destdir="${java.io.tmpdir}" />
-		<tempfile property="use.sql.file" suffix="use.sql" destdir="${java.io.tmpdir}" />
+		<tempfile property="sql.src" prefix="ytex" suffix=".sql" destdir="${java.io.tmpdir}" />
+		<tempfile property="use.sql.file" prefix="ytex" suffix="use.sql" destdir="${java.io.tmpdir}" />
 		<echo>execute ${sql.file}</echo>
 		<!-- <property name="sql.src" value="${java.io.tmpdir}/${sqlcmd.script}" /> -->
 		<if>
@@ -398,7 +398,7 @@ ${sql.delimiter}
 				<if>
 					<equals arg1="${db.type}" arg2="orcl" />
 					<then>
-						<echo file="${java.io.tmpdir}/use.sql">
+						<echo file="${use.sql.file}">
 ALTER SESSION SET CURRENT_SCHEMA=${sql.schema}
 ${sql.delimiter}					
 </echo>

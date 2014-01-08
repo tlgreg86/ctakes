@@ -1,5 +1,4 @@
-create table v_snomed_fword_lookup
-as
+insert into v_snomed_fword_lookup
 select mrc.cui, t.tui, c.fword, c.fstem, c.tok_str, c.stem_str
 from umls_aui_fword c
 inner join @UMLS_SCHEMA@.MRCONSO mrc on c.aui = mrc.aui and mrc.SAB in ( 'SNOMEDCT', 'RXNORM')
@@ -32,6 +31,3 @@ inner join
 	group by cui
 ) t on t.cui = mrc.cui
 ;
-create index IX_vsnfl_cui on v_snomed_fword_lookup(cui);
-create index IX_vsnfl_fword on v_snomed_fword_lookup(fword);
-create index IX_vsnfl_fstem on v_snomed_fword_lookup(fstem);

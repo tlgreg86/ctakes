@@ -29,28 +29,39 @@ public class ConceptDaoTest {
 
 	@Before
 	public void setUp() throws Exception {
-//		 ClassLoader cl = ClassLoader.getSystemClassLoader();
-//		 
-//		URL[] urls = ((URLClassLoader)cl).getURLs();
-//	 
-//	        for(URL url: urls){
-//	        	System.out.println(url.getFile());
-//	        }		
-//		URL is = this.getClass().getClassLoader().getResource("org/apache/ctakes/ytex/kernelBeanRefContext.xml");
-//		System.out.println(is);
+		// ClassLoader cl = ClassLoader.getSystemClassLoader();
+		//
+		// URL[] urls = ((URLClassLoader)cl).getURLs();
+		//
+		// for(URL url: urls){
+		// System.out.println(url.getFile());
+		// }
+		// URL is =
+		// this.getClass().getClassLoader().getResource("org/apache/ctakes/ytex/kernelBeanRefContext.xml");
+		// System.out.println(is);
 		appCtx = (ApplicationContext) ContextSingletonBeanFactoryLocator
-				.getInstance("classpath*:org/apache/ctakes/ytex/kernelBeanRefContext.xml")
+				.getInstance(
+						"classpath*:org/apache/ctakes/ytex/kernelBeanRefContext.xml")
 				.useBeanFactory("kernelApplicationContext").getFactory();
 		conceptDao = appCtx.getBean(ConceptDao.class);
 		JdbcTemplate jdbcTemplate = new JdbcTemplate();
 		jdbcTemplate.setDataSource(appCtx.getBean(DataSource.class));
-		Properties ytexProperties = (Properties)appCtx.getBean("ytexProperties");
+		Properties ytexProperties = (Properties) appCtx
+				.getBean("ytexProperties");
 		String dbtype = ytexProperties.getProperty("db.type");
-		if("hsql".equals(dbtype) || "mysql".equals(dbtype))
+		if ("hsql".equals(dbtype) || "mysql".equals(dbtype))
 			jdbcTemplate.execute("drop table if exists test_concepts");
-		if("mssql".equals(dbtype))
-			jdbcTemplate.execute("if exists(select * from sys.objects where object_id = object_id('test_concepts')) drop table test_concepts");
-		//TODO if("orcl".equals(dbtype)))
+		if ("mssql".equals(dbtype))
+			jdbcTemplate
+					.execute("if exists(select * from sys.objects where object_id = object_id('test_concepts')) drop table test_concepts");
+		if ("orcl".equals(dbtype)) {
+			// just try dropping the table, catch exception and hope all is well
+			try {
+				jdbcTemplate.execute("drop table test_concepts");
+			} catch (Exception ignore) {
+
+			}
+		}
 		jdbcTemplate
 				.execute("create table test_concepts(parent varchar(20), child varchar(20))");
 		jdbcTemplate
@@ -65,13 +76,13 @@ public class ConceptDaoTest {
 				.execute("insert into test_concepts values ('root', 'bacteria')");
 		jdbcTemplate
 				.execute("insert into test_concepts values ('bacteria', 'e coli')");
-		System.out.println("Create concept graph"); 
+		System.out.println("Create concept graph");
 		conceptDao.createConceptGraph(null, "test",
 				"select child, parent from test_concepts", true,
 				Collections.EMPTY_SET);
 		ConceptGraph cg = conceptDao.getConceptGraph("test");
 		Assert.notNull(cg);
-		((ConfigurableApplicationContext)appCtx).close();
+		((ConfigurableApplicationContext) appCtx).close();
 	}
 
 	@Test

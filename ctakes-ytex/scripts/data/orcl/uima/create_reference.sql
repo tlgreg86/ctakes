@@ -10,8 +10,8 @@ create table hibernate_sequences (
 insert into hibernate_sequences(sequence_name, next_val) values ('document_id_sequence', 1);
 
 create table anno_base_sequence (
-	sequence_name varchar(100) not null,
-	next_val int not null default 1,
+	sequence_name varchar2(100) not null,
+	next_val int default 1 not null,
 	primary key (sequence_name)
 );
 insert into anno_base_sequence(sequence_name, next_val) values ('anno_base_id_sequence', 1);
