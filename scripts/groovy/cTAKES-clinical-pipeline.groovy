@@ -21,6 +21,8 @@ import java.io.File;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.resource.metadata.TypePriorities;
+import org.apache.uima.resource.metadata.TypePriorityList;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.AggregateBuilder;
@@ -74,6 +76,17 @@ println("Using cTAKES in " + cTAKES_HOME);
 println("Instantiating collection reader");
 CollectionReader collectionReader = FilesCollectionReader.getCollectionReader(inputDir);
 
+println "Creating TypePriorities";
+// Add first TypePriorityList
+Class cl1 = org.apache.ctakes.typesystem.type.textspan.Segment;
+Class cl2 = org.apache.ctakes.typesystem.type.textspan.Sentence;
+Class cl3 = org.apache.ctakes.typesystem.type.syntax.BaseToken;
+TypePriorities typePriorities = TypePrioritiesFactory.createTypePriorities(cl1, cl2, cl3);
+
+// Add second TypePriorityList
+TypePriorityList typePriorityList = typePriorities.addPriorityList();
+typePriorityList.addType("org.apache.ctakes.typesystem.type.textspan.Sentence");
+typePriorityList.addType("org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation");
 
 //Build the pipeline to run
 // we assume cTAKES' desc directory is on classpath for those 
@@ -81,7 +94,7 @@ CollectionReader collectionReader = FilesCollectionReader.getCollectionReader(in
 // reference by descriptor (XML file) name
 println("Building pipeline aggregate builder object");
 
-AggregateBuilder aggregateBuilder = new AggregateBuilder();
+AggregateBuilder aggregateBuilder = new AggregateBuilder(null, typePriorities, null);
 
 // Here is the flow from AggregatePlaintextUMLSProcessor.xml in 3.1.1
 /*
@@ -220,7 +233,7 @@ ConfigurationParameterFactory.addConfigurationParameters(
 ConfigurationParameterFactory.addConfigurationParameters(
 			dictionaryLookupAnnotator,
 			org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator.UMLSUSER_PARAM, 
-			"" // put your UMLS user ID here or set JAVA_OPTS ctakes.umlsuser or see user or install guide
+			"" // put your UMLS user ID here or set JAVA_OPTS ctakes_umlsuser or see user or install guide
 	);
 // Commenting out the setting of UMLSPW_PARAM as you probably don't want to put your password
 // in this script so that if you share the script you don't share your password accidentally
@@ -231,11 +244,42 @@ ConfigurationParameterFactory.addConfigurationParameters(
 //	);
 aggregateBuilder.add(dictionaryLookupAnnotator);
 
-// DependencyParser
-println(" TODO YET *** Adding dependency parser annotator"); // TODO 
+// DependencyParser - see ClearNLPDependencyParserAE.xml
+println " Adding dependency parser annotator"
+annotatorClass = org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE.class;
+def dependencyParserAnnotator = AnalysisEngineFactory.createPrimitiveDescription(annotatorClass);
+ConfigurationParameterFactory.addConfigurationParameters(
+				dependencyParserAnnotator,
+				org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE.PARAM_PARSER_MODEL_FILE_NAME,
+				org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE.DEFAULT_MODEL_FILE_NAME
+		);
+ConfigurationParameterFactory.addConfigurationParameters(
+				dependencyParserAnnotator,
+				"ParserAlgorithmName",
+				"shift-pop"
+		);
+ConfigurationParameterFactory.addConfigurationParameters(
+				dependencyParserAnnotator,
+				org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE.PARAM_USE_LEMMATIZER,
+				true
+		);
+aggregateBuilder.add(dependencyParserAnnotator);
 
-// SemanticRoleLabeler        
-println(" TODO YET *** Adding semantic role labeler annotator"); // TODO 
+// SemanticRoleLabeler - see ClearNLPSemanticRoleLabelerAE.xml
+println " Adding semantic role labeler annotator"
+annotatorClass = org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE.class;
+def srlAnnotator = AnalysisEngineFactory.createPrimitiveDescription(annotatorClass);
+ConfigurationParameterFactory.addConfigurationParameters(
+				srlAnnotator,
+				org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE.PARAM_PARSER_MODEL_FILE_NAME,
+				org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE.DEFAULT_SRL_MODEL_FILE_NAME
+		);
+ConfigurationParameterFactory.addConfigurationParameters(
+				srlAnnotator,
+				"UseLemmatizer",
+				true
+		);
+aggregateBuilder.add(srlAnnotator);
 		
 println(" Adding assertion annotators");
 def assertionDescriptorLocation = "ctakes-assertion/desc/AssertionMiniPipelineAnalysisEngine"; // Note createAnalysisEngineDescription expects name to not end in .xml even though filename actually does
