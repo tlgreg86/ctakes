@@ -30,13 +30,14 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.util.Options_ImplBase;
-import org.kohsuke.args4j.Option;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
+
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
 
 /**
  * Print event annotations and their context.
@@ -46,22 +47,20 @@ import org.uimafit.util.JCasUtil;
  */
 public class EventPrintingPipeline {
 
-  public static class Options extends Options_ImplBase {
+  static interface Options {
 
     @Option(
-        name = "--input-dir",
-        usage = "specify the path to the directory containing xmi files containing event annotations",
-        required = true)
-    public File inputDirectory;
+        shortName = "i",
+        description = "specify the path to the directory containing xmi files containing event annotations")
+    public File getInputDirectory();
   }
   
 	public static void main(String[] args) throws Exception {
 		
-		Options options = new Options();
-		options.parseOptions(args);
+		Options options = CliFactory.parseArguments(Options.class, args);
 
 		SimplePipeline.runPipeline(
-		    getCollectionReader(Arrays.asList(options.inputDirectory.listFiles())), 
+		    getCollectionReader(Arrays.asList(options.getInputDirectory().listFiles())), 
 		    PrintEventAnnotations.getDescription());
 	}
 	

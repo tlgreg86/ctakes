@@ -49,8 +49,6 @@ import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReader;
-import org.cleartk.util.Options_ImplBase;
-import org.kohsuke.args4j.Option;
 import org.uimafit.component.xwriter.XWriter;
 import org.uimafit.factory.AggregateBuilder;
 import org.uimafit.factory.AnalysisEngineFactory;
@@ -60,6 +58,9 @@ import org.uimafit.factory.TypePrioritiesFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 import org.uimafit.pipeline.SimplePipeline;
 
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+
 /**
  * Given a trained event extraction model, run the event extractor on files in a directory.
  * Save the resulting annotations in XMI files. 
@@ -68,44 +69,40 @@ import org.uimafit.pipeline.SimplePipeline;
  */
 public class EventExtractionPipeline {
   
-  public static class Options extends Options_ImplBase {
-
+  static interface Options {
+    // FYI -- command line should use -i or --inputDirectory now
     @Option(
-        name = "--input-dir",
-        usage = "specify the path to the directory containing the clinical notes to be processed",
-        required = true)
-    public String inputDirectory;
+        shortName = "i",
+        description = "specify the path to the directory containing the clinical notes to be processed")
+    public String getInputDirectory();
     
     @Option(
-        name = "--output-dir",
-        usage = "specify the path to the directory where the output xmi files are to be saved",
-        required = true)
-    public String outputDirectory;
+        shortName = "o",
+        description = "specify the path to the directory where the output xmi files are to be saved")
+    public String getOutputDirectory();
     
     @Option(
-        name = "--model-dir",
-        usage = "specify the path to the directory where the trained model is located",
-        required = false)
-    public String modelDirectory = "target/eval/event-spans/train_and_test/";
+        description = "specify the path to the directory where the trained model is located",
+        defaultValue="target/eval/event-spans/train_and_test/")
+    public String getModelDirectory();
   }
   
 	public static void main(String[] args) throws Exception {
 		
-		Options options = new Options();
-		options.parseOptions(args);
+		Options options = CliFactory.parseArguments(Options.class, args);
 
 		CollectionReader collectionReader = CollectionReaderFactory.createCollectionReaderFromPath(
 				"../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
 				FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
-				options.inputDirectory);
+				options.getInputDirectory());
 
 		AggregateBuilder aggregateBuilder = getPreprocessorAggregateBuilder();
-		aggregateBuilder.add(EventAnnotator.createAnnotatorDescription(new File(options.modelDirectory)));
+		aggregateBuilder.add(EventAnnotator.createAnnotatorDescription(new File(options.getModelDirectory())));
 		
     AnalysisEngine xWriter = AnalysisEngineFactory.createPrimitive(
         XWriter.class,
         XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-        options.outputDirectory);
+        options.getOutputDirectory());
 		
     SimplePipeline.runPipeline(
         collectionReader,

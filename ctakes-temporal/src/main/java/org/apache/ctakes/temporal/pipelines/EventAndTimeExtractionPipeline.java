@@ -50,8 +50,6 @@ import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReader;
-import org.cleartk.util.Options_ImplBase;
-import org.kohsuke.args4j.Option;
 import org.uimafit.component.xwriter.XWriter;
 import org.uimafit.factory.AggregateBuilder;
 import org.uimafit.factory.AnalysisEngineFactory;
@@ -61,6 +59,9 @@ import org.uimafit.factory.TypePrioritiesFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 import org.uimafit.pipeline.SimplePipeline;
 
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+
 /**
  * Given a trained event extraction model, run the event extractor on files in a directory.
  * Save the resulting annotations in XMI files. 
@@ -69,51 +70,44 @@ import org.uimafit.pipeline.SimplePipeline;
  */
 public class EventAndTimeExtractionPipeline {
   
-  public static class Options extends Options_ImplBase {
-
-    @Option(
-        name = "--input-dir",
-        usage = "specify the path to the directory containing the clinical notes to be processed",
-        required = true)
-    public String inputDirectory;
+  static interface Options {
+    // FYI: Command should say -i or --inputDirectory now
+    @Option(shortName="i",
+        description = "specify the path to the directory containing the clinical notes to be processed")
+    public String getInputDirectory();
+    
+    @Option(shortName = "o",
+        description = "specify the path to the directory where the output xmi files are to be saved")
+    public String getOutputDirectory();
     
     @Option(
-        name = "--output-dir",
-        usage = "specify the path to the directory where the output xmi files are to be saved",
-        required = true)
-    public String outputDirectory;
+        description = "specify the path to the directory where the trained event model is located",
+        defaultValue="target/eval/event-spans/train_and_test/")
+    public String getEventModelDirectory();
     
     @Option(
-        name = "--event-model-dir",
-        usage = "specify the path to the directory where the trained event model is located",
-        required = false)
-    public String eventModelDirectory = "target/eval/event-spans/train_and_test/";
-    
-    @Option(
-        name = "--time-model-dir",
-        usage = "specify the path to the directory where the trained event model is located",
-        required = false)
-    public String timeModelDirectory = "target/eval/time-spans/train_and_test/seq/";
+        description = "specify the path to the directory where the trained event model is located",
+        defaultValue="target/eval/time-spans/train_and_test/seq/")
+    public String getTimeModelDirectory();
   }
   
 	public static void main(String[] args) throws Exception {
 		
-		Options options = new Options();
-		options.parseOptions(args);
+		Options options = CliFactory.parseArguments(Options.class, args);
 
 		CollectionReader collectionReader = CollectionReaderFactory.createCollectionReaderFromPath(
 				"../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
 				FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
-				options.inputDirectory);
+				options.getInputDirectory());
 
 		AggregateBuilder aggregateBuilder = getPreprocessorAggregateBuilder();
-		aggregateBuilder.add(EventAnnotator.createAnnotatorDescription(new File(options.eventModelDirectory)));
-		aggregateBuilder.add(TimeAnnotator.createAnnotatorDescription(new File(options.timeModelDirectory)));
+		aggregateBuilder.add(EventAnnotator.createAnnotatorDescription(new File(options.getEventModelDirectory())));
+		aggregateBuilder.add(TimeAnnotator.createAnnotatorDescription(new File(options.getTimeModelDirectory())));
 		
     AnalysisEngine xWriter = AnalysisEngineFactory.createPrimitive(
         XWriter.class,
         XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-        options.outputDirectory);
+        options.getOutputDirectory());
 		
     SimplePipeline.runPipeline(
         collectionReader,
