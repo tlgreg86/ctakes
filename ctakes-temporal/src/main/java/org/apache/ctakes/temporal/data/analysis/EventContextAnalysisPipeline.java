@@ -35,14 +35,15 @@ import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.util.Options_ImplBase;
-import org.kohsuke.args4j.Option;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
+
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
 
 /**
  * Print events and tokens with contexts to two separeate files.
@@ -51,49 +52,41 @@ import org.uimafit.util.JCasUtil;
  */
 public class EventContextAnalysisPipeline {
 
-  public static class Options extends Options_ImplBase {
+  static interface Options {
 
     @Option(
-        name = "--input-dir",
-        usage = "specify the path to the directory containing the clinical notes to be processed",
-        required = true)
-    public File inputDirectory;
+        description = "specify the path to the directory containing the clinical notes to be processed")
+    public File getInputDirectory();
 
     @Option(
-        name = "--token-output-file",
-        usage = "specify the path to the directory containing the clinical notes to be processed",
-        required = true)
-    public File tokenOutputFile;
+        description = "specify the path to the directory containing the clinical notes to be processed")
+    public File getTokenOutputFile();
 
     @Option(
-        name = "--event-output-file",
-        usage = "specify the path to the directory containing the clinical notes to be processed",
-        required = true)
-    public File eventOutputFile;
+        description = "specify the path to the directory containing the clinical notes to be processed")
+    public File getEventOutputFile();
     
     @Option(
-        name = "--context-size",
-        usage = "specify the number of characters to include on both sides",
-        required = false)
-    public int contextSize = 50;
+        description = "specify the number of characters to include on both sides",
+        defaultValue="50")
+    public int getContextSize();
   }
   
 	public static void main(String[] args) throws Exception {
 		
-		Options options = new Options();
-		options.parseOptions(args);
+		Options options = CliFactory.parseArguments(Options.class, args);
 
-		List<File> trainFiles = Arrays.asList(options.inputDirectory.listFiles());
+		List<File> trainFiles = Arrays.asList(options.getInputDirectory().listFiles());
     CollectionReader collectionReader = getCollectionReader(trainFiles);
 		
     AnalysisEngine annotationConsumer = AnalysisEngineFactory.createPrimitive(
     		EventAndTokenContextWriter.class,
     		"TokenOutputFile",
-    		options.tokenOutputFile,
+    		options.getTokenOutputFile(),
     		"EventOutputFile",
-    		options.eventOutputFile,
+    		options.getEventOutputFile(),
     		"ContextSize",
-    		options.contextSize);
+    		options.getContextSize());
     		
 		SimplePipeline.runPipeline(collectionReader, annotationConsumer);
 	}

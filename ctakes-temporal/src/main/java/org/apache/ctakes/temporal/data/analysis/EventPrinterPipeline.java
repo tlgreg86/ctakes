@@ -32,7 +32,6 @@ import java.util.Map;
 import org.apache.ctakes.relationextractor.eval.XMIReader;
 import org.apache.ctakes.typesystem.type.syntax.TerminalTreebankNode;
 import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
-import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -40,8 +39,6 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.util.Options_ImplBase;
-import org.kohsuke.args4j.Option;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.AnalysisEngineFactory;
@@ -52,6 +49,8 @@ import org.uimafit.util.JCasUtil;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.Ordering;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
 
 /**
  * Print events of given UMLS semantic type.
@@ -60,41 +59,34 @@ import com.google.common.collect.Ordering;
  */
 public class EventPrinterPipeline {
 
-  public static class Options extends Options_ImplBase {
+  static interface Options {
 
     @Option(
-        name = "--input-dir",
-        usage = "specify the path to the directory containing the xmi files",
-        required = true)
-    public File inputDirectory;
+        description = "specify the path to the directory containing the xmi files")
+    public File getInputDirectory();
 
     @Option(
-        name = "--umls-type",
-        usage = "specify the UMLS semantic type (e.g. 5, i.e. procedure)",
-        required = true)
-    public int umlsSemanticType;
+        description = "specify the UMLS semantic type (e.g. 5, i.e. procedure)")
+    public int getUmlsSemanticType();
 
     @Option(
-        name = "--event-output-file",
-        usage = "specify the path to the output file",
-        required = true)
-    public File eventOutputFile;
+        description = "specify the path to the output file")
+    public File getEventOutputFile();
   }
   
 	public static void main(String[] args) throws Exception {
 		
-		Options options = new Options();
-		options.parseOptions(args);
+		Options options = CliFactory.parseArguments(Options.class, args);
 
-		List<File> trainFiles = Arrays.asList(options.inputDirectory.listFiles());
+		List<File> trainFiles = Arrays.asList(options.getInputDirectory().listFiles());
     CollectionReader collectionReader = getCollectionReader(trainFiles);
 		
     AnalysisEngine annotationConsumer = AnalysisEngineFactory.createPrimitive(
     		EventWriter.class,
     		"UmlsSemanticType",
-    		options.umlsSemanticType,
+    		options.getUmlsSemanticType(),
     		"EventOutputFile",
-    		options.eventOutputFile);
+    		options.getEventOutputFile());
     		
 		SimplePipeline.runPipeline(collectionReader, annotationConsumer);
 	}
