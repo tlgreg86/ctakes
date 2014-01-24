@@ -1,17 +1,17 @@
 # jdbc url for database.  
-# Replace localhost:1521/XE with the host, port and service name/SID of your database
-# another format that works is e.g.: jdbc:oracle:thin:ytex/ytex@localhost:1521:XE
-db.url=jdbc:oracle:thin:@//localhost:1521/XE
+# Replace localhost:1521:orcl with the host, port and service name/SID of your database
+# another format that works is e.g.: jdbc:oracle:thin:ytex/ytex@localhost:1521:orcl
+db.url=jdbc:oracle:thin:@localhost:1521:orcl
 
 # oracle username and password
 # user needs connect, resource, and create view privileges
-db.username=ytex
-db.password=ytex
+db.username=ytex_test
+db.password=ytex_test
 
 # database schema 
 # typically identical to username
 # alternatively, the user must have access to the schema
-db.schema=ytex
+db.schema=ytex_test
 
 # the schema where umls is installed
 # if not specified, will default to schema from ytex
