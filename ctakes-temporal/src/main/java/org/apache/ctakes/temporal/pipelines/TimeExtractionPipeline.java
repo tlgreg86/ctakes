@@ -72,14 +72,17 @@ public class TimeExtractionPipeline {
   static interface Options {
 
     @Option(
+        shortName = "i",
         description = "specify the path to the directory containing the clinical notes to be processed")
     public String getInputDirectory();
     
     @Option(
+        shortName = "o",
         description = "specify the path to the directory where the output xmi files are to be saved")
     public String getOutputDirectory();
         
     @Option(
+        shortName = "m",
         description = "specify the path to the directory where the temporal expression model is located",
         defaultValue="target/eval/time-spans/train_and_test/BackwardsTimeAnnotator/")
     public String getTimeModelDirectory();

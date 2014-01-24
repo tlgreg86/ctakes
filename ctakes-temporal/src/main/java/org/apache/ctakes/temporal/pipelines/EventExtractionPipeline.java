@@ -82,6 +82,7 @@ public class EventExtractionPipeline {
     public String getOutputDirectory();
     
     @Option(
+        shortName = "m",
         description = "specify the path to the directory where the trained model is located",
         defaultValue="target/eval/event-spans/train_and_test/")
     public String getModelDirectory();
