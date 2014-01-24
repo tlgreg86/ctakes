@@ -79,7 +79,7 @@
 		<pathelement location="${config.local}" />
 		<pathelement location="${ctakes.home}/desc" />
 		<pathelement location="${ctakes.home}/resources" />
-		<fileset dir="${ctakes.home}/lib" includes="**/*.jar" excludes="**/ant*.jar" />
+		<fileset dir="${ctakes.home}/lib" includes="**/*.jar" excludes="**/ant-*.jar" />
 	</path>
 	<condition property="kernel.cp" value="kernel.cp.dev" else="kernel.cp.prod">
 		<isset property="ctakes.dev.mode" />
