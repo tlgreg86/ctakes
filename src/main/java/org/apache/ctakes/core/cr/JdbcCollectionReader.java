@@ -169,7 +169,7 @@ public class JdbcCollectionReader extends CollectionReader_ImplBase
         List<String> lineList = new ArrayList<String>();
         BufferedReader br = new BufferedReader(new FileReader(valueFile));
         String line = br.readLine();
-        while (line != null)
+        while (line != null && line.trim().length()>0)
         {
             lineList.add(line);
             line = br.readLine();
