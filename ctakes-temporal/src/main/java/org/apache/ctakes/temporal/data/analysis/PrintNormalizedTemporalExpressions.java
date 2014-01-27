@@ -14,7 +14,8 @@ import scala.collection.immutable.Set;
 import com.google.common.collect.Lists;
 
 /**
- * 
+ * Print the time units produced by Steven Bethard's TimeEx normalizer
+ * for temporal expressions in the gold standard.
  */
 public class PrintNormalizedTemporalExpressions extends JCasAnnotator_ImplBase {                                               
   
@@ -31,7 +32,7 @@ public class PrintNormalizedTemporalExpressions extends JCasAnnotator_ImplBase {
     }                                                                                                                                                                                                                                         
     
     for(TimeMention mention : Lists.newArrayList(JCasUtil.select(goldView, TimeMention.class))) {
-      String timex = mention.getCoveredText();
+      String timex = mention.getCoveredText().toLowerCase();
       Set<TemporalUnit> units = DurationTimeUnitFeatureExtractor.normalize(timex);
 
       if(units == null) {
