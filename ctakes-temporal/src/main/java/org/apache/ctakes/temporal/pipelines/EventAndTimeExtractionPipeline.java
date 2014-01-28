@@ -23,7 +23,6 @@ import java.io.File;
 import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
-import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.collection.CollectionReader;
 import org.uimafit.component.xwriter.XWriter;
