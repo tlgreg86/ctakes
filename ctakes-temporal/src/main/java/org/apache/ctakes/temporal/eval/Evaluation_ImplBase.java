@@ -480,6 +480,26 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
       }
     }
   }
+  
+  public static class RemoveEnclosedLookupWindows extends JCasAnnotator_ImplBase {
+
+    @Override
+    public void process(JCas jCas) throws AnalysisEngineProcessException {
+      List<LookupWindowAnnotation> lws = new ArrayList<LookupWindowAnnotation>(JCasUtil.select(jCas, LookupWindowAnnotation.class));
+      // we'll navigate backwards so that as we delete things we shorten the list from the back
+      for(int i = lws.size()-2; i >= 0; i--){
+        LookupWindowAnnotation lw1 = lws.get(i);
+        LookupWindowAnnotation lw2 = lws.get(i+1);
+        if(lw1.getBegin() <= lw2.getBegin() && lw1.getEnd() >= lw2.getEnd()){
+          /// lw1 envelops or encloses lw2
+          lws.remove(i+1);
+          lw2.removeFromIndexes();
+        }
+      }
+      
+    }
+    
+  }
 
   public static class EntityMentionRemover extends JCasAnnotator_ImplBase {
 

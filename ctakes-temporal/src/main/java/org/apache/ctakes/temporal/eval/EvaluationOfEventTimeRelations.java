@@ -33,6 +33,7 @@ import java.util.Set;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
+import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveNonContainsRelations.RemoveGoldAttributes;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -58,7 +59,6 @@ import org.uimafit.factory.AggregateBuilder;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.pipeline.JCasIterable;
 import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.testing.util.HideOutput;
 import org.uimafit.util.JCasUtil;
 
 import com.google.common.base.Function;
@@ -74,9 +74,6 @@ public class EvaluationOfEventTimeRelations extends
 	EvaluationOfTemporalRelations_ImplBase{
   static interface TempRelOptions extends Evaluation_ImplBase.Options{
 	  @Option
-	  public boolean getTest();
-	  
-	  @Option
 	  public boolean getPrintFormattedRelations();
 	  
 	  @Option
@@ -87,6 +84,9 @@ public class EvaluationOfEventTimeRelations extends
     
     @Option
     public boolean getUseTmp();
+    
+    @Option
+    public boolean getUseGoldAttributes();
   }
   
 //  protected static boolean DEFAULT_BOTH_DIRECTIONS = false;
@@ -103,7 +103,7 @@ public class EvaluationOfEventTimeRelations extends
   protected static ParameterSettings allBagsParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk", 
 		  100.0, 0.1, "radial basis function", ComboOperator.SUM, 0.5, 0.5);
   protected static ParameterSettings allParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk",
-		  10.0, 1.0, "polynomial", ComboOperator.SUM, 0.1, 0.5);
+		  10.0, 1.0, "polynomial", ComboOperator.SUM, 0.1, 0.5);  // (0.3, 0.4 for tklibsvm)
   protected static ParameterSettings ftParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk", 
 		  1.0, 0.1, "radial basis function", ComboOperator.SUM, 0.5, 0.5);
   
@@ -142,6 +142,7 @@ public class EvaluationOfEventTimeRelations extends
           options.getPrintErrors(),
           options.getPrintFormattedRelations(),
           options.getBaseline(),
+          options.getUseGoldAttributes(),
           options.getKernelParams(),
           params);
       evaluation.prepareXMIsFor(patientSets);
@@ -157,6 +158,8 @@ public class EvaluationOfEventTimeRelations extends
       //      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
       System.err.println(params.stats);
       if(options.getUseTmp()){
+        // won't work because it's not empty. should we be concerned with this or is it responsibility of 
+        // person invoking the tmp flag?
         workingDir.delete();
       }
     }catch(ResourceInitializationException e){
@@ -167,7 +170,8 @@ public class EvaluationOfEventTimeRelations extends
 
 //  private ParameterSettings params;
   private boolean baseline;
-  protected boolean useClosure; 
+  protected boolean useClosure;
+  protected boolean useGoldAttributes;
 //  protected boolean printRelations = false;
   
   public EvaluationOfEventTimeRelations(
@@ -181,6 +185,7 @@ public class EvaluationOfEventTimeRelations extends
       boolean printErrors,
       boolean printRelations,
       boolean baseline,
+      boolean useGoldAttributes,
       String kernelParams,
       ParameterSettings params){
     super(
@@ -197,6 +202,7 @@ public class EvaluationOfEventTimeRelations extends
     this.useClosure = useClosure;
     this.printErrors = printErrors;
     this.printRelations = printRelations;
+    this.useGoldAttributes = useGoldAttributes;
     this.baseline = baseline;
     this.kernelParams = kernelParams == null ? null : kernelParams.split(" ");
   }
@@ -214,9 +220,11 @@ public class EvaluationOfEventTimeRelations extends
 //	  if(this.baseline) return;
     AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
     aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class, BinaryTextRelation.class));
-//    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(MergeContainsOverlap.class));
     aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
     aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveCrossSentenceRelations.class));
+    if(!this.useGoldAttributes){
+      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveGoldAttributes.class));
+    }
     if (this.useClosure) {
       aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class));
     }
@@ -253,10 +261,10 @@ public class EvaluationOfEventTimeRelations extends
     	}
     }
     
-    HideOutput hider = new HideOutput();
+//    HideOutput hider = new HideOutput();
     JarClassifierBuilder.trainAndPackage(directory, optArray);
-    hider.restoreOutput();
-    hider.close();
+//    hider.restoreOutput();
+//    hider.close();
   }
 
   @Override
@@ -264,9 +272,6 @@ public class EvaluationOfEventTimeRelations extends
       throws Exception {
     AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
     aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
-//    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(MergeContainsOverlap.class,
-//    		MergeContainsOverlap.PARAM_RELATION_VIEW,
-//    		GOLD_VIEW_NAME));
     aggregateBuilder.add(
         AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class,
         RemoveNonContainsRelations.PARAM_RELATION_VIEW,
@@ -406,7 +411,7 @@ public class EvaluationOfEventTimeRelations extends
 	      }
 	     
 	      for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(relationView, BinaryTextRelation.class))){
-	    	  if(relation.getCategory().equals("CONTAINS")){
+//	    	  if(relation.getCategory().equals("CONTAINS")){
 	    		  RelationArgument arg1 = relation.getArg1();
 	    		  RelationArgument arg2 = relation.getArg2();
 	    		  if(arg1.getArgument() instanceof TimeMention && arg2.getArgument() instanceof EventMention ||
@@ -419,66 +424,11 @@ public class EvaluationOfEventTimeRelations extends
 	    		  arg2.removeFromIndexes();
 	    		  relation.removeFromIndexes();
 	    	  }
-	      }
+//	      }
 	      
 	}
   }
  
-  public static class PreserveEventEventRelations extends JCasAnnotator_ImplBase {
-	    public static final String PARAM_RELATION_VIEW = "RelationView";
-		@ConfigurationParameter(name = PARAM_RELATION_VIEW)
-		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
-
-		@Override
-		public void process(JCas jCas) throws AnalysisEngineProcessException {
-		      JCas relationView;
-		      try {
-		        relationView = jCas.getView(this.relationViewName);
-		      } catch (CASException e) {
-		        throw new AnalysisEngineProcessException(e);
-		      }
-		     
-		      for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(relationView, BinaryTextRelation.class))){
-		    	  if(relation.getCategory().equals("CONTAINS")){
-		    		  RelationArgument arg1 = relation.getArg1();
-		    		  RelationArgument arg2 = relation.getArg2();
-		    		  if(arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof EventMention){
-		    			  // these are the kind we keep.
-		    			  continue;
-		    		  }
-//		    		  if(arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof EventMention){
-		    		  arg1.removeFromIndexes();
-		    		  arg2.removeFromIndexes();
-		    		  relation.removeFromIndexes();
-		    	  }
-		      }
-		}
-  }
-  
-  public static class MergeContainsOverlap extends JCasAnnotator_ImplBase {
-	    public static final String PARAM_RELATION_VIEW = "RelationView";
-
-	    @ConfigurationParameter(name = PARAM_RELATION_VIEW)
-	    private String relationViewName = CAS.NAME_DEFAULT_SOFA;
-
-		@Override
-		public void process(JCas jCas) throws AnalysisEngineProcessException {
-	        JCas relationView;
-	        try {
-	          relationView = jCas.getView(this.relationViewName);
-	        } catch (CASException e) {
-	          throw new AnalysisEngineProcessException(e);
-	        }
-			  for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
-					  relationView,
-					  BinaryTextRelation.class))) {
-				  if(relation.getCategory().equals("OVERLAP")){
-					  relation.setCategory("CONTAINS");
-				  }
-			  }
-		}
-  }
-  
 /*  public static class RemoveNonTLINKRelations extends JCasAnnotator_ImplBase {
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -544,24 +494,6 @@ public class EvaluationOfEventTimeRelations extends
     }
   }
 
-  public static class RemoveNonContainsRelations extends JCasAnnotator_ImplBase {
-	    public static final String PARAM_RELATION_VIEW = "RelationView";
-
-	    @ConfigurationParameter(name = PARAM_RELATION_VIEW)
-	    private String relationViewName = CAS.NAME_DEFAULT_SOFA;
-	  @Override
-	  public void process(JCas jCas) throws AnalysisEngineProcessException {
-		  for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
-				  jCas,
-				  BinaryTextRelation.class))) {
-			  if (!relation.getCategory().startsWith("CONTAINS")) {
-				  relation.getArg1().removeFromIndexes();
-				  relation.getArg2().removeFromIndexes();
-				  relation.removeFromIndexes();
-			  }
-		  }
-	  }	  
-  }
 
   public static class RemoveRelations extends JCasAnnotator_ImplBase {
     @Override

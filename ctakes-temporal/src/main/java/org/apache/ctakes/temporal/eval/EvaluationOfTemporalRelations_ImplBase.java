@@ -8,8 +8,10 @@ import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.CASException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.tksvmlight.model.CompositeKernel.ComboOperator;
@@ -83,6 +85,47 @@ public abstract class EvaluationOfTemporalRelations_ImplBase extends
       }
     }   
   }
+
+  public static class RemoveNonContainsRelations extends JCasAnnotator_ImplBase {
+    public static final String PARAM_RELATION_VIEW = "RelationView";
+
+    @ConfigurationParameter(name = PARAM_RELATION_VIEW)
+    private String relationViewName = CAS.NAME_DEFAULT_SOFA;
+  @Override
+  public void process(JCas jCas) throws AnalysisEngineProcessException {
+    JCas relationView = null;
+    
+    try {
+      relationView = jCas.getView(relationViewName);
+    } catch (CASException e) {
+      e.printStackTrace();
+    }
+    for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
+        relationView,
+        BinaryTextRelation.class))) {
+      if (!relation.getCategory().startsWith("CONTAINS")) {
+        relation.getArg1().removeFromIndexes();
+        relation.getArg2().removeFromIndexes();
+        relation.removeFromIndexes();
+      }
+    }
+  }
+  
+  public static class RemoveGoldAttributes extends JCasAnnotator_ImplBase {
+    @Override
+    public void process(JCas jCas) throws AnalysisEngineProcessException {
+      for(EventMention event : JCasUtil.select(jCas, EventMention.class)){
+        if(event.getEvent() != null && event.getEvent().getProperties() != null){
+          event.getEvent().getProperties().setContextualAspect("UNK");
+          event.getEvent().getProperties().setContextualModality("UNK");
+        }
+      }
+      for(TimeMention timex : JCasUtil.select(jCas, TimeMention.class)){
+        timex.setTimeClass("UNK");
+      }
+    }
+  }
+}
 
 	  protected static void printRelationAnnotations(String fileName, Collection<BinaryTextRelation> relations) {
 
