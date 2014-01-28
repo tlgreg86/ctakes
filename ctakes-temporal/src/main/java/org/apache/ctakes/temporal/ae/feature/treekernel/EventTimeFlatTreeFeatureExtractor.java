@@ -49,7 +49,10 @@ public class EventTimeFlatTreeFeatureExtractor implements RelationFeaturesExtrac
 	
 		// make sure we have the right classes
 		if(arg1 instanceof EventMention){
-			eventModality = ((EventMention)arg1).getEvent().getProperties().getContextualModality();
+		  EventMention mention = (EventMention) arg1;
+		  if(mention.getEvent() != null && mention.getEvent().getProperties() != null){
+		    eventModality = mention.getEvent().getProperties().getContextualModality();
+		  }
 			arg1Tree = new SimpleTree("EVENT-"+eventModality);
 		}else if(arg1 instanceof TimeMention){
 			timeClass = ((TimeMention)arg1).getTimeClass();
@@ -60,10 +63,9 @@ public class EventTimeFlatTreeFeatureExtractor implements RelationFeaturesExtrac
 		
 		if(arg2 instanceof EventMention){
 		  EventMention mention = (EventMention) arg2;
-		  if(mention.getEvent() == null || mention.getEvent().getProperties() == null){
-		    System.err.println("Something is null here!");
+		  if(mention.getEvent() != null && mention.getEvent().getProperties() != null){
+	      eventModality = mention.getEvent().getProperties().getContextualModality();
 		  }
-      eventModality = ((EventMention)arg2).getEvent().getProperties().getContextualModality();
       arg2Tree = new SimpleTree("EVENT-"+eventModality);		  
 		}else if(arg2 instanceof TimeMention){
       timeClass = ((TimeMention)arg2).getTimeClass();

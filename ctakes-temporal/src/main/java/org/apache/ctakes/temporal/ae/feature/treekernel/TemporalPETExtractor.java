@@ -45,15 +45,21 @@ public class TemporalPETExtractor implements RelationFeaturesExtractor {
 		String timeClass;
 		
 		if(arg1 instanceof EventMention){
-			eventModality = ((EventMention)arg1).getEvent().getProperties().getContextualModality();
-			a1type = "EVENT-"+eventModality;
+		  EventMention mention = (EventMention) arg1;
+		  if(mention.getEvent() != null && mention.getEvent().getProperties() != null){
+		    eventModality = mention.getEvent().getProperties().getContextualModality();
+		  }
+		  a1type = "EVENT-"+eventModality;
 		}else if(arg1 instanceof TimeMention){
 			timeClass = ((TimeMention)arg1).getTimeClass();	
 			a1type = "TIMEX-"+timeClass;
 		}
 		
 		if(arg2 instanceof EventMention){
-      eventModality = ((EventMention)arg2).getEvent().getProperties().getContextualModality();
+		  EventMention mention = (EventMention) arg2;
+		  if(mention.getEvent() != null && mention.getEvent().getProperties() != null){
+		    eventModality = mention.getEvent().getProperties().getContextualModality();
+		  }
       a2type = "EVENT-"+eventModality;		  
 		}else if(arg2 instanceof TimeMention){
       timeClass = ((TimeMention)arg2).getTimeClass();

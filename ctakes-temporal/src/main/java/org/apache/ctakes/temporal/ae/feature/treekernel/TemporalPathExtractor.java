@@ -42,7 +42,10 @@ public class TemporalPathExtractor implements RelationFeaturesExtractor {
 		String timeClass="";
 
 		if(arg1 instanceof EventMention){
-			eventModality = ((EventMention)arg1).getEvent().getProperties().getContextualModality();
+		  EventMention mention = (EventMention) arg1;
+		  if(mention.getEvent() != null && mention.getEvent().getProperties() != null){
+		    eventModality = mention.getEvent().getProperties().getContextualModality();
+		  }
 			a1type = "EVENT-"+eventModality;
 		}else if(arg1 instanceof TimeMention){
 			timeClass = ((TimeMention)arg1).getTimeClass();
@@ -50,12 +53,18 @@ public class TemporalPathExtractor implements RelationFeaturesExtractor {
 		}
 		
 		if(arg2 instanceof EventMention){
-      eventModality = ((EventMention)arg2).getEvent().getProperties().getContextualModality();
+		  EventMention mention = (EventMention) arg2;
+		  if(mention.getEvent() != null && mention.getEvent().getProperties() != null){
+		    eventModality = mention.getEvent().getProperties().getContextualModality();
+		  }
       a2type = "EVENT"+eventModality;		  
 		}else if(arg2 instanceof TimeMention){
       timeClass = ((TimeMention)arg2).getTimeClass();
       a2type = "TIMEX-"+timeClass;		  
 		}
+		
+		a1type = "";
+		a2type = "";
 		
 		TreebankNode t1 = AnnotationTreeUtils.insertAnnotationNode(jcas, root, arg1, "ARG1-"+a1type);
 		TreebankNode t2 = AnnotationTreeUtils.insertAnnotationNode(jcas, root, arg2, "ARG2-"+a2type);
