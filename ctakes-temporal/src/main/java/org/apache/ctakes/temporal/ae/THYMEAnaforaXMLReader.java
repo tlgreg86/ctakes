@@ -55,6 +55,8 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
       description = "list of suffixes that might be added to a file name to identify the Anafora "
           + "XML annotations file; only the first suffix corresponding to a file will be used")
   private String[] anaforaXMLSuffixes = new String[] {
+      ".Gold_Temporal_Entities.xml",
+      ".Gold_Temporal_Relations.xml",
       ".temporal.Temporal-Adjudication.gold.completed.xml",
       ".temporal.Temporal-Entities.gold.completed.xml",
       ".Temporal-Entity.gold.completed.xml",

@@ -24,8 +24,9 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,6 +61,7 @@ import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -100,13 +102,15 @@ import com.lexicalscope.jewel.cli.Option;
 public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
     org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
+  private static Logger LOGGER = Logger.getLogger(Evaluation_ImplBase.class);
+
   public static final String GOLD_VIEW_NAME = "GoldView";
   
   enum XMLFormat { Knowtator, Anafora }
 
   static interface Options {
 
-    @Option(longName = "text")
+    @Option(longName = "text", defaultToNull = true)
     public File getRawTextDirectory();
 
     @Option(longName = "xml")
@@ -194,10 +198,28 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
   }
   
   private List<File> getFilesFor(List<Integer> patientSets) {
-	  if ( !rawTextDirectory.exists() ) {
-		  return Collections.emptyList();
-	  }
 	  List<File> files = new ArrayList<File>();
+		if (this.rawTextDirectory == null
+				&& this.xmlFormat == XMLFormat.Anafora) {
+			for (File dir : this.xmlDirectory.listFiles()) {
+        Set<String> ids = new HashSet<String>();
+        for (Integer set : patientSets) {
+          ids.add(String.format("ID%03d", set));
+        }
+				if (dir.isDirectory()) {
+          if (ids.contains(dir.getName().substring(0, 5))) {
+            File file = new File(dir, dir.getName());
+            if (file.exists()) {
+              files.add(file);
+            } else {
+              LOGGER.warn("Missing note: " + file);
+            }
+          } else {
+            LOGGER.info("Skipping note: " + dir);
+          }
+				}
+			}
+		} else {
 	  for (Integer set : patientSets) {
 		  final int setNum = set;
 		  for (File file : rawTextDirectory.listFiles(new FilenameFilter(){
@@ -221,7 +243,8 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 			  } 
 		  }
 	  }
-	  return files;
+    }
+    return files;
   }
 
   @Override

@@ -12,7 +12,6 @@ import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.Hash
 import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.RemoveCrossSentenceRelations;
-import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.RemoveNonContainsRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.RemoveRelations;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
