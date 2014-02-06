@@ -1,7 +1,7 @@
 package org.apache.ctakes.assertion.medfacts.cleartk.extractors;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,12 +9,10 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
@@ -32,34 +30,36 @@ public class ContextWordWindowExtractor implements SimpleFeatureExtractor {
 		}
 	}
 	
-	public ContextWordWindowExtractor(String resourceFilename) throws ResourceInitializationException {
+	public ContextWordWindowExtractor(String resourceFilename) {
 		termVals = new HashMap<String,Double>();
-		try{
-			File termFile = FileLocator.locateFile(resourceFilename);
-			Scanner scanner = new Scanner(termFile);
-			Matcher m = null;
-			double max = 0.0;
-			double maxNeg = 0.0;
-			while(scanner.hasNextLine()){
-				String line = scanner.nextLine().trim();
-				m = linePatt.matcher(line);
-				if(m.matches()){
-					double val = Double.parseDouble(m.group(2));
-					termVals.put(m.group(1), val);
-					if(Math.abs(val) > max){
-						max = Math.abs(val);
-					}
-					if(val < maxNeg){
-						maxNeg = val;
-					}
-				}
-			}
-			max = max - maxNeg;
-			for(String key : termVals.keySet()){
-				termVals.put(key, (termVals.get(key)-maxNeg) / max);
-			}
-		}catch(IOException e){
-			throw new ResourceInitializationException();
+		InputStream is = getClass().getClassLoader().getResourceAsStream(resourceFilename);
+
+		Scanner scanner = new Scanner(is);
+		Matcher m = null;
+		double max = 0.0;
+		double maxNeg = 0.0;
+		while(scanner.hasNextLine()){
+		  String line = scanner.nextLine().trim();
+		  m = linePatt.matcher(line);
+		  if(m.matches()){
+		    double val = Double.parseDouble(m.group(2));
+		    termVals.put(m.group(1), val);
+		    if(Math.abs(val) > max){
+		      max = Math.abs(val);
+		    }
+		    if(val < maxNeg){
+		      maxNeg = val;
+		    }
+		  }
+		}
+		try {
+      is.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+		max = max - maxNeg;
+		for(String key : termVals.keySet()){
+		  termVals.put(key, (termVals.get(key)-maxNeg) / max);
 		}
 	}
 	
