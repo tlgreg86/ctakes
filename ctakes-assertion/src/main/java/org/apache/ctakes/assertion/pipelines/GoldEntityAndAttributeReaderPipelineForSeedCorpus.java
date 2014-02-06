@@ -24,6 +24,12 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.apache.ctakes.assertion.cr.I2B2Challenge2010CollectionReader;
+import org.apache.ctakes.assertion.cr.MiPACQKnowtatorXMLReader;
+import org.apache.ctakes.assertion.cr.NegExCorpusReader;
+import org.apache.ctakes.assertion.pipelines.SharpCorpusSplit.Subcorpus;
+import org.apache.ctakes.core.ae.SHARPKnowtatorXMLReader;
+import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -36,12 +42,7 @@ import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 import org.uimafit.pipeline.SimplePipeline;
-import org.apache.ctakes.assertion.cr.GoldEntityAndAttributeReader;
-import org.apache.ctakes.assertion.cr.I2B2Challenge2010CollectionReader;
-import org.apache.ctakes.assertion.cr.MiPACQKnowtatorXMLReader;
-import org.apache.ctakes.assertion.cr.NegExCorpusReader;
-import org.apache.ctakes.core.ae.SHARPKnowtatorXMLReader;
-import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
+import com.google.common.base.Function;
 
 /**
  * 
@@ -70,15 +71,15 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 		//String parentDirectoryString = "/work/medfacts/sharp/data/2012-10-16_full_data_set_updated/Seed_Corpus/Seattle Group Health/UMLS_CEM";
 
 		File parentDirectory = new File(parentDirectoryString);
-		readSharpUmlsCem(parentDirectory);
+		readSharpSeedUmlsCem(parentDirectory);
 		
 	}
 
-	public static void readSharpUmlsCem(File parentDirectory) throws ResourceInitializationException, UIMAException, IOException {
-		readSharpUmlsCem(parentDirectory, null, null, null);
+	public static void readSharpSeedUmlsCem(File parentDirectory) throws ResourceInitializationException, UIMAException, IOException {
+		readSharpSeedUmlsCem(parentDirectory, null, null, null);
 	}
 	
-	public static void readSharpUmlsCem(File parentDirectory, File trainDirectory, File testDirectory, File devDirectory)
+	public static void readSharpSeedUmlsCem(File parentDirectory, File trainDirectory, File testDirectory, File devDirectory)
 			throws ResourceInitializationException, UIMAException, IOException {
 //		logger.info("parent directory: " + parentDirectoryString);
 //		File parentDirectory = new File(parentDirectoryString);
@@ -176,7 +177,7 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 			
 			if (trainDirectory!=null && testDirectory!=null && devDirectory!=null) {
 				File subcorpusDirectory;
-				switch (SharpCorpusSplit.split(currentBatchDirectory)) {
+				switch (SharpCorpusSplit.splitSeed(currentBatchDirectory)) {
 				case TRAIN: 
 					subcorpusDirectory = trainDirectory;
 					break;
@@ -211,6 +212,103 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 		logger.info("Finished!");
 	}
 	
+	public static void readSharpStratifiedUmls(File releaseDirectory, File trainDirectory, File testDirectory, File devDirectory) throws UIMAException, IOException{
+	  File mayoStrat = new File(releaseDirectory, "SHARP/MayoStrat/by-batch/umls");
+	  // sghStrat not annotated yet...
+	  File sghStrat = new File(releaseDirectory, "SHARP/SGHStrat1/by-batch/umls");
+	  
+	  readSharpUmls(new File[] {mayoStrat, sghStrat}, trainDirectory, testDirectory, devDirectory, 
+	      new Function<File,Subcorpus>(){
+	    public Subcorpus apply(File f){
+	      return SharpCorpusSplit.splitStratified(f);
+	  }
+	  });
+	}
+	
+	public static void readSharpSeedUmls(File releaseDirectory, File trainDirectory, File testDirectory, File devDirectory) throws UIMAException, IOException{
+	  File seed1 = new File(releaseDirectory, "SHARP/SeedSet1/by-batch/umls");
+	  readSharpUmls(new File[] {seed1}, trainDirectory, testDirectory, devDirectory,
+	       new Function<File,Subcorpus>(){
+	      public Subcorpus apply(File f){
+	        return SharpCorpusSplit.splitSeed(f);
+	    }
+	    });
+
+	}
+	
+	public static void readSharpUmls(File[] sections, File trainDirectory, File testDirectory, File devDirectory, Function<File,Subcorpus> splitFunction) throws UIMAException, IOException{
+	  for(File section : sections){
+	    File[] batches = section.listFiles(new FileFilter(){
+
+        @Override
+        public boolean accept(File pathname) {
+          return pathname.isDirectory();
+        }});
+	    for(File batchDir : batches){
+	      TypeSystemDescription typeSystemDescription = 
+	          // use the uimafit method of finding available type system
+	          // descriptor via META-INF/org.uimafit/types.txt 
+	          // (found in ctakes-type-system/src/main/resources)
+	        TypeSystemDescriptionFactory.createTypeSystemDescription();
+	      
+	      File textDirectory = new File(batchDir, "text");
+	      AggregateBuilder aggregate = new AggregateBuilder();
+	      
+	      CollectionReaderDescription collectionReader = CollectionReaderFactory.createDescription(
+	          FilesInDirectoryCollectionReader.class,
+	          typeSystemDescription,
+	          "InputDirectory",
+	          textDirectory.toString()
+	          );
+	      
+	      // read the UMLS_CEM data from Knowtator
+	      AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createPrimitiveDescription(
+	          SHARPKnowtatorXMLReader.class,
+	          typeSystemDescription,
+	          "TextDirectory", // 3/13/13 halgrim changed from "TextURI" trying to work with new SHARPKnowtatorXMLReader.java
+	          //"/work/medfacts/sharp/data/2012-10-16_full_data_set_updated/Seed_Corpus/sandbox/batch02_mayo/knowtator/"
+	          textDirectory.toString() + "/"
+	      );
+	      aggregate.add(goldAnnotator);
+
+	      // fill in other values that are necessary for preprocessing
+	      AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(
+	          "desc/analysis_engine/AttributeDiscoveryPreprocessor"
+	          );
+	      aggregate.add(preprocessAnnotator);
+
+	      File subcorpusDir = null;
+//	      Subcorpus subcorpus = SharpCorpusSplit.splitStratified(Integer.parseInt(batchDir.getName()));
+	      Subcorpus subcorpus = splitFunction.apply(batchDir);
+	      switch(subcorpus){
+	      case TRAIN:
+	        subcorpusDir = trainDirectory;
+	        break;
+	      case DEV:
+	        subcorpusDir = devDirectory;
+	        break;
+	      case TEST:
+	        subcorpusDir = testDirectory;
+	        break;
+	      default:
+	        subcorpusDir = trainDirectory;
+	      }
+	      
+	       AnalysisEngineDescription xWriter = AnalysisEngineFactory.createPrimitiveDescription(
+	            XWriter.class,
+	            typeSystemDescription,
+	            XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
+	            subcorpusDir,
+	            XWriter.PARAM_FILE_NAMER_CLASS_NAME,
+	            CtakesFileNamer.class.getName()
+	        );
+	       aggregate.add(xWriter);
+	       SimplePipeline.runPipeline(collectionReader, aggregate.createAggregateDescription());
+
+	    }
+	  }
+	}
+
 	public static void readI2B2Challenge2010(File parentDirectory, File preprocessedDirectory)
 	throws ResourceInitializationException, UIMAException, IOException {
 

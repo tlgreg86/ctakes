@@ -4,6 +4,11 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+ * See here for training/dev/test split information:
+ * http://informatics.mayo.edu/sharp/index.php/Annotation#Training.2FDevelopment.2FTest_Split
+ */
+
 public class SharpCorpusSplit {
 	public enum Subcorpus { TRAIN, TEST, DEV, CROSSVAL }
 	
@@ -29,12 +34,25 @@ public class SharpCorpusSplit {
 		map.put("ss1_batch19", Subcorpus.TRAIN); 
 	}
 	
-	public static Subcorpus split( File directory ) {
-		if (map.containsKey(directory.getName())) {
-//			System.out.println(directory.toString());
-			return map.get(directory.getName());
-		} else {
-			return Subcorpus.TRAIN;
-		}
+	public static Subcorpus splitSeed( File directory ) {
+//		if (map.containsKey(directory.getName())) {
+////			System.out.println(directory.toString());
+//			return map.get(directory.getName());
+//		}
+//		return Subcorpus.TRAIN;
+		int batchNum = Integer.parseInt(directory.getName());
+		if(batchNum == 10 || batchNum == 17) return Subcorpus.DEV;
+		else if(batchNum == 11 || batchNum == 12) return Subcorpus.TEST;
+		else return Subcorpus.TRAIN;
+	}
+	
+	public static Subcorpus splitStratified(int batchNum){
+	  if(batchNum % 5 < 3) return Subcorpus.TRAIN;
+	  else if(batchNum % 5 == 3) return Subcorpus.DEV;
+	  else return Subcorpus.TEST;
+	}
+	
+	public static Subcorpus splitStratified(File file){
+	  return splitStratified(Integer.parseInt(file.getName()));
 	}
 }
