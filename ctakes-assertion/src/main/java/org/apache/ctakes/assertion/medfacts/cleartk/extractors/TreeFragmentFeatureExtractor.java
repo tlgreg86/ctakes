@@ -18,24 +18,19 @@
  */
 package org.apache.ctakes.assertion.medfacts.cleartk.extractors;
 
-import static org.apache.ctakes.assertion.util.AssertionTreeUtils.extractAboveLeftConceptTree;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 
 import org.apache.ctakes.assertion.util.SemanticClasses;
-import org.apache.ctakes.constituency.parser.util.TreeUtils;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.utils.tree.FragmentUtils;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import org.cleartk.util.CleartkInitializationException;
 
@@ -43,12 +38,12 @@ import org.cleartk.util.CleartkInitializationException;
  * This class implements a ClearTK feature extractor for tree kernel fragment features
  * as derived using the flink toolkit (http://danielepighin.net/cms/software/flink).
  * Model location is hardcoded as of right now.
- * TODO: Parameterize & unstaticize this so that, e.g., multiple projects could use this feature if necessary.
+ * TODO: Parameterize this so that, e.g., multiple projects could use this feature if necessary.
  */
 public abstract class TreeFragmentFeatureExtractor implements SimpleFeatureExtractor {
 	public static final String PARAM_OUTPUTDIR = "outputDir";
 	public static final String PARAM_SEMDIR = "semDir";
-	protected static HashSet<SimpleTree> frags = null;
+	protected HashSet<SimpleTree> frags = null;
 	protected SemanticClasses sems = null;
 	protected String prefix = null;
 
@@ -56,22 +51,25 @@ public abstract class TreeFragmentFeatureExtractor implements SimpleFeatureExtra
 		initializeFrags(resourceFilename);
 		this.prefix = prefix;
 		try{
-			sems = new SemanticClasses(FileLocator.locateFile("org/apache/ctakes/assertion/semantic_classes").getAbsolutePath());
+		  sems = new SemanticClasses(FileLocator.getAsStream("org/apache/ctakes/assertion/all_cues.txt"));
 		}catch(Exception e){
-			throw new CleartkInitializationException(e, "org/apache/ctakes/assertion/semantic_classes", "Could not find semantic classes resource.", new Object[]{});
+		  throw new CleartkInitializationException(e, "org/apache/ctakes/assertion/all_cues.txt", "Could not find semantic classes resource.", new Object[]{});
 		}
+
 	}
 
-	private static void initializeFrags(String resourceFilename){
+	private void initializeFrags(String resourceFilename){
 		frags = new HashSet<SimpleTree>();
+		InputStream fragsFilestream = null;
 		try{
-			File fragsFile = FileLocator.locateFile(resourceFilename);
-			Scanner scanner = new Scanner(fragsFile);
+			fragsFilestream = FileLocator.getAsStream(resourceFilename);
+			Scanner scanner = new Scanner(fragsFilestream);
 			while(scanner.hasNextLine()){
 				frags.add(FragmentUtils.frag2tree(scanner.nextLine().trim()));
 			}
-		}catch(FileNotFoundException e){
-			System.err.println("Missing fragment file!");
+      fragsFilestream.close();      
+		}catch(IOException e){
+			System.err.println("Trouble with tree fragment file: " + e);
 		}
 	}
 
