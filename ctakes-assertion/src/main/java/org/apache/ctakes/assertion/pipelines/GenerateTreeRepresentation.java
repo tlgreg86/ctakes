@@ -12,19 +12,19 @@ import java.util.List;
 
 import org.apache.ctakes.assertion.eval.XMIReader;
 import org.apache.ctakes.assertion.util.SemanticClasses;
-import org.apache.ctakes.constituency.parser.util.AnnotationTreeUtils;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.constants.CONST;
-import org.apache.ctakes.typesystem.type.syntax.TopTreebankNode;
+import org.apache.ctakes.typesystem.type.textsem.EntityMention;
+import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.util.Options_ImplBase;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.pipeline.JCasIterable;
@@ -32,7 +32,9 @@ import org.uimafit.util.JCasUtil;
 
 public class GenerateTreeRepresentation{
 
-	public static class Options extends Options_ImplBase {
+  enum ATTRIBUTE {NEG, UNC}
+  
+	public static class Options {
 
 		@Option(
 				name = "--train-dir",
@@ -45,6 +47,9 @@ public class GenerateTreeRepresentation{
 				usage = "The file to which the data points be written.",
 				required = true)
 		public File outFile;
+		
+		@Option(name = "--attribute", required=false)
+		public ATTRIBUTE attributeType = ATTRIBUTE.NEG;
 	}
 	
 	protected static Options options = new Options();
@@ -58,8 +63,17 @@ public class GenerateTreeRepresentation{
 	 * @throws UIMAException 
 	 */
 	public static void main(String[] args) throws UIMAException, IOException {
-	    options.parseOptions(args);
+	    CmdLineParser parser = new CmdLineParser(options);
+	    try {
+        parser.parseArgument(args);
+      } catch (CmdLineException e) {
+        e.printStackTrace();
+        System.exit(-1);
+      }
 	    
+	    if(sems == null){
+	      sems = new SemanticClasses(FileLocator.getAsStream("org/apache/ctakes/assertion/all_cues.txt"));
+	    }
 	    out = new PrintStream(options.outFile);
 	    List<File> trainFiles = Arrays.asList(options.trainDirectory.listFiles());
 
@@ -80,31 +94,52 @@ public class GenerateTreeRepresentation{
 	    out.close();
 	}
 
-	public static void processDocument(JCas jcas) throws ResourceInitializationException, FileNotFoundException {
+	public static void processDocument(JCas jcas) {
 		log.info("Processing document: " + DocumentIDAnnotationUtil.getDocumentID(jcas));
-		if(sems == null){
-			sems = new SemanticClasses(FileLocator.locateFile("org/apache/ctakes/assertion/models/semantic_classes").getAbsolutePath());
-		}
 		Collection<IdentifiedAnnotation> mentions = JCasUtil.select(jcas, IdentifiedAnnotation.class);
 		for(IdentifiedAnnotation mention : mentions){
-			TopTreebankNode orig = AnnotationTreeUtils.getAnnotationTree(jcas, mention);
-			if(orig == null){
-				log.warn("Tree for entity mention: " + mention.getCoveredText() + " (" + mention.getBegin() + "-" + mention.getEnd() + ") is null.");
-				continue;
-			}
-			SimpleTree tree = extractAboveLeftConceptTree(jcas, mention, sems);
-//			if(mention.getPolarity() == CONST.NE_POLARITY_NEGATION_PRESENT){
-			if(mention.getUncertainty() == CONST.NE_UNCERTAINTY_PRESENT){
-				out.print("+1 ");
-			}else{
-				out.print("-1 ");
-			}
-			
-			out.print("|BT| ");
-			out.print(tree.toString());
-			out.println(" |ET|");
-			out.flush();
+		  if(mention instanceof EventMention || mention instanceof EntityMention){
+//		    TopTreebankNode orig = AnnotationTreeUtils.getAnnotationTree(jcas, mention);
+//		    if(orig == null){
+//		      log.warn("Tree for entity mention: " + mention.getCoveredText() + " (" + mention.getBegin() + "-" + mention.getEnd() + ") is null.");
+//		      continue;
+//		    }
+		    SimpleTree tree = null; // extractFeatureTree(jcas, mention, sems);
+//		    SimpleTree tree = extractAboveLeftConceptTree(jcas, mention, null);
+//		    			SimpleTree tree = AssertionTreeUtils.extractAboveRightConceptTree(jcas, mention, sems);
+		    String label = null;
+		    
+		    if(options.attributeType == ATTRIBUTE.NEG){ 
+		      if(mention.getPolarity() == CONST.NE_POLARITY_NEGATION_PRESENT) label = "+1";
+		      else label = "-1";
+          tree = getNegationTree(jcas, mention);
+		    }else if(options.attributeType == ATTRIBUTE.UNC){
+		      if(mention.getUncertainty() == CONST.NE_UNCERTAINTY_PRESENT) label = "+1";
+		      else label = "-1";
+		      tree = getUncertaintyTree(jcas, mention);
+		    }else{
+		      throw new IllegalArgumentException("Do not have this attribute type!");
+		    }
+
+		    out.print(label);
+		    out.print(" |BT| ");
+		    out.print(tree.toString());
+		    out.println(" |ET|");
+		    out.flush();
+		  }
 		}
 	}
+
+  private static SimpleTree getUncertaintyTree(JCas jcas, IdentifiedAnnotation mention) {
+    SimpleTree tree = null;
+    tree = extractAboveLeftConceptTree(jcas, mention, sems);    
+    return tree;
+  }
+
+  private static SimpleTree getNegationTree(JCas jcas, IdentifiedAnnotation mention) {
+    SimpleTree tree = null;
+    tree = extractAboveLeftConceptTree(jcas, mention, sems);
+    return tree;
+  }
 
 }
