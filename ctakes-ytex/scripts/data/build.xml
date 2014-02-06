@@ -33,7 +33,7 @@ Database connection parameters are taken from ytex.properties.
 
 	<!-- by default umls in same database/catalog as ytex -->
 	<property name="sql.dir" value="./${db.type}" />
-	<property name="meta.tables" value="MRDOC,MRSAB,MRSTY,MRCONSO,MRREL" />
+	<property name="meta.tables" value="MRDOC,MRSTY,MRCONSO,MRREL" />
 	<!-- SU is in a different format -->
 	<property name="net.tables" value="SRDEF,SRFIL,SRFLD,SRSTR,SRSTRE1,SRSTRE2" />
 	<property name="sct.home" value="E:/temp/SnomedCT_RF2Release_INT_20110731/Snapshot/Terminology" />
@@ -77,6 +77,8 @@ Database connection parameters are taken from ytex.properties.
 	</target>
 
 	<target name="umls.check.mrconso" description="set mrconso.exists property if mrconso table can be found">
+		<echo>umls.schema ${umls.schema}</echo>
+		<echo>umls.catalog ${umls.catalog}</echo>
 		<delete file="${java.io.tmpdir}/mrconso-check.txt" quiet="yes" />
 		<if>
 			<equals arg1="${db.type}" arg2="mysql" />
@@ -168,7 +170,7 @@ Database connection parameters are taken from ytex.properties.
 				<antcall target="jdbc.sqlcmd">
 					<param name="sqlcmd.dir" value="umls" />
 					<param name="db.name" value="${umls.catalog}" />
-					<param name="db.schema" value="${umls.prefix}" />
+					<param name="db.schema" value="${umls.schema}" />
 					<param name="sqlcmd.script" value="@{sqlcmd.script}" />
 				</antcall>
 			</sequential>
@@ -344,6 +346,9 @@ Database connection parameters are taken from ytex.properties.
 	</target>
 	<!-- uima script targets -->
 	<target name="jdbc.sqlcmd">
+		<echo>db.schema${db.schema}</echo>
+		<echo>umls.schema ${umls.schema}</echo>
+		<echo>umls.catalog ${umls.catalog}</echo>
 		<property name="sql.onerror" value="abort" />
 		<property name="sql.delimiter" value=";" />
 		<property name="sql.catalog" value="${db.name}" />
