@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -20,13 +22,13 @@ import org.uimafit.util.JCasUtil;
 
 public class AlternateCuePhraseAnnotator extends JCasAnnotator_ImplBase {
 
-	public static final String PARAM_INPUT_DIR = "INPUT_DIR";
+	public static final String PARAM_INPUT_FILE = "INPUT_FILE";
 	
 	@ConfigurationParameter(
-			name = PARAM_INPUT_DIR,
+			name = PARAM_INPUT_FILE,
 			description = "Directory containing cue phrase files",
 			mandatory = false
-	) private String inputDirName = "org/apache/ctakes/assertion/cue_words";
+	) private String inputFilename = "org/apache/ctakes/assertion/cue_words.txt";
 	
 	private HashMap<String,CuePhrase> cueWords = null;
 
@@ -37,49 +39,41 @@ public class AlternateCuePhraseAnnotator extends JCasAnnotator_ImplBase {
 		int[] lenCounts = new int[10];
 		
 		cueWords = new HashMap<String,CuePhrase>();
-		File inputDir = null;
+		InputStream is = null;
 		try{
-			inputDir = FileLocator.locateFile(inputDirName);
-			File[] processFiles = inputDir.listFiles();
-			for (int i = 0; i < processFiles.length; i++) {
-				File nextFile = processFiles[i]; //new File(directoryOfDelimitedFiles + "/"
-				//					+ processFiles[i]);
-				System.out.println("Processing: " + processFiles[i].getName()
-						+ "...");
+		  is = FileLocator.getAsStream(inputFilename);
+		  BufferedReader br = new BufferedReader(new InputStreamReader(is));
+		  String record = "";
+		  while ((record = br.readLine()) != null) {
+		    // System.out.println(" record so far out of " + record
+		    // );
 
-				BufferedReader br = new BufferedReader(new FileReader(
-						nextFile));
-				String record = "";
-				while ((record = br.readLine()) != null) {
-					// System.out.println(" record so far out of " + record
-					// );
+		    String splitRecord[] = record.split("\\|");
+		    if (splitRecord.length == 0)
+		    { continue; }
+		    String cuePhrase = splitRecord[0];
+		    String cuePhraseCategory = "default_category";
+		    String cuePhraseFamily = "default_family";
 
-					String splitRecord[] = record.split("\\|");
-					if (splitRecord.length == 0)
-					{ continue; }
-					String cuePhrase = splitRecord[0];
-					String cuePhraseCategory = "default_category";
-					String cuePhraseFamily = "default_family";
-					
-					
-					if (splitRecord.length >= 2)
-					{
-						cuePhraseCategory = splitRecord[1];
-						cuePhraseFamily   = splitRecord[2];
-						if (cuePhraseCategory == null || cuePhraseCategory.isEmpty())
-						{
-							cuePhraseCategory = "category__" + cuePhraseFamily;
-						}
-					}
-					String[] cueTokens = cuePhrase.split("\\s+");
-					if(cueTokens.length < 3){
-						cueWords.put(cuePhrase, new CuePhrase(cuePhrase, cuePhraseCategory, cuePhraseFamily));
-					}else{
-						// TODO build tree for multi-word phrases.
-					}
-					if(cueTokens.length < lenCounts.length) lenCounts[cueTokens.length]++;
-				}
-			}
+
+		    if (splitRecord.length >= 2)
+		    {
+		      cuePhraseCategory = splitRecord[1];
+		      cuePhraseFamily   = splitRecord[2];
+		      if (cuePhraseCategory == null || cuePhraseCategory.isEmpty())
+		      {
+		        cuePhraseCategory = "category__" + cuePhraseFamily;
+		      }
+		    }
+		    String[] cueTokens = cuePhrase.split("\\s+");
+		    if(cueTokens.length < 3){
+		      cueWords.put(cuePhrase, new CuePhrase(cuePhrase, cuePhraseCategory, cuePhraseFamily));
+		    }else{
+		      // TODO build tree for multi-word phrases.
+		    }
+		    if(cueTokens.length < lenCounts.length) lenCounts[cueTokens.length]++;
+		  }
+		  is.close();
 		}catch(IOException e){
 			throw new ResourceInitializationException(e);
 		}
