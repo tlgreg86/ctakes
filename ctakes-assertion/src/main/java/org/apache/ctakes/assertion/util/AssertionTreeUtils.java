@@ -16,6 +16,27 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 public class AssertionTreeUtils {
 
+  public static final SimpleTree NULL_TREE = SimpleTree.fromString("(S (TOK nullparse))");
+  
+  public static SimpleTree extractFeatureTree(JCas jcas, Annotation mention, SemanticClasses sems){
+    SimpleTree tree = null;
+    TopTreebankNode annotationTree = AnnotationTreeUtils.getAnnotationTree(jcas, mention);
+    if(annotationTree != null){
+      TopTreebankNode root = AnnotationTreeUtils.getTreeCopy(jcas, annotationTree);
+      AnnotationTreeUtils.insertAnnotationNode(jcas, root, mention, "CONCEPT");
+      tree = TreeExtractor.getSimpleClone(root);
+    }else{
+      tree = NULL_TREE;
+    }
+
+    TreeExtractor.lowercaseWords(tree);
+    if(sems != null){
+      replaceWordsWithSemanticClasses(tree, sems);
+    }
+    
+    return tree;    
+  }
+  
 	public static SimpleTree extractAboveLeftConceptTree(JCas jcas, Annotation mention, SemanticClasses sems){
 		SimpleTree tree = null;
 		TopTreebankNode annotationTree = AnnotationTreeUtils.getAnnotationTree(jcas, mention);
@@ -35,7 +56,7 @@ public class AssertionTreeUtils {
 			
 			tree = TreeExtractor.getSimpleClone(node);
 		}else{
-			tree = SimpleTree.fromString("(S noparse)");
+			tree = NULL_TREE;
 		}
 
 		TreeExtractor.lowercaseWords(tree);
@@ -145,6 +166,22 @@ public class AssertionTreeUtils {
 		}
 	}
 	
+  public static void replaceDependencyWordsWithSemanticClasses(SimpleTree tree,
+      SemanticClasses sems) {
+    
+    // same but don't need to check for leaf node
+    for(Map.Entry<String, HashSet<String>> semClass : sems.entrySet()){
+      if(semClass.getValue().contains(tree.cat)){
+        tree.cat = "semclass_" + semClass.getKey();
+      }
+    }
+    
+    // now iterate over children
+    for(SimpleTree child : tree.children){
+      replaceDependencyWordsWithSemanticClasses(child, sems);
+    }
+  }
+
 	static HashMap<String,String> wordMap = new HashMap<String,String>();
     static Random random = new Random();
 	public void randomizeWords(SimpleTree tree, boolean dep) {
@@ -169,5 +206,6 @@ public class AssertionTreeUtils {
 			}
 		}
 	}
+
 
 }
