@@ -90,7 +90,7 @@ import org.cleartk.classifier.jar.GenericJarClassifierFactory;
 import org.cleartk.classifier.jar.JarClassifierBuilder;
 import org.cleartk.classifier.libsvm.LIBSVMStringOutcomeDataWriter;
 import org.cleartk.eval.Evaluation_ImplBase;
-import org.cleartk.ml.libsvm.tk.TKLIBSVMStringOutcomeDataWriter;
+//import org.cleartk.ml.libsvm.tk.TKLIBSVMStringOutcomeDataWriter;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.BooleanOptionHandler;
@@ -392,10 +392,10 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     }
     Class<? extends DataWriter<String>> dw = null;
     if(options.featConfig == FEATURE_CONFIG.STK || options.featConfig == FEATURE_CONFIG.PTK){ 
-        dw = TKLIBSVMStringOutcomeDataWriter.class;
-    }else{
-        dw = LIBSVMStringOutcomeDataWriter.class;
+//        dw = TKLIBSVMStringOutcomeDataWriter.class;
+      throw new UnsupportedOperationException("This requires cleartk-2.0 which");
     }
+    dw = LIBSVMStringOutcomeDataWriter.class;
     
     AssertionEvaluation evaluation = new AssertionEvaluation(
         modelsDir,

@@ -32,7 +32,6 @@ import java.util.Random;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.FedaFeatureFunction;
-import org.apache.ctakes.assertion.zoner.types.Zone;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -51,6 +50,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.classifier.CleartkAnnotator;
 import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.Instance;
+import org.cleartk.classifier.TreeFeature;
 import org.cleartk.classifier.feature.extractor.CleartkExtractor;
 import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
 import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
@@ -61,11 +61,9 @@ import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.ConfigurationParameterFactory;
 import org.uimafit.util.JCasUtil;
-//import org.chboston.cnlp.ctakes.relationextractor.ae.ModifierExtractorAnnotator;
-
-
 
 import scala.actors.threadpool.Arrays;
+//import org.chboston.cnlp.ctakes.relationextractor.ae.ModifierExtractorAnnotator;
 
 /**
  * @author swu
@@ -77,6 +75,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
   Logger logger = Logger.getLogger(AssertionCleartkAnalysisEngine.class);
 
   public static final String PARAM_GOLD_VIEW_NAME = "GoldViewName";
+  public enum FEATURE_CONFIG {NO_SEM, NO_SYN, STK, STK_FRAGS, PTK, PTK_FRAGS, DEP_REGEX, DEP_REGEX_FRAGS, ALL_SYN}
 	
   public static int relationId; // counter for error logging
 
@@ -114,6 +113,13 @@ public abstract class AssertionCleartkAnalysisEngine extends
 		  mandatory = false,
 		  description = "the Chi-squared threshold at which features should be removed")
   protected Float featureSelectionThreshold = 0f;
+
+  public static final String PARAM_FEATURE_CONFIG = "FEATURE_CONFIG";
+  @ConfigurationParameter(
+      name = PARAM_FEATURE_CONFIG,
+      description = "Feature configuration to use (for experiments)",
+      mandatory = false
+  )protected FEATURE_CONFIG featConfig = FEATURE_CONFIG.ALL_SYN;
 
   public static final String PARAM_FEATURE_SELECTION_URI = "FeatureSelectionURI";
 
@@ -162,6 +168,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
   protected List<CleartkExtractor> tokenContextFeatureExtractors;
   protected List<CleartkExtractor> tokenCleartkExtractors;
   protected List<SimpleFeatureExtractor> entityFeatureExtractors;
+  protected List<SimpleFeatureExtractor> entityTreeExtractors;
   protected CleartkExtractor cuePhraseInWindowExtractor;
   
   protected List<FeatureFunctionExtractor> featureFunctionExtractors;
@@ -219,6 +226,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
     		new CleartkExtractor(
     				BaseToken.class, 
 //    				new FeatureFunctionExtractor(new CoveredTextExtractor(), new LowerCaseFeatureFunction()),
+//            new FeatureFunctionExtractor(new CoveredTextExtractor(), new BrownClusterFeatureFunction()),
     				new CoveredTextExtractor(),
     				//new CleartkExtractor.Covered(),
     				new CleartkExtractor.LastCovered(2),
@@ -281,6 +289,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
     	// set up FeatureFunction for all the laggard, non-Extractor features
     	ffDomainAdaptor = new FedaFeatureFunction( new ArrayList<String>(new HashSet<String>(fileToDomain.values())) );
     }
+    entityTreeExtractors =  new ArrayList<SimpleFeatureExtractor>();
   }
 
   @Override
@@ -333,8 +342,8 @@ public abstract class AssertionCleartkAnalysisEngine extends
 //    Map<IdentifiedAnnotation, Collection<Sentence>> coveringSentenceMap = JCasUtil.indexCovering(identifiedAnnotationView, IdentifiedAnnotation.class, Sentence.class);
 //    Map<Sentence, Collection<BaseToken>> tokensCoveredInSentenceMap = JCasUtil.indexCovered(identifiedAnnotationView, Sentence.class, BaseToken.class);
 
-    Map<IdentifiedAnnotation, Collection<Zone>> coveringZoneMap =
-        JCasUtil.indexCovering(jCas, IdentifiedAnnotation.class, Zone.class);
+//    Map<IdentifiedAnnotation, Collection<Zone>> coveringZoneMap =
+//        JCasUtil.indexCovering(jCas, IdentifiedAnnotation.class, Zone.class);
 //    Map<IdentifiedAnnotation, Collection<Sentence>> coveringSents =
 //        JCasUtil.indexCovering(jCas, IdentifiedAnnotation.class, Sentence.class);
     
@@ -455,18 +464,22 @@ public abstract class AssertionCleartkAnalysisEngine extends
     		  instance.addAll(extractor.extract(jCas, entityOrEventMention));
     	  }
       }
-      
-      List<Feature> zoneFeatures = extractZoneFeatures(coveringZoneMap, entityOrEventMention);
-      if (zoneFeatures != null && !zoneFeatures.isEmpty())
-      {
-//        instance.addAll(zoneFeatures);
+
+      for (SimpleFeatureExtractor extractor : this.entityTreeExtractors) {
+        instance.addAll(extractor.extract(jCas, entityOrEventMention));
       }
+
+//      List<Feature> zoneFeatures = extractZoneFeatures(coveringZoneMap, entityOrEventMention);
+//      if (zoneFeatures != null && !zoneFeatures.isEmpty())
+//      {
+//        instance.addAll(zoneFeatures);
+//      }
       
       List<Feature> feats = instance.getFeatures();
 //      List<Feature> lcFeats = new ArrayList<Feature>();
       
       for(Feature feat : feats){
-    	  if(feat.getName() != null && (feat.getName().startsWith("TreeFrag") || feat.getName().startsWith("WORD") || feat.getName().startsWith("NEG"))) continue;
+    	  if(feat instanceof TreeFeature || (feat.getName() != null && (feat.getName().startsWith("TreeFrag") || feat.getName().startsWith("WORD") || feat.getName().startsWith("NEG")))) continue;
     	  if(feat.getName() != null && (feat.getName().contains("_TreeFrag") || feat.getName().contains("_WORD") || feat.getName().contains("_NEG"))) continue;
     	  if(feat.getValue() instanceof String){
     		  feat.setValue(((String)feat.getValue()).toLowerCase());
@@ -497,7 +510,8 @@ public abstract class AssertionCleartkAnalysisEngine extends
     }
     
   }
-  
+
+  /*
   public List<Feature> extractZoneFeatures(Map<IdentifiedAnnotation, Collection<Zone>> coveringZoneMap, IdentifiedAnnotation entityOrEventMention)
   {
     final Collection<Zone> zoneList = coveringZoneMap.get(entityOrEventMention);
@@ -522,6 +536,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
     
     return featureList;
   }
+  */
 
   public static AnalysisEngineDescription getDescription(Object... additionalConfiguration)
 	      throws ResourceInitializationException {
