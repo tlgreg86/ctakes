@@ -20,7 +20,6 @@ package org.apache.ctakes.assertion.eval;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -29,7 +28,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +37,7 @@ import java.util.TreeMap;
 import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
 import org.apache.ctakes.assertion.medfacts.cleartk.AlternateCuePhraseAnnotator;
 import org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine.FEATURE_CONFIG;
 import org.apache.ctakes.assertion.medfacts.cleartk.AssertionComponents;
 import org.apache.ctakes.assertion.medfacts.cleartk.ConditionalCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.GenericCleartkAnalysisEngine;
@@ -80,20 +79,21 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceProcessException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCopier;
+import org.apache.uima.util.FileUtils;
 import org.cleartk.classifier.DataWriter;
-import org.cleartk.classifier.jar.DefaultDataWriterFactory;
 import org.cleartk.classifier.Instance;
 import org.cleartk.classifier.feature.transform.InstanceDataWriter;
 import org.cleartk.classifier.feature.transform.InstanceStream;
+import org.cleartk.classifier.jar.DefaultDataWriterFactory;
 import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
 import org.cleartk.classifier.jar.GenericJarClassifierFactory;
 import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.cleartk.classifier.liblinear.LIBLINEARStringOutcomeDataWriter;
+import org.cleartk.classifier.libsvm.LIBSVMStringOutcomeDataWriter;
 import org.cleartk.eval.Evaluation_ImplBase;
-import org.cleartk.util.Options_ImplBase;
+import org.cleartk.ml.libsvm.tk.TKLIBSVMStringOutcomeDataWriter;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.BooleanOptionHandler;
-import org.mitre.medfacts.uima.ZoneAnnotator;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.component.NoOpAnnotator;
 import org.uimafit.component.xwriter.XWriter;
@@ -120,7 +120,9 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
 
   private static final String YTEX_NEGATION_DESCRIPTOR = "ytex.uima.NegexAnnotator";
 
-  public static class Options extends Options_ImplBase {
+  enum Corpus {SHARP_SEED, SHARP_STRATIFIED, MIPACQ, I2B2, NEGEX}
+
+  public static class Options {
     @Option(
         name = "--train-dir",
         usage = "specify the directory containing the XMI training files (for example, /NLP/Corpus/Relations/mipacq/xmi/train)",
@@ -252,6 +254,30 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     public Float featureSelectionThreshold = null;
 
     @Option(
+        name = "--kernel-params",
+        usage = "Set of parameters to pass to kernel (libsvm)",
+        required = false)
+    public String kernelParams = null;
+    
+    @Option(
+        name = "--use-tmp",
+        usage = "Whether to put trained models into a temp directory (e.g., for a grid search)",
+        required = false)
+    public boolean useTmp = false;
+    
+    @Option(
+        name = "--corpus",
+        usage = "What corpus to read for pre-processing",
+        required = false)
+    public Corpus corpus = Corpus.SHARP_SEED;
+    
+    @Option(
+        name = "--feats",
+        usage = "What feature configuration to use",
+        required = false)
+    public FEATURE_CONFIG featConfig = FEATURE_CONFIG.ALL_SYN;
+
+    @Option(
     		name = "--feda",
     		usage = "Domain adaptation -- for each semicolon-separated directory in train-dir, creates a domain-specific feature space",
     		required = false)
@@ -288,7 +314,9 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     
     //Options options = new Options();
 	  resetOptions();
-	  options.parseOptions(args);
+	  CmdLineParser parser = new CmdLineParser(options);
+	  parser.parseArgument(args);
+//	  options.parseOptions(args);
 
 	  if (useEvaluationLogFile && evaluationLogFileOut == null) {
 		  evaluationLogFile = new File(evaluationLogFilePath);
@@ -321,6 +349,15 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     }
     //File modelsDir = new File("models/modifier");
     File modelsDir = options.modelsDirectory;
+    if(options.useTmp){
+      File tempModelDir = new File(options.modelsDirectory, "temp");
+      tempModelDir.mkdirs();
+      File curModelDir = File.createTempFile("assertion", null, tempModelDir);
+      curModelDir.delete();
+      curModelDir.mkdir();
+      modelsDir = curModelDir;
+    }
+    
     File evaluationOutputDirectory = options.evaluationOutputDirectory;
 
     // determine the type of classifier to be trained
@@ -347,16 +384,46 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     if (!options.ignoreGeneric) { annotationTypes.add("generic"); }
     if (!options.ignoreHistory) { annotationTypes.add("historyOf"); }
     
+    String[] kernelParams = null;
+    if(options.kernelParams != null){
+      kernelParams = options.kernelParams.split("\\s+");
+    }else{
+      kernelParams = new String[]{"-t", "0", "-c", "1"};
+    }
+    Class<? extends DataWriter<String>> dw = null;
+    if(options.featConfig == FEATURE_CONFIG.STK || options.featConfig == FEATURE_CONFIG.PTK){ 
+        dw = TKLIBSVMStringOutcomeDataWriter.class;
+    }else{
+        dw = LIBSVMStringOutcomeDataWriter.class;
+    }
+    
     AssertionEvaluation evaluation = new AssertionEvaluation(
         modelsDir,
         evaluationOutputDirectory,
         annotationTypes,
         annotatorClass,
-        LIBLINEARStringOutcomeDataWriter.class,
-        "-c",
-        "1"
+        dw,
+        kernelParams
 //        "-t",
+//        "0",
+//       TKLIBSVMStringOutcomeDataWriter.class,
+//        "-c",
+//        "1"
+//        "-t",
+//        "5",
+//        "-C",
+//        "+",
+//        "-L",
+//        "0.4",
+//        "-N",
+//        "3",
+//        "-S",
 //        "0"
+       
+//        "-w0",
+//        "100.0",
+//        "-w1",
+//        "1.0"
 //        "100",
 //        "2"
         );
@@ -421,7 +488,9 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     	  AssertionEvaluation.printScore(stats,  modelsDir!=null? modelsDir.getAbsolutePath() : "no_model");
       }
     }
-    
+    if(options.useTmp && modelsDir != null){
+      FileUtils.deleteRecursive(modelsDir);
+    }
     System.out.println("Finished assertion module at " + new Date());
     
   }
@@ -570,21 +639,23 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 	  File preprocessedDir = null;
 	  if (options.trainDirectory.split("[;]").length>1) {
 		  throw new IOException("Assertion preprocess wants to write to one train directory, but you've supplied multiple: " + options.trainDirectory);
-	  } else {
-		  preprocessedDir = new File(options.trainDirectory);
 	  }
-	  if (rawDir.getAbsolutePath().contains("i2b2")) {
+		preprocessedDir = new File(options.trainDirectory);
+	  
+	  if(options.corpus == Corpus.I2B2){
 		  GoldEntityAndAttributeReaderPipelineForSeedCorpus.readI2B2Challenge2010(rawDir, preprocessedDir);
-		  
-	  } else if (rawDir.getAbsolutePath().contains("mipacq")) {
+	  }else if(options.corpus == Corpus.MIPACQ){
 		  GoldEntityAndAttributeReaderPipelineForSeedCorpus.readMiPACQ(rawDir, preprocessedDir, options.testDirectory, options.devDirectory);
-		  
-	  } else if (rawDir.getAbsolutePath().contains("negex")) {
+	  }else if(options.corpus == Corpus.NEGEX){
 		  GoldEntityAndAttributeReaderPipelineForSeedCorpus.readNegexTestSet(rawDir, preprocessedDir);
-		  
-	  } else{
-		  GoldEntityAndAttributeReaderPipelineForSeedCorpus.readSharpUmlsCem(
+	  }else if(options.corpus == Corpus.SHARP_STRATIFIED){
+	    GoldEntityAndAttributeReaderPipelineForSeedCorpus.readSharpStratifiedUmls(
+	        rawDir, preprocessedDir, options.testDirectory, options.devDirectory);
+	  } else if(options.corpus == Corpus.SHARP_SEED){
+		  GoldEntityAndAttributeReaderPipelineForSeedCorpus.readSharpSeedUmls(
 				  rawDir, preprocessedDir, options.testDirectory, options.devDirectory);
+	  } else{
+	    throw new ResourceInitializationException("No corpus type specified!", new Object[]{rawDir});
 	  }
   }
   
@@ -614,22 +685,22 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceAnnotationsSystemAssertionClearer.class);
     builder.add(assertionAttributeClearerAnnotator);
     
-    String generalSectionRegexFileUri =
-        "org/mitre/medfacts/zoner/section_regex.xml";
-    AnalysisEngineDescription zonerAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
-            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
-            generalSectionRegexFileUri
-            );
+//    String generalSectionRegexFileUri =
+//        "org/mitre/medfacts/zoner/section_regex.xml";
+//    AnalysisEngineDescription zonerAnnotator =
+//        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+//            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
+//            generalSectionRegexFileUri
+//            );
 //    builder.add(zonerAnnotator);
-
-    String mayoSectionRegexFileUri =
-        "org/mitre/medfacts/uima/mayo_sections.xml";
-    AnalysisEngineDescription mayoZonerAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
-            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
-            mayoSectionRegexFileUri
-            );
+//
+//    String mayoSectionRegexFileUri =
+//        "org/mitre/medfacts/uima/mayo_sections.xml";
+//    AnalysisEngineDescription mayoZonerAnnotator =
+//        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+//            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
+//            mayoSectionRegexFileUri
+//            );
 //    builder.add(mayoZonerAnnotator);
   
 //    URL assertionCuePhraseLookupAnnotatorDescriptorUrl1 = this.getClass().getClassLoader().getResource("org/apache/ctakes/dictionary/lookup/AssertionCuePhraseDictionaryLookupAnnotator.xml");
@@ -683,7 +754,9 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     				AssertionCleartkAnalysisEngine.PARAM_FEATURE_SELECTION_URI,
     				PolarityCleartkAnalysisEngine.createFeatureSelectionURI(new File(directory, "polarity")),
     				AssertionCleartkAnalysisEngine.PARAM_FEATURE_SELECTION_THRESHOLD,
-    				featureSelectionThreshold
+    				featureSelectionThreshold,
+    				AssertionCleartkAnalysisEngine.PARAM_FEATURE_CONFIG,
+    				options.featConfig
     				);
     	}
 		builder.add(polarityAnnotator);
@@ -726,7 +799,9 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 			AssertionCleartkAnalysisEngine.PARAM_FEATURE_SELECTION_URI,
 			UncertaintyCleartkAnalysisEngine.createFeatureSelectionURI(new File(directory, "uncertainty")),
 			AssertionCleartkAnalysisEngine.PARAM_FEATURE_SELECTION_THRESHOLD,
-			featureSelectionThreshold
+			featureSelectionThreshold,
+      AssertionCleartkAnalysisEngine.PARAM_FEATURE_CONFIG,
+      options.featConfig
 	        );
 	    builder.add(uncertaintyAnnotator);
     }
@@ -1092,14 +1167,14 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 	  }
 
 	  // train models based on instances
-	  JarClassifierBuilder.trainAndPackage(directory, "-c", "0.05");
+	  JarClassifierBuilder.trainAndPackage(directory, arguments);
   }
   
   protected Class<? extends DataWriter> getDataWriterClass()
       throws ResourceInitializationException {
     return (options.featureSelectionThreshold!=null)
         ? InstanceDataWriter.class
-        : LIBLINEARStringOutcomeDataWriter.class;
+        : this.dataWriterClass;
   }
   
   private static boolean DEBUG = false;
@@ -1467,22 +1542,22 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 //	builder.add(cuePhraseLookupAnnotator);
     builder.add(AnalysisEngineFactory.createPrimitiveDescription(AlternateCuePhraseAnnotator.class, new Object[]{}));
 
-	String generalSectionRegexFileUri =
-		"org/mitre/medfacts/zoner/section_regex.xml";
-	AnalysisEngineDescription zonerAnnotator =
-		AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
-				ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
-				generalSectionRegexFileUri
-		);
-//	builder.add(zonerAnnotator);
-
-	String mayoSectionRegexFileUri =
-		"org/mitre/medfacts/uima/mayo_sections.xml";
-	AnalysisEngineDescription mayoZonerAnnotator =
-		AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
-				ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
-				mayoSectionRegexFileUri
-		);
+//	String generalSectionRegexFileUri =
+//		"org/mitre/medfacts/zoner/section_regex.xml";
+//	AnalysisEngineDescription zonerAnnotator =
+//		AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+//				ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
+//				generalSectionRegexFileUri
+//		);
+////	builder.add(zonerAnnotator);
+//
+//	String mayoSectionRegexFileUri =
+//		"org/mitre/medfacts/uima/mayo_sections.xml";
+//	AnalysisEngineDescription mayoZonerAnnotator =
+//		AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+//				ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
+//				mayoSectionRegexFileUri
+//		);
 //	builder.add(mayoZonerAnnotator);
 
 	// Add the ClearTk or the ytex negation (polarity) classifier
@@ -1510,7 +1585,9 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
     				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
     				AssertionEvaluation.GOLD_VIEW_NAME,
     				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-    				new File(new File(directory, "polarity"), "model.jar").getPath()
+    				new File(new File(directory, "polarity"), "model.jar").getPath(),
+            PolarityCleartkAnalysisEngine.PARAM_FEATURE_CONFIG,
+            options.featConfig
     				);
     		builder.add(polarityAnnotator);
     	}
