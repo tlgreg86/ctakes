@@ -1,6 +1,8 @@
 package org.apache.ctakes.ytex.tools;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,7 +83,7 @@ public class SetupAuiFirstWord {
 		// b = uninflect a term
 		try {
 			URL uri = this.getClass().getClassLoader()
-					.getResource("lvgresources/lvg/data/config/lvg.properties");
+					.getResource("org/apache/ctakes/lvg/data/config/lvg.properties");
 			if (log.isInfoEnabled())
 				log.info("loading lvg.properties from:" + uri.getPath());
 			File f = new File(uri.getPath());
@@ -109,19 +111,20 @@ public class SetupAuiFirstWord {
 		this.exclusionSet = new HashSet<String>();
 		InputStream isLvgAnno = null;
 		try {
-			URL lvgURL = this.getClass().getClassLoader()
-					.getResource("lvgdesc/analysis_engine/LvgAnnotator.xml");
-			if (lvgURL == null) {
-				log.warn("lvgdesc/analysis_engine/LvgAnnotator.xml not available, using empty exclusion set");
+			isLvgAnno = this
+					.getClass()
+					.getClassLoader()
+					.getResourceAsStream(
+							"ctakes-lvg/desc/analysis_engine/LvgAnnotator.xml");
+			if(isLvgAnno == null) {
+				log.warn("classpath:ctakes-lvg/desc/analysis_engine/LvgAnnotator.xml not available, attempting to load from file system");
+				File f = new File("../ctakes-lvg/desc/analysis_engine/LvgAnnotator.xml");
+				if(f.exists())
+					isLvgAnno = new BufferedInputStream(new FileInputStream(f));
+			} 
+			if (isLvgAnno == null) {
+				log.warn("ctakes-lvg/desc/analysis_engine/LvgAnnotator.xml not available, using empty exclusion set");
 			} else {
-				if (log.isInfoEnabled())
-					log.info("loading LvgAnnotator.xml from:"
-							+ lvgURL.getPath());
-				isLvgAnno = this
-						.getClass()
-						.getClassLoader()
-						.getResourceAsStream(
-								"lvgdesc/analysis_engine/LvgAnnotator.xml");
 				DocumentBuilderFactory dbFactory = DocumentBuilderFactory
 						.newInstance();
 				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
