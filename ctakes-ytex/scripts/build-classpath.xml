@@ -70,9 +70,7 @@
 		<pathelement location="${config.local}" />
 		<dirset dir="${ctakes.home}" includes="**/src/main/resources" />
 		<dirset dir="${ctakes.home}" includes="**/target/classes" />
-		<!--
-		<pathelement location="${ctakes.home}/ctakes-ytex-uima/target/classes" />
-		-->
+		<dirset dir="${ctakes.home}" includes="**/desc" />
 		<fileset dir="${ctakes.home}" includes="ctakes-assertion/lib/*.jar,ctakes-ytex/target/lib/*.jar,ctakes-ytex-uima/target/lib/*.jar" excludes="**/ant-*.jar" />
 	</path>
 	<path id="kernel.cp.prod">
