@@ -47,6 +47,7 @@ import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.FileUtils;
 import org.cleartk.classifier.jar.JarClassifierBuilder;
 import org.cleartk.classifier.tksvmlight.TKSVMlightStringOutcomeDataWriter;
 import org.cleartk.classifier.tksvmlight.model.CompositeKernel;
@@ -160,7 +161,7 @@ public class EvaluationOfEventTimeRelations extends
       if(options.getUseTmp()){
         // won't work because it's not empty. should we be concerned with this or is it responsibility of 
         // person invoking the tmp flag?
-        workingDir.delete();
+    	FileUtils.deleteRecursive(workingDir);
       }
     }catch(ResourceInitializationException e){
       System.err.println("Error with parameter settings: " + params);
