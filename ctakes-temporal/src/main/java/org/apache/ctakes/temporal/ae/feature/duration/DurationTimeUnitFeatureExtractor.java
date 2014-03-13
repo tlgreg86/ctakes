@@ -50,7 +50,7 @@ public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtract
     String eventText = arg1.getCoveredText().toLowerCase(); // arg1 is an event
     String timeText = arg2.getCoveredText().toLowerCase();  // arg2 is a time mention
 
-    File durationLookup = new File("/Users/dima/Boston/Thyme/Duration/Output/Duration/distribution.txt");
+    File durationLookup = new File(Utils.durationDistributionPath);
     Map<String, Map<String, Float>> textToDistribution = null;
     try {
       textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Utils.Callback());

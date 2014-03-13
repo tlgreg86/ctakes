@@ -40,7 +40,7 @@ public class DurationEventEventFeatureExtractor implements RelationFeaturesExtra
       throws AnalysisEngineProcessException {
 
     List<Feature> features = new ArrayList<Feature>();
-    File durationLookup = new File("/Users/dima/Boston/Thyme/Duration/Output/Duration/distribution.txt");
+    File durationLookup = new File(Utils.durationDistributionPath);
     String arg1text = arg1.getCoveredText().toLowerCase();
     String arg2text = arg2.getCoveredText().toLowerCase();
     

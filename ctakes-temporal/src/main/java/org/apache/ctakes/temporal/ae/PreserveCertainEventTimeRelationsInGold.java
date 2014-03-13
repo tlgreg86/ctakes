@@ -34,7 +34,7 @@ public class PreserveCertainEventTimeRelationsInGold extends JCasAnnotator_ImplB
   @Override                                                                                                                  
   public void process(JCas jCas) throws AnalysisEngineProcessException {                                                     
 
-    File durationLookup = new File("/Users/Dima/Boston/Thyme/Duration/Output/Duration/distribution.txt");                      
+    File durationLookup = new File(Utils.durationDistributionPath);                      
     Map<String, Map<String, Float>> textToDistribution = null;                                                                 
     try {                                                                                                                      
       textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Callback());                                    

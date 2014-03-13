@@ -39,7 +39,7 @@ public class DurationExpectationFeatureExtractor implements SimpleFeatureExtract
   public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException { 
 
     List<Feature> features = new ArrayList<Feature>();
-    File durationLookup = new File("/Users/Dima/Boston/Thyme/Duration/Output/Duration/distribution.txt");
+    File durationLookup = new File(Utils.durationDistributionPath);
     String eventText = annotation.getCoveredText().toLowerCase();
     
     Map<String, Map<String, Float>> textToDistribution = null;
