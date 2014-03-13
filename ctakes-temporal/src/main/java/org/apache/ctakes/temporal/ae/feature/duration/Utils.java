@@ -26,7 +26,7 @@ import com.google.common.io.LineProcessor;
  */
 public class Utils {
 
-  public static final String durationDistributionPath = "/Users/dima/Boston/Thyme/Duration/Data/SignSymptom/Distribution/distribution.txt";
+  public static final String durationDistributionPath = "/Users/dima/Boston/Thyme/Duration/Data/Combined/Distribution/mimic.txt";
   
   /**
    * Compute expected duration in seconds. Normalize by number of seconds in a year.

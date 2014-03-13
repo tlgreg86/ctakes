@@ -40,13 +40,14 @@ public class DurationEventEventFeatureExtractor implements RelationFeaturesExtra
       throws AnalysisEngineProcessException {
 
     List<Feature> features = new ArrayList<Feature>();
-    File durationLookup = new File(Utils.durationDistributionPath);
     String arg1text = arg1.getCoveredText().toLowerCase();
     String arg2text = arg2.getCoveredText().toLowerCase();
+    Float expectedDuration1;
+    Float expectedDuration2;
     
     Map<String, Map<String, Float>> textToDistribution = null;
     try {
-      textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Utils.Callback());
+      textToDistribution = Files.readLines(new File(Utils.durationDistributionPath), Charsets.UTF_8, new Utils.Callback());
     } catch(IOException e) {
       e.printStackTrace();
       return features;
@@ -55,25 +56,19 @@ public class DurationEventEventFeatureExtractor implements RelationFeaturesExtra
     Map<String, Float> arg1Distribution = textToDistribution.get(arg1text);
     if(arg1Distribution == null) {
       features.add(new Feature("arg1_no_duration_info"));
-    } else {
-//      float expectation1 = DurationExpectationFeatureExtractor.expectedDuration(arg1Distribution);
-//      features.add(new Feature("arg1_expected_duration", expectation1));
-      for(String timeUnit : arg1Distribution.keySet()) {
-        features.add(new Feature("duration_" + timeUnit, arg1Distribution.get(timeUnit)));  
-      }
-    }
+      return features;
+    } 
+    
+    expectedDuration1 = Utils.expectedDuration(arg1Distribution);
     
     Map<String, Float> arg2Distribution = textToDistribution.get(arg2text);
     if(arg2Distribution == null) {
       features.add(new Feature("arg2_no_duration_info"));
-    } else {
-//      float expectation2 = DurationExpectationFeatureExtractor.expectedDuration(arg2Distribution);
-//      features.add(new Feature("arg_expected_duration", expectation2));
-      for(String timeUnit : arg2Distribution.keySet()) {
-        features.add(new Feature("duration_" + timeUnit, arg2Distribution.get(timeUnit)));  
-      }
+      return features;
     }
     
+    expectedDuration2 = Utils.expectedDuration(arg2Distribution);
+    features.add(new Feature("expected_duration_difference", expectedDuration1 - expectedDuration2));
     return features;
   }
 }
