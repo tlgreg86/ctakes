@@ -55,6 +55,7 @@ public class DurationEventEventFeatureExtractor implements RelationFeaturesExtra
     
     Map<String, Float> arg1Distribution = textToDistribution.get(arg1text);
     if(arg1Distribution == null) {
+      // this shouldn't happen if relations with no durations for args filtered out
       features.add(new Feature("arg1_no_duration_info"));
       return features;
     } 
@@ -63,6 +64,7 @@ public class DurationEventEventFeatureExtractor implements RelationFeaturesExtra
     
     Map<String, Float> arg2Distribution = textToDistribution.get(arg2text);
     if(arg2Distribution == null) {
+      // this shouldn't happen if relations with no durations for args filtered out
       features.add(new Feature("arg2_no_duration_info"));
       return features;
     }
