@@ -1,6 +1,6 @@
 package org.apache.ctakes.temporal.data.analysis;
 
-import org.apache.ctakes.temporal.ae.feature.duration.DurationTimeUnitFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.duration.Utils;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
@@ -33,7 +33,7 @@ public class PrintNormalizedTemporalExpressions extends JCasAnnotator_ImplBase {
     
     for(TimeMention mention : Lists.newArrayList(JCasUtil.select(goldView, TimeMention.class))) {
       String timex = mention.getCoveredText().toLowerCase();
-      Set<TemporalUnit> units = DurationTimeUnitFeatureExtractor.normalize(timex);
+      Set<TemporalUnit> units = Utils.normalize(timex);
 
       if(units == null) {
         System.out.println(timex + "|" + "n/a");

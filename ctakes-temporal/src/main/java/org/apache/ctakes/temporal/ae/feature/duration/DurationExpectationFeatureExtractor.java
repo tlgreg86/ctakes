@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ctakes.temporal.ae.feature.duration.DurationDistributionFeatureExtractor.Callback;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.Feature;
@@ -32,7 +31,6 @@ import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 
 public class DurationExpectationFeatureExtractor implements SimpleFeatureExtractor {
@@ -46,7 +44,7 @@ public class DurationExpectationFeatureExtractor implements SimpleFeatureExtract
     
     Map<String, Map<String, Float>> textToDistribution = null;
     try {
-      textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Callback());
+      textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Utils.Callback());
     } catch(IOException e) {
       e.printStackTrace();
       return features;
@@ -56,34 +54,10 @@ public class DurationExpectationFeatureExtractor implements SimpleFeatureExtract
     if(eventDistribution == null) {
       features.add(new Feature("no_duration_info"));
     } else {
-      float expectation = expectedDuration(eventDistribution);
+      float expectation = Utils.expectedDuration(eventDistribution);
       features.add(new Feature("expected_duration", expectation));
     }
     
     return features;
-  }
-
-  /**
-   * Compute expected duration in seconds. Normalize by number of seconds in a year.
-   */
-  public static float expectedDuration(Map<String, Float> distribution) {
-    
-    // unit of time -> duration in seconds
-    final Map<String, Integer> converter = ImmutableMap.<String, Integer>builder()
-        .put("second", 1)
-        .put("minute", 60)
-        .put("hour", 60 * 60)
-        .put("day", 60 * 60 * 24)
-        .put("week", 60 * 60 * 24 * 7)
-        .put("month", 60 * 60 * 24 * 30)
-        .put("year", 60 * 60 * 24 * 365)
-        .build();
-
-    float expectation = 0f;
-    for(String unit : distribution.keySet()) {
-      expectation = expectation + (converter.get(unit) * distribution.get(unit));
-    }
-  
-    return expectation / converter.get("year");
   }
 }

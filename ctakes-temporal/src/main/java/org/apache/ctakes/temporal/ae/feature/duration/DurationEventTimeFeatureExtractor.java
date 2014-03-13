@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
-import org.apache.ctakes.temporal.ae.feature.duration.DurationDistributionFeatureExtractor.Callback;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
@@ -47,7 +46,7 @@ public class DurationEventTimeFeatureExtractor implements RelationFeaturesExtrac
     
     Map<String, Map<String, Float>> textToDistribution = null;
     try {
-      textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Callback());
+      textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Utils.Callback());
     } catch(IOException e) {
       e.printStackTrace();
       return features;

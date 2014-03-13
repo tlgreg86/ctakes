@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.ctakes.temporal.ae.feature.duration.DurationDistributionFeatureExtractor.Callback;
+import org.apache.ctakes.temporal.ae.feature.duration.Utils;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
@@ -29,7 +29,7 @@ public class PreserveCertainEventsInGold extends JCasAnnotator_ImplBase {
     File durationLookup = new File("/Users/Dima/Boston/Thyme/Duration/Output/Duration/distribution.txt");                      
     Map<String, Map<String, Float>> textToDistribution = null;                                                                 
     try {                                                                                                                      
-      textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Callback());                                    
+      textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Utils.Callback());                                    
     } catch(IOException e) {                                                                                                   
       e.printStackTrace();                                                                                                     
       return;                                                                                                                  

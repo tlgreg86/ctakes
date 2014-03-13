@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.ctakes.temporal.ae.feature.duration.DurationDistributionFeatureExtractor.Callback;
-import org.apache.ctakes.temporal.ae.feature.duration.DurationTimeUnitFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.duration.Utils;
+import org.apache.ctakes.temporal.ae.feature.duration.Utils.Callback;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -68,7 +68,7 @@ public class PreserveCertainEventTimeRelationsInGold extends JCasAnnotator_ImplB
         continue;
       }    
 
-      Set<TemporalUnit> units = DurationTimeUnitFeatureExtractor.normalize(timeText);
+      Set<TemporalUnit> units = Utils.normalize(timeText);
       if(textToDistribution.containsKey(eventText) && units != null) {
         // there is duration information and we are able to get time units, so keep this
         continue;
@@ -91,7 +91,7 @@ public class PreserveCertainEventTimeRelationsInGold extends JCasAnnotator_ImplB
     // finally remove time expressions (that didn't participate in relations) that have no data
     for(TimeMention mention : Lists.newArrayList(JCasUtil.select(goldView, TimeMention.class))) {
       String timeText = mention.getCoveredText().toLowerCase();
-      Set<TemporalUnit> units = DurationTimeUnitFeatureExtractor.normalize(timeText);
+      Set<TemporalUnit> units = Utils.normalize(timeText);
       if(units != null) {
         // these are the kind we keep
         continue;
