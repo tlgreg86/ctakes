@@ -219,12 +219,14 @@ public class TemplateFillerAnnotator extends JCasAnnotator_ImplBase{
 	// Fill in template slots from relations. 
 	
 	//FSIndex<FeatureStructure> relationArgs = jcas.getFSIndexRepository().getIndex("_org.apache.ctakes.typesystem.type.relation.RelationArgument_GeneratedIndex");
-	FSIndex<FeatureStructure> binaryTextRelations = jcas.getFSIndexRepository().getIndex("_org.apache.ctakes.typesystem.type.relation.BinaryTextRelation_GeneratedIndex");
+	//FSIndex<FeatureStructure> binaryTextRelations = jcas.getFSIndexRepository().getIndex("_org.apache.ctakes.typesystem.type.relation.BinaryTextRelation_GeneratedIndex");
+	FSIndex<FeatureStructure> locationOfTextRelations = jcas.getFSIndexRepository().getIndex("_org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation_GeneratedIndex");
+	FSIndex<FeatureStructure> degreeOfTextRelations = jcas.getFSIndexRepository().getIndex("_org.apache.ctakes.typesystem.type.relation.DegreeOfTextRelation_GeneratedIndex");
 	int i = 0;
 	
-	if (binaryTextRelations != null) {
+	if (locationOfTextRelations != null) {
 		
-	    for (FeatureStructure binaryTextRelationFS: binaryTextRelations) {
+	    for (FeatureStructure binaryTextRelationFS: locationOfTextRelations) {
 	    	
 	    	i++;
 	    	//logger.info("binaryTextRelationFS = " + binaryTextRelationFS);
@@ -290,9 +292,9 @@ public class TemplateFillerAnnotator extends JCasAnnotator_ImplBase{
 	    }
 	}
 	
-	if (binaryTextRelations != null) {
+	if (degreeOfTextRelations != null) {
 		
-	    for (FeatureStructure binaryTextRelationFS: binaryTextRelations) {
+	    for (FeatureStructure binaryTextRelationFS: degreeOfTextRelations) {
 	    	
 	    	i++;
 	    	//logger.info("binaryTextRelationFS = " + binaryTextRelationFS);
@@ -345,8 +347,7 @@ public class TemplateFillerAnnotator extends JCasAnnotator_ImplBase{
 	    		logger.error("Need to implement more cases for relation: " + relation);
 	    	}
 	    }
-	}
-	 
+	}	 
 	
     }
 
