@@ -186,11 +186,11 @@ public class TemplateFillerAnnotator extends JCasAnnotator_ImplBase{
 	// For each IdentifiedAnnotations, if it is of one of the right types, copy to the appropriate new subtype
 	List<Annotation> annotationsToRemoveFromCas = new ArrayList<Annotation>(); 
 	try {
-	while (identifiedAnnotationsIter.hasNext()) {
-	    IdentifiedAnnotation original = (IdentifiedAnnotation)identifiedAnnotationsIter.next();
-	    IdentifiedAnnotation mention = null;
-	    if (true)  { 
-	    	// for 3.0 and earlier, needed to map mentions to the more specific types. in post-3.0, already creating proper type
+		while (identifiedAnnotationsIter.hasNext()) {
+			IdentifiedAnnotation original = (IdentifiedAnnotation)identifiedAnnotationsIter.next();
+			IdentifiedAnnotation mention = null;
+
+			// for 3.0 and earlier, needed to map mentions to the more specific types. in post-3.0, already creating proper type
 	    	// for things other than medications. Drug NER was creating MedicationEventMentions still for a while (in trunk)
 	    	int t = original.getTypeID(); 
 	    	if (t==CONST.NE_TYPE_ID_ANATOMICAL_SITE || t==CONST.NE_TYPE_ID_DISORDER || t==CONST.NE_TYPE_ID_DISORDER 
@@ -210,63 +210,7 @@ public class TemplateFillerAnnotator extends JCasAnnotator_ImplBase{
 	    		// Some other type of IdentifiedAnnotation such as TimeMention, Modifier, DateMention, RomanNumeralAnnotation, etc
 	    		// For each those we do nothing in this annotator.
 	    	}
-	    } else {
-	    	// This switch should no longer be needed now that with 3.1 we are using correct specific types like 
-	    	// AnatomicalSiteMention rather than EntityMention and DiseaseDisorderMention etc
-	    	switch (original.getTypeID()) {
-
-	    	case CONST.NE_TYPE_ID_ANATOMICAL_SITE: ;
-	    	//org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention
-	    	//org.apache.ctakes.typesystem.type.textsem.EntityMention
-	    	mention = new AnatomicalSiteMention(jcas);
-	    	mapToMentions.put(original, mention);
-	    	setAttributesFromOriginal(mention, original);
-	    	annotationsToRemoveFromCas.add(original);
-	    	break;
-
-	    	case CONST.NE_TYPE_ID_DISORDER: ;
-	    	//org.apache.ctakes.typesystem.type.textsem.DiseaseDisorderMention
-	    	//org.apache.ctakes.typesystem.type.textsem.EventMention
-	    	mention = new DiseaseDisorderMention(jcas);
-	    	mapToMentions.put(original, mention);
-	    	setAttributesFromOriginal(mention, original);
-	    	annotationsToRemoveFromCas.add(original);
-	    	break;
-
-	    	case CONST.NE_TYPE_ID_DRUG: ;
-
-    		if (original instanceof MedicationEventMention) {
-    			mention = new MedicationMention(jcas);
-    			mapToMentions.put(original, mention);
-    			setAttributesFromOriginal(mention, original);
-    			annotationsToRemoveFromCas.add(original);
-    		}
-	    	break;
-
-	    	case CONST.NE_TYPE_ID_FINDING: ; // aka sign/symptom
-	    	//org.apache.ctakes.typesystem.type.textsem.SignSymptomMention
-	    	//org.apache.ctakes.typesystem.type.textsem.EventMention
-	    	mention = new SignSymptomMention(jcas);
-	    	mapToMentions.put(original, mention);
-	    	setAttributesFromOriginal(mention, original);
-	    	annotationsToRemoveFromCas.add(original);
-	    	break;
-
-	    	case CONST.NE_TYPE_ID_PROCEDURE: ;
-	    	//org.apache.ctakes.typesystem.type.textsem.ProcedureMention
-	    	//org.apache.ctakes.typesystem.type.textsem.EventMention
-	    	mention = new ProcedureMention(jcas);
-	    	mapToMentions.put(original, mention);
-	    	setAttributesFromOriginal(mention, original);
-	    	annotationsToRemoveFromCas.add(original);
-	    	break;
-
-	    	default: ;
-	    	// Some other type of IdentifiedAnnotation such as TimeMention, Modifier, DateMention, RomanNumeralAnnotation, etc
-	    	// For each those we do nothing in this annotator.
-	    	}
-	    }
-	}
+		}
 
 	} catch (CASException e) {
 		throw new AnalysisEngineProcessException(e);
@@ -286,12 +230,9 @@ public class TemplateFillerAnnotator extends JCasAnnotator_ImplBase{
 	    	//logger.info("binaryTextRelationFS = " + binaryTextRelationFS);
 	    	BinaryTextRelation binaryTextRelation = (BinaryTextRelation) binaryTextRelationFS;
 	    	LocationOfTextRelation locationOfTextRelation = null;
-	    	DegreeOfTextRelation degreeOfTextRelation = null;
 	    	if (binaryTextRelation instanceof LocationOfTextRelation) {
 	    		locationOfTextRelation = (LocationOfTextRelation) binaryTextRelationFS;
-	    	} else if (binaryTextRelation instanceof DegreeOfTextRelation) {
-	    		degreeOfTextRelation = (DegreeOfTextRelation) binaryTextRelationFS;
-	    	}
+	    	} 
 	    	
 	    	RelationArgument arg1 = binaryTextRelation.getArg1(); // an EntityMention  OR  location
 	    	RelationArgument arg2 = binaryTextRelation.getArg2(); // a Modifier  OR   what is located at location
@@ -299,33 +240,8 @@ public class TemplateFillerAnnotator extends JCasAnnotator_ImplBase{
 
 	    	if (relation.equals("degree_of")) {
 	    		
-	    		Modifier severity = (Modifier) arg2.getArgument();
-	    		// degree_of is aka severity, which applies to SignSymptomMention/SignSymptom and DiseaseDisorder
-	    		// find Mention associated with arg1
-	    		IdentifiedAnnotation arg1Arg = (IdentifiedAnnotation) arg1.getArgument();
-	    		// set severity within the Mention to be arg2 (the Modifier)
-	    		// Note at this point mapToMentions.get(entityMention) might be an entityMention instead of an EventMention
-	    		// for example rec041 in the seed set resulted in 
-	    		//  ClassCastException: org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention 
-	    		//  cannot be cast to org.apache.ctakes.typesystem.type.textsem.EventMention
-	    		IdentifiedAnnotation ia = mapToMentions.get(arg1Arg);
-	    		if (ia instanceof EntityMention) {
-	    			EntityMention entityMention = (EntityMention) ia;
-	    			logger.error("Need to implement cases for handling EntityMention " + entityMention + " within relation: " + relation);
-	    			logger.error("   severity " + severity + " in relation " + relation + " with/to " + entityMention);
-	    			logger.error("   Using covered text: severity " + severity.getCoveredText() + " in relation " + relation + " with/to " + entityMention.getCoveredText());
-	    		} else { 
-	    			EventMention eventMention = (EventMention) ia;
-	    			if (eventMention instanceof DiseaseDisorderMention) {
-	    				DiseaseDisorderMention ddm = (DiseaseDisorderMention) eventMention;
-	    				ddm.setSeverity(degreeOfTextRelation);
-	    			} else if (eventMention instanceof SignSymptomMention) {
-	    				SignSymptomMention ssm = (SignSymptomMention) eventMention;
-	    				ssm.setSeverity(degreeOfTextRelation);
-	    			} else {
-	    				logger.error("Need to implement more cases for handling EventMention " + eventMention + " within relation: " + relation);
-	    			}
-	    		}
+	    		// do nothing here, this loop is for dealing with location_of
+	    		// degree_of has its own loop.
 	    		
 	    	} else if (relation.equals("location_of")) {
 
@@ -374,7 +290,62 @@ public class TemplateFillerAnnotator extends JCasAnnotator_ImplBase{
 	    }
 	}
 	
-	logger.debug("Number of BinaryTextRelations = " + i);
+	if (binaryTextRelations != null) {
+		
+	    for (FeatureStructure binaryTextRelationFS: binaryTextRelations) {
+	    	
+	    	i++;
+	    	//logger.info("binaryTextRelationFS = " + binaryTextRelationFS);
+	    	BinaryTextRelation binaryTextRelation = (BinaryTextRelation) binaryTextRelationFS;
+	    	DegreeOfTextRelation degreeOfTextRelation = null;
+	    	if (binaryTextRelation instanceof DegreeOfTextRelation) {
+	    		degreeOfTextRelation = (DegreeOfTextRelation) binaryTextRelationFS;
+	    	}
+	    	
+	    	RelationArgument arg1 = binaryTextRelation.getArg1(); // an EntityMention  OR  location
+	    	RelationArgument arg2 = binaryTextRelation.getArg2(); // a Modifier  OR   what is located at location
+	    	String relation = binaryTextRelation.getCategory(); // "degree_of", "location_of"
+
+	    	if (relation.equals("degree_of")) {
+	    		
+	    		Modifier severity = (Modifier) arg2.getArgument();
+	    		// degree_of is aka severity, which applies to SignSymptomMention/SignSymptom and DiseaseDisorder
+	    		// find Mention associated with arg1
+	    		IdentifiedAnnotation arg1Arg = (IdentifiedAnnotation) arg1.getArgument();
+	    		// set severity within the Mention to be arg2 (the Modifier)
+	    		// Note at this point mapToMentions.get(entityMention) might be an entityMention instead of an EventMention
+	    		// for example rec041 in the seed set resulted in 
+	    		//  ClassCastException: org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention 
+	    		//  cannot be cast to org.apache.ctakes.typesystem.type.textsem.EventMention
+	    		IdentifiedAnnotation ia = mapToMentions.get(arg1Arg);
+	    		if (ia instanceof EntityMention) {
+	    			EntityMention entityMention = (EntityMention) ia;
+	    			logger.error("Need to implement cases for handling EntityMention " + entityMention + " within relation: " + relation);
+	    			logger.error("   severity " + severity + " in relation " + relation + " with/to " + entityMention);
+	    			logger.error("   Using covered text: severity " + severity.getCoveredText() + " in relation " + relation + " with/to " + entityMention.getCoveredText());
+	    		} else { 
+	    			EventMention eventMention = (EventMention) ia;
+	    			if (eventMention instanceof DiseaseDisorderMention) {
+	    				DiseaseDisorderMention ddm = (DiseaseDisorderMention) eventMention;
+	    				ddm.setSeverity(degreeOfTextRelation);
+	    			} else if (eventMention instanceof SignSymptomMention) {
+	    				SignSymptomMention ssm = (SignSymptomMention) eventMention;
+	    				ssm.setSeverity(degreeOfTextRelation);
+	    			} else {
+	    				logger.error("Need to implement more cases for handling EventMention " + eventMention + " within relation: " + relation);
+	    			}
+	    		}
+	    		
+	    	} else if (relation.equals("location_of")) {
+
+	    		// do nothing here, this loop is for dealing with degree_of
+	    		// location_of has its own loop.
+	    		
+	    	} else {
+	    		logger.error("Need to implement more cases for relation: " + relation);
+	    	}
+	    }
+	}
 	 
 	
     }
