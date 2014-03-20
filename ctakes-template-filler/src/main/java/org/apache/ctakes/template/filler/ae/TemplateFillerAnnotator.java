@@ -318,7 +318,7 @@ public class TemplateFillerAnnotator extends JCasAnnotator_ImplBase{
 	    			EventMention eventMention = (EventMention) ia;
 	    			if (eventMention instanceof DiseaseDisorderMention) {
 	    				DiseaseDisorderMention ddm = (DiseaseDisorderMention) eventMention;
-	    				logger.error("Need to implement attr for " + relation + " for DiseaseDisorderMention"); 
+	    				ddm.setSeverity(degreeOfTextRelation);
 	    			} else if (eventMention instanceof SignSymptomMention) {
 	    				SignSymptomMention ssm = (SignSymptomMention) eventMention;
 	    				ssm.setSeverity(degreeOfTextRelation);
