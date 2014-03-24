@@ -247,8 +247,8 @@ public class TemplateFillerAnnotator extends JCasAnnotator_ImplBase{
 	    		
 	    	} else if (relation.equals("location_of")) {
 
-	    		EntityMention arg2Arg = (EntityMention) arg2.getArgument(); // wrongly created as EntityMention prior to 3.0
-	    		IdentifiedAnnotation ia = mapToMentions.get(arg2Arg);
+	    		IdentifiedAnnotation arg1Arg = (IdentifiedAnnotation) arg1.getArgument();
+	    		IdentifiedAnnotation ia = mapToMentions.get(arg1Arg);
 
 	    		if (ia instanceof EntityMention) {
 	    			
@@ -257,7 +257,7 @@ public class TemplateFillerAnnotator extends JCasAnnotator_ImplBase{
 	    			// and "left renal vein" in relation location_of to anatomical site mention "renal vein"
 	    			// and "vein" in relation location_of to anatomical site mention "renal vein"
 	    			EntityMention entityMention = (EntityMention) ia;
-	    			IdentifiedAnnotation location = (IdentifiedAnnotation) arg1.getArgument();
+	    			IdentifiedAnnotation location = (IdentifiedAnnotation) arg2.getArgument();
 	    			IdentifiedAnnotation loc = (IdentifiedAnnotation)mapToMentions.get(location);
 	    			if (loc instanceof AnatomicalSiteMention) { 
 	    				AnatomicalSiteMention asm = (AnatomicalSiteMention) loc;
