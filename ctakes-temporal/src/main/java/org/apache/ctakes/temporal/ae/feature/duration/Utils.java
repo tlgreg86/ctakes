@@ -9,7 +9,9 @@ import info.bethard.timenorm.TimeSpanSet;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.threeten.bp.temporal.TemporalField;
@@ -26,7 +28,44 @@ import com.google.common.io.LineProcessor;
  */
 public class Utils {
 
+  // events and their duration distributions
   public static final String durationDistributionPath = "/Users/dima/Boston/Thyme/Duration/Data/Combined/Distribution/mimic.txt";
+  
+  // time units over which we define a duration distribution
+  public static final String[] bins = {"second", "minute", "hour", "day", "week", "month", "year"};
+  
+  /**
+   * Take the time unit from Steven Bethard's noramlizer
+   * and output a coarser time unit: {"second", "minute", "hour", "day", "week", "month", "year"}.
+   */
+  public static String makeCoarse(String timeUnit) {
+    
+    HashSet<String> allowableTimeUnits = new HashSet<String>(Arrays.asList(bins));
+    
+    // map output of Steven Behard's normalizer to coarser time units
+    Map<String, String> mapping = ImmutableMap.<String, String>builder()
+        .put("afternoon", "hour")
+        .put("decade", "year")
+        .put("evening", "hour")
+        .put("fall", "month")
+        .put("winter", "month")
+        .put("morning", "hour")
+        .put("night", "hour")
+        .put("quarteryear", "year")
+        .put("spring", "month")
+        .put("summer", "month")
+        .build(); 
+    
+    String singularAndLowercased = timeUnit.substring(0, timeUnit.length() - 1).toLowerCase();
+    if(allowableTimeUnits.contains(singularAndLowercased)) {
+      return singularAndLowercased;
+    } 
+    if(mapping.get(singularAndLowercased) != null) {
+      return mapping.get(singularAndLowercased);
+    }
+    
+    return null;
+  }
   
   /**
    * Compute expected duration in seconds. Normalize by number of seconds in a year.
@@ -84,7 +123,6 @@ public class Utils {
    */
   public static Map<String, Float> convertToDistribution(String timeUnit) {
     
-    String[] bins = {"second", "minute", "hour", "day", "week", "month", "year"};
     Map<String, Float> distribution = new HashMap<String, Float>();
     
     for(String bin: bins) {
