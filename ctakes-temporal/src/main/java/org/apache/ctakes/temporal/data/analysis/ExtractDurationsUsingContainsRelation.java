@@ -21,7 +21,9 @@ package org.apache.ctakes.temporal.data.analysis;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ctakes.relationextractor.eval.XMIReader;
 import org.apache.ctakes.temporal.ae.feature.duration.Utils;
@@ -29,11 +31,13 @@ import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
+import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.threeten.bp.temporal.TemporalUnit;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
@@ -44,6 +48,7 @@ import org.uimafit.util.JCasUtil;
 
 import scala.collection.immutable.Set;
 
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -90,6 +95,23 @@ public class ExtractDurationsUsingContainsRelation {
         description = "path to the output file that will store the events")
     private String eventOutputFile;
 
+    // map event text to time units with counts
+    private Map<String, HashMultiset<String>> eventTimeUnitCount;
+    
+    @Override
+    public void initialize(UimaContext context) throws ResourceInitializationException  {
+      super.initialize(context);
+      eventTimeUnitCount = new HashMap<String, HashMultiset<String>>();
+    }
+
+    @Override
+    public void collectionProcessComplete() throws AnalysisEngineProcessException {
+      super.collectionProcessComplete();  
+      for(String key : eventTimeUnitCount.keySet()) {
+        System.out.println(eventTimeUnitCount.get(key));
+      }
+    }
+    
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
 
@@ -100,21 +122,13 @@ public class ExtractDurationsUsingContainsRelation {
         throw new AnalysisEngineProcessException(e);
       }
 
-      JCas systemView;
-      try {
-        systemView = jCas.getView("_InitialView");
-      } catch (CASException e) {
-        throw new AnalysisEngineProcessException(e);
-      }
-
       for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(goldView, BinaryTextRelation.class))) { 
         if(! relation.getCategory().equals("CONTAINS")) {
           continue;
         }
-        
+
         RelationArgument arg1 = relation.getArg1();                                                                             
         RelationArgument arg2 = relation.getArg2(); 
-
         String eventText;
         String timeText;
         if(arg1.getArgument() instanceof TimeMention && arg2.getArgument() instanceof EventMention) {
@@ -124,13 +138,29 @@ public class ExtractDurationsUsingContainsRelation {
           eventText = arg1.getArgument().getCoveredText().toLowerCase(); 
           timeText = arg2.getArgument().getCoveredText().toLowerCase();  
         } else {
-          // this is not a event-time relation
-          continue;
+          continue; // not an event-time relation
         }    
 
         Set<TemporalUnit> units = Utils.normalize(timeText);
+        if(units == null) {
+          continue;
+        }
         
-        System.out.println(relation.getCategory() + " / " + timeText + " / " + eventText);
+        scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
+        while(iterator.hasNext()) {
+          TemporalUnit unit = iterator.next();
+          String coarseUnit = Utils.makeCoarse(unit.getName());
+          if(coarseUnit != null) {
+            if(eventTimeUnitCount.containsKey(eventText)) {
+              eventTimeUnitCount.get(eventText).add(coarseUnit);
+            } else {
+              HashMultiset<String> timeUnitCount = HashMultiset.create();
+              eventTimeUnitCount.put(eventText, timeUnitCount);
+              eventTimeUnitCount.get(eventText).add(coarseUnit);
+            }
+          }
+          break;
+        } 
       }
     }
   }
