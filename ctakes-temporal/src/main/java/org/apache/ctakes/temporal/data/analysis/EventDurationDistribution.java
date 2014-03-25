@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.ctakes.relationextractor.eval.XMIReader;
+import org.apache.ctakes.temporal.ae.feature.duration.Utils;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -137,7 +138,7 @@ public class EventDurationDistribution {
       }
 
       if(durationDistribution.size() > 0) { 
-        System.out.println(formatDistribution(mentionText, durationDistribution, ", ", true) + "[" + durationDistribution.size() + " instances]");
+        System.out.println(Utils.formatDistribution(mentionText, durationDistribution, ", ", true) + "[" + durationDistribution.size() + " instances]");
       }else{
         System.out.println(mentionText + ": No duration information found.");
       }
@@ -217,40 +218,6 @@ public class EventDurationDistribution {
 
       Joiner joiner = Joiner.on(',');
       return joiner.join(durationValues);
-    }
-    
-    /**
-     * Convert duration distribution multiset to a format that's easy to parse automatically.
-     * Format: <sign/symptom>,<time bin>:<count>, ...
-     * Example: apnea, second:5, minute:1, hour:5, day:10, week:1, month:0, year:0
-     */
-    private static String formatDistribution(
-        String mentionText, 
-        Multiset<String> durationDistribution, 
-        String separator,
-        boolean normalize) {
-      
-      List<String> distribution = new LinkedList<String>();
-      distribution.add(mentionText);
-
-      double total = 0;
-      if(normalize) {
-        for(String bin : BINS) {
-          total += durationDistribution.count(bin);
-        }
-      }
-      
-      for(String bin : BINS) {
-        if(normalize) {
-          distribution.add(String.format("%s:%.3f", bin, durationDistribution.count(bin) / total));  
-        } else {
-          distribution.add(String.format("%s:%d", bin, durationDistribution.count(bin)));
-        }
-        
-      }
-      
-      Joiner joiner = Joiner.on(separator);
-      return joiner.join(distribution);
     }
   }
   
