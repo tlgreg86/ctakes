@@ -19,6 +19,7 @@
 package org.apache.ctakes.temporal.data.analysis;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,12 +49,16 @@ import org.uimafit.util.JCasUtil;
 
 import scala.collection.immutable.Set;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 
 /**
+ * Use event-time CONTAINS relations to extract event duration distributions.
+ * 
  * @author dmitriy dligach
  */
 public class ExtractDurationsUsingContainsRelation {
@@ -85,7 +90,8 @@ public class ExtractDurationsUsingContainsRelation {
   }
 
   /**
-   *
+   * Go over even-time relations and collect all times with which
+   * each of the events occurs in CONTAINS relation.
    */
   public static class ProcessRelations extends JCasAnnotator_ImplBase {
 
@@ -98,17 +104,26 @@ public class ExtractDurationsUsingContainsRelation {
     // map event text to time units with counts
     private Map<String, HashMultiset<String>> eventTimeUnitCount;
     
+    // file to store the output
+    private File outputFile;
+    
     @Override
     public void initialize(UimaContext context) throws ResourceInitializationException  {
       super.initialize(context);
       eventTimeUnitCount = new HashMap<String, HashMultiset<String>>();
+      outputFile = new File(eventOutputFile);
     }
 
     @Override
     public void collectionProcessComplete() throws AnalysisEngineProcessException {
       super.collectionProcessComplete();  
       for(String key : eventTimeUnitCount.keySet()) {
-        System.out.println(eventTimeUnitCount.get(key));
+        String formatted = Utils.formatDistribution(key, eventTimeUnitCount.get(key), ", ", false);
+        try {
+          Files.append(formatted + "\n", outputFile, Charsets.UTF_8);
+        } catch (IOException e) {
+          System.out.println("couldn't open output file!");
+        }
       }
     }
     
@@ -159,7 +174,6 @@ public class ExtractDurationsUsingContainsRelation {
               eventTimeUnitCount.get(eventText).add(coarseUnit);
             }
           }
-          break;
         } 
       }
     }
