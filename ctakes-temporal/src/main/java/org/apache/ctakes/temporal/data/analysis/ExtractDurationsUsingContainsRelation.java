@@ -156,6 +156,9 @@ public class ExtractDurationsUsingContainsRelation {
           continue; // not an event-time relation
         }    
 
+        // occasionally event text has a leading eol character
+        eventText = eventText.startsWith("\n") ? eventText.substring(1) : eventText; 
+        
         Set<TemporalUnit> units = Utils.normalize(timeText);
         if(units == null) {
           continue;
