@@ -106,7 +106,7 @@ public class Utils {
    */
   public static Set<TemporalUnit> normalize(String timex) {
 
-    URL grammarURL = DurationTimeUnitFeatureExtractor.class.getResource("/info/bethard/timenorm/en.grammar");
+    URL grammarURL = DurationEventTimeFeatureExtractor.class.getResource("/info/bethard/timenorm/en.grammar");
     TemporalExpressionParser parser = new TemporalExpressionParser(grammarURL);
     TimeSpan anchor = TimeSpan.of(2013, 12, 16);
     Try<Temporal> result = parser.parse(timex, anchor);

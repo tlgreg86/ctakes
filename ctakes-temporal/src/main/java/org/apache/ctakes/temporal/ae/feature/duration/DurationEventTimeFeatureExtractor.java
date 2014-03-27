@@ -39,7 +39,7 @@ import com.google.common.io.Files;
 /**
  * Assumes all relations whose argument have no duration data have been deleted.
  */
-public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtractor {
+public class DurationEventTimeFeatureExtractor implements RelationFeaturesExtractor {
 
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2)
