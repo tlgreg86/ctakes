@@ -133,15 +133,14 @@ public class Utils {
   /**
    * Take a time unit and return a probability distribution
    * in which p(this time unit) = 1 and all others are zero.
+   * Assume time unit is one of the eight duration bins.
    */
   public static Map<String, Float> convertToDistribution(String timeUnit) {
     
     Map<String, Float> distribution = new HashMap<String, Float>();
     
     for(String bin: bins) {
-      // convert things like "Hours" to "hour"
-      String normalized = timeUnit.substring(0, timeUnit.length() - 1).toLowerCase(); 
-      if(bin.equals(normalized)) {
+      if(bin.equals(timeUnit)) {
         distribution.put(bin, 1.0f);
       } else {
         distribution.put(bin, 0.0f);
