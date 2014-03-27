@@ -2874,7 +2874,7 @@ private int[] getNarrativeSpansContainingGivenSpanType(JCas jcas, int begin, int
 			return senSpan;
 		if (highestRange  && spanStrength[0]!=-1) {
 			senSpan = spanStrength[0] > spanFrequency[0]? spanStrength : spanFrequency; 
-		} else if (spanFrequency[0]!=-1) {
+		} else if (spanFrequency[0]!=-1 && spanStrength[0]!=-1) {
 			senSpan = spanStrength[0] < spanFrequency[0]? spanStrength : spanFrequency; 
 		}
 		return spanDose[0] > senSpan[0]? spanDose : senSpan;
