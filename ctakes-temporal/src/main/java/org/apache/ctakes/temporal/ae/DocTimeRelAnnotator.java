@@ -19,14 +19,19 @@
 package org.apache.ctakes.temporal.ae;
 
 import java.io.File;
+//import java.io.IOException;
 import java.util.List;
+//import java.util.Map;
 
 import org.apache.ctakes.temporal.ae.feature.ClosestVerbExtractor;
+//import org.apache.ctakes.temporal.ae.feature.CoveredTextToValuesExtractor;
 import org.apache.ctakes.temporal.ae.feature.DateAndMeasurementExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventPropertyExtractor;
 import org.apache.ctakes.temporal.ae.feature.NearbyVerbTenseXExtractor;
 import org.apache.ctakes.temporal.ae.feature.SectionHeaderExtractor;
 import org.apache.ctakes.temporal.ae.feature.TimeXExtractor;
+import org.apache.ctakes.temporal.ae.feature.UmlsSingleFeatureExtractor;
+//import org.apache.ctakes.temporal.ae.feature.duration.DurationExpectationFeatureExtractor;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.UimaContext;
@@ -50,6 +55,8 @@ import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
 import org.cleartk.classifier.jar.GenericJarClassifierFactory;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.util.JCasUtil;
+
+//import com.google.common.base.Charsets;
 
 public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
 
@@ -83,7 +90,10 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
   private TimeXExtractor timeXExtractor;
   private EventPropertyExtractor genericExtractor;
   private DateAndMeasurementExtractor dateExtractor;
-
+  private UmlsSingleFeatureExtractor umlsExtractor;
+//  private CoveredTextToValuesExtractor disSemExtractor;
+//  private DurationExpectationFeatureExtractor durationExtractor;
+  
   @Override
   public void initialize(UimaContext context) throws ResourceInitializationException {
     super.initialize(context);
@@ -102,6 +112,14 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
     this.timeXExtractor = new TimeXExtractor();
     this.genericExtractor = new EventPropertyExtractor();
     this.dateExtractor = new DateAndMeasurementExtractor();
+    this.umlsExtractor = new UmlsSingleFeatureExtractor();
+//    try {
+//    	Map<String, double[]> word_disSem = CoveredTextToValuesExtractor.parseTextDoublesMap(new File("src/main/resources/embeddings.size25.txt"), Charsets.UTF_8);
+//    	this.disSemExtractor = new CoveredTextToValuesExtractor("DisSemFeat", word_disSem);
+//	} catch (IOException e) {
+//		e.printStackTrace();
+//	}
+//    this.durationExtractor = new DurationExpectationFeatureExtractor();
   }
 
   @Override
@@ -115,6 +133,9 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
         features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
         features.addAll(this.genericExtractor.extract(jCas, eventMention)); //add the closest time expression types
         features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
+        features.addAll(this.umlsExtractor.extract(jCas, eventMention)); //add umls features
+//        features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
+//        features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
         if (this.isTraining()) {
           String outcome = eventMention.getEvent().getProperties().getDocTimeRel();
           this.dataWriter.write(new Instance<String>(outcome, features));
