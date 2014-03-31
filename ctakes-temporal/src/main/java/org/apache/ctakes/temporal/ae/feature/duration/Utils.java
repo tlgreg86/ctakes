@@ -8,6 +8,7 @@ import info.bethard.timenorm.TimeSpan;
 import info.bethard.timenorm.TimeSpanSet;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.resource.FileLocator;
 import org.threeten.bp.temporal.TemporalField;
 import org.threeten.bp.temporal.TemporalUnit;
 
@@ -26,6 +28,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
 import com.google.common.io.LineProcessor;
+import com.googlecode.clearnlp.engine.EngineGetter;
+import com.googlecode.clearnlp.morphology.AbstractMPAnalyzer;
+import com.googlecode.clearnlp.reader.AbstractReader;
 
 /**
  * Various useful classes and methods for evaluating event duration data.
@@ -39,7 +44,7 @@ public class Utils {
   public static final String[] bins = {"second", "minute", "hour", "day", "week", "month", "year", "decade"};
   
   /**
-   * Take the time unit from Bethard's noramlizer
+   * Take the time unit from Bethard noramlizer
    * and output a coarser time unit, i.e. one of the eight bins
    */
   public static String makeCoarse(String timeUnit) {
@@ -184,6 +189,17 @@ public class Utils {
     return joiner.join(distribution);
   }
 
+  public static String lemmatize(String word, String pos) throws IOException {
+    
+    final String ENG_LEMMATIZER_DATA_FILE = "org/apache/ctakes/dependency/parser/models/lemmatizer/dictionary-1.3.1.jar";
+    AbstractMPAnalyzer lemmatizer;
+    InputStream lemmatizerModel = FileLocator.getAsStream(ENG_LEMMATIZER_DATA_FILE);
+    lemmatizer = EngineGetter.getMPAnalyzer(AbstractReader.LANG_EN, lemmatizerModel);
+    String lemma = lemmatizer.getLemma(word, pos);
+    lemmatizerModel.close();
+
+    return lemma;
+  }
   
   /**
    * Read event duration distributions from file.
@@ -215,5 +231,11 @@ public class Utils {
 
       return textToDistribution;
     }
+  }
+  
+  public static void main(String[] args) throws IOException {
+    
+    String lemma = lemmatize("left", "VBD");
+    System.out.println(lemma);
   }
 }
