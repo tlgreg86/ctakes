@@ -45,33 +45,89 @@ public class Utils {
   public static final String[] bins = {"second", "minute", "hour", "day", "week", "month", "year", "decade"};
   
   /**
-   * Take the time unit from Bethard noramlizer
-   * and output a coarser time unit, i.e. one of the eight bins
+   * Extract time unit(s) from a temporal expression.
+   * Extracted time units should be a subset of the bins above.
+   * Return empty set if time units couldnot be extracted.
+   * E.g. July 5, 1984 -> day
    */
-  public static String makeCoarse(String timeUnit) {
+  public static HashSet<String> getTimeUnits(String timex) {
+   
+    Set<TemporalUnit> units = runTimexParser(timex.toLowerCase());
+    if(units == null) {
+      return null;
+    }
     
-    HashSet<String> allowableTimeUnits = new HashSet<String>(Arrays.asList(bins));
+    HashSet<String> timeUnits = new HashSet<>();    
+    scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
+    while(iterator.hasNext()) {
+      TemporalUnit unit = iterator.next();
+      String bin = putInBin(unit.getName());
+      if(bin != null) {
+        timeUnits.add(bin);    
+      }
+    }
     
-    // map output of Behard's normalizer to coarser time units
-    Map<String, String> mapping = ImmutableMap.<String, String>builder()
-        .put("afternoon", "hour")
-        .put("evening", "hour")
-        .put("fall", "month")
-        .put("winter", "month")
-        .put("morning", "hour")
-        .put("night", "hour")
-        .put("quarteryear", "month")
-        .put("spring", "month")
-        .put("summer", "month")
-        .build(); 
+    return timeUnits;
+  }
+  
+  /**
+   * Use Bethard normalizer to map a temporal expression to a time unit.
+   */
+  public static Set<TemporalUnit> runTimexParser(String timex) {
 
+    URL grammarURL = DurationEventTimeFeatureExtractor.class.getResource("/info/bethard/timenorm/en.grammar");
+    TemporalExpressionParser parser = new TemporalExpressionParser(grammarURL);
+    TimeSpan anchor = TimeSpan.of(2013, 12, 16);
+    Try<Temporal> result = parser.parse(timex, anchor);
+
+    Set<TemporalUnit> units = null;
+    if (result.isSuccess()) {
+      Temporal temporal = result.get();
+
+      if (temporal instanceof Period) {
+        units = ((Period) temporal).unitAmounts().keySet();
+      } else if (temporal instanceof PeriodSet) {
+        units = ((PeriodSet) temporal).period().unitAmounts().keySet();
+      } else if (temporal instanceof TimeSpan) {
+        units = ((TimeSpan) temporal).period().unitAmounts().keySet();
+      } else if (temporal instanceof TimeSpanSet) {
+        Set<TemporalField> fields = ((TimeSpanSet) temporal).fields().keySet();
+        units = null; // fill units by calling .getBaseUnit() on each field
+      }
+    }
+    
+    return units;
+  }
+  
+  /**
+   * Take the time unit from Bethard noramlizer
+   * and return a coarser time unit, i.e. one of the eight bins.
+   * Return null, if this cannot be done. 
+   */
+  public static String putInBin(String timeUnit) {
+    
+    HashSet<String> allowableTimeUnits = new HashSet<>(Arrays.asList(bins));
+    
     // e.g. Years -> year
     String singularAndLowercased = timeUnit.substring(0, timeUnit.length() - 1).toLowerCase();
 
-    // is this one of the bins?
+    // is this one of the bins already?
     if(allowableTimeUnits.contains(singularAndLowercased)) {
       return singularAndLowercased;
     } 
+
+    // units that Betard normalizer outputs mapped to one of the eight bins
+    Map<String, String> mapping = ImmutableMap.<String, String>builder()
+        .put("afternoon", "hour")
+        .put("evening", "hour")
+        .put("morning", "hour")
+        .put("night", "hour")
+        .put("fall", "month")
+        .put("winter", "month")
+        .put("spring", "month")
+        .put("summer", "month")
+        .put("quarteryear", "month")
+        .build(); 
     
     // it's not one of the bins; can we map to to a bin?
     if(mapping.get(singularAndLowercased) != null) {
@@ -105,35 +161,6 @@ public class Utils {
     }
   
     return expectation / timeUnitInSeconds.get("decade");
-  }
-
-  /*
-   * Use Bethard normalizer to map a temporal expression to a time unit.
-   */
-  public static Set<TemporalUnit> normalize(String timex) {
-
-    URL grammarURL = DurationEventTimeFeatureExtractor.class.getResource("/info/bethard/timenorm/en.grammar");
-    TemporalExpressionParser parser = new TemporalExpressionParser(grammarURL);
-    TimeSpan anchor = TimeSpan.of(2013, 12, 16);
-    Try<Temporal> result = parser.parse(timex, anchor);
-
-    Set<TemporalUnit> units = null;
-    if (result.isSuccess()) {
-      Temporal temporal = result.get();
-
-      if (temporal instanceof Period) {
-        units = ((Period) temporal).unitAmounts().keySet();
-      } else if (temporal instanceof PeriodSet) {
-        units = ((PeriodSet) temporal).period().unitAmounts().keySet();
-      } else if (temporal instanceof TimeSpan) {
-        units = ((TimeSpan) temporal).period().unitAmounts().keySet();
-      } else if (temporal instanceof TimeSpanSet) {
-        Set<TemporalField> fields = ((TimeSpanSet) temporal).fields().keySet();
-        units = null; // fill units by calling .getBaseUnit() on each field
-      }
-    }
-    
-    return units;
   }
   
   /**
@@ -236,7 +263,7 @@ public class Utils {
   
   public static void main(String[] args) throws IOException {
     
-    String lemma = lemmatize("left", "VBD");
-    System.out.println(lemma);
+    HashSet<String> timeUnits = getTimeUnits("three months");
+    System.out.println(timeUnits);
   }
 }
