@@ -52,12 +52,12 @@ public class Utils {
    */
   public static HashSet<String> getTimeUnits(String timex) {
    
+    HashSet<String> timeUnits = new HashSet<>();    
     Set<TemporalUnit> units = runTimexParser(timex.toLowerCase());
     if(units == null) {
-      return null;
+      return timeUnits;
     }
     
-    HashSet<String> timeUnits = new HashSet<>();    
     scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
     while(iterator.hasNext()) {
       TemporalUnit unit = iterator.next();

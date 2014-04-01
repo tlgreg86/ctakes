@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -72,10 +73,10 @@ public class EventDurationDistribution {
   public static class TemporalDurationExtractor extends JCasAnnotator_ImplBase {
     
     // regular expression to match temporal durations in time mention annotations
-    private final static String REGEX = "(sec|min|hour|hrs|day|week|wk|month|year|yr|decade)";
+    private final static String regex = "(sec|min|hour|hrs|day|week|wk|month|year|yr|decade)";
     
-    // mapping between temporal durations and their normalized forms
-    private final static Map<String, String> MAPPING = ImmutableMap.<String, String>builder()
+    // mapping between time units and their normalized forms
+    private final static Map<String, String> abbreviationToTimeUnit = ImmutableMap.<String, String>builder()
         .put("sec", "second")
         .put("min", "minute")
         .put("hour", "hour")
@@ -89,22 +90,11 @@ public class EventDurationDistribution {
         .put("decade", "decade")
         .build(); 
     
-    // unique temporal bins; all time mentions will be classified into one of them
-    private final static List<String> BINS = Arrays.asList(
-        "second",
-        "minute",
-        "hour",
-        "day",
-        "week",
-        "month",
-        "year",
-        "decade");
-    
     // max distance between an event and the time mention that defines the event's duration
     private final static int MAXDISTANCE = 2;
 
-    // regex to match different time granularities (e.g. 'day', 'month')
-    Pattern pattern = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
+    // regex to match different time units (e.g. 'day', 'month')
+    Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
     
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -113,7 +103,7 @@ public class EventDurationDistribution {
       String fileName = ids.iterator().next().getDocumentID();
       String mentionText = fileName.split("\\.")[0]; // e.g. "smoker.txt"
 
-      // counts of different time granularities for this sign/symptom
+      // counts of different time units for this sign/symptom
       Multiset<String> durationDistribution = HashMultiset.create();
 
       for(EventMention mention : JCasUtil.select(jCas, targetClass)) {
@@ -123,26 +113,33 @@ public class EventDurationDistribution {
           }
 
           TimeMention nearestTimeMention = getNearestTimeMention(jCas, mention);
-          if(nearestTimeMention != null) {
-            Matcher matcher = pattern.matcher(nearestTimeMention.getCoveredText());
-            
-            System.out.println(nearestTimeMention.getCoveredText());
-
-            // need the loop to handle things like 'several days/weeks'
-            while(matcher.find()) {
-              String matchedDuration = matcher.group(); // e.g. "wks"
-              String normalizedDuration = MAPPING.get(matchedDuration);
-              durationDistribution.add(normalizedDuration);
+          if(nearestTimeMention == null) {
+            continue;
+          }
+          
+          // try to parse this timex with Bethard normalizer
+          HashSet<String> timeUnits = Utils.getTimeUnits(nearestTimeMention.getCoveredText());
+          if(timeUnits.size() > 0) {
+            for(String timeUnit : timeUnits) {
+              durationDistribution.add(timeUnit);
             }
+          } else {
+            // could be an abbreviation e.g. "wks"
+            Matcher matcher = pattern.matcher(nearestTimeMention.getCoveredText());
+            // need a loop to handle things like 'several days/weeks'
+            while(matcher.find()) {
+              String matchedTimeUnit = matcher.group(); // e.g. "wks"
+              String normalizedTimeUnit = abbreviationToTimeUnit.get(matchedTimeUnit);
+              System.out.println(nearestTimeMention.getCoveredText() + ": " + normalizedTimeUnit);
+              durationDistribution.add(normalizedTimeUnit);
+            }            
           }
         }
       }
 
       if(durationDistribution.size() > 0) { 
-//        System.out.println(Utils.formatDistribution(mentionText, durationDistribution, ", ", true) + "[" + durationDistribution.size() + " instances]");
-      }else{
-//        System.out.println(mentionText + ": No duration information found.");
-      }
+//        System.out.println(Utils.formatDistribution(mentionText, durationDistribution, ", ", false));
+      } 
     }
     
     /**
@@ -176,7 +173,7 @@ public class EventDurationDistribution {
     }
     
     /**
-     * Find nearest time mention that is within allowable distance. 
+     * Find nearest time mention on the right that is within allowable distance. 
      * Return null if none found.
      */
     private static TimeMention getNearestTimeMention(JCas jCas, EventMention mention) {
