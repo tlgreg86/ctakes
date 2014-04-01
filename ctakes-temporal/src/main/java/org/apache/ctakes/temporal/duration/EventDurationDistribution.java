@@ -130,7 +130,6 @@ public class EventDurationDistribution {
             while(matcher.find()) {
               String matchedTimeUnit = matcher.group(); // e.g. "wks"
               String normalizedTimeUnit = abbreviationToTimeUnit.get(matchedTimeUnit);
-              System.out.println(nearestTimeMention.getCoveredText() + ": " + normalizedTimeUnit);
               durationDistribution.add(normalizedTimeUnit);
             }            
           }
@@ -138,7 +137,7 @@ public class EventDurationDistribution {
       }
 
       if(durationDistribution.size() > 0) { 
-//        System.out.println(Utils.formatDistribution(mentionText, durationDistribution, ", ", false));
+        System.out.println(Utils.formatDistribution(mentionText, durationDistribution, ", ", false));
       } 
     }
     
