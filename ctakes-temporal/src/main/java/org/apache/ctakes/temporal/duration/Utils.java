@@ -1,4 +1,4 @@
-package org.apache.ctakes.temporal.ae.feature.duration;
+package org.apache.ctakes.temporal.duration;
 
 import info.bethard.timenorm.Period;
 import info.bethard.timenorm.PeriodSet;
@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.temporal.ae.feature.duration.DurationEventTimeFeatureExtractor;
 import org.threeten.bp.temporal.TemporalField;
 import org.threeten.bp.temporal.TemporalUnit;
 

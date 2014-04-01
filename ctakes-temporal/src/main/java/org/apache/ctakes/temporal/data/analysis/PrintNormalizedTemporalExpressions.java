@@ -1,6 +1,6 @@
 package org.apache.ctakes.temporal.data.analysis;
 
-import org.apache.ctakes.temporal.ae.feature.duration.Utils;
+import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;

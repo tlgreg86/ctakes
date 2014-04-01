@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.ctakes.temporal.ae.feature.duration.Utils;
-import org.apache.ctakes.temporal.ae.feature.duration.Utils.Callback;
+import org.apache.ctakes.temporal.duration.Utils.Callback;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;

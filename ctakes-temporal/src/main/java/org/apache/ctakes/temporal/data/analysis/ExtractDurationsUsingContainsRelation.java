@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.relationextractor.eval.XMIReader;
-import org.apache.ctakes.temporal.ae.feature.duration.Utils;
+import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
