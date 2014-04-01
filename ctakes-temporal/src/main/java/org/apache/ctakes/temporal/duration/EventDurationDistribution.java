@@ -15,7 +15,7 @@ import org.apache.ctakes.relationextractor.eval.XMIReader;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
-import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
+import org.apache.ctakes.typesystem.type.textsem.MedicationMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -42,7 +42,7 @@ import com.google.common.collect.Multiset;
  */
 public class EventDurationDistribution {
 
-  private static Class<? extends EventMention> targetClass = SignSymptomMention.class;
+  private static Class<? extends EventMention> targetClass = MedicationMention.class;
   
   public static class Options  {
 
@@ -121,10 +121,12 @@ public class EventDurationDistribution {
           if(isNegated(jCas, mention) || isMedicationPattern(jCas, mention)) {
             continue;
           }
-          
+
           TimeMention nearestTimeMention = getNearestTimeMention(jCas, mention);
           if(nearestTimeMention != null) {
             Matcher matcher = pattern.matcher(nearestTimeMention.getCoveredText());
+            
+            System.out.println(nearestTimeMention.getCoveredText());
 
             // need the loop to handle things like 'several days/weeks'
             while(matcher.find()) {
@@ -137,9 +139,9 @@ public class EventDurationDistribution {
       }
 
       if(durationDistribution.size() > 0) { 
-        System.out.println(Utils.formatDistribution(mentionText, durationDistribution, ", ", true) + "[" + durationDistribution.size() + " instances]");
+//        System.out.println(Utils.formatDistribution(mentionText, durationDistribution, ", ", true) + "[" + durationDistribution.size() + " instances]");
       }else{
-        System.out.println(mentionText + ": No duration information found.");
+//        System.out.println(mentionText + ": No duration information found.");
       }
     }
     

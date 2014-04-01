@@ -67,7 +67,7 @@ public class PreserveCertainEventTimeRelationsInGold extends JCasAnnotator_ImplB
         continue;
       }    
 
-      Set<TemporalUnit> units = Utils.normalize(timeText);
+      Set<TemporalUnit> units = Utils.runTimexParser(timeText);
       if(textToDistribution.containsKey(eventText) && units != null) {
         // there is duration information and we are able to get time units, so keep this
         continue;
@@ -90,7 +90,7 @@ public class PreserveCertainEventTimeRelationsInGold extends JCasAnnotator_ImplB
     // finally remove time expressions (that didn't participate in relations) that have no data
     for(TimeMention mention : Lists.newArrayList(JCasUtil.select(goldView, TimeMention.class))) {
       String timeText = mention.getCoveredText().toLowerCase();
-      Set<TemporalUnit> units = Utils.normalize(timeText);
+      Set<TemporalUnit> units = Utils.runTimexParser(timeText);
       if(units != null) {
         // these are the kind we keep
         continue;

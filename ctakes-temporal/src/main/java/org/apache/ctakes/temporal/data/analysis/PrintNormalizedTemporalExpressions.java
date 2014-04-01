@@ -33,7 +33,7 @@ public class PrintNormalizedTemporalExpressions extends JCasAnnotator_ImplBase {
     
     for(TimeMention mention : Lists.newArrayList(JCasUtil.select(goldView, TimeMention.class))) {
       String timex = mention.getCoveredText().toLowerCase();
-      Set<TemporalUnit> units = Utils.normalize(timex);
+      Set<TemporalUnit> units = Utils.runTimexParser(timex);
 
       if(units == null) {
         System.out.println(timex + "|" + "n/a");

@@ -159,7 +159,7 @@ public class ExtractDurationsUsingContainsRelation {
         // occasionally event text has a leading eol character
         eventText = eventText.startsWith("\n") ? eventText.substring(1) : eventText; 
         
-        Set<TemporalUnit> units = Utils.normalize(timeText);
+        Set<TemporalUnit> units = Utils.runTimexParser(timeText);
         if(units == null) {
           continue;
         }
@@ -167,7 +167,7 @@ public class ExtractDurationsUsingContainsRelation {
         scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
         while(iterator.hasNext()) {
           TemporalUnit unit = iterator.next();
-          String coarseUnit = Utils.makeCoarse(unit.getName());
+          String coarseUnit = Utils.putInBin(unit.getName());
           if(coarseUnit != null) {
             if(eventTimeUnitCount.containsKey(eventText)) {
               eventTimeUnitCount.get(eventText).add(coarseUnit);

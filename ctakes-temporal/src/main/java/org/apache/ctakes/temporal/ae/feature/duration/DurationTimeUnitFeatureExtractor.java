@@ -44,7 +44,7 @@ public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtract
     List<Feature> features = new ArrayList<Feature>();
     String timeText = arg2.getCoveredText().toLowerCase();  // arg2 is a time mention
 
-    Set<TemporalUnit> units = Utils.normalize(timeText);
+    Set<TemporalUnit> units = Utils.runTimexParser(timeText);
     if(units == null) {
       features.add(new Feature("failed_normalization", true));
       return features;
@@ -53,7 +53,7 @@ public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtract
     scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
     while(iterator.hasNext()) {
       TemporalUnit unit = iterator.next();
-      String coarseTimeUnit = Utils.makeCoarse(unit.getName());
+      String coarseTimeUnit = Utils.putInBin(unit.getName());
       
       if(coarseTimeUnit == null) {
         features.add(new Feature("failed_normalization", true));

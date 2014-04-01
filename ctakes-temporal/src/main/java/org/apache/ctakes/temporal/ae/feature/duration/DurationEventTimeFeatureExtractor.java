@@ -63,7 +63,7 @@ public class DurationEventTimeFeatureExtractor implements RelationFeaturesExtrac
     Map<String, Float> eventDistribution = textToDistribution.get(eventText);
     float eventExpectedDuration = Utils.expectedDuration(eventDistribution);
 
-    Set<TemporalUnit> units = Utils.normalize(timeText);
+    Set<TemporalUnit> units = Utils.runTimexParser(timeText);
     scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
     while(iterator.hasNext()) {
       TemporalUnit unit = iterator.next();
