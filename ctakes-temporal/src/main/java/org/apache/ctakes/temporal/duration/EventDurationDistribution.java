@@ -1,6 +1,7 @@
 package org.apache.ctakes.temporal.duration;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,23 +19,28 @@ import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.MedicationMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
+import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.uimafit.component.JCasAnnotator_ImplBase;
+import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
+import com.google.common.io.Files;
 
 /**
  * Extract durations of event mentions (e.g. sign/symptom or disease/disorder).
@@ -46,12 +52,17 @@ public class EventDurationDistribution {
   private static Class<? extends EventMention> targetClass = MedicationMention.class;
   
   public static class Options  {
-
     @Option(
         name = "--input-dir",
         usage = "specify the path to the directory containing the xmi files",
         required = true)
     public File inputDirectory;
+    
+    @Option(
+        name = "--output-file",
+        usage = "specify the path to the output file",
+        required = true)
+    public String outputFile;
   }
   
 	public static void main(String[] args) throws Exception {
@@ -65,12 +76,21 @@ public class EventDurationDistribution {
     CollectionReader collectionReader = getCollectionReader(trainFiles);
 		
     AnalysisEngine temporalDurationExtractor = AnalysisEngineFactory.createPrimitive(
-    		TemporalDurationExtractor.class);
+    		TemporalDurationExtractor.class,
+    		"OutputFile",
+    		options.outputFile);
     		
 		SimplePipeline.runPipeline(collectionReader, temporalDurationExtractor);
 	}
   
   public static class TemporalDurationExtractor extends JCasAnnotator_ImplBase {
+    
+    @ConfigurationParameter(
+        name = "OutputFile",
+        mandatory = true,
+        description = "path to the output file that will store the distributions")
+    private String outputFilePath;
+    private File outputFile;
     
     // regular expression to match temporal durations in time mention annotations
     private final static String regex = "(sec|min|hour|hrs|day|week|wk|month|year|yr|decade)";
@@ -95,6 +115,17 @@ public class EventDurationDistribution {
 
     // regex to match different time units (e.g. 'day', 'month')
     Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+    
+    @Override
+    public void initialize(UimaContext context) throws ResourceInitializationException  {
+      super.initialize(context);
+      outputFile = new File(outputFilePath);
+      if(outputFile.exists()) {
+        System.out.println(outputFile + " exists... deleting...");
+        outputFile.delete();
+      }
+    }
+    
     
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -137,7 +168,11 @@ public class EventDurationDistribution {
       }
 
       if(durationDistribution.size() > 0) { 
-        System.out.println(Utils.formatDistribution(mentionText, durationDistribution, ", ", false));
+        try {
+          Files.append(Utils.formatDistribution(mentionText, durationDistribution, ", ", false) + "\n", outputFile, Charsets.UTF_8);
+        } catch (IOException e) {
+          System.out.println("Could not open output file: " + outputFile);
+        } 
       } 
     }
     
