@@ -173,7 +173,9 @@ public class EventDurationDistribution {
         } catch (IOException e) {
           System.out.println("Could not open output file: " + outputFile);
         } 
-      } 
+      } else {
+        System.out.println("No duration data for: " + mentionText);
+      }
     }
     
     /**
@@ -183,7 +185,9 @@ public class EventDurationDistribution {
     private static boolean isNegated(JCas jCas, EventMention mention) {
       
       for(BaseToken token : JCasUtil.selectPreceding(jCas, BaseToken.class, mention, 3)) {
-        if(token.getCoveredText().equals("no")) {
+        if(token.getCoveredText().equals("no") || 
+           token.getCoveredText().equals("not") || 
+           token.getCoveredText().equals("off")) {
           return true;
         }
       }
