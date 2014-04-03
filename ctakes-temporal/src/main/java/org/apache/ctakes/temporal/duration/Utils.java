@@ -20,6 +20,9 @@ import java.util.Map;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.temporal.ae.feature.duration.DurationEventTimeFeatureExtractor;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.textsem.EventMention;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.CASException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.threeten.bp.temporal.TemporalField;
@@ -221,6 +224,9 @@ public class Utils {
     return joiner.join(distribution);
   }
 
+  /**
+   * Lemmatize word using ClearNLP lemmatizer.
+   */
   public static String lemmatize(String word, String pos) throws IOException {
     
     final String ENG_LEMMATIZER_DATA_FILE = "org/apache/ctakes/dependency/parser/models/lemmatizer/dictionary-1.3.1.jar";
@@ -249,6 +255,54 @@ public class Utils {
     }
     
     return coveringBaseTokens.get(0).getPartOfSpeech();
+  }
+  
+  /**
+   * Check if the annotation is a UMLS concept. If it is, return as is.
+   * Otherwise, lemmatize this annotation if this is a verb. 
+   * Return as is if not verb.
+   * Lowercase before returning.
+   */
+  public static String getText(JCas jCas, Annotation annotation) 
+      throws AnalysisEngineProcessException {
+
+    JCas systemView;
+    try {
+      systemView = jCas.getView("_InitialView");
+    } catch (CASException e) {
+      throw new AnalysisEngineProcessException(e);
+    }
+
+    List<EventMention> coveringSystemEventMentions = JCasUtil.selectCovered(
+        systemView, 
+        EventMention.class, 
+        annotation.getBegin(), 
+        annotation.getEnd());
+    for(EventMention systemEventMention : coveringSystemEventMentions) {
+      if(systemEventMention.getTypeID() != 0) {
+        return annotation.getCoveredText().toLowerCase();
+      }
+    } 
+    
+    String pos = Utils.getPosTag(systemView, annotation);
+    if(pos == null) {
+      return annotation.getCoveredText().toLowerCase();
+    }
+
+    String text;
+    if(pos.startsWith("V")) {
+      try {
+        text = Utils.lemmatize(annotation.getCoveredText().toLowerCase(), pos);
+      } catch (IOException e) {
+        System.out.println("couldn't lemmatize: " + annotation.getCoveredText());
+        e.printStackTrace();
+        return annotation.getCoveredText().toLowerCase();
+      }
+    } else {
+      text = annotation.getCoveredText();
+    }
+    
+    return text.toLowerCase();
   }
   
   /**

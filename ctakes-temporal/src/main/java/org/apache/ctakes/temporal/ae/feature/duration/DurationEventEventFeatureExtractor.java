@@ -41,8 +41,10 @@ public class DurationEventEventFeatureExtractor implements RelationFeaturesExtra
       throws AnalysisEngineProcessException {
 
     List<Feature> features = new ArrayList<Feature>();
-    String arg1text = arg1.getCoveredText().toLowerCase();
-    String arg2text = arg2.getCoveredText().toLowerCase();
+
+    String arg1text = Utils.getText(jCas, arg1);
+    String arg2text = Utils.getText(jCas, arg2);
+    
     Float expectedDuration1;
     Float expectedDuration2;
     

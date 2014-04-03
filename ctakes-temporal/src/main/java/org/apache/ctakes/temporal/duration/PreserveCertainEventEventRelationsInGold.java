@@ -10,7 +10,6 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.util.JCasUtil;
 
@@ -51,8 +50,8 @@ public class PreserveCertainEventEventRelationsInGold extends JCasAnnotator_Impl
       String event1Text;
       String event2Text;
       if(arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof EventMention) {
-        event1Text = getText(jCas, arg1.getArgument());
-        event2Text = getText(jCas, arg2.getArgument());
+        event1Text = Utils.getText(jCas, arg1.getArgument());
+        event2Text = Utils.getText(jCas, arg2.getArgument());
       } else {
         // this is not an event-event relation
         continue;
@@ -70,7 +69,7 @@ public class PreserveCertainEventEventRelationsInGold extends JCasAnnotator_Impl
 
     // remove events (that didn't participate in relations) that have no data
     for(EventMention mention : Lists.newArrayList(JCasUtil.select(goldView, EventMention.class))) {
-      String mentionText = getText(jCas, mention);
+      String mentionText = Utils.getText(jCas, mention);
       if(textToDistribution.containsKey(mentionText)) {
         // these are the kind we keep
         continue;
@@ -78,42 +77,5 @@ public class PreserveCertainEventEventRelationsInGold extends JCasAnnotator_Impl
 
       mention.removeFromIndexes();
     }
-  }
-
-  /**
-   * Lemmatize this annotation if this is a verb. 
-   * Otherwise return as is. Lowercase before returning.
-   * 
-   * TODO: check if there's a covering UMLS concept before lemmatizing
-   */
-  public static String getText(JCas jCas, Annotation annotation) 
-      throws AnalysisEngineProcessException {
-
-    JCas systemView;
-    try {
-      systemView = jCas.getView("_InitialView");
-    } catch (CASException e) {
-      throw new AnalysisEngineProcessException(e);
-    }
-
-    String pos = Utils.getPosTag(systemView, annotation);
-    if(pos == null) {
-      return annotation.getCoveredText().toLowerCase();
-    }
-
-    String text;
-    if(pos.startsWith("V")) {
-      try {
-        text = Utils.lemmatize(annotation.getCoveredText(), pos);
-      } catch (IOException e) {
-        System.out.println("couldn't lemmatize: " + annotation.getCoveredText());
-        e.printStackTrace();
-        return annotation.getCoveredText().toLowerCase();
-      }
-    } else {
-      text = annotation.getCoveredText();
-    }
-
-    return text.toLowerCase();
   }
 }                                                                                                                            
