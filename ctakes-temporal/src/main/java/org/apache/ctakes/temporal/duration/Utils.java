@@ -19,8 +19,12 @@ import java.util.Map;
 
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.temporal.ae.feature.duration.DurationEventTimeFeatureExtractor;
+import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 import org.threeten.bp.temporal.TemporalField;
 import org.threeten.bp.temporal.TemporalUnit;
+import org.uimafit.util.JCasUtil;
 
 import scala.collection.immutable.Set;
 import scala.util.Try;
@@ -39,7 +43,7 @@ import com.googlecode.clearnlp.reader.AbstractReader;
 public class Utils {
 
   // events and their duration distributions
-  public static final String durationDistributionPath = "/Users/dima/Boston/Thyme/Duration/Data/Combined/Distribution/mimic.txt";
+  public static final String durationDistributionPath = "/Users/dima/Boston/Thyme/Duration/Data/Combined/Distribution/all.txt";
   
   // eight bins over which we define a duration distribution
   public static final String[] bins = {"second", "minute", "hour", "day", "week", "month", "year", "decade"};
@@ -227,6 +231,24 @@ public class Utils {
     lemmatizerModel.close();
 
     return lemma;
+  }
+  
+  /**
+   * Return system generated POS tag or null if none available.
+   */
+  public static String getPosTag(JCas systemView, Annotation annotation) {
+    
+    List<BaseToken> coveringBaseTokens = JCasUtil.selectCovered(
+        systemView,
+        BaseToken.class,
+        annotation.getBegin(),
+        annotation.getEnd());
+    
+    if(coveringBaseTokens.size() < 1) {
+      return null;
+    }
+    
+    return coveringBaseTokens.get(0).getPartOfSpeech();
   }
   
   /**
