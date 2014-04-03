@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ctakes.temporal.data.analysis;
+package org.apache.ctakes.temporal.duration;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.relationextractor.eval.XMIReader;
-import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
