@@ -72,290 +72,309 @@ import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 
 public class EvaluationOfEventTimeRelations extends
-	EvaluationOfTemporalRelations_ImplBase{
-  static interface TempRelOptions extends Evaluation_ImplBase.Options{
-	  @Option
-	  public boolean getPrintFormattedRelations();
-	  
-	  @Option
-	  public boolean getBaseline();
-    
-    @Option
-    public boolean getClosure();
-    
-    @Option
-    public boolean getUseTmp();
-    
-    @Option
-    public boolean getUseGoldAttributes();
-  }
-  
-//  protected static boolean DEFAULT_BOTH_DIRECTIONS = false;
-//  protected static float DEFAULT_DOWNSAMPLE = 1.0f;
-//  private static double DEFAULT_SVM_C = 1.0;
-//  private static double DEFAULT_SVM_G = 1.0;
-//  private static double DEFAULT_TK = 0.5;
-//  private static double DEFAULT_LAMBDA = 0.5;
-  
-//  defaultParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk",
-//  		  DEFAULT_SVM_C, DEFAULT_SVM_G, "polynomial", ComboOperator.SUM, DEFAULT_TK, DEFAULT_LAMBDA);
-  protected static ParameterSettings flatParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "linear",
-		  10.0, 1.0, "linear", ComboOperator.VECTOR_ONLY, DEFAULT_TK, DEFAULT_LAMBDA);
-  protected static ParameterSettings allBagsParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk", 
-		  100.0, 0.1, "radial basis function", ComboOperator.SUM, 0.5, 0.5);
-  protected static ParameterSettings allParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk",
-		  10.0, 1.0, "polynomial", ComboOperator.SUM, 0.1, 0.5);  // (0.3, 0.4 for tklibsvm)
-  protected static ParameterSettings ftParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk", 
-		  1.0, 0.1, "radial basis function", ComboOperator.SUM, 0.5, 0.5);
-  
-  public static void main(String[] args) throws Exception {
-    TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
-    List<Integer> patientSets = options.getPatients().getList();
-    List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-    List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
-    List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
-    ParameterSettings params = allParams;
+EvaluationOfTemporalRelations_ImplBase{
+	static interface TempRelOptions extends Evaluation_ImplBase.Options{
+		@Option
+		public boolean getPrintFormattedRelations();
 
-    //    List<ParameterSettings> possibleParams = Lists.newArrayList();
-    //    Map<ParameterSettings, Double> scoredParams = new HashMap<ParameterSettings, Double>();
+		@Option
+		public boolean getBaseline();
+
+		@Option
+		public boolean getClosure();
+
+		@Option
+		public boolean getUseTmp();
+
+		@Option
+		public boolean getUseGoldAttributes();
+	}
+
+	//  protected static boolean DEFAULT_BOTH_DIRECTIONS = false;
+	//  protected static float DEFAULT_DOWNSAMPLE = 1.0f;
+	//  private static double DEFAULT_SVM_C = 1.0;
+	//  private static double DEFAULT_SVM_G = 1.0;
+	//  private static double DEFAULT_TK = 0.5;
+	//  private static double DEFAULT_LAMBDA = 0.5;
+
+	//  defaultParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk",
+	//  		  DEFAULT_SVM_C, DEFAULT_SVM_G, "polynomial", ComboOperator.SUM, DEFAULT_TK, DEFAULT_LAMBDA);
+	protected static ParameterSettings flatParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "linear",
+			10.0, 1.0, "linear", ComboOperator.VECTOR_ONLY, DEFAULT_TK, DEFAULT_LAMBDA);
+	protected static ParameterSettings allBagsParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk", 
+			100.0, 0.1, "radial basis function", ComboOperator.SUM, 0.5, 0.5);
+	protected static ParameterSettings allParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk",
+			10.0, 1.0, "polynomial", ComboOperator.SUM, 0.1, 0.5);  // (0.3, 0.4 for tklibsvm)
+	protected static ParameterSettings ftParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk", 
+			1.0, 0.1, "radial basis function", ComboOperator.SUM, 0.5, 0.5);
+
+	public static void main(String[] args) throws Exception {
+		TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
+		List<Integer> patientSets = options.getPatients().getList();
+		List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
+		List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
+		List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
+		ParameterSettings params = allParams;
+
+		//    List<ParameterSettings> possibleParams = Lists.newArrayList();
+		//    Map<ParameterSettings, Double> scoredParams = new HashMap<ParameterSettings, Double>();
 
 
-    //    possibleParams.add(defaultParams);
+		//    possibleParams.add(defaultParams);
 
-    //    for(ParameterSettings params : possibleParams){
-    try{
-      File workingDir = new File("target/eval/temporal-relations/event-time");
-      if(!workingDir.exists()) workingDir.mkdirs();
-      if(options.getUseTmp()){
-        File tempModelDir = File.createTempFile("temporal", null, workingDir);
-        tempModelDir.delete();
-        tempModelDir.mkdir();
-        workingDir = tempModelDir;
-      }
-      EvaluationOfEventTimeRelations evaluation = new EvaluationOfEventTimeRelations(
-          workingDir,
-          options.getRawTextDirectory(),
-          options.getXMLDirectory(),
-          options.getXMLFormat(),
-          options.getXMIDirectory(),
-          options.getTreebankDirectory(),
-          options.getClosure(),
-          options.getPrintErrors(),
-          options.getPrintFormattedRelations(),
-          options.getBaseline(),
-          options.getUseGoldAttributes(),
-          options.getKernelParams(),
-          params);
-      evaluation.prepareXMIsFor(patientSets);
-      List<Integer> training = trainItems;
-      List<Integer> testing = null;
-      if(options.getTest()){
-        training.addAll(devItems);
-        testing = testItems;
-      }else{
-        testing = devItems;
-      }
-      params.stats = evaluation.trainAndTest(training, testing);
-      //      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-      System.err.println(params.stats);
-      if(options.getUseTmp()){
-        // won't work because it's not empty. should we be concerned with this or is it responsibility of 
-        // person invoking the tmp flag?
-    	FileUtils.deleteRecursive(workingDir);
-      }
-    }catch(ResourceInitializationException e){
-      System.err.println("Error with parameter settings: " + params);
-      e.printStackTrace();
-    }
-  }
+		//    for(ParameterSettings params : possibleParams){
+		try{
+			File workingDir = new File("target/eval/temporal-relations/event-time");
+			if(!workingDir.exists()) workingDir.mkdirs();
+			if(options.getUseTmp()){
+				File tempModelDir = File.createTempFile("temporal", null, workingDir);
+				tempModelDir.delete();
+				tempModelDir.mkdir();
+				workingDir = tempModelDir;
+			}
+			EvaluationOfEventTimeRelations evaluation = new EvaluationOfEventTimeRelations(
+					workingDir,
+					options.getRawTextDirectory(),
+					options.getXMLDirectory(),
+					options.getXMLFormat(),
+					options.getXMIDirectory(),
+					options.getTreebankDirectory(),
+					options.getClosure(),
+					options.getPrintErrors(),
+					options.getPrintFormattedRelations(),
+					options.getBaseline(),
+					options.getUseGoldAttributes(),
+					options.getKernelParams(),
+					params);
+			evaluation.prepareXMIsFor(patientSets);
+			List<Integer> training = trainItems;
+			List<Integer> testing = null;
+			if(options.getTest()){
+				training.addAll(devItems);
+				testing = testItems;
+			}else{
+				testing = devItems;
+			}
+			params.stats = evaluation.trainAndTest(training, testing);//training);//
+			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
+			System.err.println(params.stats);
+			if(options.getUseTmp()){
+				// won't work because it's not empty. should we be concerned with this or is it responsibility of 
+				// person invoking the tmp flag?
+				FileUtils.deleteRecursive(workingDir);
+			}
+		}catch(ResourceInitializationException e){
+			System.err.println("Error with parameter settings: " + params);
+			e.printStackTrace();
+		}
+	}
 
-//  private ParameterSettings params;
-  private boolean baseline;
-  protected boolean useClosure;
-  protected boolean useGoldAttributes;
-//  protected boolean printRelations = false;
-  
-  public EvaluationOfEventTimeRelations(
-      File baseDirectory,
-      File rawTextDirectory,
-      File xmlDirectory,
-      XMLFormat xmlFormat,
-      File xmiDirectory,
-      File treebankDirectory,
-      boolean useClosure,
-      boolean printErrors,
-      boolean printRelations,
-      boolean baseline,
-      boolean useGoldAttributes,
-      String kernelParams,
-      ParameterSettings params){
-    super(
-        baseDirectory,
-        rawTextDirectory,
-        xmlDirectory,
-        xmlFormat,
-        xmiDirectory,
-        treebankDirectory,
-        printErrors,
-        printRelations,
-        params);
-    this.params = params;
-    this.useClosure = useClosure;
-    this.printErrors = printErrors;
-    this.printRelations = printRelations;
-    this.useGoldAttributes = useGoldAttributes;
-    this.baseline = baseline;
-    this.kernelParams = kernelParams == null ? null : kernelParams.split(" ");
-  }
+	//  private ParameterSettings params;
+	private boolean baseline;
+	protected boolean useClosure;
+	protected boolean useGoldAttributes;
+	//  protected boolean printRelations = false;
 
-//  public EvaluationOfTemporalRelations(File baseDirectory, File rawTextDirectory,
-//      File knowtatorXMLDirectory, File xmiDirectory) {
-//
-//    super(baseDirectory, rawTextDirectory, knowtatorXMLDirectory, xmiDirectory, null);
-//    this.params = defaultParams;
-//    this.printErrors = false;
-//  }
+	public EvaluationOfEventTimeRelations(
+			File baseDirectory,
+			File rawTextDirectory,
+			File xmlDirectory,
+			XMLFormat xmlFormat,
+			File xmiDirectory,
+			File treebankDirectory,
+			boolean useClosure,
+			boolean printErrors,
+			boolean printRelations,
+			boolean baseline,
+			boolean useGoldAttributes,
+			String kernelParams,
+			ParameterSettings params){
+		super(
+				baseDirectory,
+				rawTextDirectory,
+				xmlDirectory,
+				xmlFormat,
+				xmiDirectory,
+				treebankDirectory,
+				printErrors,
+				printRelations,
+				params);
+		this.params = params;
+		this.useClosure = useClosure;
+		this.printErrors = printErrors;
+		this.printRelations = printRelations;
+		this.useGoldAttributes = useGoldAttributes;
+		this.baseline = baseline;
+		this.kernelParams = kernelParams == null ? null : kernelParams.split(" ");
+	}
 
-  @Override
-  protected void train(CollectionReader collectionReader, File directory) throws Exception {
-//	  if(this.baseline) return;
-    AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-    aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class, BinaryTextRelation.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveCrossSentenceRelations.class));
-    if(!this.useGoldAttributes){
-      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveGoldAttributes.class));
-    }
-    if (this.useClosure) {
-      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class));
-    }
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class));
-    aggregateBuilder.add(EventTimeRelationAnnotator.createDataWriterDescription(
-//                LIBSVMStringOutcomeDataWriter.class,
-        TKSVMlightStringOutcomeDataWriter.class,
-//        TKLIBSVMStringOutcomeDataWriter.class,
-//        SVMlightStringOutcomeDataWriter.class,        
-        directory,
-        params.probabilityOfKeepingANegativeExample));
-    SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
-    String[] optArray;
-    
-    if(this.kernelParams == null){
-    	ArrayList<String> svmOptions = new ArrayList<String>();
-    	svmOptions.add("-c"); svmOptions.add(""+params.svmCost);        // svm cost
-    	svmOptions.add("-t"); svmOptions.add(""+params.svmKernelIndex); // kernel index 
-    	svmOptions.add("-d"); svmOptions.add("3");                      // degree parameter for polynomial
-    	svmOptions.add("-g"); svmOptions.add(""+params.svmGamma);
-    	if(params.svmKernelIndex==ParameterSettings.SVM_KERNELS.indexOf("tk")){
-    		svmOptions.add("-S"); svmOptions.add(""+params.secondKernelIndex);   // second kernel index (similar to -t) for composite kernel
-    		String comboFlag = (params.comboOperator == ComboOperator.SUM ? "+" : params.comboOperator == ComboOperator.PRODUCT ? "*" : params.comboOperator == ComboOperator.TREE_ONLY ? "T" : "V");
-    		svmOptions.add("-C"); svmOptions.add(comboFlag);
-    		svmOptions.add("-L"); svmOptions.add(""+params.lambda);
-    		svmOptions.add("-T"); svmOptions.add(""+params.tkWeight);
-    		svmOptions.add("-N"); svmOptions.add("3");   // normalize trees and features
-    	}
-    	optArray = svmOptions.toArray(new String[]{});
-    }else{
-    	optArray = this.kernelParams;
-    	for(int i = 0; i < optArray.length; i+=2){
-    		optArray[i] = "-" + optArray[i];
-    	}
-    }
-    
-//    HideOutput hider = new HideOutput();
-    JarClassifierBuilder.trainAndPackage(directory, optArray);
-//    hider.restoreOutput();
-//    hider.close();
-  }
+	//  public EvaluationOfTemporalRelations(File baseDirectory, File rawTextDirectory,
+	//      File knowtatorXMLDirectory, File xmiDirectory) {
+	//
+	//    super(baseDirectory, rawTextDirectory, knowtatorXMLDirectory, xmiDirectory, null);
+	//    this.params = defaultParams;
+	//    this.printErrors = false;
+	//  }
 
-  @Override
-  protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
-      throws Exception {
-    AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-    aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
-    aggregateBuilder.add(
-        AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class,
-        RemoveNonContainsRelations.PARAM_RELATION_VIEW,
-        GOLD_VIEW_NAME));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
-        RemoveCrossSentenceRelations.class,
-        RemoveCrossSentenceRelations.PARAM_SENTENCE_VIEW,
-        CAS.NAME_DEFAULT_SOFA,
-        RemoveCrossSentenceRelations.PARAM_RELATION_VIEW,
-        GOLD_VIEW_NAME));
-    if (this.useClosure) {
-      aggregateBuilder.add(
-          AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
-          CAS.NAME_DEFAULT_SOFA,
-          GOLD_VIEW_NAME);
-    }
-    aggregateBuilder.add(
-        AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class),
-        CAS.NAME_DEFAULT_SOFA,
-        GOLD_VIEW_NAME);
-    		
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveRelations.class));
-    aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
-    	EventTimeRelationAnnotator.createAnnotatorDescription(directory));
+	@Override
+	protected void train(CollectionReader collectionReader, File directory) throws Exception {
+		//	  if(this.baseline) return;
+		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class, BinaryTextRelation.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveCrossSentenceRelations.class));
+		if(!this.useGoldAttributes){
+			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveGoldAttributes.class));
+		}
+		if (this.useClosure) {
+			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class));
+			//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveBeforeAndOnRelations.class));
+		}
+		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class));
+		aggregateBuilder.add(EventTimeRelationAnnotator.createDataWriterDescription(
+				//                LIBSVMStringOutcomeDataWriter.class,
+				TKSVMlightStringOutcomeDataWriter.class,
+				//        TKLIBSVMStringOutcomeDataWriter.class,
+				//        SVMlightStringOutcomeDataWriter.class,        
+				directory,
+				params.probabilityOfKeepingANegativeExample));
+		SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
+		String[] optArray;
 
-    Function<BinaryTextRelation, ?> getSpan = new Function<BinaryTextRelation, HashableArguments>() {
-      public HashableArguments apply(BinaryTextRelation relation) {
-        return new HashableArguments(relation);
-      }
-    };
-    Function<BinaryTextRelation, String> getOutcome = AnnotationStatistics.annotationToFeatureValue("category");
+		if(this.kernelParams == null){
+			ArrayList<String> svmOptions = new ArrayList<String>();
+			svmOptions.add("-c"); svmOptions.add(""+params.svmCost);        // svm cost
+			svmOptions.add("-t"); svmOptions.add(""+params.svmKernelIndex); // kernel index 
+			svmOptions.add("-d"); svmOptions.add("3");                      // degree parameter for polynomial
+			svmOptions.add("-g"); svmOptions.add(""+params.svmGamma);
+			if(params.svmKernelIndex==ParameterSettings.SVM_KERNELS.indexOf("tk")){
+				svmOptions.add("-S"); svmOptions.add(""+params.secondKernelIndex);   // second kernel index (similar to -t) for composite kernel
+				String comboFlag = (params.comboOperator == ComboOperator.SUM ? "+" : params.comboOperator == ComboOperator.PRODUCT ? "*" : params.comboOperator == ComboOperator.TREE_ONLY ? "T" : "V");
+				svmOptions.add("-C"); svmOptions.add(comboFlag);
+				svmOptions.add("-L"); svmOptions.add(""+params.lambda);
+				svmOptions.add("-T"); svmOptions.add(""+params.tkWeight);
+				svmOptions.add("-N"); svmOptions.add("3");   // normalize trees and features
+			}
+			optArray = svmOptions.toArray(new String[]{});
+		}else{
+			optArray = this.kernelParams;
+			for(int i = 0; i < optArray.length; i+=2){
+				optArray[i] = "-" + optArray[i];
+			}
+		}
 
-    AnnotationStatistics<String> stats = new AnnotationStatistics<String>();
-   	JCasIterable jcasIter =new JCasIterable(collectionReader, aggregateBuilder.createAggregate());
-    JCas jCas = null;
-   	while(jcasIter.hasNext()) {
-      jCas = jcasIter.next();
-      JCas goldView = jCas.getView(GOLD_VIEW_NAME);
-      JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
-      Collection<BinaryTextRelation> goldRelations = JCasUtil.select(
-          goldView,
-          BinaryTextRelation.class);
-      Collection<BinaryTextRelation> systemRelations = JCasUtil.select(
-          systemView,
-          BinaryTextRelation.class);
-      stats.add(goldRelations, systemRelations, getSpan, getOutcome);
-      if(this.printRelations){
-    	  URI uri = ViewURIUtil.getURI(jCas);
-    	  String[] path = uri.getPath().split("/");
-    	  printRelationAnnotations(path[path.length - 1], systemRelations);
-      }
-      if(this.printErrors){
-    	  Map<HashableArguments, BinaryTextRelation> goldMap = Maps.newHashMap();
-    	  for (BinaryTextRelation relation : goldRelations) {
-    		  goldMap.put(new HashableArguments(relation), relation);
-    	  }
-    	  Map<HashableArguments, BinaryTextRelation> systemMap = Maps.newHashMap();
-    	  for (BinaryTextRelation relation : systemRelations) {
-    		  systemMap.put(new HashableArguments(relation), relation);
-    	  }
-    	  Set<HashableArguments> all = Sets.union(goldMap.keySet(), systemMap.keySet());
-    	  List<HashableArguments> sorted = Lists.newArrayList(all);
-    	  Collections.sort(sorted);
-    	  for (HashableArguments key : sorted) {
-    		  BinaryTextRelation goldRelation = goldMap.get(key);
-    		  BinaryTextRelation systemRelation = systemMap.get(key);
-    		  if (goldRelation == null) {
-    			  System.out.println("System added: " + formatRelation(systemRelation));
-    		  } else if (systemRelation == null) {
-    			  System.out.println("System dropped: " + formatRelation(goldRelation));
-    		  } else if (!systemRelation.getCategory().equals(goldRelation.getCategory())) {
-    			  String label = systemRelation.getCategory();
-    			  System.out.printf("System labeled %s for %s\n", label, formatRelation(goldRelation));
-    		  } else{
-    			  System.out.println("Nailed it! " + formatRelation(systemRelation));
-    		  }
-    	  }
-      }
-    }
-    return stats;
-  }
+		//    HideOutput hider = new HideOutput();
+		JarClassifierBuilder.trainAndPackage(directory, optArray);
+		//    hider.restoreOutput();
+		//    hider.close();
+	}
 
-  /*
+	@Override
+	protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
+			throws Exception {
+		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
+		aggregateBuilder.add(
+				AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class,
+						RemoveNonContainsRelations.PARAM_RELATION_VIEW,
+						GOLD_VIEW_NAME));
+		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+				RemoveCrossSentenceRelations.class,
+				RemoveCrossSentenceRelations.PARAM_SENTENCE_VIEW,
+				CAS.NAME_DEFAULT_SOFA,
+				RemoveCrossSentenceRelations.PARAM_RELATION_VIEW,
+				GOLD_VIEW_NAME));
+		if (this.useClosure) {
+			aggregateBuilder.add(
+					AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
+					CAS.NAME_DEFAULT_SOFA,
+					GOLD_VIEW_NAME);
+			//			aggregateBuilder.add(
+			//					AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveBeforeAndOnRelations.class),
+			//					CAS.NAME_DEFAULT_SOFA,
+			//					GOLD_VIEW_NAME);
+		}
+		aggregateBuilder.add(
+				AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class),
+				CAS.NAME_DEFAULT_SOFA,
+				GOLD_VIEW_NAME);
+
+		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveRelations.class));
+		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
+			EventTimeRelationAnnotator.createAnnotatorDescription(directory));
+
+		Function<BinaryTextRelation, ?> getSpan = new Function<BinaryTextRelation, HashableArguments>() {
+			public HashableArguments apply(BinaryTextRelation relation) {
+				return new HashableArguments(relation);
+			}
+		};
+		Function<BinaryTextRelation, String> getOutcome = AnnotationStatistics.annotationToFeatureValue("category");
+
+		AnnotationStatistics<String> stats = new AnnotationStatistics<String>();
+		JCasIterable jcasIter =new JCasIterable(collectionReader, aggregateBuilder.createAggregate());
+		JCas jCas = null;
+		while(jcasIter.hasNext()) {
+			jCas = jcasIter.next();
+			JCas goldView = jCas.getView(GOLD_VIEW_NAME);
+			JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
+			Collection<BinaryTextRelation> goldRelations = JCasUtil.select(
+					goldView,
+					BinaryTextRelation.class);
+			Collection<BinaryTextRelation> systemRelations = JCasUtil.select(
+					systemView,
+					BinaryTextRelation.class);
+
+			//newly add
+//			systemRelations = removeNonGoldRelations(systemRelations, goldRelations);//for removing non-gold pairs
+			systemRelations = correctArgOrder(systemRelations, goldRelations);//change the argument order of "OVERLAP" relation, if the order is flipped
+			//find duplicates in gold relations:
+			//			Collection<BinaryTextRelation> duplicateGoldRelations = getDuplicateRelations(goldRelations, getSpan);
+			//			if(!duplicateGoldRelations.isEmpty()){
+			//				System.err.println("******Duplicate gold relations in : " + ViewURIUtil.getURI(jCas).toString());
+			//				for (BinaryTextRelation rel : duplicateGoldRelations){
+			//					System.err.println("Duplicate : "+ formatRelation(rel));
+			//				}
+			//			}
+			//end newly add
+
+			stats.add(goldRelations, systemRelations, getSpan, getOutcome);
+			if(this.printRelations){
+				URI uri = ViewURIUtil.getURI(jCas);
+				String[] path = uri.getPath().split("/");
+				printRelationAnnotations(path[path.length - 1], systemRelations);
+			}
+			if(this.printErrors){
+				Map<HashableArguments, BinaryTextRelation> goldMap = Maps.newHashMap();
+				for (BinaryTextRelation relation : goldRelations) {
+					goldMap.put(new HashableArguments(relation), relation);
+				}
+				Map<HashableArguments, BinaryTextRelation> systemMap = Maps.newHashMap();
+				for (BinaryTextRelation relation : systemRelations) {
+					systemMap.put(new HashableArguments(relation), relation);
+				}
+				Set<HashableArguments> all = Sets.union(goldMap.keySet(), systemMap.keySet());
+				List<HashableArguments> sorted = Lists.newArrayList(all);
+				Collections.sort(sorted);
+				for (HashableArguments key : sorted) {
+					BinaryTextRelation goldRelation = goldMap.get(key);
+					BinaryTextRelation systemRelation = systemMap.get(key);
+					if (goldRelation == null) {
+						System.out.println("System added: " + formatRelation(systemRelation));
+					} else if (systemRelation == null) {
+						System.out.println("System dropped: " + formatRelation(goldRelation));
+					} else if (!systemRelation.getCategory().equals(goldRelation.getCategory())) {
+						String label = systemRelation.getCategory();
+						System.out.printf("System labeled %s for %s\n", label, formatRelation(goldRelation));
+					} else{
+						System.out.println("Nailed it! " + formatRelation(systemRelation));
+					}
+				}
+			}
+		}
+		return stats;
+	}
+
+	/*
   private static String formatRelation(BinaryTextRelation relation) {
 	  IdentifiedAnnotation arg1 = (IdentifiedAnnotation)relation.getArg1().getArgument();
 	  IdentifiedAnnotation arg2 = (IdentifiedAnnotation)relation.getArg2().getArgument();
@@ -373,7 +392,7 @@ public class EvaluationOfEventTimeRelations extends
 			  arg2.getTypeID(),
 			  text.substring(begin, end).replaceAll("[\r\n]", " "));
   }
-  
+
   private static void printRelationAnnotations(String fileName, Collection<BinaryTextRelation> relations) {
 
 	  for(BinaryTextRelation binaryTextRelation : relations) {
@@ -395,42 +414,142 @@ public class EvaluationOfEventTimeRelations extends
 				  fileName, category, arg1Type, arg1Begin, arg1End, arg2Type, arg2Begin, arg2End);
 	  }
   }
-*/
-  
-  public static class RemoveEventEventRelations extends JCasAnnotator_ImplBase {
-    public static final String PARAM_RELATION_VIEW = "RelationView";
-	@ConfigurationParameter(name = PARAM_RELATION_VIEW)
-	private String relationViewName = CAS.NAME_DEFAULT_SOFA;
+	 */
 
-	@Override
-	public void process(JCas jCas) throws AnalysisEngineProcessException {
-	      JCas relationView;
-	      try {
-	        relationView = jCas.getView(this.relationViewName);
-	      } catch (CASException e) {
-	        throw new AnalysisEngineProcessException(e);
-	      }
-	     
-	      for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(relationView, BinaryTextRelation.class))){
-//	    	  if(relation.getCategory().equals("CONTAINS")){
-	    		  RelationArgument arg1 = relation.getArg1();
-	    		  RelationArgument arg2 = relation.getArg2();
-	    		  if(arg1.getArgument() instanceof TimeMention && arg2.getArgument() instanceof EventMention ||
-	    				  arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof TimeMention){
-	    			  // these are the kind we keep.
-	    			  continue;
-	    		  }
-//	    		  if(arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof EventMention){
-	    		  arg1.removeFromIndexes();
-	    		  arg2.removeFromIndexes();
-	    		  relation.removeFromIndexes();
-	    	  }
-//	      }
-	      
+	//	private static <SPAN_TYPE> Collection<BinaryTextRelation> removeNonGoldRelations(
+	//			Collection<BinaryTextRelation> systemRelations,
+	//			Collection<BinaryTextRelation> goldRelations, Function<BinaryTextRelation, ?> getSpan) {
+	//		//remove non-gold pairs from system relations:
+	//		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
+	//		Set<SPAN_TYPE> goldspans = new HashSet<SPAN_TYPE>();
+	//		
+	//		for (BinaryTextRelation relation : goldRelations) {
+	//			goldspans.add(((SPAN_TYPE) getSpan.apply(relation)));			
+	//		}
+	//		
+	//		for (BinaryTextRelation relation : systemRelations) {
+	//			if (goldspans.contains(((SPAN_TYPE) getSpan.apply(relation)))) {
+	//				goodSys.add(relation);
+	//			}
+	//		}
+	//		
+	//		return goodSys;
+	//	}
+
+	private static Collection<BinaryTextRelation> correctArgOrder(
+			Collection<BinaryTextRelation> systemRelations,
+			Collection<BinaryTextRelation> goldRelations) {
+		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
+
+		for(BinaryTextRelation sysrel : systemRelations){
+			Annotation sysArg1 = sysrel.getArg1().getArgument();
+			Annotation sysArg2 = sysrel.getArg2().getArgument();
+			for(BinaryTextRelation goldrel : goldRelations){
+				Annotation goldArg1 = goldrel.getArg1().getArgument();
+				Annotation goldArg2 = goldrel.getArg2().getArgument();
+				if (matchSpan(sysArg2, goldArg1) && matchSpan(sysArg1, goldArg2)){//the order of system pair was flipped 
+					if(sysrel.getCategory().equals("OVERLAP")){ //if the relation is overlap, and the arg order was flipped, then change back the order
+						RelationArgument tempArg = (RelationArgument) sysrel.getArg1().clone();
+						sysrel.setArg1((RelationArgument) sysrel.getArg2().clone());
+						sysrel.setArg2(tempArg);
+					}//for other types of relation, still maintain the type.
+					continue;
+				}
+			}
+			goodSys.add(sysrel);
+		}
+
+		return goodSys;
 	}
-  }
- 
-/*  public static class RemoveNonTLINKRelations extends JCasAnnotator_ImplBase {
+
+//	@SuppressWarnings("unchecked")
+//	private static <SPAN> Collection<BinaryTextRelation> getDuplicateRelations(
+//			Collection<BinaryTextRelation> goldRelations,
+//			Function<BinaryTextRelation, ?> getSpan) {
+//		Set<BinaryTextRelation> duplicateRelations = Sets.newHashSet();
+//		//build a multimap that map gold span to gold relation
+//		Multimap<SPAN, BinaryTextRelation> spanToRelation = HashMultimap.create();
+//		for (BinaryTextRelation relation : goldRelations) {
+//			spanToRelation.put((SPAN) getSpan.apply(relation), relation);			
+//		}
+//		for (SPAN span: spanToRelation.keySet()){
+//			Collection<BinaryTextRelation> relations = spanToRelation.get(span);
+//			if(relations.size()>1){//if same span maps to multiple relations
+//				duplicateRelations.addAll(relations);
+//			}
+//		}
+//		return duplicateRelations;
+//	}
+
+//	private static Collection<BinaryTextRelation> removeNonGoldRelations(
+//			Collection<BinaryTextRelation> systemRelations, Collection<BinaryTextRelation> goldRelations) {
+//		//remove non-gold pairs from system relations:
+//		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
+//
+//		for(BinaryTextRelation sysrel : systemRelations){
+//			Annotation sysArg1 = sysrel.getArg1().getArgument();
+//			Annotation sysArg2 = sysrel.getArg2().getArgument();
+//			for(BinaryTextRelation goldrel : goldRelations){
+//				Annotation goldArg1 = goldrel.getArg1().getArgument();
+//				Annotation goldArg2 = goldrel.getArg2().getArgument();
+//				if(matchSpan(sysArg1, goldArg1) && matchSpan(sysArg2, goldArg2)){
+//					goodSys.add(sysrel);
+//					continue;
+//				}else if (matchSpan(sysArg2, goldArg1) && matchSpan(sysArg1, goldArg2)){//the order of system pair was flipped 
+//					if(sysrel.getCategory().equals("OVERLAP")){ //if the relation is overlap, and the arg order was flipped, then change back the order
+//						RelationArgument tempArg = (RelationArgument) sysrel.getArg1().clone();
+//						sysrel.setArg1((RelationArgument) sysrel.getArg2().clone());
+//						sysrel.setArg2(tempArg);
+//					}//for other types of relation, still maintain the type.
+//					goodSys.add(sysrel);
+//					continue;
+//				}
+//			}
+//		}
+//
+//		return goodSys;
+//	}
+
+	private static boolean matchSpan(Annotation arg1, Annotation arg2) {
+		boolean result = false;
+		result = arg1.getBegin() == arg2.getBegin() && arg1.getEnd() == arg2.getEnd();
+		return result;
+	}
+
+	public static class RemoveEventEventRelations extends JCasAnnotator_ImplBase {
+		public static final String PARAM_RELATION_VIEW = "RelationView";
+		@ConfigurationParameter(name = PARAM_RELATION_VIEW)
+		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
+
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			JCas relationView;
+			try {
+				relationView = jCas.getView(this.relationViewName);
+			} catch (CASException e) {
+				throw new AnalysisEngineProcessException(e);
+			}
+
+			for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(relationView, BinaryTextRelation.class))){
+				//	    	  if(relation.getCategory().equals("CONTAINS")){
+				RelationArgument arg1 = relation.getArg1();
+				RelationArgument arg2 = relation.getArg2();
+				if(arg1.getArgument() instanceof TimeMention && arg2.getArgument() instanceof EventMention ||
+						arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof TimeMention){
+					// these are the kind we keep.
+					continue;
+				}
+				//	    		  if(arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof EventMention){
+				arg1.removeFromIndexes();
+				arg2.removeFromIndexes();
+				relation.removeFromIndexes();
+			}
+			//	      }
+
+		}
+	}
+
+	/*  public static class RemoveNonTLINKRelations extends JCasAnnotator_ImplBase {
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
       for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
@@ -445,216 +564,320 @@ public class EvaluationOfEventTimeRelations extends
     }
   }*/
 
-  public static class RemoveCrossSentenceRelations extends JCasAnnotator_ImplBase {
+	public static class RemoveCrossSentenceRelations extends JCasAnnotator_ImplBase {
 
-    public static final String PARAM_SENTENCE_VIEW = "SentenceView";
+		public static final String PARAM_SENTENCE_VIEW = "SentenceView";
 
-    @ConfigurationParameter(name = PARAM_SENTENCE_VIEW)
-    private String sentenceViewName = CAS.NAME_DEFAULT_SOFA;
+		@ConfigurationParameter(name = PARAM_SENTENCE_VIEW)
+		private String sentenceViewName = CAS.NAME_DEFAULT_SOFA;
 
-    public static final String PARAM_RELATION_VIEW = "RelationView";
+		public static final String PARAM_RELATION_VIEW = "RelationView";
 
-    @ConfigurationParameter(name = PARAM_RELATION_VIEW)
-    private String relationViewName = CAS.NAME_DEFAULT_SOFA;
+		@ConfigurationParameter(name = PARAM_RELATION_VIEW)
+		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
 
-    @Override
-    public void process(JCas jCas) throws AnalysisEngineProcessException {
-      JCas sentenceView, relationView;
-      try {
-        sentenceView = jCas.getView(this.sentenceViewName);
-        relationView = jCas.getView(this.relationViewName);
-      } catch (CASException e) {
-        throw new AnalysisEngineProcessException(e);
-      }
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			JCas sentenceView, relationView;
+			try {
+				sentenceView = jCas.getView(this.sentenceViewName);
+				relationView = jCas.getView(this.relationViewName);
+			} catch (CASException e) {
+				throw new AnalysisEngineProcessException(e);
+			}
 
-      // map events and times to the sentences that contain them
-      Map<IdentifiedAnnotation, Integer> sentenceIndex = Maps.newHashMap();
-      int index = -1;
-      for (Sentence sentence : JCasUtil.select(sentenceView, Sentence.class)) {
-        ++index;
-        for (EventMention event : JCasUtil.selectCovered(relationView, EventMention.class, sentence)) {
-          sentenceIndex.put(event, index);
-        }
-        for (TimeMention time : JCasUtil.selectCovered(relationView, TimeMention.class, sentence)) {
-          sentenceIndex.put(time, index);
-        }
-      }
+			// map events and times to the sentences that contain them
+			Map<IdentifiedAnnotation, Integer> sentenceIndex = Maps.newHashMap();
+			int index = -1;
+			for (Sentence sentence : JCasUtil.select(sentenceView, Sentence.class)) {
+				++index;
+				for (EventMention event : JCasUtil.selectCovered(relationView, EventMention.class, sentence)) {
+					sentenceIndex.put(event, index);
+				}
+				for (TimeMention time : JCasUtil.selectCovered(relationView, TimeMention.class, sentence)) {
+					sentenceIndex.put(time, index);
+				}
+			}
 
-      // remove any relations that are in different sentences.
-      for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
-          relationView,
-          BinaryTextRelation.class))) {
-        Integer sent1 = sentenceIndex.get(relation.getArg1().getArgument());
-        Integer sent2 = sentenceIndex.get(relation.getArg2().getArgument());
-        if (sent1 == null || sent2 == null || !sent1.equals(sent2)) {
-          relation.getArg1().removeFromIndexes();
-          relation.getArg2().removeFromIndexes();
-          relation.removeFromIndexes();
-        }
-      }
-    }
-  }
+			// remove any relations that are in different sentences.
+			for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
+					relationView,
+					BinaryTextRelation.class))) {
+				Integer sent1 = sentenceIndex.get(relation.getArg1().getArgument());
+				Integer sent2 = sentenceIndex.get(relation.getArg2().getArgument());
+				if (sent1 == null || sent2 == null || !sent1.equals(sent2)) {
+					relation.getArg1().removeFromIndexes();
+					relation.getArg2().removeFromIndexes();
+					relation.removeFromIndexes();
+				}
+			}
+		}
+	}
 
 
-  public static class RemoveRelations extends JCasAnnotator_ImplBase {
-    @Override
-    public void process(JCas jCas) throws AnalysisEngineProcessException {
-      for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
-          jCas,
-          BinaryTextRelation.class))) {
-        relation.getArg1().removeFromIndexes();
-        relation.getArg2().removeFromIndexes();
-        relation.removeFromIndexes();
-      }
-    }
-  }
+	public static class RemoveRelations extends JCasAnnotator_ImplBase {
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
+					jCas,
+					BinaryTextRelation.class))) {
+				relation.getArg1().removeFromIndexes();
+				relation.getArg2().removeFromIndexes();
+				relation.removeFromIndexes();
+			}
+		}
+	}
 
-  /**
-   * Holds a set of parameters for a relation extraction model
-   */
-  public static class ParameterSettings {
-    public boolean classifyBothDirections;
+	/**
+	 * Holds a set of parameters for a relation extraction model
+	 */
+	public static class ParameterSettings {
+		public boolean classifyBothDirections;
 
-    public float probabilityOfKeepingANegativeExample;
+		public float probabilityOfKeepingANegativeExample;
 
-    public String svmKernel;
+		public String svmKernel;
 
-    public int svmKernelIndex;
+		public int svmKernelIndex;
 
-    public double svmCost;
+		public double svmCost;
 
-    public double svmGamma;
+		public double svmGamma;
 
-    public String secondKernel;
-    public int secondKernelIndex;
-    public CompositeKernel.ComboOperator comboOperator;
-    public double tkWeight;
-    public double lambda;
+		public String secondKernel;
+		public int secondKernelIndex;
+		public CompositeKernel.ComboOperator comboOperator;
+		public double tkWeight;
+		public double lambda;
 
-    public AnnotationStatistics<String> stats;
+		public AnnotationStatistics<String> stats;
 
-    static List<String> SVM_KERNELS = Arrays.asList(
-        "linear",
-        "polynomial",
-        "radial basis function",
-        "sigmoid",
-        "user",
-        "tk");
+		static List<String> SVM_KERNELS = Arrays.asList(
+				"linear",
+				"polynomial",
+				"radial basis function",
+				"sigmoid",
+				"user",
+				"tk");
 
-    public ParameterSettings(
-        boolean classifyBothDirections,
-        float probabilityOfKeepingANegativeExample,
-        String svmKernel,
-        double svmCost,
-        double svmGamma,
-        String secondKernel,
-        CompositeKernel.ComboOperator comboOperator,
-        double tkWeight,
-        double lambda) {
-      super();
-      this.classifyBothDirections = classifyBothDirections;
-      this.probabilityOfKeepingANegativeExample = probabilityOfKeepingANegativeExample;
-      this.svmKernel = svmKernel;
-      this.svmKernelIndex = SVM_KERNELS.indexOf(this.svmKernel);
-      if (this.svmKernelIndex == -1) {
-        throw new IllegalArgumentException("Unrecognized kernel: " + this.svmKernel);
-      }
-      this.svmCost = svmCost;
-      this.svmGamma = svmGamma;
-      this.secondKernel = secondKernel;
-      this.secondKernelIndex = SVM_KERNELS.indexOf(this.secondKernel);
-      this.comboOperator = comboOperator;
-      this.tkWeight = tkWeight;
-      this.lambda = lambda;
-    }
+		public ParameterSettings(
+				boolean classifyBothDirections,
+				float probabilityOfKeepingANegativeExample,
+				String svmKernel,
+				double svmCost,
+				double svmGamma,
+				String secondKernel,
+				CompositeKernel.ComboOperator comboOperator,
+				double tkWeight,
+				double lambda) {
+			super();
+			this.classifyBothDirections = classifyBothDirections;
+			this.probabilityOfKeepingANegativeExample = probabilityOfKeepingANegativeExample;
+			this.svmKernel = svmKernel;
+			this.svmKernelIndex = SVM_KERNELS.indexOf(this.svmKernel);
+			if (this.svmKernelIndex == -1) {
+				throw new IllegalArgumentException("Unrecognized kernel: " + this.svmKernel);
+			}
+			this.svmCost = svmCost;
+			this.svmGamma = svmGamma;
+			this.secondKernel = secondKernel;
+			this.secondKernelIndex = SVM_KERNELS.indexOf(this.secondKernel);
+			this.comboOperator = comboOperator;
+			this.tkWeight = tkWeight;
+			this.lambda = lambda;
+		}
 
-    @Override
-    public String toString() {
-      StringBuffer buff = new StringBuffer();
-//      buff.append("Bothdirections=");
-//      buff.append(classifyBothDirections);
-//      buff.append(",downsamplingratio=");
-//      buff.append(probabilityOfKeepingANegativeExample);
-      buff.append(",Kernel=");
-      buff.append(svmKernel);
-      buff.append(",Cost=");
-      buff.append(svmCost);
-      buff.append(",Gamma=");
-      buff.append(svmGamma);
-      buff.append(",secondKernel=");
-      buff.append(secondKernel);
-      buff.append(",operator=");
-      buff.append(comboOperator);
-      buff.append(",tkWeight=");
-      buff.append(tkWeight);
-      buff.append(",lambda=");
-      buff.append(lambda);
-      return buff.toString();
-    }
-  }
-  
-  public static class AddTransitiveContainsRelations extends JCasAnnotator_ImplBase {
+		@Override
+		public String toString() {
+			StringBuffer buff = new StringBuffer();
+			//      buff.append("Bothdirections=");
+			//      buff.append(classifyBothDirections);
+			//      buff.append(",downsamplingratio=");
+			//      buff.append(probabilityOfKeepingANegativeExample);
+			buff.append(",Kernel=");
+			buff.append(svmKernel);
+			buff.append(",Cost=");
+			buff.append(svmCost);
+			buff.append(",Gamma=");
+			buff.append(svmGamma);
+			buff.append(",secondKernel=");
+			buff.append(secondKernel);
+			buff.append(",operator=");
+			buff.append(comboOperator);
+			buff.append(",tkWeight=");
+			buff.append(tkWeight);
+			buff.append(",lambda=");
+			buff.append(lambda);
+			return buff.toString();
+		}
+	}
 
-    @Override
-    public void process(JCas jCas) throws AnalysisEngineProcessException {
-      
-      // collect many-to-many mappings of containment relations 
-      Multimap<Annotation, Annotation> isContainedIn = HashMultimap.create();
-      Multimap<Annotation, Annotation> contains = HashMultimap.create();
-      Set<BinaryTextRelation> containsRelations = Sets.newHashSet();
-      for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
-        if (relation.getCategory().equals("CONTAINS")) {
-          containsRelations.add(relation);
-          Annotation arg1 = relation.getArg1().getArgument();
-          Annotation arg2 = relation.getArg2().getArgument();
-          contains.put(arg1, arg2);
-          isContainedIn.put(arg2, arg1);
-        }
-      }
+	public static class AddTransitiveContainsRelations extends JCasAnnotator_ImplBase {
 
-      // look for X -> Y -> Z containment chains and add X -> Z relations
-      Deque<Annotation> todo = new ArrayDeque<Annotation>(isContainedIn.keySet());
-      while (!todo.isEmpty()) {
-        Annotation next = todo.removeFirst();
-        for (Annotation parent : Lists.newArrayList(isContainedIn.get(next))) {
-          for (Annotation grandParent : Lists.newArrayList(isContainedIn.get(parent))) {
-            if (!isContainedIn.containsEntry(next, grandParent)) {
-              isContainedIn.put(next, grandParent);
-              contains.put(grandParent, next);
-              
-              // once X -> Z has been added, we need to re-do all W where W -> X
-              for (Annotation child : contains.get(next)) {
-                todo.add(child);
-              }
-            }
-          }
-        }
-      }
-      
-      // remove old relations
-      for (BinaryTextRelation relation : containsRelations) {
-        relation.getArg1().removeFromIndexes();
-        relation.getArg2().removeFromIndexes();
-        relation.removeFromIndexes();
-      }
-      
-      // add new, transitive relations
-      for (Annotation contained : isContainedIn.keySet()) {
-        for (Annotation container : isContainedIn.get(contained)) {
-          RelationArgument arg1 = new RelationArgument(jCas);
-          arg1.setArgument(container);
-          RelationArgument arg2 = new RelationArgument(jCas);
-          arg2.setArgument(contained);
-          BinaryTextRelation relation = new BinaryTextRelation(jCas);
-          relation.setArg1(arg1);
-          relation.setArg2(arg2);
-          relation.setCategory("CONTAINS");
-          arg1.addToIndexes();
-          arg2.addToIndexes();
-          relation.addToIndexes();
-        }
-      }
-    }
-    
-  }
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+
+			// collect many-to-many mappings of containment relations 
+			Multimap<Annotation, Annotation> isContainedIn = HashMultimap.create();
+			Multimap<Annotation, Annotation> contains = HashMultimap.create();
+			Set<BinaryTextRelation> containsRelations = Sets.newHashSet();
+			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
+				if (relation.getCategory().equals("CONTAINS")) {
+					containsRelations.add(relation);
+					Annotation arg1 = relation.getArg1().getArgument();
+					Annotation arg2 = relation.getArg2().getArgument();
+					contains.put(arg1, arg2);
+					isContainedIn.put(arg2, arg1);
+				}
+			}
+
+			// look for X -> Y -> Z containment chains and add X -> Z relations
+			Deque<Annotation> todo = new ArrayDeque<Annotation>(isContainedIn.keySet());
+			while (!todo.isEmpty()) {
+				Annotation next = todo.removeFirst();
+				for (Annotation parent : Lists.newArrayList(isContainedIn.get(next))) {
+					for (Annotation grandParent : Lists.newArrayList(isContainedIn.get(parent))) {
+						if (!isContainedIn.containsEntry(next, grandParent)) {
+							isContainedIn.put(next, grandParent);
+							contains.put(grandParent, next);
+
+							// once X -> Z has been added, we need to re-do all W where W -> X
+							for (Annotation child : contains.get(next)) {
+								todo.add(child);
+							}
+						}
+					}
+				}
+			}
+
+			// remove old relations
+			for (BinaryTextRelation relation : containsRelations) {
+				relation.getArg1().removeFromIndexes();
+				relation.getArg2().removeFromIndexes();
+				relation.removeFromIndexes();
+			}
+
+			// add new, transitive relations
+			for (Annotation contained : isContainedIn.keySet()) {
+				for (Annotation container : isContainedIn.get(contained)) {
+					RelationArgument arg1 = new RelationArgument(jCas);
+					arg1.setArgument(container);
+					RelationArgument arg2 = new RelationArgument(jCas);
+					arg2.setArgument(contained);
+					BinaryTextRelation relation = new BinaryTextRelation(jCas);
+					relation.setArg1(arg1);
+					relation.setArg2(arg2);
+					relation.setCategory("CONTAINS");
+					arg1.addToIndexes();
+					arg2.addToIndexes();
+					relation.addToIndexes();
+				}
+			}
+		}
+
+	}
+
+	public static class AddTransitiveBeforeAndOnRelations extends JCasAnnotator_ImplBase {
+
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+
+			// collect many-to-many mappings of containment relations 
+			Multimap<Annotation, Annotation> contains = HashMultimap.create();
+			Multimap<Annotation, Annotation> before = HashMultimap.create();
+			Multimap<Annotation, Annotation> endson = HashMultimap.create();
+			Multimap<Annotation, Annotation> beginson = HashMultimap.create();
+			Set<BinaryTextRelation> beforeRel = Sets.newHashSet();
+
+			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
+				if (relation.getCategory().equals("CONTAINS")) {
+					Annotation arg1 = relation.getArg1().getArgument();
+					Annotation arg2 = relation.getArg2().getArgument();
+					contains.put(arg1, arg2);
+				}else if (relation.getCategory().equals("BEFORE")) {
+					Annotation arg1 = relation.getArg1().getArgument();
+					Annotation arg2 = relation.getArg2().getArgument();
+					before.put(arg1, arg2);
+					beforeRel.add(relation);
+				}else if (relation.getCategory().equals("ENDS-ON")) {
+					Annotation arg1 = relation.getArg1().getArgument();
+					Annotation arg2 = relation.getArg2().getArgument();
+					endson.put(arg1, arg2);
+					if (!endson.containsEntry(arg2, arg1)) {
+						endson.put(arg2, arg1);
+					}
+				}else if (relation.getCategory().equals("BEGINS-ON")) {
+					Annotation arg1 = relation.getArg1().getArgument();
+					Annotation arg2 = relation.getArg2().getArgument();
+					beginson.put(arg1, arg2);
+					if (!beginson.containsEntry(arg2, arg1)) {
+						beginson.put(arg2, arg1);
+					}
+				}
+			}
+
+			// for A BEFORE B, check if A and B Contain anything
+			for (BinaryTextRelation brelation : beforeRel) {
+				Annotation argA = brelation.getArg1().getArgument();
+				Annotation argB = brelation.getArg2().getArgument();
+				//add contained before
+				for (Annotation childA : contains.get(argA)) {
+					for (Annotation childB : contains.get(argB)) {
+						if (!before.containsEntry(childA, childB)) {
+							//create a new before relation:
+							RelationArgument arg1 = new RelationArgument(jCas);
+							arg1.setArgument(childA);
+							RelationArgument arg2 = new RelationArgument(jCas);
+							arg2.setArgument(childB);
+							BinaryTextRelation relation = new BinaryTextRelation(jCas);
+							relation.setArg1(arg1);
+							relation.setArg2(arg2);
+							relation.setCategory("BEFORE");
+							arg1.addToIndexes();
+							arg2.addToIndexes();
+							relation.addToIndexes();
+							before.put(childA, childB);
+						}
+					}
+				}
+				//add ends-on A
+				for (Annotation endsOnA : endson.get(argA)) {
+					if (!before.containsEntry(endsOnA, argB)) {
+						//create a new before relation:
+						RelationArgument arg1 = new RelationArgument(jCas);
+						arg1.setArgument(endsOnA);
+						RelationArgument arg2 = new RelationArgument(jCas);
+						arg2.setArgument(argB);
+						BinaryTextRelation relation = new BinaryTextRelation(jCas);
+						relation.setArg1(arg1);
+						relation.setArg2(arg2);
+						relation.setCategory("BEFORE");
+						arg1.addToIndexes();
+						arg2.addToIndexes();
+						relation.addToIndexes();
+						before.put(endsOnA, argB);
+					}
+				}
+				//add begins-on B
+				for (Annotation beginsOnB : beginson.get(argB)) {
+					if (!before.containsEntry(argA, beginsOnB)) {
+						//create a new before relation:
+						RelationArgument arg1 = new RelationArgument(jCas);
+						arg1.setArgument(argA);
+						RelationArgument arg2 = new RelationArgument(jCas);
+						arg2.setArgument(beginsOnB);
+						BinaryTextRelation relation = new BinaryTextRelation(jCas);
+						relation.setArg1(arg1);
+						relation.setArg2(arg2);
+						relation.setCategory("BEFORE");
+						arg1.addToIndexes();
+						arg2.addToIndexes();
+						relation.addToIndexes();
+						before.put(argA, beginsOnB);
+					}
+				}
+			}
+		}
+
+	}
 }
