@@ -21,6 +21,7 @@ package org.apache.ctakes.temporal.ae.feature.duration;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -30,9 +31,6 @@ import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.classifier.Feature;
-import org.threeten.bp.temporal.TemporalUnit;
-
-import scala.collection.immutable.Set;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -48,7 +46,7 @@ public class DurationEventTimeFeatureExtractor implements RelationFeaturesExtrac
     
     List<Feature> features = new ArrayList<Feature>();
     
-    String eventText = arg1.getCoveredText().toLowerCase(); // arg1 is an event
+    String eventText = Utils.normalizeEventText(jCas, arg1); // arg1 is an event
     String timeText = arg2.getCoveredText().toLowerCase();  // arg2 is a time mention
 
     File durationLookup = new File(Utils.durationDistributionPath);
@@ -63,15 +61,13 @@ public class DurationEventTimeFeatureExtractor implements RelationFeaturesExtrac
     Map<String, Float> eventDistribution = textToDistribution.get(eventText);
     float eventExpectedDuration = Utils.expectedDuration(eventDistribution);
 
-    Set<TemporalUnit> units = Utils.runTimexParser(timeText);
-    scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
-    while(iterator.hasNext()) {
-      TemporalUnit unit = iterator.next();
-      Map<String, Float> distribution = Utils.convertToDistribution(unit.getName());
-      float timeExpectedDuration = Utils.expectedDuration(distribution);
-      features.add(new Feature("expected_duration_difference", timeExpectedDuration - eventExpectedDuration));
-      continue; // ignore multiple time units (almost never happens)
-    } 
+    HashSet<String> timeUnits = Utils.getTimeUnits(timeText);
+    for(String timeUnit : timeUnits) {
+      Map<String, Float> timeDistribution = Utils.convertToDistribution(timeUnit);
+      float timeExpectedDuration = Utils.expectedDuration(timeDistribution);
+      features.add(new Feature("duration_difference", timeExpectedDuration - eventExpectedDuration));
+      break; // for now only use firs time unit
+    }
 
     return features; 
   }

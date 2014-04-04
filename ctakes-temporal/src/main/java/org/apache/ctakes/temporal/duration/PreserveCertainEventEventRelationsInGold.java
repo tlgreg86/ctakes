@@ -50,8 +50,8 @@ public class PreserveCertainEventEventRelationsInGold extends JCasAnnotator_Impl
       String event1Text;
       String event2Text;
       if(arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof EventMention) {
-        event1Text = Utils.getText(jCas, arg1.getArgument());
-        event2Text = Utils.getText(jCas, arg2.getArgument());
+        event1Text = Utils.normalizeEventText(jCas, arg1.getArgument());
+        event2Text = Utils.normalizeEventText(jCas, arg2.getArgument());
       } else {
         // this is not an event-event relation
         continue;
@@ -69,7 +69,7 @@ public class PreserveCertainEventEventRelationsInGold extends JCasAnnotator_Impl
 
     // remove events (that didn't participate in relations) that have no data
     for(EventMention mention : Lists.newArrayList(JCasUtil.select(goldView, EventMention.class))) {
-      String mentionText = Utils.getText(jCas, mention);
+      String mentionText = Utils.normalizeEventText(jCas, mention);
       if(textToDistribution.containsKey(mentionText)) {
         // these are the kind we keep
         continue;

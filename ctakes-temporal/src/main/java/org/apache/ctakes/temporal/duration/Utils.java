@@ -52,9 +52,9 @@ public class Utils {
   public static final String[] bins = {"second", "minute", "hour", "day", "week", "month", "year", "decade"};
   
   /**
-   * Extract time unit(s) from a temporal expression.
-   * Extracted time units should be a subset of the bins above.
-   * Return empty set if time units couldnot be extracted.
+   * Extract time unit(s) from a temporal expression 
+   * and put in one of the eight bins above.
+   * Return empty set if time units could not be extracted.
    * E.g. July 5, 1984 -> day
    */
   public static HashSet<String> getTimeUnits(String timex) {
@@ -258,12 +258,10 @@ public class Utils {
   }
   
   /**
-   * Check if the annotation is a UMLS concept. If it is, return as is.
-   * Otherwise, lemmatize this annotation if this is a verb. 
-   * Return as is if not verb.
+   * Keep UMLS concepts and non-verbs intact. Lemmatize verbs.
    * Lowercase before returning.
    */
-  public static String getText(JCas jCas, Annotation annotation) 
+  public static String normalizeEventText(JCas jCas, Annotation annotation) 
       throws AnalysisEngineProcessException {
 
     JCas systemView;

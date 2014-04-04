@@ -2,9 +2,9 @@ package org.apache.ctakes.temporal.duration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
 
-import org.apache.ctakes.temporal.duration.Utils.Callback;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -12,11 +12,8 @@ import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.jcas.JCas;
-import org.threeten.bp.temporal.TemporalUnit;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.util.JCasUtil;
-
-import scala.collection.immutable.Set;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
@@ -36,7 +33,7 @@ public class PreserveCertainEventTimeRelationsInGold extends JCasAnnotator_ImplB
     File durationLookup = new File(Utils.durationDistributionPath);                      
     Map<String, Map<String, Float>> textToDistribution = null;                                                                 
     try {                                                                                                                      
-      textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Callback());                                    
+      textToDistribution = Files.readLines(durationLookup, Charsets.UTF_8, new Utils.Callback());                                    
     } catch(IOException e) {                                                                                                   
       e.printStackTrace();                                                                                                     
       return;                                                                                                                  
@@ -58,21 +55,21 @@ public class PreserveCertainEventTimeRelationsInGold extends JCasAnnotator_ImplB
       String timeText;
       if(arg1.getArgument() instanceof TimeMention && arg2.getArgument() instanceof EventMention) {
         timeText = arg1.getArgument().getCoveredText().toLowerCase(); 
-        eventText = arg2.getArgument().getCoveredText().toLowerCase();  
+        eventText = Utils.normalizeEventText(jCas, arg2.getArgument());
       } else if(arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof TimeMention) {
-        eventText = arg1.getArgument().getCoveredText().toLowerCase(); 
+        eventText = Utils.normalizeEventText(jCas, arg1.getArgument());
         timeText = arg2.getArgument().getCoveredText().toLowerCase();  
       } else {
         // this is not a event-time relation
         continue;
       }    
 
-      Set<TemporalUnit> units = Utils.runTimexParser(timeText);
-      if(textToDistribution.containsKey(eventText) && units != null) {
+      HashSet<String> timeUnits = Utils.getTimeUnits(timeText);
+      if(textToDistribution.containsKey(eventText) && timeUnits.size() > 0) {
         // there is duration information and we are able to get time units, so keep this
         continue;
       }
-
+      
       arg1.removeFromIndexes();                                                                                            
       arg2.removeFromIndexes();                                                                                            
       relation.removeFromIndexes();
@@ -80,7 +77,8 @@ public class PreserveCertainEventTimeRelationsInGold extends JCasAnnotator_ImplB
     
     // remove events (that didn't participate in relations) that have no data
     for(EventMention mention : Lists.newArrayList(JCasUtil.select(goldView, EventMention.class))) {
-      if(textToDistribution.containsKey(mention.getCoveredText().toLowerCase())) {
+      String eventText = Utils.normalizeEventText(jCas, mention);
+      if(textToDistribution.containsKey(eventText)) {
         // these are the kind we keep
         continue;
       } 
@@ -89,10 +87,8 @@ public class PreserveCertainEventTimeRelationsInGold extends JCasAnnotator_ImplB
     
     // finally remove time expressions (that didn't participate in relations) that have no data
     for(TimeMention mention : Lists.newArrayList(JCasUtil.select(goldView, TimeMention.class))) {
-      String timeText = mention.getCoveredText().toLowerCase();
-      Set<TemporalUnit> units = Utils.runTimexParser(timeText);
-      if(units != null) {
-        // these are the kind we keep
+      HashSet<String> timeUnits = Utils.getTimeUnits(mention.getCoveredText().toLowerCase());
+      if(timeUnits.size() > 0) {
         continue;
       }
       mention.removeFromIndexes();

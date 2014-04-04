@@ -42,8 +42,8 @@ public class DurationEventEventFeatureExtractor implements RelationFeaturesExtra
 
     List<Feature> features = new ArrayList<Feature>();
 
-    String arg1text = Utils.getText(jCas, arg1);
-    String arg2text = Utils.getText(jCas, arg2);
+    String arg1text = Utils.normalizeEventText(jCas, arg1);
+    String arg2text = Utils.normalizeEventText(jCas, arg2);
     
     Float expectedDuration1;
     Float expectedDuration2;
