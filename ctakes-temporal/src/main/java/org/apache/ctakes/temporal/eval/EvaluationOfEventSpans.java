@@ -19,6 +19,7 @@
 package org.apache.ctakes.temporal.eval;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -60,6 +61,16 @@ public class EvaluationOfEventSpans extends EvaluationOfAnnotationSpans_ImplBase
     List<Integer> patientSets = options.getPatients().getList();
     List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
     List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
+    List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
+
+    List<Integer> allTraining = new ArrayList<Integer>(trainItems);
+    List<Integer> allTest = null;
+    if (options.getTest()) {
+      allTraining.addAll(devItems);
+      allTest = new ArrayList<Integer>(testItems);
+    } else {
+      allTest = new ArrayList<Integer>(devItems);
+    }
     EvaluationOfEventSpans evaluation = new EvaluationOfEventSpans(
         new File("target/eval/event-spans"),
         options.getRawTextDirectory(),
@@ -71,7 +82,7 @@ public class EvaluationOfEventSpans extends EvaluationOfAnnotationSpans_ImplBase
         options.getSMOTENeighborNumber());
     evaluation.prepareXMIsFor(patientSets);
     evaluation.setLogging(Level.FINE, new File("target/eval/ctakes-event-errors.log"));
-    AnnotationStatistics<String> stats = evaluation.trainAndTest(trainItems, devItems);
+    AnnotationStatistics<String> stats = evaluation.trainAndTest(allTraining, allTest);
     System.err.println(stats);
   }
 
