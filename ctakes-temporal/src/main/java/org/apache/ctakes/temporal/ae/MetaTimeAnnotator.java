@@ -25,6 +25,7 @@ import org.cleartk.classifier.chunking.BIOChunking;
 import org.cleartk.classifier.jar.DefaultSequenceDataWriterFactory;
 import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
 import org.cleartk.classifier.jar.GenericJarClassifierFactory;
+import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.component.ViewCreatorAnnotator;
 import org.uimafit.factory.AggregateBuilder;
 import org.uimafit.factory.AnalysisEngineFactory;
@@ -34,8 +35,13 @@ public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
 
   private BIOChunking<BaseToken, TimeMention> timeChunking;
 
-  static Class<?>[] components = new Class<?>[]{ BackwardsTimeAnnotator.class, TimeAnnotator.class, ConstituencyBasedTimeAnnotator.class, CRFTimeAnnotator.class };
+  @SuppressWarnings("unchecked")
+  static Class<? extends JCasAnnotator_ImplBase>[] components = new Class[]{ BackwardsTimeAnnotator.class, TimeAnnotator.class, ConstituencyBasedTimeAnnotator.class, CRFTimeAnnotator.class };
   
+  public static Class<? extends JCasAnnotator_ImplBase>[] getComponents() {
+    return components;
+  }
+
   public static AnalysisEngineDescription getDataWriterDescription(
       Class<? extends SequenceDataWriter<String>> dataWriterClass,
       File directory) throws ResourceInitializationException {
@@ -58,13 +64,6 @@ public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
         new File(directory, CRFTimeAnnotator.class.getSimpleName()), 
         CRFTimeAnnotator.class.getSimpleName()));
     
-//    builder.add(AnalysisEngineFactory.createPrimitiveDescription(MetaTimeAnnotator.class, 
-//        CleartkAnnotator.PARAM_IS_TRAINING,
-//        true,
-//        DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
-//        dataWriterClass,
-//        DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
-//        new File(directory, MetaTimeAnnotator.class.getSimpleName())));
     builder.add(AnalysisEngineFactory.createPrimitiveDescription(MetaTimeAnnotator.class,
           CleartkSequenceAnnotator.PARAM_IS_TRAINING,
           true,
@@ -106,7 +105,7 @@ public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
   public void initialize(UimaContext context) throws ResourceInitializationException {
     super.initialize(context);
     // define chunking
-    this.timeChunking = new BIOChunking<BaseToken, TimeMention>(BaseToken.class, TimeMention.class);
+    this.timeChunking = new BIOChunking<>(BaseToken.class, TimeMention.class);
   }
   
   @Override
@@ -114,7 +113,7 @@ public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
       throws AnalysisEngineProcessException {
     // classify tokens within each sentence
     for (Sentence sentence : JCasUtil.selectCovered(jCas, Sentence.class, segment)) {
-      List<List<Feature>> sequenceFeatures = new ArrayList<List<Feature>>();
+      List<List<Feature>> sequenceFeatures = new ArrayList<>();
       List<BaseToken> tokens = JCasUtil.selectCovered(jCas, BaseToken.class, sentence);
       // during training, the list of all outcomes for the tokens
       List<String> outcomes;
@@ -125,10 +124,10 @@ public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
       }
       // during prediction, the list of outcomes predicted so far
       else {
-        outcomes = new ArrayList<String>();
+        outcomes = new ArrayList<>();
       }
       
-      List<List<String>> componentOutcomes = new ArrayList<List<String>>();
+      List<List<String>> componentOutcomes = new ArrayList<>();
       for(Class<?> component : components){
         JCas componentView;
         try {
@@ -150,7 +149,7 @@ public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
       }
       
       for(int tokenIndex = 0; tokenIndex < tokens.size(); tokenIndex++){
-        List<Feature> features = new ArrayList<Feature>();
+        List<Feature> features = new ArrayList<>();
         
         for(int componentNum = 0; componentNum < componentOutcomes.size(); componentNum++){
           String outcome = componentOutcomes.get(componentNum).get(tokenIndex);
@@ -162,9 +161,9 @@ public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
           if(tokenIndex < tokens.size() -1){
             features.add(new Feature(String.format("Component%d_NextLabel", componentNum), componentOutcomes.get(componentNum).get(tokenIndex+1)));
           }
-          if(!outcome.equals("O")){
-            features.add(new Feature(String.format("Component%d_IsTime", componentNum)));
-          }
+//          if(!outcome.equals("O")){
+//            features.add(new Feature(String.format("Component%d_IsTime", componentNum)));
+//          }
         }
         
 //        if (this.isTraining()) {
