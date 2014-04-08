@@ -48,8 +48,8 @@ public class EvaluationOfClearTKRelations extends
    * @throws Exception 
    */
   static interface EvalOptions extends Options{
-    @Option(shortName="iee") boolean getIgnoreEventEvent();
-    @Option(shortName="iet") boolean getIgnoreEventTime();
+    @Option(longName="iee") boolean getIgnoreEventEvent();
+    @Option(longName="iet") boolean getIgnoreEventTime();
   }
   
   private boolean doEventEvent = true;

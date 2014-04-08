@@ -120,7 +120,9 @@ public class EvaluationOfEventProperties extends
     aggregateBuilder.add(DocTimeRelAnnotator.createDataWriterDescription(
     		LIBSVMStringOutcomeDataWriter.class,
         new File(directory, DOC_TIME_REL)));
-    aggregateBuilder.add(ContextualModalityAnnotator.createDataWriterDescription(LIBSVMStringOutcomeDataWriter.class, new File(directory, CONTEXTUAL_MODALITY)));
+    aggregateBuilder.add(ContextualModalityAnnotator.createDataWriterDescription(
+        LIBSVMStringOutcomeDataWriter.class, 
+        new File(directory, CONTEXTUAL_MODALITY)));
     SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
     for(String propertyName : PROPERTY_NAMES){
       JarClassifierBuilder.trainAndPackage(new File(directory, propertyName), "-h","0","-c", "1000");
