@@ -203,76 +203,74 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
   private List<File> getFilesFor(List<Integer> patientSets) {
 	  List<File> files = new ArrayList<File>();
 		if (this.rawTextDirectory == null
-				&& this.xmlFormat == XMLFormat.Anafora) {
-			for (File dir : this.xmlDirectory.listFiles()) {
-        Set<String> ids = new HashSet<String>();
-        for (Integer set : patientSets) {
-          ids.add(String.format("ID%03d", set));
-        }
-				if (dir.isDirectory()) {
-          if (ids.contains(dir.getName().substring(0, 5))) {
-            File file = new File(dir, dir.getName());
-            if (file.exists()) {
-              files.add(file);
-            } else {
-              LOGGER.warn("Missing note: " + file);
-            }
-          } else {
-            LOGGER.info("Skipping note: " + dir);
-          }
-				}
-			}
-		} else if(this.xmlFormat == XMLFormat.Knowtator) {
-	  for (Integer set : patientSets) {
-		  final int setNum = set;
-		  for (File file : rawTextDirectory.listFiles(new FilenameFilter(){
-			  @Override
-			  public boolean accept(File dir, String name) {
-				  return name.contains(String.format("ID%03d", setNum));
-			  }})) {
-			  // skip hidden files like .svn
-			  if (!file.isHidden()) {
-			    if(xmlFormat == XMLFormat.Knowtator){
-			      files.add(file);
-			    }else{
-			      // look for equivalent in xml directory:
-			      File xmlFile = new File(xmlDirectory, file.getName());
-			      if(xmlFile.exists()){
-			        files.add(file);
-			      }else{
-			        System.err.println("Missing patient file : " + xmlFile);
-			      }
-			    }
-			  } 
+		    && this.xmlFormat == XMLFormat.Anafora) {
+		  for (File dir : this.xmlDirectory.listFiles()) {
+		    Set<String> ids = new HashSet<String>();
+		    for (Integer set : patientSets) {
+		      ids.add(String.format("ID%03d", set));
+		    }
+		    if (dir.isDirectory()) {
+		      if (ids.contains(dir.getName().substring(0, 5))) {
+		        File file = new File(dir, dir.getName());
+		        if (file.exists()) {
+		          files.add(file);
+		        } else {
+		          LOGGER.warn("Missing note: " + file);
+		        }
+		      } else {
+		        LOGGER.info("Skipping note: " + dir);
+		      }
+		    }
 		  }
-	  } 
-	  } else if(this.xmlFormat == XMLFormat.I2B2) {
-	    File trainDir = new File(this.xmlDirectory, "training");
-	    File testDir = new File(this.xmlDirectory, "test");
-      for (Integer pt : patientSets){
-        File xmlTrain = new File(trainDir, pt+".xml");
-        File train = new File(trainDir, pt+".xml.txt");
-        if(train.exists()){
-          if(xmlTrain.exists()){
-            files.add(train);
-          }else{
-            System.err.println("Text file in training has no corresponding xml -- skipping: " + train);
-          }
-        }
-        File xmlText = new File(testDir, pt+".xml");
-        File test = new File(testDir, pt+".xml.txt");
-        if(test.exists()){
-          if(xmlText.exists()){
-            files.add(test);
-          }else{
-            System.err.println("Text file in test has no corresponding xml -- skipping: " + test);
-          }
-        }
-        assert !(train.exists() && test.exists());
-      }
-    } else{
-      throw new UnsupportedOperationException("Did not supply a valid xml format type.");
-    }
+		} else if(this.xmlFormat == XMLFormat.I2B2) {
+		  File trainDir = new File(this.xmlDirectory, "training");
+		  File testDir = new File(this.xmlDirectory, "test");
+		  for (Integer pt : patientSets){
+		    File xmlTrain = new File(trainDir, pt+".xml");
+		    File train = new File(trainDir, pt+".xml.txt");
+		    if(train.exists()){
+		      if(xmlTrain.exists()){
+		        files.add(train);
+		      }else{
+		        System.err.println("Text file in training has no corresponding xml -- skipping: " + train);
+		      }
+		    }
+		    File xmlText = new File(testDir, pt+".xml");
+		    File test = new File(testDir, pt+".xml.txt");
+		    if(test.exists()){
+		      if(xmlText.exists()){
+		        files.add(test);
+		      }else{
+		        System.err.println("Text file in test has no corresponding xml -- skipping: " + test);
+		      }
+		    }
+		    assert !(train.exists() && test.exists());
+		  }
+		}	else  {
+		  for (Integer set : patientSets) {
+		    final int setNum = set;
+		    for (File file : rawTextDirectory.listFiles(new FilenameFilter(){
+		      @Override
+		      public boolean accept(File dir, String name) {
+		        return name.contains(String.format("ID%03d", setNum));
+		      }})) {
+		      // skip hidden files like .svn
+		      if (!file.isHidden()) {
+		        if(xmlFormat == XMLFormat.Knowtator){
+		          files.add(file);
+		        }else{
+		          // look for equivalent in xml directory:
+		          File xmlFile = new File(xmlDirectory, file.getName());
+		          if(xmlFile.exists()){
+		            files.add(file);
+		          }else{
+		            System.err.println("Missing patient file : " + xmlFile);
+		          }
+		        }
+		      } 
+		    }
+		  }
+		}
     return files;
   }
 
