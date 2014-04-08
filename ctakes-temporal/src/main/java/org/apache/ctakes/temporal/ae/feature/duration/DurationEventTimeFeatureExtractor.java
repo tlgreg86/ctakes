@@ -43,9 +43,9 @@ public class DurationEventTimeFeatureExtractor implements RelationFeaturesExtrac
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2)
       throws AnalysisEngineProcessException {
-    
-    List<Feature> features = new ArrayList<Feature>();
-    
+
+    List<Feature> features = new ArrayList<>();
+
     String eventText = Utils.normalizeEventText(jCas, arg1); // arg1 is an event
     String timeText = arg2.getCoveredText().toLowerCase();  // arg2 is a time mention
 
@@ -57,15 +57,19 @@ public class DurationEventTimeFeatureExtractor implements RelationFeaturesExtrac
       e.printStackTrace();
       return features;
     }
-
     Map<String, Float> eventDistribution = textToDistribution.get(eventText);
-    float eventExpectedDuration = Utils.expectedDuration(eventDistribution);
 
     HashSet<String> timeUnits = Utils.getTimeUnits(timeText);
     for(String timeUnit : timeUnits) {
       Map<String, Float> timeDistribution = Utils.convertToDistribution(timeUnit);
+      for(String bin : Utils.bins) {
+        features.add(new Feature("bin_diff_" + bin, timeDistribution.get(bin) - eventDistribution.get(bin)));
+      }
+
+      float eventExpectedDuration = Utils.expectedDuration(eventDistribution);
       float timeExpectedDuration = Utils.expectedDuration(timeDistribution);
       features.add(new Feature("duration_difference", timeExpectedDuration - eventExpectedDuration));
+
       break; // for now only use firs time unit
     }
 
