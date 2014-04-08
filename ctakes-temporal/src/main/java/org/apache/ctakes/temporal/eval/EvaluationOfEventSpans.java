@@ -49,7 +49,7 @@ public class EvaluationOfEventSpans extends EvaluationOfAnnotationSpans_ImplBase
     @Option(longName = "downratio", defaultValue = "1")
     public float getProbabilityOfKeepingANegativeExample();
 
-    @Option(longName = "featureSelectionThreshold", defaultValue = "1")
+    @Option(longName = "featureSelectionThreshold", defaultValue = "-1")
     public float getFeatureSelectionThreshold();
 
     @Option(longName = "SMOTENeighborNumber", defaultValue = "0")
@@ -110,7 +110,7 @@ public class EvaluationOfEventSpans extends EvaluationOfAnnotationSpans_ImplBase
   @Override
   protected AnalysisEngineDescription getDataWriterDescription(File directory)
       throws ResourceInitializationException {
-    Class<?> dataWriterClass = this.featureSelectionThreshold > 0f
+    Class<?> dataWriterClass = this.featureSelectionThreshold >= 0f
         ? InstanceDataWriter.class
         : LIBLINEARStringOutcomeDataWriter.class;
     return EventAnnotator.createDataWriterDescription(
