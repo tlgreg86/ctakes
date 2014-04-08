@@ -73,10 +73,20 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 
 	public static void main(String[] args) throws Exception {
 		Options options = CliFactory.parseArguments(Options.class, args);
-		List<Integer> patientSets = options.getPatients().getList();
-		List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-		List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
-		List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
+		List<Integer> trainItems = null;
+    List<Integer> devItems = null;
+    List<Integer> testItems = null;
+		
+    List<Integer> patientSets = options.getPatients().getList();
+    if(options.getXMLFormat() == XMLFormat.I2B2){
+      trainItems = I2B2Data.getTrainPatientSets(options.getXMLDirectory());
+      devItems = I2B2Data.getDevPatientSets(options.getXMLDirectory());
+      testItems = I2B2Data.getTestPatientSets(options.getXMLDirectory());
+    }else{
+      trainItems = THYMEData.getTrainPatientSets(patientSets);
+      devItems = THYMEData.getDevPatientSets(patientSets);
+      testItems = THYMEData.getTestPatientSets(patientSets);
+    }
 		
 		List<Integer> allTrain = new ArrayList<Integer>(trainItems);
 		List<Integer> allTest = null;
@@ -94,13 +104,13 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 		annotatorClasses.add(TimeAnnotator.class);
 		annotatorClasses.add(ConstituencyBasedTimeAnnotator.class);
 		annotatorClasses.add(CRFTimeAnnotator.class);
-		annotatorClasses.add(MetaTimeAnnotator.class);
+//		annotatorClasses.add(MetaTimeAnnotator.class);
 		Map<Class<? extends JCasAnnotator_ImplBase>, String[]> annotatorTrainingArguments = Maps.newHashMap();
 		annotatorTrainingArguments.put(BackwardsTimeAnnotator.class, new String[]{"-c", "0.3"});
 		annotatorTrainingArguments.put(TimeAnnotator.class, new String[]{"-c", "0.1"});
 		annotatorTrainingArguments.put(ConstituencyBasedTimeAnnotator.class, new String[]{"-c", "0.3"});
 		annotatorTrainingArguments.put(CRFTimeAnnotator.class, new String[]{"-p", "c2=0.03"});
-		annotatorTrainingArguments.put(MetaTimeAnnotator.class, new String[]{"-p", "c2=0.3"});
+//		annotatorTrainingArguments.put(MetaTimeAnnotator.class, new String[]{"-p", "c2=0.3"});
 
 		// run one evaluation per annotator class
 		final Map<Class<?>, AnnotationStatistics<?>> annotatorStats = Maps.newHashMap();

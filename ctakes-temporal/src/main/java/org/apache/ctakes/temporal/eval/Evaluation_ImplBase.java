@@ -37,6 +37,7 @@ import org.apache.ctakes.constituency.parser.ae.ConstituencyParser;
 import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.OverlapAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
+import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.resource.FileResourceImpl;
@@ -47,7 +48,9 @@ import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
 import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.lvg.resource.LvgCmdApiResourceImpl;
+import org.apache.ctakes.parser.berkeley.BerkeleyParserWrapper;
 import org.apache.ctakes.postagger.POSTagger;
+import org.apache.ctakes.temporal.ae.I2B2TemporalXMLReader;
 import org.apache.ctakes.temporal.ae.THYMEAnaforaXMLReader;
 import org.apache.ctakes.temporal.ae.THYMEKnowtatorXMLReader;
 import org.apache.ctakes.temporal.ae.THYMETreebankReader;
@@ -106,7 +109,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 
   public static final String GOLD_VIEW_NAME = "GoldView";
   
-  enum XMLFormat { Knowtator, Anafora }
+  enum XMLFormat { Knowtator, Anafora, I2B2 }
 
   static interface Options {
 
@@ -219,7 +222,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
           }
 				}
 			}
-		} else {
+		} else if(this.xmlFormat == XMLFormat.Knowtator) {
 	  for (Integer set : patientSets) {
 		  final int setNum = set;
 		  for (File file : rawTextDirectory.listFiles(new FilenameFilter(){
@@ -242,7 +245,33 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 			    }
 			  } 
 		  }
-	  }
+	  } 
+	  } else if(this.xmlFormat == XMLFormat.I2B2) {
+	    File trainDir = new File(this.xmlDirectory, "training");
+	    File testDir = new File(this.xmlDirectory, "test");
+      for (Integer pt : patientSets){
+        File xmlTrain = new File(trainDir, pt+".xml");
+        File train = new File(trainDir, pt+".xml.txt");
+        if(train.exists()){
+          if(xmlTrain.exists()){
+            files.add(train);
+          }else{
+            System.err.println("Text file in training has no corresponding xml -- skipping: " + train);
+          }
+        }
+        File xmlText = new File(testDir, pt+".xml");
+        File test = new File(testDir, pt+".xml.txt");
+        if(test.exists()){
+          if(xmlText.exists()){
+            files.add(test);
+          }else{
+            System.err.println("Text file in test has no corresponding xml -- skipping: " + test);
+          }
+        }
+        assert !(train.exists() && test.exists());
+      }
+    } else{
+      throw new UnsupportedOperationException("Did not supply a valid xml format type.");
     }
     return files;
   }
@@ -297,10 +326,20 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
           CAS.NAME_DEFAULT_SOFA,
           GOLD_VIEW_NAME);
       break;
+    case I2B2:
+      aggregateBuilder.add(
+          I2B2TemporalXMLReader.getDescription(this.xmlDirectory),
+          CAS.NAME_DEFAULT_SOFA,
+          GOLD_VIEW_NAME);
+      break;
     }
 
     // identify segments
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
+    if(this.xmlFormat == XMLFormat.I2B2){
+      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SimpleSegmentAnnotator.class));
+    }else{
+      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
+    }
     // identify sentences
     aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
         SentenceDetector.class,
@@ -471,7 +510,14 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
       aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(TimexAnnotationCorrector.class));
     }else{
       // add ctakes constituency parses to system view
-      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ConstituencyParser.class));
+      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ConstituencyParser.class,
+          ConstituencyParser.PARAM_MODEL_FILENAME,
+          "org/apache/ctakes/constituency/parser/models/thyme.bin"));
+//      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(BerkeleyParserWrapper.class,
+//          BerkeleyParserWrapper.PARAM_MODEL_FILENAME,
+//          
+//        "org/apache/ctakes/constituency/parser/models/thyme.gcg.4sm.bin"));
+//          "org/apache/ctakes/constituency/parser/models/thyme.4sm.bin"));
     }
     // write out the CAS after all the above annotations
     aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
