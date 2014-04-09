@@ -128,6 +128,7 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 					options.getPrintOverlappingSpans(),
 					annotatorTrainingArguments.get(annotatorClass));
 			evaluation.prepareXMIsFor(patientSets);
+			if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/" + annotatorClass.getSimpleName());
 			String name = String.format("%s.errors", annotatorClass.getSimpleName());
 			evaluation.setLogging(Level.FINE, new File("target/eval", name));
 			AnnotationStatistics<String> stats = evaluation.trainAndTest(allTrain, allTest);

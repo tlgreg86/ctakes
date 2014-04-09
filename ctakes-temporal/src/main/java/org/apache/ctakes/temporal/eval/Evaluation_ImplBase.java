@@ -30,6 +30,17 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.ctakes.chunker.ae.Chunker;
 import org.apache.ctakes.chunker.ae.DefaultChunkCreator;
 import org.apache.ctakes.chunker.ae.adjuster.ChunkAdjuster;
@@ -43,12 +54,12 @@ import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.resource.FileResourceImpl;
 import org.apache.ctakes.core.resource.JdbcConnectionResourceImpl;
 import org.apache.ctakes.core.resource.LuceneIndexReaderResourceImpl;
+import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
 import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.lvg.resource.LvgCmdApiResourceImpl;
-import org.apache.ctakes.parser.berkeley.BerkeleyParserWrapper;
 import org.apache.ctakes.postagger.POSTagger;
 import org.apache.ctakes.temporal.ae.I2B2TemporalXMLReader;
 import org.apache.ctakes.temporal.ae.THYMEAnaforaXMLReader;
@@ -96,6 +107,8 @@ import org.uimafit.factory.TypePrioritiesFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
@@ -147,7 +160,10 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
     public boolean getTest();
 
     @Option(longName = "kernelParams", defaultToNull=true)
-    public String getKernelParams();    
+    public String getKernelParams();
+    
+    @Option(defaultToNull=true)
+    public String getI2B2Output();
   }
 
   protected File rawTextDirectory;
@@ -165,6 +181,8 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
   protected boolean printErrors = false;
   
   protected boolean printOverlapping = false;
+  
+  protected String i2b2Output = null;
   
   protected String[] kernelParams;
   
@@ -184,6 +202,10 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
     this.treebankDirectory = treebankDirectory;
   }
 
+  public void setI2B2Output(String outDir){
+    i2b2Output = outDir;
+  }
+  
   public void prepareXMIsFor(List<Integer> patientSets) throws Exception {
     boolean needsXMIs = false;
     for (File textFile : this.getFilesFor(patientSets)) {
@@ -779,5 +801,69 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
         }
       }
     }
+  }
+  
+  public static class WriteI2B2XML extends JCasAnnotator_ImplBase {
+    public static final String PARAM_OUTPUT_DIR="PARAM_OUTPUT_DIR";
+    @ConfigurationParameter(mandatory=true,description="Output directory to write xml files to.",name=PARAM_OUTPUT_DIR)
+    protected String outputDir;
+    
+    @Override
+    public void process(JCas jcas) throws AnalysisEngineProcessException {
+      try {
+        // get the output file name from the input file name and output directory.
+        File outDir = new File(outputDir);
+        if(!outDir.exists()) outDir.mkdirs();
+        File inFile = new File(ViewURIUtil.getURI(jcas));
+        String outFile = inFile.getName().replace(".txt", "");
+        
+        // build the xml
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.newDocument();
+        Element rootElement = doc.createElement("ClinicalNarrativeTemporalAnnotation");
+        Element textElement = doc.createElement("TEXT");
+        Element tagsElement = doc.createElement("TAGS");
+        textElement.setTextContent(jcas.getDocumentText());
+        rootElement.appendChild(textElement);
+        rootElement.appendChild(tagsElement);
+        doc.appendChild(rootElement);
+        
+        int id=0;
+        for(TimeMention timex : JCasUtil.select(jcas, TimeMention.class)){
+          Element timexElement = doc.createElement("TIMEX3");
+          String timexID = "T"+id;
+          id++;
+          timexElement.setAttribute("id", timexID);
+          timexElement.setAttribute("start", String.valueOf(timex.getBegin()+1));
+          timexElement.setAttribute("end", String.valueOf(timex.getEnd()+1));
+          timexElement.setAttribute("text", timex.getCoveredText());
+          timexElement.setAttribute("type", "NA");
+          timexElement.setAttribute("val", "NA");
+          timexElement.setAttribute("mod", "NA");
+          tagsElement.appendChild(timexElement);
+        }
+        
+        // boilerplate xml-writing code:
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        DOMSource source = new DOMSource(doc);
+        StreamResult result = new StreamResult(new File(outputDir, outFile));
+        transformer.transform(source, result);
+      } catch (ParserConfigurationException e) {
+        e.printStackTrace();
+        throw new AnalysisEngineProcessException(e);
+      } catch (TransformerConfigurationException e) {
+        e.printStackTrace();
+        throw new AnalysisEngineProcessException(e);
+      } catch (TransformerException e) {
+        e.printStackTrace();
+        throw new AnalysisEngineProcessException(e);
+      }
+
+    }
+    
   }
 }

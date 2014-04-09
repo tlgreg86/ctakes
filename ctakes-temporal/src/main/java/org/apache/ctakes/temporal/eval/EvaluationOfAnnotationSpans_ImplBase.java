@@ -42,6 +42,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.eval.AnnotationStatistics;
 import org.cleartk.util.ViewURIUtil;
 import org.uimafit.factory.AggregateBuilder;
+import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.pipeline.JCasIterable;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
@@ -118,7 +119,9 @@ protected abstract AnalysisEngineDescription getDataWriterDescription(File direc
       throws Exception {
     AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
     aggregateBuilder.add(this.getAnnotatorDescription(directory), "TimexView", CAS.NAME_DEFAULT_SOFA);
-
+    if(this.i2b2Output != null){
+      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
+    }
     AnnotationStatistics<String> stats = new AnnotationStatistics<String>();
     Ordering<Annotation> bySpans = Ordering.<Integer> natural().lexicographical().onResultOf(
         new Function<Annotation, List<Integer>>() {
