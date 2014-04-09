@@ -59,17 +59,14 @@ public class FullTemporalExtractionPipeline extends
         FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
         options.getInputDirectory());
 
-    AggregateBuilder aggregateBuilder = getPreprocessorAggregateBuilder();
+    AggregateBuilder aggregateBuilder = getLightweightPreprocessorAggregateBuilder();
     aggregateBuilder.add(EventAnnotator.createAnnotatorDescription(new File(options.getEventModelDirectory())));
     aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(new File(options.getTimeModelDirectory())));
     aggregateBuilder.add(EventTimeRelationAnnotator.createAnnotatorDescription(new File(options.getEventTimeRelationModelDirectory())));
     if(options.getEventEventRelationModelDirectory()!=null){
       aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(new File(options.getEventEventRelationModelDirectory())));
     }
-    AnalysisEngine xWriter = AnalysisEngineFactory.createPrimitive(
-        XWriter.class,
-        XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-        options.getOutputDirectory());
+    AnalysisEngine xWriter = getXMIWriter(options.getOutputDirectory());
     
     SimplePipeline.runPipeline(
         collectionReader,

@@ -24,9 +24,7 @@ import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.collection.CollectionReader;
-import org.uimafit.component.xwriter.XWriter;
 import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.pipeline.SimplePipeline;
 
@@ -62,11 +60,8 @@ public class TimeExtractionPipeline extends TemporalExtractionPipeline_ImplBase 
 		AggregateBuilder aggregateBuilder = getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(new File(options.getTimeModelDirectory())));
 		
-    AnalysisEngine xWriter = AnalysisEngineFactory.createPrimitive(
-        XWriter.class,
-        XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-        options.getOutputDirectory());
-		
+    AnalysisEngine xWriter = getXMIWriter(options.getOutputDirectory());
+	
     SimplePipeline.runPipeline(
         collectionReader,
         aggregateBuilder.createAggregate(),
