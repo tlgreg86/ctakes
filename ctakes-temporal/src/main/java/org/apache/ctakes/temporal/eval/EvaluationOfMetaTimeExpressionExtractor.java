@@ -12,6 +12,7 @@ import org.apache.ctakes.temporal.ae.CRFTimeAnnotator;
 import org.apache.ctakes.temporal.ae.ConstituencyBasedTimeAnnotator;
 import org.apache.ctakes.temporal.ae.MetaTimeAnnotator;
 import org.apache.ctakes.temporal.ae.TimeAnnotator;
+import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -32,7 +33,7 @@ import com.google.common.collect.Maps;
 import com.lexicalscope.jewel.cli.CliFactory;
 
 public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotationSpans_ImplBase {
-  public static int nFolds = 2;
+  public static int nFolds = 5;
   private List<Integer> allTrain = null;
   
   public EvaluationOfMetaTimeExpressionExtractor(File baseDirectory,
@@ -48,9 +49,18 @@ public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotat
   public static void main(String[] args) throws Exception {
     Options options = CliFactory.parseArguments(Options.class, args);
     List<Integer> patientSets = options.getPatients().getList();
-    List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-    List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
-    List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
+    List<Integer> trainItems = null;
+    List<Integer> devItems = null;
+    List<Integer> testItems = null;
+    if(options.getXMLFormat() == XMLFormat.I2B2){
+      trainItems = I2B2Data.getTrainPatientSets(options.getXMLDirectory());
+      devItems = I2B2Data.getDevPatientSets(options.getXMLDirectory());
+      testItems = I2B2Data.getTestPatientSets(options.getXMLDirectory());
+    }else{
+      trainItems = THYMEData.getTrainPatientSets(patientSets);
+      devItems = THYMEData.getDevPatientSets(patientSets);
+      testItems = THYMEData.getTestPatientSets(patientSets);
+    }
     List<Integer> allTrain = new ArrayList<>(trainItems);
     List<Integer> allTest = null;
     
@@ -71,6 +81,7 @@ public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotat
             options.getTreebankDirectory(),
             allTrain,
             TimeMention.class);
+    if(options.getI2B2Output()!=null) eval.setI2B2Output(options.getI2B2Output());
     AnnotationStatistics<String> stats = eval.trainAndTest(allTrain, allTest);
     System.out.println(stats.toString());
   }
