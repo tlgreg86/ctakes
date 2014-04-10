@@ -24,8 +24,10 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,7 +56,6 @@ import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.resource.FileResourceImpl;
 import org.apache.ctakes.core.resource.JdbcConnectionResourceImpl;
 import org.apache.ctakes.core.resource.LuceneIndexReaderResourceImpl;
-import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
 import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
@@ -65,12 +66,14 @@ import org.apache.ctakes.temporal.ae.I2B2TemporalXMLReader;
 import org.apache.ctakes.temporal.ae.THYMEAnaforaXMLReader;
 import org.apache.ctakes.temporal.ae.THYMEKnowtatorXMLReader;
 import org.apache.ctakes.temporal.ae.THYMETreebankReader;
+import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
 import org.apache.ctakes.typesystem.type.syntax.TerminalTreebankNode;
 import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
@@ -829,11 +832,12 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
         rootElement.appendChild(tagsElement);
         doc.appendChild(rootElement);
         
+        Map<IdentifiedAnnotation,String> argToId = new HashMap<>();
         int id=0;
         for(TimeMention timex : JCasUtil.select(jcas, TimeMention.class)){
           Element timexElement = doc.createElement("TIMEX3");
-          String timexID = "T"+id;
-          id++;
+          String timexID = "T"+id; id++;
+          argToId.put(timex, timexID);
           timexElement.setAttribute("id", timexID);
           timexElement.setAttribute("start", String.valueOf(timex.getBegin()+1));
           timexElement.setAttribute("end", String.valueOf(timex.getEnd()+1));
@@ -842,6 +846,39 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
           timexElement.setAttribute("val", "NA");
           timexElement.setAttribute("mod", "NA");
           tagsElement.appendChild(timexElement);
+        }
+        
+        id = 0;
+        for(EventMention event : JCasUtil.select(jcas, EventMention.class)){
+          if (event.getClass().equals(EventMention.class)) {
+            // this ensures we are only looking at THYME events and not ctakes-dictionary-lookup events
+            Element eventEl = doc.createElement("EVENT");
+            String eventID = "E"+id;  id++;
+            argToId.put(event, eventID);
+            eventEl.setAttribute("id", eventID);
+            eventEl.setAttribute("start", String.valueOf(event.getBegin()+1));
+            eventEl.setAttribute("end", String.valueOf(event.getEnd()+1));
+            eventEl.setAttribute("text", event.getCoveredText());
+            eventEl.setAttribute("modality", "NA");
+            eventEl.setAttribute("polarity", "NA");
+            eventEl.setAttribute("type", "NA");
+            tagsElement.appendChild(eventEl);
+          }
+        }
+        
+        id = 0;
+        for(TemporalTextRelation rel : JCasUtil.select(jcas, TemporalTextRelation.class)){
+          Element linkEl = doc.createElement("TLINK");
+          String linkID = "TL"+id; id++;
+          linkEl.setAttribute("id", linkID);
+          Annotation arg1 = rel.getArg1().getArgument();
+          linkEl.setAttribute("fromID", argToId.get(arg1));
+          linkEl.setAttribute("fromText", arg1.getCoveredText());
+          Annotation arg2 = rel.getArg2().getArgument();
+          linkEl.setAttribute("toID", argToId.get(arg2));
+          linkEl.setAttribute("toText", arg2.getCoveredText());
+          linkEl.setAttribute("type", rel.getCategory());
+          tagsElement.appendChild(linkEl);
         }
         
         // boilerplate xml-writing code:

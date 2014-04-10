@@ -26,6 +26,7 @@ import java.util.logging.Level;
 
 import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.ctakes.temporal.ae.feature.selection.FeatureSelection;
+import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -58,11 +59,21 @@ public class EvaluationOfEventSpans extends EvaluationOfAnnotationSpans_ImplBase
 
   public static void main(String[] args) throws Exception {
     Options options = CliFactory.parseArguments(Options.class, args);
+    List<Integer> trainItems = null;
+    List<Integer> devItems = null;
+    List<Integer> testItems = null;
+    
     List<Integer> patientSets = options.getPatients().getList();
-    List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-    List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
-    List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
-
+    if(options.getXMLFormat() == XMLFormat.I2B2){
+      trainItems = I2B2Data.getTrainPatientSets(options.getXMLDirectory());
+      devItems = I2B2Data.getDevPatientSets(options.getXMLDirectory());
+      testItems = I2B2Data.getTestPatientSets(options.getXMLDirectory());
+    }else{
+      trainItems = THYMEData.getTrainPatientSets(patientSets);
+      devItems = THYMEData.getDevPatientSets(patientSets);
+      testItems = THYMEData.getTestPatientSets(patientSets);
+    }
+    
     List<Integer> allTraining = new ArrayList<Integer>(trainItems);
     List<Integer> allTest = null;
     if (options.getTest()) {
@@ -82,6 +93,7 @@ public class EvaluationOfEventSpans extends EvaluationOfAnnotationSpans_ImplBase
         options.getSMOTENeighborNumber());
     evaluation.prepareXMIsFor(patientSets);
     evaluation.setLogging(Level.FINE, new File("target/eval/ctakes-event-errors.log"));
+    if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/event-spans");
     AnnotationStatistics<String> stats = evaluation.trainAndTest(allTraining, allTest);
     System.err.println(stats);
   }
