@@ -30,6 +30,7 @@ import org.apache.ctakes.core.cr.XMIReader;
 import org.apache.ctakes.temporal.eval.CommandLine;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
+import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
@@ -154,13 +155,23 @@ public class RelationContextViewerPipeline {
       BufferedWriter writer = getWriter(outputFile, true);
       try {
         for(BinaryTextRelation binaryTextRelation : JCasUtil.select(goldView, BinaryTextRelation.class)) {
-          
+          boolean sameSentence = false;
           Annotation arg1 = binaryTextRelation.getArg1().getArgument();
           Annotation arg2 = binaryTextRelation.getArg2().getArgument();
-          
           String category = binaryTextRelation.getCategory();
           String text = getTextBetweenAnnotations(systemView, arg1, arg2);
-          String output = String.format("%s|%s|%s|%s\n", category, arg1.getCoveredText(), arg2.getCoveredText(), text);
+
+          List<Sentence> sents1 = JCasUtil.selectCovering(systemView, Sentence.class, arg1.getBegin(), arg1.getEnd());
+          List<Sentence> sents2 = JCasUtil.selectCovering(systemView, Sentence.class, arg2.getBegin(), arg2.getEnd());
+          if(sents1.size() == 1 && sents2.size() == 1){
+            if(sents1.get(0) == sents2.get(0)){
+              sameSentence = true;
+            }
+          }else{
+            System.err.println("Could not find covering sent for relation: " + String.format("%s|%s|%s|%s\n", category, arg1.getCoveredText(), arg2.getCoveredText(), text));
+          }
+          
+          String output = String.format("%s|%s|%s|%s|%s|%s|%s\n", category, arg1.getCoveredText(), arg2.getCoveredText(), text, arg1.getType().toString(), arg2.getType().toString(), sameSentence ? "same" : "different");
       
           try {
             writer.write(output);
