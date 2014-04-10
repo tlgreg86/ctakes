@@ -120,6 +120,9 @@ public class I2B2TemporalXMLReader extends JCasAnnotator_ImplBase {
       }else{
         link.setCategory(cat);
       }
+      link.addToIndexes();
+      arg1.addToIndexes();
+      arg2.addToIndexes();
     }
   }
 
