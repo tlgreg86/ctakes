@@ -84,6 +84,7 @@ public class TemporalPETExtractor implements RelationFeaturesExtractor {
 
     tree.setGeneralizeLeaf(true);
 		moveTimexDownToNP(tree);
+		simplifyGCG(tree);
 		
 		features.add(new TreeFeature("TK_PET", tree.toString()));
 		return features;
@@ -127,4 +128,15 @@ public class TemporalPETExtractor implements RelationFeaturesExtractor {
 		}
 	}
 
+	public static void simplifyGCG(SimpleTree tree){
+	  if(tree.children == null || tree.children.size() == 0) return;
+	  
+	  int ampInd = tree.cat.indexOf('+');
+	  if(ampInd > 0){
+	    tree.cat = tree.cat.substring(0, ampInd);
+	  }
+	  for(SimpleTree child : tree.children){
+	    simplifyGCG(child);
+	  }
+	}
 }

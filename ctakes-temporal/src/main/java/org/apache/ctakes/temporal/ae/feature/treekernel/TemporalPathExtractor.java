@@ -63,23 +63,12 @@ public class TemporalPathExtractor implements RelationFeaturesExtractor {
       a2type = "TIMEX-"+timeClass;		  
 		}
 		
-		a1type = "";
-		a2type = "";
-		
 		TreebankNode t1 = AnnotationTreeUtils.insertAnnotationNode(jcas, root, arg1, "ARG1-"+a1type);
 		TreebankNode t2 = AnnotationTreeUtils.insertAnnotationNode(jcas, root, arg2, "ARG2-"+a2type);
 
 		SimpleTree tree = null;
-//		if(t1.getBegin() <= t2.getBegin() && t1.getEnd() >= t2.getEnd()){
-//			// t1 encloses t2
-//			tree = TreeExtractor.getSimpleClone(t1);
-//		}else if(t2.getBegin() <= t1.getBegin() && t2.getEnd() >= t1.getEnd()){
-//			// t2 encloses t1
-//			tree = TreeExtractor.getSimpleClone(t2);
-//		}else{
 		tree = TreeExtractor.extractPathTree(t1, t2);
-//		}
-
+		TemporalPETExtractor.simplifyGCG(tree);
 		features.add(new TreeFeature("TK_PATH", tree.toString()));
 		return features;
 	}
