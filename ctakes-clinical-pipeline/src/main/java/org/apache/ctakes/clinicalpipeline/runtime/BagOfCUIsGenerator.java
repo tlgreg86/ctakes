@@ -46,7 +46,7 @@ public class BagOfCUIsGenerator extends BagOfAnnotationsGenerator<IdentifiedAnno
 	 * @throws UIMAException 
 	 */
 	public static void main(String[] args) throws UIMAException, IOException {
-		(new BagOfCUIsGenerator("data/input", "data/output")).process();
+		(new BagOfCUIsGenerator(args[0], args[1])).process();
 	}
 
 }
