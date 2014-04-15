@@ -47,11 +47,16 @@ public class MaxentParserWrapper implements ParserWrapper {
 	Parser parser = null;
 	private String parseStr = "";
 	Logger logger = Logger.getLogger(this.getClass().getName());
+	private boolean usePos;
 	
 	public MaxentParserWrapper(String dataDir) {
+		this(dataDir, false);
+	}
+	
+	public MaxentParserWrapper(String dataDir, boolean usePos){
 		try {
 			File d = new File(dataDir);
-
+			this.usePos = usePos;
 			if (!d.isDirectory()) {
 				FileInputStream fis = new FileInputStream(d);
 				ParserModel model = new ParserModel(fis);
@@ -98,7 +103,7 @@ public class MaxentParserWrapper implements ParserWrapper {
 			TopTreebankNode top = TreeUtils.buildAlignedTree(jcas, parse, sentAnnot);
 			top.addToIndexes();
 		}
-//		logger.info("Done parsing: " + docId);
+		logger.info("Done parsing: " + docId);
 	}
 
 
