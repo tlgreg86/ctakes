@@ -20,7 +20,9 @@
 package org.apache.ctakes.core.ae;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -31,14 +33,15 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 
 /**
@@ -54,11 +57,14 @@ public class CDASegmentAnnotator extends JCasAnnotator_ImplBase {
 	protected static final String DEFAULT_SECTION_FILE_NAME = "org/apache/ctakes/core/sections/ccda_sections.txt";
 	public static final String PARAM_FIELD_SEPERATOR = ",";
 	public static final String PARAM_COMMENT = "#";
-	public static final String PARAM_SECTIONS_FILE = "sections_file";
 	public static final String SIMPLE_SEGMENT = "SIMPLE_SEGMENT";
 
-	@ConfigurationParameter(name = PARAM_SECTIONS_FILE, description = "Path to File that contains the section header mappings")
-	protected URI sections_path;
+  public static final String PARAM_SECTIONS_FILE = "sections_file";
+	@ConfigurationParameter(name = PARAM_SECTIONS_FILE, 
+	    description = "Path to File that contains the section header mappings", 
+	    defaultValue=DEFAULT_SECTION_FILE_NAME,
+	    mandatory=false)
+	protected String sections_path;
 
 	/**
 	 * Init and load the sections mapping file and precompile the regex matches
@@ -68,46 +74,40 @@ public class CDASegmentAnnotator extends JCasAnnotator_ImplBase {
   public void initialize(UimaContext aContext)
 			throws ResourceInitializationException {
 		super.initialize(aContext);
-		String sectionFile = null;
+
 		try {
-			sectionFile = (String) aContext
-					.getConfigParameterValue(PARAM_SECTIONS_FILE);
-			URL sectionURL = (this.sections_path == null) ? this.getClass()
-					.getClassLoader().getResource(DEFAULT_SECTION_FILE_NAME)
-					.toURI().toURL() : this.sections_path.toURL();
+		  BufferedReader br = new BufferedReader(new InputStreamReader(
+		      FileLocator.getAsStream(sections_path)));
 
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					sectionURL.openStream()));
+		  // Read in the Section Mappings File
+		  // And load the RegEx Patterns into a Map
+		  logger.info("Reading Section File " + sections_path);
+		  String line = null;
+		  while ((line = br.readLine()) != null) {
+		    if (!line.trim().startsWith(PARAM_COMMENT)) {
+		      String[] l = line.split(PARAM_FIELD_SEPERATOR);
+		      // First column is the HL7 section template id
+		      if (l != null && l.length > 0 && l[0] != null
+		          && l[0].length() > 0
+		          && !line.endsWith(PARAM_FIELD_SEPERATOR)) {
+		        String id = l[0].trim();
+		        // Make a giant alternator (|) regex group for each HL7
+		        Pattern p = buildPattern(l);
+		        patterns.put(id, p);
+		        if (l.length > 2 && l[2] != null) {
+		          String temp = l[2].trim();
+		          section_names.put(id, temp);
+		        }						
 
-			// Read in the Section Mappings File
-			// And load the RegEx Patterns into a Map
-			logger.info("Reading Section File " + sectionURL);
-			String line = null;
-			while ((line = br.readLine()) != null) {
-				if (!line.trim().startsWith(PARAM_COMMENT)) {
-					String[] l = line.split(PARAM_FIELD_SEPERATOR);
-					// First column is the HL7 section template id
-					if (l != null && l.length > 0 && l[0] != null
-							&& l[0].length() > 0
-							&& !line.endsWith(PARAM_FIELD_SEPERATOR)) {
-						String id = l[0].trim();
-						// Make a giant alternator (|) regex group for each HL7
-						Pattern p = buildPattern(l);
-						patterns.put(id, p);
-						if (l.length > 2 && l[2] != null) {
-							String temp = l[2].trim();
-							section_names.put(id, temp);
-						}						
-						
-					} else {
-						logger.info("Warning: Skipped reading sections config row: "
-								+ Arrays.toString(l));
-					}
-				}
-			}
-		} catch (Exception e) {
-			logger.error("Error reading Sections file:" + sectionFile);
-			throw new ResourceInitializationException(e);
+		      } else {
+		        logger.info("Warning: Skipped reading sections config row: "
+		            + Arrays.toString(l));
+		      }
+		    }
+		  }      
+		} catch (IOException e) {
+		  e.printStackTrace();
+		  throw new ResourceInitializationException(e);
 		}
 	}
 
