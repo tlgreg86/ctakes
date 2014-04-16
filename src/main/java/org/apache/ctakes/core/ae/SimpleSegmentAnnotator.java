@@ -18,14 +18,12 @@
  */
 package org.apache.ctakes.core.ae;
 
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.jcas.JCas;
+import org.uimafit.component.JCasAnnotator_ImplBase;
+import org.uimafit.descriptor.ConfigurationParameter;
 
 /**
  * Creates a single segment annotation that spans the entire document. This is
@@ -35,21 +33,20 @@ import org.apache.ctakes.typesystem.type.textspan.Segment;
  * @author Mayo Clinic
  */
 public class SimpleSegmentAnnotator extends JCasAnnotator_ImplBase {
+	
+  public static final String PARAM_SEGMENT_ID = "SegmentID";
+	@ConfigurationParameter(
+	    name = PARAM_SEGMENT_ID,
+	    mandatory = false,
+	    defaultValue = "SIMPLE_SEGMENT",
+	    description = "Name to give to all segments"
+	)
 	private String segmentId;
-
-	public void initialize(UimaContext aContext)
-			throws ResourceInitializationException {
-		super.initialize(aContext);
-
-		segmentId = (String) aContext.getConfigParameterValue("SegmentID");
-		if (segmentId == null) {
-			segmentId = "SIMPLE_SEGMENT";
-		}
-	}
 
 	/**
 	 * Entry point for processing.
 	 */
+	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 		Segment segment = new Segment(jCas);
 		segment.setBegin(0);
