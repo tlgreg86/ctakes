@@ -19,12 +19,15 @@
 package org.apache.ctakes.core.ae;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -43,18 +46,18 @@ import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.sentence.EndOfSentenceScannerImpl;
 import org.apache.ctakes.core.sentence.SentenceDetectorCtakes;
 import org.apache.ctakes.core.sentence.SentenceSpan;
-import org.apache.ctakes.core.util.ParamUtil;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.resource.ResourceAccessException;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.uimafit.component.JCasAnnotator_ImplBase;
+import org.uimafit.descriptor.ConfigurationParameter;
 
 /**
  * Wraps the OpenNLP sentence detector in a UIMA annotator
@@ -68,65 +71,59 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 	 * optional.
 	 */
 	public static final String PARAM_SEGMENTS_TO_SKIP = "SegmentsToSkip";
-
-	// LOG4J logger based on class name
-	private Logger logger = Logger.getLogger(getClass().getName());
-
-	public static final String SD_MODEL_FILE_PARAM = "SentenceModelFile";
-
+	@ConfigurationParameter(
+	    name = PARAM_SEGMENTS_TO_SKIP,
+	    mandatory = false,
+	    description = "Set of segments that can be skipped"
+	    )
+  private String[] skipSegmentsArray;
+	private Set<String> skipSegmentsSet;
+	
+	public static final String PARAM_SD_MODEL_FILE = "SentenceModelFile";
+	public static final String SD_MODEL_FILE_PARAM = PARAM_SD_MODEL_FILE; // backwards compatibility
+	@ConfigurationParameter(
+	    name = PARAM_SD_MODEL_FILE,
+	    mandatory = true,
+	    description = "Path to sentence detector model file"
+	    )
+	private String sdModelPath;
+	
 	private opennlp.tools.sentdetect.SentenceModel sdmodel;
-
-	private UimaContext context;
-
-	private Set<?> skipSegmentsSet;
 
 	private SentenceDetectorCtakes sentenceDetector;
 
 	private String NEWLINE = "\n";
 
-	public void initialize(UimaContext aContext)
+  // LOG4J logger based on class name
+  private Logger logger = Logger.getLogger(getClass().getName());
+
+  @Override
+  public void initialize(UimaContext aContext)
 			throws ResourceInitializationException {
-
 		super.initialize(aContext);
+		try (InputStream is = FileLocator.getAsStream(sdModelPath)){
+		  logger.info("Sentence detector model file: " + sdModelPath);
+		  sdmodel = new SentenceModel(is);
+		  EndOfSentenceScannerImpl eoss = new EndOfSentenceScannerImpl();
+		  DefaultSDContextGenerator cg = new DefaultSDContextGenerator(eoss.getEndOfSentenceCharacters());
+		  sentenceDetector = new SentenceDetectorCtakes(
+		      sdmodel.getMaxentModel(), cg, eoss);
 
-		context = aContext;
-		try {
-			configInit();
-		} catch (Exception ace) {
-			throw new ResourceInitializationException(ace);
-		}
-	}
-
-	/**
-	 * Reads configuration parameters.
-	 * 
-	 * @throws ResourceAccessException
-	 * @throws IOException 
-	 * @throws InvalidFormatException 
-	 */
-	private void configInit() throws ResourceAccessException, InvalidFormatException, IOException {
-
-		String sdModelPath = (String) context
-				.getConfigParameterValue(SD_MODEL_FILE_PARAM);
-			InputStream is = FileLocator.getAsStream(sdModelPath);
-			logger.info("Sentence detector model file: " + sdModelPath);
-			sdmodel = new SentenceModel(is);
-			is.close();
-			EndOfSentenceScannerImpl eoss = new EndOfSentenceScannerImpl();
-			char[] eosc = eoss.getEndOfSentenceCharacters();
-			// SentenceDContextGenerator cg = new SentenceDContextGenerator();
-			DefaultSDContextGenerator cg = new DefaultSDContextGenerator(eosc);
-			sentenceDetector = new SentenceDetectorCtakes(
-					sdmodel.getMaxentModel(), cg, eoss);
-
-			skipSegmentsSet = ParamUtil.getStringParameterValuesSet(
-					PARAM_SEGMENTS_TO_SKIP, context);
+		  skipSegmentsSet = new HashSet<>();
+		  if(skipSegmentsArray != null){
+		    Collections.addAll(skipSegmentsSet, skipSegmentsArray);
+		  }
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new ResourceInitializationException(e);
+    }
 	}
 
 	/**
 	 * Entry point for processing.
 	 */
-	public void process(JCas jcas) throws AnalysisEngineProcessException {
+	@Override
+  public void process(JCas jcas) throws AnalysisEngineProcessException {
 
 		logger.info("Starting processing.");
 
