@@ -49,8 +49,8 @@ import org.uimafit.descriptor.ConfigurationParameter;
 public class CDASegmentAnnotator extends JCasAnnotator_ImplBase {
 
 	Logger logger = Logger.getLogger(this.getClass());
-	protected static HashMap<String, Pattern> patterns = new HashMap<String, Pattern>();
-	protected static HashMap<String, String> section_names = new HashMap<String, String>();
+	protected static HashMap<String, Pattern> patterns = new HashMap<>();
+	protected static HashMap<String, String> section_names = new HashMap<>();
 	protected static final String DEFAULT_SECTION_FILE_NAME = "org/apache/ctakes/core/sections/ccda_sections.txt";
 	public static final String PARAM_FIELD_SEPERATOR = ",";
 	public static final String PARAM_COMMENT = "#";
@@ -64,7 +64,8 @@ public class CDASegmentAnnotator extends JCasAnnotator_ImplBase {
 	 * Init and load the sections mapping file and precompile the regex matches
 	 * into a hashmap
 	 */
-	public void initialize(UimaContext aContext)
+	@Override
+  public void initialize(UimaContext aContext)
 			throws ResourceInitializationException {
 		super.initialize(aContext);
 		String sectionFile = null;
@@ -132,13 +133,14 @@ public class CDASegmentAnnotator extends JCasAnnotator_ImplBase {
 		return p;
 	}
 
-	public void process(JCas jCas) throws AnalysisEngineProcessException {
+	@Override
+  public void process(JCas jCas) throws AnalysisEngineProcessException {
 		String text = jCas.getDocumentText();
 		if (text == null) {
 			String docId = DocumentIDAnnotationUtil.getDocumentID(jCas);
 			logger.info("text is null for docId=" + docId);
 		} else {
-			ArrayList<Segment> sorted_segments = new ArrayList<Segment>();
+			ArrayList<Segment> sorted_segments = new ArrayList<>();
 			for (String id : patterns.keySet()) {
 				Pattern p = patterns.get(id);
 				// System.out.println("Pattern" + p);
