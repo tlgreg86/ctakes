@@ -18,28 +18,26 @@
  */
 package org.apache.ctakes.core.ae;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
-import org.apache.uima.cas.FSIterator;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.JFSIndexRepository;
-import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.resource.ResourceAccessException;
-import org.apache.uima.resource.ResourceInitializationException;
-
-
 import org.apache.ctakes.core.nlp.tokenizer.TokenizerPTB;
-import org.apache.ctakes.core.util.ParamUtil;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.log4j.Logger;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.FSIterator;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.JFSIndexRepository;
+import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.uimafit.component.JCasAnnotator_ImplBase;
+import org.uimafit.descriptor.ConfigurationParameter;
 
 /**
  * UIMA annotator that tokenizes based on Penn Treebank rules.
@@ -56,44 +54,34 @@ public class TokenizerAnnotatorPTB extends JCasAnnotator_ImplBase
 	 * of type String, should be multi-valued and optional. 
 	 */
 	public static final String PARAM_SEGMENTS_TO_SKIP = "SegmentsToSkip";
-
-
-	private UimaContext context;
-	private Set<String> skipSegmentsSet;
+  @ConfigurationParameter(
+      name = PARAM_SEGMENTS_TO_SKIP,
+      mandatory = false,
+      description = "Set of segments that can be skipped"
+      )
+  private String[] skipSegmentsArray;
+  private Set<String> skipSegmentsSet;
 
 	private TokenizerPTB tokenizer;
 
 	private int tokenCount = 0;
 
-	public void initialize(UimaContext aContext) throws ResourceInitializationException {
-
+	@Override
+  public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-
 		logger.info("Initializing " + this.getClass().getName());
-		context = aContext;
-		try {
-			configInit();
-		} catch (ResourceAccessException e) {
-			throw new ResourceInitializationException(e);
-		} finally {};
-	}
-
-	/**
-	 * Reads configuration parameters.
-	 * @throws ResourceAccessException 
-	 */
-	private void configInit() throws ResourceAccessException {
-
-		skipSegmentsSet = ParamUtil.getStringParameterValuesSet(PARAM_SEGMENTS_TO_SKIP, context); 
-
 		tokenizer = new TokenizerPTB();
-
+		skipSegmentsSet = new HashSet<>();
+    if(skipSegmentsArray != null){
+      Collections.addAll(skipSegmentsSet, skipSegmentsArray);
+    }
 	}
 
 	/**
 	 * Entry point for processing.
 	 */
-	public void process(JCas jcas) throws AnalysisEngineProcessException {
+	@Override
+  public void process(JCas jcas) throws AnalysisEngineProcessException {
 
 		logger.info("process(JCas) in " + this.getClass().getName());
 
@@ -105,11 +93,7 @@ public class TokenizerAnnotatorPTB extends JCasAnnotator_ImplBase
 			Segment sa = (Segment) segmentItr.next();
 			String segmentID = sa.getId();
 			if (!skipSegmentsSet.contains(segmentID)) { 
-				try {
-					annotateRange(jcas, sa.getBegin(), sa.getEnd());
-				} catch (AnnotatorProcessException e) {
-					throw new AnalysisEngineProcessException(e);
-				}
+				annotateRange(jcas, sa.getBegin(), sa.getEnd());
 			}
 		}
 	}
@@ -123,8 +107,9 @@ public class TokenizerAnnotatorPTB extends JCasAnnotator_ImplBase
 	 * Tokenizes one sentence at a time. Only tokenizes what is within Sentence annotation.
 	 * There must have been Sentence annotations created beforehand in order for this method
 	 * to tokenize anything.
+	 * @throws AnalysisEngineProcessException 
 	 */
-	protected void annotateRange(JCas jcas, int rangeBegin, int rangeEnd) throws AnnotatorProcessException {
+	protected void annotateRange(JCas jcas, int rangeBegin, int rangeEnd) throws AnalysisEngineProcessException {
 
 		// int tokenCount = 0; // can't start with tokenCount=0 here because this method can be called multiple times
 		JFSIndexRepository indexes = jcas.getJFSIndexRepository();
@@ -162,15 +147,19 @@ public class TokenizerAnnotatorPTB extends JCasAnnotator_ImplBase
 			if (sentence.getBegin() < rangeBegin || sentence.getEnd() > rangeEnd) {
 				continue;
 			}
-			List<BaseToken> tokens = (List<BaseToken>)tokenizer.tokenizeTextSegment(jcas, sentence.getCoveredText(), sentence.getBegin(), true);
-			for (BaseToken bta: tokens) {
+			List<?> tokens = tokenizer.tokenizeTextSegment(jcas, sentence.getCoveredText(), sentence.getBegin(), true);
+			for (Object bta: tokens) {
 				if (bta==null) {
 					Exception e = new RuntimeException("bta==null tokenCount=" + tokenCount + " tokens.size()==" + tokens.size());
 					e.printStackTrace();
 				} else{
 					//logger.info("Token #" + tokenCount + " len = " + bta.getCoveredText().length() + " " + bta.getCoveredText());
 					// add the BaseToken to CAS index
-					bta.addToIndexes();
+				  if(BaseToken.class.isAssignableFrom(bta.getClass())){
+				    BaseToken.class.cast(bta).addToIndexes();
+				  }else{
+				    throw new AnalysisEngineProcessException("Token returned cannot be cast as BaseToken", new Object[]{bta});
+				  }
 					//tokenCount++;
 				}
 			}
