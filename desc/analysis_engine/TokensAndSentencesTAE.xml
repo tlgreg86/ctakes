@@ -43,8 +43,8 @@
     <flowConstraints>
       <fixedFlow>
         <node>SimpleSegmentAnnotator</node>
-        <node>TokenizerAnnotator</node>
         <node>SentenceDetectorAnnotator</node>
+        <node>TokenizerAnnotator</node>
       </fixedFlow>
     </flowConstraints>
     <fsIndexCollection/>
