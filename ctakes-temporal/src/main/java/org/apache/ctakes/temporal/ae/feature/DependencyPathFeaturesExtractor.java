@@ -47,6 +47,7 @@ public class DependencyPathFeaturesExtractor implements RelationFeaturesExtracto
 
     LinkedList<ConllDependencyNode> node1ToNode2Path = DependencyParseUtils.getPathBetweenNodes(node1, node2);
     features.add(new Feature("dependency_path", DependencyParseUtils.pathToString(node1ToNode2Path)));
+    features.add(new Feature("dependency_path_length", node1ToNode2Path.size()));//add path length as a feature
 
     return features;
   }

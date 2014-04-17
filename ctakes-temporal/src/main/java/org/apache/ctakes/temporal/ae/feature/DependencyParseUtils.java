@@ -73,7 +73,7 @@ public class DependencyParseUtils {
     for (ConllDependencyNode depNode : JCasUtil.selectCovered(jcas, ConllDependencyNode.class, annotation)) {
 
       ConllDependencyNode head = depNode.getHead();
-      if (head == null || head.getEnd() <= annotation.getBegin() || head.getBegin() > annotation.getEnd()) {
+      if (head == null || head.getHead()==null||head.getEnd() <= annotation.getBegin() || head.getBegin() > annotation.getEnd()) {
         // The head is outside the bounds of the annotation, so this node must be the annotation's head
         return depNode;
       }
