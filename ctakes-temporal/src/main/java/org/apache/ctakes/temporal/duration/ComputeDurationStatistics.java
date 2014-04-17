@@ -185,9 +185,10 @@ public class ComputeDurationStatistics {
           Map<String, Float> timeDistribution = Utils.convertToDistribution(timeUnits.iterator().next());
           float eventExpectedDuration = Utils.expectedDuration(eventDistribution);
           float timeExpectedDuration = Utils.expectedDuration(timeDistribution);
+          String context = getTextBetweenAnnotations(goldView, arg1.getArgument(), arg2.getArgument());
           String out = String.format("%s|%.5f|%s|%.5f|%s\n", 
               timeUnits.iterator().next(), timeExpectedDuration, 
-              eventText, eventExpectedDuration, getTextBetweenAnnotations(goldView, arg1.getArgument(), arg2.getArgument()));
+              eventText, eventExpectedDuration, context.length() < 80 ? context : "...");
           try {
             Files.append(out, new File(outputFile), Charsets.UTF_8);
           } catch (IOException e) {
