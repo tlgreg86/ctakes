@@ -38,6 +38,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.AnalysisEngineFactory;
@@ -65,7 +66,7 @@ public class ComputeDurationStatistics {
 
     @Option(longName = "patients")
     public CommandLine.IntegerRanges getPatients();
-    
+
     @Option(longName = "output-file")
     public File getOutputFile();
   }
@@ -137,7 +138,7 @@ public class ComputeDurationStatistics {
         mandatory = true,
         description = "path to the file that stores relation data")
     private String outputFile;
-    
+
     public static final String GOLD_VIEW_NAME = "GoldView";
 
     @Override                                                                                                                  
@@ -184,14 +185,33 @@ public class ComputeDurationStatistics {
           Map<String, Float> timeDistribution = Utils.convertToDistribution(timeUnits.iterator().next());
           float eventExpectedDuration = Utils.expectedDuration(eventDistribution);
           float timeExpectedDuration = Utils.expectedDuration(timeDistribution);
-          String out = timeUnits.iterator().next() + "|" + timeExpectedDuration + "|" + eventText + "|" + eventExpectedDuration;
+          String out = String.format("%s|%.5f|%s|%.5f|%s\n", 
+              timeUnits.iterator().next(), timeExpectedDuration, 
+              eventText, eventExpectedDuration, getTextBetweenAnnotations(goldView, arg1.getArgument(), arg2.getArgument()));
           try {
-            Files.append(out + "\n", new File(outputFile), Charsets.UTF_8);
+            Files.append(out, new File(outputFile), Charsets.UTF_8);
           } catch (IOException e) {
             e.printStackTrace();
           }
         }
       }
+    }
+
+
+    /** 
+     * Get relation context.
+     */
+    private static String getTextBetweenAnnotations(JCas jCas, Annotation arg1, Annotation arg2) {
+
+      final int windowSize = 5;
+      String text = jCas.getDocumentText();
+
+      int leftArgBegin = Math.min(arg1.getBegin(), arg2.getBegin());
+      int rightArgEnd = Math.max(arg1.getEnd(), arg2.getEnd());
+      int begin = Math.max(0, leftArgBegin - windowSize);
+      int end = Math.min(text.length(), rightArgEnd + windowSize); 
+
+      return text.substring(begin, end).replaceAll("[\r\n]", " ");
     }
   }
 }
