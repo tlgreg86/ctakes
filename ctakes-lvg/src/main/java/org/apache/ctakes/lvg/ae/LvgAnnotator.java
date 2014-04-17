@@ -23,6 +23,7 @@ import org.apache.ctakes.lvg.resource.LvgCmdApiResource;
 import org.apache.ctakes.typesystem.type.syntax.Lemma;
 import org.apache.ctakes.typesystem.type.syntax.WordToken;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
+
 import gov.nih.nlm.nls.lvg.Api.LvgCmdApi;
 import gov.nih.nlm.nls.lvg.Api.LvgLexItemApi;
 import gov.nih.nlm.nls.lvg.Lib.Category;
@@ -99,13 +100,13 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 
 	private boolean useSegments;
 
-	private Set skipSegmentsSet;
+	private Set<String> skipSegmentsSet;
 
 	private boolean useCmdCache;
 	private String cmdCacheFileLocation;
 	private int cmdCacheFreqCutoff;
 
-	private Map xeroxTreebankMap;
+	private Map<String, String> xeroxTreebankMap;
 
 	private boolean postLemmas;
 	private boolean useLemmaCache;
@@ -113,12 +114,12 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	private int lemmaCacheFreqCutoff;
 
 	// key = word, value = canonical word
-	private Map normCacheMap;
+	private Map<String, String> normCacheMap;
 
 	// key = word, value = Set of Lemma objects
-	private Map lemmaCacheMap;
+	private Map<String, Set<LemmaLocalClass>> lemmaCacheMap;
 
-	private Set exclusionSet;
+	private Set<String> exclusionSet;
 
 	/**
 	 * Performs initialization logic. This implementation just reads values for
@@ -126,7 +127,8 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	 * 
 	 * @see org.apache.uima.analysis_engine.annotator.BaseAnnotator#initialize(AnnotatorContext)
 	 */
-	public void initialize(UimaContext aContext)
+	@Override
+  public void initialize(UimaContext aContext)
 			throws ResourceInitializationException {
 		super.initialize(aContext);
 
@@ -172,7 +174,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 				.booleanValue();
 		String[] skipSegmentIDs = (String[]) context
 				.getConfigParameterValue("SegmentsToSkip");
-		skipSegmentsSet = new HashSet();
+		skipSegmentsSet = new HashSet<>();
 		for (int i = 0; i < skipSegmentIDs.length; i++) {
 			skipSegmentsSet.add(skipSegmentIDs[i]);
 		}
@@ -180,7 +182,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 		// Load Xerox Treebank tagset map
 		String xtMaps[] = (String[]) context
 				.getConfigParameterValue("XeroxTreebankMap");
-		xeroxTreebankMap = new HashMap();
+		xeroxTreebankMap = new HashMap<>();
 		for (int i = 0; i < xtMaps.length; i++) {
 			StringTokenizer tokenizer = new StringTokenizer(xtMaps[i], "|");
 			if (tokenizer.countTokens() == 2) {
@@ -201,7 +203,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 
 		String[] wordsToExclude = (String[]) context
 				.getConfigParameterValue("ExclusionSet");
-		exclusionSet = new HashSet();
+		exclusionSet = new HashSet<>();
 		for (int i = 0; i < wordsToExclude.length; i++) {
 			exclusionSet.add(wordsToExclude[i]);
 		}
@@ -210,10 +212,10 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 				.getConfigParameterValue(PARAM_POST_LEMMAS);
 		postLemmas = bPostLemmas == null ? false : bPostLemmas.booleanValue();
 		if (postLemmas) {
-			Boolean useLemmaCache = (Boolean) context
+			Boolean useLemmaCacheParam = (Boolean) context
 					.getConfigParameterValue(PARAM_USE_LEMMA_CACHE);
-			useLemmaCache = useLemmaCache == null ? false : useLemmaCache
-					.booleanValue();
+			this.useLemmaCache = (useLemmaCacheParam == null ? false : useLemmaCacheParam
+					.booleanValue());
 			if (useLemmaCache) {
 				lemmaCacheFileLocation = (String) context
 						.getConfigParameterValue(PARAM_LEMMA_CACHE_FILE_LOCATION);
@@ -221,12 +223,12 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 					throw new ResourceInitializationException(new Exception(
 							"Parameter for " + PARAM_LEMMA_CACHE_FILE_LOCATION
 									+ " was not set."));
-				Integer lemmaCacheFreqCutoff = (Integer) context
+				Integer lemmaCacheFreqCutoffParam = (Integer) context
 						.getConfigParameterValue(PARAM_LEMMA_CACHE_FREQUENCY_CUTOFF);
-				if (lemmaCacheFreqCutoff == null)
-					lemmaCacheFreqCutoff = 20;
+				if (lemmaCacheFreqCutoffParam == null)
+					this.lemmaCacheFreqCutoff = 20;
 				else
-					lemmaCacheFreqCutoff = lemmaCacheFreqCutoff.intValue();
+					this.lemmaCacheFreqCutoff = lemmaCacheFreqCutoffParam.intValue();
 			}
 		}
 	}
@@ -234,7 +236,8 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	/**
 	 * Invokes this annotator's analysis logic.
 	 */
-	public void process(JCas jcas)
+	@Override
+  public void process(JCas jcas)
 			throws AnalysisEngineProcessException {
 
 		logger.info("process(JCas)");
@@ -244,7 +247,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 		try {
 			if (useSegments) {
 				JFSIndexRepository indexes = jcas.getJFSIndexRepository();
-				Iterator segmentItr = indexes.getAnnotationIndex(Segment.type)
+				Iterator<?> segmentItr = indexes.getAnnotationIndex(Segment.type)
 						.iterator();
 				while (segmentItr.hasNext()) {
 					Segment segmentAnnotation = (Segment) segmentItr.next();
@@ -273,7 +276,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 			int rangeEnd)
 			throws AnalysisEngineProcessException {
 		JFSIndexRepository indexes = jcas.getJFSIndexRepository();
-		Iterator wordItr = indexes.getAnnotationIndex(WordToken.type)
+		Iterator<?> wordItr = indexes.getAnnotationIndex(WordToken.type)
 				.iterator();
 		while (wordItr.hasNext()) {
 			WordToken wordAnnotation = (WordToken) wordItr.next();
@@ -305,7 +308,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 		// apply LVG processing to get canonical form
 		String canonicalForm = null;
 		if (useCmdCache) {
-			canonicalForm = (String) normCacheMap.get(word);
+			canonicalForm = normCacheMap.get(word);
 			if (canonicalForm == null) {
 				// logger.info("["+ word+ "] was not found in LVG norm cache.");
 			}
@@ -337,16 +340,16 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 			throws AnalysisEngineProcessException {
 		// apply LVG processing to get lemmas
 		// key = lemma string, value = Set of POS tags
-		Map lemmaMap = null;
+		Map<String, Set<String>> lemmaMap = null;
 
 		if (useLemmaCache) {
-			Set lemmaSet = (Set) lemmaCacheMap.get(word);
+			Set<?> lemmaSet = lemmaCacheMap.get(word);
 			if (lemmaSet == null) {
 				// logger.info("["+ word+
 				// "] was not found in LVG lemma cache.");
 			} else {
-				lemmaMap = new HashMap();
-				Iterator lemmaItr = lemmaSet.iterator();
+				lemmaMap = new HashMap<>();
+				Iterator<?> lemmaItr = lemmaSet.iterator();
 				while (lemmaItr.hasNext()) {
 					LemmaLocalClass l = (LemmaLocalClass) lemmaItr.next();
 					lemmaMap.put(l.word, l.posSet);
@@ -355,10 +358,10 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 		}
 
 		if (lemmaMap == null) {
-			lemmaMap = new HashMap();
+			lemmaMap = new HashMap<>();
 			try {
-				Vector lexItems = lvgLexItem.MutateLexItem(word);
-				Iterator lexItemItr = lexItems.iterator();
+				Vector<?> lexItems = lvgLexItem.MutateLexItem(word);
+				Iterator<?> lexItemItr = lexItems.iterator();
 				while (lexItemItr.hasNext()) {
 					LexItem li = (LexItem) lexItemItr.next();
 
@@ -369,14 +372,14 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 						// note that POS is Xerox tagset
 						String lemmaPos = Category.ToName(bitValues[i]);
 						// convert Xerox tagset to PennTreebank tagset
-						String treebankTag = (String) xeroxTreebankMap
+						String treebankTag = xeroxTreebankMap
 								.get(lemmaPos);
 						if (treebankTag != null) {
-							Set posSet = null;
+							Set<String> posSet = null;
 							if (lemmaMap.containsKey(lemmaStr)) {
-								posSet = (Set) lemmaMap.get(lemmaStr);
+								posSet = lemmaMap.get(lemmaStr);
 							} else {
-								posSet = new HashSet();
+								posSet = new HashSet<>();
 							}
 							posSet.add(treebankTag);
 							lemmaMap.put(lemmaStr, posSet);
@@ -390,13 +393,13 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 
 		// add lemma information to CAS
 		// FSArray lemmas = new FSArray(jcas, lemmaMap.keySet().size());
-		Collection lemmas = new ArrayList(lemmaMap.keySet().size());
+		Collection<Lemma> lemmas = new ArrayList<>(lemmaMap.keySet().size());
 
-		Iterator lemmaStrItr = lemmaMap.keySet().iterator();
+		Iterator<String> lemmaStrItr = lemmaMap.keySet().iterator();
 		while (lemmaStrItr.hasNext()) {
-			String form = (String) lemmaStrItr.next();
-			Set posTagSet = (Set) lemmaMap.get(form);
-			Iterator posTagItr = posTagSet.iterator();
+			String form = lemmaStrItr.next();
+			Set<?> posTagSet = lemmaMap.get(form);
+			Iterator<?> posTagItr = posTagSet.iterator();
 			while (posTagItr.hasNext()) {
 				String pos = (String) posTagItr.next(); // part of speech
 				Lemma lemma = new Lemma(jcas);
@@ -405,7 +408,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 				lemmas.add(lemma);
 			}
 		}
-		Lemma[] lemmaArray = (Lemma[]) lemmas.toArray(new Lemma[lemmas.size()]);
+		Lemma[] lemmaArray = lemmas.toArray(new Lemma[lemmas.size()]);
 		FSList fsList = ListFactory.buildList(jcas, lemmaArray);
 		wordAnnotation.setLemmaEntries(fsList);
 	}
@@ -417,37 +420,36 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	 */
 	private void loadCmdCacheFile(String cpLocation)
 			throws FileNotFoundException, IOException {
-		InputStream inStream = getClass().getResourceAsStream(cpLocation);
-		if (inStream == null) {
-			throw new FileNotFoundException("Unable to find: " + cpLocation);
-		}
-		BufferedReader br = new BufferedReader(new InputStreamReader(inStream));
+	  try(
+	    InputStream inStream = getClass().getResourceAsStream(cpLocation);
+	    BufferedReader br = new BufferedReader(new InputStreamReader(inStream));
+	  ){
+	    // initialize map
+	    normCacheMap = new HashMap<>();
 
-		// initialize map
-		normCacheMap = new HashMap();
-
-		String line = br.readLine();
-		while (line != null) {
-			StringTokenizer st = new StringTokenizer(line, "|");
-			if (st.countTokens() == 7) {
-				int freq = Integer.parseInt(st.nextToken());
-				if (freq > cmdCacheFreqCutoff) {
-					String origWord = st.nextToken();
-					String normWord = st.nextToken();
-					if (!normCacheMap.containsKey(origWord)) {
-						// if there are duplicates, then only have the first
-						// occurrence in the map
-						normCacheMap.put(origWord, normWord);
-					}
-				} else {
-					logger.debug("Discarding norm cache line due to frequency cutoff: "
-							+ line);
-				}
-			} else {
-				logger.warn("Invalid LVG norm cache " + "line: " + line);
-			}
-			line = br.readLine();
-		}
+	    String line = br.readLine();
+	    while (line != null) {
+	      StringTokenizer st = new StringTokenizer(line, "|");
+	      if (st.countTokens() == 7) {
+	        int freq = Integer.parseInt(st.nextToken());
+	        if (freq > cmdCacheFreqCutoff) {
+	          String origWord = st.nextToken();
+	          String normWord = st.nextToken();
+	          if (!normCacheMap.containsKey(origWord)) {
+	            // if there are duplicates, then only have the first
+	            // occurrence in the map
+	            normCacheMap.put(origWord, normWord);
+	          }
+	        } else {
+	          logger.debug("Discarding norm cache line due to frequency cutoff: "
+	              + line);
+	        }
+	      } else {
+	        logger.warn("Invalid LVG norm cache " + "line: " + line);
+	      }
+	      line = br.readLine();
+	    }
+	  }
 	}
 
 	/**
@@ -457,63 +459,62 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	 */
 	private void loadLemmaCacheFile(String cpLocation)
 			throws FileNotFoundException, IOException {
-		InputStream inStream = getClass().getResourceAsStream(cpLocation);
-		if (inStream == null) {
-			throw new FileNotFoundException("Unable to find: " + cpLocation);
-		}
-		BufferedReader br = new BufferedReader(new InputStreamReader(inStream));
+		try(
+	    InputStream inStream = getClass().getResourceAsStream(cpLocation);
+	    BufferedReader br = new BufferedReader(new InputStreamReader(inStream)); 
+		){
+		  // initialize map
+		  lemmaCacheMap = new HashMap<>();
 
-		// initialize map
-		lemmaCacheMap = new HashMap();
+		  String line = br.readLine();
+		  while (line != null) {
+		    StringTokenizer st = new StringTokenizer(line, "|");
+		    if (st.countTokens() == 4) // JZ: changed from 7 to 4 as used a new
+		      // dictionary
+		    {
+		      int freq = Integer.parseInt(st.nextToken());
+		      if (freq > lemmaCacheFreqCutoff) {
+		        String origWord = st.nextToken();
+		        String lemmaWord = st.nextToken();
+		        String combinedCategories = st.nextToken();
 
-		String line = br.readLine();
-		while (line != null) {
-			StringTokenizer st = new StringTokenizer(line, "|");
-			if (st.countTokens() == 4) // JZ: changed from 7 to 4 as used a new
-										// dictionary
-			{
-				int freq = Integer.parseInt(st.nextToken());
-				if (freq > lemmaCacheFreqCutoff) {
-					String origWord = st.nextToken();
-					String lemmaWord = st.nextToken();
-					String combinedCategories = st.nextToken();
+		        // strip < and > chars
+		        combinedCategories = combinedCategories.substring(1,
+		            combinedCategories.length() - 1);
 
-					// strip < and > chars
-					combinedCategories = combinedCategories.substring(1,
-							combinedCategories.length() - 1);
+		        // construct Lemma object
+		        LemmaLocalClass l = new LemmaLocalClass();
+		        l.word = lemmaWord;
+		        l.posSet = new HashSet<>();
+		        long bitVector = Category.ToValue(combinedCategories);
+		        long[] bitValues = Category.ToValuesArray(bitVector);
+		        for (int i = 0; i < bitValues.length; i++) {
+		          String pos = Category.ToName(bitValues[i]);
+		          // convert Xerox tag into Treebank
+		          String treebankTag = xeroxTreebankMap.get(pos);
+		          if (treebankTag != null) {
+		            l.posSet.add(treebankTag);
+		          }
+		        }
 
-					// construct Lemma object
-					LemmaLocalClass l = new LemmaLocalClass();
-					l.word = lemmaWord;
-					l.posSet = new HashSet();
-					long bitVector = Category.ToValue(combinedCategories);
-					long[] bitValues = Category.ToValuesArray(bitVector);
-					for (int i = 0; i < bitValues.length; i++) {
-						String pos = Category.ToName(bitValues[i]);
-						// convert Xerox tag into Treebank
-						String treebankTag = (String) xeroxTreebankMap.get(pos);
-						if (treebankTag != null) {
-							l.posSet.add(treebankTag);
-						}
-					}
-
-					// add Lemma to cache map
-					Set lemmaSet = null;
-					if (!lemmaCacheMap.containsKey(origWord)) {
-						lemmaSet = new HashSet();
-					} else {
-						lemmaSet = (Set) lemmaCacheMap.get(origWord);
-					}
-					lemmaSet.add(l);
-					lemmaCacheMap.put(origWord, lemmaSet);
-				} else {
-					logger.debug("Discarding lemma cache line due to frequency cutoff: "
-							+ line);
-				}
-			} else {
-				logger.warn("Invalid LVG lemma cache " + "line: " + line);
-			}
-			line = br.readLine();
+		        // add Lemma to cache map
+		        Set<LemmaLocalClass> lemmaSet = null;
+		        if (!lemmaCacheMap.containsKey(origWord)) {
+		          lemmaSet = new HashSet<>();
+		        } else {
+		          lemmaSet = lemmaCacheMap.get(origWord);
+		        }
+		        lemmaSet.add(l);
+		        lemmaCacheMap.put(origWord, lemmaSet);
+		      } else {
+		        logger.debug("Discarding lemma cache line due to frequency cutoff: "
+		            + line);
+		      }
+		    } else {
+		      logger.warn("Invalid LVG lemma cache " + "line: " + line);
+		    }
+		    line = br.readLine();
+		  }
 		}
 	}
 
@@ -525,7 +526,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	class LemmaLocalClass {
 		public String word;
 
-		public Set posSet;
+		public Set<String> posSet;
 	}
 
 }
