@@ -34,6 +34,8 @@ import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.Hash
 import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveNonContainsRelations.RemoveGoldAttributes;
+import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
+import org.apache.ctakes.temporal.utils.TLinkTypeArray2;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -221,15 +223,18 @@ EvaluationOfTemporalRelations_ImplBase{
 		//	  if(this.baseline) return;
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class, BinaryTextRelation.class));
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveCrossSentenceRelations.class));
 		if(!this.useGoldAttributes){
 			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveGoldAttributes.class));
 		}
 		if (this.useClosure) {
-			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class));
+			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddClosure.class));//aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class));
+//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddContain2Overlap.class));
 			//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveBeforeAndOnRelations.class));
 		}
+//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
+		
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class));
 		aggregateBuilder.add(EventTimeRelationAnnotator.createDataWriterDescription(
 				//                LIBSVMStringOutcomeDataWriter.class,
@@ -274,10 +279,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			throws Exception {
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
-		aggregateBuilder.add(
-				AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class,
-						RemoveNonContainsRelations.PARAM_RELATION_VIEW,
-						GOLD_VIEW_NAME));
+		
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
 				RemoveCrossSentenceRelations.class,
 				RemoveCrossSentenceRelations.PARAM_SENTENCE_VIEW,
@@ -286,14 +288,24 @@ EvaluationOfTemporalRelations_ImplBase{
 				GOLD_VIEW_NAME));
 		if (this.useClosure) {
 			aggregateBuilder.add(
-					AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
+					AnalysisEngineFactory.createPrimitiveDescription(AddClosure.class),//AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
 					CAS.NAME_DEFAULT_SOFA,
 					GOLD_VIEW_NAME);
+					
+//			aggregateBuilder.add(
+//					AnalysisEngineFactory.createPrimitiveDescription(AddContain2Overlap.class),
+//					CAS.NAME_DEFAULT_SOFA,
+//					GOLD_VIEW_NAME);
 			//			aggregateBuilder.add(
 			//					AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveBeforeAndOnRelations.class),
 			//					CAS.NAME_DEFAULT_SOFA,
 			//					GOLD_VIEW_NAME);
 		}
+		
+//		aggregateBuilder.add(
+//				AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class,
+//						RemoveNonContainsRelations.PARAM_RELATION_VIEW,
+//						GOLD_VIEW_NAME));
 		aggregateBuilder.add(
 				AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class),
 				CAS.NAME_DEFAULT_SOFA,
@@ -302,7 +314,15 @@ EvaluationOfTemporalRelations_ImplBase{
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveRelations.class));
 		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
 			EventTimeRelationAnnotator.createAnnotatorDescription(directory));
-
+		
+		if (this.useClosure) {//add closure for system output
+			aggregateBuilder.add(
+					AnalysisEngineFactory.createPrimitiveDescription(AddClosure.class),//AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
+					GOLD_VIEW_NAME,
+					CAS.NAME_DEFAULT_SOFA
+					);
+		}
+		
 		Function<BinaryTextRelation, ?> getSpan = new Function<BinaryTextRelation, HashableArguments>() {
 			public HashableArguments apply(BinaryTextRelation relation) {
 				return new HashableArguments(relation);
@@ -416,25 +436,25 @@ EvaluationOfTemporalRelations_ImplBase{
   }
 	 */
 
-	//	private static <SPAN_TYPE> Collection<BinaryTextRelation> removeNonGoldRelations(
-	//			Collection<BinaryTextRelation> systemRelations,
-	//			Collection<BinaryTextRelation> goldRelations, Function<BinaryTextRelation, ?> getSpan) {
-	//		//remove non-gold pairs from system relations:
-	//		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
-	//		Set<SPAN_TYPE> goldspans = new HashSet<SPAN_TYPE>();
-	//		
-	//		for (BinaryTextRelation relation : goldRelations) {
-	//			goldspans.add(((SPAN_TYPE) getSpan.apply(relation)));			
-	//		}
-	//		
-	//		for (BinaryTextRelation relation : systemRelations) {
-	//			if (goldspans.contains(((SPAN_TYPE) getSpan.apply(relation)))) {
-	//				goodSys.add(relation);
-	//			}
-	//		}
-	//		
-	//		return goodSys;
-	//	}
+//		private static <SPAN_TYPE> Collection<BinaryTextRelation> removeNonGoldRelations(
+//				Collection<BinaryTextRelation> systemRelations,
+//				Collection<BinaryTextRelation> goldRelations, Function<BinaryTextRelation, ?> getSpan) {
+//			//remove non-gold pairs from system relations:
+//			Set<BinaryTextRelation> goodSys = Sets.newHashSet();
+//			Set<SPAN_TYPE> goldspans = new HashSet<SPAN_TYPE>();
+//			
+//			for (BinaryTextRelation relation : goldRelations) {
+//				goldspans.add(((SPAN_TYPE) getSpan.apply(relation)));			
+//			}
+//			
+//			for (BinaryTextRelation relation : systemRelations) {
+//				if (goldspans.contains(((SPAN_TYPE) getSpan.apply(relation)))) {
+//					goodSys.add(relation);
+//				}
+//			}
+//			
+//			return goodSys;
+//		}
 
 	private static Collection<BinaryTextRelation> correctArgOrder(
 			Collection<BinaryTextRelation> systemRelations,
@@ -776,108 +796,270 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 	}
-
-	public static class AddTransitiveBeforeAndOnRelations extends JCasAnnotator_ImplBase {
+	
+	public static class AddContain2Overlap extends JCasAnnotator_ImplBase {
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
 
-			// collect many-to-many mappings of containment relations 
-			Multimap<Annotation, Annotation> contains = HashMultimap.create();
-			Multimap<Annotation, Annotation> before = HashMultimap.create();
-			Multimap<Annotation, Annotation> endson = HashMultimap.create();
-			Multimap<Annotation, Annotation> beginson = HashMultimap.create();
-			Set<BinaryTextRelation> beforeRel = Sets.newHashSet();
-
+			Set<BinaryTextRelation> containsRelations = Sets.newHashSet();
 			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
 				if (relation.getCategory().equals("CONTAINS")) {
-					Annotation arg1 = relation.getArg1().getArgument();
-					Annotation arg2 = relation.getArg2().getArgument();
-					contains.put(arg1, arg2);
-				}else if (relation.getCategory().equals("BEFORE")) {
-					Annotation arg1 = relation.getArg1().getArgument();
-					Annotation arg2 = relation.getArg2().getArgument();
-					before.put(arg1, arg2);
-					beforeRel.add(relation);
-				}else if (relation.getCategory().equals("ENDS-ON")) {
-					Annotation arg1 = relation.getArg1().getArgument();
-					Annotation arg2 = relation.getArg2().getArgument();
-					endson.put(arg1, arg2);
-					if (!endson.containsEntry(arg2, arg1)) {
-						endson.put(arg2, arg1);
-					}
-				}else if (relation.getCategory().equals("BEGINS-ON")) {
-					Annotation arg1 = relation.getArg1().getArgument();
-					Annotation arg2 = relation.getArg2().getArgument();
-					beginson.put(arg1, arg2);
-					if (!beginson.containsEntry(arg2, arg1)) {
-						beginson.put(arg2, arg1);
-					}
+					containsRelations.add(relation);
 				}
 			}
 
-			// for A BEFORE B, check if A and B Contain anything
-			for (BinaryTextRelation brelation : beforeRel) {
-				Annotation argA = brelation.getArg1().getArgument();
-				Annotation argB = brelation.getArg2().getArgument();
-				//add contained before
-				for (Annotation childA : contains.get(argA)) {
-					for (Annotation childB : contains.get(argB)) {
-						if (!before.containsEntry(childA, childB)) {
-							//create a new before relation:
-							RelationArgument arg1 = new RelationArgument(jCas);
-							arg1.setArgument(childA);
-							RelationArgument arg2 = new RelationArgument(jCas);
-							arg2.setArgument(childB);
-							BinaryTextRelation relation = new BinaryTextRelation(jCas);
-							relation.setArg1(arg1);
-							relation.setArg2(arg2);
-							relation.setCategory("BEFORE");
-							arg1.addToIndexes();
-							arg2.addToIndexes();
-							relation.addToIndexes();
-							before.put(childA, childB);
+			for (BinaryTextRelation relation : containsRelations) {
+				RelationArgument arg1 = (RelationArgument) relation.getArg1().clone();
+				RelationArgument arg2 = (RelationArgument) relation.getArg2().clone();
+				BinaryTextRelation newrelation = new BinaryTextRelation(jCas);
+				newrelation.setArg1(arg1);
+				newrelation.setArg2(arg2);
+				newrelation.setCategory("OVERLAP");
+				arg1.addToIndexes();
+				arg2.addToIndexes();
+				newrelation.addToIndexes();
+			}
+		}
+	}
+	
+	public static class AddFlippedOverlap extends JCasAnnotator_ImplBase {
+
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+
+			Set<BinaryTextRelation> overlapRelations = Sets.newHashSet();
+			Multimap<Annotation, Annotation> overlaps = HashMultimap.create();
+			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
+				if (relation.getCategory().equals("OVERLAP")) {
+					overlapRelations.add(relation);
+					Annotation arg1 = relation.getArg1().getArgument();
+					Annotation arg2 = relation.getArg2().getArgument();
+					overlaps.put(arg1, arg2);
+				}
+			}
+
+			for (BinaryTextRelation orelation : overlapRelations) {
+				Annotation argA = orelation.getArg1().getArgument();
+				Annotation argB = orelation.getArg2().getArgument();
+				//add overlap 
+				if (!overlaps.containsEntry(argB, argA)) {
+					//create a new flipped relation:
+					RelationArgument arg1 = new RelationArgument(jCas);
+					arg1.setArgument(argB);
+					RelationArgument arg2 = new RelationArgument(jCas);
+					arg2.setArgument(argA);
+					BinaryTextRelation relation = new BinaryTextRelation(jCas);
+					relation.setArg1(arg1);
+					relation.setArg2(arg2);
+					relation.setCategory("OVERLAP");
+					arg1.addToIndexes();
+					arg2.addToIndexes();
+					relation.addToIndexes();
+					overlaps.put(argB, argA);
+				}
+
+			}
+		}
+	}
+	
+	public static class AddClosure extends JCasAnnotator_ImplBase {
+
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			
+			Multimap<List<Annotation>, BinaryTextRelation> annotationsToRelation = HashMultimap.create();
+			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)){
+				String relationType = relation.getCategory();
+				if(validTemporalType(relationType)){
+					Annotation arg1 = relation.getArg1().getArgument();
+			        Annotation arg2 = relation.getArg2().getArgument();
+			        annotationsToRelation.put(Arrays.asList(arg1, arg2), relation);
+				}
+			}
+			for (List<Annotation> span: Lists.newArrayList(annotationsToRelation.keySet())){
+				Collection<BinaryTextRelation> relations = annotationsToRelation.get(span);
+				if(relations.size()>1){//if same span maps to multiple relations
+					Set<String> types = Sets.newHashSet();
+					for(BinaryTextRelation relation: relations){
+						types.add(relation.getCategory());
+					}
+					if(types.size()>1){
+						for(BinaryTextRelation relation: Lists.newArrayList(relations)){
+							annotationsToRelation.remove(span, relation);
+							relation.getArg1().removeFromIndexes();
+							relation.getArg2().removeFromIndexes();
+							relation.removeFromIndexes();
+						}
+					}else if(types.size()==1){
+						for (int i =1; i< relations.size(); i++){
+							BinaryTextRelation relation = (BinaryTextRelation) relations.toArray()[i];
+							annotationsToRelation.remove(span, relation);
+							relation.getArg1().removeFromIndexes();
+							relation.getArg2().removeFromIndexes();
+							relation.removeFromIndexes();
 						}
 					}
 				}
-				//add ends-on A
-				for (Annotation endsOnA : endson.get(argA)) {
-					if (!before.containsEntry(endsOnA, argB)) {
-						//create a new before relation:
-						RelationArgument arg1 = new RelationArgument(jCas);
-						arg1.setArgument(endsOnA);
-						RelationArgument arg2 = new RelationArgument(jCas);
-						arg2.setArgument(argB);
-						BinaryTextRelation relation = new BinaryTextRelation(jCas);
-						relation.setArg1(arg1);
-						relation.setArg2(arg2);
-						relation.setCategory("BEFORE");
-						arg1.addToIndexes();
-						arg2.addToIndexes();
-						relation.addToIndexes();
-						before.put(endsOnA, argB);
-					}
-				}
-				//add begins-on B
-				for (Annotation beginsOnB : beginson.get(argB)) {
-					if (!before.containsEntry(argA, beginsOnB)) {
-						//create a new before relation:
-						RelationArgument arg1 = new RelationArgument(jCas);
-						arg1.setArgument(argA);
-						RelationArgument arg2 = new RelationArgument(jCas);
-						arg2.setArgument(beginsOnB);
-						BinaryTextRelation relation = new BinaryTextRelation(jCas);
-						relation.setArg1(arg1);
-						relation.setArg2(arg2);
-						relation.setCategory("BEFORE");
-						arg1.addToIndexes();
-						arg2.addToIndexes();
-						relation.addToIndexes();
-						before.put(argA, beginsOnB);
-					}
-				}
 			}
+
+			ArrayList<BinaryTextRelation> temporalRelation = new ArrayList<BinaryTextRelation>(annotationsToRelation.values());//new ArrayList<BinaryTextRelation>();
+//			Map<List<Annotation>, BinaryTextRelation> temporalRelationLookup = new HashMap<List<Annotation>, BinaryTextRelation>();
+//
+//			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)){
+//				String relationType = relation.getCategory();
+//				if(validTemporalType(relationType)){
+//					Annotation arg1 = relation.getArg1().getArgument();
+//			        Annotation arg2 = relation.getArg2().getArgument();
+//			        BinaryTextRelation tempRelation = temporalRelationLookup.get(Arrays.asList(arg1, arg2));
+//					if( tempRelation == null){
+//						temporalRelation.add(relation);					
+//				        temporalRelationLookup.put(Arrays.asList(arg1, arg2), relation);
+//					}else{//if there is duplicate
+//						relation.getArg1().removeFromIndexes();
+//						relation.getArg2().removeFromIndexes();
+//						relation.removeFromIndexes();
+//					}
+//					
+//				}
+//			}
+
+			if (!temporalRelation.isEmpty()){
+				TLinkTypeArray2 relationArray = new TLinkTypeArray2(temporalRelation, new AnnotationIdCollection(temporalRelation));
+
+				int addedCount = 0;
+				for (BinaryTextRelation relation : relationArray.getClosedTlinks(jCas)) {
+					RelationArgument arg1 = relation.getArg1();
+					RelationArgument arg2 = relation.getArg2();
+					String relationType = relation.getCategory();
+					if(relationType.equals("CONTAINED-BY")||relationType.equals("AFTER")){//ignore these two categories, because their reciprocal already exist.
+						continue;
+					}
+					//check if the inferred relation new:
+					Collection<BinaryTextRelation> relations = annotationsToRelation.get(Arrays.asList(arg1.getArgument(), arg2.getArgument()));
+					if(relations.isEmpty()){ //if haven't seen this inferred relation before, then add this relation
+						arg1.addToIndexes();
+						arg2.addToIndexes();
+						relation.addToIndexes();
+						addedCount++;
+					}		
+				}
+				
+				System.out.println( "**************************************************************");
+			    System.out.println( "Finally added closure relations: " + addedCount );
+			    System.out.println( "**************************************************************");
+			}			
+
 		}
 
+		private static boolean validTemporalType(String relationType) {
+			if(relationType.equals("CONTAINS")||relationType.equals("OVERLAP")||relationType.equals("BEFORE")||relationType.equals("ENDS-ON")||relationType.equals("BEGINS-ON"))
+				return true;
+			return false;
+		}
 	}
+
+//	public static class AddTransitiveBeforeAndOnRelations extends JCasAnnotator_ImplBase {
+//
+//		@Override
+//		public void process(JCas jCas) throws AnalysisEngineProcessException {
+//
+//			// collect many-to-many mappings of containment relations 
+//			Multimap<Annotation, Annotation> contains = HashMultimap.create();
+//			Multimap<Annotation, Annotation> before = HashMultimap.create();
+//			Multimap<Annotation, Annotation> endson = HashMultimap.create();
+//			Multimap<Annotation, Annotation> beginson = HashMultimap.create();
+//			Set<BinaryTextRelation> beforeRel = Sets.newHashSet();
+//
+//			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
+//				if (relation.getCategory().equals("CONTAINS")) {
+//					Annotation arg1 = relation.getArg1().getArgument();
+//					Annotation arg2 = relation.getArg2().getArgument();
+//					contains.put(arg1, arg2);
+//				}else if (relation.getCategory().equals("BEFORE")) {
+//					Annotation arg1 = relation.getArg1().getArgument();
+//					Annotation arg2 = relation.getArg2().getArgument();
+//					before.put(arg1, arg2);
+//					beforeRel.add(relation);
+//				}else if (relation.getCategory().equals("ENDS-ON")) {
+//					Annotation arg1 = relation.getArg1().getArgument();
+//					Annotation arg2 = relation.getArg2().getArgument();
+//					endson.put(arg1, arg2);
+//					if (!endson.containsEntry(arg2, arg1)) {
+//						endson.put(arg2, arg1);
+//					}
+//				}else if (relation.getCategory().equals("BEGINS-ON")) {
+//					Annotation arg1 = relation.getArg1().getArgument();
+//					Annotation arg2 = relation.getArg2().getArgument();
+//					beginson.put(arg1, arg2);
+//					if (!beginson.containsEntry(arg2, arg1)) {
+//						beginson.put(arg2, arg1);
+//					}
+//				}
+//			}
+//
+//			// for A BEFORE B, check if A and B Contain anything
+//			for (BinaryTextRelation brelation : beforeRel) {
+//				Annotation argA = brelation.getArg1().getArgument();
+//				Annotation argB = brelation.getArg2().getArgument();
+//				//add contained before
+//				for (Annotation childA : contains.get(argA)) {
+//					for (Annotation childB : contains.get(argB)) {
+//						if (!before.containsEntry(childA, childB)) {
+//							//create a new before relation:
+//							RelationArgument arg1 = new RelationArgument(jCas);
+//							arg1.setArgument(childA);
+//							RelationArgument arg2 = new RelationArgument(jCas);
+//							arg2.setArgument(childB);
+//							BinaryTextRelation relation = new BinaryTextRelation(jCas);
+//							relation.setArg1(arg1);
+//							relation.setArg2(arg2);
+//							relation.setCategory("BEFORE");
+//							arg1.addToIndexes();
+//							arg2.addToIndexes();
+//							relation.addToIndexes();
+//							before.put(childA, childB);
+//						}
+//					}
+//				}
+//				//add ends-on A
+//				for (Annotation endsOnA : endson.get(argA)) {
+//					if (!before.containsEntry(endsOnA, argB)) {
+//						//create a new before relation:
+//						RelationArgument arg1 = new RelationArgument(jCas);
+//						arg1.setArgument(endsOnA);
+//						RelationArgument arg2 = new RelationArgument(jCas);
+//						arg2.setArgument(argB);
+//						BinaryTextRelation relation = new BinaryTextRelation(jCas);
+//						relation.setArg1(arg1);
+//						relation.setArg2(arg2);
+//						relation.setCategory("BEFORE");
+//						arg1.addToIndexes();
+//						arg2.addToIndexes();
+//						relation.addToIndexes();
+//						before.put(endsOnA, argB);
+//					}
+//				}
+//				//add begins-on B
+//				for (Annotation beginsOnB : beginson.get(argB)) {
+//					if (!before.containsEntry(argA, beginsOnB)) {
+//						//create a new before relation:
+//						RelationArgument arg1 = new RelationArgument(jCas);
+//						arg1.setArgument(argA);
+//						RelationArgument arg2 = new RelationArgument(jCas);
+//						arg2.setArgument(beginsOnB);
+//						BinaryTextRelation relation = new BinaryTextRelation(jCas);
+//						relation.setArg1(arg1);
+//						relation.setArg2(arg2);
+//						relation.setCategory("BEFORE");
+//						arg1.addToIndexes();
+//						arg2.addToIndexes();
+//						relation.addToIndexes();
+//						before.put(argA, beginsOnB);
+//					}
+//				}
+//			}
+//		}
+//
+//	}
 }

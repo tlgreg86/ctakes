@@ -9,12 +9,16 @@ import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.TokenFeaturesExtractor;
-import org.apache.ctakes.temporal.ae.feature.DependencyFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.CheckSpecialWordRelationExtractor;
+import org.apache.ctakes.temporal.ae.feature.DependencyPathFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.NearbyVerbTenseRelationExtractor;
 import org.apache.ctakes.temporal.ae.feature.NearestFlagFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.SectionHeaderRelationExtractor;
 //import org.apache.ctakes.temporal.ae.feature.TemporalAttributeFeatureExtractor;
-import org.apache.ctakes.temporal.ae.feature.treekernel.EventTimeFlatTreeFeatureExtractor;
+//import org.apache.ctakes.temporal.ae.feature.treekernel.EventTimeFlatTreeFeatureExtractor;
+//import org.apache.ctakes.temporal.ae.feature.treekernel.EventVerbRelationTreeExtractor;
 import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPETExtractor;
-import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPathExtractor;
+//import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPathExtractor;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -69,11 +73,16 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 				new TokenFeaturesExtractor()
 				, new PartOfSpeechFeaturesExtractor()
 				//    						, new TemporalAttributeFeatureExtractor()
-				, new EventTimeFlatTreeFeatureExtractor()
+//				, new EventTimeFlatTreeFeatureExtractor()
 				, new TemporalPETExtractor()
-				, new TemporalPathExtractor()
+//				, new TemporalPathExtractor()
+//				, new EventVerbRelationTreeExtractor()
+				, new SectionHeaderRelationExtractor()
+				, new NearbyVerbTenseRelationExtractor()
+				, new CheckSpecialWordRelationExtractor()
 				, new NearestFlagFeatureExtractor()
-				, new DependencyFeatureExtractor()
+				, new DependencyPathFeaturesExtractor()
+//				, new DependencyFeatureExtractor()
 				);
 	}
 
@@ -95,8 +104,31 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 				}
 			}
 		}
+		
+		//only use gold pairs:
+//		for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
+//			Annotation arg1 = relation.getArg1().getArgument();
+//			Annotation arg2 = relation.getArg2().getArgument();
+//			EventMention event = null;
+//			TimeMention time = null;
+//			if(arg1 instanceof EventMention){
+//				 event = (EventMention) arg1;
+//			}else if(arg1 instanceof TimeMention){
+//				time = (TimeMention) arg1;
+//			}
+//			if(arg2 instanceof EventMention){
+//				 event = (EventMention) arg2;
+//			}else if(arg2 instanceof TimeMention){
+//				time = (TimeMention) arg2;
+//			}
+//			if(event != null && time != null){
+//				pairs.add(new IdentifiedAnnotationPair(event, time));
+//			}
+//		}
+		
 		return pairs;
 	}
+
 
 	@Override
 	protected String getRelationCategory(
@@ -110,7 +142,11 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 		} else {
 			relation = relationLookup.get(Arrays.asList(arg2, arg1));
 			if (relation != null) {
-				category = relation.getCategory() + "-1";
+				if(relation.getCategory().equals("OVERLAP")){
+					category = relation.getCategory();
+				}else{
+					category = relation.getCategory() + "-1";
+				}
 			}
 		}
 		if (category == null && coin.nextDouble() <= this.probabilityOfKeepingANegativeExample) {
