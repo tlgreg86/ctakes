@@ -19,30 +19,23 @@
 package org.apache.ctakes.temporal.duration;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ctakes.core.cr.XMIReader;
 import org.apache.ctakes.temporal.eval.CommandLine;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
-import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
 
@@ -53,11 +46,11 @@ import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 
 /**
- * Analyze duration information for relation arguments.
+ * Analyze duration information for the relation arguments of CONTAINS relation.
  * 
  * @author dmitriy dligach
  */
-public class ComputeDurationStatistics {
+public class EventEventDurationStatistics {
 
   static interface Options {
 
@@ -77,8 +70,8 @@ public class ComputeDurationStatistics {
 
     List<Integer> patientSets = options.getPatients().getList();
     List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-    List<File> trainFiles = getFilesFor(trainItems, options.getInputDirectory());
-    CollectionReader collectionReader = getCollectionReader(trainFiles);
+    List<File> trainFiles = Utils.getFilesFor(trainItems, options.getInputDirectory());
+    CollectionReader collectionReader = Utils.getCollectionReader(trainFiles);
 
     AnalysisEngine annotationConsumer = AnalysisEngineFactory.createPrimitive(
         AnalyseRelationArgumentDuration.class,
@@ -88,48 +81,8 @@ public class ComputeDurationStatistics {
     SimplePipeline.runPipeline(collectionReader, annotationConsumer);
   }
 
-  private static CollectionReader getCollectionReader(List<File> inputFiles) throws Exception {
-
-    List<String> fileNames = new ArrayList<>();
-    for(File file : inputFiles) {
-      if(! (file.isHidden())) {
-        fileNames.add(file.getPath());
-      }
-    }
-
-    String[] paths = new String[fileNames.size()];
-    fileNames.toArray(paths);
-
-    return CollectionReaderFactory.createCollectionReader(
-        XMIReader.class,
-        XMIReader.PARAM_FILES,
-        paths);
-  }
-
-  private static List<File> getFilesFor(List<Integer> patientSets, File inputDirectory) {
-
-    List<File> files = new ArrayList<>();
-
-    for (Integer set : patientSets) {
-      final int setNum = set;
-      for (File file : inputDirectory.listFiles(new FilenameFilter(){
-        @Override
-        public boolean accept(File dir, String name) {
-          return name.contains(String.format("ID%03d", setNum));
-        }})) {
-        // skip hidden files like .svn
-        if (!file.isHidden()) {
-          files.add(file);
-        } 
-      }
-    }
-
-    return files;
-  }
-
   /**
-   * Preserve only those event-time relations whose event argument has duration data
-   * and whose time argument can be normalized using Steve's timex normalizer.
+   * Look at event-event relations whose event arguments have duration data.
    */
   public static class AnalyseRelationArgumentDuration extends JCasAnnotator_ImplBase {                                               
 
@@ -161,34 +114,32 @@ public class ComputeDurationStatistics {
       }                                                                                                                                                                                                                                         
 
       // find event-time relations where both arguments have duration information
-      for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(goldView, BinaryTextRelation.class))) {            
+      for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(goldView, BinaryTextRelation.class))) {
+        if(! relation.getCategory().equals("CONTAINS")) {
+          continue;
+        }
+        
         RelationArgument arg1 = relation.getArg1();                                                                             
         RelationArgument arg2 = relation.getArg2(); 
-
-        String eventText;
-        String timeText;
-        if(arg1.getArgument() instanceof TimeMention && arg2.getArgument() instanceof EventMention) {
-          timeText = arg1.getArgument().getCoveredText().toLowerCase(); 
-          eventText = Utils.normalizeEventText(jCas, arg2.getArgument());
-        } else if(arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof TimeMention) {
-          eventText = Utils.normalizeEventText(jCas, arg1.getArgument());
-          timeText = arg2.getArgument().getCoveredText().toLowerCase();  
+        String event1Text;
+        String event2Text;
+        if(arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof EventMention) {
+          event1Text = Utils.normalizeEventText(jCas, arg1.getArgument());
+          event2Text = Utils.normalizeEventText(jCas, arg2.getArgument());
         } else {
-          // this is not a event-time relation
+          // this is not an event-event relation
           continue;
-        }    
+        }
 
-        HashSet<String> timeUnits = Utils.getTimeUnits(timeText);
-        if(textToDistribution.containsKey(eventText) && timeUnits.size() > 0) {
-          // there is duration information and we are able to get time units
-          Map<String, Float> eventDistribution = textToDistribution.get(eventText);
-          Map<String, Float> timeDistribution = Utils.convertToDistribution(timeUnits.iterator().next());
-          float eventExpectedDuration = Utils.expectedDuration(eventDistribution);
-          float timeExpectedDuration = Utils.expectedDuration(timeDistribution);
-          String context = getTextBetweenAnnotations(goldView, arg1.getArgument(), arg2.getArgument());
+        if(textToDistribution.containsKey(event1Text) && textToDistribution.containsKey(event2Text)) {
+          // there is duration information for both arguments
+          float event1ExpectedDuration = Utils.expectedDuration(textToDistribution.get(event1Text));
+          float event2ExpectedDuration = Utils.expectedDuration(textToDistribution.get(event2Text));
+          String context = Utils.getTextBetweenAnnotations(goldView, arg1.getArgument(), arg2.getArgument());
           String out = String.format("%s|%.5f|%s|%.5f|%s\n", 
-              timeUnits.iterator().next(), timeExpectedDuration * 3650, 
-              eventText, eventExpectedDuration * 3650, context.length() < 80 ? context : "...");
+              event1Text, event1ExpectedDuration * 3650, 
+              event2Text, event2ExpectedDuration * 3650, 
+              context.length() < 80 ? context : "...");
           try {
             Files.append(out, new File(outputFile), Charsets.UTF_8);
           } catch (IOException e) {
@@ -196,23 +147,6 @@ public class ComputeDurationStatistics {
           }
         }
       }
-    }
-
-
-    /** 
-     * Get relation context.
-     */
-    private static String getTextBetweenAnnotations(JCas jCas, Annotation arg1, Annotation arg2) {
-
-      final int windowSize = 5;
-      String text = jCas.getDocumentText();
-
-      int leftArgBegin = Math.min(arg1.getBegin(), arg2.getBegin());
-      int rightArgEnd = Math.max(arg1.getEnd(), arg2.getEnd());
-      int begin = Math.max(0, leftArgBegin - windowSize);
-      int end = Math.min(text.length(), rightArgEnd + windowSize); 
-
-      return text.substring(begin, end).replaceAll("[\r\n]", " ");
     }
   }
 }

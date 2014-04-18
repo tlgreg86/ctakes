@@ -7,9 +7,12 @@ import info.bethard.timenorm.TemporalExpressionParser;
 import info.bethard.timenorm.TimeSpan;
 import info.bethard.timenorm.TimeSpanSet;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,16 +20,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.cr.XMIReader;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.temporal.ae.feature.duration.DurationEventTimeFeatureExtractor;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
+import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.threeten.bp.temporal.TemporalField;
 import org.threeten.bp.temporal.TemporalUnit;
+import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.util.JCasUtil;
 
 import scala.collection.immutable.Set;
@@ -223,6 +229,22 @@ public class Utils {
     Joiner joiner = Joiner.on(separator);
     return joiner.join(distribution);
   }
+  
+  /** 
+   * Get relation context.
+   */
+  public static String getTextBetweenAnnotations(JCas jCas, Annotation arg1, Annotation arg2) {
+
+    final int windowSize = 5;
+    String text = jCas.getDocumentText();
+
+    int leftArgBegin = Math.min(arg1.getBegin(), arg2.getBegin());
+    int rightArgEnd = Math.max(arg1.getEnd(), arg2.getEnd());
+    int begin = Math.max(0, leftArgBegin - windowSize);
+    int end = Math.min(text.length(), rightArgEnd + windowSize); 
+
+    return text.substring(begin, end).replaceAll("[\r\n]", " ");
+  }
 
   /**
    * Lemmatize word using ClearNLP lemmatizer.
@@ -333,6 +355,52 @@ public class Utils {
 
       return textToDistribution;
     }
+  }
+  
+  /**
+   * Instantiate an XMI collection reader.
+   */
+  public static CollectionReader getCollectionReader(List<File> inputFiles) throws Exception {
+
+    List<String> fileNames = new ArrayList<>();
+    for(File file : inputFiles) {
+      if(! (file.isHidden())) {
+        fileNames.add(file.getPath());
+      }
+    }
+
+    String[] paths = new String[fileNames.size()];
+    fileNames.toArray(paths);
+
+    return CollectionReaderFactory.createCollectionReader(
+        XMIReader.class,
+        XMIReader.PARAM_FILES,
+        paths);
+  }
+
+  /**
+   * Get files for specific sets of patients.
+   * Useful for selecting e.g. only training files.
+   */
+  public static List<File> getFilesFor(List<Integer> patientSets, File inputDirectory) {
+
+    List<File> files = new ArrayList<>();
+
+    for (Integer set : patientSets) {
+      final int setNum = set;
+      for (File file : inputDirectory.listFiles(new FilenameFilter(){
+        @Override
+        public boolean accept(File dir, String name) {
+          return name.contains(String.format("ID%03d", setNum));
+        }})) {
+        // skip hidden files like .svn
+        if (!file.isHidden()) {
+          files.add(file);
+        } 
+      }
+    }
+
+    return files;
   }
   
   public static void main(String[] args) throws IOException {
