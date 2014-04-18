@@ -19,18 +19,18 @@
 package org.apache.ctakes.temporal.data.analysis;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ctakes.core.cr.XMIReader;
+import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.temporal.eval.CommandLine;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
+import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -40,7 +40,6 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
 
@@ -69,52 +68,13 @@ public class GoldRelationViewer {
 		
 		List<Integer> patientSets = options.getPatients().getList();
 		List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-		List<File> trainFiles = getFilesFor(trainItems, options.getInputDirectory());
-    CollectionReader collectionReader = getCollectionReader(trainFiles);
+		List<File> trainFiles = Utils.getFilesFor(trainItems, options.getInputDirectory());
+    CollectionReader collectionReader = Utils.getCollectionReader(trainFiles);
 		
     AnalysisEngine annotationConsumer = AnalysisEngineFactory.createPrimitive(
     		RelationContextPrinter.class);
     		
 		SimplePipeline.runPipeline(collectionReader, annotationConsumer);
-	}
-	  
-	private static CollectionReader getCollectionReader(List<File> inputFiles) throws Exception {
-
-	  List<String> fileNames = new ArrayList<>();
-	  for(File file : inputFiles) {
-	    if(! (file.isHidden())) {
-	      fileNames.add(file.getPath());
-	    }
-	  }
-
-	  String[] paths = new String[fileNames.size()];
-	  fileNames.toArray(paths);
-
-	  return CollectionReaderFactory.createCollectionReader(
-	      XMIReader.class,
-	      XMIReader.PARAM_FILES,
-	      paths);
-	}
-
-	private static List<File> getFilesFor(List<Integer> patientSets, File inputDirectory) {
-	  
-	  List<File> files = new ArrayList<>();
-	  
-	  for (Integer set : patientSets) {
-	    final int setNum = set;
-	    for (File file : inputDirectory.listFiles(new FilenameFilter(){
-	      @Override
-	      public boolean accept(File dir, String name) {
-	        return name.contains(String.format("ID%03d", setNum));
-	      }})) {
-	      // skip hidden files like .svn
-	      if (!file.isHidden()) {
-	        files.add(file);
-	      } 
-	    }
-	  }
-	  
-	  return files;
 	}
 
   /**
@@ -152,9 +112,12 @@ public class GoldRelationViewer {
 
       for(Sentence sentence : JCasUtil.select(systemView, Sentence.class)) {
         List<String> formattedRelationsInSentence = new ArrayList<>();
-        List<EventMention> eventMentions = JCasUtil.selectCovered(goldView, EventMention.class, sentence);
-        for(EventMention mention1 : eventMentions) {
-          for(EventMention mention2 : eventMentions) {
+        List<EventMention> eventMentionsInSentence = JCasUtil.selectCovered(goldView, EventMention.class, sentence);
+        List<TimeMention> timeMentionsInSentence = JCasUtil.selectCovered(goldView, TimeMention.class, sentence);
+        
+        // retrieve event-event relations in this sentence
+        for(EventMention mention1 : eventMentionsInSentence) {
+          for(EventMention mention2 : eventMentionsInSentence) {
             if(mention1 == mention2) {
               continue;
             }
@@ -165,6 +128,18 @@ public class GoldRelationViewer {
             }
           }
         }
+        
+        // retrieve event-time relations in this sentece
+        for(EventMention eventMention : eventMentionsInSentence) {
+          for(TimeMention timeMention : timeMentionsInSentence) {
+            BinaryTextRelation relation = relationLookup.get(Arrays.asList(timeMention, eventMention));
+            if(relation != null) {
+              String text = String.format("%s(%s, %s)", relation.getCategory(), timeMention.getCoveredText(), eventMention.getCoveredText());
+              formattedRelationsInSentence.add(text);
+            }
+          }
+        }
+        
         if(formattedRelationsInSentence.size() > 0) {
           System.out.println(sentence.getCoveredText());
           for(String text : formattedRelationsInSentence) {
@@ -173,20 +148,6 @@ public class GoldRelationViewer {
           System.out.println();
         }
       }
-    }
-    
-    @SuppressWarnings("unused")
-    private static String getTextBetweenAnnotations(JCas jCas, Annotation arg1, Annotation arg2) {
-      
-      final int windowSize = 15;
-      
-      String text = jCas.getDocumentText();
-      int leftArgBegin = Math.min(arg1.getBegin(), arg2.getBegin());
-      int rightArgEnd = Math.max(arg1.getEnd(), arg2.getEnd());
-      int begin = Math.max(0, leftArgBegin - windowSize);
-      int end = Math.min(text.length(), rightArgEnd + windowSize); 
-      
-      return text.substring(begin, end).replaceAll("[\r\n]", " ");
     }
   }
 }
