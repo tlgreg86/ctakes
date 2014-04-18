@@ -160,7 +160,7 @@ public class ComputeDurationStatistics {
         throw new AnalysisEngineProcessException(e);                                                                           
       }                                                                                                                                                                                                                                         
 
-      // remove relations where one or both arguments have no duration data
+      // find event-time relations where both arguments have duration information
       for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(goldView, BinaryTextRelation.class))) {            
         RelationArgument arg1 = relation.getArg1();                                                                             
         RelationArgument arg2 = relation.getArg2(); 
@@ -187,8 +187,8 @@ public class ComputeDurationStatistics {
           float timeExpectedDuration = Utils.expectedDuration(timeDistribution);
           String context = getTextBetweenAnnotations(goldView, arg1.getArgument(), arg2.getArgument());
           String out = String.format("%s|%.5f|%s|%.5f|%s\n", 
-              timeUnits.iterator().next(), timeExpectedDuration, 
-              eventText, eventExpectedDuration, context.length() < 80 ? context : "...");
+              timeUnits.iterator().next(), timeExpectedDuration * 3650, 
+              eventText, eventExpectedDuration * 3650, context.length() < 80 ? context : "...");
           try {
             Files.append(out, new File(outputFile), Charsets.UTF_8);
           } catch (IOException e) {
