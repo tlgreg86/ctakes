@@ -18,12 +18,6 @@
  */
 package org.apache.ctakes.lvg.ae;
 
-import org.apache.ctakes.core.util.ListFactory;
-import org.apache.ctakes.lvg.resource.LvgCmdApiResource;
-import org.apache.ctakes.typesystem.type.syntax.Lemma;
-import org.apache.ctakes.typesystem.type.syntax.WordToken;
-import org.apache.ctakes.typesystem.type.textspan.Segment;
-
 import gov.nih.nlm.nls.lvg.Api.LvgCmdApi;
 import gov.nih.nlm.nls.lvg.Api.LvgLexItemApi;
 import gov.nih.nlm.nls.lvg.Lib.Category;
@@ -44,14 +38,21 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.apache.ctakes.core.util.ListFactory;
+import org.apache.ctakes.lvg.resource.LvgCmdApiResource;
+import org.apache.ctakes.typesystem.type.syntax.Lemma;
+import org.apache.ctakes.typesystem.type.syntax.WordToken;
+import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.cas.FSList;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.uimafit.component.JCasAnnotator_ImplBase;
+import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.descriptor.ExternalResource;
 
 /**
  * UIMA annotator that uses the UMLS LVG package to find the canonical form of
@@ -71,47 +72,131 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	 * lemmaEntries will be populated for word annotations.
 	 */
 	public static final String PARAM_POST_LEMMAS = "PostLemmas";
+	@ConfigurationParameter(
+	    name = PARAM_POST_LEMMAS,
+	    mandatory = false,
+	    defaultValue =  "false",
+	    description = "Whether to extract the lexical variants and write to cas (creates large files)"
+	    )
+  private boolean postLemmas;
+
 	/**
 	 * Value is "UseLemmaCache". This parameter determines whether a cache will
 	 * be used to improve performance of setting lemma entries.
 	 */
 	public static final String PARAM_USE_LEMMA_CACHE = "UseLemmaCache";
+	@ConfigurationParameter(
+	    name = PARAM_USE_LEMMA_CACHE,
+	    mandatory = false,
+	    defaultValue = "false",
+	    description = "Whether to use a cache for lemmas"
+	    )
+  private boolean useLemmaCache;
+
 	/**
 	 * Value is "LemmaCacheFileLocation". This parameter determines where the
 	 * lemma cache is located.
 	 */
 	public static final String PARAM_LEMMA_CACHE_FILE_LOCATION = "LemmaCacheFileLocation";
+	@ConfigurationParameter(
+	    name = PARAM_LEMMA_CACHE_FILE_LOCATION,
+	    mandatory = false,
+	    defaultValue = "/org/apache/ctakes/lvg/2005_lemma.voc",
+	    description = "Path to lemma cache file -- if useLemmaCache and postLemmas are true"
+	    )
+  private String lemmaCacheFileLocation=null;
+	
 	/**
 	 * Value is "LemmaCacheFrequencyCutoff". This parameter sets a threshold for
 	 * the frequency of a lemma to be loaded into the cache.
 	 */
 	public static final String PARAM_LEMMA_CACHE_FREQUENCY_CUTOFF = "LemmaCacheFrequencyCutoff";
+	@ConfigurationParameter(
+	    name = PARAM_LEMMA_CACHE_FREQUENCY_CUTOFF,
+	    mandatory = false,
+	    description = "Threshold for the frequency of a lemma to be loaded into the cache",
+	    defaultValue = "20"
+	    )
+  private int cmdCacheFreqCutoff;
 
+	public static final String PARAM_USE_SEGMENTS = "UseSegments";
+	@ConfigurationParameter(
+	    name = PARAM_USE_SEGMENTS,
+	    mandatory = false,
+	    defaultValue = "false",
+	    description = "Whether to use segments found in upstream cTAKES components"
+	    )
+	private boolean useSegments;
+
+	public static final String PARAM_SKIP_SEGMENTS = "SegmentsToSkip";
+	@ConfigurationParameter(
+	    name = PARAM_SKIP_SEGMENTS,
+	    mandatory = false,
+	    defaultValue = {},
+	    description = "Segment IDs to skip during processing"
+	    )
+  private String[] skipSegmentIDs;
+  private Set<String> skipSegmentsSet;
+	
+	public static final String PARAM_XT_MAP = "XeroxTreebankMap";
+	@ConfigurationParameter(
+	    name = PARAM_XT_MAP,
+	    mandatory = true,
+	    description = "Mapping from Xerox parts of speech to Treebank equivalents"
+	    )
+	private String[] xtMaps;
+  private Map<String, String> xeroxTreebankMap;
+	
+	public static final String PARAM_USE_CMD_CACHE = "UseCmdCache";
+	@ConfigurationParameter(
+	    name = PARAM_USE_CMD_CACHE,
+	    mandatory = false,
+	    defaultValue = "false",
+	    description = "Use cache to track canonical forms"
+	    )
+  private boolean useCmdCache;
+
+	public static final String PARAM_CMD_CACHE_FILE = "CmdCacheFileLocation";
+	@ConfigurationParameter(
+	    name = PARAM_CMD_CACHE_FILE,
+	    mandatory = false,
+	    defaultValue = "/org/apache/ctakes/lvg/2005_norm.voc",
+	    description = "File with stored cache of canonical forms"
+	    )
+  private String cmdCacheFileLocation;
+
+	public static final String PARAM_LEMMA_FREQ_CUTOFF = "CmdCacheFrequencyCutoff";
+	@ConfigurationParameter(
+	    name = PARAM_LEMMA_FREQ_CUTOFF,
+	    mandatory = false,
+	    description = "Minimum frequency required for loading from cache",
+	    defaultValue = "20"
+	    )
+  private int lemmaCacheFreqCutoff;
+
+	public static final String PARAM_EXCLUSION_WORDS = "ExclusionSet";
+	@ConfigurationParameter(
+	    name = PARAM_EXCLUSION_WORDS,
+	    mandatory = false,
+	    defaultValue = {"And", "and", "By", "by", "For", "for", "In", "in", "Of", "of", "On", "on", "The", "the", "To", "to", "With", "with"},
+	    description = "Words to exclude when doing LVG normalization"
+	    )
+	String[] wordsToExclude;
+  private Set<String> exclusionSet;
+	
 	// LOG4J logger based on class name
 	private Logger logger = Logger.getLogger(getClass().getName());
 
-	private final String LVGCMDAPI_RESRC_KEY = "LvgCmdApi";
-
+	private final String PARAM_LVGCMDAPI_RESRC_KEY = "LvgCmdApi";
+  @ExternalResource(
+      key = PARAM_LVGCMDAPI_RESRC_KEY,
+      mandatory = true
+      )
+  private LvgCmdApiResource lvgResource;
+      
 	private LvgCmdApi lvgCmd;
 
 	private LvgLexItemApi lvgLexItem;
-
-	private UimaContext context;
-
-	private boolean useSegments;
-
-	private Set<String> skipSegmentsSet;
-
-	private boolean useCmdCache;
-	private String cmdCacheFileLocation;
-	private int cmdCacheFreqCutoff;
-
-	private Map<String, String> xeroxTreebankMap;
-
-	private boolean postLemmas;
-	private boolean useLemmaCache;
-	private String lemmaCacheFileLocation;
-	private int lemmaCacheFreqCutoff;
 
 	// key = word, value = canonical word
 	private Map<String, String> normCacheMap;
@@ -119,7 +204,6 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	// key = word, value = Set of Lemma objects
 	private Map<String, Set<LemmaLocalClass>> lemmaCacheMap;
 
-	private Set<String> exclusionSet;
 
 	/**
 	 * Performs initialization logic. This implementation just reads values for
@@ -132,18 +216,9 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 			throws ResourceInitializationException {
 		super.initialize(aContext);
 
-		context = aContext;
-			configInit();
+		configInit();
 
 		try {
-			LvgCmdApiResource lvgResource = (LvgCmdApiResource) context
-					.getResourceObject(LVGCMDAPI_RESRC_KEY);
-
-			if (lvgResource == null)
-				throw new ResourceInitializationException(new Exception(
-						"Unable to locate resource with key="
-								+ LVGCMDAPI_RESRC_KEY + "."));
-
 			lvgCmd = lvgResource.getLvg();
 
 			if (useCmdCache) {
@@ -161,7 +236,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 				}
 			}
 
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
 	}
@@ -169,19 +244,13 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	/**
 	 * Sets configuration parameters with values from the descriptor.
 	 */
-	private void configInit() throws ResourceInitializationException {
-		useSegments = ((Boolean) context.getConfigParameterValue("UseSegments"))
-				.booleanValue();
-		String[] skipSegmentIDs = (String[]) context
-				.getConfigParameterValue("SegmentsToSkip");
+	private void configInit() {
 		skipSegmentsSet = new HashSet<>();
 		for (int i = 0; i < skipSegmentIDs.length; i++) {
 			skipSegmentsSet.add(skipSegmentIDs[i]);
 		}
 
 		// Load Xerox Treebank tagset map
-		String xtMaps[] = (String[]) context
-				.getConfigParameterValue("XeroxTreebankMap");
 		xeroxTreebankMap = new HashMap<>();
 		for (int i = 0; i < xtMaps.length; i++) {
 			StringTokenizer tokenizer = new StringTokenizer(xtMaps[i], "|");
@@ -192,44 +261,9 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 			}
 		}
 
-		useCmdCache = ((Boolean) context.getConfigParameterValue("UseCmdCache"))
-				.booleanValue();
-
-		cmdCacheFileLocation = (String) context
-				.getConfigParameterValue("CmdCacheFileLocation");
-
-		cmdCacheFreqCutoff = ((Integer) context
-				.getConfigParameterValue("CmdCacheFrequencyCutoff")).intValue();
-
-		String[] wordsToExclude = (String[]) context
-				.getConfigParameterValue("ExclusionSet");
 		exclusionSet = new HashSet<>();
 		for (int i = 0; i < wordsToExclude.length; i++) {
 			exclusionSet.add(wordsToExclude[i]);
-		}
-
-		Boolean bPostLemmas = (Boolean) context
-				.getConfigParameterValue(PARAM_POST_LEMMAS);
-		postLemmas = bPostLemmas == null ? false : bPostLemmas.booleanValue();
-		if (postLemmas) {
-			Boolean useLemmaCacheParam = (Boolean) context
-					.getConfigParameterValue(PARAM_USE_LEMMA_CACHE);
-			this.useLemmaCache = (useLemmaCacheParam == null ? false : useLemmaCacheParam
-					.booleanValue());
-			if (useLemmaCache) {
-				lemmaCacheFileLocation = (String) context
-						.getConfigParameterValue(PARAM_LEMMA_CACHE_FILE_LOCATION);
-				if (lemmaCacheFileLocation == null)
-					throw new ResourceInitializationException(new Exception(
-							"Parameter for " + PARAM_LEMMA_CACHE_FILE_LOCATION
-									+ " was not set."));
-				Integer lemmaCacheFreqCutoffParam = (Integer) context
-						.getConfigParameterValue(PARAM_LEMMA_CACHE_FREQUENCY_CUTOFF);
-				if (lemmaCacheFreqCutoffParam == null)
-					this.lemmaCacheFreqCutoff = 20;
-				else
-					this.lemmaCacheFreqCutoff = lemmaCacheFreqCutoffParam.intValue();
-			}
 		}
 	}
 
