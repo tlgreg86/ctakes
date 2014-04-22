@@ -19,20 +19,10 @@
 package org.apache.ctakes.contexttokenizer.ae;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.log4j.Logger;
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.FSIterator;
-import org.apache.uima.cas.text.AnnotationIndex;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.JFSIndexRepository;
-import org.apache.uima.resource.ResourceInitializationException;
-
 
 import org.apache.ctakes.core.ae.TokenizerAnnotator;
 import org.apache.ctakes.core.fsm.adapters.ContractionTokenAdapter;
@@ -72,6 +62,13 @@ import org.apache.ctakes.typesystem.type.textsem.RangeAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.RomanNumeralAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.log4j.Logger;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.uimafit.component.JCasAnnotator_ImplBase;
+import org.uimafit.util.JCasUtil;
 
 /**
  * Finds tokens based on context.
@@ -90,7 +87,8 @@ public class ContextDependentTokenizerAnnotator extends JCasAnnotator_ImplBase {
 	private MeasurementFSM iv_measurementFSM;
 	private PersonTitleFSM iv_personTitleFSM;
 
-	public void initialize(UimaContext annotCtx) throws ResourceInitializationException {
+	@Override
+  public void initialize(UimaContext annotCtx) throws ResourceInitializationException {
 		super.initialize(annotCtx);
 
 		iv_dateFSM = new DateFSM();
@@ -103,27 +101,22 @@ public class ContextDependentTokenizerAnnotator extends JCasAnnotator_ImplBase {
 		iv_logger.info("Finite state machines loaded.");
 	}
 
-	public void process(JCas jcas) throws AnalysisEngineProcessException {
+	@Override
+  public void process(JCas jcas) throws AnalysisEngineProcessException {
 
 		try {
 			
-	    	iv_logger.info("process(JCas)");
+		  iv_logger.info("process(JCas)");
 
-			JFSIndexRepository indexes = jcas.getJFSIndexRepository();
-			Iterator<?> sentItr = indexes.getAnnotationIndex(Sentence.type).iterator();
-			AnnotationIndex baseTokenIndex = jcas.getJFSIndexRepository().getAnnotationIndex(
-					org.apache.ctakes.typesystem.type.syntax.BaseToken.type);
+			Collection<Sentence> sents = JCasUtil.select(jcas, Sentence.class);
 			
-			while (sentItr.hasNext()) {
-				Sentence sentAnnot = (Sentence) sentItr.next();
-				FSIterator btaItr = baseTokenIndex.subiterator(sentAnnot);
-
-				// adapt JCas objects into objects expected by the Finite state
-				// machines
-				List<BaseToken> baseTokenList = new ArrayList<BaseToken>();
-				while (btaItr.hasNext()) {
-					org.apache.ctakes.typesystem.type.syntax.BaseToken bta = (org.apache.ctakes.typesystem.type.syntax.BaseToken) btaItr
-							.next();
+			for(Sentence sentAnnot : sents){
+			  List<org.apache.ctakes.typesystem.type.syntax.BaseToken> tokens = 
+			      JCasUtil.selectCovered(org.apache.ctakes.typesystem.type.syntax.BaseToken.class, sentAnnot);
+			  // adapt JCas objects into objects expected by the Finite state
+			  // machines
+				List<BaseToken> baseTokenList = new ArrayList<>();
+				for(org.apache.ctakes.typesystem.type.syntax.BaseToken bta : tokens){
 					// ignore newlines, avoid null tokens
 					BaseToken bt = adaptToBaseToken(bta);
 					if(bt != null && !(bt instanceof EolToken))
@@ -207,7 +200,7 @@ public class ContextDependentTokenizerAnnotator extends JCasAnnotator_ImplBase {
 	 * @param obj
 	 * @return
 	 */
-	private BaseToken adaptToBaseToken(org.apache.ctakes.typesystem.type.syntax.BaseToken obj) throws Exception {
+	private static BaseToken adaptToBaseToken(org.apache.ctakes.typesystem.type.syntax.BaseToken obj) throws Exception {
 		if (obj instanceof WordToken) {
 			WordToken wta = (WordToken) obj;
 			return new WordTokenAdapter(wta);
@@ -215,9 +208,8 @@ public class ContextDependentTokenizerAnnotator extends JCasAnnotator_ImplBase {
 			NumToken nta = (NumToken) obj;
 			if (nta.getNumType() == TokenizerAnnotator.TOKEN_NUM_TYPE_INTEGER) {
 				return new IntegerTokenAdapter(nta);
-			} else {
-				return new DecimalTokenAdapter(nta);
 			}
+      return new DecimalTokenAdapter(nta);
 		} else if (obj instanceof PunctuationToken) {
 			PunctuationToken pta = (PunctuationToken) obj;
 			return new PunctuationTokenAdapter(pta);
