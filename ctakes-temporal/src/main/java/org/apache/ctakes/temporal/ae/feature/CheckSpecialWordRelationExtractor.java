@@ -29,7 +29,7 @@ public class CheckSpecialWordRelationExtractor implements RelationFeaturesExtrac
 		EventMention event = null;
 		if(arg1 instanceof EventMention){
 			event = (EventMention) arg1;
-		}else if(arg1 instanceof EventMention){
+		}else if(arg2 instanceof EventMention){
 			event = (EventMention) arg2;
 		}else{
 			return feats;
