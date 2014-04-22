@@ -132,9 +132,16 @@ public class GoldRelationViewer {
         // retrieve event-time relations in this sentece
         for(EventMention eventMention : eventMentionsInSentence) {
           for(TimeMention timeMention : timeMentionsInSentence) {
-            BinaryTextRelation relation = relationLookup.get(Arrays.asList(timeMention, eventMention));
-            if(relation != null) {
-              String text = String.format("%s(%s, %s)", relation.getCategory(), timeMention.getCoveredText(), eventMention.getCoveredText());
+            // there are relations where arg1=time and arg2=event
+            BinaryTextRelation timeEventRel = relationLookup.get(Arrays.asList(timeMention, eventMention));
+            if(timeEventRel != null) {
+              String text = String.format("%s(%s, %s)", timeEventRel.getCategory(), timeMention.getCoveredText(), eventMention.getCoveredText());
+              formattedRelationsInSentence.add(text);
+            } 
+            // and relations where arg1=event and arg2=time
+            BinaryTextRelation eventTimeRel = relationLookup.get(Arrays.asList(eventMention, timeMention));
+            if(eventTimeRel != null) {
+              String text = String.format("%s(%s, %s)", eventTimeRel.getCategory(), eventMention.getCoveredText(), timeMention.getCoveredText());
               formattedRelationsInSentence.add(text);
             }
           }
