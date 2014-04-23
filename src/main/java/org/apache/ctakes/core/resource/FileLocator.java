@@ -53,7 +53,7 @@ public class FileLocator
     }
 	
     /**
-     * @deprecated  As of release 3.1, replaced by {@link #getAsStream()}
+     * @Deprecated  As of release 3.1, replaced by {@link #getAsStream()}
      */    
     public static File locateFile(String location)
             throws FileNotFoundException

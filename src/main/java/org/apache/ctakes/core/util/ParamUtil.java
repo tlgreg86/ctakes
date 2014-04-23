@@ -23,10 +23,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.annotator.AnnotatorContextException;
-import org.apache.uima.resource.ResourceAccessException;
 
 public class ParamUtil {
 
@@ -38,9 +36,8 @@ public class ParamUtil {
 	 *         optional or not set.
 	 * @throws AnnotatorContextException
 	 */
-	public static Set<String> getStringParameterValuesSet(String parameterName, UimaContext annotatorContext)
-			throws ResourceAccessException {
-		Set<String> returnValues = new HashSet<String>();
+	public static Set<String> getStringParameterValuesSet(String parameterName, UimaContext annotatorContext) {
+		Set<String> returnValues = new HashSet<>();
 		String[] strings = (String[]) annotatorContext.getConfigParameterValue(parameterName);
 		if (strings == null)
 			return returnValues;
@@ -52,18 +49,21 @@ public class ParamUtil {
 	}
 
 	public static Map<String, String> getStringParameterValuesMap(String parameterName,
-			UimaContext annotatorContext, String keyValueDelimiter) throws ResourceAccessException {
+			UimaContext annotatorContext, String keyValueDelimiter) {
 		String[] paramValues = (String[]) annotatorContext.getConfigParameterValue(parameterName);
-		Map<String, String> map = new HashMap<String, String>();
-		for (int i = 0; i < paramValues.length; i++) {
-			int delimiterIndex = paramValues[i].lastIndexOf(keyValueDelimiter);
-			if (delimiterIndex == -1)
-				continue;
-			String key = paramValues[i].substring(0, delimiterIndex);
-			String value = paramValues[i].substring(delimiterIndex + 1);
-			map.put(key, value);
-		}
-		return map;
+		return getStringParameterValuesMap(paramValues, keyValueDelimiter);
 	}
-
+	
+	public static Map<String, String> getStringParameterValuesMap(String[] paramValues, String keyValueDelimiter){
+    Map<String, String> map = new HashMap<>();
+    for (int i = 0; i < paramValues.length; i++) {
+      int delimiterIndex = paramValues[i].lastIndexOf(keyValueDelimiter);
+      if (delimiterIndex == -1)
+        continue;
+      String key = paramValues[i].substring(0, delimiterIndex);
+      String value = paramValues[i].substring(delimiterIndex + 1);
+      map.put(key, value);
+    }
+    return map;
+	}
 }
