@@ -26,12 +26,13 @@ import org.apache.ctakes.typesystem.type.syntax.Chunk;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorConfigurationException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.uimafit.component.JCasAnnotator_ImplBase;
+import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.util.JCasUtil;
 
 /**
@@ -61,26 +62,32 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 	 * The pattern of chunks that trigger an adjustment.
 	 * 
 	 */
-	public static final String PARAM_CHUNK_PATTERN = "ChunkPattern";
+  public static final String PARAM_CHUNK_PATTERN = "ChunkPattern";
+  @ConfigurationParameter(
+      name = PARAM_CHUNK_PATTERN,
+      mandatory = true,
+      description = "The pattern of chunks that trigger an adjustment"
+      )
+  private String[] chunksTypesInPattern;
 
 	/**
 	 * The index of the token (within the pattern) to extend the end offset to
 	 * include. E.g. is 2 to extend the first NP to include the last NP in NP PP
 	 * NP.
 	 */
-	public static final String PARAM_EXTEND_TO_INCLUDE_TOKEN = "IndexOfTokenToInclude";
+  public static final String PARAM_EXTEND_TO_INCLUDE_TOKEN = "IndexOfTokenToInclude";
+  @ConfigurationParameter(
+      name = PARAM_EXTEND_TO_INCLUDE_TOKEN,
+      mandatory = true,
+      description = "The index of the token in the pattern to extend to the end offset"
+      )
+  private int indexOfTokenToInclude;
 
 	// TODO Consider adding a parameter for the type of annotation to look for
 	// pattern within, instead of always Sentence
 
 	// LOG4J logger based on class name
 	private Logger logger = Logger.getLogger(getClass().getName());
-
-	private UimaContext context;
-
-	private String[] chunksTypesInPattern;
-
-	private int indexOfTokenToInclude;
 
 	/**
 	 * Performs initialization logic. This implementation just reads values for
@@ -95,25 +102,13 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 
 		super.initialize(aContext);
 
-		context = aContext;
-
 		configInit();
-
 	}
 
 	/**
 	 * Sets configuration parameters with values from the descriptor.
 	 */
 	private void configInit() throws ResourceInitializationException {
-
-		// populate the HashSet of words that we will ignore when pattern
-		// matching
-		chunksTypesInPattern = (String[]) context
-				.getConfigParameterValue(PARAM_CHUNK_PATTERN);
-		indexOfTokenToInclude = ((Integer) context
-				.getConfigParameterValue(PARAM_EXTEND_TO_INCLUDE_TOKEN))
-				.intValue();
-
 		// TODO Consider validating values in pattern to type system
 
 		if (indexOfTokenToInclude < 0
@@ -134,19 +129,19 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 	 * the pattern is found.
 	 */
 	@Override
-  public void process(JCas jcas)
-			throws AnalysisEngineProcessException {
+	public void process(JCas jcas)
+	    throws AnalysisEngineProcessException {
 
-		logger.info(" process(JCas)");
+	  logger.info(" process(JCas)");
 
-		try {
-			Collection<Sentence> sentences = JCasUtil.select(jcas, Sentence.class);
-			for(Sentence sentence : sentences){
-			  annotateSentence(jcas, sentence);
-			}
-		} catch (Exception e) {
-			throw new AnalysisEngineProcessException(e);
-		}
+	  try {
+	    Collection<Sentence> sentences = JCasUtil.select(jcas, Sentence.class);
+	    for(Sentence sentence : sentences){
+	      annotateSentence(jcas, sentence);
+	    }
+	  } catch (Exception e) {
+	    throw new AnalysisEngineProcessException(e);
+	  }
 	}
 
 	protected void annotateSentence(JCas jcas, Sentence sent) throws AnalysisEngineProcessException{
