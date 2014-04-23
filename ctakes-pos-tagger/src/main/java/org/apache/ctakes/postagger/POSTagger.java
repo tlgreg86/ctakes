@@ -50,25 +50,23 @@
 
 package org.apache.ctakes.postagger;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import opennlp.tools.postag.POSModel;
 
-import org.apache.log4j.Logger;
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.FSIterator;
-import org.apache.uima.cas.text.AnnotationIndex;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.log4j.Logger;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.uimafit.component.JCasAnnotator_ImplBase;
+import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.util.JCasUtil;
 
 public class POSTagger extends JCasAnnotator_ImplBase {
 
@@ -82,6 +80,13 @@ public class POSTagger extends JCasAnnotator_ImplBase {
 	 * resources/models/README.
 	 */
 	public static final String POS_MODEL_FILE_PARAM = "PosModelFile";
+	@ConfigurationParameter(
+	    name = POS_MODEL_FILE_PARAM,
+	    mandatory = false,
+	    defaultValue = "org/apache/ctakes/postagger/models/mayo-pos.zip",
+	    description = "Model file for OpenNLP POS tagger"
+	    )
+	private String posModelPath;
 	private opennlp.tools.postag.POSTaggerME tagger;
 
 	@Override
@@ -89,77 +94,45 @@ public class POSTagger extends JCasAnnotator_ImplBase {
 			throws ResourceInitializationException {
 		super.initialize(uimaContext);
 
-		String posModelPath = null;
-		InputStream fis = null;
+    logger.info("POS tagger model file: " + posModelPath);
 
-		try {
-			posModelPath = (String) uimaContext
-					.getConfigParameterValue(POS_MODEL_FILE_PARAM);
-			logger.info("POS tagger model file: " + posModelPath);
-			fis = FileLocator.getAsStream(posModelPath);
+		try( InputStream fis = FileLocator.getAsStream(posModelPath) ) {
 			POSModel modelFile = new POSModel(fis);
 			tagger = new opennlp.tools.postag.POSTaggerME(modelFile);
-			fis.close();
 		} catch (Exception e) {
 			logger.info("Error loading POS tagger model: " + posModelPath);
 			throw new ResourceInitializationException(e);
-		} finally {
-			try {
-				if (fis != null) {
-					fis.close();
-				}
-			} catch (IOException e) {
-				throw new ResourceInitializationException(e);
-			}
 		}
 	}
 
-	public void process(JCas jCas) throws AnalysisEngineProcessException {
+	@Override
+  public void process(JCas jCas) throws AnalysisEngineProcessException {
 
 		logger.info("process(JCas)");
 
-		List<BaseToken> tokens = new ArrayList<BaseToken>();
-		List<String> words = new ArrayList<String>();
+		Collection<Sentence> sentences = JCasUtil.select(jCas, Sentence.class);
+		for(Sentence sentence : sentences){
 
-		AnnotationIndex baseTokenIndex = jCas
-				.getAnnotationIndex(BaseToken.type);
-
-		FSIterator sentences = jCas.getAnnotationIndex(Sentence.type)
-				.iterator();
-
-		while (sentences.hasNext()) {
-			Sentence sentence = (Sentence) sentences.next();
-
-			tokens.clear();
-			words.clear();
-
-			FSIterator tokenIterator = baseTokenIndex.subiterator(sentence);
-			while (tokenIterator.hasNext()) {
-				BaseToken token = (BaseToken) tokenIterator.next();
-				tokens.add(token);
-				words.add(token.getCoveredText());
+			List<BaseToken> tokens = JCasUtil.selectCovered(BaseToken.class, sentence);
+			String[] words = new String[tokens.size()];
+			for(int i = 0; i < words.length; i++){
+			  words[i] = tokens.get(i).getCoveredText();
 			}
+			
+			if (words.length > 0) {
+				String[] wordTagList = tagger.tag(words);
 
-			List<?> wordTagList = null; // List of BaseToken's
-			if (words.size() > 0) {
-				wordTagList = tagger.tag(words);
-			}
-			// else {
-			// logger.info("sentence has no words = '" +
-			// sentence.getCoveredText()
-			// + "' at (" +sentence.getBegin() + "," + sentence.getEnd() + ")");
-			// }
-
-			try {
-				for (int i = 0; i < tokens.size(); i++) {
-					BaseToken token = (BaseToken) tokens.get(i);
-					String posTag = (String) wordTagList.get(i);
-					token.setPartOfSpeech(posTag);
+				try {
+				  for (int i = 0; i < tokens.size(); i++) {
+				    BaseToken token = tokens.get(i);
+				    String posTag = wordTagList[i];
+				    token.setPartOfSpeech(posTag);
+				  }
+				} catch (IndexOutOfBoundsException e) {
+				  throw new AnalysisEngineProcessException(
+				      "sentence being tagged is: '"
+				          + sentence.getCoveredText() + "'", null, e);
 				}
-			} catch (IndexOutOfBoundsException e) {
-				throw new AnalysisEngineProcessException(
-						"sentence being tagged is: '"
-								+ sentence.getCoveredText() + "'", null, e);
 			}
 		}
 	}
