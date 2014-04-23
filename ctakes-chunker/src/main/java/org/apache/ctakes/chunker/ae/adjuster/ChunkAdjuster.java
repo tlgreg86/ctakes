@@ -150,7 +150,7 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 	}
 
 	protected void annotateSentence(JCas jcas, Sentence sent) throws AnalysisEngineProcessException{
-    List<Chunk> chunkList = new ArrayList<Chunk>(JCasUtil.selectCovered(jcas, Chunk.class, sent));
+    List<Chunk> chunkList = new ArrayList<>(JCasUtil.selectCovered(jcas, Chunk.class, sent));
 
     // For each chunk in the Sentence, see if the chunk is the start of a
     // matching pattern
@@ -186,7 +186,7 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 		// Find the Chunks in this Sentence
 		// For each Chunk, there is a corresponding more specific such as NP,
 		// PP, etc
-		List<Chunk> chunkList = new ArrayList<Chunk>(JCasUtil.selectCovered(jcas, Chunk.class, rangeBegin, rangeEnd));
+		List<Chunk> chunkList = new ArrayList<>(JCasUtil.selectCovered(jcas, Chunk.class, rangeBegin, rangeEnd));
 
 		// For each chunk in the Sentence, see if the chunk is the start of a
 		// matching pattern
