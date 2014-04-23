@@ -34,7 +34,7 @@ import org.apache.ctakes.typesystem.type.syntax.Chunk;
 public class DefaultChunkCreator implements ChunkCreator {
 
 	public void initialize(UimaContext annotatorContext) throws ResourceInitializationException {
-
+	  /* no initialization necessary */
 	}
 
 	public Annotation createChunk(JCas jCas, int start, int end, String chunkType) {

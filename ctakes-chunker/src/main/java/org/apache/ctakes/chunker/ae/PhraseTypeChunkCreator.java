@@ -49,7 +49,7 @@ public class PhraseTypeChunkCreator implements ChunkCreator {
 
 	
 	public void initialize(UimaContext uimaContext) throws ResourceInitializationException {
-		
+		/* no initialization required */
 	}
 
 	public Annotation createChunk(JCas jCas, int start, int end, String chunkType) {
