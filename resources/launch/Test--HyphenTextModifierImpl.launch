@@ -9,5 +9,5 @@
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.apache.ctakes.core.ci.HyphenTextModifierImpl"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;../ctakes-core/resources/tokenizer/hyphenated.txt&quot;"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="core"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ctakes-core"/>
 </launchConfiguration>

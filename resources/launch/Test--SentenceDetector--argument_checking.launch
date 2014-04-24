@@ -10,5 +10,5 @@
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.apache.ctakes.core.ae.SentenceDetector"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="test_handling_of_file_does_not_exist&#13;&#10;filename_for_your_model&#13;&#10;5&#13;&#10;one_hundred"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="core"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ctakes-core"/>
 </launchConfiguration>
