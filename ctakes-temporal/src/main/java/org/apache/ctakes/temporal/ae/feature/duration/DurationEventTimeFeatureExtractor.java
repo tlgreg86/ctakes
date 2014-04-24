@@ -36,7 +36,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 /**
- * Assumes all relations whose argument have no duration data have been deleted.
+ * Calculate probability that CONTAINS relation can exist between two arguments.
  */
 public class DurationEventTimeFeatureExtractor implements RelationFeaturesExtractor {
 
@@ -60,16 +60,18 @@ public class DurationEventTimeFeatureExtractor implements RelationFeaturesExtrac
     Map<String, Float> eventDistribution = textToDistribution.get(eventText);
 
     HashSet<String> timeUnits = Utils.getTimeUnits(timeText);
+    
+    // sum probabilities for all duration bins up to the time unit
     for(String timeUnit : timeUnits) {
-      Map<String, Float> timeDistribution = Utils.convertToDistribution(timeUnit);
-      for(String bin : Utils.bins) {
-        features.add(new Feature("bin_diff_" + bin, timeDistribution.get(bin) - eventDistribution.get(bin)));
+      float cumulativeProbability = 0f;
+      for(String bin : Utils.bins) { 
+        if(bin.equals(timeUnit)) {
+          cumulativeProbability = cumulativeProbability + eventDistribution.get(bin); 
+          break;
+        }
+        cumulativeProbability = cumulativeProbability + eventDistribution.get(bin); 
       }
-
-      float eventExpectedDuration = Utils.expectedDuration(eventDistribution);
-      float timeExpectedDuration = Utils.expectedDuration(timeDistribution);
-      features.add(new Feature("duration_difference", timeExpectedDuration - eventExpectedDuration));
-
+      features.add(new Feature("cumulative_probability", cumulativeProbability));
       break; // for now only use firs time unit
     }
 
