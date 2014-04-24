@@ -60,21 +60,17 @@ public class DurationEventTimeFeatureExtractor implements RelationFeaturesExtrac
     Map<String, Float> eventDistribution = textToDistribution.get(eventText);
 
     HashSet<String> timeUnits = Utils.getTimeUnits(timeText);
-    
-    // sum probabilities for all duration bins up to the time unit
-    for(String timeUnit : timeUnits) {
-      float cumulativeProbability = 0f;
-      for(String bin : Utils.bins) { 
-        if(bin.equals(timeUnit)) {
-          cumulativeProbability = cumulativeProbability + eventDistribution.get(bin); 
-          break;
-        }
+    String timeUnit = timeUnits.iterator().next();
+    float cumulativeProbability = 0f;
+    for(String bin : Utils.bins) { 
+      if(bin.equals(timeUnit)) {
         cumulativeProbability = cumulativeProbability + eventDistribution.get(bin); 
+        break;
       }
-      features.add(new Feature("cumulative_probability", cumulativeProbability));
-      break; // for now only use firs time unit
+      cumulativeProbability = cumulativeProbability + eventDistribution.get(bin); 
     }
-
+    features.add(new Feature("cumulative_probability", cumulativeProbability));
+    
     return features; 
   }
 }
