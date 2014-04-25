@@ -38,6 +38,7 @@ import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.cleartk.util.ViewURIUtil;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.pipeline.SimplePipeline;
@@ -110,24 +111,13 @@ public class GoldRelationViewer {
         relationLookup.put(Arrays.asList(arg1, arg2), relation);
       }
 
+      File noteFile = new File(ViewURIUtil.getURI(jCas).toString());
+      String fileName = noteFile.getName();
+      
       for(Sentence sentence : JCasUtil.select(systemView, Sentence.class)) {
         List<String> formattedRelationsInSentence = new ArrayList<>();
         List<EventMention> eventMentionsInSentence = JCasUtil.selectCovered(goldView, EventMention.class, sentence);
         List<TimeMention> timeMentionsInSentence = JCasUtil.selectCovered(goldView, TimeMention.class, sentence);
-        
-        // retrieve event-event relations in this sentence
-        for(EventMention mention1 : eventMentionsInSentence) {
-          for(EventMention mention2 : eventMentionsInSentence) {
-            if(mention1 == mention2) {
-              continue;
-            }
-            BinaryTextRelation relation = relationLookup.get(Arrays.asList(mention1, mention2));
-            if(relation != null) {
-              String text = String.format("%s(%s, %s)", relation.getCategory(), mention1.getCoveredText(), mention2.getCoveredText());
-              formattedRelationsInSentence.add(text);
-            }
-          }
-        }
         
         // retrieve event-time relations in this sentece
         for(EventMention eventMention : eventMentionsInSentence) {
@@ -147,8 +137,22 @@ public class GoldRelationViewer {
           }
         }
         
+        // retrieve event-event relations in this sentence
+        for(EventMention mention1 : eventMentionsInSentence) {
+          for(EventMention mention2 : eventMentionsInSentence) {
+            if(mention1 == mention2) {
+              continue;
+            }
+            BinaryTextRelation relation = relationLookup.get(Arrays.asList(mention1, mention2));
+            if(relation != null) {
+              String text = String.format("%s(%s, %s)", relation.getCategory(), mention1.getCoveredText(), mention2.getCoveredText());
+              formattedRelationsInSentence.add(text);
+            }
+          }
+        }
+        
         if(formattedRelationsInSentence.size() > 0) {
-          System.out.println(sentence.getCoveredText());
+          System.out.println(fileName + ": " + sentence.getCoveredText());
           for(String text : formattedRelationsInSentence) {
             System.out.println(text);
           }
