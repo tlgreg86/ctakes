@@ -21,14 +21,19 @@ package org.apache.ctakes.core.ae;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
 
+import org.apache.ctakes.typesystem.type.textspan.Segment;
+import org.apache.ctakes.utils.test.TestUtil;
+import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.junit.Test;
-
-import org.apache.ctakes.typesystem.type.textspan.Segment;
-import org.apache.ctakes.utils.test.TestUtil;
+import org.uimafit.factory.JCasFactory;
+import org.uimafit.pipeline.SimplePipeline;
+import org.uimafit.util.JCasUtil;
 
 public class SimpleSegmentAnnotatorTests {
 
@@ -40,5 +45,25 @@ public class SimpleSegmentAnnotatorTests {
 		assertEquals(0, segment.getBegin());
 		assertEquals(42, segment.getEnd());
 		assertEquals("seg1234", segment.getId());
+	}
+	
+	@Test
+	public void testSimpleSegmentUimaFit() throws UIMAException, IOException {
+	  JCas jcas = JCasFactory.createJCas();
+	  String doc = "Patient suffers from a shattered tibia and facial contusions. Recommend bed rest, aspirin, and ice.";
+	  jcas.setDocumentText(doc);
+	  SimplePipeline.runPipeline(jcas, SimpleSegmentAnnotator.createAnnotatorDescription());
+	  Collection<Segment> segs = JCasUtil.select(jcas, Segment.class);
+	  assertEquals(segs.size(), 1);
+	  Segment seg = segs.toArray(new Segment[]{})[0];
+	  assert(seg.getId().equals("SIMPLE_SEGMENT"));
+	  
+	  jcas = JCasFactory.createJCas();
+	  jcas.setDocumentText(doc);
+    SimplePipeline.runPipeline(jcas, SimpleSegmentAnnotator.createAnnotatorDescription("TestId"));
+    segs = JCasUtil.select(jcas, Segment.class);
+    assertEquals(segs.size(), 1);
+    seg = segs.toArray(new Segment[]{})[0];
+    assertEquals("Segment ids do not match!", seg.getId(), "TestId");  
 	}
 }

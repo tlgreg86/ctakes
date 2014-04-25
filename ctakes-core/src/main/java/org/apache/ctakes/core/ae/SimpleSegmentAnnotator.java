@@ -20,10 +20,13 @@ package org.apache.ctakes.core.ae;
 
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.factory.AnalysisEngineFactory;
 
 /**
  * Creates a single segment annotation that spans the entire document. This is
@@ -59,5 +62,15 @@ public class SimpleSegmentAnnotator extends JCasAnnotator_ImplBase {
 		segment.setEnd(jCas.getDocumentText().length());
 		segment.setId(segmentId);
 		segment.addToIndexes();
+	}
+	
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
+	  return AnalysisEngineFactory.createPrimitiveDescription(SimpleSegmentAnnotator.class);
+	}
+	
+	public static AnalysisEngineDescription createAnnotatorDescription(String segmentID) throws ResourceInitializationException {
+    return AnalysisEngineFactory.createPrimitiveDescription(SimpleSegmentAnnotator.class,
+        SimpleSegmentAnnotator.PARAM_SEGMENT_ID,
+        segmentID);
 	}
 }
