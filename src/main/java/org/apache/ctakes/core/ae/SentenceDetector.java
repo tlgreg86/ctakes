@@ -48,12 +48,14 @@ import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.util.JCasUtil;
 
 /**
@@ -247,6 +249,12 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		return sentenceCount;
 	}
 
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
+	  return AnalysisEngineFactory.createPrimitiveDescription(SentenceDetector.class,
+	      SentenceDetector.PARAM_SD_MODEL_FILE,
+	      "org/apache/ctakes/core/sentdetect/sd-med-model.zip");
+	}
+	
 	/**
 	 * Train a new sentence detector from the training data in the first file
 	 * and write the model to the second file.<br>

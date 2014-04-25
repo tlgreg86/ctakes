@@ -9,6 +9,7 @@ import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.junit.Test;
@@ -48,11 +49,25 @@ public class SentenceDetectorAnnotatorTest {
     segs = JCasUtil.select(jcas, Segment.class);
     assertEquals(segs.size(), 1);
     
-    // test # sentences -- if it skips MEDS and Instructions it should be 3 from the physical exam section only.
+    // test # sentences -- default should be 8.
+    sents = JCasUtil.select(jcas, Sentence.class);
+    assertEquals(sents.size(), 8);
+    
+    jcas = JCasFactory.createJCas();
+    jcas.setDocumentText(note);
+    SimplePipeline.runPipeline(jcas, getUimaFitPipeline());
+    // test # sentences -- default should be 8.
     sents = JCasUtil.select(jcas, Sentence.class);
     assertEquals(sents.size(), 8);
   }
   
+  private static AnalysisEngineDescription getUimaFitPipeline() throws ResourceInitializationException {
+    AggregateBuilder builder = new AggregateBuilder();
+    builder.add(SimpleSegmentAnnotator.createAnnotatorDescription());
+    builder.add(SentenceDetector.createAnnotatorDescription());
+    return builder.createAggregateDescription();
+  }
+
   private static AnalysisEngine getSegmentingPipeline() throws ResourceInitializationException{
     AggregateBuilder aggregateBuilder = new AggregateBuilder();
 
