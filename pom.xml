@@ -106,7 +106,6 @@
 		<module>ctakes-smoking-status</module>
 		<module>ctakes-dependency-parser</module>
 		<module>ctakes-relation-extractor</module>
-		<module>ctakes-pad-term-spotter</module>
 		<module>ctakes-assertion</module>
 		<module>ctakes-assertion-zoner</module>
 		<module>ctakes-temporal</module>
@@ -121,7 +120,6 @@
 		<module>ctakes-dependency-parser-res</module>
 		<module>ctakes-dictionary-lookup-res</module>
 		<module>ctakes-lvg-res</module>
-		<module>ctakes-pad-term-spotter-res</module>
 		<module>ctakes-pos-tagger-res</module>
 		<module>ctakes-relation-extractor-res</module>
 		<module>ctakes-side-effect-res</module>
@@ -214,21 +212,7 @@
 					ctakes-clinical-pipeline
 				</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.ctakes</groupId>
-				<artifactId>
-					ctakes-pad-term-spotter
-				</artifactId>
-				<version>${ctakes.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.ctakes</groupId>
-				<artifactId>
-					ctakes-pad-term-spotter-res
-				</artifactId>
-				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>		
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -727,7 +711,6 @@
 						    <additionalClasspathElement>ctakes-drug-ner-res/src/main/resources</additionalClasspathElement>						    						    					    						    						    						    						    
 						    <additionalClasspathElement>ctakes-lvg-res/src/main/resources</additionalClasspathElement>
 						    <additionalClasspathElement>ctakes-ne-contexts-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-pad-term-spotter-res/src/main/resources</additionalClasspathElement>
 						    <additionalClasspathElement>ctakes-pos-tagger-res/src/main/resources</additionalClasspathElement>						    
 						    <additionalClasspathElement>ctakes-relation-extractor-res/src/main/resources</additionalClasspathElement>
 						    <additionalClasspathElement>ctakes-side-effect-res/src/main/resources</additionalClasspathElement>

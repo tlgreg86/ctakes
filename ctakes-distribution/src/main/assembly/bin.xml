@@ -47,7 +47,6 @@
 				<include>org.apache.ctakes:ctakes-drug-ner</include>
 				<include>org.apache.ctakes:ctakes-lvg</include>
 				<include>org.apache.ctakes:ctakes-ne-contexts</include>
-				<include>org.apache.ctakes:ctakes-pad-term-spotter</include>
 				<include>org.apache.ctakes:ctakes-pos-tagger</include>
 				<include>org.apache.ctakes:ctakes-preprocessor</include>
 				<include>org.apache.ctakes:ctakes-relation-extractor</include>
@@ -298,19 +297,7 @@
 		    <outputDirectory>resources</outputDirectory>
 			<fileMode>644</fileMode>
 			<directoryMode>755</directoryMode>
-    	</fileSet>      	 	
-		<fileSet>
-		    <directory>../ctakes-pad-term-spotter/src/main/resources</directory>
-		    <outputDirectory>resources</outputDirectory>
-			<fileMode>644</fileMode>
-			<directoryMode>755</directoryMode>
-    	</fileSet>    	
-		<fileSet>
-		    <directory>../ctakes-pad-term-spotter-res/src/main/resources</directory>
-		    <outputDirectory>resources</outputDirectory>
-			<fileMode>644</fileMode>
-			<directoryMode>755</directoryMode>
-    	</fileSet>       	
+    	</fileSet>      	 	    	
 		<fileSet>
 		    <directory>../ctakes-pos-tagger/src/main/resources</directory>
 		    <outputDirectory>resources</outputDirectory>
