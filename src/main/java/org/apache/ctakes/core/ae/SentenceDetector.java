@@ -20,15 +20,14 @@ package org.apache.ctakes.core.ae;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import opennlp.tools.dictionary.Dictionary;
@@ -37,7 +36,6 @@ import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.sentdetect.SentenceSample;
 import opennlp.tools.sentdetect.SentenceSampleStream;
-import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
@@ -53,11 +51,10 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.JFSIndexRepository;
-import org.apache.uima.resource.ResourceAccessException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.util.JCasUtil;
 
 /**
  * Wraps the OpenNLP sentence detector in a UIMA annotator
@@ -131,14 +128,11 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 
 		String text = jcas.getDocumentText();
 
-		JFSIndexRepository indexes = jcas.getJFSIndexRepository();
-		Iterator<?> sectionItr = indexes.getAnnotationIndex(Segment.type)
-				.iterator();
-		while (sectionItr.hasNext()) {
-			Segment sa = (Segment) sectionItr.next();
-			String sectionID = sa.getId();
+		Collection<Segment> segments = JCasUtil.select(jcas, Segment.class);
+		for(Segment segment : segments){
+			String sectionID = segment.getId();
 			if (!skipSegmentsSet.contains(sectionID)) {
-				sentenceCount = annotateRange(jcas, text, sa, sentenceCount);
+				sentenceCount = annotateRange(jcas, text, segment, sentenceCount);
 			}
 		}
 	}
@@ -217,7 +211,7 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		// trimming the rest,
 		// and splitting any of those that contain an end-of-line character.
 		// Then trim any leading or trailing whitespace of ones that were split.
-		ArrayList<SentenceSpan> sentenceSpans = new ArrayList<SentenceSpan>(0);
+		ArrayList<SentenceSpan> sentenceSpans = new ArrayList<>(0);
 		for (int i = 0; i < potentialSentSpans.length; i++) {
 			if (potentialSentSpans[i] != null) {
 				sentenceSpans.addAll(potentialSentSpans[i]
@@ -296,35 +290,33 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 
 
 		Charset charset = Charset.forName("UTF-8");
+    SentenceModel mod = null;
 		
-		FileInputStream inStream = new FileInputStream(inFile);
-		ObjectStream<String> lineStream = new PlainTextByLineStream(inStream, charset);
-		ObjectStream<SentenceSample> sampleStream = new SentenceSampleStream(lineStream);
-		
-		SentenceModel mod;
-		
-		// Training Parameters
-		TrainingParameters mlParams = new TrainingParameters();
-		mlParams.put(TrainingParameters.ALGORITHM_PARAM, "MAXENT");
-		mlParams.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
-		mlParams.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cut));
-		
-		// Abbreviations dictionary
-		// TODO: Actually import a Dictionary of abbreviations
-		Dictionary dict = new Dictionary();
-		    
-		try {
-			mod = SentenceDetectorME.train("en", sampleStream, true, dict, mlParams);
-		} finally {
-			sampleStream.close();
-			inStream.close();
+		try(FileInputStream inStream = new FileInputStream(inFile)){
+		  ObjectStream<String> lineStream = new PlainTextByLineStream(inStream, charset);
+		  ObjectStream<SentenceSample> sampleStream = new SentenceSampleStream(lineStream);
+
+		  // Training Parameters
+		  TrainingParameters mlParams = new TrainingParameters();
+		  mlParams.put(TrainingParameters.ALGORITHM_PARAM, "MAXENT");
+		  mlParams.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
+		  mlParams.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cut));
+
+		  // Abbreviations dictionary
+		  // TODO: Actually import a Dictionary of abbreviations
+		  Dictionary dict = new Dictionary();
+
+		  try {
+		    mod = SentenceDetectorME.train("en", sampleStream, true, dict, mlParams);
+		  } finally {
+		    sampleStream.close();
+		  }
 		}
 		
-		FileOutputStream outStream = new FileOutputStream(outFile);
-		logger.info("Saving the model as: " + outFile.getAbsolutePath());
-		mod.serialize(outStream);
-		outStream.close();
-
+		try(FileOutputStream outStream = new FileOutputStream(outFile)){
+		  logger.info("Saving the model as: " + outFile.getAbsolutePath());
+		  mod.serialize(outStream);
+		}
 	}
 
 	public static void usage(Logger log) {
