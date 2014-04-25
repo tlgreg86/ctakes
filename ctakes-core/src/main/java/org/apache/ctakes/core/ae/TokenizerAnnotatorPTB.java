@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.core.ae;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -31,13 +32,11 @@ import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.FSIterator;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.JFSIndexRepository;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.util.JCasUtil;
 
 /**
  * UIMA annotator that tokenizes based on Penn Treebank rules.
@@ -87,10 +86,8 @@ public class TokenizerAnnotatorPTB extends JCasAnnotator_ImplBase
 
 		tokenCount = 0;
 
-		JFSIndexRepository indexes = jcas.getJFSIndexRepository();
-		FSIterator<Annotation> segmentItr = indexes.getAnnotationIndex(Segment.type).iterator();
-		while (segmentItr.hasNext()) {
-			Segment sa = (Segment) segmentItr.next();
+		Collection<Segment> segments = JCasUtil.select(jcas, Segment.class);
+		for(Segment sa : segments){
 			String segmentID = sa.getId();
 			if (!skipSegmentsSet.contains(segmentID)) { 
 				annotateRange(jcas, sa.getBegin(), sa.getEnd());
@@ -112,9 +109,8 @@ public class TokenizerAnnotatorPTB extends JCasAnnotator_ImplBase
 	protected void annotateRange(JCas jcas, int rangeBegin, int rangeEnd) throws AnalysisEngineProcessException {
 
 		// int tokenCount = 0; // can't start with tokenCount=0 here because this method can be called multiple times
-		JFSIndexRepository indexes = jcas.getJFSIndexRepository();
 
-		// First look for all newlines and carriage returns (which are not contained within sentences)
+	  // First look for all newlines and carriage returns (which are not contained within sentences)
 		String docText = jcas.getDocumentText();
 		for (int i = rangeBegin; i<rangeEnd; i++) {
 
@@ -140,10 +136,10 @@ public class TokenizerAnnotatorPTB extends JCasAnnotator_ImplBase
 		}
 
 		// Now process each sentence
-		FSIterator<?> sentencesIter = indexes.getAnnotationIndex(Sentence.type).iterator();
+		Collection<Sentence> sentences = JCasUtil.select(jcas, Sentence.class);
+		
 		// Tokenize each sentence, adding the tokens to the cas index
-		while (sentencesIter.hasNext()) {
-			Sentence sentence = (Sentence) sentencesIter.next();
+		for(Sentence sentence : sentences){
 			if (sentence.getBegin() < rangeBegin || sentence.getEnd() > rangeEnd) {
 				continue;
 			}
@@ -167,9 +163,8 @@ public class TokenizerAnnotatorPTB extends JCasAnnotator_ImplBase
 		}
 
 		// Now add the tokenNumber in the order of offsets
-		FSIterator<?> baseTokenIter = indexes.getAnnotationIndex(BaseToken.type).iterator();
-		while (baseTokenIter.hasNext()) {
-			BaseToken bta = (BaseToken) baseTokenIter.next();
+		Collection<BaseToken> tokens = JCasUtil.select(jcas, BaseToken.class);
+		for(BaseToken bta : tokens){
 			if (bta.getBegin()>=rangeBegin && bta.getBegin()<rangeEnd) {
 				bta.setTokenNumber(tokenCount);
 				tokenCount++;
