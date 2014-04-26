@@ -24,10 +24,12 @@ import gov.nih.nlm.nls.lvg.Lib.Category;
 import gov.nih.nlm.nls.lvg.Lib.LexItem;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,11 +42,13 @@ import java.util.Vector;
 
 import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.lvg.resource.LvgCmdApiResource;
+import org.apache.ctakes.lvg.resource.LvgCmdApiResourceImpl;
 import org.apache.ctakes.typesystem.type.syntax.Lemma;
 import org.apache.ctakes.typesystem.type.syntax.WordToken;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
@@ -53,6 +57,8 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
+import org.uimafit.factory.AnalysisEngineFactory;
+import org.uimafit.factory.ExternalResourceFactory;
 
 /**
  * UIMA annotator that uses the UMLS LVG package to find the canonical form of
@@ -67,7 +73,10 @@ import org.uimafit.descriptor.ExternalResource;
  *         misspelling is a word in the lexicon.
  */
 public class LvgAnnotator extends JCasAnnotator_ImplBase {
-	/**
+  public static final String[] defaultExclusionWords = {"And", "and", "By", "by", "For", "for", "In", "in", "Of", "of", "On", "on", "The", "the", "To", "to", "With", "with"};
+  public static final String[] defaultTreebankMap = {"adj|JJ", "adv|RB", "aux|AUX", "compl|CS", "conj|CC", "det|DET", "modal|MD", "noun|NN", "prep|IN", "pron|PRP", "verb|VB"};
+
+  /**
 	 * Value is "PostLemmas". This parameter determines whether the feature
 	 * lemmaEntries will be populated for word annotations.
 	 */
@@ -141,10 +150,10 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	public static final String PARAM_XT_MAP = "XeroxTreebankMap";
 	@ConfigurationParameter(
 	    name = PARAM_XT_MAP,
-	    mandatory = true,
+	    mandatory = false,
 	    description = "Mapping from Xerox parts of speech to Treebank equivalents"
 	    )
-	private String[] xtMaps;
+	private String[] xtMaps = defaultTreebankMap;
   private Map<String, String> xeroxTreebankMap;
 	
 	public static final String PARAM_USE_CMD_CACHE = "UseCmdCache";
@@ -178,16 +187,15 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	@ConfigurationParameter(
 	    name = PARAM_EXCLUSION_WORDS,
 	    mandatory = false,
-	    defaultValue = {"And", "and", "By", "by", "For", "for", "In", "in", "Of", "of", "On", "on", "The", "the", "To", "to", "With", "with"},
 	    description = "Words to exclude when doing LVG normalization"
 	    )
-	String[] wordsToExclude;
+	private String[] wordsToExclude = defaultExclusionWords;
   private Set<String> exclusionSet;
-	
+  
 	// LOG4J logger based on class name
 	private Logger logger = Logger.getLogger(getClass().getName());
 
-	private final String PARAM_LVGCMDAPI_RESRC_KEY = "LvgCmdApi";
+	public static final String PARAM_LVGCMDAPI_RESRC_KEY = "LvgCmdApi";
   @ExternalResource(
       key = PARAM_LVGCMDAPI_RESRC_KEY,
       mandatory = true
@@ -552,6 +560,28 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 		}
 	}
 
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException, URISyntaxException{
+	  return AnalysisEngineFactory.createPrimitiveDescription(LvgAnnotator.class,
+        LvgAnnotator.PARAM_USE_CMD_CACHE,
+        false,
+        LvgAnnotator.PARAM_USE_LEMMA_CACHE,
+        false,
+        LvgAnnotator.PARAM_USE_SEGMENTS,
+        false,
+	      LvgAnnotator.PARAM_LEMMA_CACHE_FREQUENCY_CUTOFF,
+	      20,
+	      LvgAnnotator.PARAM_LEMMA_FREQ_CUTOFF,
+	      20,
+	      LvgAnnotator.PARAM_POST_LEMMAS,
+	      false,
+	      LvgAnnotator.PARAM_LVGCMDAPI_RESRC_KEY,
+	      ExternalResourceFactory.createExternalResourceDescription(
+            LvgCmdApiResourceImpl.class,
+            new File(LvgCmdApiResourceImpl.class.getResource(
+                "/org/apache/ctakes/lvg/data/config/lvg.properties").toURI()))
+	      );
+	}
+	
 	/**
 	 * Basic class to group a lemma word with its various parts of speech.
 	 * 
