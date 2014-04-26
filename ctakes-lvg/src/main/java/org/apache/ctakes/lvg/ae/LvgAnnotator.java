@@ -560,26 +560,30 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 		}
 	}
 
-	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException, URISyntaxException{
-	  return AnalysisEngineFactory.createPrimitiveDescription(LvgAnnotator.class,
-        LvgAnnotator.PARAM_USE_CMD_CACHE,
-        false,
-        LvgAnnotator.PARAM_USE_LEMMA_CACHE,
-        false,
-        LvgAnnotator.PARAM_USE_SEGMENTS,
-        false,
-	      LvgAnnotator.PARAM_LEMMA_CACHE_FREQUENCY_CUTOFF,
-	      20,
-	      LvgAnnotator.PARAM_LEMMA_FREQ_CUTOFF,
-	      20,
-	      LvgAnnotator.PARAM_POST_LEMMAS,
-	      false,
-	      LvgAnnotator.PARAM_LVGCMDAPI_RESRC_KEY,
-	      ExternalResourceFactory.createExternalResourceDescription(
-            LvgCmdApiResourceImpl.class,
-            new File(LvgCmdApiResourceImpl.class.getResource(
-                "/org/apache/ctakes/lvg/data/config/lvg.properties").toURI()))
-	      );
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
+	  try {
+      return AnalysisEngineFactory.createPrimitiveDescription(LvgAnnotator.class,
+          LvgAnnotator.PARAM_USE_CMD_CACHE,
+          false,
+          LvgAnnotator.PARAM_USE_LEMMA_CACHE,
+          false,
+          LvgAnnotator.PARAM_USE_SEGMENTS,
+          false,
+          LvgAnnotator.PARAM_LEMMA_CACHE_FREQUENCY_CUTOFF,
+          20,
+          LvgAnnotator.PARAM_LEMMA_FREQ_CUTOFF,
+          20,
+          LvgAnnotator.PARAM_POST_LEMMAS,
+          false,
+          LvgAnnotator.PARAM_LVGCMDAPI_RESRC_KEY,
+          ExternalResourceFactory.createExternalResourceDescription(
+              LvgCmdApiResourceImpl.class,
+              new File(LvgCmdApiResourceImpl.class.getResource(
+                  "/org/apache/ctakes/lvg/data/config/lvg.properties").toURI()))
+          );
+    } catch (URISyntaxException e) {
+      throw new ResourceInitializationException(e);
+    }
 	}
 	
 	/**
