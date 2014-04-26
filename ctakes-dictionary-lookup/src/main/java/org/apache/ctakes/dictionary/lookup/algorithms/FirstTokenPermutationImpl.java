@@ -88,7 +88,7 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
       iv_textMetaFieldNames = textMetaFieldNames;
 
       iv_maxPermutationLevel = maxPermutationLevel;
-      iv_permCacheMap = new HashMap<Integer, List<List<Integer>>>( maxPermutationLevel );
+      iv_permCacheMap = new HashMap<>( maxPermutationLevel );
       for ( int i = 0; i <= maxPermutationLevel; i++ ) {
          final List<List<Integer>> permList = PermutationUtil.getPermutationList( i );
          iv_permCacheMap.put( i, permList );
@@ -115,7 +115,7 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
       // map of all the token end indices as keys and the tokens with those indices as values
       final Map<Integer, List<LookupToken>> ltEndOffsetMap = getMultipleEndOffsetMap( lookupTokenList );
 
-      final List<LookupHit> lookupHits = new ArrayList<LookupHit>();
+      final List<LookupHit> lookupHits = new ArrayList<>();
       for ( int currentIndex = 0; currentIndex < lookupTokenList.size(); currentIndex++ ) {
          final LookupToken lookupToken = lookupTokenList.get( currentIndex );
          final String useForLookupString = lookupToken.getStringAttribute( LT_KEY_USE_FOR_LOOKUP );
@@ -162,7 +162,7 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
    }
 
    private Map<String,Set<MetaDataHit>> getNamedMetaDataHits( final Collection<MetaDataHit> firstTokenHits ) {
-      final Map<String,Set<MetaDataHit>> namedMetaDataHits = new HashMap<String,Set<MetaDataHit>>();
+      final Map<String,Set<MetaDataHit>> namedMetaDataHits = new HashMap<>();
       for ( MetaDataHit firstTokenHit : firstTokenHits ) {
          for ( String name : iv_textMetaFieldNames ) {
             String text = firstTokenHit.getMetaFieldValue( name );
@@ -170,7 +170,7 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
                text = text.toLowerCase();
                Set<MetaDataHit> mdhSet = namedMetaDataHits.get( text );
                if ( mdhSet == null ) {
-                  mdhSet = new HashSet<MetaDataHit>();
+                  mdhSet = new HashSet<>();
                }
                mdhSet.add( firstTokenHit );
                namedMetaDataHits.put( text, mdhSet );
@@ -193,7 +193,7 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
       }
       final Map<String,Set<MetaDataHit>> namedMetaDataHits = getNamedMetaDataHits( firstTokenHits );
 
-      final List<LookupHit> lookupHits = new ArrayList<LookupHit>();
+      final List<LookupHit> lookupHits = new ArrayList<>();
       final LookupToken firstWordLookupToken = wLookupTokenList.get( firstTokenIndex );
       final int firstWordStartOffset = firstWordLookupToken.getStartOffset();
       final int firstWordEndOffset = firstWordLookupToken.getEndOffset();
@@ -232,7 +232,7 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
             }
          }
          // convert permutation idx back into LookupTokens
-         final List<LookupToken> tempLookupTokens = new ArrayList<LookupToken>();
+         final List<LookupToken> tempLookupTokens = new ArrayList<>();
          for ( Integer idx : permutations ) {
             if ( idx <= firstTokenIndex ) {
                idx--;
@@ -322,7 +322,7 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
     * @param traverseRight -
     * @return list of lookup tokens in window, never null
     */
-   private List<LookupToken> getLookupTokenList( final int offset,
+   private static List<LookupToken> getLookupTokenList( final int offset,
                                                  final Map<Integer, List<LookupToken>> ltOffsetMap,
                                                  final boolean traverseRight ) {
       // first attempt the original offset, which will be the case most of the time
@@ -364,8 +364,8 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
                                                         final Map<LookupToken, Integer> ltListIndexMap,
                                                         final Map<Integer, List<LookupAnnotation>> wStartOffsetMap,
                                                         final Map<Integer, List<LookupAnnotation>> wEndOffsetMap ) {
-      final Set<LookupAnnotation> startCandidateSet = new HashSet<LookupAnnotation>();
-      final Set<LookupAnnotation> endCandidateSet = new HashSet<LookupAnnotation>();
+      final Set<LookupAnnotation> startCandidateSet = new HashSet<>();
+      final Set<LookupAnnotation> endCandidateSet = new HashSet<>();
 
       for ( Map.Entry<Integer, List<LookupAnnotation>> entry : wStartOffsetMap.entrySet() ) {
          final Integer startOffset = entry.getKey();
@@ -436,7 +436,7 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
     * @return -
     */
    static private Map<LookupToken, Integer> getListIndexMap( final List<LookupToken> list ) {
-      final Map<LookupToken, Integer> m = new HashMap<LookupToken, Integer>( list.size() );
+      final Map<LookupToken, Integer> m = new HashMap<>( list.size() );
       for ( int i = 0; i < list.size(); i++ ) {
          m.put( list.get( i ), i );
       }
@@ -465,12 +465,12 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
     * @return map of integers and lookup annotation lists
     */
    static private <T extends LookupAnnotation> Map<Integer, List<T>> getMultipleStartOffsetMap( final List<T> lookupAnnotList ) {
-      final Map<Integer, List<T>> m = new HashMap<Integer, List<T>>();
+      final Map<Integer, List<T>> m = new HashMap<>();
       for ( T lookupAnnotation : lookupAnnotList ) {
          final Integer key = lookupAnnotation.getStartOffset();
          List<T> list = m.get( key );
          if ( list == null ) {
-            list = new ArrayList<T>();
+            list = new ArrayList<>();
          }
          list.add( lookupAnnotation );
          m.put( key, list );
@@ -485,7 +485,7 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
     * @return map of integers and lookup annotations
     */
    static private <T extends LookupAnnotation> Map<Integer, T> getSingleEndOffsetMap( final List<T> lookupAnnotList ) {
-      final Map<Integer, T> m = new HashMap<Integer, T>();
+      final Map<Integer, T> m = new HashMap<>();
       for ( T lookupAnnotation : lookupAnnotList ) {
          final Integer key = lookupAnnotation.getEndOffset();
          m.put( key, lookupAnnotation );
@@ -500,12 +500,12 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
     * @return map of integers and lookup annotation lists
     */
    static private <T extends LookupAnnotation> Map<Integer, List<T>> getMultipleEndOffsetMap( final List<T> lookupAnnotList ) {
-      final Map<Integer, List<T>> m = new HashMap<Integer, List<T>>();
+      final Map<Integer, List<T>> m = new HashMap<>();
       for ( T lookupAnnotation : lookupAnnotList ) {
          final Integer key = lookupAnnotation.getEndOffset();
          List<T> list = m.get( key );
          if ( list == null ) {
-            list = new ArrayList<T>();
+            list = new ArrayList<>();
          }
          list.add( lookupAnnotation );
          m.put( key, list );
@@ -524,7 +524,7 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
    private Collection<MetaDataHit> getFirstTokenHits( final LookupToken firstLookupToken ) throws Exception {
       final List<LookupToken> singleTokenList = Arrays.asList( firstLookupToken );
       final String[] phrases = iv_phrBuilder.getPhrases( singleTokenList );
-      final List<MetaDataHit> metaDataHits = new ArrayList<MetaDataHit>();
+      final List<MetaDataHit> metaDataHits = new ArrayList<>();
       for ( String phrase : phrases ) {
          final Collection<MetaDataHit> phraseMetaDataHits = iv_firstTokenDictEngine.metaLookup( phrase );
          if ( !phraseMetaDataHits.isEmpty() ) {

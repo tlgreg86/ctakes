@@ -24,8 +24,6 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.ctakes.utils.env.EnvironmentVariable;
 import org.apache.log4j.Logger;
@@ -55,7 +53,8 @@ public class UmlsDictionaryLookupAnnotator extends DictionaryLookupAnnotator
 	private String UMLSUser;
 	private String UMLSPW;
 
-	public void initialize(UimaContext aContext)
+	@Override
+  public void initialize(UimaContext aContext)
 			throws ResourceInitializationException
 	{
 		super.initialize(aContext);
@@ -90,21 +89,20 @@ public class UmlsDictionaryLookupAnnotator extends DictionaryLookupAnnotator
 		URL url = new URL(umlsaddr);
 		URLConnection conn = url.openConnection();
 		conn.setDoOutput(true);
-		OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-		wr.write(data);
-		wr.flush();
-		boolean result = false;
-		BufferedReader rd = new BufferedReader(new InputStreamReader(
-				conn.getInputStream()));
-		String line;
-		while ((line = rd.readLine()) != null) {
-			if(line!=null && line.trim().length()>0)
-			{
-			 result = line.trim().equalsIgnoreCase("<Result>true</Result>");
-			}
+		try(OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+		    BufferedReader rd = new BufferedReader(new InputStreamReader(
+		        conn.getInputStream()))){
+		  wr.write(data);
+		  wr.flush();
+		  boolean result = false;
+		  String line;
+		  while ((line = rd.readLine()) != null) {
+		    if(line.trim().length()>0)
+		    {
+		      result = line.trim().equalsIgnoreCase("<Result>true</Result>");
+		    }
+		  }
+		  return result;
 		}
-		wr.close();
-		rd.close();
-		return result;
 	}
 }

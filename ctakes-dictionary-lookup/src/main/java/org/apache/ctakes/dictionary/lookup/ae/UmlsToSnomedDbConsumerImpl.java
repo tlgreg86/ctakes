@@ -37,7 +37,7 @@ import java.util.Set;
  *
  * @author Mayo Clinic
  */
-public class UmlsToSnomedDbConsumerImpl extends UmlsToSnomedConsumerImpl implements LookupConsumer {
+public class UmlsToSnomedDbConsumerImpl extends UmlsToSnomedConsumerImpl {
 
    static private final String DB_CONN_RESRC_KEY_PRP_KEY = "dbConnExtResrcKey";
    static private final String MAP_PREP_STMT_PRP_KEY = "mapPrepStmt";
@@ -83,14 +83,14 @@ public class UmlsToSnomedDbConsumerImpl extends UmlsToSnomedConsumerImpl impleme
     */
    @Override
    protected Set<String> getSnomedCodes( final String umlsCode ) throws SQLException {
-      final Set<String> codeSet = new HashSet<String>();
+      final Set<String> codeSet = new HashSet<>();
       _preparedStatement.setString( 1, umlsCode );
-      final ResultSet rs = _preparedStatement.executeQuery();
-      while ( rs.next() ) {
-         final String snomedCode = rs.getString( 1 ).trim();
-         codeSet.add( snomedCode );
+      try(final ResultSet rs = _preparedStatement.executeQuery()){
+        while ( rs.next() ) {
+          final String snomedCode = rs.getString( 1 ).trim();
+          codeSet.add( snomedCode );
+        }
       }
-      rs.close();
       return codeSet;
    }
 

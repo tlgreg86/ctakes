@@ -75,10 +75,7 @@ public class SetValuePostLookupFilterImpl
         {
             return isContained;
         }
-        else
-        {
-            return !isContained;
-        }
+        return !isContained;
     }
 
     /**

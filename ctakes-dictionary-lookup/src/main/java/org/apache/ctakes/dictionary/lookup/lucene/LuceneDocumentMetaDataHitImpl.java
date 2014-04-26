@@ -18,21 +18,25 @@
  */
 package org.apache.ctakes.dictionary.lookup.lucene;
 
-import org.apache.ctakes.dictionary.lookup.AbstractBaseMetaDataHit;
-import org.apache.ctakes.dictionary.lookup.MetaDataHit;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.index.IndexableField;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.*;
+
+import org.apache.ctakes.dictionary.lookup.AbstractBaseMetaDataHit;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
 
 
 /**
  * @author Mayo Clinic
  */
 @Immutable
-public final class LuceneDocumentMetaDataHitImpl extends AbstractBaseMetaDataHit implements MetaDataHit {
+public final class LuceneDocumentMetaDataHitImpl extends AbstractBaseMetaDataHit {
    final private Document _luceneDoc;
    final private Set<String> _nameSet;
    final private Collection<String> _valueList;
@@ -40,8 +44,8 @@ public final class LuceneDocumentMetaDataHitImpl extends AbstractBaseMetaDataHit
    public LuceneDocumentMetaDataHitImpl( final Document luceneDoc ) {
       _luceneDoc = luceneDoc;
       final List<IndexableField> fieldEnumList = _luceneDoc.getFields();
-      final Set<String> nameSet = new HashSet<String>( fieldEnumList.size() );
-      final List<String> valueList = new ArrayList<String>( fieldEnumList.size() );
+      final Set<String> nameSet = new HashSet<>( fieldEnumList.size() );
+      final List<String> valueList = new ArrayList<>( fieldEnumList.size() );
       for ( IndexableField field : fieldEnumList ) {
          nameSet.add( field.name() );
          valueList.add( field.stringValue() );

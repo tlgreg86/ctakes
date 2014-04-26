@@ -18,20 +18,27 @@
  */
 package org.apache.ctakes.dictionary.lookup.jdbc;
 
-import org.apache.ctakes.dictionary.lookup.*;
-import org.apache.ctakes.dictionary.lookup.Dictionary;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.ctakes.dictionary.lookup.AbstractBaseDictionary;
+import org.apache.ctakes.dictionary.lookup.DictionaryException;
+import org.apache.ctakes.dictionary.lookup.GenericMetaDataHitImpl;
+import org.apache.ctakes.dictionary.lookup.MetaDataHit;
 
 
 /**
  * @author Mayo Clinic
  */
-public class JdbcDictionaryImpl extends AbstractBaseDictionary implements Dictionary {
+public class JdbcDictionaryImpl extends AbstractBaseDictionary {
    final private Connection iv_dbConn;
    final private String iv_tableName;
    final private String iv_lookupFieldName;
@@ -72,9 +79,9 @@ public class JdbcDictionaryImpl extends AbstractBaseDictionary implements Dictio
 
          // translate meta data field names into columns
          // to be returned in the result set
-         final Iterator metaFieldNameItr = getMetaFieldNames();
+         final Iterator<String> metaFieldNameItr = getMetaFieldNames();
          while ( metaFieldNameItr.hasNext() ) {
-            String mdFieldName = (String) metaFieldNameItr.next();
+            String mdFieldName = metaFieldNameItr.next();
             sb.append( mdFieldName );
             sb.append( ',' );
          }
@@ -118,16 +125,16 @@ public class JdbcDictionaryImpl extends AbstractBaseDictionary implements Dictio
     */
    @Override
    public Collection<MetaDataHit> getEntries( final String text ) throws DictionaryException {
-      final Set<MetaDataHit> metaDataHitSet = new HashSet<MetaDataHit>();
+      final Set<MetaDataHit> metaDataHitSet = new HashSet<>();
       try {
          final PreparedStatement prepStmt = initMetaDataPrepStmt( text );
          final ResultSet rs = prepStmt.executeQuery();
 
          while ( rs.next() ) {
-            final Map<String, String> nameValMap = new HashMap<String, String>();
-            final Iterator metaFieldNameItr = getMetaFieldNames();
+            final Map<String, String> nameValMap = new HashMap<>();
+            final Iterator<String> metaFieldNameItr = getMetaFieldNames();
             while ( metaFieldNameItr.hasNext() ) {
-               final String metaFieldName = (String) metaFieldNameItr.next();
+               final String metaFieldName = metaFieldNameItr.next();
                final String metaFieldValue = rs.getString( metaFieldName );
                nameValMap.put( metaFieldName, metaFieldValue );
             }

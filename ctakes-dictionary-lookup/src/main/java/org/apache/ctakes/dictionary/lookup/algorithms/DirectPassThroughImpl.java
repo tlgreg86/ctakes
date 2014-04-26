@@ -61,12 +61,12 @@ public class DirectPassThroughImpl implements LookupAlgorithm
     public Collection<LookupHit> lookup(final List<LookupToken> lookupTokenList,
                                         final Map<String,List<LookupAnnotation>> contextMap) throws Exception
     {
-        List<LookupHit> lhList = new ArrayList<LookupHit>();
+        List<LookupHit> lhList = new ArrayList<>();
         for (int tokenIdx = 0; tokenIdx < lookupTokenList.size(); tokenIdx++)
         {
             LookupToken lt = lookupTokenList.get(tokenIdx);
 
-            List<LookupToken> singleLtList = new ArrayList<LookupToken>();
+            List<LookupToken> singleLtList = new ArrayList<>();
             singleLtList.add(lt);
 
             String[] strArr = iv_phrBuilder.getPhrases(singleLtList);
@@ -89,7 +89,7 @@ public class DirectPassThroughImpl implements LookupAlgorithm
 
     private Collection<MetaDataHit> getHits(String[] phrases) throws Exception
     {
-        Collection<MetaDataHit> mdhCol = new ArrayList<MetaDataHit>();
+        Collection<MetaDataHit> mdhCol = new ArrayList<>();
         for (int i = 0; i < phrases.length; i++)
         {
             Collection<MetaDataHit> curMdhCol = iv_dictEngine.metaLookup(phrases[i]);

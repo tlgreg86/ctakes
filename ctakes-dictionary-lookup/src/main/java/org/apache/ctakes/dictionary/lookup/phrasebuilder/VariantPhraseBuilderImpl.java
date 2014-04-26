@@ -42,7 +42,7 @@ public class VariantPhraseBuilderImpl implements PhraseBuilder {
     * @param useOriginalText  flag that determines whether to use the original text or not.
     */
    public VariantPhraseBuilderImpl( final String[] variantAttrNames, final boolean useOriginalText ) {
-      iv_textExtractorList = new ArrayList<TextExtractor>();
+      iv_textExtractorList = new ArrayList<>();
 
       if ( useOriginalText ) {
          // use original text as a variant
@@ -54,13 +54,12 @@ public class VariantPhraseBuilderImpl implements PhraseBuilder {
       }
    }
 
-   public String[] getPhrases( final List lookupTokenList ) {
-      final Set<String> phraseSet = new HashSet<String>();
+   public String[] getPhrases( final List<LookupToken> lookupTokenList ) {
+      final Set<String> phraseSet = new HashSet<>();
       for ( TextExtractor extractor : iv_textExtractorList ) {
          final StringBuilder sb = new StringBuilder();
          LookupToken previousLt = null;
-         for ( Object value : lookupTokenList ) {
-            final LookupToken lt = (LookupToken)value;
+         for ( LookupToken lt : lookupTokenList ) {
             String variant = extractor.getText( lt );
             if ( variant == null ) {
                variant = lt.getText();

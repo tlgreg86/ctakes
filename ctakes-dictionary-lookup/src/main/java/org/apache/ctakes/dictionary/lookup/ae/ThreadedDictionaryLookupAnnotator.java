@@ -50,14 +50,15 @@ public class ThreadedDictionaryLookupAnnotator extends JCasAnnotator_ImplBase {
    final private Logger _logger = Logger.getLogger(getClass().getName());
 
    // We need to start using types wrt generics
-   private Set _lookupSpecSet = new HashSet();
+   private Set<LookupSpec> _lookupSpecSet = new HashSet<>();
 
    // used to prevent duplicate hits
    // key = hit begin,end key (java.lang.String)
    // val = Set of MetaDataHit objects
-   private Map<LookupHitKey,Set<MetaDataHit>> _duplicateDataMap = new ConcurrentHashMap<LookupHitKey,Set<MetaDataHit>>();
+   private Map<LookupHitKey,Set<MetaDataHit>> _duplicateDataMap = new ConcurrentHashMap<>();
 
-   public void initialize( final UimaContext uimaContext ) throws ResourceInitializationException {
+   @Override
+  public void initialize( final UimaContext uimaContext ) throws ResourceInitializationException {
       super.initialize( uimaContext );
       configInit( uimaContext );
    }
@@ -66,7 +67,8 @@ public class ThreadedDictionaryLookupAnnotator extends JCasAnnotator_ImplBase {
     * Close db connections in UmlsToSnomedDbConsumerImpl
     * @throws org.apache.uima.analysis_engine.AnalysisEngineProcessException
     */
-   public void collectionProcessComplete() throws org.apache.uima.analysis_engine.AnalysisEngineProcessException {
+   @Override
+  public void collectionProcessComplete() throws org.apache.uima.analysis_engine.AnalysisEngineProcessException {
       for ( Object value : _lookupSpecSet ) {
          if ( value instanceof LookupSpec ) {
             final LookupSpec ls = (LookupSpec)value;
@@ -106,7 +108,8 @@ public class ThreadedDictionaryLookupAnnotator extends JCasAnnotator_ImplBase {
    /**
     * Entry point for processing.
     */
-   public void process( final JCas jcas ) throws AnalysisEngineProcessException {
+   @Override
+  public void process( final JCas jcas ) throws AnalysisEngineProcessException {
       _logger.info( "process(JCas)" );
       _duplicateDataMap.clear();
       int specCount = 0;
@@ -119,7 +122,7 @@ public class ThreadedDictionaryLookupAnnotator extends JCasAnnotator_ImplBase {
       final int threadCount = Math.min( specCount, procCount );
       final ExecutorService fixedThreadService = Executors.newFixedThreadPool( threadCount );
       final CompletionService<LookupDataStore> completionService
-            = new ExecutorCompletionService<LookupDataStore>( fixedThreadService );
+            = new ExecutorCompletionService<>( fixedThreadService );
       for ( Object value : _lookupSpecSet ) {
          if ( value instanceof LookupSpec ) {
             final LookupSpec ls = (LookupSpec)value;
@@ -154,7 +157,7 @@ public class ThreadedDictionaryLookupAnnotator extends JCasAnnotator_ImplBase {
 
    private LookupDataStore getLookupData( final JCas jcas, final LookupSpec lookupSpec ) {
       final LookupInitializer lookupInitializer = lookupSpec.getLookupInitializer();
-      Iterator windowItr;
+      Iterator<Annotation> windowItr;
       try {
          windowItr = lookupInitializer.getLookupWindowIterator( jcas );
       } catch ( AnnotatorInitializationException aiE ) {
@@ -163,7 +166,7 @@ public class ThreadedDictionaryLookupAnnotator extends JCasAnnotator_ImplBase {
       final LookupAlgorithm algorithm = lookupSpec.getLookupAlgorithm();
       final List<LookupHit> allHits = new ArrayList<LookupHit>();
       while (windowItr.hasNext()) {
-         final Annotation window = (Annotation) windowItr.next();
+         final Annotation window = windowItr.next();
          try {
             // ** Poor Form ** //
             // lookupInitializer.getLookupTokenIterator(jcas) depends on window, can't remove from loop
@@ -211,7 +214,7 @@ public class ThreadedDictionaryLookupAnnotator extends JCasAnnotator_ImplBase {
     * @return             -
     */
    private Collection<LookupHit> filterHitDups(final Collection<LookupHit> lookupHitCol) {
-      final List<LookupHit> uniqueHits = new ArrayList<LookupHit>();
+      final List<LookupHit> uniqueHits = new ArrayList<>();
       for ( LookupHit lookupHit : lookupHitCol ) {
          if ( !isDuplicate( lookupHit ) ) {
             uniqueHits.add( lookupHit );
@@ -234,36 +237,13 @@ public class ThreadedDictionaryLookupAnnotator extends JCasAnnotator_ImplBase {
       if (mdhDuplicateSet != null && mdhDuplicateSet.contains( metaDataHit ) ) {
          // current LookupHit is a duplicate
          return true;
-      } else {
-         mdhDuplicateSet = new HashSet<MetaDataHit>();
       }
+      mdhDuplicateSet = new HashSet<>();
       // current LookupHit is new, add it to the duplicate set for future checks
       mdhDuplicateSet.add(metaDataHit);
       _duplicateDataMap.put( lookupHitKey, mdhDuplicateSet );
       return false;
    }
-
-   /**
-    * Gets a list of LookupToken objects within the specified window annotation.
-    *
-    * @param window -
-    * @param lookupTokenItr -
-    * @return -
-    */
-   static private List<LookupToken> constrainToWindow( final Annotation window, final Iterator lookupTokenItr ) {
-      final List<LookupToken> ltObjectList = new ArrayList<LookupToken>();
-      final int begin = window.getBegin();
-      final int end = window.getEnd();
-      while (lookupTokenItr.hasNext()) {
-         final LookupToken lookupToken = (LookupToken) lookupTokenItr.next();
-         // only consider if it's within the window
-         if ( lookupToken.getStartOffset() >= begin && lookupToken.getEndOffset() <= end ) {
-            ltObjectList.add(lookupToken);
-         }
-      }
-      return ltObjectList;
-   }
-
 
    /**
     * Storage for a LookupSpec and all of its unique LookupHits
@@ -290,9 +270,11 @@ public class ThreadedDictionaryLookupAnnotator extends JCasAnnotator_ImplBase {
          __end = lookupHit.getEndOffset();
          __hashCode = 1000 * __end + __start;
       }
+      @Override
       public int hashCode() {
          return __hashCode;
       }
+      @Override
       public boolean equals( final Object object ) {
          return object instanceof LookupHitKey
                && __start == ((LookupHitKey)object).__start

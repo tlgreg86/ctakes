@@ -45,8 +45,7 @@ import java.util.Set;
  *
  * @author Mayo Clinic
  */
-public class UmlsToSnomedLuceneConsumerImpl extends UmlsToSnomedConsumerImpl implements
-                                                                             LookupConsumer {
+public class UmlsToSnomedLuceneConsumerImpl extends UmlsToSnomedConsumerImpl {
 
    // LOG4J logger based on class name
    private Logger logger = Logger.getLogger( getClass().getName() );
@@ -117,8 +116,9 @@ public class UmlsToSnomedLuceneConsumerImpl extends UmlsToSnomedConsumerImpl imp
     * @return Set of Snomed codes that map to the given UMLS code (CUI).
     * @see getSnomedCodes in <code>UmlsToSnomedConsumerImpl</code> for example of using a database
     */
-   protected Set<String> getSnomedCodes( final String umlsCode ) throws DictionaryException {
-      final Set<String> codeSet = new HashSet<String>();
+   @Override
+  protected Set<String> getSnomedCodes( final String umlsCode ) throws DictionaryException {
+      final Set<String> codeSet = new HashSet<>();
       final String valueFieldName = props.getProperty( SNOMED_MAPPING_PRP_KEY );
       // Get the entries with field lookupFieldName having value umlsCode
       final Collection<MetaDataHit> mdhCollection = snomedLikeCodesIndex.getEntries( umlsCode );

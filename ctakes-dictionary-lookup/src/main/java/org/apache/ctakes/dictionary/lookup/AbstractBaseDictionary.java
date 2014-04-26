@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public abstract class AbstractBaseDictionary implements Dictionary {
 
-    private Set<String> _metaFieldNames = new HashSet<String>();
+    private Set<String> _metaFieldNames = new HashSet<>();
 
    /**
     * TODO - get rid of the using class iterators and use Collection foreach

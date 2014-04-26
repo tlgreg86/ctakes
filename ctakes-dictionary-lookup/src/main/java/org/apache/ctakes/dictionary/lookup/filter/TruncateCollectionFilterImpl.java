@@ -35,7 +35,7 @@ import java.util.List;
 public class TruncateCollectionFilterImpl implements CollectionFilter
 {
     private int iv_mdhCount;
-    private Comparator iv_mdhComparator;
+    private Comparator<MetaDataHit> iv_mdhComparator;
 
     /**
      * Constructor
@@ -45,7 +45,7 @@ public class TruncateCollectionFilterImpl implements CollectionFilter
      * @param mdhCount
      *            Number of objects (N) to retain.
      */
-    public TruncateCollectionFilterImpl(Comparator mdhComparator, int mdhCount)
+    public TruncateCollectionFilterImpl(Comparator<MetaDataHit> mdhComparator, int mdhCount)
     {
         iv_mdhComparator = mdhComparator;
         iv_mdhCount = mdhCount;
@@ -61,7 +61,7 @@ public class TruncateCollectionFilterImpl implements CollectionFilter
             return metaDataHitCol;
         }
         
-        final List<MetaDataHit> mdhList = new ArrayList<MetaDataHit>(metaDataHitCol);
+        final List<MetaDataHit> mdhList = new ArrayList<>(metaDataHitCol);
 
         // sort the hits
         Collections.sort(mdhList, iv_mdhComparator);

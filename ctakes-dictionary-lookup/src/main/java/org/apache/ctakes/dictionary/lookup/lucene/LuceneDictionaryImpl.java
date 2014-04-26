@@ -42,7 +42,7 @@ import java.util.Set;
 /**
  * @author Mayo Clinic
  */
-public class LuceneDictionaryImpl extends AbstractBaseDictionary implements Dictionary {
+public class LuceneDictionaryImpl extends AbstractBaseDictionary {
    final private IndexSearcher iv_searcher;
    final private String iv_lookupFieldName;
    //ohnlp-Bugs-3296301 limits the search results to fixed 100 records.
@@ -75,7 +75,7 @@ public class LuceneDictionaryImpl extends AbstractBaseDictionary implements Dict
     */
    @Override
    public Collection<MetaDataHit> getEntries( final String text ) throws DictionaryException {
-      final Set<MetaDataHit> metaDataHitSet = new HashSet<MetaDataHit>();
+      final Set<MetaDataHit> metaDataHitSet = new HashSet<>();
 
       try {
          Query q = null;

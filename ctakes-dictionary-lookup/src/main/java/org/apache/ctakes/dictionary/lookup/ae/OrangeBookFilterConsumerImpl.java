@@ -43,7 +43,7 @@ import java.util.*;
  *
  * @author Mayo Clinic
  */
-public class OrangeBookFilterConsumerImpl extends BaseLookupConsumerImpl implements LookupConsumer {
+public class OrangeBookFilterConsumerImpl extends BaseLookupConsumerImpl {
    // LOG4J logger based on class name
    private final Logger iv_logger = Logger.getLogger( getClass().getName() );
 
@@ -92,7 +92,7 @@ public class OrangeBookFilterConsumerImpl extends BaseLookupConsumerImpl impleme
          final String text = jcas.getDocumentText().substring( neBegin, neEnd ).trim().toLowerCase();
          final boolean isValid = isValid( "trade_name", text ) || isValid( "ingredient", text );
          if ( isValid ) {
-            final Set<String> validCodes = new HashSet<String>();
+            final Set<String> validCodes = new HashSet<>();
             for ( LookupHit lookupHit : entry.getValue() ) {
                final MetaDataHit mdh = lookupHit.getDictMetaDataHit();
                final String code = mdh.getMetaFieldValue( CODE_MF );

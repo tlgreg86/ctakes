@@ -53,10 +53,7 @@ public class MetaDataPostLookupFilterImpl implements PostLookupFilter
             {
                 return isContained;
             }
-            else
-            {
-                return !isContained;
-            }
+            return !isContained;
         }
         catch (DictionaryException ge)
         {

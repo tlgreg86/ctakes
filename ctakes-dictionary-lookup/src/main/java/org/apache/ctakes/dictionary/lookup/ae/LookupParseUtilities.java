@@ -60,33 +60,33 @@ import org.jdom.input.SAXBuilder;
 public class LookupParseUtilities
 {
 	//returns a set of LookupSpec objects
-	public static Set parseDescriptor(File descFile, UimaContext aContext, int maxListSize)
+	public static Set<LookupSpec> parseDescriptor(File descFile, UimaContext aContext, int maxListSize)
 			throws JDOMException, IOException, Exception
 	{
 		SAXBuilder saxBuilder = new SAXBuilder();
 		Document doc = saxBuilder.build(descFile);
 		maxSizeList = maxListSize;	//ohnlp-Bugs-3296301 fixes limit the search results to fixed 100 records.
-		Map dictMap = parseDictionaries(aContext, doc.getRootElement().getChild(
+		Map<String, DictionaryEngine> dictMap = parseDictionaries(aContext, doc.getRootElement().getChild(
 				"dictionaries"));
 		//ohnlp-Bugs-3296301
 		return parseLookupBindingXml(aContext, dictMap, doc.getRootElement().getChild("lookupBindings"));
 	}
 
-	public static Set parseDescriptor(File descFile, UimaContext aContext)
+	public static Set<LookupSpec> parseDescriptor(File descFile, UimaContext aContext)
 	throws JDOMException, IOException, Exception
 	{
 		SAXBuilder saxBuilder = new SAXBuilder();
 		Document doc = saxBuilder.build(descFile);
-		Map dictMap = parseDictionaries(aContext, doc.getRootElement().getChild(
+		Map<String, DictionaryEngine> dictMap = parseDictionaries(aContext, doc.getRootElement().getChild(
 		"dictionaries"));
 		//ohnlp-Bugs-3296301
 		return parseLookupBindingXml(aContext, dictMap, doc.getRootElement().getChild("lookupBindings"));
 	}
-	private static Map parseDictionaries(UimaContext aContext,
+	private static Map<String, DictionaryEngine> parseDictionaries(UimaContext aContext,
 			Element dictetteersEl) throws AnnotatorContextException, Exception
 	{
-		Map m = new HashMap();
-		Iterator dictItr = dictetteersEl.getChildren().iterator();
+		Map<String, DictionaryEngine> m = new HashMap<>();
+		Iterator<?> dictItr = dictetteersEl.getChildren().iterator();
 		while (dictItr.hasNext())
 		{
 			Element dictEl = (Element) dictItr.next();
@@ -162,19 +162,21 @@ public class LookupParseUtilities
             }
             
             File csvFile = ((FileResource) extResrc).getFile();
-            StringTable strTable = StringTableFactory.build(
-                    new FileReader(csvFile),
-                    fieldDelimiter,
-                    idxFieldNameArr,
-                    true);
-            dict = new StringTableDictionaryImpl(strTable, lookupFieldName);
+            try(FileReader fr = new FileReader(csvFile)){
+              StringTable strTable = StringTableFactory.build(
+                  fr,
+                  fieldDelimiter,
+                  idxFieldNameArr,
+                  true);
+              dict = new StringTableDictionaryImpl(strTable, lookupFieldName);
+            }
         }
 		else
 		{
 			throw new Exception("Unsupported impl type:" + implType);
 		}
 
-		Iterator metaFieldItr = rootDictEl.getChild("metaFields")
+		Iterator<?> metaFieldItr = rootDictEl.getChild("metaFields")
 				.getChildren()
 				.iterator();
 		while (metaFieldItr.hasNext())
@@ -200,13 +202,13 @@ public class LookupParseUtilities
 	 * Word(s) not to look up
 	 * TODO Consider adding common words as possible performance improvement
 	 */
-	private static void addExcludeList(DictionaryEngine ge, Iterator itr) {
+	private static void addExcludeList(DictionaryEngine ge, Iterator<?> itr) {
 
-		HashSet hs = new HashSet();
+		HashSet<String> hs = new HashSet<>();
 	    
 		while(itr.hasNext()) {
 			Element item = (Element) itr.next();
-			String s = (String)item.getAttributeValue("value");
+			String s = item.getAttributeValue("value");
 			System.out.println("Adding exclude value["+s+"]"); // TODO - use logger      
 			hs.add(s);
 	    }
@@ -216,33 +218,33 @@ public class LookupParseUtilities
 	}
 
 	
-	private static Set parseLookupBindingXml(UimaContext annotCtx,
-			Map dictMap, Element lookupBindingsEl) throws Exception {
+	private static Set<LookupSpec> parseLookupBindingXml(UimaContext annotCtx,
+			Map<String, DictionaryEngine> dictMap, Element lookupBindingsEl) throws Exception {
 
-		Set lsSet = new HashSet();
-		Iterator itr = lookupBindingsEl.getChildren().iterator();
+		Set<LookupSpec> lsSet = new HashSet<>();
+		Iterator<?> itr = lookupBindingsEl.getChildren().iterator();
 		while (itr.hasNext())
 		{
 			Element bindingEl = (Element) itr.next();
 
 			Element dictEl = bindingEl.getChild("dictionaryRef");
 			String dictID = dictEl.getAttributeValue("idRef");
-			DictionaryEngine dictEngine = (DictionaryEngine) dictMap.get(dictID);
+			DictionaryEngine dictEngine = dictMap.get(dictID);
 			if (dictEngine == null)
 			{
 				throw new Exception("Dictionary undefined: " + dictID);
 			}
 
-			Class[] constrArgs = { UimaContext.class, Properties.class };
-			Class[] constrArgsConsum = { UimaContext.class, Properties.class, int.class };//ohnlp-Bugs-3296301
-			Class[] constrArgsConsumB = { UimaContext.class, Properties.class };
+			Class<?>[] constrArgs = { UimaContext.class, Properties.class };
+			Class<?>[] constrArgsConsum = { UimaContext.class, Properties.class, int.class };//ohnlp-Bugs-3296301
+			Class<?>[] constrArgsConsumB = { UimaContext.class, Properties.class };
 
 			Element lookupInitEl = bindingEl.getChild("lookupInitializer");
 			String liClassName = lookupInitEl.getAttributeValue("className");
 			Element liPropertiesEl = lookupInitEl.getChild("properties");
 			Properties liProps = parsePropertiesXml(liPropertiesEl);
-			Class liClass = Class.forName(liClassName);
-			Constructor liConstr = liClass.getConstructor(constrArgs);
+			Class<?> liClass = Class.forName(liClassName);
+			Constructor<?> liConstr = liClass.getConstructor(constrArgs);
 			Object[] liArgs = { annotCtx, liProps };
 			LookupInitializer li = (LookupInitializer) liConstr.newInstance(liArgs);
 
@@ -250,9 +252,9 @@ public class LookupParseUtilities
 			String lcClassName = lookupConsumerEl.getAttributeValue("className");
 			Element lcPropertiesEl = lookupConsumerEl.getChild("properties");
 			Properties lcProps = parsePropertiesXml(lcPropertiesEl);
-			Class lcClass = Class.forName(lcClassName);
-			Constructor[] consts = lcClass.getConstructors();
-			Constructor lcConstr = null;
+			Class<?> lcClass = Class.forName(lcClassName);
+			Constructor<?>[] consts = lcClass.getConstructors();
+			Constructor<?> lcConstr = null;
 			Object[] lcArgs = null;
 			for(int i=0;i<consts.length;i++)
 			{
@@ -296,7 +298,7 @@ public class LookupParseUtilities
 	private static Properties parsePropertiesXml(Element propsEl)
 	{
 		Properties props = new Properties();
-		Iterator itr = propsEl.getChildren().iterator();
+		Iterator<?> itr = propsEl.getChildren().iterator();
 		while (itr.hasNext())
 		{
 			Element propEl = (Element) itr.next();

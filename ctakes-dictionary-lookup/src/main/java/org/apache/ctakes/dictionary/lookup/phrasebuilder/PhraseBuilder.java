@@ -20,6 +20,8 @@ package org.apache.ctakes.dictionary.lookup.phrasebuilder;
 
 import java.util.List;
 
+import org.apache.ctakes.dictionary.lookup.vo.LookupToken;
+
 /**
  * Interface for building phrases from LookupToken objects.
  * 
@@ -33,5 +35,5 @@ public interface PhraseBuilder
      * @param lookupTokenList List of LookupTokens.
      * @return One or more String phrases.
      */
-    public String[] getPhrases(List lookupTokenList);
+    public String[] getPhrases(List<LookupToken> lookupTokenList);
 }

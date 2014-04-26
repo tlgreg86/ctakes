@@ -100,11 +100,11 @@ final public class LookupHit {
       key.append( iv_endOffset );
       key.append( "/" );
 
-      List mfNameList = new ArrayList( iv_mdh.getMetaFieldNames() );
+      List<String> mfNameList = new ArrayList<>( iv_mdh.getMetaFieldNames() );
       Collections.sort( mfNameList );
-      Iterator mfNameItr = mfNameList.iterator();
+      Iterator<String> mfNameItr = mfNameList.iterator();
       while ( mfNameItr.hasNext() ) {
-         String mfName = (String) mfNameItr.next();
+         String mfName = mfNameItr.next();
          String mfValue = iv_mdh.getMetaFieldValue( mfName );
          key.append( mfName );
          key.append( "=" );

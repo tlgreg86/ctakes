@@ -33,9 +33,9 @@ import org.apache.ctakes.core.nlp.tokenizer.Token;
  *
  */
 public class LookupAnnotationToTokAdapter
-        implements LookupToken, LookupAnnotation
+        implements LookupToken
 {
-        private Map iv_attrMap = new HashMap();
+        private Map<String, String> iv_attrMap = new HashMap<>();
 
         private Token iv_tok;
 
@@ -66,7 +66,7 @@ public class LookupAnnotationToTokAdapter
 
         public String getStringAttribute(String attrKey)
         {
-            return (String) iv_attrMap.get(attrKey);
+            return iv_attrMap.get(attrKey);
         }
 
         public String getText()

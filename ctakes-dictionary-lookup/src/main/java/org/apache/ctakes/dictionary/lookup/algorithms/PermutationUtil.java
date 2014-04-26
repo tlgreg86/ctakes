@@ -30,15 +30,15 @@ public class PermutationUtil {
     * @param maxLevel -
     */
    public static List<List<Integer>> getPermutationList( final int maxLevel ) {
-      final List<List<Integer>> permList = new ArrayList<List<Integer>>();
+      final List<List<Integer>> permList = new ArrayList<>();
       for ( int levelIdx = maxLevel; levelIdx >= 0; levelIdx-- ) {
          // contains ALL index values
-         final List<Integer> baseNumList = new ArrayList<Integer>();
+         final List<Integer> baseNumList = new ArrayList<>();
          for ( int j = 1; j <= levelIdx; j++ ) {
             baseNumList.add( j );
          }
 
-         final Collection<List<Integer>> numListCol = new ArrayList<List<Integer>>();
+         final Collection<List<Integer>> numListCol = new ArrayList<>();
          if ( levelIdx != maxLevel ) {
             numListCol.addAll( getNumLists( maxLevel, baseNumList ) );
          } else {
@@ -60,7 +60,7 @@ public class PermutationUtil {
    }
 
    private static Collection<List<Integer>> getNumLists( final int maxLevel, final List<Integer> baseNumList ) {
-      final Collection<List<Integer>> numListCol = new ArrayList<List<Integer>>();
+      final Collection<List<Integer>> numListCol = new ArrayList<>();
       buildPermutations( maxLevel, baseNumList, numListCol, new ArrayList<Integer>(), 0 );
       filterNonIncreasingLists( numListCol );
       return numListCol;
@@ -73,7 +73,7 @@ public class PermutationUtil {
     * @param numListCol -
     */
    private static void filterNonIncreasingLists( final Collection<List<Integer>> numListCol ) {
-      final Set<List<Integer>> removalSet = new HashSet<List<Integer>>();
+      final Set<List<Integer>> removalSet = new HashSet<>();
       for ( List<Integer> numList : numListCol ) {
          Integer largestNum = null;
          for ( Integer num : numList ) {
@@ -109,13 +109,13 @@ public class PermutationUtil {
       if ( residualCount > baseNumList.size() ) {
          return;
       } else if ( residualCount == baseNumList.size() ) {
-         numListCol.add( new ArrayList<Integer>( residualList ) );
+         numListCol.add( new ArrayList<>( residualList ) );
          return;
       } else {
          final int num = baseNumList.get( residualCount );
          residualCount++;
          for ( int i = num; i <= maxLevel; i++ ) {
-            List<Integer> tempList = new ArrayList<Integer>( residualList );
+            List<Integer> tempList = new ArrayList<>( residualList );
             if ( !tempList.contains( i ) ) {
                tempList.add( i );
                buildPermutations( maxLevel, baseNumList, numListCol, tempList, residualCount );
@@ -132,7 +132,7 @@ public class PermutationUtil {
     * @return      -
     */
    public static Collection<List<Integer>> getLinearPermutations( final List<Integer> numList ) {
-      final Collection<List<Integer>> permutations = new ArrayList<List<Integer>>();
+      final Collection<List<Integer>> permutations = new ArrayList<>();
       getLinearPermutations( permutations, new ArrayList<Integer>(), numList );
       return permutations;
    }
@@ -147,7 +147,7 @@ public class PermutationUtil {
    private static void getLinearPermutations( final Collection<List<Integer>> permutations,
                                               final List<Integer> plusList, final List<Integer> numList ) {
       for ( Integer num : numList ) {
-         final List<Integer> subList = new ArrayList<Integer>( numList );
+         final List<Integer> subList = new ArrayList<>( numList );
 //         subList.addAll( numList );
          subList.remove( num );
 
@@ -156,7 +156,7 @@ public class PermutationUtil {
          if ( !subList.isEmpty() ) {
             getLinearPermutations( permutations, plusList, subList );
          } else {
-            final List<Integer> permutation = new ArrayList<Integer>( plusList );
+            final List<Integer> permutation = new ArrayList<>( plusList );
 //            for ( Integer n : plusList ) {
 //               permutation.add( n );
 //            }

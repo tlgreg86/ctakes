@@ -65,9 +65,7 @@ public class FirstTokenPermLookupInitializerImpl implements LookupInitializer {
    final private Set<String> iv_exclusionTagSet;
 
    public FirstTokenPermLookupInitializerImpl( final UimaContext uimaContext,
-                                               final Properties props ) throws ClassNotFoundException,
-                                                                               IllegalAccessException,
-                                                                               NoSuchFieldException {
+                                               final Properties props ) {
       // TODO property validation could be done here
       iv_props = props;
 
@@ -86,7 +84,7 @@ public class FirstTokenPermLookupInitializerImpl implements LookupInitializer {
       // optional exclusion POS tags
       final String tagStr = iv_props.getProperty( EXC_TAGS_PRP_KEY );
       if ( tagStr != null ) {
-         iv_exclusionTagSet = new HashSet<String>();
+         iv_exclusionTagSet = new HashSet<>();
          final String[] tagArr = tagStr.split( "," );
          for ( String tag : tagArr ) {
             iv_exclusionTagSet.add( tag.toLowerCase() );
@@ -126,7 +124,7 @@ public class FirstTokenPermLookupInitializerImpl implements LookupInitializer {
     */
    @Override
    public Iterator<LookupToken> getLookupTokenIterator( final JCas jcas ) throws AnnotatorInitializationException {
-      final List<LookupToken> ltList = new ArrayList<LookupToken>();
+      final List<LookupToken> ltList = new ArrayList<>();
 
       final JFSIndexRepository indexes = jcas.getJFSIndexRepository();
       final AnnotationIndex<Annotation> annotationIndex = indexes.getAnnotationIndex( BaseToken.type );
@@ -194,14 +192,14 @@ public class FirstTokenPermLookupInitializerImpl implements LookupInitializer {
       if ( iv_annotTypeArr == null ) {
          return Collections.emptyMap();
       }
-      final List<LookupAnnotation> list = new ArrayList<LookupAnnotation>();
+      final List<LookupAnnotation> list = new ArrayList<>();
       // algorithm depends on a window for permutations
       final JFSIndexRepository indexes = jcas.getJFSIndexRepository();
       for ( int annotationType : iv_annotTypeArr ) {
          final Iterator<Annotation> itr = indexes.getAnnotationIndex( annotationType ).iterator();
          list.addAll( constrainToWindow( windowBegin, windowEnd, itr ) );
       }
-      final Map<String, List<LookupAnnotation>> m = new HashMap<String, List<LookupAnnotation>>( 1 );
+      final Map<String, List<LookupAnnotation>> m = new HashMap<>( 1 );
       m.put( FirstTokenPermutationImpl.CTX_KEY_WINDOW_ANNOTATIONS, list );
       return m;
    }
@@ -212,9 +210,9 @@ public class FirstTokenPermLookupInitializerImpl implements LookupInitializer {
     * @param annotItr -
     * @return list of lookup annotations
     */
-   private List<LookupAnnotation> constrainToWindow( final int begin, final int end,
+   private static List<LookupAnnotation> constrainToWindow( final int begin, final int end,
                                                      final Iterator<Annotation> annotItr ) {
-      final List<LookupAnnotation> list = new ArrayList<LookupAnnotation>();
+      final List<LookupAnnotation> list = new ArrayList<>();
       while ( annotItr.hasNext() ) {
          final Annotation annot = annotItr.next();
          // only consider if it's within the window
@@ -231,7 +229,7 @@ public class FirstTokenPermLookupInitializerImpl implements LookupInitializer {
    @Override
    public List<LookupToken> getSortedLookupTokens( final JCas jcas,
                                                    final Annotation covering ) throws AnnotatorInitializationException {
-      final List<LookupToken> ltList = new ArrayList<LookupToken>();
+      final List<LookupToken> ltList = new ArrayList<>();
       final List<BaseToken> inputList = org.uimafit.util.JCasUtil.selectCovered( jcas, BaseToken.class, covering );
       for ( BaseToken bta : inputList ) {
          final boolean isNonLookup = bta instanceof NewlineToken

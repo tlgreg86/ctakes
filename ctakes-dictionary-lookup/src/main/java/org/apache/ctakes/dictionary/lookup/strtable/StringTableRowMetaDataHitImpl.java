@@ -18,19 +18,19 @@
  */
 package org.apache.ctakes.dictionary.lookup.strtable;
 
-import org.apache.ctakes.dictionary.lookup.AbstractBaseMetaDataHit;
-import org.apache.ctakes.dictionary.lookup.MetaDataHit;
-
-import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.Set;
+
+import javax.annotation.concurrent.Immutable;
+
+import org.apache.ctakes.dictionary.lookup.AbstractBaseMetaDataHit;
 
 
 /**
  * @author Mayo Clinic
  */
 @Immutable
-final public class StringTableRowMetaDataHitImpl extends AbstractBaseMetaDataHit implements MetaDataHit {
+final public class StringTableRowMetaDataHitImpl extends AbstractBaseMetaDataHit {
    final private StringTableRow _strTableRow;
 
    public StringTableRowMetaDataHitImpl( final StringTableRow strTableRow ) {

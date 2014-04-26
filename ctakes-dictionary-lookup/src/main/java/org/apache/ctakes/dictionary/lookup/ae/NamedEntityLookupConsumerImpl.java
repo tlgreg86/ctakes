@@ -40,7 +40,7 @@ import java.util.*;
 /**
  * @author Mayo Clinic
  */
-public class NamedEntityLookupConsumerImpl extends BaseLookupConsumerImpl implements LookupConsumer {
+public class NamedEntityLookupConsumerImpl extends BaseLookupConsumerImpl {
 
    private static final String CODE_MF_PRP_KEY = "codeMetaField";
 
@@ -65,7 +65,7 @@ public class NamedEntityLookupConsumerImpl extends BaseLookupConsumerImpl implem
 
    private int countUniqueCodes( final Collection<LookupHit> hitsAtOffset ) {
       final String CODE_MF = _properties.getProperty( CODE_MF_PRP_KEY );
-      final Set<String> codes = new HashSet<String>();
+      final Set<String> codes = new HashSet<>();
       for ( LookupHit lookupHit : hitsAtOffset ) {
          final MetaDataHit mdh = lookupHit.getDictMetaDataHit();
          final String code = mdh.getMetaFieldValue( CODE_MF );
@@ -98,7 +98,7 @@ public class NamedEntityLookupConsumerImpl extends BaseLookupConsumerImpl implem
          // a corresponding JCas OntologyConcept object that will
          // be placed in a FSArray
          int ocArrIdx = 0;
-         final Set<String> codes = new HashSet<String>();
+         final Set<String> codes = new HashSet<>();
          for ( LookupHit lookupHit : entry.getValue() ) {
             final MetaDataHit mdh = lookupHit.getDictMetaDataHit();
             final String code = mdh.getMetaFieldValue( CODE_MF );

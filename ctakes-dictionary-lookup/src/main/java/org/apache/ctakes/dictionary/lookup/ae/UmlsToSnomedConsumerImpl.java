@@ -47,7 +47,7 @@ import java.util.*;
  *
  * @author Mayo Clinic
  */
-public abstract class UmlsToSnomedConsumerImpl extends BaseLookupConsumerImpl implements LookupConsumer {
+public abstract class UmlsToSnomedConsumerImpl extends BaseLookupConsumerImpl {
 
    static private final String CUI_MF_PRP_KEY = "cuiMetaField";
    static private final String TUI_MF_PRP_KEY = "tuiMetaField";
@@ -60,12 +60,12 @@ public abstract class UmlsToSnomedConsumerImpl extends BaseLookupConsumerImpl im
    static private final String DISORDER_TUIS_PRP_KEY = "disorderTuis";
    static private final String FINDING_TUIS_PRP_KEY = "findingTuis";
 
-   private Set<String> _medicationSet = new HashSet<String>();
-   private Set<String> _antSiteTuiSet = new HashSet<String>();
-   private Set<String> _procedureTuiSet = new HashSet<String>();
-   private Set<String> _disorderTuiSet = new HashSet<String>();
-   private Set<String> _findingTuiSet = new HashSet<String>();
-   private Set<String> _validTuiSet = new HashSet<String>();
+   private Set<String> _medicationSet = new HashSet<>();
+   private Set<String> _antSiteTuiSet = new HashSet<>();
+   private Set<String> _procedureTuiSet = new HashSet<>();
+   private Set<String> _disorderTuiSet = new HashSet<>();
+   private Set<String> _findingTuiSet = new HashSet<>();
+   private Set<String> _validTuiSet = new HashSet<>();
 
    protected Properties props;
 
@@ -113,9 +113,9 @@ public abstract class UmlsToSnomedConsumerImpl extends BaseLookupConsumerImpl im
             final int neBegin = entry.getKey().__start;
             final int neEnd = entry.getKey().__end;
             // Use key "cui,tui" to avoid duplicates at this offset
-            final Set<String> cuiTuiSet = new HashSet<String>();
+            final Set<String> cuiTuiSet = new HashSet<>();
             // key = type of named entity, val = set of UmlsConcept objects
-            final Map<Integer,Set<UmlsConcept>> conceptMap = new HashMap<Integer,Set<UmlsConcept>>();
+            final Map<Integer,Set<UmlsConcept>> conceptMap = new HashMap<>();
             // Iterate over the LookupHit objects and group Snomed codes by NE type
             // For each NE type for which there is a hit, get all the Snomed codes
             // that map to the given CUI.
@@ -139,7 +139,7 @@ public abstract class UmlsToSnomedConsumerImpl extends BaseLookupConsumerImpl im
                   if ( conceptMap.containsKey( neType ) ) {
                      conceptSet = conceptMap.get( neType );
                   } else {
-                     conceptSet = new HashSet<UmlsConcept>();
+                     conceptSet = new HashSet<>();
                      conceptMap.put( neType, conceptSet );
                   }
                   final Collection<UmlsConcept> conceptCol = createConceptCol( jcas, cui, tui, snomedCodeSet );
@@ -217,7 +217,7 @@ public abstract class UmlsToSnomedConsumerImpl extends BaseLookupConsumerImpl im
    private Collection<UmlsConcept> createConceptCol( final JCas jcas, final String cui, final String tui,
                                         final Collection<String> snomedCodesCol ) {
       final String codingSchemeKey = props.getProperty( CODING_SCHEME_PRP_KEY );
-      final List<UmlsConcept> conceptList = new ArrayList<UmlsConcept>();
+      final List<UmlsConcept> conceptList = new ArrayList<>();
       for ( String snomedCode : snomedCodesCol ) {
          final UmlsConcept uc = new UmlsConcept( jcas );
          uc.setCode( snomedCode );
@@ -229,7 +229,7 @@ public abstract class UmlsToSnomedConsumerImpl extends BaseLookupConsumerImpl im
       return conceptList;
    }
 
-   private String getUniqueKey( final String cui, final String tui ) {
+   private static String getUniqueKey( final String cui, final String tui ) {
       final StringBuilder sb = new StringBuilder();
       sb.append( cui );
       sb.append( ':' );
@@ -243,12 +243,12 @@ public abstract class UmlsToSnomedConsumerImpl extends BaseLookupConsumerImpl im
     * @param delimitedString -
     * @return -
     */
-   private Set<String> loadList( final String delimitedString ) {
+   private static Set<String> loadList( final String delimitedString ) {
       if ( delimitedString == null || delimitedString.isEmpty() ) {
          return Collections.emptySet();
       }
       final String[] stringArray = delimitedString.split( "," );
-      final Set<String> stringSet = new HashSet<String>();
+      final Set<String> stringSet = new HashSet<>();
       for ( String text : stringArray ) {
          final String trimText = text.trim();
          if ( !trimText.isEmpty() ) {

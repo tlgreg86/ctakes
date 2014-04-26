@@ -34,7 +34,7 @@ final public class StringTable {
    // key = indexed field value (String), value = set of StringTableRows
 
    public StringTable( final String[] indexedFieldNames ) {
-      iv_nameMap = new HashMap<String, Map<String, Set<StringTableRow>>>();
+      iv_nameMap = new HashMap<>();
       for ( String fieldName : indexedFieldNames ) {
          iv_nameMap.put( fieldName, new HashMap<String, Set<StringTableRow>>() );
       }
@@ -47,7 +47,7 @@ final public class StringTable {
 
          Set<StringTableRow> rowSet = valueMap.get( indexedFieldValue );
          if ( rowSet == null ) {
-            rowSet = new HashSet<StringTableRow>();
+            rowSet = new HashSet<>();
          }
          rowSet.add( strTableRow );
          valueMap.put( indexedFieldValue, rowSet );
@@ -60,13 +60,12 @@ final public class StringTable {
       Set<StringTableRow> rowSet = valueMap.get( fieldVal );
       if ( rowSet != null ) {
          return rowSet.toArray( new StringTableRow[rowSet.size()] );
-      } else {
-         return new StringTableRow[0];
       }
+      return new StringTableRow[0];
    }
 
    public StringTableRow[] getAllRows() {
-      final Set<StringTableRow> allRows = new HashSet<StringTableRow>();
+      final Set<StringTableRow> allRows = new HashSet<>();
       for ( Map<String, Set<StringTableRow>> valueMap : iv_nameMap.values() ) {
          for ( Set<StringTableRow> rowSet : valueMap.values() ) {
             if ( !rowSet.isEmpty() ) {

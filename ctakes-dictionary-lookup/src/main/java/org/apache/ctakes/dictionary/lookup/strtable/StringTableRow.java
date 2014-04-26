@@ -28,7 +28,7 @@ import java.util.Set;
  */
 final public class StringTableRow {
 
-   final private Map<String, String> iv_fieldMap = new HashMap<String, String>();
+   final private Map<String, String> iv_fieldMap = new HashMap<>();
 
    public Set<String> getNames() {
       return iv_fieldMap.keySet();

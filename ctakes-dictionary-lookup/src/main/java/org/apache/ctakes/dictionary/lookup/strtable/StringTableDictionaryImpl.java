@@ -18,21 +18,20 @@
  */
 package org.apache.ctakes.dictionary.lookup.strtable;
 
-import org.apache.ctakes.dictionary.lookup.AbstractBaseDictionary;
-import org.apache.ctakes.dictionary.lookup.Dictionary;
-import org.apache.ctakes.dictionary.lookup.DictionaryException;
-import org.apache.ctakes.dictionary.lookup.MetaDataHit;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.ctakes.dictionary.lookup.AbstractBaseDictionary;
+import org.apache.ctakes.dictionary.lookup.DictionaryException;
+import org.apache.ctakes.dictionary.lookup.MetaDataHit;
+
 
 /**
  * @author Mayo Clinic
  */
-public class StringTableDictionaryImpl extends AbstractBaseDictionary implements Dictionary {
+public class StringTableDictionaryImpl extends AbstractBaseDictionary {
    final private StringTable iv_strTable;
    final private String iv_lookupFieldName;
 
@@ -58,7 +57,7 @@ public class StringTableDictionaryImpl extends AbstractBaseDictionary implements
       if ( strTableRows.length == 0 ) {
          return Collections.emptySet();
       }
-      final Set<MetaDataHit> metaDataHitSet = new HashSet<MetaDataHit>();
+      final Set<MetaDataHit> metaDataHitSet = new HashSet<>();
       for ( StringTableRow tableRow : strTableRows ) {
          final MetaDataHit metaDataHit = new StringTableRowMetaDataHitImpl( tableRow );
          metaDataHitSet.add( metaDataHit );

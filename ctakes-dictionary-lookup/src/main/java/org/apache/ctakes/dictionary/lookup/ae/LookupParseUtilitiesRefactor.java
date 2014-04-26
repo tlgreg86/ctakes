@@ -83,7 +83,7 @@ final public class LookupParseUtilitiesRefactor {
    private static Map<String,DictionaryEngine> parseDictionaries( final UimaContext aContext,
                                                                   final Element dictetteersEl )
          throws AnnotatorContextException, ResourceAccessException {
-      final Map<String,DictionaryEngine> m = new HashMap<String,DictionaryEngine>();
+      final Map<String,DictionaryEngine> m = new HashMap<>();
       final List<Element> dictatteerChildren = dictetteersEl.getChildren();
       for ( Element dictEl : dictatteerChildren ) {
          final String id = dictEl.getAttributeValue( "id" );
@@ -94,7 +94,7 @@ final public class LookupParseUtilitiesRefactor {
    }
 
    private static DictionaryEngine parseDictionaryXml( final UimaContext annotCtx, final Element rootDictEl )
-         throws AnnotatorContextException, ResourceAccessException {
+         throws ResourceAccessException {
       final String extResrcKey = rootDictEl.getAttributeValue( "externalResourceKey" );
       // UimaContext.getResourceObject(..) throws ResourceAccessException
       final Object extResrc = annotCtx.getResourceObject( extResrcKey );
@@ -182,7 +182,7 @@ final public class LookupParseUtilitiesRefactor {
     * TODO Consider adding common words as possible performance improvement
     */
    private static void addExcludeList( final DictionaryEngine dictionaryEngine, final List<Element> elementList ) {
-      final Set<String> excludeValues = new HashSet<String>( elementList.size() );
+      final Set<String> excludeValues = new HashSet<>( elementList.size() );
       for ( Element item : elementList ) {
          final String excludeValue = item.getAttributeValue( "value" );
          CLASS_LOGGER.info( "Adding exclude value[" + excludeValue + "]" );
@@ -197,11 +197,11 @@ final public class LookupParseUtilitiesRefactor {
                                                          final Map<String,DictionaryEngine> dictMap,
                                                          final Element lookupBindingsEl )
          throws AnnotatorContextException {
-      final Class[] constrArgs = {UimaContext.class, Properties.class};
-      final Class[] constrArgsConsum = {UimaContext.class, Properties.class, int.class};//ohnlp-Bugs-3296301
-      final Class[] constrArgsConsumB = {UimaContext.class, Properties.class};
+      final Class<?>[] constrArgs = {UimaContext.class, Properties.class};
+      final Class<?>[] constrArgsConsum = {UimaContext.class, Properties.class, int.class};//ohnlp-Bugs-3296301
+      final Class<?>[] constrArgsConsumB = {UimaContext.class, Properties.class};
 
-      final Set<LookupSpec> lsSet = new HashSet<LookupSpec>();
+      final Set<LookupSpec> lsSet = new HashSet<>();
       final List<Element> bindingChildren = lookupBindingsEl.getChildren();
       try {
          for ( Element bindingEl : bindingChildren ) {
@@ -216,8 +216,8 @@ final public class LookupParseUtilitiesRefactor {
             final String liClassName = lookupInitEl.getAttributeValue( "className" );
             final Element liPropertiesEl = lookupInitEl.getChild( "properties" );
             final Properties liProps = parsePropertiesXml( liPropertiesEl );
-            final Class liClass = Class.forName( liClassName );
-            final Constructor liConstr = liClass.getConstructor( constrArgs );
+            final Class<?> liClass = Class.forName( liClassName );
+            final Constructor<?> liConstr = liClass.getConstructor( constrArgs );
             final Object[] liArgs = {annotCtx, liProps};
             final LookupInitializer li = (LookupInitializer) liConstr.newInstance( liArgs );
 
@@ -225,11 +225,11 @@ final public class LookupParseUtilitiesRefactor {
             final String lcClassName = lookupConsumerEl.getAttributeValue( "className" );
             final Element lcPropertiesEl = lookupConsumerEl.getChild( "properties" );
             final Properties lcProps = parsePropertiesXml( lcPropertiesEl );
-            final Class lcClass = Class.forName( lcClassName );
-            final Constructor[] consts = lcClass.getConstructors();
-            Constructor lcConstr = null;
+            final Class<?> lcClass = Class.forName( lcClassName );
+            final Constructor<?>[] consts = lcClass.getConstructors();
+            Constructor<?> lcConstr = null;
             Object[] lcArgs = null;
-            for ( Constructor constConstr : consts ) {
+            for ( Constructor<?> constConstr : consts ) {
                lcConstr = constConstr;
                if ( Arrays.equals( constrArgsConsum, lcConstr.getParameterTypes() ) ) {
                   lcConstr = lcClass.getConstructor( constrArgsConsum );

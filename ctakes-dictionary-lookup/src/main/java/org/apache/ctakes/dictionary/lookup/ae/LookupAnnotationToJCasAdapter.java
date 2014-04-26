@@ -18,25 +18,24 @@
  */
 package org.apache.ctakes.dictionary.lookup.ae;
 
-import org.apache.ctakes.dictionary.lookup.vo.LookupAnnotation;
-import org.apache.ctakes.dictionary.lookup.vo.LookupToken;
-import org.apache.uima.jcas.tcas.Annotation;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.ctakes.dictionary.lookup.vo.LookupToken;
+import org.apache.uima.jcas.tcas.Annotation;
 
 
 /**
  * @author Mayo Clinic
  */
-public class LookupAnnotationToJCasAdapter implements LookupAnnotation, LookupToken {
+public class LookupAnnotationToJCasAdapter implements LookupToken {
 
    final private Map<String, String> _attributeMap;
    final private Annotation _jcasAnnotation;
 
    public LookupAnnotationToJCasAdapter( final Annotation jcasAnnotation ) {
       _jcasAnnotation = jcasAnnotation;
-      _attributeMap = new HashMap<String, String>();
+      _attributeMap = new HashMap<>();
    }
 
    /**

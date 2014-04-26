@@ -37,10 +37,10 @@ public class FieldConstraintImpl implements FieldConstraint
     private String iv_fieldName;
     private Object iv_fieldValue;
     private int iv_op;
-    private Class iv_fieldValueClass;
+    private Class<?> iv_fieldValueClass;
 
     public FieldConstraintImpl(String fieldName, int op, String fieldValue,
-            Class fieldValueClass)
+            Class<?> fieldValueClass)
     {
         iv_fieldName = fieldName;
         iv_op = op;

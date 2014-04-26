@@ -108,39 +108,39 @@ public class StringTableFactory
             boolean ignoreCase) throws IOException
     {
         StringTable strTable = new StringTable(indexedFieldNames);
-        BufferedReader br = new BufferedReader(charReader);
-        String line = br.readLine();
-        while (line != null)
-        {
+        try(BufferedReader br = new BufferedReader(charReader)){
+          String line = br.readLine();
+          while (line != null)
+          {
             StringTableRow strTableRow = new StringTableRow();
             StringTokenizer st = new StringTokenizer(line, delimiter);
             int fieldCnt = 0;
             boolean isConstrained = false;
             while (st.hasMoreTokens())
             {
-                String fieldName = String.valueOf(fieldCnt);
-                String fieldValue = st.nextToken();
-                if (ignoreCase)
-                {
-                    fieldValue = fieldValue.toLowerCase();
-                }
-                strTableRow.addField(fieldName, fieldValue);
-                fieldCnt++;
+              String fieldName = String.valueOf(fieldCnt);
+              String fieldValue = st.nextToken();
+              if (ignoreCase)
+              {
+                fieldValue = fieldValue.toLowerCase();
+              }
+              strTableRow.addField(fieldName, fieldValue);
+              fieldCnt++;
 
-                if ((constraint != null)
-                        && constraint.isConstrained(fieldName, fieldValue))
-                {
-                    isConstrained = true;
-                }
+              if ((constraint != null)
+                  && constraint.isConstrained(fieldName, fieldValue))
+              {
+                isConstrained = true;
+              }
             }
 
             if (!isConstrained)
             {
-                strTable.addRow(strTableRow);
+              strTable.addRow(strTableRow);
             }
             line = br.readLine();
+          }
         }
-        br.close();
 
         return strTable;
     }

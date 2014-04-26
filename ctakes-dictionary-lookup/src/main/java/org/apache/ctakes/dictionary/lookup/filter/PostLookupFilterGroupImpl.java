@@ -79,9 +79,6 @@ public class PostLookupFilterGroupImpl implements PostLookupFilter
         {
             return isContained;
         }
-        else
-        {
-            return !isContained;
-        }    
+        return !isContained;    
     }
 }

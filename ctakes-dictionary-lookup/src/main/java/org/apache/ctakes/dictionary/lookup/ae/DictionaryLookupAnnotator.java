@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,6 +32,7 @@ import java.util.Set;
 import org.apache.ctakes.core.resource.FileResource;
 import org.apache.ctakes.dictionary.lookup.MetaDataHit;
 import org.apache.ctakes.dictionary.lookup.algorithms.LookupAlgorithm;
+import org.apache.ctakes.dictionary.lookup.vo.LookupAnnotation;
 import org.apache.ctakes.dictionary.lookup.vo.LookupHit;
 import org.apache.ctakes.dictionary.lookup.vo.LookupToken;
 import org.apache.ctakes.dictionary.lookup.vo.LookupTokenComparator;
@@ -57,14 +57,15 @@ public class DictionaryLookupAnnotator extends JCasAnnotator_ImplBase
 
 	private UimaContext iv_context;
 
-	private Set iv_lookupSpecSet = new HashSet();
+	private Set<LookupSpec> iv_lookupSpecSet = new HashSet<>();
 
 	// used to prevent duplicate hits
 	// key = hit begin,end key (java.lang.String)
 	// val = Set of MetaDataHit objects
-	private Map iv_dupMap = new HashMap();
+	private Map<String,Set<MetaDataHit>> iv_dupMap = new HashMap<>();
 
-	public void initialize(UimaContext aContext)
+	@Override
+  public void initialize(UimaContext aContext)
 			throws ResourceInitializationException
 	{
 		super.initialize(aContext);
@@ -95,7 +96,8 @@ public class DictionaryLookupAnnotator extends JCasAnnotator_ImplBase
 	/**
 	 * Entry point for processing.
 	 */
-	public void process(JCas jcas)
+	@Override
+  public void process(JCas jcas)
 			throws AnalysisEngineProcessException {
 		
 		iv_logger.info("process(JCas)");
@@ -103,19 +105,19 @@ public class DictionaryLookupAnnotator extends JCasAnnotator_ImplBase
 		
 		try {
 
-			Iterator lsItr = iv_lookupSpecSet.iterator();
+			Iterator<LookupSpec> lsItr = iv_lookupSpecSet.iterator();
 			while (lsItr.hasNext()) {
 
-				LookupSpec ls = (LookupSpec) lsItr.next();
+				LookupSpec ls = lsItr.next();
 				LookupInitializer lInit = ls.getLookupInitializer();
 
-				Iterator windowItr = lInit.getLookupWindowIterator(jcas);
+				Iterator<Annotation> windowItr = lInit.getLookupWindowIterator(jcas);
 				while (windowItr.hasNext()) {
 
-					Annotation window = (Annotation) windowItr.next();
-					List lookupTokensInWindow = lInit.getSortedLookupTokens(jcas, window);
+					Annotation window = windowItr.next();
+					List<LookupToken> lookupTokensInWindow = lInit.getSortedLookupTokens(jcas, window);
 											
-					Map ctxMap = lInit.getContextMap(
+					Map<String, List<LookupAnnotation>> ctxMap = lInit.getContextMap(
 							jcas,
 							window.getBegin(),
 							window.getEnd());
@@ -133,19 +135,19 @@ public class DictionaryLookupAnnotator extends JCasAnnotator_ImplBase
 	 * Executes the lookup algorithm on the lookup tokens. Hits are stored to
 	 * CAS.
 	 */
-	private void performLookup(JCas jcas, LookupSpec ls, List lookupTokenList,
-			Map ctxMap) throws Exception
+	private void performLookup(JCas jcas, LookupSpec ls, List<LookupToken> lookupTokenList,
+			Map<String, List<LookupAnnotation>> ctxMap) throws Exception
 	{
 		// sort the lookup tokens
 		Collections.sort(lookupTokenList, LookupTokenComparator.getInstance() );
 
 		// perform lookup
-		Collection lookupHitCol = null;
+		Collection<LookupHit> lookupHitCol = null;
 
-		LookupAlgorithm la = (LookupAlgorithm) ls.getLookupAlgorithm();
+		LookupAlgorithm la = ls.getLookupAlgorithm();
 		lookupHitCol = la.lookup(lookupTokenList, ctxMap);
 
-		Collection uniqueHitCol = filterHitDups(lookupHitCol);
+		Collection<LookupHit> uniqueHitCol = filterHitDups(lookupHitCol);
 
 		// consume hits
 		ls.getLookupConsumer().consumeHits(jcas, uniqueHitCol.iterator());
@@ -157,13 +159,13 @@ public class DictionaryLookupAnnotator extends JCasAnnotator_ImplBase
 	 * @param lookupHitCol
 	 * @return
 	 */
-	private Collection filterHitDups(Collection lookupHitCol)
+	private Collection<LookupHit> filterHitDups(Collection<LookupHit> lookupHitCol)
 	{
-		List l = new ArrayList();
-		Iterator itr = lookupHitCol.iterator();
+		List<LookupHit> l = new ArrayList<>();
+		Iterator<LookupHit> itr = lookupHitCol.iterator();
 		while (itr.hasNext())
 		{
-			LookupHit lh = (LookupHit) itr.next();
+			LookupHit lh = itr.next();
 			if (!isDuplicate(lh))
 			{
 				l.add(lh);
@@ -184,13 +186,13 @@ public class DictionaryLookupAnnotator extends JCasAnnotator_ImplBase
 
 		// iterate over MetaDataHits that have already been seen
 		String offsetKey = getOffsetKey(lh);
-		Set mdhDuplicateSet = (Set) iv_dupMap.get(offsetKey);
+		Set<MetaDataHit> mdhDuplicateSet = iv_dupMap.get(offsetKey);
 		if (mdhDuplicateSet != null)
 		{
-			Iterator itr = mdhDuplicateSet.iterator();
+			Iterator<MetaDataHit> itr = mdhDuplicateSet.iterator();
 			while (itr.hasNext())
 			{
-				MetaDataHit otherMdh = (MetaDataHit) itr.next();
+				MetaDataHit otherMdh = itr.next();
 				if (mdh.equals(otherMdh))
 				{
 					// current LookupHit is a duplicate
@@ -200,7 +202,7 @@ public class DictionaryLookupAnnotator extends JCasAnnotator_ImplBase
 		}
 		else
 		{
-			mdhDuplicateSet = new HashSet();
+			mdhDuplicateSet = new HashSet<>();
 		}
 
 		// current LookupHit is new, add it to the duplicate set
@@ -219,14 +221,15 @@ public class DictionaryLookupAnnotator extends JCasAnnotator_ImplBase
 	 * @return
 	 * @throws Exception
 	 */
-	private List constrainToWindow(Annotation window, Iterator lookupTokenItr)
+	@SuppressWarnings("unused")
+  private static List<LookupToken> constrainToWindow(Annotation window, Iterator<LookupToken> lookupTokenItr)
 			throws Exception
 	{
-		List ltObjectList = new ArrayList();
+		List<LookupToken> ltObjectList = new ArrayList<>();
 
 		while (lookupTokenItr.hasNext())
 		{
-			LookupToken lt = (LookupToken) lookupTokenItr.next();
+			LookupToken lt = lookupTokenItr.next();
 
 			// only consider if it's within the window
 			if ((lt.getStartOffset() >= window.getBegin())
@@ -238,7 +241,7 @@ public class DictionaryLookupAnnotator extends JCasAnnotator_ImplBase
 		return ltObjectList;
 	}
 
-	private String getOffsetKey(LookupHit lh)
+	private static String getOffsetKey(LookupHit lh)
 	{
 		StringBuffer sb = new StringBuffer();
 		sb.append(lh.getStartOffset());

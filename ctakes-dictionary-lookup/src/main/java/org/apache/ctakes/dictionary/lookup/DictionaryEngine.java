@@ -42,15 +42,15 @@ public class DictionaryEngine {
    final private boolean _keepCase;
 
    // use Lists to store filters to maintain order
-   private List<PreLookupFilter> _preLookupFilterList = new ArrayList<PreLookupFilter>();
-   private List<PostLookupFilter> _postLookupFilterList = new ArrayList<PostLookupFilter>();
-   private List<CollectionFilter> _collectionFilterList = new ArrayList<CollectionFilter>();
+   private List<PreLookupFilter> _preLookupFilterList = new ArrayList<>();
+   private List<PostLookupFilter> _postLookupFilterList = new ArrayList<>();
+   private List<CollectionFilter> _collectionFilterList = new ArrayList<>();
 
    // cache objs
    // key = String text, value = Boolean
-   private Map<String, Boolean> _binaryLookupCacheMap = new HashMap<String, Boolean>();
+   private Map<String, Boolean> _binaryLookupCacheMap = new HashMap<>();
    // key = String text, value = Collection of MetaDataHits
-   private Map<String, Collection<MetaDataHit>> _metaLookupCacheMap = new HashMap<String, Collection<MetaDataHit>>();
+   private Map<String, Collection<MetaDataHit>> _metaLookupCacheMap = new HashMap<>();
 
 
    /**
@@ -138,7 +138,7 @@ public class DictionaryEngine {
       }
       // apply post-filtering
       if ( !_postLookupFilterList.isEmpty() ) {
-         final Set<MetaDataHit> mdhRemovalSet = new HashSet<MetaDataHit>();
+         final Set<MetaDataHit> mdhRemovalSet = new HashSet<>();
          for ( MetaDataHit metaDataHit : metaDataHitCol ) {
             // check the mdhRemoval set before iterating over the entire filter list (and filter .contains calls)
             if ( !mdhRemovalSet.contains( metaDataHit ) ) {
