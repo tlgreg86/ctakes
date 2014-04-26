@@ -64,10 +64,12 @@ import org.apache.ctakes.typesystem.type.textsem.TimeAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
+import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.util.JCasUtil;
 
 /**
@@ -225,5 +227,9 @@ public class ContextDependentTokenizerAnnotator extends JCasAnnotator_ImplBase {
 		}
 
 		throw new Exception("No Context Dependent Tokenizer adapter for class: " + obj.getClass());
+	}
+	
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
+	  return AnalysisEngineFactory.createPrimitiveDescription(ContextDependentTokenizerAnnotator.class);
 	}
 }
