@@ -31,11 +31,13 @@ import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.util.JCasUtil;
 
 /**
@@ -164,4 +166,14 @@ public class Chunker extends JCasAnnotator_ImplBase {
 			}
 		}
 	}
+	
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
+	  return AnalysisEngineFactory.createPrimitiveDescription(Chunker.class);
+	}
+
+	 public static AnalysisEngineDescription createAnnotatorDescription(String modelFile) throws ResourceInitializationException{
+	    return AnalysisEngineFactory.createPrimitiveDescription(Chunker.class,
+	        Chunker.PARAM_CHUNKER_MODEL_FILE,
+	        modelFile);
+	  }
 }
