@@ -61,11 +61,13 @@ import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.util.JCasUtil;
 
 public class POSTagger extends JCasAnnotator_ImplBase {
@@ -80,6 +82,7 @@ public class POSTagger extends JCasAnnotator_ImplBase {
 	 * resources/models/README.
 	 */
 	public static final String POS_MODEL_FILE_PARAM = "PosModelFile";
+	public static final String PARAM_POS_MODEL_FILE = POS_MODEL_FILE_PARAM;
 	@ConfigurationParameter(
 	    name = POS_MODEL_FILE_PARAM,
 	    mandatory = false,
@@ -135,5 +138,15 @@ public class POSTagger extends JCasAnnotator_ImplBase {
 				}
 			}
 		}
+	}
+	
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
+	  return AnalysisEngineFactory.createPrimitiveDescription(POSTagger.class);     
+	}
+	
+	public static AnalysisEngineDescription createAnnotatorDescription(String model) throws ResourceInitializationException{
+	  return AnalysisEngineFactory.createPrimitiveDescription(POSTagger.class, 
+	      POSTagger.PARAM_POS_MODEL_FILE,
+	      model);
 	}
 }
