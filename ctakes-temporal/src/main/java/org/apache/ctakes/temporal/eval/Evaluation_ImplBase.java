@@ -513,7 +513,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
         "LemmaCacheFrequencyCutoff",
         20,
         "PostLemmas",
-        true,
+        false,
         "LvgCmdApi",
         ExternalResourceFactory.createExternalResourceDescription(
             LvgCmdApiResourceImpl.class,
@@ -535,7 +535,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
       // add ctakes constituency parses to system view
       aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ConstituencyParser.class,
           ConstituencyParser.PARAM_MODEL_FILENAME,
-          "org/apache/ctakes/constituency/parser/models/thyme.bin"));
+          "org/apache/ctakes/constituency/parser/models/sharpacq-3.1.bin"));
 //      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(BerkeleyParserWrapper.class,
 //          BerkeleyParserWrapper.PARAM_MODEL_FILENAME,
 //          
