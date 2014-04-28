@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<load xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://jdl-prj.googlecode.com/files/xdl.xsd">
+	<csv table="@umls.prefix@MRDEF" commit="10000" delimiter="|">
+		<column name="CUI" />
+		<column name="AUI" />
+		<column name="ATUI" />
+		<column name="SATUI" />
+		<column name="SAB" />
+		<column name="DEF" />
+		<column name="SUPPRESS" />
+		<column name="CVF" />
+	</csv>
+</load>

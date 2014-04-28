@@ -1,0 +1,1 @@
+alter table test.document add copy_of_document_id int;

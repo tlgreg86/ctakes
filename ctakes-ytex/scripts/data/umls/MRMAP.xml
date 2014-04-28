@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<load xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://jdl-prj.googlecode.com/files/xdl.xsd">
+	<csv table="@umls.prefix@MRMAP" commit="10000" delimiter="|">
+		<column name="MAPSETCUI" />
+		<column name="MAPSETSAB" />
+		<column name="MAPSUBSETID" />
+		<column name="MAPRANK" />
+		<column name="MAPID" />
+		<column name="MAPSID" />
+		<column name="FROMID" />
+		<column name="FROMSID" />
+		<column name="FROMEXPR" />		
+		<column name="FROMTYPE" />
+		<column name="FROMRULE" />
+		<column name="FROMRES" />
+		<column name="REL" />
+		<column name="RELA" />
+		<column name="TOID" />
+		<column name="TOSID" />
+		<column name="TOEXPR" />		
+		<column name="TOTYPE" />
+		<column name="TORULE" />
+		<column name="TORES" />
+		<column name="MAPRULE" />
+		<column name="MAPRES" />
+		<column name="MAPTYPE" />
+		<column name="MAPATN" />
+		<column name="MAPATV" />
+		<column name="CVF" />
+	</csv>
+</load>

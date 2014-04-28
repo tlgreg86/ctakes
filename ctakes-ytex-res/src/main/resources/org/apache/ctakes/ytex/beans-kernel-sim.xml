@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+	<bean id="conceptSimilarityService"
+		class="org.apache.ctakes.ytex.kernel.metric.ConceptSimilarityServiceImpl"
+		init-method="init">
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="conceptDao" ref="conceptDao" />
+		<property name="classifierEvaluationDao" ref="classifierEvaluationDao" />
+		<property name="cacheManager" ref="cacheManager" />
+		<property name="lcsCache">
+			<bean class="net.sf.ehcache.Cache" factory-bean="cacheManager"
+				factory-method="getCache">
+				<constructor-arg value="lcsCache" />
+			</bean>
+		</property>
+		<property name="pageRankService" ref="pageRankService" />
+		<property name="corpusName" value="${ytex.corpusName}" />
+		<property name="conceptGraphName" value="${ytex.conceptGraphName}" />
+		<property name="conceptSetName" value="${ytex.conceptSetName}" />
+		<property name="preload" value="${ytex.conceptPreload}" />
+	</bean>
+	<bean id="abstractConceptKernel" class="org.apache.ctakes.ytex.kernel.evaluator.ConceptKernel"
+		abstract="true" init-method="init">
+		<property name="conceptSimilarityService" ref="conceptSimilarityService" />
+		<property name="cacheManager" ref="cacheManager" />
+	</bean>
+	<bean id="abstractLinKernel" class="org.apache.ctakes.ytex.kernel.evaluator.LinKernel"
+		abstract="true">
+		<property name="conceptSimilarityService" ref="conceptSimilarityService" />
+		<property name="cacheManager" ref="cacheManager" />
+	</bean>
+	<bean id="abstractSemanticSimKernel"
+		class="org.apache.ctakes.ytex.kernel.evaluator.SemanticSimKernel"
+		abstract="true">
+		<property name="conceptSimilarityService" ref="conceptSimilarityService" />
+		<property name="cacheManager" ref="cacheManager" />
+	</bean>
+	<bean id="mainSuiSemanticTypeKernel"
+		class="org.apache.ctakes.ytex.kernel.evaluator.SemanticTypeKernel"
+		init-method="init">
+		<property name="conceptSimilarityService" ref="conceptSimilarityService" />
+	</bean>
+	<bean id="tuiSemanticTypeKernel"
+		class="org.apache.ctakes.ytex.kernel.evaluator.SemanticTypeKernel"
+		init-method="init">
+		<property name="mode" value="TUI" />
+		<property name="conceptSimilarityService" ref="conceptSimilarityService" />
+	</bean>
+	<bean id="wordSenseDisambiguator"
+		class="org.apache.ctakes.ytex.kernel.wsd.WordSenseDisambiguatorImpl">
+		<property name="conceptSimilarityService" ref="conceptSimilarityService" />
+	</bean>
+</beans>

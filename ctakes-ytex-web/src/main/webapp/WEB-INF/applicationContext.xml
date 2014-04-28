@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<import resource="classpath:/org/apache/ctakes/ytex/beans-datasource.xml" />
+	<import resource="classpath:/org/apache/ctakes/ytex/beans-kernel.hbm.xml" />
+	<import resource="classpath:/org/apache/ctakes/ytex/beans-kernel.xml" />
+	<import resource="classpath:/org/apache/ctakes/ytex/web/beans-kernel-simweb.xml" />
+	<import resource="classpath:/org/apache/ctakes/ytex/web/beans-web.xml" />
+	<import resource="classpath:/org/apache/ctakes/ytex/web/beans-ws.xml" />
+</beans>
