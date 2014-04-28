@@ -39,8 +39,9 @@ echo This environment variable is needed to run this program
 goto end
 
 :okHome
+@set PATH=%PATH%;%CTAKES_HOME%\lib\auth\x64
 cd %CTAKES_HOME%
-java -cp "%CTAKES_HOME%/lib/*;%CTAKES_HOME%/desc/;%CTAKES_HOME%/resources/" -Dlog4j.configuration=file:/%CTAKES_HOME%/config/log4j.xml -Xms512M -Xmx1024M org.apache.uima.tools.cpm.CpmFrame
+java -cp "%CTAKES_HOME%/lib/*;%CTAKES_HOME%/desc/;%CTAKES_HOME%/resources/" -Dlog4j.configuration=file:/%CTAKES_HOME%/config/log4j.xml -Xms512M -Xmx2g org.apache.uima.tools.cpm.CpmFrame
 
 :end
 ENDLOCAL

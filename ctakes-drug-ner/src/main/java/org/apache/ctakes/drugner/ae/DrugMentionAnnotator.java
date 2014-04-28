@@ -184,14 +184,10 @@ public class DrugMentionAnnotator extends JCasAnnotator_ImplBase
 	throws ResourceInitializationException
 	{
 		super.initialize(annotCtx);
-		try
-		{
-			iv_medicationRelatedSections = ParamUtil.getStringParameterValuesSet(
+
+		iv_medicationRelatedSections = ParamUtil.getStringParameterValuesSet(
 					PARAM_SEGMENTS_MEDICATION_RELATED, annotCtx);
-		} catch (ResourceAccessException e)
-		{
-			throw new ResourceInitializationException(e);
-		}
+
 
 		iv_fractionFSM = new FractionStrengthFSM();
 		iv_suffixFSM = new SuffixStrengthFSM();

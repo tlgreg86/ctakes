@@ -159,6 +159,11 @@
 			<groupId>org.uimafit</groupId>
 			<artifactId>uimafit</artifactId>
 		</dependency>
+		<!-- we excluded spring-context uimafit transitive dependency in the parent pom, include it here -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
