@@ -252,7 +252,7 @@
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
-						<phase>compile</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>copy-dependencies</goal>
 						</goals>
@@ -271,7 +271,7 @@
 				<executions>
 					<execution>
 						<id>generate-config</id>
-						<phase>process-classes</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>run</goal>
 						</goals>
@@ -286,7 +286,7 @@
 					</execution>
 					<execution>
 						<id>generate-test-config</id>
-						<phase>process-test-classes</phase>
+						<phase>pre-integration-test</phase>
 						<goals>
 							<goal>run</goal>
 						</goals>
@@ -302,17 +302,6 @@
 									<property name="config.local" value="${project.build.testOutputDirectory}" />
 									<property name="ctakes.home" value="${project.basedir}/.." />
 								</ant>
-							</target>
-						</configuration>
-					</execution>
-					<execution>
-						<id>setup-test-database</id>
-						<phase>pre-integration-test</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<target unless="skipTests">
 								<!-- default to hsql, override via -D -->
 								<property name="db.type" value="hsql" />
 								<ant antfile="build-setup.xml" dir="scripts" target="deleteTestDb">
