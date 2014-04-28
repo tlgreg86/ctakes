@@ -89,11 +89,11 @@ public class UmlsDictionaryLookupAnnotator extends DictionaryLookupAnnotator
 		URL url = new URL(umlsaddr);
 		URLConnection conn = url.openConnection();
 		conn.setDoOutput(true);
-		try(OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-		    BufferedReader rd = new BufferedReader(new InputStreamReader(
-		        conn.getInputStream()))){
-		  wr.write(data);
-		  wr.flush();
+		try(OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream())){
+      wr.write(data);
+      wr.flush();
+		}
+		try(BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()))){
 		  boolean result = false;
 		  String line;
 		  while ((line = rd.readLine()) != null) {
