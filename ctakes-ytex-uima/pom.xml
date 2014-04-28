@@ -147,7 +147,7 @@
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
-						<phase>compile</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>copy-dependencies</goal>
 						</goals>
@@ -191,7 +191,6 @@
 						<additionalClasspathElement>${project.basedir}/../ctakes-drug-ner-res/src/main/resources</additionalClasspathElement>
 						<additionalClasspathElement>${project.basedir}/../ctakes-lvg-res/src/main/resources</additionalClasspathElement>
 						<additionalClasspathElement>${project.basedir}/../ctakes-ne-contexts-res/src/main/resources</additionalClasspathElement>
-						<additionalClasspathElement>${project.basedir}/../ctakes-pad-term-spotter-res/src/main/resources</additionalClasspathElement>
 						<additionalClasspathElement>${project.basedir}/../ctakes-pos-tagger-res/src/main/resources</additionalClasspathElement>
 						<additionalClasspathElement>${project.basedir}/../ctakes-relation-extractor-res/src/main/resources</additionalClasspathElement>
 						<additionalClasspathElement>${project.basedir}/../ctakes-side-effect-res/src/main/resources</additionalClasspathElement>
