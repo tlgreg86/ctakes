@@ -112,4 +112,7 @@ Call with option -projecthelp for more info.
 	</target>
 	<target name="templateToConfig" depends="templateToConfig.init,templateToConfig.updateConfig" description="generate config files from templates using values specified in ytex.properties">
 	</target>
+	<target name="test.setup" description="setup properties and database for unit tests" depends="generateTestYtexProperties,templateToConfig,deleteTestDb">
+		<ant dir="data" target="all" inheritAll="true"/>
+	</target>
 </project>

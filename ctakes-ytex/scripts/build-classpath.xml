@@ -55,17 +55,21 @@
 	<condition property="mm.home" value="${env.MM_HOME}">
 		<isset property="env.MM_HOME" />
 	</condition>
-	<!-- directory where ant extension libraries are located -->
-	<condition property="ant.lib.ext" value="${ctakes.home}/ctakes-ytex/target/lib" else="${ctakes.home}/lib">
+	<!-- cp for ant extension libraries -->
+	<path id="ant.cp.dev">
+		<pathelement location="${ctakes.home}/ctakes-ytex/target/lib/ant-contrib-1.0b3.jar" />
+		<pathelement location="${ctakes.home}/ctakes-ytex-uima/target/lib/ant-contrib-1.0b3.jar" />
+	</path>
+	<path id="ant.cp.prod">
+		<pathelement location="${ctakes.home}/lib/ant-contrib-1.0b3.jar" />
+	</path>
+	<condition property="ant.cp" value="ant.cp.dev" else="ant.cp.prod">
 		<isset property="ctakes.dev.mode" />
 	</condition>
-	<path id="ant.cp">
-		<pathelement location="${ant.lib.ext}/ant-contrib-1.0b3.jar" />
-	</path>
-	<taskdef name="for" classname="net.sf.antcontrib.logic.ForTask" onerror="ignore" classpathref="ant.cp" />
-	<taskdef name="if" classname="net.sf.antcontrib.logic.IfTask" onerror="ignore" classpathref="ant.cp" />
-	<taskdef name="propertycopy" classname="net.sf.antcontrib.property.PropertyCopy" onerror="ignore" classpathref="ant.cp" />
-	<taskdef name="math" classname="net.sf.antcontrib.math.MathTask" onerror="ignore" classpathref="ant.cp" />
+	<taskdef name="for" classname="net.sf.antcontrib.logic.ForTask" onerror="ignore" classpathref="${ant.cp}" />
+	<taskdef name="if" classname="net.sf.antcontrib.logic.IfTask" onerror="ignore" classpathref="${ant.cp}" />
+	<taskdef name="propertycopy" classname="net.sf.antcontrib.property.PropertyCopy" onerror="ignore" classpathref="${ant.cp}" />
+	<taskdef name="math" classname="net.sf.antcontrib.math.MathTask" onerror="ignore" classpathref="${ant.cp}" />
 	<path id="kernel.cp.dev">
 		<pathelement location="${config.local}" />
 		<dirset dir="${ctakes.home}" includes="**/src/main/resources" />
@@ -99,7 +103,7 @@
 		<equals arg1="mssql" arg2="${db.type}" />
 	</condition>
 	<target name="echoproperties">
-		<pathconvert property="ant.cp.path" refid="ant.cp" />
+		<pathconvert property="ant.cp.path" refid="${ant.cp}" />
 		<pathconvert property="kernel.cp.path" refid="${kernel.cp}" />
 		<echoproperties />
 	</target>

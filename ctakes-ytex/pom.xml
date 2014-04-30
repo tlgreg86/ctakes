@@ -292,24 +292,9 @@
 						</goals>
 						<configuration>
 							<target>
-								<!-- generate a test ytex config if we don't have one -->
-								<ant antfile="build-setup.xml" dir="scripts"
-									target="generateTestYtexProperties">
-									<property name="config.local" value="${project.build.testOutputDirectory}" />
-									<property name="ctakes.home" value="${project.basedir}/.." />
-								</ant>
-								<ant antfile="build-setup.xml" dir="scripts" target="templateToConfig">
-									<property name="config.local" value="${project.build.testOutputDirectory}" />
-									<property name="ctakes.home" value="${project.basedir}/.." />
-								</ant>
 								<!-- default to hsql, override via -D -->
 								<property name="db.type" value="hsql" />
-								<ant antfile="build-setup.xml" dir="scripts" target="deleteTestDb">
-									<property name="config.local" value="${project.build.testOutputDirectory}" />
-									<property name="db.type" value="${db.type}" />
-									<property name="ctakes.home" value="${project.basedir}/.." />
-								</ant>
-								<ant antfile="build.xml" dir="scripts/data" target="all">
+								<ant antfile="build-setup.xml" dir="scripts" target="test.setup">
 									<property name="config.local" value="${project.build.testOutputDirectory}" />
 									<property name="db.type" value="${db.type}" />
 									<property name="ytex.test" value="true" />
