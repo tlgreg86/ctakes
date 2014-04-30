@@ -41,10 +41,10 @@ public class UmlsDictionaryLookupAnnotator extends DictionaryLookupAnnotator
 	 * Performs a check for user's UMLS licence at init time via their RESTful API
 	 * User's will need to configure their UMLS username/password in their config
 	 */
-	private final static String UMLSADDR_PARAM = "ctakes.umlsaddr";
-	private final static String UMLSVENDOR_PARAM = "ctakes.umlsvendor";
-	private final static String UMLSUSER_PARAM = "ctakes.umlsuser";
-	private final static String UMLSPW_PARAM = "ctakes.umlspw";
+	public final static String UMLSADDR_PARAM = "ctakes.umlsaddr";
+	public final static String UMLSVENDOR_PARAM = "ctakes.umlsvendor";
+	public final static String UMLSUSER_PARAM = "ctakes.umlsuser";
+	public final static String UMLSPW_PARAM = "ctakes.umlspw";
 	
 	private Logger iv_logger = Logger.getLogger(getClass().getName());
 
