@@ -62,11 +62,26 @@ public class DurationExpectationFeatureExtractor implements SimpleFeatureExtract
     Map<String, Float> eventDistribution = textToDistribution.get(eventText);
     if(eventDistribution == null) {
       features.add(new Feature("no_duration_info"));
-    } else {
-      float expectation = Utils.expectedDuration(eventDistribution);
-      features.add(new Feature("expected_duration", expectation));
+      return features;
+    }
+    
+    float expectation = Utils.expectedDuration(eventDistribution);
+    features.add(new Feature("expected_duration", expectation));
+    
+    for(String bin : Utils.bins) {
+      features.add(new Feature(bin, eventDistribution.get(bin)));
     }
 
+    String largestBin = null;
+    float largestValue = 0f;
+    for(String bin : Utils.bins) {
+      if(eventDistribution.get(bin) > largestValue) {
+        largestBin = bin;
+        largestValue = eventDistribution.get(bin);
+      }
+    }
+    features.add(new Feature("largest_bin_" + largestBin));
+    
     return features;
   }
 }
