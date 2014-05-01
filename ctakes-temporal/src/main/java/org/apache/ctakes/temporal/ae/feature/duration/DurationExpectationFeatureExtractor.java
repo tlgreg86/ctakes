@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.temporal.duration.Utils;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.Feature;
@@ -39,9 +40,16 @@ public class DurationExpectationFeatureExtractor implements SimpleFeatureExtract
   @Override
   public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException { 
 
-    List<Feature> features = new ArrayList<Feature>();
+    List<Feature> features = new ArrayList<>();
     File durationLookup = new File(Utils.durationDistributionPath);
-    String eventText = annotation.getCoveredText().toLowerCase();
+    
+    String eventText;
+    try {
+      eventText = Utils.normalizeEventText(view, annotation);
+    } catch (AnalysisEngineProcessException e1) {
+      e1.printStackTrace();
+      return features;
+    } 
     
     Map<String, Map<String, Float>> textToDistribution = null;
     try {
@@ -58,7 +66,7 @@ public class DurationExpectationFeatureExtractor implements SimpleFeatureExtract
       float expectation = Utils.expectedDuration(eventDistribution);
       features.add(new Feature("expected_duration", expectation));
     }
-    
+
     return features;
   }
 }
