@@ -42,10 +42,13 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.FileUtils;
 import org.cleartk.classifier.jar.JarClassifierBuilder;
 import org.cleartk.classifier.libsvm.LIBSVMStringOutcomeDataWriter;
 //import org.cleartk.classifier.liblinear.LIBLINEARStringOutcomeDataWriter;
 import org.cleartk.eval.AnnotationStatistics;
+import org.cleartk.util.ViewURIUtil;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.factory.AggregateBuilder;
 import org.uimafit.factory.AnalysisEngineFactory;
@@ -56,188 +59,228 @@ import org.uimafit.util.JCasUtil;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
 
 public class EvaluationOfEventProperties extends
-    Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
+Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
+	static interface TempRelOptions extends Evaluation_ImplBase.Options{
+		@Option
+		public boolean getPrintFormattedRelations();
 
-  private static final String DOC_TIME_REL = "docTimeRel";
-  private static final String CONTEXTUAL_MODALITY = "contextualModality";
-  
-  private static final List<String> PROPERTY_NAMES = Arrays.asList(DOC_TIME_REL, CONTEXTUAL_MODALITY);
+		@Option
+		public boolean getBaseline();
 
-  public static void main(String[] args) throws Exception {
-    Options options = CliFactory.parseArguments(Options.class, args);
-    List<Integer> patientSets = options.getPatients().getList();
-    List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-    List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
-    List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
-    
-    List<Integer> allTraining = new ArrayList<Integer>(trainItems);
-    List<Integer> allTest = null;
-    if(options.getTest()){
-      allTraining.addAll(devItems);
-      allTest = new ArrayList<Integer>(testItems);
-    }else{
-      allTest = new ArrayList<Integer>(devItems);
-    }
-    
-    EvaluationOfEventProperties evaluation = new EvaluationOfEventProperties(
-        new File("target/eval/event-properties"),
-        options.getRawTextDirectory(),
-        options.getXMLDirectory(),
-        options.getXMLFormat(),
-        options.getXMIDirectory());
-    evaluation.prepareXMIsFor(patientSets);
-    evaluation.logClassificationErrors(new File("target/eval"), "ctakes-event-property-errors");
-    Map<String, AnnotationStatistics<String>> stats = evaluation.trainAndTest(allTraining, allTest);
-    for (String name : PROPERTY_NAMES) {
-      System.err.println("====================");
-      System.err.println(name);
-      System.err.println("--------------------");
-      System.err.println(stats.get(name));
-    }
-  }
+		@Option
+		public boolean getClosure();
 
-  private Map<String, Logger> loggers = Maps.newHashMap();
-  
-  public EvaluationOfEventProperties(
-      File baseDirectory,
-      File rawTextDirectory,
-      File xmlDirectory,
-      XMLFormat xmlFormat,
-      File xmiDirectory) {
-    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null);
-    for (String name : PROPERTY_NAMES) {
-      this.loggers.put(name, Logger.getLogger(String.format("%s.%s", this.getClass().getName(), name)));
-    }
-  }
+		@Option
+		public boolean getUseTmp();
 
-  @Override
-  protected void train(CollectionReader collectionReader, File directory) throws Exception {
-    AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-    aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class));
-    aggregateBuilder.add(CopyFromGold.getDescription(TimeMention.class));
-    aggregateBuilder.add(DocTimeRelAnnotator.createDataWriterDescription(
-    		LIBSVMStringOutcomeDataWriter.class,
-        new File(directory, DOC_TIME_REL)));
-    aggregateBuilder.add(ContextualModalityAnnotator.createDataWriterDescription(
-        LIBSVMStringOutcomeDataWriter.class, 
-        new File(directory, CONTEXTUAL_MODALITY)));
-    SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
-    for(String propertyName : PROPERTY_NAMES){
-      JarClassifierBuilder.trainAndPackage(new File(directory, propertyName), "-h","0","-c", "1000");
-    }
-  }
+		@Option
+		public boolean getUseGoldAttributes();
+	}
+	private static final String DOC_TIME_REL = "docTimeRel";
+	private static final String CONTEXTUAL_MODALITY = "contextualModality";
 
-  @Override
-  protected Map<String, AnnotationStatistics<String>> test(
-      CollectionReader collectionReader,
-      File directory) throws Exception {
-    AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-    aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class));
-    aggregateBuilder.add(CopyFromGold.getDescription(TimeMention.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearEventProperties.class));
-    aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription(new File(directory, DOC_TIME_REL)));
-    aggregateBuilder.add(ContextualModalityAnnotator.createAnnotatorDescription(new File(directory, CONTEXTUAL_MODALITY)));
-    
-    Function<EventMention, ?> eventMentionToSpan = AnnotationStatistics.annotationToSpan();
-    Map<String, Function<EventMention, String>> propertyGetters;
-    propertyGetters = new HashMap<String, Function<EventMention, String>>();
-    for (String name : PROPERTY_NAMES) {
-      propertyGetters.put(name, getPropertyGetter(name));
-    }
+	private static final List<String> PROPERTY_NAMES = Arrays.asList(DOC_TIME_REL, CONTEXTUAL_MODALITY);
 
-    Map<String, AnnotationStatistics<String>> statsMap = new HashMap<String, AnnotationStatistics<String>>();
-    
-    for(String propertyName : PROPERTY_NAMES){
-      statsMap.put(propertyName, new AnnotationStatistics<String>());
-    }
-    
-    for (JCas jCas : new JCasIterable(collectionReader, aggregateBuilder.createAggregate())) {
-      JCas goldView = jCas.getView(GOLD_VIEW_NAME);
-      JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
-      String text = goldView.getDocumentText();
-      for (Segment segment : JCasUtil.select(jCas, Segment.class)) {
-        if (!THYMEData.SEGMENTS_TO_SKIP.contains(segment.getId())) {
-          List<EventMention> goldEvents = selectExact(goldView, EventMention.class, segment);
-          List<EventMention> systemEvents = selectExact(systemView, EventMention.class, segment);
-          for (String name : PROPERTY_NAMES) {
-            Function<EventMention, String> getProperty = propertyGetters.get(name);
-            statsMap.get(name).add(
-                goldEvents,
-                systemEvents,
-                eventMentionToSpan,
-                getProperty);
-            for (int i = 0; i < goldEvents.size(); ++i) {
-              String goldOutcome = getProperty.apply(goldEvents.get(i));
-              String systemOutcome = getProperty.apply(systemEvents.get(i));
-              if (!goldOutcome.equals(systemOutcome)) {
-                EventMention event = goldEvents.get(i);
-                int begin = event.getBegin();
-                int end = event.getEnd();
-                int windowBegin = Math.max(0, begin - 50);
-                int windowEnd = Math.min(text.length(), end + 50);
-                this.loggers.get(name).fine(String.format(
-                    "%s was %s but should be %s, in  ...%s[!%s!]%s...",
-                    name,
-                    systemOutcome,
-                    goldOutcome,
-                    text.substring(windowBegin, begin).replaceAll("[\r\n]", " "),
-                    text.substring(begin, end),
-                    text.substring(end, windowEnd).replaceAll("[\r\n]", " ")));
-              }
-            }
-          }
-        }
-      }
-    }
-    return statsMap;
-  }
-  
-  public void logClassificationErrors(File outputDir, String outputFilePrefix) throws IOException {
-    if (!outputDir.exists()) {
-      outputDir.mkdirs();
-    }
-    for (String name : PROPERTY_NAMES) {
-      Logger logger = this.loggers.get(name);
-      logger.setLevel(Level.FINE);
-      File outputFile = new File(outputDir, String.format("%s.%s.log", outputFilePrefix, name));
-      FileHandler handler = new FileHandler(outputFile.getPath());
-      handler.setFormatter(new Formatter() {
-        @Override
-        public String format(LogRecord record) {
-          return record.getMessage() + '\n';
-        }
-      });
-      logger.addHandler(handler);
-    }
-  }
+	public static void main(String[] args) throws Exception {
+		TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
+		List<Integer> patientSets = options.getPatients().getList();
+		List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
+		List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
+		List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
 
-  private static Function<EventMention, String> getPropertyGetter(final String propertyName) {
-    return new Function<EventMention, String>() {
-      @Override
-      public String apply(EventMention eventMention) {
-        EventProperties eventProperties = eventMention.getEvent().getProperties();
-        Feature feature = eventProperties.getType().getFeatureByBaseName(propertyName);
-        return eventProperties.getFeatureValueAsString(feature);
-      }
-    };
-  }
+		try{
+			File workingDir = new File("target/eval/event-properties");
+			if(!workingDir.exists()) workingDir.mkdirs();
+			if(options.getUseTmp()){
+				File tempModelDir = File.createTempFile("temporal", null, workingDir);
+				tempModelDir.delete();
+				tempModelDir.mkdir();
+				workingDir = tempModelDir;
+			}
 
-  public static class ClearEventProperties extends JCasAnnotator_ImplBase {
-    @Override
-    public void process(JCas jCas) throws AnalysisEngineProcessException {
-      for (EventProperties eventProperties : JCasUtil.select(jCas, EventProperties.class)) {
-        eventProperties.setAspect(null);
-        eventProperties.setCategory(null);
-        eventProperties.setContextualAspect(null);
-        eventProperties.setContextualModality(null);
-        eventProperties.setDegree(null);
-        eventProperties.setDocTimeRel(null);
-        eventProperties.setPermanence(null);
-        eventProperties.setPolarity(0);
-      }
-    }
+			EvaluationOfEventProperties evaluation = new EvaluationOfEventProperties(
+					workingDir,//new File("target/eval/event-properties"),
+					options.getRawTextDirectory(),
+					options.getXMLDirectory(),
+					options.getXMLFormat(),
+					options.getXMIDirectory());
+			evaluation.prepareXMIsFor(patientSets);
+			evaluation.logClassificationErrors(workingDir, "ctakes-event-property-errors");
 
-  }
+			List<Integer> allTraining = new ArrayList<Integer>(trainItems);
+			List<Integer> allTest = null;
+			if(options.getTest()){
+				allTraining.addAll(devItems);
+				allTest = new ArrayList<Integer>(testItems);
+			}else{
+				allTest = new ArrayList<Integer>(devItems);
+			}
+
+
+			Map<String, AnnotationStatistics<String>> stats = evaluation.trainAndTest(allTraining, allTest);
+			for (String name : PROPERTY_NAMES) {
+				System.err.println("====================");
+				System.err.println(name);
+				System.err.println("--------------------");
+				System.err.println(stats.get(name));
+			}
+			if(options.getUseTmp()){
+				// won't work because it's not empty. should we be concerned with this or is it responsibility of 
+				// person invoking the tmp flag?
+				FileUtils.deleteRecursive(workingDir);
+			}
+		}catch(ResourceInitializationException e){
+			System.err.println("Error with Initialization");
+			e.printStackTrace();
+		}
+	}
+
+	private Map<String, Logger> loggers = Maps.newHashMap();
+
+	public EvaluationOfEventProperties(
+			File baseDirectory,
+			File rawTextDirectory,
+			File xmlDirectory,
+			XMLFormat xmlFormat,
+			File xmiDirectory) {
+		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null);
+		for (String name : PROPERTY_NAMES) {
+			this.loggers.put(name, Logger.getLogger(String.format("%s.%s", this.getClass().getName(), name)));
+		}
+	}
+
+	@Override
+	protected void train(CollectionReader collectionReader, File directory) throws Exception {
+		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class));
+		aggregateBuilder.add(CopyFromGold.getDescription(TimeMention.class));
+		aggregateBuilder.add(DocTimeRelAnnotator.createDataWriterDescription(
+				LIBSVMStringOutcomeDataWriter.class,
+				new File(directory, DOC_TIME_REL)));
+		aggregateBuilder.add(ContextualModalityAnnotator.createDataWriterDescription(
+				LIBSVMStringOutcomeDataWriter.class, 
+				new File(directory, CONTEXTUAL_MODALITY)));
+		SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
+		for(String propertyName : PROPERTY_NAMES){
+			JarClassifierBuilder.trainAndPackage(new File(directory, propertyName), "-h","0","-c", "1000");
+		}
+	}
+
+	@Override
+	protected Map<String, AnnotationStatistics<String>> test(
+			CollectionReader collectionReader,
+			File directory) throws Exception {
+		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class));
+		aggregateBuilder.add(CopyFromGold.getDescription(TimeMention.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearEventProperties.class));
+		aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription(new File(directory, DOC_TIME_REL)));
+		aggregateBuilder.add(ContextualModalityAnnotator.createAnnotatorDescription(new File(directory, CONTEXTUAL_MODALITY)));
+
+		Function<EventMention, ?> eventMentionToSpan = AnnotationStatistics.annotationToSpan();
+		Map<String, Function<EventMention, String>> propertyGetters;
+		propertyGetters = new HashMap<String, Function<EventMention, String>>();
+		for (String name : PROPERTY_NAMES) {
+			propertyGetters.put(name, getPropertyGetter(name));
+		}
+
+		Map<String, AnnotationStatistics<String>> statsMap = new HashMap<String, AnnotationStatistics<String>>();
+
+		for(String propertyName : PROPERTY_NAMES){
+			statsMap.put(propertyName, new AnnotationStatistics<String>());
+		}
+
+		for (JCas jCas : new JCasIterable(collectionReader, aggregateBuilder.createAggregate())) {
+			JCas goldView = jCas.getView(GOLD_VIEW_NAME);
+			JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
+			String text = goldView.getDocumentText();
+			for (Segment segment : JCasUtil.select(jCas, Segment.class)) {
+				if (!THYMEData.SEGMENTS_TO_SKIP.contains(segment.getId())) {
+					List<EventMention> goldEvents = selectExact(goldView, EventMention.class, segment);
+					List<EventMention> systemEvents = selectExact(systemView, EventMention.class, segment);
+					for (String name : PROPERTY_NAMES) {
+						this.loggers.get(name).fine("Errors in : " + ViewURIUtil.getURI(jCas).toString());
+						Function<EventMention, String> getProperty = propertyGetters.get(name);
+						statsMap.get(name).add(
+								goldEvents,
+								systemEvents,
+								eventMentionToSpan,
+								getProperty);
+						for (int i = 0; i < goldEvents.size(); ++i) {
+							String goldOutcome = getProperty.apply(goldEvents.get(i));
+							String systemOutcome = getProperty.apply(systemEvents.get(i));
+							if (!goldOutcome.equals(systemOutcome)) {
+								EventMention event = goldEvents.get(i);
+								int begin = event.getBegin();
+								int end = event.getEnd();
+								int windowBegin = Math.max(0, begin - 50);
+								int windowEnd = Math.min(text.length(), end + 50);
+								this.loggers.get(name).fine(String.format(
+										"%s was %s but should be %s, in  ...%s[!%s!:%d-%d]%s...",
+										name,
+										systemOutcome,
+										goldOutcome,
+										text.substring(windowBegin, begin).replaceAll("[\r\n]", " "),
+										text.substring(begin, end),
+										begin,
+										end,
+										text.substring(end, windowEnd).replaceAll("[\r\n]", " ")));
+							}
+						}
+					}
+				}
+			}
+		}
+		return statsMap;
+	}
+
+	public void logClassificationErrors(File outputDir, String outputFilePrefix) throws IOException {
+		if (!outputDir.exists()) {
+			outputDir.mkdirs();
+		}
+		for (String name : PROPERTY_NAMES) {
+			Logger logger = this.loggers.get(name);
+			logger.setLevel(Level.FINE);
+			File outputFile = new File(outputDir, String.format("%s.%s.log", outputFilePrefix, name));
+			FileHandler handler = new FileHandler(outputFile.getPath());
+			handler.setFormatter(new Formatter() {
+				@Override
+				public String format(LogRecord record) {
+					return record.getMessage() + '\n';
+				}
+			});
+			logger.addHandler(handler);
+		}
+	}
+
+	private static Function<EventMention, String> getPropertyGetter(final String propertyName) {
+		return new Function<EventMention, String>() {
+			@Override
+			public String apply(EventMention eventMention) {
+				EventProperties eventProperties = eventMention.getEvent().getProperties();
+				Feature feature = eventProperties.getType().getFeatureByBaseName(propertyName);
+				return eventProperties.getFeatureValueAsString(feature);
+			}
+		};
+	}
+
+	public static class ClearEventProperties extends JCasAnnotator_ImplBase {
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			for (EventProperties eventProperties : JCasUtil.select(jCas, EventProperties.class)) {
+				eventProperties.setAspect(null);
+				eventProperties.setCategory(null);
+				eventProperties.setContextualAspect(null);
+				eventProperties.setContextualModality(null);
+				eventProperties.setDegree(null);
+				eventProperties.setDocTimeRel(null);
+				eventProperties.setPermanence(null);
+				eventProperties.setPolarity(0);
+			}
+		}
+
+	}
 }
