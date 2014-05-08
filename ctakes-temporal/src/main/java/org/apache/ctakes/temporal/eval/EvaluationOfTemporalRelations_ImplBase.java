@@ -103,10 +103,14 @@ public abstract class EvaluationOfTemporalRelations_ImplBase extends
     for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
         relationView,
         BinaryTextRelation.class))) {
-      if (!relation.getCategory().startsWith("CONTAINS")) {
-        relation.getArg1().removeFromIndexes();
-        relation.getArg2().removeFromIndexes();
-        relation.removeFromIndexes();
+    	String relationType = relation.getCategory();
+      if (relationType.startsWith("BEFORE")|| relationType.startsWith("BEGINS-ON")|| relationType.startsWith("ENDS-ON")) {
+//        relation.getArg1().removeFromIndexes();
+//        relation.getArg2().removeFromIndexes();
+//        relation.removeFromIndexes();
+    	  relation.setCategory("RARE");
+      }else if(relationType.startsWith("CONTAINS")|| relationType.startsWith("OVERLAP")){
+    	  relation.setCategory("COMMON");
       }
     }
   }
@@ -152,18 +156,31 @@ public abstract class EvaluationOfTemporalRelations_ImplBase extends
 	  protected static String formatRelation(BinaryTextRelation relation) {
 		  IdentifiedAnnotation arg1 = (IdentifiedAnnotation)relation.getArg1().getArgument();
 		  IdentifiedAnnotation arg2 = (IdentifiedAnnotation)relation.getArg2().getArgument();
+		  String arg1Type ="E";
+		  String arg2Type ="T";
+		  if(arg1 instanceof TimeMention) arg1Type = "T";
+		  if(arg2 instanceof EventMention) arg2Type = "E";
 		  String text = arg1.getCAS().getDocumentText();
 		  int begin = Math.min(arg1.getBegin(), arg2.getBegin());
 		  int end = Math.max(arg1.getBegin(), arg2.getBegin());
 		  begin = Math.max(0, begin - 50);
 		  end = Math.min(text.length(), end + 50);
 		  return String.format(
-				  "%s(%s(type=%d), %s(type=%d)) in ...%s...",
+				  "%s(%s(type=%d!%d-%d!%s), %s(type=%d!%d-%d!%s)) in ...%s...",
 				  relation.getCategory(),
 				  arg1.getCoveredText(),
 				  arg1.getTypeID(),
+				  //add extra
+				  arg1.getBegin(),
+				  arg1.getEnd(),
+				  arg1Type,
+				  
 				  arg2.getCoveredText(),
 				  arg2.getTypeID(),
+				  //add extra
+				  arg2.getBegin(),
+				  arg2.getEnd(),
+				  arg2Type,
 				  text.substring(begin, end).replaceAll("[\r\n]", " "));
 	  }
 
