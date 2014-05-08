@@ -51,179 +51,197 @@ import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
 
 public abstract class EvaluationOfAnnotationSpans_ImplBase extends
-    Evaluation_ImplBase<AnnotationStatistics<String>> {
+Evaluation_ImplBase<AnnotationStatistics<String>> {
 
-  private final Logger logger = Logger.getLogger(this.getClass().getName());
-  public void setLogging(Level level, File outputFile) throws IOException {
-    if (!outputFile.getParentFile().exists()) {
-      outputFile.getParentFile().mkdirs();
-    }
-    this.logger.setLevel(level);
-    FileHandler handler = new FileHandler(outputFile.getPath());
-    handler.setFormatter(new Formatter() {
-      @Override
-      public String format(LogRecord record) {
-        return record.getMessage() + '\n';
-      }
-    });
-    this.logger.addHandler(handler);
-  }
+	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	public void setLogging(Level level, File outputFile) throws IOException {
+		if (!outputFile.getParentFile().exists()) {
+			outputFile.getParentFile().mkdirs();
+		}
+		this.logger.setLevel(level);
+		FileHandler handler = new FileHandler(outputFile.getPath());
+		handler.setFormatter(new Formatter() {
+			@Override
+			public String format(LogRecord record) {
+				return record.getMessage() + '\n';
+			}
+		});
+		this.logger.addHandler(handler);
+	}
 
-  private Class<? extends Annotation> annotationClass;
+	private Class<? extends Annotation> annotationClass;
 
-  public EvaluationOfAnnotationSpans_ImplBase(
-      File baseDirectory,
-      File rawTextDirectory,
-      File xmlDirectory,
-      XMLFormat xmlFormat,
-      File xmiDirectory,
-      File treebankDirectory,
-      Class<? extends Annotation> annotationClass) {
-    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, treebankDirectory);
-    this.annotationClass = annotationClass;
-  }
-  
-  public EvaluationOfAnnotationSpans_ImplBase(
-		File baseDirectory,
-		File rawTextDirectory, 
-		File xmlDirectory,
-		XMLFormat xmlFormat,
-		File xmiDirectory,
-		Class<? extends Annotation> annotationClass) {
-	  this(baseDirectory,rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null, annotationClass);
-  }
+	public EvaluationOfAnnotationSpans_ImplBase(
+			File baseDirectory,
+			File rawTextDirectory,
+			File xmlDirectory,
+			XMLFormat xmlFormat,
+			File xmiDirectory,
+			File treebankDirectory,
+			Class<? extends Annotation> annotationClass) {
+		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, treebankDirectory);
+		this.annotationClass = annotationClass;
+	}
 
-protected abstract AnalysisEngineDescription getDataWriterDescription(File directory)
-      throws ResourceInitializationException;
+	public EvaluationOfAnnotationSpans_ImplBase(
+			File baseDirectory,
+			File rawTextDirectory, 
+			File xmlDirectory,
+			XMLFormat xmlFormat,
+			File xmiDirectory,
+			Class<? extends Annotation> annotationClass) {
+		this(baseDirectory,rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null, annotationClass);
+	}
 
-  protected abstract void trainAndPackage(File directory) throws Exception;
+	protected abstract AnalysisEngineDescription getDataWriterDescription(File directory)
+			throws ResourceInitializationException;
 
-  @Override
-  protected void train(CollectionReader collectionReader, File directory) throws Exception {
-    AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-    aggregateBuilder.add(CopyFromGold.getDescription(this.annotationClass));
-    aggregateBuilder.add(this.getDataWriterDescription(directory), "TimexView", CAS.NAME_DEFAULT_SOFA);
-    SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
-    this.trainAndPackage(directory);
-  }
+	protected abstract void trainAndPackage(File directory) throws Exception;
 
-  protected abstract AnalysisEngineDescription getAnnotatorDescription(File directory)
-      throws ResourceInitializationException;
+	@Override
+	protected void train(CollectionReader collectionReader, File directory) throws Exception {
+		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+		aggregateBuilder.add(CopyFromGold.getDescription(this.annotationClass));
+		aggregateBuilder.add(this.getDataWriterDescription(directory), "TimexView", CAS.NAME_DEFAULT_SOFA);
+		SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
+		this.trainAndPackage(directory);
+	}
 
-  protected abstract Collection<? extends Annotation> getGoldAnnotations(JCas jCas, Segment segment);
+	protected abstract AnalysisEngineDescription getAnnotatorDescription(File directory)
+			throws ResourceInitializationException;
 
-  protected abstract Collection<? extends Annotation> getSystemAnnotations(JCas jCas, Segment segment);
+	protected abstract Collection<? extends Annotation> getGoldAnnotations(JCas jCas, Segment segment);
 
-  @Override
-  protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
-      throws Exception {
-    AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-    aggregateBuilder.add(this.getAnnotatorDescription(directory), "TimexView", CAS.NAME_DEFAULT_SOFA);
-    if(this.i2b2Output != null){
-      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
-    }
-    AnnotationStatistics<String> stats = new AnnotationStatistics<String>();
-    Ordering<Annotation> bySpans = Ordering.<Integer> natural().lexicographical().onResultOf(
-        new Function<Annotation, List<Integer>>() {
-          @Override
-          public List<Integer> apply(Annotation annotation) {
-            return Arrays.asList(annotation.getBegin(), annotation.getEnd());
-          }
-        });
-    for (JCas jCas : new JCasIterable(collectionReader, aggregateBuilder.createAggregate())) {
-      JCas goldView = jCas.getView(GOLD_VIEW_NAME);
-      JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
-      for (Segment segment : JCasUtil.select(jCas, Segment.class)) {
-        if (!THYMEData.SEGMENTS_TO_SKIP.contains(segment.getId())) {
-          Collection<? extends Annotation> goldAnnotations = this.getGoldAnnotations(goldView, segment);
-          Collection<? extends Annotation> systemAnnotations = this.getSystemAnnotations(systemView, segment);
-          stats.add(goldAnnotations, systemAnnotations);
-    
-          Set<Annotation> goldSet = new TreeSet<Annotation>(bySpans);
-          for (Annotation goldAnnotation : goldAnnotations) {
-            // TODO: fix data so that this is not necessary
-            if (goldAnnotation.getBegin() == Integer.MAX_VALUE || goldAnnotation.getEnd() == Integer.MIN_VALUE) {
-              this.logger.warning("Invalid annotation");
-              continue;
-            }
-            goldSet.add(goldAnnotation);
-          }
-          //goldSet.addAll(goldAnnotations);
-          Set<Annotation> systemSet = new TreeSet<Annotation>(bySpans);
-          systemSet.addAll(systemAnnotations);
-    
-          Set<Annotation> goldOnly = new TreeSet<Annotation>(bySpans);
-          goldOnly.addAll(goldSet);
-          goldOnly.removeAll(systemSet);
-    
-          Set<Annotation> systemOnly = new TreeSet<Annotation>(bySpans);
-          systemOnly.addAll(systemSet);
-          systemOnly.removeAll(goldSet);
-    
-          String text = jCas.getDocumentText().replaceAll("[\r\n]", " ");
-          if (!goldOnly.isEmpty() || !systemOnly.isEmpty()) {
-            this.logger.fine("Errors in : " + ViewURIUtil.getURI(jCas).toString());
-            Set<Annotation> errors = new TreeSet<Annotation>(bySpans);
-            errors.addAll(goldOnly);
-            errors.addAll(systemOnly);
-            for (Annotation annotation : errors) {
-              int begin = annotation.getBegin();
-              int end = annotation.getEnd();
-              int windowBegin = Math.max(0, begin - 50);
-              int windowEnd = Math.min(text.length(), end + 50);
-              String label = goldOnly.contains(annotation) ? "DROPPED:" : "ADDED:  ";
-              this.logger.fine(String.format(
-                  "%s  ...%s[!%s!:%d-%d]%s...",
-                  label,
-                  text.substring(windowBegin, begin),
-                  text.substring(begin, end),
-                  begin,
-                  end,
-                  text.substring(end, windowEnd)));
-            }
-          }
-          Set<Annotation> partialGold = new HashSet<Annotation>();
-          Set<Annotation> partialSystem = new HashSet<Annotation>();
+	protected abstract Collection<? extends Annotation> getSystemAnnotations(JCas jCas, Segment segment);
 
-          // get overlapping spans
-          if(this.printOverlapping){
-            // iterate over all remaining gold annotations
-            for(Annotation gold : goldOnly){
-              Annotation bestSystem = null;
-              int bestOverlap = 0;
-              for(Annotation system : systemOnly){
-                if(system.getBegin() >= gold.getBegin() && system.getEnd() <= gold.getEnd()){
-                  // system completely contained by gold
-                  int overlap = system.getEnd() - system.getBegin();
-                  if(overlap > bestOverlap){
-                    bestOverlap = overlap;
-                    bestSystem = system;
-                  }
-                }else if(gold.getBegin() >= system.getBegin() && gold.getEnd() <= system.getEnd()){
-                  // gold completely contained by gold
-                  int overlap = gold.getEnd() - gold.getBegin();
-                  if(overlap > bestOverlap){
-                    bestOverlap = overlap;
-                    bestSystem = system;
-                  }
-                }
-              }
-              if(bestSystem != null){
-                this.logger.info(String.format("Allowed overlapping annotation: Gold(%s) => System(%s)\n", gold.getCoveredText(), bestSystem.getCoveredText()));
-                partialGold.add(gold);
-                partialSystem.add(bestSystem);
-              }
-            }
-            if(partialGold.size() > 0){
-              goldOnly.removeAll(partialGold);
-              systemOnly.removeAll(partialSystem);
-              assert partialGold.size() == partialSystem.size();
-              this.logger.info(String.format("Found %d overlapping spans and removed from gold/system errors\n", partialGold.size()));
-            }
-          }
-        }
-      }
-    }
-    return stats;
-  }
+	@Override
+	protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
+			throws Exception {
+		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+		aggregateBuilder.add(this.getAnnotatorDescription(directory), "TimexView", CAS.NAME_DEFAULT_SOFA);
+		if(this.i2b2Output != null){
+			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
+		}
+		AnnotationStatistics<String> stats = new AnnotationStatistics<String>();
+		Ordering<Annotation> bySpans = Ordering.<Integer> natural().lexicographical().onResultOf(
+				new Function<Annotation, List<Integer>>() {
+					@Override
+					public List<Integer> apply(Annotation annotation) {
+						return Arrays.asList(annotation.getBegin(), annotation.getEnd());
+					}
+				});
+		for (JCas jCas : new JCasIterable(collectionReader, aggregateBuilder.createAggregate())) {
+			JCas goldView = jCas.getView(GOLD_VIEW_NAME);
+			JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
+			for (Segment segment : JCasUtil.select(jCas, Segment.class)) {
+				if (!THYMEData.SEGMENTS_TO_SKIP.contains(segment.getId())) {
+					Collection<? extends Annotation> goldAnnotations = this.getGoldAnnotations(goldView, segment);
+					Collection<? extends Annotation> systemAnnotations = this.getSystemAnnotations(systemView, segment);
+					stats.add(goldAnnotations, systemAnnotations);
+
+					Set<Annotation> goldSet = new TreeSet<Annotation>(bySpans);
+					for (Annotation goldAnnotation : goldAnnotations) {
+						// TODO: fix data so that this is not necessary
+						if (goldAnnotation.getBegin() == Integer.MAX_VALUE || goldAnnotation.getEnd() == Integer.MIN_VALUE) {
+							this.logger.warning("Invalid annotation");
+							continue;
+						}
+						goldSet.add(goldAnnotation);
+					}
+					//goldSet.addAll(goldAnnotations);
+					Set<Annotation> systemSet = new TreeSet<Annotation>(bySpans);
+					systemSet.addAll(systemAnnotations);
+
+					Set<Annotation> goldOnly = new TreeSet<Annotation>(bySpans);
+					goldOnly.addAll(goldSet);
+					goldOnly.removeAll(systemSet);
+
+					Set<Annotation> systemOnly = new TreeSet<Annotation>(bySpans);
+					systemOnly.addAll(systemSet);
+					systemOnly.removeAll(goldSet);
+
+					String text = jCas.getDocumentText().replaceAll("[\r\n]", " ");
+					if (!goldOnly.isEmpty() || !systemOnly.isEmpty()) {
+						this.logger.fine("Errors in : " + ViewURIUtil.getURI(jCas).toString());
+						Set<Annotation> errors = new TreeSet<Annotation>(bySpans);
+						errors.addAll(goldOnly);
+						errors.addAll(systemOnly);
+						for (Annotation annotation : errors) {
+							int begin = annotation.getBegin();
+							int end = annotation.getEnd();
+							int windowBegin = Math.max(0, begin - 50);
+							int windowEnd = Math.min(text.length(), end + 50);
+							String label = goldOnly.contains(annotation) ? "DROPPED:" : "ADDED:  ";
+							this.logger.fine(String.format(
+									"%s  ...%s[!%s!:%d-%d]%s...",
+									label,
+									text.substring(windowBegin, begin),
+									text.substring(begin, end),
+									begin,
+									end,
+									text.substring(end, windowEnd)));
+						}
+						//add correct predictions:
+						for (Annotation annotation: goldSet){
+							if (!errors.contains(annotation)){
+								int begin = annotation.getBegin();
+								int end = annotation.getEnd();
+								int windowBegin = Math.max(0, begin - 50);
+								int windowEnd = Math.min(text.length(), end + 50);
+								String label = "CORRECT:";
+								this.logger.fine(String.format(
+										"%s  ...%s[!%s!:%d-%d]%s...",
+										label,
+										text.substring(windowBegin, begin),
+										text.substring(begin, end),
+										begin,
+										end,
+										text.substring(end, windowEnd)));
+							}
+						}
+					}
+					Set<Annotation> partialGold = new HashSet<Annotation>();
+					Set<Annotation> partialSystem = new HashSet<Annotation>();
+
+					// get overlapping spans
+					if(this.printOverlapping){
+						// iterate over all remaining gold annotations
+						for(Annotation gold : goldOnly){
+							Annotation bestSystem = null;
+							int bestOverlap = 0;
+							for(Annotation system : systemOnly){
+								if(system.getBegin() >= gold.getBegin() && system.getEnd() <= gold.getEnd()){
+									// system completely contained by gold
+									int overlap = system.getEnd() - system.getBegin();
+									if(overlap > bestOverlap){
+										bestOverlap = overlap;
+										bestSystem = system;
+									}
+								}else if(gold.getBegin() >= system.getBegin() && gold.getEnd() <= system.getEnd()){
+									// gold completely contained by gold
+									int overlap = gold.getEnd() - gold.getBegin();
+									if(overlap > bestOverlap){
+										bestOverlap = overlap;
+										bestSystem = system;
+									}
+								}
+							}
+							if(bestSystem != null){
+								this.logger.info(String.format("Allowed overlapping annotation: Gold(%s) => System(%s)\n", gold.getCoveredText(), bestSystem.getCoveredText()));
+								partialGold.add(gold);
+								partialSystem.add(bestSystem);
+							}
+						}
+						if(partialGold.size() > 0){
+							goldOnly.removeAll(partialGold);
+							systemOnly.removeAll(partialSystem);
+							assert partialGold.size() == partialSystem.size();
+							this.logger.info(String.format("Found %d overlapping spans and removed from gold/system errors\n", partialGold.size()));
+						}
+					}
+				}
+			}
+		}
+		return stats;
+	}
 }
