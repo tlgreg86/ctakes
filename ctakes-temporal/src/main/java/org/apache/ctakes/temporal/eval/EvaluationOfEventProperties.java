@@ -212,16 +212,26 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 						for (int i = 0; i < goldEvents.size(); ++i) {
 							String goldOutcome = getProperty.apply(goldEvents.get(i));
 							String systemOutcome = getProperty.apply(systemEvents.get(i));
+							EventMention event = goldEvents.get(i);
+							int begin = event.getBegin();
+							int end = event.getEnd();
+							int windowBegin = Math.max(0, begin - 50);
+							int windowEnd = Math.min(text.length(), end + 50);
 							if (!goldOutcome.equals(systemOutcome)) {
-								EventMention event = goldEvents.get(i);
-								int begin = event.getBegin();
-								int end = event.getEnd();
-								int windowBegin = Math.max(0, begin - 50);
-								int windowEnd = Math.min(text.length(), end + 50);
 								this.loggers.get(name).fine(String.format(
 										"%s was %s but should be %s, in  ...%s[!%s!:%d-%d]%s...",
 										name,
 										systemOutcome,
+										goldOutcome,
+										text.substring(windowBegin, begin).replaceAll("[\r\n]", " "),
+										text.substring(begin, end),
+										begin,
+										end,
+										text.substring(end, windowEnd).replaceAll("[\r\n]", " ")));
+							}else{//if gold outcome equals system outcome
+								this.loggers.get(name).fine(String.format(
+										"%s was correctly labeled as %s, in  ...%s[!%s!:%d-%d]%s...",
+										name,
 										goldOutcome,
 										text.substring(windowBegin, begin).replaceAll("[\r\n]", " "),
 										text.substring(begin, end),
