@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.refsem.Event;
@@ -27,6 +28,8 @@ import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.AnalysisEngineFactory;
 
+import com.google.common.collect.Sets;
+
 public class I2B2TemporalXMLReader extends JCasAnnotator_ImplBase {
   public static final String PARAM_INPUT_DIR = "PARAM_INPUT_DIR";
   @ConfigurationParameter(
@@ -41,6 +44,9 @@ public class I2B2TemporalXMLReader extends JCasAnnotator_ImplBase {
       mandatory=false,
       description="Whether to map i2b2 relations/properties/types to THYME types")
   protected boolean mapThyme=false;
+  
+  private static final Set<String> beforeSet = Sets.newHashSet("BEFORE", "ENDED_BY", "BEFORE_OVERLAP");
+  private static final Set<String> afterSet = Sets.newHashSet("BEGUN_BY", "AFTER");
   
   @Override
   public void process(JCas jcas) throws AnalysisEngineProcessException {
@@ -118,7 +124,14 @@ public class I2B2TemporalXMLReader extends JCasAnnotator_ImplBase {
       if(mapThyme){
         throw new UnsupportedOperationException("Mapping to THYME relations is not implemented yet!");
       }else{
-        link.setCategory(cat);
+        if(beforeSet.contains(cat)){
+          link.setCategory("BEFORE");
+        }else if(afterSet.contains(cat)){
+          link.setCategory("AFTER");
+        }else{
+          link.setCategory("OVERLAP");
+        }
+//        link.setCategory(cat);
       }
       link.addToIndexes();
       arg1.addToIndexes();
