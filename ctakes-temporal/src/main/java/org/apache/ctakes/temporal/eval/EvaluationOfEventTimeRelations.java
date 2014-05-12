@@ -34,6 +34,8 @@ import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.Hash
 import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveNonContainsRelations.RemoveGoldAttributes;
+import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
+import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
 import org.apache.ctakes.temporal.utils.TLinkTypeArray2;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
@@ -90,6 +92,9 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		@Option
 		public boolean getUseGoldAttributes();
+		
+		@Option
+		public boolean getSkipTrain();
 	}
 
 	//  protected static boolean DEFAULT_BOTH_DIRECTIONS = false;
@@ -112,15 +117,21 @@ EvaluationOfTemporalRelations_ImplBase{
 
 	public static void main(String[] args) throws Exception {
 		TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
-		List<Integer> patientSets = options.getPatients().getList();
-		List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-		List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
-		List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
+    List<Integer> trainItems = null;
+    List<Integer> devItems = null;
+    List<Integer> testItems = null;
+    
+    List<Integer> patientSets = options.getPatients().getList();
+    if(options.getXMLFormat() == XMLFormat.I2B2){
+      trainItems = I2B2Data.getTrainPatientSets(options.getXMLDirectory());
+      devItems = I2B2Data.getDevPatientSets(options.getXMLDirectory());
+      testItems = I2B2Data.getTestPatientSets(options.getXMLDirectory());
+    }else{
+      trainItems = THYMEData.getTrainPatientSets(patientSets);
+      devItems = THYMEData.getDevPatientSets(patientSets);
+      testItems = THYMEData.getTestPatientSets(patientSets);
+    }
 		ParameterSettings params = allParams;
-
-		//    List<ParameterSettings> possibleParams = Lists.newArrayList();
-		//    Map<ParameterSettings, Double> scoredParams = new HashMap<ParameterSettings, Double>();
-
 
 		//    possibleParams.add(defaultParams);
 
@@ -149,6 +160,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					options.getKernelParams(),
 					params);
 			evaluation.prepareXMIsFor(patientSets);
+	    if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/temporal-relations/event-time");
 			List<Integer> training = trainItems;
 			List<Integer> testing = null;
 			if(options.getTest()){
@@ -157,6 +169,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			}else{
 				testing = devItems;
 			}
+			evaluation.skipTrain = options.getSkipTrain();
 			params.stats = evaluation.trainAndTest(training, testing);//training);//
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
 			System.err.println(params.stats);
@@ -175,6 +188,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	private boolean baseline;
 	protected boolean useClosure;
 	protected boolean useGoldAttributes;
+	protected boolean skipTrain=false;
 	//  protected boolean printRelations = false;
 
 	public EvaluationOfEventTimeRelations(
@@ -221,6 +235,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	@Override
 	protected void train(CollectionReader collectionReader, File directory) throws Exception {
 		//	  if(this.baseline) return;
+	  if(this.skipTrain) return;
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class, BinaryTextRelation.class));
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveCrossSentenceRelations.class));
@@ -314,7 +329,9 @@ EvaluationOfTemporalRelations_ImplBase{
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveRelations.class));
 		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
 			EventTimeRelationAnnotator.createAnnotatorDescription(directory));
-		
+    if(this.i2b2Output != null){
+      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
+    }
 		if (this.useClosure) {//add closure for system output
 			aggregateBuilder.add(
 					AnalysisEngineFactory.createPrimitiveDescription(AddClosure.class),//AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
@@ -322,7 +339,6 @@ EvaluationOfTemporalRelations_ImplBase{
 					CAS.NAME_DEFAULT_SOFA
 					);
 		}
-		
 		Function<BinaryTextRelation, ?> getSpan = new Function<BinaryTextRelation, HashableArguments>() {
 			public HashableArguments apply(BinaryTextRelation relation) {
 				return new HashableArguments(relation);
@@ -456,31 +472,6 @@ EvaluationOfTemporalRelations_ImplBase{
 //			return goodSys;
 //		}
 
-	private static Collection<BinaryTextRelation> correctArgOrder(
-			Collection<BinaryTextRelation> systemRelations,
-			Collection<BinaryTextRelation> goldRelations) {
-		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
-
-		for(BinaryTextRelation sysrel : systemRelations){
-			Annotation sysArg1 = sysrel.getArg1().getArgument();
-			Annotation sysArg2 = sysrel.getArg2().getArgument();
-			for(BinaryTextRelation goldrel : goldRelations){
-				Annotation goldArg1 = goldrel.getArg1().getArgument();
-				Annotation goldArg2 = goldrel.getArg2().getArgument();
-				if (matchSpan(sysArg2, goldArg1) && matchSpan(sysArg1, goldArg2)){//the order of system pair was flipped 
-					if(sysrel.getCategory().equals("OVERLAP")){ //if the relation is overlap, and the arg order was flipped, then change back the order
-						RelationArgument tempArg = (RelationArgument) sysrel.getArg1().clone();
-						sysrel.setArg1((RelationArgument) sysrel.getArg2().clone());
-						sysrel.setArg2(tempArg);
-					}//for other types of relation, still maintain the type.
-					continue;
-				}
-			}
-			goodSys.add(sysrel);
-		}
-
-		return goodSys;
-	}
 
 //	@SuppressWarnings("unchecked")
 //	private static <SPAN> Collection<BinaryTextRelation> getDuplicateRelations(
@@ -530,11 +521,6 @@ EvaluationOfTemporalRelations_ImplBase{
 //		return goodSys;
 //	}
 
-	private static boolean matchSpan(Annotation arg1, Annotation arg2) {
-		boolean result = false;
-		result = arg1.getBegin() == arg2.getBegin() && arg1.getEnd() == arg2.getEnd();
-		return result;
-	}
 
 	public static class RemoveEventEventRelations extends JCasAnnotator_ImplBase {
 		public static final String PARAM_RELATION_VIEW = "RelationView";
