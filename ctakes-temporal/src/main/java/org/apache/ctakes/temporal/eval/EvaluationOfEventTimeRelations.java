@@ -471,6 +471,38 @@ EvaluationOfTemporalRelations_ImplBase{
 //			
 //			return goodSys;
 //		}
+	
+	private static boolean matchSpan(Annotation arg1, Annotation arg2) {
+		boolean result = false;
+		result = arg1.getBegin() == arg2.getBegin() && arg1.getEnd() == arg2.getEnd();
+		return result;
+	}
+	
+	private static Collection<BinaryTextRelation> correctArgOrder(
+			Collection<BinaryTextRelation> systemRelations,
+			Collection<BinaryTextRelation> goldRelations) {
+		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
+
+		for(BinaryTextRelation sysrel : systemRelations){
+			Annotation sysArg1 = sysrel.getArg1().getArgument();
+			Annotation sysArg2 = sysrel.getArg2().getArgument();
+			for(BinaryTextRelation goldrel : goldRelations){
+				Annotation goldArg1 = goldrel.getArg1().getArgument();
+				Annotation goldArg2 = goldrel.getArg2().getArgument();
+				if (matchSpan(sysArg2, goldArg1) && matchSpan(sysArg1, goldArg2)){//the order of system pair was flipped 
+					if(sysrel.getCategory().equals("OVERLAP")){ //if the relation is overlap, and the arg order was flipped, then change back the order
+						RelationArgument tempArg = (RelationArgument) sysrel.getArg1().clone();
+						sysrel.setArg1((RelationArgument) sysrel.getArg2().clone());
+						sysrel.setArg2(tempArg);
+					}//for other types of relation, still maintain the type.
+					continue;
+				}
+			}
+			goodSys.add(sysrel);
+		}
+
+		return goodSys;
+	}
 
 
 //	@SuppressWarnings("unchecked")
