@@ -65,7 +65,7 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 	    return Lists.newArrayList(
 	    						  new TokenFeaturesExtractor()
 	    						, new PartOfSpeechFeaturesExtractor()
-	    						, new EventArgumentPropertyExtractor()
+//	    						, new EventArgumentPropertyExtractor()
 	    						, new UmlsFeatureExtractor()
 	    						, new DependencyPathFeaturesExtractor()
 	    						);
@@ -103,7 +103,11 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 		} else {
 			relation = relationLookup.get(Arrays.asList(arg2, arg1));
 			if (relation != null) {
-				category = relation.getCategory() + "-1";
+				if(relation.getCategory().equals("OVERLAP")){
+					category = relation.getCategory();
+				}else{
+					category = relation.getCategory() + "-1";
+				}
 			}
 		}
 		if (category == null && coin.nextDouble() <= this.probabilityOfKeepingANegativeExample) {
