@@ -19,16 +19,23 @@
 package org.apache.ctakes.dictionary.lookup.ae;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
+import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.core.resource.FileResourceImpl;
+import org.apache.ctakes.core.resource.JdbcConnectionResourceImpl;
 import org.apache.ctakes.utils.env.EnvironmentVariable;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.uimafit.factory.AnalysisEngineFactory;
+import org.uimafit.factory.ExternalResourceFactory;
 
 /**
  * UIMA annotator that identified entities based on lookup.
@@ -104,5 +111,50 @@ public class UmlsDictionaryLookupAnnotator extends DictionaryLookupAnnotator
 		  }
 		  return result;
 		}
+	}
+	
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
+	  try {
+      return AnalysisEngineFactory.createPrimitiveDescription(UmlsDictionaryLookupAnnotator.class,
+          UMLSADDR_PARAM,
+          "https://uts-ws.nlm.nih.gov/restful/isValidUMLSUser",
+          UMLSVENDOR_PARAM,
+          "NLM-6515182895",
+          "LookupDescriptor",
+          ExternalResourceFactory.createExternalResourceDescription(
+              FileResourceImpl.class,
+              FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/LookupDesc_Db_hsql.xml")),
+          "DbConnection",
+          ExternalResourceFactory.createExternalResourceDescription(
+              JdbcConnectionResourceImpl.class,
+              "",
+              JdbcConnectionResourceImpl.PARAM_DRIVER_CLASS,
+              "org.hsqldb.jdbcDriver",
+              JdbcConnectionResourceImpl.PARAM_URL,
+              // Should be the following but it's WAY too slow
+               "jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/umls2011ab/umls"),
+              //"jdbc:hsqldb:file:target/unpacked/org/apache/ctakes/dictionary/lookup/umls2011ab/umls"),
+          "RxnormIndexReader",
+          ExternalResourceFactory.createExternalResourceDescription(
+              JdbcConnectionResourceImpl.class,
+              "",
+              JdbcConnectionResourceImpl.PARAM_DRIVER_CLASS,
+              "org.hsqldb.jdbcDriver",
+              JdbcConnectionResourceImpl.PARAM_URL,
+              "jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/rx_norm_hsqldb/umls"),
+          "OrangeBookIndexReader",
+          ExternalResourceFactory.createExternalResourceDescription(
+              JdbcConnectionResourceImpl.class,
+              "",
+              JdbcConnectionResourceImpl.PARAM_DRIVER_CLASS,
+              "org.hsqldb.jdbcDriver",
+              JdbcConnectionResourceImpl.PARAM_URL,
+              "jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/orange_book_hsqldb/umls")
+              );
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+      throw new ResourceInitializationException(e);
+    }
+            
 	}
 }
