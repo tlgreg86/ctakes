@@ -12,10 +12,14 @@ import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
+import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
+import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.postagger.POSTagger;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation;
+import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
@@ -23,6 +27,8 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.factory.AggregateBuilder;
 import org.uimafit.factory.AnalysisEngineFactory;
+import org.uimafit.factory.JCasFactory;
+import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
 import org.xml.sax.SAXException;
 
@@ -33,11 +39,10 @@ public class ClinicalPipelineFactory {
     builder.add(getTokenProcessingPipeline());
     builder.add(AnalysisEngineFactory.createPrimitiveDescription(CopyNPChunksToLookupWindowAnnotations.class));
     builder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEnclosedLookupWindows.class));
-//    builder.add(DictionaryLookupAnnotator.createAnnotatorDescription());
-    
-    throw new UnsupportedOperationException("Not yet implemented!");
+    builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
+//    builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
 
-    //return builder.createAggregateDescription();
+    return builder.createAggregateDescription();
   }
   
   // TODO
@@ -101,10 +106,15 @@ public class ClinicalPipelineFactory {
     
   }
   
-  public static void main(String[] args) throws FileNotFoundException, SAXException, IOException, ResourceInitializationException{
+  public static void main(String[] args) throws FileNotFoundException, IOException, UIMAException{
     AnalysisEngineDescription aed = getDefaultPipeline();
-    aed.toXML(new PrintWriter("desc/DefaultPipeline.xml"));
-    
-    // TODO And so on for other aggregates...
+    String note = "The patient is suffering from extreme pain due to shark bite. Recommend continuing use of aspirin, oxycodone, and coumadin. Continue exercise for obesity and hypertension.";
+    JCas jcas = JCasFactory.createJCas();
+    jcas.setDocumentText(note);
+    SimplePipeline.runPipeline(jcas, aed);
+   
+    for(IdentifiedAnnotation entity : JCasUtil.select(jcas, IdentifiedAnnotation.class)){
+      System.out.println("Entity: " + entity.getCoveredText());
+    }
   }
 }
