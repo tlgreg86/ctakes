@@ -20,6 +20,8 @@ import org.apache.ctakes.temporal.ae.feature.SectionHeaderRelationExtractor;
 import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPETExtractor;
 //import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPathExtractor;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
+import org.apache.ctakes.typesystem.type.relation.RelationArgument;
+import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
@@ -73,16 +75,16 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 				new TokenFeaturesExtractor()
 				, new PartOfSpeechFeaturesExtractor()
 				//    						, new TemporalAttributeFeatureExtractor()
-//				, new EventTimeFlatTreeFeatureExtractor()
+				//				, new EventTimeFlatTreeFeatureExtractor()
 				, new TemporalPETExtractor()
-//				, new TemporalPathExtractor()
-//				, new EventVerbRelationTreeExtractor()
+				//				, new TemporalPathExtractor()
+				//				, new EventVerbRelationTreeExtractor()
 				, new SectionHeaderRelationExtractor()
 				, new NearbyVerbTenseRelationExtractor()
 				, new CheckSpecialWordRelationExtractor()
 				, new NearestFlagFeatureExtractor()
 				, new DependencyPathFeaturesExtractor()
-//				, new DependencyFeatureExtractor()
+				//				, new DependencyFeatureExtractor()
 				);
 	}
 
@@ -104,29 +106,47 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 				}
 			}
 		}
-		
+
 		//only use gold pairs:
-//		for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
-//			Annotation arg1 = relation.getArg1().getArgument();
-//			Annotation arg2 = relation.getArg2().getArgument();
-//			EventMention event = null;
-//			TimeMention time = null;
-//			if(arg1 instanceof EventMention){
-//				 event = (EventMention) arg1;
-//			}else if(arg1 instanceof TimeMention){
-//				time = (TimeMention) arg1;
-//			}
-//			if(arg2 instanceof EventMention){
-//				 event = (EventMention) arg2;
-//			}else if(arg2 instanceof TimeMention){
-//				time = (TimeMention) arg2;
-//			}
-//			if(event != null && time != null){
-//				pairs.add(new IdentifiedAnnotationPair(event, time));
-//			}
-//		}
-		
+		//		for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
+		//			Annotation arg1 = relation.getArg1().getArgument();
+		//			Annotation arg2 = relation.getArg2().getArgument();
+		//			EventMention event = null;
+		//			TimeMention time = null;
+		//			if(arg1 instanceof EventMention){
+		//				 event = (EventMention) arg1;
+		//			}else if(arg1 instanceof TimeMention){
+		//				time = (TimeMention) arg1;
+		//			}
+		//			if(arg2 instanceof EventMention){
+		//				 event = (EventMention) arg2;
+		//			}else if(arg2 instanceof TimeMention){
+		//				time = (TimeMention) arg2;
+		//			}
+		//			if(event != null && time != null){
+		//				pairs.add(new IdentifiedAnnotationPair(event, time));
+		//			}
+		//		}
+
 		return pairs;
+	}
+
+	@Override
+	protected void createRelation(JCas jCas, IdentifiedAnnotation arg1,
+			IdentifiedAnnotation arg2, String predictedCategory) {
+		RelationArgument relArg1 = new RelationArgument(jCas);
+		relArg1.setArgument(arg1);
+		relArg1.setRole("Arg1");
+		relArg1.addToIndexes();
+		RelationArgument relArg2 = new RelationArgument(jCas);
+		relArg2.setArgument(arg2);
+		relArg2.setRole("Arg2");
+		relArg2.addToIndexes();
+		TemporalTextRelation relation = new TemporalTextRelation(jCas);
+		relation.setArg1(relArg1);
+		relation.setArg2(relArg2);
+		relation.setCategory(predictedCategory);
+		relation.addToIndexes();
 	}
 
 

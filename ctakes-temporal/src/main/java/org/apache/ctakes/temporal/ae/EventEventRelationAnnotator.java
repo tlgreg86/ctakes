@@ -10,10 +10,15 @@ import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.TokenFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.CheckSpecialWordRelationExtractor;
 import org.apache.ctakes.temporal.ae.feature.DependencyPathFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventArgumentPropertyExtractor;
+import org.apache.ctakes.temporal.ae.feature.NearbyVerbTenseRelationExtractor;
+import org.apache.ctakes.temporal.ae.feature.SectionHeaderRelationExtractor;
 import org.apache.ctakes.temporal.ae.feature.UmlsFeatureExtractor;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
+import org.apache.ctakes.typesystem.type.relation.RelationArgument;
+import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -66,6 +71,9 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 	    						  new TokenFeaturesExtractor()
 	    						, new PartOfSpeechFeaturesExtractor()
 //	    						, new EventArgumentPropertyExtractor()
+	    						, new SectionHeaderRelationExtractor()
+	    						, new NearbyVerbTenseRelationExtractor()
+	    						, new CheckSpecialWordRelationExtractor()
 	    						, new UmlsFeatureExtractor()
 	    						, new DependencyPathFeaturesExtractor()
 	    						);
@@ -89,6 +97,24 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 	    	}
 	    }
 	    return pairs;
+	}
+	
+	@Override
+	protected void createRelation(JCas jCas, IdentifiedAnnotation arg1,
+			IdentifiedAnnotation arg2, String predictedCategory) {
+		RelationArgument relArg1 = new RelationArgument(jCas);
+		relArg1.setArgument(arg1);
+		relArg1.setRole("Arg1");
+		relArg1.addToIndexes();
+		RelationArgument relArg2 = new RelationArgument(jCas);
+		relArg2.setArgument(arg2);
+		relArg2.setRole("Arg2");
+		relArg2.addToIndexes();
+		TemporalTextRelation relation = new TemporalTextRelation(jCas);
+		relation.setArg1(relArg1);
+		relation.setArg2(relArg2);
+		relation.setCategory(predictedCategory);
+		relation.addToIndexes();
 	}
 	
 	@Override
