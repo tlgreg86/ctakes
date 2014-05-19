@@ -1,11 +1,12 @@
 package org.apache.ctakes.clinicalpipeline;
 
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
 import org.apache.ctakes.chunker.ae.Chunker;
 import org.apache.ctakes.chunker.ae.adjuster.ChunkAdjuster;
 import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
@@ -40,8 +41,8 @@ public class ClinicalPipelineFactory {
     builder.add(AnalysisEngineFactory.createPrimitiveDescription(CopyNPChunksToLookupWindowAnnotations.class));
     builder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEnclosedLookupWindows.class));
     builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
-//    builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
-
+    builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
+    builder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());
     return builder.createAggregateDescription();
   }
   
@@ -106,15 +107,19 @@ public class ClinicalPipelineFactory {
     
   }
   
-  public static void main(String[] args) throws FileNotFoundException, IOException, UIMAException{
+  public static void main(String[] args) throws FileNotFoundException, IOException, UIMAException, SAXException{
     AnalysisEngineDescription aed = getDefaultPipeline();
-    String note = "The patient is suffering from extreme pain due to shark bite. Recommend continuing use of aspirin, oxycodone, and coumadin. Continue exercise for obesity and hypertension.";
+    String note = "The patient is suffering from extreme pain due to shark bite. Recommend continuing use of aspirin, oxycodone, and coumadin. Continue exercise for obesity and hypertension." +
+                  "Patient denies smoking and chest pain. Patient has no cancer. There is no sign of multiple sclerosis.";
     JCas jcas = JCasFactory.createJCas();
     jcas.setDocumentText(note);
     SimplePipeline.runPipeline(jcas, aed);
-   
+
     for(IdentifiedAnnotation entity : JCasUtil.select(jcas, IdentifiedAnnotation.class)){
-      System.out.println("Entity: " + entity.getCoveredText());
+      System.out.println("Entity: " + entity.getCoveredText() + " === Polarity: " + entity.getPolarity());
     }
+    
+    if(args.length > 0)
+      aed.toXML(new FileWriter(args[0]));
   }
 }
