@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
+import org.apache.ctakes.temporal.ae.EventAdmissionTimeAnnotator;
+import org.apache.ctakes.temporal.ae.EventDischargeTimeAnnotator;
 import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
@@ -115,6 +117,10 @@ EvaluationOfTemporalRelations_ImplBase{
 	protected static ParameterSettings ftParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk", 
 			1.0, 0.1, "radial basis function", ComboOperator.SUM, 0.5, 0.5);
 
+	private static final String EVENT_TIME = "event_time";
+	private static final String EVENT_EVENT = "event_event";
+	private static final String EVENT_DISCHARGE = "event_dischargeTime";
+	private static final String EVENT_ADMISSION = "event_admissionTime";
 	public static void main(String[] args) throws Exception {
 		TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
     List<Integer> trainItems = null;
@@ -238,7 +244,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	  if(this.skipTrain) return;
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class, BinaryTextRelation.class));
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveCrossSentenceRelations.class));
+//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveCrossSentenceRelations.class));
 		if(!this.useGoldAttributes){
 			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveGoldAttributes.class));
 		}
@@ -256,12 +262,18 @@ EvaluationOfTemporalRelations_ImplBase{
 				TKSVMlightStringOutcomeDataWriter.class,
 				//        TKLIBSVMStringOutcomeDataWriter.class,
 				//        SVMlightStringOutcomeDataWriter.class,        
-				new File(directory,"event-time"),
+				new File(directory,EVENT_TIME),
 				params.probabilityOfKeepingANegativeExample));
 		aggregateBuilder.add(EventEventRelationAnnotator.createDataWriterDescription(
 				LIBSVMStringOutcomeDataWriter.class,
-				new File(directory,"event-event"), 
+				new File(directory,EVENT_EVENT), 
 				params.probabilityOfKeepingANegativeExample));
+		aggregateBuilder.add(EventDischargeTimeAnnotator.createDataWriterDescription(
+				LIBSVMStringOutcomeDataWriter.class,
+				new File(directory,EVENT_DISCHARGE)));
+		aggregateBuilder.add(EventAdmissionTimeAnnotator.createDataWriterDescription(
+				LIBSVMStringOutcomeDataWriter.class,
+				new File(directory,EVENT_ADMISSION)));
 		SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
 		String[] optArray;
 
@@ -288,8 +300,10 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		//    HideOutput hider = new HideOutput();
-		JarClassifierBuilder.trainAndPackage(new File(directory,"event-time"), optArray);
-		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"), "-h","0","-c", "1000");
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_TIME), optArray);
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_EVENT), "-h","0","-c", "1000");
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_DISCHARGE), "-h","0","-c", "1000");
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_ADMISSION), "-h","0","-c", "1000");
 		//    hider.restoreOutput();
 		//    hider.close();
 	}
@@ -300,12 +314,12 @@ EvaluationOfTemporalRelations_ImplBase{
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
 		
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
-				RemoveCrossSentenceRelations.class,
-				RemoveCrossSentenceRelations.PARAM_SENTENCE_VIEW,
-				CAS.NAME_DEFAULT_SOFA,
-				RemoveCrossSentenceRelations.PARAM_RELATION_VIEW,
-				GOLD_VIEW_NAME));
+//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+//				RemoveCrossSentenceRelations.class,
+//				RemoveCrossSentenceRelations.PARAM_SENTENCE_VIEW,
+//				CAS.NAME_DEFAULT_SOFA,
+//				RemoveCrossSentenceRelations.PARAM_RELATION_VIEW,
+//				GOLD_VIEW_NAME));
 		if (this.useClosure) {
 			aggregateBuilder.add(
 					AnalysisEngineFactory.createPrimitiveDescription(AddClosure.class),//AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
@@ -333,8 +347,10 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveRelations.class));
 		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
-			EventTimeRelationAnnotator.createAnnotatorDescription(new File(directory,"event-time")));
-		aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(new File(directory,"event-event")));
+			EventTimeRelationAnnotator.createAnnotatorDescription(new File(directory,EVENT_TIME)));
+		aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(new File(directory,EVENT_EVENT)));
+		aggregateBuilder.add(EventDischargeTimeAnnotator.createAnnotatorDescription(new File(directory,EVENT_DISCHARGE)));
+		aggregateBuilder.add(EventAdmissionTimeAnnotator.createAnnotatorDescription(new File(directory,EVENT_ADMISSION)));
     if(this.i2b2Output != null){
       aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
     }
@@ -892,13 +908,19 @@ EvaluationOfTemporalRelations_ImplBase{
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
 			
+			String fileName = ViewURIUtil.getURI(jCas).toString();
+			
 			Multimap<List<Annotation>, BinaryTextRelation> annotationsToRelation = HashMultimap.create();
 			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)){
 				String relationType = relation.getCategory();
 				if(validTemporalType(relationType)){
 					Annotation arg1 = relation.getArg1().getArgument();
 			        Annotation arg2 = relation.getArg2().getArgument();
-			        annotationsToRelation.put(Arrays.asList(arg1, arg2), relation);
+			        if(arg1==null || arg2==null){
+			        	System.out.println("Null argument at Doc: "+ fileName);
+			        }else{
+			        	annotationsToRelation.put(Arrays.asList(arg1, arg2), relation);
+			        }
 				}
 			}
 			for (List<Annotation> span: Lists.newArrayList(annotationsToRelation.keySet())){
@@ -977,7 +999,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		private static boolean validTemporalType(String relationType) {
-			if(relationType.equals("CONTAINS")||relationType.equals("OVERLAP")||relationType.equals("BEFORE")||relationType.equals("ENDS-ON")||relationType.equals("BEGINS-ON"))
+			if(relationType.equals("AFTER")||relationType.equals("OVERLAP")||relationType.equals("BEFORE"))
 				return true;
 			return false;
 		}
