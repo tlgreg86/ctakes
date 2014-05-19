@@ -18,16 +18,10 @@
  */
 package org.apache.ctakes.dependency.parser.ae;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipInputStream;
 
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.dependency.parser.util.ClearDependencyUtility;
@@ -36,16 +30,17 @@ import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.TypeCapability;
+import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.util.JCasUtil;
 
 import com.googlecode.clearnlp.component.AbstractComponent;
-import com.googlecode.clearnlp.component.morph.CEnglishMPAnalyzer;
 import com.googlecode.clearnlp.dependency.DEPFeat;
 import com.googlecode.clearnlp.dependency.DEPNode;
 import com.googlecode.clearnlp.dependency.DEPTree;
@@ -165,5 +160,9 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 		}
 		
 		
+	}
+	
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
+	  return AnalysisEngineFactory.createPrimitiveDescription(ClearNLPDependencyParserAE.class);
 	}
 }
