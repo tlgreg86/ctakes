@@ -33,6 +33,7 @@ import org.apache.ctakes.typesystem.type.syntax.TopTreebankNode;
 import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.ctakes.utils.tree.SimpleTree;
+import org.apache.uima.UIMA_UnsupportedOperationException;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.jcas.JCas;
@@ -133,6 +134,17 @@ public class TreeUtils {
 		return false;
 	}
 
+	public static int countFrags(SimpleTree node, SimpleTree frag){
+	  int count = 0;
+	  
+	  if(fragmentMatch(node, frag, true)) count++;
+	  
+	  for(int i = 0; i < node.children.size(); i++){
+	    count += countFrags(node.children.get(i), frag);
+	  }
+	  return count;
+	}
+	
 	private static boolean fragmentMatch(SimpleTree node, SimpleTree frag, boolean ignoreCase){
 		boolean same = false;
 		if((ignoreCase && node.cat.equalsIgnoreCase(frag.cat)) || (!ignoreCase && node.cat.equals(frag.cat))){
@@ -148,6 +160,50 @@ public class TreeUtils {
 			}
 		}
 		return same;
+	}
+	
+	public static int countDepFrags(SimpleTree node, SimpleTree frag){
+	  int count = 0;
+	  if(depFragmentMatch(node, frag, true)) count++;
+	  
+	  for(int i = 0; i < node.children.size(); i++){
+	    count += countFrags(node.children.get(i), frag);
+	  }
+	  return count;
+	}
+	
+	public static boolean containsDepFragIgnoreCase(SimpleTree node, SimpleTree frag){
+	   return containsDepFrag(node, frag, true);
+	}
+
+	public static boolean containsDepFrag(SimpleTree node, SimpleTree frag, boolean ignoreCase){
+	  if(depFragmentMatch(node, frag, ignoreCase)) return true;
+	  
+	  for(int i = 0; i < node.children.size(); i++){
+	    if(containsDepFrag(node.children.get(i), frag, ignoreCase)) return true;
+	  }
+	  return false;
+	}
+	
+	private static boolean depFragmentMatch(SimpleTree node, SimpleTree frag, boolean ignoreCase){
+	  boolean same = false;
+	  if(frag.children.size() > 1){
+	    System.err.println("Only chain fragments are currently supported!");
+	    throw new UIMA_UnsupportedOperationException();
+	  }
+	  
+	  if((ignoreCase && node.cat.equalsIgnoreCase(frag.cat)) || (!ignoreCase && node.cat.equals(frag.cat))){
+	    if(frag.children.size() == 0){
+	      return true;
+	    }
+	    for(int i = 0; i < node.children.size(); i++){
+	      if(depFragmentMatch(node.children.get(i), frag.children.get(0), ignoreCase)){
+	        return true;
+	      }
+	    }
+	  }
+	  
+	  return same;
 	}
 
 	public static int getHighestIndexTerm(TreebankNode inTree) {
