@@ -24,9 +24,9 @@ import java.util.ArrayList;
 
 import org.apache.ctakes.assertion.attributes.features.selection.Chi2FeatureSelection;
 import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
+import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AboveLeftFragmentExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AssertionAboveLeftTreeExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AssertionDependencyTreeExtractor;
-import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ConceptModifierPETFragmentExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ContextWordWindowExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.DependencyWordsFragmentExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.NegationDependencyFeatureExtractor;
@@ -64,8 +64,8 @@ public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngin
 		
 		// stk frags feature:
 		if(featConfig == FEATURE_CONFIG.STK_FRAGS || featConfig == FEATURE_CONFIG.ALL_SYN){
-//		  this.entityFeatureExtractors.add(new AboveLeftFragmentExtractor("AL_Polarity","org/apache/ctakes/assertion/models/jbi_paper_polarity_sems_frags.txt"));
-		  this.entityFeatureExtractors.add(new ConceptModifierPETFragmentExtractor("NegRel", "org/apache/ctakes/assertion/models/polarityRelnFragsStrat.txt"));
+		  this.entityFeatureExtractors.add(new AboveLeftFragmentExtractor("AL_Polarity","org/apache/ctakes/assertion/models/jbi_paper_polarity_sems_frags.txt"));
+//		  this.entityFeatureExtractors.add(new ConceptModifierPETFragmentExtractor("NegRel", "org/apache/ctakes/assertion/models/polarityRelnFragsStrat.txt"));
 		}
 		
 		if(featConfig == FEATURE_CONFIG.PTK_FRAGS || featConfig == FEATURE_CONFIG.DEP_REGEX_FRAGS || featConfig == FEATURE_CONFIG.ALL_SYN){
