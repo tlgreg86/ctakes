@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -15,6 +16,10 @@ import org.uimafit.util.JCasUtil;
 public class AssertionDepUtils {
 
   public static SimpleTree getTokenTreeString(JCas jCas, List<ConllDependencyNode> nodes, Annotation annotation){
+    return getTokenTreeString(jCas, nodes, annotation, 1);
+  }
+  
+  public static SimpleTree getTokenTreeString(JCas jCas, List<ConllDependencyNode> nodes, Annotation annotation, int upNodes){
     Map<ConllDependencyNode, SimpleTree> node2tree = new HashMap<ConllDependencyNode, SimpleTree>();
     for(ConllDependencyNode node : nodes){
       if(node.getHead() == null){
@@ -53,12 +58,26 @@ public class AssertionDepUtils {
     String realCat = node2tree.get(headNode).cat;
     // have to do this so that we have a placeholder so we can lowercase tokens, then insert the upper-case CONCEPT signifier token later.
     node2tree.get(headNode).cat = "CONCEPT";
+    if(annotation instanceof IdentifiedAnnotation){
+      node2tree.get(headNode).cat += ((IdentifiedAnnotation)annotation).getTypeID();
+    }
 
 //    String treeStr = localTree.toString();
 //    treeStr = "(TOP " + treeStr.replaceAll("\\(([^\\(]+) \\)", "($1 nil)").toLowerCase().replace("conceptplaceholder", "CONCEPT") + ")";
 //    treeStr = "(TOP " + treeStr.toLowerCase().replace("conceptplaceholder", "CONCEPT") + ")";
 //    node2tree.get(headNode).cat = realCat;
-    return localTree;
+//    return localTree;
+    SimpleTree returnTree = null;
+    
+    int steps = 0;
+    ConllDependencyNode returnNode = headNode;
+    while(steps < upNodes && returnNode.getHead().getHead() != null){
+      returnNode = returnNode.getHead();
+      steps++;
+    }
+    returnTree = node2tree.get(returnNode);
+    
+    return returnTree;
   }
   
   public static String getTokenRelTreeString(JCas jCas, List<ConllDependencyNode> nodes, Annotation annotation, String label){
