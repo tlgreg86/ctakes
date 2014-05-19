@@ -56,7 +56,7 @@ public class GenerateDependencyRepresentation {
   private static SemanticClasses sems = null; 
   private static PrintStream out = null;
   private static Logger log = Logger.getLogger(GenerateDependencyRepresentation.class);
-
+  public static final int UP_NODES = 2;
   /**
    * @param args
    * @throws CmdLineException 
@@ -94,6 +94,7 @@ public class GenerateDependencyRepresentation {
   public static void processDocument(JCas jcas) {
     log.info("Processing document: " + DocumentIDAnnotationUtil.getDocumentID(jcas));
     Collection<Sentence> sents = JCasUtil.select(jcas, Sentence.class);
+    Sentence lastSent=null;
     for(Sentence sent : sents){
       List<ConllDependencyNode> nodes = JCasUtil.selectCovered(jcas, ConllDependencyNode.class, sent);
 
@@ -103,7 +104,10 @@ public class GenerateDependencyRepresentation {
       
       for(IdentifiedAnnotation mention : mentions){
 
-        SimpleTree tree = AssertionDepUtils.getTokenTreeString(jcas, nodes, mention);
+        if(lastSent != null && lastSent.getCoveredText().startsWith("Indications")){
+          continue;
+        }
+        SimpleTree tree = AssertionDepUtils.getTokenTreeString(jcas, nodes, mention, UP_NODES);
         
 //        String treeStr = AnnotationDepUtils.getTokenRelTreeString(jcas, nodes, new Annotation[]{mention}, new String[]{"CONCEPT"}, true);
         
@@ -126,7 +130,7 @@ public class GenerateDependencyRepresentation {
 //        node2tree.get(headNode).cat = realCat;
 
       }
-      
+      lastSent = sent;
 //      out.println(node2tree.get(rootNode).toString());
     }
   }
