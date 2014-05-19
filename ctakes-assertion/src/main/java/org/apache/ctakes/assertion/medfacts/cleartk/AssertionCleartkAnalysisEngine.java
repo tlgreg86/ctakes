@@ -32,6 +32,7 @@ import java.util.Random;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.FedaFeatureFunction;
+import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -295,17 +296,17 @@ public abstract class AssertionCleartkAnalysisEngine extends
   @Override
   public void process(JCas jCas) throws AnalysisEngineProcessException
   {
-    DocumentID documentId = JCasUtil.selectSingle(jCas, DocumentID.class);
+    String documentId = DocumentIDAnnotationUtil.getDocumentID(jCas);
     String domainId = "";
     
     
     if (documentId != null)
     {
-      logger.debug("processing next doc: " + documentId.getDocumentID());
+      logger.debug("processing next doc: " + documentId);
 
       // set the domain to be FeatureFunction'ed into all extractors
       if (!fileToDomain.isEmpty()) {
-    	  domainId = fileToDomain.get(documentId.getDocumentID());
+    	  domainId = fileToDomain.get(documentId);
     	  ffDomainAdaptor.setDomain(domainId); // if domain is not found, no warning -- just considers general domain
       }
     } else

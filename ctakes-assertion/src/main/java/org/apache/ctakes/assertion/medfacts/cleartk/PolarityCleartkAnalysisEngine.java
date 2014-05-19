@@ -24,23 +24,29 @@ import java.util.ArrayList;
 
 import org.apache.ctakes.assertion.attributes.features.selection.Chi2FeatureSelection;
 import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
-import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AboveLeftFragmentExtractor;
-import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AboveRightFragmentExtractor;
+import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AssertionAboveLeftTreeExtractor;
+import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AssertionDependencyTreeExtractor;
+import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ConceptModifierPETFragmentExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ContextWordWindowExtractor;
+import org.apache.ctakes.assertion.medfacts.cleartk.extractors.DependencyWordsFragmentExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.NegationDependencyFeatureExtractor;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.classifier.Instance;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.classifier.jar.GenericJarClassifierFactory;
+import org.uimafit.factory.AnalysisEngineFactory;
 
 
 public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngine {
-
+  
   public static final String NEGATED = "NEGATED";
   public static final String NOT_NEGATED = "NOT_NEGATED";
+ 
   
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
@@ -50,13 +56,42 @@ public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngin
 		if(this.entityFeatureExtractors == null){
 			this.entityFeatureExtractors = new ArrayList<SimpleFeatureExtractor>();
 		}
-		this.entityFeatureExtractors.add(new NegationDependencyFeatureExtractor());
-		this.entityFeatureExtractors.add(new ContextWordWindowExtractor("org/apache/ctakes/assertion/models/polarity.txt"));
-		this.entityFeatureExtractors.add(new AboveLeftFragmentExtractor("AL_Polarity","org/apache/ctakes/assertion/models/sharpPolarityFrags.txt"));
-//		this.entityFeatureExtractors.add(new AboveRightFragmentExtractor("AR_Polarity","org/apache/ctakes/assertion/models/sharpArPolarityFrags.txt"));
 		
-		initializeFeatureSelection();
+		// polarity keyword list:
+		if(featConfig != FEATURE_CONFIG.NO_SEM){
+		  this.entityFeatureExtractors.add(new ContextWordWindowExtractor("org/apache/ctakes/assertion/models/polarity.txt"));
+		}		
+		
+		// stk frags feature:
+		if(featConfig == FEATURE_CONFIG.STK_FRAGS || featConfig == FEATURE_CONFIG.ALL_SYN){
+//		  this.entityFeatureExtractors.add(new AboveLeftFragmentExtractor("AL_Polarity","org/apache/ctakes/assertion/models/jbi_paper_polarity_sems_frags.txt"));
+		  this.entityFeatureExtractors.add(new ConceptModifierPETFragmentExtractor("NegRel", "org/apache/ctakes/assertion/models/polarityRelnFragsStrat.txt"));
+		}
+		
+		if(featConfig == FEATURE_CONFIG.PTK_FRAGS || featConfig == FEATURE_CONFIG.DEP_REGEX_FRAGS || featConfig == FEATURE_CONFIG.ALL_SYN){
+//	     ptk frags feature:
+		  this.entityFeatureExtractors.add(new DependencyWordsFragmentExtractor("DW_Polarity", "org/apache/ctakes/assertion/models/jbi_paper_polarity_dw_frags.txt"));		  
+		}
 
+		if(featConfig == FEATURE_CONFIG.DEP_REGEX || featConfig == FEATURE_CONFIG.DEP_REGEX_FRAGS || featConfig == FEATURE_CONFIG.ALL_SYN){
+	    // dep regex feature:
+		  this.entityFeatureExtractors.add(new NegationDependencyFeatureExtractor());
+		}
+		
+		if(featConfig == FEATURE_CONFIG.STK){
+		  // stk constituency feature:
+		  this.entityTreeExtractors.add(new AssertionAboveLeftTreeExtractor());
+		}
+		
+		if(featConfig == FEATURE_CONFIG.PTK){
+		  // ptk dependency feature:
+		  this.entityTreeExtractors.add(new AssertionDependencyTreeExtractor());
+		}
+		
+    // srl & non-effective stk frags feature:
+//  this.entityFeatureExtractors.add(new SRLFeatureExtractor());
+//  this.entityFeatureExtractors.add(new AboveRightFragmentExtractor("AR_Polarity","org/apache/ctakes/assertion/models/sharpArPolarityFrags.txt"));
+		initializeFeatureSelection();
 	}
 
 	@Override
@@ -117,5 +152,16 @@ public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngin
 //	    	}
 	    }		
 	}
-	  
+	
+	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath) throws ResourceInitializationException {
+	  return AnalysisEngineFactory.createPrimitiveDescription(PolarityCleartkAnalysisEngine.class,
+	      AssertionCleartkAnalysisEngine.PARAM_FEATURE_CONFIG,
+        AssertionCleartkAnalysisEngine.FEATURE_CONFIG.DEP_REGEX,
+	      GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+	      modelPath);
+	}
+
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
+	  return createAnnotatorDescription("/org/apache/ctakes/assertion/models/polarity/sharpi2b2mipacqnegex/model.jar");
+	}
 }
