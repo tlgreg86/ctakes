@@ -34,8 +34,8 @@ import org.apache.ctakes.temporal.ae.feature.NearbyVerbTenseXExtractor;
 import org.apache.ctakes.temporal.ae.feature.SectionHeaderExtractor;
 import org.apache.ctakes.temporal.ae.feature.TimeXExtractor;
 import org.apache.ctakes.temporal.ae.feature.UmlsSingleFeatureExtractor;
-import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
+import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 //import org.apache.ctakes.temporal.ae.feature.duration.DurationExpectationFeatureExtractor;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -136,11 +136,11 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 		}
 		if (dischargeTime != null){
 			//get event-time1 relations:
-			Map<List<Annotation>, BinaryTextRelation> dischargeTimeRelationLookup;
+			Map<List<Annotation>, TemporalTextRelation> dischargeTimeRelationLookup;
 		    dischargeTimeRelationLookup = new HashMap<>();
 		    if (this.isTraining()) {
 		      dischargeTimeRelationLookup = new HashMap<>();
-		      for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
+		      for (TemporalTextRelation relation : JCasUtil.select(jCas, TemporalTextRelation.class)) {
 		        Annotation arg1 = relation.getArg1().getArgument();
 		        Annotation arg2 = relation.getArg2().getArgument();
 		        // The key is a list of args so we can do bi-directional lookup
@@ -172,7 +172,7 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 					//        features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
 					//        features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
 					if (this.isTraining()) {
-						BinaryTextRelation relation = dischargeTimeRelationLookup.get(Arrays.asList(eventMention, dischargeTime));
+						TemporalTextRelation relation = dischargeTimeRelationLookup.get(Arrays.asList(eventMention, dischargeTime));
 						String category = null;
 						if (relation != null) {
 							category = relation.getCategory();
@@ -186,28 +186,31 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 								}else if (relation.getCategory().equals("AFTER")){
 									category = "BEFORE";
 								}
-							}else{
-								category = "OVERLAP";
 							}
 						}
-
-						this.dataWriter.write(new Instance<>(category, features));
+						if(category!=null){
+							this.dataWriter.write(new Instance<>(category, features));
+						}
 					} else {
 						String outcome = this.classifier.classify(features);
-						// add the relation to the CAS
-					    RelationArgument relArg1 = new RelationArgument(jCas);
-					    relArg1.setArgument(eventMention);
-					    relArg1.setRole("Argument");
-					    relArg1.addToIndexes();
-					    RelationArgument relArg2 = new RelationArgument(jCas);
-					    relArg2.setArgument(dischargeTime);
-					    relArg2.setRole("Related_to");
-					    relArg2.addToIndexes();
-					    BinaryTextRelation relation = new BinaryTextRelation(jCas);
-					    relation.setArg1(relArg1);
-					    relation.setArg2(relArg2);
-					    relation.setCategory(outcome);
-					    relation.addToIndexes();
+						if(outcome!=null){
+							// add the relation to the CAS
+						    RelationArgument relArg1 = new RelationArgument(jCas);
+						    relArg1.setArgument(eventMention);
+						    relArg1.setRole("Argument");
+						    relArg1.addToIndexes();
+						    RelationArgument relArg2 = new RelationArgument(jCas);
+						    relArg2.setArgument(dischargeTime);
+						    relArg2.setRole("Related_to");
+						    relArg2.addToIndexes();
+						    TemporalTextRelation relation = new TemporalTextRelation(jCas);
+						    relation.setArg1(relArg1);
+						    relation.setArg2(relArg2);
+						    relation.setCategory(outcome);
+						    relation.addToIndexes();
+						}else{
+							System.out.println("cannot classify "+ eventMention.getCoveredText()+" and " + dischargeTime.getCoveredText());
+						}						
 					}
 				}
 			}

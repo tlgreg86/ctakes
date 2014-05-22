@@ -94,7 +94,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		@Option
 		public boolean getUseGoldAttributes();
-		
+
 		@Option
 		public boolean getSkipTrain();
 	}
@@ -123,20 +123,20 @@ EvaluationOfTemporalRelations_ImplBase{
 	private static final String EVENT_ADMISSION = "event_admissionTime";
 	public static void main(String[] args) throws Exception {
 		TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
-    List<Integer> trainItems = null;
-    List<Integer> devItems = null;
-    List<Integer> testItems = null;
-    
-    List<Integer> patientSets = options.getPatients().getList();
-    if(options.getXMLFormat() == XMLFormat.I2B2){
-      trainItems = I2B2Data.getTrainPatientSets(options.getXMLDirectory());
-      devItems = I2B2Data.getDevPatientSets(options.getXMLDirectory());
-      testItems = I2B2Data.getTestPatientSets(options.getXMLDirectory());
-    }else{
-      trainItems = THYMEData.getTrainPatientSets(patientSets);
-      devItems = THYMEData.getDevPatientSets(patientSets);
-      testItems = THYMEData.getTestPatientSets(patientSets);
-    }
+		List<Integer> trainItems = null;
+		List<Integer> devItems = null;
+		List<Integer> testItems = null;
+
+		List<Integer> patientSets = options.getPatients().getList();
+		if(options.getXMLFormat() == XMLFormat.I2B2){
+			trainItems = I2B2Data.getTrainPatientSets(options.getXMLDirectory());
+			devItems = I2B2Data.getDevPatientSets(options.getXMLDirectory());
+			testItems = I2B2Data.getTestPatientSets(options.getXMLDirectory());
+		}else{
+			trainItems = THYMEData.getTrainPatientSets(patientSets);
+			devItems = THYMEData.getDevPatientSets(patientSets);
+			testItems = THYMEData.getTestPatientSets(patientSets);
+		}
 		ParameterSettings params = allParams;
 
 		//    possibleParams.add(defaultParams);
@@ -166,7 +166,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					options.getKernelParams(),
 					params);
 			evaluation.prepareXMIsFor(patientSets);
-	    if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/temporal-relations/event-time");
+			if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/temporal-relations/event-time");
 			List<Integer> training = trainItems;
 			List<Integer> testing = null;
 			if(options.getTest()){
@@ -241,22 +241,23 @@ EvaluationOfTemporalRelations_ImplBase{
 	@Override
 	protected void train(CollectionReader collectionReader, File directory) throws Exception {
 		//	  if(this.baseline) return;
-	  if(this.skipTrain) return;
+		if(this.skipTrain) return;
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class, BinaryTextRelation.class));
-//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveCrossSentenceRelations.class));
+		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveCrossSentenceRelations.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNullArgumentRelations.class));
 		if(!this.useGoldAttributes){
 			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveGoldAttributes.class));
 		}
 		if (this.useClosure) {
 			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddClosure.class));//aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class));
-//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddContain2Overlap.class));
+			//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddContain2Overlap.class));
 			//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveBeforeAndOnRelations.class));
 		}
-//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
+		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
-		
-//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class));
+
+		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class));
 		aggregateBuilder.add(EventTimeRelationAnnotator.createDataWriterDescription(
 				//                LIBSVMStringOutcomeDataWriter.class,
 				TKSVMlightStringOutcomeDataWriter.class,
@@ -313,37 +314,37 @@ EvaluationOfTemporalRelations_ImplBase{
 			throws Exception {
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
-		
-//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
-//				RemoveCrossSentenceRelations.class,
-//				RemoveCrossSentenceRelations.PARAM_SENTENCE_VIEW,
-//				CAS.NAME_DEFAULT_SOFA,
-//				RemoveCrossSentenceRelations.PARAM_RELATION_VIEW,
-//				GOLD_VIEW_NAME));
+
+		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		//				RemoveCrossSentenceRelations.class,
+		//				RemoveCrossSentenceRelations.PARAM_SENTENCE_VIEW,
+		//				CAS.NAME_DEFAULT_SOFA,
+		//				RemoveCrossSentenceRelations.PARAM_RELATION_VIEW,
+		//				GOLD_VIEW_NAME));
 		if (this.useClosure) {
 			aggregateBuilder.add(
 					AnalysisEngineFactory.createPrimitiveDescription(AddClosure.class),//AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
 					CAS.NAME_DEFAULT_SOFA,
 					GOLD_VIEW_NAME);
-					
-//			aggregateBuilder.add(
-//					AnalysisEngineFactory.createPrimitiveDescription(AddContain2Overlap.class),
-//					CAS.NAME_DEFAULT_SOFA,
-//					GOLD_VIEW_NAME);
+
+			//			aggregateBuilder.add(
+			//					AnalysisEngineFactory.createPrimitiveDescription(AddContain2Overlap.class),
+			//					CAS.NAME_DEFAULT_SOFA,
+			//					GOLD_VIEW_NAME);
 			//			aggregateBuilder.add(
 			//					AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveBeforeAndOnRelations.class),
 			//					CAS.NAME_DEFAULT_SOFA,
 			//					GOLD_VIEW_NAME);
 		}
-		
-//		aggregateBuilder.add(
-//				AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class,
-//						RemoveNonContainsRelations.PARAM_RELATION_VIEW,
-//						GOLD_VIEW_NAME));
-//		aggregateBuilder.add(
-//				AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class),
-//				CAS.NAME_DEFAULT_SOFA,
-//				GOLD_VIEW_NAME);
+
+		//		aggregateBuilder.add(
+		//				AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class,
+		//						RemoveNonContainsRelations.PARAM_RELATION_VIEW,
+		//						GOLD_VIEW_NAME));
+		//		aggregateBuilder.add(
+		//				AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class),
+		//				CAS.NAME_DEFAULT_SOFA,
+		//				GOLD_VIEW_NAME);
 
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveRelations.class));
 		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
@@ -351,9 +352,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(new File(directory,EVENT_EVENT)));
 		aggregateBuilder.add(EventDischargeTimeAnnotator.createAnnotatorDescription(new File(directory,EVENT_DISCHARGE)));
 		aggregateBuilder.add(EventAdmissionTimeAnnotator.createAnnotatorDescription(new File(directory,EVENT_ADMISSION)));
-    if(this.i2b2Output != null){
-      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
-    }
+		
 		if (this.useClosure) {//add closure for system output
 			aggregateBuilder.add(
 					AnalysisEngineFactory.createPrimitiveDescription(AddClosure.class),//AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
@@ -361,6 +360,14 @@ EvaluationOfTemporalRelations_ImplBase{
 					CAS.NAME_DEFAULT_SOFA
 					);
 		}
+				
+		if(this.i2b2Output != null){
+			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
+		}
+		
+		//remove the null argument from relations
+		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNullArgumentRelations.class));
+		
 		Function<BinaryTextRelation, ?> getSpan = new Function<BinaryTextRelation, HashableArguments>() {
 			public HashableArguments apply(BinaryTextRelation relation) {
 				return new HashableArguments(relation);
@@ -375,16 +382,22 @@ EvaluationOfTemporalRelations_ImplBase{
 			jCas = jcasIter.next();
 			JCas goldView = jCas.getView(GOLD_VIEW_NAME);
 			JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
-			Collection<BinaryTextRelation> goldRelations = JCasUtil.select(
-					goldView,
-					BinaryTextRelation.class);
-			Collection<BinaryTextRelation> systemRelations = JCasUtil.select(
-					systemView,
-					BinaryTextRelation.class);
+			Collection<BinaryTextRelation> goldRelations = Lists.newArrayList();
+			for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(goldView, BinaryTextRelation.class))){
+				if(relation.getArg1().getArgument() != null && relation.getArg2().getArgument() != null && relation.getCategory() != null){
+					goldRelations.add(relation);
+				}
+			}
 
+			Collection<BinaryTextRelation> systemRelations = Lists.newArrayList();
+			for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(systemView, BinaryTextRelation.class))){
+				if(relation.getArg1().getArgument() != null && relation.getArg2().getArgument() != null && relation.getCategory() != null){
+					systemRelations.add(relation);
+				}
+			}
 			//newly add
-//			systemRelations = removeNonGoldRelations(systemRelations, goldRelations);//for removing non-gold pairs
-			systemRelations = correctArgOrder(systemRelations, goldRelations);//change the argument order of "OVERLAP" relation, if the order is flipped
+			//			systemRelations = removeNonGoldRelations(systemRelations, goldRelations);//for removing non-gold pairs
+//			systemRelations = correctArgOrder(systemRelations, goldRelations);//change the argument order of "OVERLAP" relation, if the order is flipped
 			//find duplicates in gold relations:
 			//			Collection<BinaryTextRelation> duplicateGoldRelations = getDuplicateRelations(goldRelations, getSpan);
 			//			if(!duplicateGoldRelations.isEmpty()){
@@ -474,81 +487,36 @@ EvaluationOfTemporalRelations_ImplBase{
   }
 	 */
 
-//		private static <SPAN_TYPE> Collection<BinaryTextRelation> removeNonGoldRelations(
-//				Collection<BinaryTextRelation> systemRelations,
-//				Collection<BinaryTextRelation> goldRelations, Function<BinaryTextRelation, ?> getSpan) {
-//			//remove non-gold pairs from system relations:
-//			Set<BinaryTextRelation> goodSys = Sets.newHashSet();
-//			Set<SPAN_TYPE> goldspans = new HashSet<SPAN_TYPE>();
-//			
-//			for (BinaryTextRelation relation : goldRelations) {
-//				goldspans.add(((SPAN_TYPE) getSpan.apply(relation)));			
-//			}
-//			
-//			for (BinaryTextRelation relation : systemRelations) {
-//				if (goldspans.contains(((SPAN_TYPE) getSpan.apply(relation)))) {
-//					goodSys.add(relation);
-//				}
-//			}
-//			
-//			return goodSys;
-//		}
-	
-	private static boolean matchSpan(Annotation arg1, Annotation arg2) {
-		boolean result = false;
-		result = arg1.getBegin() == arg2.getBegin() && arg1.getEnd() == arg2.getEnd();
-		return result;
-	}
-	
-	private static Collection<BinaryTextRelation> correctArgOrder(
-			Collection<BinaryTextRelation> systemRelations,
-			Collection<BinaryTextRelation> goldRelations) {
-		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
+	//		private static <SPAN_TYPE> Collection<BinaryTextRelation> removeNonGoldRelations(
+	//				Collection<BinaryTextRelation> systemRelations,
+	//				Collection<BinaryTextRelation> goldRelations, Function<BinaryTextRelation, ?> getSpan) {
+	//			//remove non-gold pairs from system relations:
+	//			Set<BinaryTextRelation> goodSys = Sets.newHashSet();
+	//			Set<SPAN_TYPE> goldspans = new HashSet<SPAN_TYPE>();
+	//			
+	//			for (BinaryTextRelation relation : goldRelations) {
+	//				goldspans.add(((SPAN_TYPE) getSpan.apply(relation)));			
+	//			}
+	//			
+	//			for (BinaryTextRelation relation : systemRelations) {
+	//				if (goldspans.contains(((SPAN_TYPE) getSpan.apply(relation)))) {
+	//					goodSys.add(relation);
+	//				}
+	//			}
+	//			
+	//			return goodSys;
+	//		}
 
-		for(BinaryTextRelation sysrel : systemRelations){
-			Annotation sysArg1 = sysrel.getArg1().getArgument();
-			Annotation sysArg2 = sysrel.getArg2().getArgument();
-			for(BinaryTextRelation goldrel : goldRelations){
-				Annotation goldArg1 = goldrel.getArg1().getArgument();
-				Annotation goldArg2 = goldrel.getArg2().getArgument();
-				if (matchSpan(sysArg2, goldArg1) && matchSpan(sysArg1, goldArg2)){//the order of system pair was flipped 
-					if(sysrel.getCategory().equals("OVERLAP")){ //if the relation is overlap, and the arg order was flipped, then change back the order
-						RelationArgument tempArg = (RelationArgument) sysrel.getArg1().clone();
-						sysrel.setArg1((RelationArgument) sysrel.getArg2().clone());
-						sysrel.setArg2(tempArg);
-					}//for other types of relation, still maintain the type.
-					continue;
-				}
-			}
-			goodSys.add(sysrel);
-		}
-
-		return goodSys;
-	}
-
-
-//	@SuppressWarnings("unchecked")
-//	private static <SPAN> Collection<BinaryTextRelation> getDuplicateRelations(
-//			Collection<BinaryTextRelation> goldRelations,
-//			Function<BinaryTextRelation, ?> getSpan) {
-//		Set<BinaryTextRelation> duplicateRelations = Sets.newHashSet();
-//		//build a multimap that map gold span to gold relation
-//		Multimap<SPAN, BinaryTextRelation> spanToRelation = HashMultimap.create();
-//		for (BinaryTextRelation relation : goldRelations) {
-//			spanToRelation.put((SPAN) getSpan.apply(relation), relation);			
-//		}
-//		for (SPAN span: spanToRelation.keySet()){
-//			Collection<BinaryTextRelation> relations = spanToRelation.get(span);
-//			if(relations.size()>1){//if same span maps to multiple relations
-//				duplicateRelations.addAll(relations);
-//			}
-//		}
-//		return duplicateRelations;
+//	private static boolean matchSpan(Annotation arg1, Annotation arg2) {
+//		boolean result = false;
+//		if(arg1==null || arg2 == null) return result;
+//		result = arg1.getBegin() == arg2.getBegin() && arg1.getEnd() == arg2.getEnd();
+//		return result;
 //	}
 
-//	private static Collection<BinaryTextRelation> removeNonGoldRelations(
-//			Collection<BinaryTextRelation> systemRelations, Collection<BinaryTextRelation> goldRelations) {
-//		//remove non-gold pairs from system relations:
+//	private static Collection<BinaryTextRelation> correctArgOrder(
+//			Collection<BinaryTextRelation> systemRelations,
+//			Collection<BinaryTextRelation> goldRelations) {
 //		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
 //
 //		for(BinaryTextRelation sysrel : systemRelations){
@@ -557,23 +525,69 @@ EvaluationOfTemporalRelations_ImplBase{
 //			for(BinaryTextRelation goldrel : goldRelations){
 //				Annotation goldArg1 = goldrel.getArg1().getArgument();
 //				Annotation goldArg2 = goldrel.getArg2().getArgument();
-//				if(matchSpan(sysArg1, goldArg1) && matchSpan(sysArg2, goldArg2)){
-//					goodSys.add(sysrel);
-//					continue;
-//				}else if (matchSpan(sysArg2, goldArg1) && matchSpan(sysArg1, goldArg2)){//the order of system pair was flipped 
+//				if (matchSpan(sysArg2, goldArg1) && matchSpan(sysArg1, goldArg2)){//the order of system pair was flipped 
 //					if(sysrel.getCategory().equals("OVERLAP")){ //if the relation is overlap, and the arg order was flipped, then change back the order
 //						RelationArgument tempArg = (RelationArgument) sysrel.getArg1().clone();
 //						sysrel.setArg1((RelationArgument) sysrel.getArg2().clone());
 //						sysrel.setArg2(tempArg);
 //					}//for other types of relation, still maintain the type.
-//					goodSys.add(sysrel);
 //					continue;
 //				}
 //			}
+//			goodSys.add(sysrel);
 //		}
 //
 //		return goodSys;
 //	}
+
+
+	//	@SuppressWarnings("unchecked")
+	//	private static <SPAN> Collection<BinaryTextRelation> getDuplicateRelations(
+	//			Collection<BinaryTextRelation> goldRelations,
+	//			Function<BinaryTextRelation, ?> getSpan) {
+	//		Set<BinaryTextRelation> duplicateRelations = Sets.newHashSet();
+	//		//build a multimap that map gold span to gold relation
+	//		Multimap<SPAN, BinaryTextRelation> spanToRelation = HashMultimap.create();
+	//		for (BinaryTextRelation relation : goldRelations) {
+	//			spanToRelation.put((SPAN) getSpan.apply(relation), relation);			
+	//		}
+	//		for (SPAN span: spanToRelation.keySet()){
+	//			Collection<BinaryTextRelation> relations = spanToRelation.get(span);
+	//			if(relations.size()>1){//if same span maps to multiple relations
+	//				duplicateRelations.addAll(relations);
+	//			}
+	//		}
+	//		return duplicateRelations;
+	//	}
+
+	//	private static Collection<BinaryTextRelation> removeNonGoldRelations(
+	//			Collection<BinaryTextRelation> systemRelations, Collection<BinaryTextRelation> goldRelations) {
+	//		//remove non-gold pairs from system relations:
+	//		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
+	//
+	//		for(BinaryTextRelation sysrel : systemRelations){
+	//			Annotation sysArg1 = sysrel.getArg1().getArgument();
+	//			Annotation sysArg2 = sysrel.getArg2().getArgument();
+	//			for(BinaryTextRelation goldrel : goldRelations){
+	//				Annotation goldArg1 = goldrel.getArg1().getArgument();
+	//				Annotation goldArg2 = goldrel.getArg2().getArgument();
+	//				if(matchSpan(sysArg1, goldArg1) && matchSpan(sysArg2, goldArg2)){
+	//					goodSys.add(sysrel);
+	//					continue;
+	//				}else if (matchSpan(sysArg2, goldArg1) && matchSpan(sysArg1, goldArg2)){//the order of system pair was flipped 
+	//					if(sysrel.getCategory().equals("OVERLAP")){ //if the relation is overlap, and the arg order was flipped, then change back the order
+	//						RelationArgument tempArg = (RelationArgument) sysrel.getArg1().clone();
+	//						sysrel.setArg1((RelationArgument) sysrel.getArg2().clone());
+	//						sysrel.setArg2(tempArg);
+	//					}//for other types of relation, still maintain the type.
+	//					goodSys.add(sysrel);
+	//					continue;
+	//				}
+	//			}
+	//		}
+	//
+	//		return goodSys;
+	//	}
 
 
 	public static class RemoveEventEventRelations extends JCasAnnotator_ImplBase {
@@ -605,6 +619,21 @@ EvaluationOfTemporalRelations_ImplBase{
 				relation.removeFromIndexes();
 			}
 			//	      }
+
+		}
+	}
+
+	public static class RemoveNullArgumentRelations extends JCasAnnotator_ImplBase {
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(jCas, BinaryTextRelation.class))){
+				if(relation.getArg1() == null || relation.getArg2() == null){
+					relation.getArg1().removeFromIndexes();
+					relation.getArg2().removeFromIndexes();
+					relation.removeFromIndexes();
+				}
+
+			}
 
 		}
 	}
@@ -691,86 +720,86 @@ EvaluationOfTemporalRelations_ImplBase{
 	/**
 	 * Holds a set of parameters for a relation extraction model
 	 */
-//	public static class ParameterSettings {
-//		public boolean classifyBothDirections;
-//
-//		public float probabilityOfKeepingANegativeExample;
-//
-//		public String svmKernel;
-//
-//		public int svmKernelIndex;
-//
-//		public double svmCost;
-//
-//		public double svmGamma;
-//
-//		public String secondKernel;
-//		public int secondKernelIndex;
-//		public CompositeKernel.ComboOperator comboOperator;
-//		public double tkWeight;
-//		public double lambda;
-//
-//		public AnnotationStatistics<String> stats;
-//
-//		static List<String> SVM_KERNELS = Arrays.asList(
-//				"linear",
-//				"polynomial",
-//				"radial basis function",
-//				"sigmoid",
-//				"user",
-//				"tk");
-//
-//		public ParameterSettings(
-//				boolean classifyBothDirections,
-//				float probabilityOfKeepingANegativeExample,
-//				String svmKernel,
-//				double svmCost,
-//				double svmGamma,
-//				String secondKernel,
-//				CompositeKernel.ComboOperator comboOperator,
-//				double tkWeight,
-//				double lambda) {
-//			super();
-//			this.classifyBothDirections = classifyBothDirections;
-//			this.probabilityOfKeepingANegativeExample = probabilityOfKeepingANegativeExample;
-//			this.svmKernel = svmKernel;
-//			this.svmKernelIndex = SVM_KERNELS.indexOf(this.svmKernel);
-//			if (this.svmKernelIndex == -1) {
-//				throw new IllegalArgumentException("Unrecognized kernel: " + this.svmKernel);
-//			}
-//			this.svmCost = svmCost;
-//			this.svmGamma = svmGamma;
-//			this.secondKernel = secondKernel;
-//			this.secondKernelIndex = SVM_KERNELS.indexOf(this.secondKernel);
-//			this.comboOperator = comboOperator;
-//			this.tkWeight = tkWeight;
-//			this.lambda = lambda;
-//		}
-//
-//		@Override
-//		public String toString() {
-//			StringBuffer buff = new StringBuffer();
-//			//      buff.append("Bothdirections=");
-//			//      buff.append(classifyBothDirections);
-//			//      buff.append(",downsamplingratio=");
-//			//      buff.append(probabilityOfKeepingANegativeExample);
-//			buff.append(",Kernel=");
-//			buff.append(svmKernel);
-//			buff.append(",Cost=");
-//			buff.append(svmCost);
-//			buff.append(",Gamma=");
-//			buff.append(svmGamma);
-//			buff.append(",secondKernel=");
-//			buff.append(secondKernel);
-//			buff.append(",operator=");
-//			buff.append(comboOperator);
-//			buff.append(",tkWeight=");
-//			buff.append(tkWeight);
-//			buff.append(",lambda=");
-//			buff.append(lambda);
-//			return buff.toString();
-//		}
-//	}
+	//	public static class ParameterSettings {
+	//		public boolean classifyBothDirections;
+	//
+	//		public float probabilityOfKeepingANegativeExample;
+	//
+	//		public String svmKernel;
+	//
+	//		public int svmKernelIndex;
+	//
+	//		public double svmCost;
+	//
+	//		public double svmGamma;
+	//
+	//		public String secondKernel;
+	//		public int secondKernelIndex;
+	//		public CompositeKernel.ComboOperator comboOperator;
+	//		public double tkWeight;
+	//		public double lambda;
+	//
+	//		public AnnotationStatistics<String> stats;
+	//
+	//		static List<String> SVM_KERNELS = Arrays.asList(
+	//				"linear",
+	//				"polynomial",
+	//				"radial basis function",
+	//				"sigmoid",
+	//				"user",
+	//				"tk");
+	//
+	//		public ParameterSettings(
+	//				boolean classifyBothDirections,
+	//				float probabilityOfKeepingANegativeExample,
+	//				String svmKernel,
+	//				double svmCost,
+	//				double svmGamma,
+	//				String secondKernel,
+	//				CompositeKernel.ComboOperator comboOperator,
+	//				double tkWeight,
+	//				double lambda) {
+	//			super();
+	//			this.classifyBothDirections = classifyBothDirections;
+	//			this.probabilityOfKeepingANegativeExample = probabilityOfKeepingANegativeExample;
+	//			this.svmKernel = svmKernel;
+	//			this.svmKernelIndex = SVM_KERNELS.indexOf(this.svmKernel);
+	//			if (this.svmKernelIndex == -1) {
+	//				throw new IllegalArgumentException("Unrecognized kernel: " + this.svmKernel);
+	//			}
+	//			this.svmCost = svmCost;
+	//			this.svmGamma = svmGamma;
+	//			this.secondKernel = secondKernel;
+	//			this.secondKernelIndex = SVM_KERNELS.indexOf(this.secondKernel);
+	//			this.comboOperator = comboOperator;
+	//			this.tkWeight = tkWeight;
+	//			this.lambda = lambda;
+	//		}
+	//
+	//		@Override
+	//		public String toString() {
+	//			StringBuffer buff = new StringBuffer();
+	//			//      buff.append("Bothdirections=");
+	//			//      buff.append(classifyBothDirections);
+	//			//      buff.append(",downsamplingratio=");
+	//			//      buff.append(probabilityOfKeepingANegativeExample);
+	//			buff.append(",Kernel=");
+	//			buff.append(svmKernel);
+	//			buff.append(",Cost=");
+	//			buff.append(svmCost);
+	//			buff.append(",Gamma=");
+	//			buff.append(svmGamma);
+	//			buff.append(",secondKernel=");
+	//			buff.append(secondKernel);
+	//			buff.append(",operator=");
+	//			buff.append(comboOperator);
+	//			buff.append(",tkWeight=");
+	//			buff.append(tkWeight);
+	//			buff.append(",lambda=");
+	//			buff.append(lambda);
+	//			return buff.toString();
+	//		}
+	//	}
 
 	public static class AddTransitiveContainsRelations extends JCasAnnotator_ImplBase {
 
@@ -836,7 +865,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 	}
-	
+
 	public static class AddContain2Overlap extends JCasAnnotator_ImplBase {
 
 		@Override
@@ -862,7 +891,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 		}
 	}
-	
+
 	public static class AddFlippedOverlap extends JCasAnnotator_ImplBase {
 
 		@Override
@@ -902,25 +931,25 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 		}
 	}
-	
+
 	public static class AddClosure extends JCasAnnotator_ImplBase {
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
-			
+
 			String fileName = ViewURIUtil.getURI(jCas).toString();
-			
+
 			Multimap<List<Annotation>, BinaryTextRelation> annotationsToRelation = HashMultimap.create();
 			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)){
 				String relationType = relation.getCategory();
 				if(validTemporalType(relationType)){
 					Annotation arg1 = relation.getArg1().getArgument();
-			        Annotation arg2 = relation.getArg2().getArgument();
-			        if(arg1==null || arg2==null){
-			        	System.out.println("Null argument at Doc: "+ fileName);
-			        }else{
-			        	annotationsToRelation.put(Arrays.asList(arg1, arg2), relation);
-			        }
+					Annotation arg2 = relation.getArg2().getArgument();
+					if(arg1==null || arg2==null){
+						System.out.println("Null argument at Doc: "+ fileName);
+					}else{
+						annotationsToRelation.put(Arrays.asList(arg1, arg2), relation);
+					}
 				}
 			}
 			for (List<Annotation> span: Lists.newArrayList(annotationsToRelation.keySet())){
@@ -950,25 +979,25 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 
 			ArrayList<BinaryTextRelation> temporalRelation = new ArrayList<>(annotationsToRelation.values());//new ArrayList<BinaryTextRelation>();
-//			Map<List<Annotation>, BinaryTextRelation> temporalRelationLookup = new HashMap<List<Annotation>, BinaryTextRelation>();
-//
-//			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)){
-//				String relationType = relation.getCategory();
-//				if(validTemporalType(relationType)){
-//					Annotation arg1 = relation.getArg1().getArgument();
-//			        Annotation arg2 = relation.getArg2().getArgument();
-//			        BinaryTextRelation tempRelation = temporalRelationLookup.get(Arrays.asList(arg1, arg2));
-//					if( tempRelation == null){
-//						temporalRelation.add(relation);					
-//				        temporalRelationLookup.put(Arrays.asList(arg1, arg2), relation);
-//					}else{//if there is duplicate
-//						relation.getArg1().removeFromIndexes();
-//						relation.getArg2().removeFromIndexes();
-//						relation.removeFromIndexes();
-//					}
-//					
-//				}
-//			}
+			//			Map<List<Annotation>, BinaryTextRelation> temporalRelationLookup = new HashMap<List<Annotation>, BinaryTextRelation>();
+			//
+			//			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)){
+			//				String relationType = relation.getCategory();
+			//				if(validTemporalType(relationType)){
+			//					Annotation arg1 = relation.getArg1().getArgument();
+			//			        Annotation arg2 = relation.getArg2().getArgument();
+			//			        BinaryTextRelation tempRelation = temporalRelationLookup.get(Arrays.asList(arg1, arg2));
+			//					if( tempRelation == null){
+			//						temporalRelation.add(relation);					
+			//				        temporalRelationLookup.put(Arrays.asList(arg1, arg2), relation);
+			//					}else{//if there is duplicate
+			//						relation.getArg1().removeFromIndexes();
+			//						relation.getArg2().removeFromIndexes();
+			//						relation.removeFromIndexes();
+			//					}
+			//					
+			//				}
+			//			}
 
 			if (!temporalRelation.isEmpty()){
 				TLinkTypeArray2 relationArray = new TLinkTypeArray2(temporalRelation, new AnnotationIdCollection(temporalRelation));
@@ -990,10 +1019,10 @@ EvaluationOfTemporalRelations_ImplBase{
 						addedCount++;
 					}		
 				}
-				
+
 				System.out.println( "**************************************************************");
-			    System.out.println( "Finally added closure relations: " + addedCount );
-			    System.out.println( "**************************************************************");
+				System.out.println( "Finally added closure relations: " + addedCount );
+				System.out.println( "**************************************************************");
 			}			
 
 		}
@@ -1005,107 +1034,107 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 
-//	public static class AddTransitiveBeforeAndOnRelations extends JCasAnnotator_ImplBase {
-//
-//		@Override
-//		public void process(JCas jCas) throws AnalysisEngineProcessException {
-//
-//			// collect many-to-many mappings of containment relations 
-//			Multimap<Annotation, Annotation> contains = HashMultimap.create();
-//			Multimap<Annotation, Annotation> before = HashMultimap.create();
-//			Multimap<Annotation, Annotation> endson = HashMultimap.create();
-//			Multimap<Annotation, Annotation> beginson = HashMultimap.create();
-//			Set<BinaryTextRelation> beforeRel = Sets.newHashSet();
-//
-//			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
-//				if (relation.getCategory().equals("CONTAINS")) {
-//					Annotation arg1 = relation.getArg1().getArgument();
-//					Annotation arg2 = relation.getArg2().getArgument();
-//					contains.put(arg1, arg2);
-//				}else if (relation.getCategory().equals("BEFORE")) {
-//					Annotation arg1 = relation.getArg1().getArgument();
-//					Annotation arg2 = relation.getArg2().getArgument();
-//					before.put(arg1, arg2);
-//					beforeRel.add(relation);
-//				}else if (relation.getCategory().equals("ENDS-ON")) {
-//					Annotation arg1 = relation.getArg1().getArgument();
-//					Annotation arg2 = relation.getArg2().getArgument();
-//					endson.put(arg1, arg2);
-//					if (!endson.containsEntry(arg2, arg1)) {
-//						endson.put(arg2, arg1);
-//					}
-//				}else if (relation.getCategory().equals("BEGINS-ON")) {
-//					Annotation arg1 = relation.getArg1().getArgument();
-//					Annotation arg2 = relation.getArg2().getArgument();
-//					beginson.put(arg1, arg2);
-//					if (!beginson.containsEntry(arg2, arg1)) {
-//						beginson.put(arg2, arg1);
-//					}
-//				}
-//			}
-//
-//			// for A BEFORE B, check if A and B Contain anything
-//			for (BinaryTextRelation brelation : beforeRel) {
-//				Annotation argA = brelation.getArg1().getArgument();
-//				Annotation argB = brelation.getArg2().getArgument();
-//				//add contained before
-//				for (Annotation childA : contains.get(argA)) {
-//					for (Annotation childB : contains.get(argB)) {
-//						if (!before.containsEntry(childA, childB)) {
-//							//create a new before relation:
-//							RelationArgument arg1 = new RelationArgument(jCas);
-//							arg1.setArgument(childA);
-//							RelationArgument arg2 = new RelationArgument(jCas);
-//							arg2.setArgument(childB);
-//							BinaryTextRelation relation = new BinaryTextRelation(jCas);
-//							relation.setArg1(arg1);
-//							relation.setArg2(arg2);
-//							relation.setCategory("BEFORE");
-//							arg1.addToIndexes();
-//							arg2.addToIndexes();
-//							relation.addToIndexes();
-//							before.put(childA, childB);
-//						}
-//					}
-//				}
-//				//add ends-on A
-//				for (Annotation endsOnA : endson.get(argA)) {
-//					if (!before.containsEntry(endsOnA, argB)) {
-//						//create a new before relation:
-//						RelationArgument arg1 = new RelationArgument(jCas);
-//						arg1.setArgument(endsOnA);
-//						RelationArgument arg2 = new RelationArgument(jCas);
-//						arg2.setArgument(argB);
-//						BinaryTextRelation relation = new BinaryTextRelation(jCas);
-//						relation.setArg1(arg1);
-//						relation.setArg2(arg2);
-//						relation.setCategory("BEFORE");
-//						arg1.addToIndexes();
-//						arg2.addToIndexes();
-//						relation.addToIndexes();
-//						before.put(endsOnA, argB);
-//					}
-//				}
-//				//add begins-on B
-//				for (Annotation beginsOnB : beginson.get(argB)) {
-//					if (!before.containsEntry(argA, beginsOnB)) {
-//						//create a new before relation:
-//						RelationArgument arg1 = new RelationArgument(jCas);
-//						arg1.setArgument(argA);
-//						RelationArgument arg2 = new RelationArgument(jCas);
-//						arg2.setArgument(beginsOnB);
-//						BinaryTextRelation relation = new BinaryTextRelation(jCas);
-//						relation.setArg1(arg1);
-//						relation.setArg2(arg2);
-//						relation.setCategory("BEFORE");
-//						arg1.addToIndexes();
-//						arg2.addToIndexes();
-//						relation.addToIndexes();
-//						before.put(argA, beginsOnB);
-//					}
-//				}
-//			}
-//		}
-//
-//	}
+	//	public static class AddTransitiveBeforeAndOnRelations extends JCasAnnotator_ImplBase {
+	//
+	//		@Override
+	//		public void process(JCas jCas) throws AnalysisEngineProcessException {
+	//
+	//			// collect many-to-many mappings of containment relations 
+	//			Multimap<Annotation, Annotation> contains = HashMultimap.create();
+	//			Multimap<Annotation, Annotation> before = HashMultimap.create();
+	//			Multimap<Annotation, Annotation> endson = HashMultimap.create();
+	//			Multimap<Annotation, Annotation> beginson = HashMultimap.create();
+	//			Set<BinaryTextRelation> beforeRel = Sets.newHashSet();
+	//
+	//			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
+	//				if (relation.getCategory().equals("CONTAINS")) {
+	//					Annotation arg1 = relation.getArg1().getArgument();
+	//					Annotation arg2 = relation.getArg2().getArgument();
+	//					contains.put(arg1, arg2);
+	//				}else if (relation.getCategory().equals("BEFORE")) {
+	//					Annotation arg1 = relation.getArg1().getArgument();
+	//					Annotation arg2 = relation.getArg2().getArgument();
+	//					before.put(arg1, arg2);
+	//					beforeRel.add(relation);
+	//				}else if (relation.getCategory().equals("ENDS-ON")) {
+	//					Annotation arg1 = relation.getArg1().getArgument();
+	//					Annotation arg2 = relation.getArg2().getArgument();
+	//					endson.put(arg1, arg2);
+	//					if (!endson.containsEntry(arg2, arg1)) {
+	//						endson.put(arg2, arg1);
+	//					}
+	//				}else if (relation.getCategory().equals("BEGINS-ON")) {
+	//					Annotation arg1 = relation.getArg1().getArgument();
+	//					Annotation arg2 = relation.getArg2().getArgument();
+	//					beginson.put(arg1, arg2);
+	//					if (!beginson.containsEntry(arg2, arg1)) {
+	//						beginson.put(arg2, arg1);
+	//					}
+	//				}
+	//			}
+	//
+	//			// for A BEFORE B, check if A and B Contain anything
+	//			for (BinaryTextRelation brelation : beforeRel) {
+	//				Annotation argA = brelation.getArg1().getArgument();
+	//				Annotation argB = brelation.getArg2().getArgument();
+	//				//add contained before
+	//				for (Annotation childA : contains.get(argA)) {
+	//					for (Annotation childB : contains.get(argB)) {
+	//						if (!before.containsEntry(childA, childB)) {
+	//							//create a new before relation:
+	//							RelationArgument arg1 = new RelationArgument(jCas);
+	//							arg1.setArgument(childA);
+	//							RelationArgument arg2 = new RelationArgument(jCas);
+	//							arg2.setArgument(childB);
+	//							BinaryTextRelation relation = new BinaryTextRelation(jCas);
+	//							relation.setArg1(arg1);
+	//							relation.setArg2(arg2);
+	//							relation.setCategory("BEFORE");
+	//							arg1.addToIndexes();
+	//							arg2.addToIndexes();
+	//							relation.addToIndexes();
+	//							before.put(childA, childB);
+	//						}
+	//					}
+	//				}
+	//				//add ends-on A
+	//				for (Annotation endsOnA : endson.get(argA)) {
+	//					if (!before.containsEntry(endsOnA, argB)) {
+	//						//create a new before relation:
+	//						RelationArgument arg1 = new RelationArgument(jCas);
+	//						arg1.setArgument(endsOnA);
+	//						RelationArgument arg2 = new RelationArgument(jCas);
+	//						arg2.setArgument(argB);
+	//						BinaryTextRelation relation = new BinaryTextRelation(jCas);
+	//						relation.setArg1(arg1);
+	//						relation.setArg2(arg2);
+	//						relation.setCategory("BEFORE");
+	//						arg1.addToIndexes();
+	//						arg2.addToIndexes();
+	//						relation.addToIndexes();
+	//						before.put(endsOnA, argB);
+	//					}
+	//				}
+	//				//add begins-on B
+	//				for (Annotation beginsOnB : beginson.get(argB)) {
+	//					if (!before.containsEntry(argA, beginsOnB)) {
+	//						//create a new before relation:
+	//						RelationArgument arg1 = new RelationArgument(jCas);
+	//						arg1.setArgument(argA);
+	//						RelationArgument arg2 = new RelationArgument(jCas);
+	//						arg2.setArgument(beginsOnB);
+	//						BinaryTextRelation relation = new BinaryTextRelation(jCas);
+	//						relation.setArg1(arg1);
+	//						relation.setArg2(arg2);
+	//						relation.setCategory("BEFORE");
+	//						arg1.addToIndexes();
+	//						arg2.addToIndexes();
+	//						relation.addToIndexes();
+	//						before.put(argA, beginsOnB);
+	//					}
+	//				}
+	//			}
+	//		}
+	//
+	//	}
 }
