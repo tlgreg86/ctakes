@@ -12,9 +12,10 @@ import org.apache.uima.jcas.JCas;
 import org.cleartk.classifier.Feature;
 import org.uimafit.util.JCasUtil;
 
-public class TemporalAttributeFeatureExtractor implements
-		RelationFeaturesExtractor {
+public class TemporalAttributeForMixEventTimeExtractor implements
+RelationFeaturesExtractor {
 
+	@SuppressWarnings("null")
 	@Override
 	public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1,
 			IdentifiedAnnotation arg2) throws AnalysisEngineProcessException {
@@ -22,28 +23,30 @@ public class TemporalAttributeFeatureExtractor implements
 		EventMention event = null;
 		TimeMention time = null;
 
-		// swap the order if necessary:
-//		if(arg2.getBegin() <= arg1.getBegin() && arg2.getEnd() <= arg1.getEnd()){
-//			IdentifiedAnnotation temp = arg1;
-//			arg1 = arg2;
-//			arg2 = temp;
-//		}
-
-		if(arg1 instanceof EventMention && arg2 instanceof TimeMention){
+		if(arg1 instanceof EventMention){
 			event = JCasUtil.selectCovering(jCas, EventMention.class, arg1.getBegin(), arg1.getEnd()).get(0);
-			time = (TimeMention)arg2;
-			if(event!=null && event.getEvent()!=null)
-				feats.add(new Feature("Event-Modality-", event.getEvent().getProperties().getContextualModality()));
-			feats.add(new Feature("Time-Class-", time.getTimeClass()));
-		}else if(arg2 instanceof EventMention && arg1 instanceof TimeMention){
-			time = (TimeMention)arg1;
-			event = JCasUtil.selectCovering(jCas, EventMention.class, arg2.getBegin(), arg2.getEnd()).get(0);
-			feats.add(new Feature("Timex-Class-", time.getTimeClass()));
-			if(event!=null && event.getEvent()!=null)
-				feats.add(new Feature("Event-Modality-", event.getEvent().getProperties().getContextualModality()));
+			if( event != null && event.getEvent() !=null ){
+				feats.add(new Feature("Arg1-Event-Modality", event.getEvent().getProperties().getContextualModality()));
+			}
+		}else if(arg1 instanceof TimeMention){
+			time = (TimeMention) arg1;
+			if( time != null){
+				feats.add(new Feature("Arg1-Timex-", time.getTimeClass()));
+			}			
 		}
-		
-		
+
+		if(arg2 instanceof TimeMention){
+			time = (TimeMention) arg2;
+			if(time != null){
+				feats.add(new Feature("Arg2-Timex-", time.getTimeClass()));
+			}
+		}else if(arg2 instanceof EventMention){
+			event = JCasUtil.selectCovering(jCas, EventMention.class, arg2.getBegin(), arg2.getEnd()).get(0);
+			if(event !=null && event.getEvent() !=null ){
+				feats.add(new Feature("Arg2-Event-Modality", event.getEvent().getProperties().getContextualModality()));
+			}
+		}
+
 		return feats;
 	}
 
