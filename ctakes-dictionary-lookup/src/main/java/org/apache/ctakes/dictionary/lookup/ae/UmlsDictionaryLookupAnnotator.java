@@ -123,7 +123,7 @@ public class UmlsDictionaryLookupAnnotator extends DictionaryLookupAnnotator
           "LookupDescriptor",
           ExternalResourceFactory.createExternalResourceDescription(
               FileResourceImpl.class,
-              FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/LookupDesc_Db_hsql.xml")),
+              FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/LookupDesc_Db.xml")),
           "DbConnection",
           ExternalResourceFactory.createExternalResourceDescription(
               JdbcConnectionResourceImpl.class,

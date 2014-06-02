@@ -234,13 +234,25 @@
             <name/>
             <configurationParameters>
               <configurationParameter>
-                <name>UseMemoryIndex</name>
-                <type>Boolean</type>
+                <name>DriverClassName</name>
+                <type>String</type>
                 <multiValued>false</multiValued>
                 <mandatory>true</mandatory>
               </configurationParameter>
               <configurationParameter>
-                <name>IndexDirectory</name>
+                <name>URL</name>
+                <type>String</type>
+                <multiValued>false</multiValued>
+                <mandatory>true</mandatory>
+              </configurationParameter>
+              <configurationParameter>
+                <name>Username</name>
+                <type>String</type>
+                <multiValued>false</multiValued>
+                <mandatory>true</mandatory>
+              </configurationParameter>
+              <configurationParameter>
+                <name>Password</name>
                 <type>String</type>
                 <multiValued>false</multiValued>
                 <mandatory>true</mandatory>
@@ -248,21 +260,33 @@
             </configurationParameters>
             <configurationParameterSettings>
               <nameValuePair>
-                <name>UseMemoryIndex</name>
+                <name>DriverClassName</name>
                 <value>
-                  <boolean>true</boolean>
+                  <string>org.hsqldb.jdbcDriver</string>
                 </value>
               </nameValuePair>
               <nameValuePair>
-                <name>IndexDirectory</name>
+                <name>URL</name>
                 <value>
-                  <string>org/apache/ctakes/dictionary/lookup/rxnorm_index</string>
+                  <string>jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/rx_norm_hsqldb/umls</string>
+                </value>
+              </nameValuePair>
+              <nameValuePair>
+                <name>Username</name>
+                <value>
+                  <string>SA</string>
+                </value>
+              </nameValuePair>
+              <nameValuePair>
+                <name>Password</name>
+                <value>
+                  <string/>
                 </value>
               </nameValuePair>
             </configurationParameterSettings>
           </resourceMetaData>
         </configurableDataResourceSpecifier>
-        <implementationName>org.apache.ctakes.core.resource.LuceneIndexReaderResourceImpl</implementationName>
+        <implementationName>org.apache.ctakes.core.resource.JdbcConnectionResourceImpl</implementationName>
       </externalResource>
       <externalResource>
         <name>OrangeBookIndex</name>
@@ -273,13 +297,25 @@
             <name/>
             <configurationParameters>
               <configurationParameter>
-                <name>UseMemoryIndex</name>
-                <type>Boolean</type>
+                <name>DriverClassName</name>
+                <type>String</type>
                 <multiValued>false</multiValued>
                 <mandatory>true</mandatory>
               </configurationParameter>
               <configurationParameter>
-                <name>IndexDirectory</name>
+                <name>URL</name>
+                <type>String</type>
+                <multiValued>false</multiValued>
+                <mandatory>true</mandatory>
+              </configurationParameter>
+              <configurationParameter>
+                <name>Username</name>
+                <type>String</type>
+                <multiValued>false</multiValued>
+                <mandatory>true</mandatory>
+              </configurationParameter>
+              <configurationParameter>
+                <name>Password</name>
                 <type>String</type>
                 <multiValued>false</multiValued>
                 <mandatory>true</mandatory>
@@ -287,21 +323,33 @@
             </configurationParameters>
             <configurationParameterSettings>
               <nameValuePair>
-                <name>UseMemoryIndex</name>
+                <name>DriverClassName</name>
                 <value>
-                  <boolean>true</boolean>
+                  <string>org.hsqldb.jdbcDriver</string>
                 </value>
               </nameValuePair>
               <nameValuePair>
-                <name>IndexDirectory</name>
+                <name>URL</name>
                 <value>
-                  <string>org/apache/ctakes/dictionary/lookup/OrangeBook</string>
+                  <string>jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/orange_book_hsqldb/umls</string>
+                </value>
+              </nameValuePair>
+              <nameValuePair>
+                <name>Username</name>
+                <value>
+                  <string>SA</string>
+                </value>
+              </nameValuePair>
+              <nameValuePair>
+                <name>Password</name>
+                <value>
+                  <string/>
                 </value>
               </nameValuePair>
             </configurationParameterSettings>
           </resourceMetaData>
         </configurableDataResourceSpecifier>
-        <implementationName>org.apache.ctakes.core.resource.LuceneIndexReaderResourceImpl</implementationName>
+        <implementationName>org.apache.ctakes.core.resource.JdbcConnectionResourceImpl</implementationName>
       </externalResource>
     </externalResources>
     <externalResourceBindings>
