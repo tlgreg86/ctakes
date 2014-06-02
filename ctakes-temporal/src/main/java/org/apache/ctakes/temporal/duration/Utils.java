@@ -30,6 +30,7 @@ import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.cleartk.classifier.Feature;
 import org.threeten.bp.temporal.TemporalField;
 import org.threeten.bp.temporal.TemporalUnit;
 import org.uimafit.factory.CollectionReaderFactory;
@@ -38,9 +39,11 @@ import org.uimafit.util.JCasUtil;
 import scala.collection.immutable.Set;
 import scala.util.Try;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
+import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import com.googlecode.clearnlp.engine.EngineGetter;
 import com.googlecode.clearnlp.morphology.AbstractMPAnalyzer;
@@ -403,7 +406,29 @@ public class Utils {
     return files;
   }
   
-  public static void main(String[] args) throws IOException {
+  /**
+   * Output label and list of cleartk features to a file for debugging.
+   */
+  public static void writeInstance(String label, List<Feature> features, String fileName) {
+    
+    StringBuffer output = new StringBuffer(label);
+    for(Feature feature : features) {
+      if(feature.getName() == null || feature.getValue() == null) {
+        continue;
+      }
+      String name = feature.getName().replace(",", "COMMA").replace(":", "COLON");
+      String value = feature.getValue().toString().replace(",", "COMMA").replace(":", "COLON");
+      String nameValuePair = String.format(",%s:%s", name, value);
+      output.append(nameValuePair);
+    }
+    try {
+      Files.append(output + "\n", new File(fileName), Charsets.UTF_8);
+    } catch (IOException e) {
+      System.err.println("could not write to output file!");
+    }
+  }
+  
+  public static void main(String[] args) {
     
     HashSet<String> timeUnits = getTimeUnits("three months");
     System.out.println(timeUnits);
