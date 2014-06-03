@@ -416,9 +416,20 @@ public class Utils {
       if(feature.getName() == null || feature.getValue() == null) {
         continue;
       }
-      String name = feature.getName().replace(",", "COMMA").replace(":", "COLON");
-      String value = feature.getValue().toString().replace(",", "COMMA").replace(":", "COLON");
-      String nameValuePair = String.format(",%s:%s", name, value);
+      String name = feature.getName();
+      Object value = feature.getValue();
+      String nameValuePair;
+      if(value instanceof String) {
+        String cleanedUpName = name.replace(",", "COMMA").replace(":", "COLON").replace("\n", "EOL");
+        String cleanedUpValue = value.toString().replace(",", "COMMA").replace(":", "COLON").replace("\n", "EOL");
+        nameValuePair = String.format(",%s-%s:%s", cleanedUpName, cleanedUpValue, 1);
+      } else if(value instanceof Integer) {
+        String cleanedUpName = name.replace(",", "COMMA").replace(":", "COLON").replace("\n", "EOL");
+        String cleanedUpValue = value.toString().replace(",", "COMMA").replace(":", "COLON").replace("\n", "EOL");
+        nameValuePair = String.format(",%s:%s", cleanedUpName, cleanedUpValue);
+      } else {
+        continue;
+      }
       output.append(nameValuePair);
     }
     try {
