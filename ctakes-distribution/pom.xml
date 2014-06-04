@@ -123,8 +123,8 @@
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-ytex-web</artifactId>
-			<type>jar</type>
 			<version>${project.version}</version>
+			<classifier>classes</classifier>
 		</dependency>						
 	</dependencies>
 

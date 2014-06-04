@@ -394,7 +394,15 @@
 				<artifactId>
 					ctakes-ytex-uima
 				</artifactId>
-				<version>${ctakes.version}</version>			</dependency>			
+				<version>${ctakes.version}</version>
+			</dependency>			
+			<dependency>
+				<groupId>org.apache.ctakes</groupId>
+				<artifactId>
+					ctakes-ytex-web
+				</artifactId>
+				<version>${ctakes.version}</version>
+			</dependency>			
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
@@ -691,10 +699,11 @@
 					<configuration>
 			          <includes>
 			          <!-- Resources will be copied by the assembly
-			          No need for it to be inside the jar -->
+			          No need for it to be inside the jar 
 			            <include>**/*.class</include>
 			            <include>**/types/*.xml</include>			            
 			            <include>**/META-INF/**</include>
+			            -->
 			          </includes>
 	        		</configuration>
 				</plugin>

@@ -58,6 +58,7 @@
 				<include>org.apache.ctakes:ctakes-utils</include>
 				<include>org.apache.ctakes:ctakes-ytex</include>
 				<include>org.apache.ctakes:ctakes-ytex-uima</include>
+				<include>org.apache.ctakes:ctakes-ytex-web</include>				
 			</includes>
 			
             <excludes>
