@@ -10,6 +10,7 @@ import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.classifier.Feature;
+import org.cleartk.util.ViewURIUtil;
 import org.uimafit.util.JCasUtil;
 
 public class NumberOfEventTimeBetweenCandidatesExtractor implements
@@ -45,6 +46,12 @@ RelationFeaturesExtractor {
 		feats.add(new Feature("NumOfEvents_InBetween", eventsInBetween));
 		feats.add(new Feature("NumOfTimes_InBetween", timesInBetween));
 		feats.add(new Feature("NumOfEventsAndTimes_InBetween", timesInBetween+eventsInBetween));
+		
+//		//print long distances
+//		if (eventsInBetween >= 200){
+//			System.out.println("++++++++++Long Distance Relation in "+ ViewURIUtil.getURI(jCas).toString() + "+++++++");
+//			System.out.println("["+arg1.getCoveredText()+"] "+ jCas.getDocumentText().substring(arg1.getEnd(), arg2.getBegin()) +" ["+arg2.getCoveredText()+"]");
+//		}
 
 		return feats;
 	}
