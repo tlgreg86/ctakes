@@ -77,33 +77,4 @@
 			<outputsNewCASes>false</outputsNewCASes>
 		</operationalProperties>
 	</analysisEngineMetaData>
-	<externalResourceDependencies>
-		<externalResourceDependency>
-			<key>ChunkerModel</key>
-			<description>The MaxEnt model used by the chunker</description>
-			<interfaceName>org.apache.ctakes.core.resource.FileResource
-			</interfaceName>
-			<optional>false</optional>
-		</externalResourceDependency>
-	</externalResourceDependencies>
-	<resourceManagerConfiguration>
-		<externalResources>
-			<externalResource>
-				<name>ChunkerModelFile</name>
-				<description></description>
-				<fileResourceSpecifier>
-					<fileUrl>file:org/apache/ctakes/chunker/models/chunker-model.zip
-					</fileUrl>
-				</fileResourceSpecifier>
-				<implementationName>org.apache.ctakes.core.resource.FileResourceImpl
-				</implementationName>
-			</externalResource>
-		</externalResources>
-		<externalResourceBindings>
-			<externalResourceBinding>
-				<key>ChunkerModel</key>
-				<resourceName>ChunkerModelFile</resourceName>
-			</externalResourceBinding>
-		</externalResourceBindings>
-	</resourceManagerConfiguration>
 </analysisEngineDescription>
