@@ -137,7 +137,9 @@
 		<module>ctakes-ytex-res</module>
 		<module>ctakes-ytex</module>
 		<module>ctakes-ytex-uima</module>
-		<module>ctakes-ytex-web</module>	
+		<module>ctakes-ytex-web</module>
+		<module>ctakes-dictionary-lookup2</module>
+		<module>ctakes-dictionary-lookup2-res</module>				
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -171,7 +173,17 @@
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-dictionary-lookup-res</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>			
+			</dependency>		
+			<dependency>
+				<groupId>org.apache.ctakes</groupId>
+				<artifactId>ctakes-dictionary-lookup2</artifactId>
+				<version>${ctakes.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.ctakes</groupId>
+				<artifactId>ctakes-dictionary-lookup2-res</artifactId>
+				<version>${ctakes.version}</version>
+			</dependency>					
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-preprocessor</artifactId>

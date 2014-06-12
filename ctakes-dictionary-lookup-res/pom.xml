@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>net.sourceforge.ctakesresources</groupId>
 			<artifactId>ctakes-resources-umls2011ab</artifactId>
-			<version>3.1.1</version>
+			<version>3.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.ctakesresources</groupId>
@@ -47,11 +47,7 @@
 			<artifactId>ctakes-resources-orangebook-hsqldb</artifactId>
 			<version>3.1.2</version>
 		</dependency>		
-		<dependency>
-			<groupId>net.sourceforge.ctakesresources</groupId>
-			<artifactId>ctakes-resources-snomed-rword-hsqldb-2011ab</artifactId>
-			<version>3.1.2</version>
-		</dependency>				
+		
 	</dependencies>
 	<build>
 		<plugins>
@@ -69,8 +65,6 @@
 							<includeArtifactId>ctakes-resources-umls2011ab</includeArtifactId>
 							<includeArtifactId>ctakes-resources-rxnorm-hsqldb-2011ab</includeArtifactId>
 							<includeArtifactId>ctakes-resources-orangebook-hsqldb</includeArtifactId>
-							<includeArtifactId>ctakes-resources-snomed-rword-hsqldb-2011ab</includeArtifactId>							
-              <!-- <includes>**/*</includes> -->
 							<outputDirectory>${project.build.directory}/classes</outputDirectory>
 						</configuration>
 					</execution>
