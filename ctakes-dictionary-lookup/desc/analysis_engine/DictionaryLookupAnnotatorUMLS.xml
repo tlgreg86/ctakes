@@ -142,13 +142,13 @@
     <externalResourceDependency>
       <key>RxnormIndexReader</key>
       <description/>
-      <interfaceName>org.apache.ctakes.core.resource.LuceneIndexReaderResource</interfaceName>
+      <interfaceName>org.apache.ctakes.core.resource.JdbcConnectionResource</interfaceName>
       <optional>false</optional>
     </externalResourceDependency>
     <externalResourceDependency>
       <key>OrangeBookIndexReader</key>
       <description/>
-      <interfaceName>org.apache.ctakes.core.resource.LuceneIndexReaderResource</interfaceName>
+      <interfaceName>org.apache.ctakes.core.resource.JdbcConnectionResource</interfaceName>
       <optional>false</optional>
     </externalResourceDependency>
   </externalResourceDependencies>
