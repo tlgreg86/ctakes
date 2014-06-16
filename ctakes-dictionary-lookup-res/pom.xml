@@ -70,6 +70,23 @@
 					</execution>
 				</executions>
 			</plugin>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.4</version>
+					<configuration>
+			          <includes>
+			          <!-- Dictionary lookup Resources that are unpacked
+			          automatically by maven
+			          	are not jar'd and included in the bin distro
+			          	by default please download them from SF if needed. 
+			           -->
+			            <include>**/*.class</include>
+			            <include>**/types/*.xml</include>			            
+			            <include>**/META-INF/**</include>
+			           
+			          </includes>
+	        		</configuration>
+				</plugin>	    	
 		</plugins>
 	</build>  
 </project>
