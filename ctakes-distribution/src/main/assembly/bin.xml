@@ -53,7 +53,7 @@
 				<include>org.apache.ctakes:ctakes-side-effect</include>
 				<include>org.apache.ctakes:ctakes-smoking-status</include>
 				<include>org.apache.ctakes:ctakes-template-filler</include>
-				<!-- <include>org.apache.ctakes:ctakes-temporal</include> -->
+				<include>org.apache.ctakes:ctakes-temporal</include>
 				<include>org.apache.ctakes:ctakes-type-system</include>
 				<include>org.apache.ctakes:ctakes-utils</include>
 				<include>org.apache.ctakes:ctakes-ytex</include>
