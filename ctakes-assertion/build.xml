@@ -266,7 +266,7 @@
     </target>
     <target name="CrossValidateAttributeModels">
         <java classname="org.apache.ctakes.assertion.train.CrossValidateAttributeModels" failonerror="true" fork="yes">
-            <jvmarg line="-Xmx1600M"/>
+            <jvmarg line="-Xmx3g"/>
             <classpath refid="run.CrossValidateAttributeModels.classpath"/>
         </java>
     </target>
@@ -300,34 +300,34 @@
     </target>
     <target name="TrainAttributeModels">
         <java classname="org.apache.ctakes.assertion.train.TrainAttributeModels" failonerror="true" fork="yes">
-            <jvmarg line="-Xmx1600M"/>
+            <jvmarg line="-Xmx3g"/>
             <classpath refid="run.TrainAttributeModels.classpath"/>
         </java>
     </target>
     <target name="ctakes_assertion_read_gold_and_preprocess">
         <java classname="org.apache.ctakes.assertion.eval.AssertionEvaluation" failonerror="true" fork="yes">
-            <jvmarg line="-Xmx1600M"/>
+            <jvmarg line="-Xmx3g"/>
             <arg line="--train-dir sharp_data/train --test-dir sharp_data/test --dev-dir sharp_data/dev --models-dir sharp_data/model/eval.model --preprocess-only &quot;/Users/m081914/work/data/sharp/Seed Corpus/Mayo/UMLS_CEM&quot;"/>
             <classpath refid="run.ctakes_assertion_read_gold_and_preprocess.classpath"/>
         </java>
     </target>
     <target name="ctakes_assertion_evaluation_on_test">
         <java classname="org.apache.ctakes.assertion.eval.AssertionEvaluation" failonerror="true" fork="yes">
-            <jvmarg line="-Xmx1600M"/>
+            <jvmarg line="-Xmx3g"/>
             <arg line="--train-dir sharp_data/train --test-dir sharp_data/test --models-dir sharp_data/model/eval.model"/>
             <classpath refid="run.ctakes_assertion_evaluation_on_test.classpath"/>
         </java>
     </target>
     <target name="ctakes_assertion_evaluation_on_output">
         <java classname="org.apache.ctakes.assertion.eval.AssertionEvaluation" failonerror="true" fork="yes">
-            <jvmarg line="-Xmx1600M"/>
+            <jvmarg line="-Xmx3g"/>
             <arg line="--train-dir sharp_data/train --test-dir sharp_data/dev --models-dir sharp_data/model/eval.model --evaluation-output-dir sharp_data/output_instancegathering --eval-only"/>
             <classpath refid="run.ctakes_assertion_evaluation_on_output.classpath"/>
         </java>
     </target>
     <target name="ctakes_assertion_crossvalidation">
         <java classname="org.apache.ctakes.assertion.eval.AssertionEvaluation" failonerror="true" fork="yes">
-            <jvmarg line="-Xmx1600M"/>
+            <jvmarg line="-Xmx3g"/>
             <arg line="--train-dir /Users/m081914/work/data/assertion/fromtim_sharp_data/train --models-dir ../ctakes-assertion-res/resources/model/sharptrain-xval --cross-validation 5"/>
             <classpath refid="run.ctakes_assertion_crossvalidation.classpath"/>
         </java>
@@ -346,28 +346,28 @@
     </target>
     <target name="ctakes_assertion_read_gold_and_preprocess">
         <java classname="org.apache.ctakes.assertion.eval.AssertionEvaluation" failonerror="true" fork="yes">
-            <jvmarg line="-Xmx1600M"/>
+            <jvmarg line="-Xmx3g"/>
             <arg line="--train-dir sharp_data/train --test-dir sharp_data/test --dev-dir sharp_data/dev --models-dir sharp_data/model/eval.model --preprocess-only &quot;/Users/m081914/work/data/sharp/Seed Corpus/Mayo/UMLS_CEM&quot;"/>
             <classpath refid="run.ctakes_assertion_read_gold_and_preprocess.classpath"/>
         </java>
     </target>
     <target name="ctakes_assertion_evaluation_on_test">
         <java classname="org.apache.ctakes.assertion.eval.AssertionEvaluation" failonerror="true" fork="yes">
-            <jvmarg line="-Xmx1600M"/>
+            <jvmarg line="-Xmx3g"/>
             <arg line="--train-dir sharp_data/train --test-dir sharp_data/test --models-dir sharp_data/model/eval.model"/>
             <classpath refid="run.ctakes_assertion_evaluation_on_test.classpath"/>
         </java>
     </target>
     <target name="ctakes_assertion_evaluation_on_output">
         <java classname="org.apache.ctakes.assertion.eval.AssertionEvaluation" failonerror="true" fork="yes">
-            <jvmarg line="-Xmx1600M"/>
+            <jvmarg line="-Xmx3g"/>
             <arg line="--train-dir sharp_data/train --test-dir sharp_data/dev --models-dir sharp_data/model/eval.model --evaluation-output-dir sharp_data/output_instancegathering --eval-only"/>
             <classpath refid="run.ctakes_assertion_evaluation_on_output.classpath"/>
         </java>
     </target>
     <target name="ctakes_assertion_crossvalidation">
         <java classname="org.apache.ctakes.assertion.eval.AssertionEvaluation" failonerror="true" fork="yes">
-            <jvmarg line="-Xmx1600M"/>
+            <jvmarg line="-Xmx3g"/>
             <arg line="--train-dir /Users/m081914/work/data/assertion/fromtim_sharp_data/train --models-dir ../ctakes-assertion-res/resources/model/sharptrain-xval --cross-validation 5"/>
             <classpath refid="run.ctakes_assertion_crossvalidation.classpath"/>
         </java>
