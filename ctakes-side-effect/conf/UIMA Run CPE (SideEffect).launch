@@ -17,5 +17,5 @@
 <stringAttribute key="org.eclipse.debug.ui.target_run_perspective" value="perspective_default"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.apache.uima.tools.cpm.CpmFrame"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="SideEffect"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="&quot;-Xms512M&quot; &quot;-Xmx1600M&quot; -Djava.util.logging.config.file=logger.properties -Duima.datapath=.\resources -DVNS_HOST=localhost"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="&quot;-Xms512M&quot; &quot;-Xmx3g&quot; -Djava.util.logging.config.file=logger.properties -Duima.datapath=.\resources -DVNS_HOST=localhost"/>
 </launchConfiguration>
