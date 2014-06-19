@@ -141,7 +141,7 @@ public class UmlsDictionaryLookupAnnotator extends DictionaryLookupAnnotator
               JdbcConnectionResourceImpl.PARAM_DRIVER_CLASS,
               "org.hsqldb.jdbcDriver",
               JdbcConnectionResourceImpl.PARAM_URL,
-              "jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/rx_norm_hsqldb/umls"),
+              "jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/rxnorm-hsqldb/umls"),
           "OrangeBookIndexReader",
           ExternalResourceFactory.createExternalResourceDescription(
               JdbcConnectionResourceImpl.class,

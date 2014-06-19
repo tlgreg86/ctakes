@@ -130,42 +130,7 @@ public abstract class TemporalExtractionPipeline_ImplBase {
     // maximize lookup windows
     aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEnclosedLookupWindows.class));
     // add UMLS on top of lookup windows
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
-        UmlsDictionaryLookupAnnotator.class,
-        "ctakes.umlsaddr",
-        "https://uts-ws.nlm.nih.gov/restful/isValidUMLSUser",
-        "ctakes.umlsvendor",
-        "NLM-6515182895",
-        "LookupDescriptor",
-        ExternalResourceFactory.createExternalResourceDescription(
-            FileResourceImpl.class,
-            FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/LookupDesc_Db.xml")),
-        "DbConnection",
-        ExternalResourceFactory.createExternalResourceDescription(
-            JdbcConnectionResourceImpl.class,
-            "",
-            JdbcConnectionResourceImpl.PARAM_DRIVER_CLASS,
-            "org.hsqldb.jdbcDriver",
-            JdbcConnectionResourceImpl.PARAM_URL,
-            // Should be the following but it's WAY too slow
-            // "jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/umls2011ab/umls"),
-            "jdbc:hsqldb:file:target/unpacked/org/apache/ctakes/dictionary/lookup/umls2011ab/umls"),
-        "RxnormIndexReader",
-        ExternalResourceFactory.createExternalResourceDescription(
-            LuceneIndexReaderResourceImpl.class,
-            "",
-            "UseMemoryIndex",
-            true,
-            "IndexDirectory",
-            new File("target/unpacked/org/apache/ctakes/dictionary/lookup/rxnorm_index").getAbsoluteFile()),
-        "OrangeBookIndexReader",
-        ExternalResourceFactory.createExternalResourceDescription(
-            LuceneIndexReaderResourceImpl.class,
-            "",
-            "UseMemoryIndex",
-            true,
-            "IndexDirectory",
-            "org/apache/ctakes/dictionary/lookup/OrangeBook")));
+    aggregateBuilder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
 
     // add lvg annotator
     String[] XeroxTreebankMap = {

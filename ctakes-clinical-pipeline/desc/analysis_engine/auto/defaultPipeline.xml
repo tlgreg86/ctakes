@@ -30669,7 +30669,7 @@ Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.Properties</description>
                                         <nameValuePair>
                                             <name>URL</name>
                                             <value>
-                                                <string>jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/rx_norm_hsqldb/umls</string>
+                                                <string>jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/rxnorm-hsqldb/umls</string>
                                             </value>
                                         </nameValuePair>
                                     </configurationParameterSettings>
@@ -30720,7 +30720,7 @@ Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.Properties</description>
                             <name>org.apache.ctakes.core.resource.FileResourceImpl-1</name>
                             <description/>
                             <configurableDataResourceSpecifier>
-                                <url>file:/home/tmill/Projects/apache-ctakes/maven.1348675223521/ctakes-dictionary-lookup-res/target/classes/org/apache/ctakes/dictionary/lookup/LookupDesc_Db_hsql.xml</url>
+                                <url>file:org/apache/ctakes/dictionary/lookup/LookupDesc_Db.xml</url>
                                 <resourceMetaData>
                                     <name/>
                                     <configurationParameters/>
