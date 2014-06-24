@@ -83,11 +83,10 @@
       <groupId>org.apache.ctakes</groupId>
       <artifactId>ctakes-constituency-parser</artifactId>
     </dependency>
-		<dependency>
-			<groupId>net.sourceforge.ctakesresources</groupId>
-			<artifactId>ctakes-resources-umls2011ab</artifactId>
-			<version>3.1.1</version>
-		</dependency>
+    <dependency>
+      <groupId>org.apache.ctakes</groupId>
+      <artifactId>ctakes-clinical-pipeline</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.cleartk</groupId>
       <artifactId>cleartk-util</artifactId>
