@@ -82,6 +82,33 @@ public class BackwardsTimeAnnotator extends TemporalEntityAnnotator_ImplBase {
   }
 
   public static AnalysisEngineDescription createAnnotatorDescription(
+	      String modelPath) throws ResourceInitializationException {
+	    return AnalysisEngineFactory.createPrimitiveDescription(
+	        BackwardsTimeAnnotator.class,
+	        CleartkAnnotator.PARAM_IS_TRAINING,
+	        false,
+	        GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+	        modelPath);
+	  }
+  
+  public static AnalysisEngineDescription createEnsembleDescription(String modelPath,
+	      String viewName) throws ResourceInitializationException {
+	    return AnalysisEngineFactory.createPrimitiveDescription(
+	        BackwardsTimeAnnotator.class,
+	        CleartkAnnotator.PARAM_IS_TRAINING,
+	        false,
+	        BackwardsTimeAnnotator.PARAM_TIMEX_VIEW,
+	        viewName,
+	        GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+	        modelPath);
+	  }
+  
+  /**
+   * @deprecated use String path instead of File.
+   * ClearTK will automatically Resolve the String to an InputStream.
+   * This will allow resources to be read within from a jar as well as File.  
+   */
+  public static AnalysisEngineDescription createAnnotatorDescription(
       File modelDirectory) throws ResourceInitializationException {
     return AnalysisEngineFactory.createPrimitiveDescription(
         BackwardsTimeAnnotator.class,
@@ -90,7 +117,11 @@ public class BackwardsTimeAnnotator extends TemporalEntityAnnotator_ImplBase {
         GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
         new File(modelDirectory, "model.jar"));
   }
-
+  /**
+   * @deprecated use String path instead of File.
+   * ClearTK will automatically Resolve the String to an InputStream.
+   * This will allow resources to be read within from a jar as well as File.  
+   */
   public static AnalysisEngineDescription createEnsembleDescription(File modelDirectory,
       String viewName) throws ResourceInitializationException {
     return AnalysisEngineFactory.createPrimitiveDescription(

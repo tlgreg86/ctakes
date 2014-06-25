@@ -79,10 +79,10 @@ public class FullTemporalExtractionPipeline extends
 
     AggregateBuilder aggregateBuilder = getLightweightPreprocessorAggregateBuilder();
     aggregateBuilder.add(EventAnnotator.createAnnotatorDescription(new File(options.getEventModelDirectory())));
-    aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(new File(options.getTimeModelDirectory())));
+    aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(options.getTimeModelDirectory() + "/model.jar"));
     aggregateBuilder.add(EventTimeRelationAnnotator.createAnnotatorDescription(new File(options.getEventTimeRelationModelDirectory())));
     if(options.getEventEventRelationModelDirectory()!=null){
-      aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(new File(options.getEventEventRelationModelDirectory())));
+      aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(options.getEventEventRelationModelDirectory() + "/model.jar"));
     }
     AnalysisEngine xWriter = getXMIWriter(options.getOutputDirectory());
     

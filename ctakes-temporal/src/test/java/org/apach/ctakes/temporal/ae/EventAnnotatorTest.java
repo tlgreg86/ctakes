@@ -50,48 +50,49 @@ public class EventAnnotatorTest {
 
 	// LOG4J logger based on class name
 	private Logger LOGGER = Logger.getLogger(getClass().getName());
-	
+
 	@Test
 	public void testPipeline() throws UIMAException, IOException {
-		
+
 		String note = "The patient is a 55-year-old man referred by Dr. Good for recently diagnosed colorectal cancer.  "
 				+ "The patient was well till 6 months ago, when he started having a little blood with stool.";
 		JCas jcas = JCasFactory.createJCas();
 		jcas.setDocumentText(note);
-  
-		//Get the default pipeline
-	    AggregateBuilder builder = new AggregateBuilder();
-	    builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
-	    builder.add(AnalysisEngineFactory.createPrimitiveDescription(CopyNPChunksToLookupWindowAnnotations.class));
-	    builder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEnclosedLookupWindows.class));
-	    //Commented out the Dictionary lookup for the test
-	    //Uncomment and set -Dctakes.umlsuser and -Dctakes.umlspw env params if needed
-	    //builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
-	    builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
-		
-		//Add EventAnnotator
-	    builder.add(AnalysisEngineFactory.createPrimitiveDescription(
-	    		EventAnnotator.class,
-	            CleartkAnnotator.PARAM_IS_TRAINING,
-	            false,
-	            GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-	            "/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
-	    
-	    SimplePipeline.runPipeline(jcas, builder.createAggregateDescription());
 
-	    Collection<EventMention> mentions = JCasUtil.select(jcas, EventMention.class);
+		// Get the default pipeline
+		AggregateBuilder builder = new AggregateBuilder();
+		builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
+		builder.add(AnalysisEngineFactory
+				.createPrimitiveDescription(CopyNPChunksToLookupWindowAnnotations.class));
+		builder.add(AnalysisEngineFactory
+				.createPrimitiveDescription(RemoveEnclosedLookupWindows.class));
+		// Commented out the Dictionary lookup for the test
+		// Uncomment and set -Dctakes.umlsuser and -Dctakes.umlspw env params if
+		// needed
+		// builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
+		builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
 
-	    ArrayList<String> temp = new ArrayList<>();
-	    for(EventMention mention : mentions){
-	    	LOGGER.info("Event: " + mention.getCoveredText() + " Confidence:" + mention.getConfidence());
-	    	temp.add(mention.getCoveredText());
-	    }
-	   	assertEquals(6, temp.size());	    
-	    assertTrue(temp.contains("old"));
-	    assertTrue(temp.contains("referred"));	    
-	    assertTrue(temp.contains("cancer"));
-	    assertTrue(temp.contains("till"));
-	    assertTrue(temp.contains("blood"));
-	    assertTrue(temp.contains("stool"));
+		// Add EventAnnotator
+		builder.add(EventAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
+
+		SimplePipeline.runPipeline(jcas, builder.createAggregateDescription());
+
+		Collection<EventMention> mentions = JCasUtil.select(jcas,
+				EventMention.class);
+
+		ArrayList<String> temp = new ArrayList<>();
+		for (EventMention mention : mentions) {
+			LOGGER.info("Event: " + mention.getCoveredText() + " Confidence:"
+					+ mention.getConfidence());
+			temp.add(mention.getCoveredText());
+		}
+		assertEquals(6, temp.size());
+		assertTrue(temp.contains("old"));
+		assertTrue(temp.contains("referred"));
+		assertTrue(temp.contains("cancer"));
+		assertTrue(temp.contains("till"));
+		assertTrue(temp.contains("blood"));
+		assertTrue(temp.contains("stool"));
 	}
 }

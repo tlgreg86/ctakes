@@ -29,6 +29,8 @@ import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.CopyNPChunksTo
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.RemoveEnclosedLookupWindows;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
+import org.apache.ctakes.temporal.ae.ClearTKDocTimeRelAnnotator;
+import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -72,22 +74,14 @@ public class DocTimeRelAnnotatorTest {
 		builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
 
 		// Add BackwardsTimeAnnotator
-		builder.add(AnalysisEngineFactory.createPrimitiveDescription(
-				BackwardsTimeAnnotator.class,
-				CleartkAnnotator.PARAM_IS_TRAINING, false,
-				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-				"/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
+		builder.add(BackwardsTimeAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
 		// Add EventAnnotator
-		builder.add(AnalysisEngineFactory.createPrimitiveDescription(
-				EventAnnotator.class, CleartkAnnotator.PARAM_IS_TRAINING,
-				false, GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-				"/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
+		builder.add(EventAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
 		// Add Document Time Relative Annotator
-		builder.add(AnalysisEngineFactory.createPrimitiveDescription(
-				BackwardsTimeAnnotator.class,
-				CleartkAnnotator.PARAM_IS_TRAINING, false,
-				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-				"/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
+		builder.add(DocTimeRelAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
 
 		SimplePipeline.runPipeline(jcas, builder.createAggregateDescription());
 

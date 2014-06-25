@@ -58,7 +58,7 @@ public class TimeExtractionPipeline extends TemporalExtractionPipeline_ImplBase 
 				options.getInputDirectory());
 
 		AggregateBuilder aggregateBuilder = getPreprocessorAggregateBuilder();
-		aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(new File(options.getTimeModelDirectory())));
+		aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(options.getTimeModelDirectory() + "model.jar"));
 		
     AnalysisEngine xWriter = getXMIWriter(options.getOutputDirectory());
 	

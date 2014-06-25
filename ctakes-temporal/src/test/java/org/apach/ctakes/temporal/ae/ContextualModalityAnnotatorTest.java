@@ -29,6 +29,7 @@ import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.CopyNPChunksTo
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.RemoveEnclosedLookupWindows;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
+import org.apache.ctakes.temporal.ae.ContextualModalityAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -49,12 +50,9 @@ public class ContextualModalityAnnotatorTest {
 
 	// LOG4J logger based on class name
 	private Logger LOGGER = Logger.getLogger(getClass().getName());
-	
+
 	@Test
 	public void testPipeline() throws UIMAException, IOException {
-		
-		/** Not ready for prime time yet
-		 * Annotator Caused by: java.lang.IllegalArgumentException: Unrecognized BIO outcome: ACTUAL
 
 		String note = "The patient is a 55-year-old man referred by Dr. Good for recently diagnosed colorectal cancer.  "
 				+ "The patient was well till 6 months ago, when he started having a little blood with stool.";
@@ -75,22 +73,14 @@ public class ContextualModalityAnnotatorTest {
 		builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
 
 		// Add BackwardsTimeAnnotator
-		builder.add(AnalysisEngineFactory.createPrimitiveDescription(
-				BackwardsTimeAnnotator.class,
-				CleartkAnnotator.PARAM_IS_TRAINING, false,
-				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-				"/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
+		builder.add(BackwardsTimeAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
 		// Add EventAnnotator
-		builder.add(AnalysisEngineFactory.createPrimitiveDescription(
-				EventAnnotator.class, CleartkAnnotator.PARAM_IS_TRAINING,
-				false, GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-				"/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
+		builder.add(EventAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
 		// Add Document Time Relative Annotator
-		builder.add(AnalysisEngineFactory.createPrimitiveDescription(
-				BackwardsTimeAnnotator.class,
-				CleartkAnnotator.PARAM_IS_TRAINING, false,
-				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-				"/org/apache/ctakes/temporal/ae/contextualmodality/model.jar"));
+		builder.add(ContextualModalityAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/contextualmodality/model.jar"));
 
 		SimplePipeline.runPipeline(jcas, builder.createAggregateDescription());
 
@@ -102,20 +92,20 @@ public class ContextualModalityAnnotatorTest {
 			String property = null;
 			if (entity.getEvent() != null
 					&& entity.getEvent().getProperties() != null
-					&& entity.getEvent().getProperties().getContextualModality() != null) {
+					&& entity.getEvent().getProperties()
+							.getContextualModality() != null) {
 
-				property = entity.getEvent().getProperties().getContextualModality();
+				property = entity.getEvent().getProperties()
+						.getContextualModality();
 				temp.add(entity.getCoveredText());
 			}
-			LOGGER.info("Entity: " + entity.getCoveredText() + "ContextualModality:"
-					+ property);
+			LOGGER.info("Entity: " + entity.getCoveredText()
+					+ "ContextualModality:" + property);
 		}
 		// assertEquals(2, temp.size());
 		// assertTrue(temp.contains("recently"));
 		// assertTrue(temp.contains("6 months ago"));
-		 
-		 
-	*/
+
 	}
-		
+
 }

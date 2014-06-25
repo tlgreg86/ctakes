@@ -52,45 +52,45 @@ public class BackwardsTimeAnnotatorTest {
 
 	// LOG4J logger based on class name
 	private Logger LOGGER = Logger.getLogger(getClass().getName());
-	
+
 	@Test
 	public void testPipeline() throws UIMAException, IOException {
-		
+
 		String note = "The patient is a 55-year-old man referred by Dr. Good for recently diagnosed colorectal cancer.  "
 				+ "The patient was well till 6 months ago, when he started having a little blood with stool.";
 		JCas jcas = JCasFactory.createJCas();
 		jcas.setDocumentText(note);
-  
-		//Get the default pipeline with umls dictionary lookup
-	    AggregateBuilder builder = new AggregateBuilder();
-	    builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
-	    builder.add(AnalysisEngineFactory.createPrimitiveDescription(CopyNPChunksToLookupWindowAnnotations.class));
-	    builder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEnclosedLookupWindows.class));
-	    //Commented out the Dictionary lookup for the test
-	    //Uncomment and set -Dctakes.umlsuser and -Dctakes.umlspw env params if needed
-	    //builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
-	    builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
-		
-		//Add BackwardsTimeAnnotator
-	    builder.add(AnalysisEngineFactory.createPrimitiveDescription(
-	            BackwardsTimeAnnotator.class,
-	            CleartkAnnotator.PARAM_IS_TRAINING,
-	            false,
-	            GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-	            "/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
-	    
-	    SimplePipeline.runPipeline(jcas, builder.createAggregateDescription());
 
-	    Collection<TimeMention> mentions = JCasUtil.select(jcas, TimeMention.class);
+		// Get the default pipeline with umls dictionary lookup
+		AggregateBuilder builder = new AggregateBuilder();
+		builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
+		builder.add(AnalysisEngineFactory
+				.createPrimitiveDescription(CopyNPChunksToLookupWindowAnnotations.class));
+		builder.add(AnalysisEngineFactory
+				.createPrimitiveDescription(RemoveEnclosedLookupWindows.class));
+		// Commented out the Dictionary lookup for the test
+		// Uncomment and set -Dctakes.umlsuser and -Dctakes.umlspw env params if
+		// needed
+		// builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
+		builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
 
-	    ArrayList<String> temp = new ArrayList<>();
-	    for(TimeMention mention : mentions){
-	    	LOGGER.info("Event: " + mention.getCoveredText());
-	    	temp.add(mention.getCoveredText());
-	    }
-	    assertEquals(2, temp.size());	    
-	    assertTrue(temp.contains("recently"));
-	    assertTrue(temp.contains("6 months ago"));
+		// Add BackwardsTimeAnnotator
+		builder.add(BackwardsTimeAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
+
+		SimplePipeline.runPipeline(jcas, builder.createAggregateDescription());
+
+		Collection<TimeMention> mentions = JCasUtil.select(jcas,
+				TimeMention.class);
+
+		ArrayList<String> temp = new ArrayList<>();
+		for (TimeMention mention : mentions) {
+			LOGGER.info("Event: " + mention.getCoveredText());
+			temp.add(mention.getCoveredText());
+		}
+		assertEquals(2, temp.size());
+		assertTrue(temp.contains("recently"));
+		assertTrue(temp.contains("6 months ago"));
 	}
 
 }

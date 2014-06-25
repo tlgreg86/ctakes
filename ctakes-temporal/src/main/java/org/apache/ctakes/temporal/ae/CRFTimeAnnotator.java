@@ -72,6 +72,33 @@ public class CRFTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
 //        outputDirectory);
 //  }
 
+  public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
+	      throws ResourceInitializationException {
+	    return AnalysisEngineFactory.createPrimitiveDescription(
+	        CRFTimeAnnotator.class,
+	        CleartkAnnotator.PARAM_IS_TRAINING,
+	        false,
+	        GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+	        modelPath);
+	  }
+  
+  public static AnalysisEngineDescription createEnsembleDescription(String modelPath,
+	      String viewName) throws ResourceInitializationException {
+	    return AnalysisEngineFactory.createPrimitiveDescription(
+	        CRFTimeAnnotator.class,
+	        CleartkAnnotator.PARAM_IS_TRAINING,
+	        false,
+	        CRFTimeAnnotator.PARAM_TIMEX_VIEW,
+	        viewName,
+	        GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+	        modelPath);
+	  }
+  
+  /**
+   * @deprecated use String path instead of File.
+   * ClearTK will automatically Resolve the String to an InputStream.
+   * This will allow resources to be read within from a jar as well as File.  
+   */
   public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
       throws ResourceInitializationException {
     return AnalysisEngineFactory.createPrimitiveDescription(
@@ -82,6 +109,11 @@ public class CRFTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
         new File(modelDirectory, "model.jar"));
   }
 
+  /**
+   * @deprecated use String path instead of File.
+   * ClearTK will automatically Resolve the String to an InputStream.
+   * This will allow resources to be read within from a jar as well as File.  
+   */
   public static AnalysisEngineDescription createEnsembleDescription(File modelDirectory,
       String viewName) throws ResourceInitializationException {
     return AnalysisEngineFactory.createPrimitiveDescription(

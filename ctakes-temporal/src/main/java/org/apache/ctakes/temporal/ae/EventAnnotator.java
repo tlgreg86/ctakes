@@ -136,6 +136,16 @@ public class EventAnnotator extends TemporalEntityAnnotator_ImplBase {
         EventAnnotator.createFeatureSelectionURI(modelDirectory));
   }
 
+  public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
+	      throws ResourceInitializationException {
+	    return AnalysisEngineFactory.createPrimitiveDescription(
+	        EventAnnotator.class,
+	        CleartkAnnotator.PARAM_IS_TRAINING,
+	        false,
+	        GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+	        modelPath);
+	  }
+  
   public static AnalysisEngineDescription createAnnotatorDescription()
       throws ResourceInitializationException {
     return AnalysisEngineFactory.createPrimitiveDescription(

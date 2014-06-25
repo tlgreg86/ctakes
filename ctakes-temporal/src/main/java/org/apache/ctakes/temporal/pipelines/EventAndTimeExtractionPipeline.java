@@ -67,7 +67,7 @@ public class EventAndTimeExtractionPipeline extends TemporalExtractionPipeline_I
 
 		AggregateBuilder aggregateBuilder = getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(EventAnnotator.createAnnotatorDescription(new File(options.getEventModelDirectory())));
-		aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(new File(options.getTimeModelDirectory())));
+		aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(options.getTimeModelDirectory() + "model.jar"));
     AnalysisEngine xWriter = AnalysisEngineFactory.createPrimitive(
         XWriter.class,
         XWriter.PARAM_OUTPUT_DIRECTORY_NAME,

@@ -113,6 +113,21 @@ public class TimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 		        smoteNeighborNumber);
 	}
 
+	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
+			throws ResourceInitializationException {
+		return AnalysisEngineFactory.createPrimitiveDescription(
+				TimeAnnotator.class,
+				CleartkAnnotator.PARAM_IS_TRAINING,
+				false,
+				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+				modelPath);
+	}
+	
+	  /**
+	   * @deprecated use String path instead of File.
+	   * ClearTK will automatically Resolve the String to an InputStream.
+	   * This will allow resources to be read within from a jar as well as File.  
+	   */		
 	public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
 			throws ResourceInitializationException {
 		return AnalysisEngineFactory.createPrimitiveDescription(
