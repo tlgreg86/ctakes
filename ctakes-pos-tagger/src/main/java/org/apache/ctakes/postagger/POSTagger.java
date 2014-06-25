@@ -58,6 +58,7 @@ import opennlp.tools.postag.POSModel;
 
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
@@ -68,6 +69,8 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.AnalysisEngineFactory;
+import org.uimafit.factory.TypePrioritiesFactory;
+import org.uimafit.factory.TypeSystemDescriptionFactory;
 import org.uimafit.util.JCasUtil;
 
 public class POSTagger extends JCasAnnotator_ImplBase {
@@ -83,12 +86,7 @@ public class POSTagger extends JCasAnnotator_ImplBase {
 	 */
 	public static final String POS_MODEL_FILE_PARAM = "PosModelFile";
 	public static final String PARAM_POS_MODEL_FILE = POS_MODEL_FILE_PARAM;
-	@ConfigurationParameter(
-	    name = POS_MODEL_FILE_PARAM,
-	    mandatory = false,
-	    defaultValue = "org/apache/ctakes/postagger/models/mayo-pos.zip",
-	    description = "Model file for OpenNLP POS tagger"
-	    )
+	@ConfigurationParameter(name = POS_MODEL_FILE_PARAM, mandatory = false, defaultValue = "org/apache/ctakes/postagger/models/mayo-pos.zip", description = "Model file for OpenNLP POS tagger")
 	private String posModelPath;
 	private opennlp.tools.postag.POSTaggerME tagger;
 
@@ -97,9 +95,9 @@ public class POSTagger extends JCasAnnotator_ImplBase {
 			throws ResourceInitializationException {
 		super.initialize(uimaContext);
 
-    logger.info("POS tagger model file: " + posModelPath);
+		logger.info("POS tagger model file: " + posModelPath);
 
-		try( InputStream fis = FileLocator.getAsStream(posModelPath) ) {
+		try (InputStream fis = FileLocator.getAsStream(posModelPath)) {
 			POSModel modelFile = new POSModel(fis);
 			tagger = new opennlp.tools.postag.POSTaggerME(modelFile);
 		} catch (Exception e) {
@@ -109,44 +107,54 @@ public class POSTagger extends JCasAnnotator_ImplBase {
 	}
 
 	@Override
-  public void process(JCas jCas) throws AnalysisEngineProcessException {
+	public void process(JCas jCas) throws AnalysisEngineProcessException {
 
 		logger.info("process(JCas)");
 
 		Collection<Sentence> sentences = JCasUtil.select(jCas, Sentence.class);
-		for(Sentence sentence : sentences){
+		for (Sentence sentence : sentences) {
 
-			List<BaseToken> tokens = JCasUtil.selectCovered(BaseToken.class, sentence);
+			List<BaseToken> tokens = JCasUtil.selectCovered(BaseToken.class,
+					sentence);
 			String[] words = new String[tokens.size()];
-			for(int i = 0; i < words.length; i++){
-			  words[i] = tokens.get(i).getCoveredText();
+			for (int i = 0; i < words.length; i++) {
+				words[i] = tokens.get(i).getCoveredText();
 			}
-			
+
 			if (words.length > 0) {
 				String[] wordTagList = tagger.tag(words);
 
 				try {
-				  for (int i = 0; i < tokens.size(); i++) {
-				    BaseToken token = tokens.get(i);
-				    String posTag = wordTagList[i];
-				    token.setPartOfSpeech(posTag);
-				  }
+					for (int i = 0; i < tokens.size(); i++) {
+						BaseToken token = tokens.get(i);
+						String posTag = wordTagList[i];
+						token.setPartOfSpeech(posTag);
+					}
 				} catch (IndexOutOfBoundsException e) {
-				  throw new AnalysisEngineProcessException(
-				      "sentence being tagged is: '"
-				          + sentence.getCoveredText() + "'", null, e);
+					throw new AnalysisEngineProcessException(
+							"sentence being tagged is: '"
+									+ sentence.getCoveredText() + "'", null, e);
 				}
 			}
 		}
 	}
-	
-	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
-	  return AnalysisEngineFactory.createPrimitiveDescription(POSTagger.class);     
+
+	public static AnalysisEngineDescription createAnnotatorDescription()
+			throws ResourceInitializationException {
+		return AnalysisEngineFactory.createPrimitiveDescription(
+				POSTagger.class, TypeSystemDescriptionFactory
+						.createTypeSystemDescription(), TypePrioritiesFactory
+						.createTypePriorities(Segment.class, Sentence.class,
+								BaseToken.class));
 	}
-	
-	public static AnalysisEngineDescription createAnnotatorDescription(String model) throws ResourceInitializationException{
-	  return AnalysisEngineFactory.createPrimitiveDescription(POSTagger.class, 
-	      POSTagger.PARAM_POS_MODEL_FILE,
-	      model);
+
+	public static AnalysisEngineDescription createAnnotatorDescription(
+			String model) throws ResourceInitializationException {
+		return AnalysisEngineFactory.createPrimitiveDescription(
+				POSTagger.class, TypeSystemDescriptionFactory
+						.createTypeSystemDescription(), TypePrioritiesFactory
+						.createTypePriorities(Segment.class, Sentence.class,
+								BaseToken.class),
+				POSTagger.PARAM_POS_MODEL_FILE, model);
 	}
 }
