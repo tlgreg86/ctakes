@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apach.ctakes.temporal.ae;
 
 import static org.junit.Assert.*;
@@ -48,7 +66,9 @@ public class BackwardsTimeAnnotatorTest {
 	    builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
 	    builder.add(AnalysisEngineFactory.createPrimitiveDescription(CopyNPChunksToLookupWindowAnnotations.class));
 	    builder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEnclosedLookupWindows.class));
-	    builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
+	    //Commented out the Dictionary lookup for the test
+	    //Uncomment and set -Dctakes.umlsuser and -Dctakes.umlspw env params if needed
+	    //builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
 	    builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
 		
 		//Add BackwardsTimeAnnotator
@@ -64,9 +84,9 @@ public class BackwardsTimeAnnotatorTest {
 	    Collection<TimeMention> mentions = JCasUtil.select(jcas, TimeMention.class);
 
 	    ArrayList<String> temp = new ArrayList<>();
-	    for(IdentifiedAnnotation entity : mentions){
-	    	LOGGER.info("Entity: " + entity.getCoveredText());
-	    	temp.add(entity.getCoveredText());
+	    for(TimeMention mention : mentions){
+	    	LOGGER.info("Event: " + mention.getCoveredText());
+	    	temp.add(mention.getCoveredText());
 	    }
 	    assertEquals(2, temp.size());	    
 	    assertTrue(temp.contains("recently"));
