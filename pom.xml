@@ -757,7 +757,7 @@
 							<include>**/*Tests.java</include>
 							<include>**/*TestCase.java</include>
 						</includes>
-						<argLine>-Xmx1536m</argLine>
+						<argLine>-Xmx3g</argLine>
 						<forkedProcessTimeoutInSeconds>900</forkedProcessTimeoutInSeconds>
 						<additionalClasspathElements>
 						    <additionalClasspathElement>ctakes-assertion-res/src/main/resources</additionalClasspathElement>						    
