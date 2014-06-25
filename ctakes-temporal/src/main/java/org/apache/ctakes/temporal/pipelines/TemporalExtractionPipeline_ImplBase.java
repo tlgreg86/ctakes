@@ -23,6 +23,7 @@ import java.io.File;
 import org.apache.ctakes.chunker.ae.Chunker;
 import org.apache.ctakes.chunker.ae.DefaultChunkCreator;
 import org.apache.ctakes.chunker.ae.adjuster.ChunkAdjuster;
+import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
 import org.apache.ctakes.constituency.parser.ae.ConstituencyParser;
 import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
@@ -78,165 +79,30 @@ public abstract class TemporalExtractionPipeline_ImplBase {
   protected static AggregateBuilder getPreprocessorAggregateBuilder()
       throws Exception {
     AggregateBuilder aggregateBuilder = new AggregateBuilder();
-    
-    // identify segments; use simple segment annotator on non-mayo notes
-    // aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SimpleSegmentAnnotator.class));
-    
-    // identify sentences
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
-            SentenceDetector.class,
-            SentenceDetector.SD_MODEL_FILE_PARAM,
-            "org/apache/ctakes/core/sentdetect/sd-med-model.zip"));
-    // identify tokens
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(TokenizerAnnotatorPTB.class));
-    // merge some tokens
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ContextDependentTokenizerAnnotator.class));
-
-    // identify part-of-speech tags
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
-        POSTagger.class,
-        TypeSystemDescriptionFactory.createTypeSystemDescription(),
-        TypePrioritiesFactory.createTypePriorities(Segment.class, Sentence.class, BaseToken.class),
-        POSTagger.POS_MODEL_FILE_PARAM,
-        "org/apache/ctakes/postagger/models/mayo-pos.zip"));
-
-    // identify chunks
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
-        Chunker.class,
-        Chunker.CHUNKER_MODEL_FILE_PARAM,
-        FileLocator.locateFile("org/apache/ctakes/chunker/models/chunker-model.zip"),
-        Chunker.CHUNKER_CREATOR_CLASS_PARAM,
-        DefaultChunkCreator.class));
-
-    // identify UMLS named entities
-
-    // adjust NP in NP NP to span both
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
-        ChunkAdjuster.class,
-        ChunkAdjuster.PARAM_CHUNK_PATTERN,
-        new String[] { "NP", "NP" },
-        ChunkAdjuster.PARAM_EXTEND_TO_INCLUDE_TOKEN,
-        1));
-    // adjust NP in NP PP NP to span all three
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
-        ChunkAdjuster.class,
-        ChunkAdjuster.PARAM_CHUNK_PATTERN,
-        new String[] { "NP", "PP", "NP" },
-        ChunkAdjuster.PARAM_EXTEND_TO_INCLUDE_TOKEN,
-        2));
-    // add lookup windows for each NP
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(CopyNPChunksToLookupWindowAnnotations.class));
-    // maximize lookup windows
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEnclosedLookupWindows.class));
-    // add UMLS on top of lookup windows
-    aggregateBuilder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
-
-    // add lvg annotator
-    String[] XeroxTreebankMap = {
-        "adj|JJ",
-        "adv|RB",
-        "aux|AUX",
-        "compl|CS",
-        "conj|CC",
-        "det|DET",
-        "modal|MD",
-        "noun|NN",
-        "prep|IN",
-        "pron|PRP",
-        "verb|VB" };
-    String[] ExclusionSet = {
-        "and",
-        "And",
-        "by",
-        "By",
-        "for",
-        "For",
-        "in",
-        "In",
-        "of",
-        "Of",
-        "on",
-        "On",
-        "the",
-        "The",
-        "to",
-        "To",
-        "with",
-        "With" };
-    AnalysisEngineDescription lvgAnnotator = AnalysisEngineFactory.createPrimitiveDescription(
-        LvgAnnotator.class,
-        "UseSegments",
-        false,
-        "SegmentsToSkip",
-        new String[0],
-        "UseCmdCache",
-        false,
-        "CmdCacheFileLocation",
-        "/org/apache/ctakes/lvg/2005_norm.voc",
-        "CmdCacheFrequencyCutoff",
-        20,
-        "ExclusionSet",
-        ExclusionSet,
-        "XeroxTreebankMap",
-        XeroxTreebankMap,
-        "LemmaCacheFileLocation",
-        "/org/apache/ctakes/lvg/2005_lemma.voc",
-        "UseLemmaCache",
-        false,
-        "LemmaCacheFrequencyCutoff",
-        20,
-        "PostLemmas",
-        true,
-        "LvgCmdApi",
-        ExternalResourceFactory.createExternalResourceDescription(
-            LvgCmdApiResourceImpl.class,
-            new File(LvgCmdApiResourceImpl.class.getResource(
-                "/org/apache/ctakes/lvg/data/config/lvg.properties").toURI())));
-    aggregateBuilder.add(lvgAnnotator);
-
-    // add dependency parser
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearNLPDependencyParserAE.class));
-
+    aggregateBuilder.add(ClinicalPipelineFactory.getDefaultPipeline());
     // add semantic role labeler
     aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearNLPSemanticRoleLabelerAE.class));
-
     aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ConstituencyParser.class));
-    
     return aggregateBuilder;
   }
   
   protected static AggregateBuilder getLightweightPreprocessorAggregateBuilder() throws Exception{
     AggregateBuilder aggregateBuilder = new AggregateBuilder();
     
+    /** Consider using ClinicalPipelineFactory.getDefaultPipeline()
+     * 
+     */
     // identify segments; use simple segment annotator on non-mayo notes
     // aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SimpleSegmentAnnotator.class));
     
-    // identify sentences
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
-            SentenceDetector.class,
-            SentenceDetector.SD_MODEL_FILE_PARAM,
-            "org/apache/ctakes/core/sentdetect/sd-med-model.zip"));
-    // identify tokens
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(TokenizerAnnotatorPTB.class));
-    // merge some tokens
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ContextDependentTokenizerAnnotator.class));
-
-    // identify part-of-speech tags
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
-        POSTagger.class,
-        TypeSystemDescriptionFactory.createTypeSystemDescription(),
-        TypePrioritiesFactory.createTypePriorities(Segment.class, Sentence.class, BaseToken.class),
-        POSTagger.POS_MODEL_FILE_PARAM,
-        "org/apache/ctakes/postagger/models/mayo-pos.zip"));
-
-    // add dependency parser
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearNLPDependencyParserAE.class));
-
-    // add semantic role labeler
+    aggregateBuilder.add(SimpleSegmentAnnotator.createAnnotatorDescription());
+    aggregateBuilder.add(SentenceDetector.createAnnotatorDescription());
+    aggregateBuilder.add(TokenizerAnnotatorPTB.createAnnotatorDescription());
+    aggregateBuilder.add(ContextDependentTokenizerAnnotator.createAnnotatorDescription());
+    aggregateBuilder.add(POSTagger.createAnnotatorDescription());
+    aggregateBuilder.add(Chunker.createAnnotatorDescription());
+    aggregateBuilder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
     aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearNLPSemanticRoleLabelerAE.class));
-
     aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ConstituencyParser.class));
 
     return aggregateBuilder;

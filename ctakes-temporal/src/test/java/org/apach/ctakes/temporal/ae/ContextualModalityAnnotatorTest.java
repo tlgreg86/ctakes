@@ -20,6 +20,7 @@ package org.apach.ctakes.temporal.ae;
 
 import static org.junit.Assert.*;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,8 +29,10 @@ import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.CopyNPChunksToLookupWindowAnnotations;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.RemoveEnclosedLookupWindows;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
+import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
 import org.apache.ctakes.temporal.ae.ContextualModalityAnnotator;
+import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -45,6 +48,7 @@ import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.JCasFactory;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
+import org.xml.sax.SAXException;
 
 public class ContextualModalityAnnotatorTest {
 
@@ -52,7 +56,7 @@ public class ContextualModalityAnnotatorTest {
 	private Logger LOGGER = Logger.getLogger(getClass().getName());
 
 	@Test
-	public void testPipeline() throws UIMAException, IOException {
+	public void testPipeline() throws UIMAException, IOException, SAXException {
 
 		String note = "The patient is a 55-year-old man referred by Dr. Good for recently diagnosed colorectal cancer.  "
 				+ "The patient was well till 6 months ago, when he started having a little blood with stool.";
@@ -69,7 +73,7 @@ public class ContextualModalityAnnotatorTest {
 		// Commented out the Dictionary lookup for the test
 		// Uncomment and set -Dctakes.umlsuser and -Dctakes.umlspw env params if
 		// needed
-		// builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
+		//builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
 		builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
 
 		// Add BackwardsTimeAnnotator
@@ -78,10 +82,16 @@ public class ContextualModalityAnnotatorTest {
 		// Add EventAnnotator
 		builder.add(EventAnnotator
 				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
-		// Add Document Time Relative Annotator
+		// Add ContextualModalityAnnotator
 		builder.add(ContextualModalityAnnotator
 				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/contextualmodality/model.jar"));
+		
+		// Add DocTimeRelAnnotator
+		builder.add(DocTimeRelAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
 
+		//builder.createAggregateDescription().toXML(new FileWriter("desc/analysis_engine/TemporalAggregateUMLSPipeline.xml"));
+		
 		SimplePipeline.runPipeline(jcas, builder.createAggregateDescription());
 
 		Collection<EventMention> mentions = JCasUtil.select(jcas,
