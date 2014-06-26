@@ -111,7 +111,11 @@
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-smoking-status</artifactId>
-		</dependency>						
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ctakes</groupId>
+			<artifactId>ctakes-temporal</artifactId>
+		</dependency>									
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-ytex</artifactId>
