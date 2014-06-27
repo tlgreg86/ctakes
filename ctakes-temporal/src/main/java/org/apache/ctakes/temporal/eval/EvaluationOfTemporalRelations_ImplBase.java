@@ -82,7 +82,7 @@ public abstract class EvaluationOfTemporalRelations_ImplBase extends
 		this.printErrors =  printErrors;
 	}
 
-  public static class PreserveEventEventRelations extends JCasAnnotator_ImplBase {
+  public static class PreserveEventEventRelations extends org.uimafit.component.JCasAnnotator_ImplBase {
     public static final String PARAM_GOLD_VIEW = "GoldView";
 
     @ConfigurationParameter(name = PARAM_GOLD_VIEW)
@@ -104,7 +104,7 @@ public abstract class EvaluationOfTemporalRelations_ImplBase extends
     }   
   }
 
-  public static class RemoveNonContainsRelations extends JCasAnnotator_ImplBase {
+  public static class RemoveNonContainsRelations extends org.uimafit.component.JCasAnnotator_ImplBase {
     public static final String PARAM_RELATION_VIEW = "RelationView";
 
     @ConfigurationParameter(name = PARAM_RELATION_VIEW)
@@ -133,7 +133,7 @@ public abstract class EvaluationOfTemporalRelations_ImplBase extends
     }
   }
   
-  public static class RemoveGoldAttributes extends JCasAnnotator_ImplBase {
+  public static class RemoveGoldAttributes extends org.uimafit.component.JCasAnnotator_ImplBase {
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
       for(EventMention event : JCasUtil.select(jCas, EventMention.class)){
