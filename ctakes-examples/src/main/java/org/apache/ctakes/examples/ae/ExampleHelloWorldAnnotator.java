@@ -50,17 +50,17 @@ public class ExampleHelloWorldAnnotator extends JCasAnnotator_ImplBase {
 		// Create a dummy IdentifiedAnnotation in the type system
 		// If the BaseToken Part Of Speech is a Noun
 		Collection<BaseToken> tokens = JCasUtil.select(jcas, BaseToken.class);
-		for (BaseToken toke : tokens) {
-			if (saveAnnotation && toke.getPartOfSpeech() != null
-					&& toke.getPartOfSpeech().startsWith("N")) {
+		for (BaseToken token : tokens) {
+			if (saveAnnotation && token.getPartOfSpeech() != null
+					&& token.getPartOfSpeech().startsWith("N")) {
 				IdentifiedAnnotation ann = new IdentifiedAnnotation(jcas);
-				ann.setBegin(toke.getBegin());
-				ann.setEnd(toke.getEnd());
+				ann.setBegin(token.getBegin());
+				ann.setEnd(token.getEnd());
 				ann.addToIndexes();
 
 				if (printAnnotation) {
-					LOG.info("Token:" + toke.getCoveredText() + " POS:"
-							+ toke.getPartOfSpeech());
+					LOG.info("Token:" + token.getCoveredText() + " POS:"
+							+ token.getPartOfSpeech());
 				}
 			}
 		}
