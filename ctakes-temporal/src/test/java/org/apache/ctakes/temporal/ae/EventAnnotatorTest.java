@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apach.ctakes.temporal.ae;
+package org.apache.ctakes.temporal.ae;
 
 import static org.junit.Assert.*;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,8 +30,6 @@ import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.RemoveEnclosed
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
-import org.apache.ctakes.temporal.ae.ContextualModalityAnnotator;
-import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -48,22 +45,21 @@ import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.JCasFactory;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
-import org.xml.sax.SAXException;
 
-public class ContextualModalityAnnotatorTest {
+public class EventAnnotatorTest {
 
 	// LOG4J logger based on class name
 	private Logger LOGGER = Logger.getLogger(getClass().getName());
 
 	@Test
-	public void testPipeline() throws UIMAException, IOException, SAXException {
+	public void testPipeline() throws UIMAException, IOException {
 
 		String note = "The patient is a 55-year-old man referred by Dr. Good for recently diagnosed colorectal cancer.  "
 				+ "The patient was well till 6 months ago, when he started having a little blood with stool.";
 		JCas jcas = JCasFactory.createJCas();
 		jcas.setDocumentText(note);
 
-		// Get the default pipeline with umls dictionary lookup
+		// Get the default pipeline
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
 		builder.add(AnalysisEngineFactory
@@ -73,49 +69,30 @@ public class ContextualModalityAnnotatorTest {
 		// Commented out the Dictionary lookup for the test
 		// Uncomment and set -Dctakes.umlsuser and -Dctakes.umlspw env params if
 		// needed
-		//builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
+		// builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
 		builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
 
-		// Add BackwardsTimeAnnotator
-		builder.add(BackwardsTimeAnnotator
-				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
 		// Add EventAnnotator
 		builder.add(EventAnnotator
 				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
-		// Add ContextualModalityAnnotator
-		builder.add(ContextualModalityAnnotator
-				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/contextualmodality/model.jar"));
-		
-		// Add DocTimeRelAnnotator
-		builder.add(DocTimeRelAnnotator
-				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
 
-		//builder.createAggregateDescription().toXML(new FileWriter("desc/analysis_engine/TemporalAggregateUMLSPipeline.xml"));
-		
 		SimplePipeline.runPipeline(jcas, builder.createAggregateDescription());
 
 		Collection<EventMention> mentions = JCasUtil.select(jcas,
 				EventMention.class);
 
 		ArrayList<String> temp = new ArrayList<>();
-		for (EventMention entity : mentions) {
-			String property = null;
-			if (entity.getEvent() != null
-					&& entity.getEvent().getProperties() != null
-					&& entity.getEvent().getProperties()
-							.getContextualModality() != null) {
-
-				property = entity.getEvent().getProperties()
-						.getContextualModality();
-				temp.add(entity.getCoveredText());
-			}
-			LOGGER.info("Entity: " + entity.getCoveredText()
-					+ "ContextualModality:" + property);
+		for (EventMention mention : mentions) {
+			LOGGER.info("Event: " + mention.getCoveredText() + " Confidence:"
+					+ mention.getConfidence());
+			temp.add(mention.getCoveredText());
 		}
-		// assertEquals(2, temp.size());
-		// assertTrue(temp.contains("recently"));
-		// assertTrue(temp.contains("6 months ago"));
-
+		assertEquals(6, temp.size());
+		assertTrue(temp.contains("old"));
+		assertTrue(temp.contains("referred"));
+		assertTrue(temp.contains("cancer"));
+		assertTrue(temp.contains("till"));
+		assertTrue(temp.contains("blood"));
+		assertTrue(temp.contains("stool"));
 	}
-
 }

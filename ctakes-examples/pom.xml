@@ -29,4 +29,10 @@
   <artifactId>ctakes-examples</artifactId>
   <name>ctakes-examples</name>
   <description>Apache cTAKES Examples</description>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.ctakes</groupId>
+      <artifactId>ctakes-clinical-pipeline</artifactId>
+    </dependency>
+  </dependencies>
 </project>

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apach.ctakes.temporal.ae;
+package org.apache.ctakes.temporal.ae;
 
 import static org.junit.Assert.*;
 
@@ -28,8 +28,9 @@ import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.CopyNPChunksToLookupWindowAnnotations;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.RemoveEnclosedLookupWindows;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
-import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
+import org.apache.ctakes.temporal.ae.ClearTKDocTimeRelAnnotator;
+import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -46,7 +47,7 @@ import org.uimafit.factory.JCasFactory;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
 
-public class EventAnnotatorTest {
+public class DocTimeRelAnnotatorTest {
 
 	// LOG4J logger based on class name
 	private Logger LOGGER = Logger.getLogger(getClass().getName());
@@ -59,7 +60,7 @@ public class EventAnnotatorTest {
 		JCas jcas = JCasFactory.createJCas();
 		jcas.setDocumentText(note);
 
-		// Get the default pipeline
+		// Get the default pipeline with umls dictionary lookup
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
 		builder.add(AnalysisEngineFactory
@@ -72,9 +73,15 @@ public class EventAnnotatorTest {
 		// builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
 		builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
 
+		// Add BackwardsTimeAnnotator
+		builder.add(BackwardsTimeAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
 		// Add EventAnnotator
 		builder.add(EventAnnotator
 				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
+		// Add Document Time Relative Annotator
+		builder.add(DocTimeRelAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
 
 		SimplePipeline.runPipeline(jcas, builder.createAggregateDescription());
 
@@ -83,16 +90,20 @@ public class EventAnnotatorTest {
 
 		ArrayList<String> temp = new ArrayList<>();
 		for (EventMention mention : mentions) {
-			LOGGER.info("Event: " + mention.getCoveredText() + " Confidence:"
-					+ mention.getConfidence());
-			temp.add(mention.getCoveredText());
+			String property = null;
+			if (mention.getEvent() != null
+					&& mention.getEvent().getProperties() != null
+					&& mention.getEvent().getProperties().getDocTimeRel() != null) {
+
+				property = mention.getEvent().getProperties().getDocTimeRel();
+				temp.add(mention.getCoveredText());
+			}
+			LOGGER.info("Event: " + mention.getCoveredText() + " DocTimeRel:"
+					+ property);
 		}
-		assertEquals(6, temp.size());
-		assertTrue(temp.contains("old"));
-		assertTrue(temp.contains("referred"));
-		assertTrue(temp.contains("cancer"));
-		assertTrue(temp.contains("till"));
-		assertTrue(temp.contains("blood"));
-		assertTrue(temp.contains("stool"));
+		// assertEquals(2, temp.size());
+		// assertTrue(temp.contains("recently"));
+		// assertTrue(temp.contains("6 months ago"));
 	}
+
 }

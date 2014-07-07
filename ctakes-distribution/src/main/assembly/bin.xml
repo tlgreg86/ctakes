@@ -64,6 +64,9 @@
 			
             <excludes>
 	        	<exclude>net.sourceforge.ctakesresources:*</exclude>
+	        	<!-- exclude assertion and lvg - they still need to be unpacked and not read from classpath yet -->
+	        	<exclude>org.apache.ctakes:ctakes-assertion-res</exclude>
+	        	<exclude>org.apache.ctakes:ctakes-lvg-res</exclude>
 				<!-- exclude non-asf compliant dependencies used by ytex -->
 				<exclude>org.hibernate:*</exclude>
 				<exclude>nz.ac.waikato.cms.weka:*</exclude>

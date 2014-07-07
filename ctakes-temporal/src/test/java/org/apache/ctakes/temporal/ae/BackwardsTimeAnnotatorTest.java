@@ -16,28 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apach.ctakes.temporal.ae;
+package org.apache.ctakes.temporal.ae;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.CopyNPChunksToLookupWindowAnnotations;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.RemoveEnclosedLookupWindows;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
+import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
-import org.apache.ctakes.temporal.ae.ClearTKDocTimeRelAnnotator;
-import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
-import org.apache.ctakes.temporal.ae.EventAnnotator;
-import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.classifier.CleartkAnnotator;
 import org.cleartk.classifier.jar.GenericJarClassifierFactory;
 import org.junit.Test;
@@ -47,7 +48,7 @@ import org.uimafit.factory.JCasFactory;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
 
-public class DocTimeRelAnnotatorTest {
+public class BackwardsTimeAnnotatorTest {
 
 	// LOG4J logger based on class name
 	private Logger LOGGER = Logger.getLogger(getClass().getName());
@@ -76,34 +77,20 @@ public class DocTimeRelAnnotatorTest {
 		// Add BackwardsTimeAnnotator
 		builder.add(BackwardsTimeAnnotator
 				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
-		// Add EventAnnotator
-		builder.add(EventAnnotator
-				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
-		// Add Document Time Relative Annotator
-		builder.add(DocTimeRelAnnotator
-				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
 
 		SimplePipeline.runPipeline(jcas, builder.createAggregateDescription());
 
-		Collection<EventMention> mentions = JCasUtil.select(jcas,
-				EventMention.class);
+		Collection<TimeMention> mentions = JCasUtil.select(jcas,
+				TimeMention.class);
 
 		ArrayList<String> temp = new ArrayList<>();
-		for (EventMention mention : mentions) {
-			String property = null;
-			if (mention.getEvent() != null
-					&& mention.getEvent().getProperties() != null
-					&& mention.getEvent().getProperties().getDocTimeRel() != null) {
-
-				property = mention.getEvent().getProperties().getDocTimeRel();
-				temp.add(mention.getCoveredText());
-			}
-			LOGGER.info("Event: " + mention.getCoveredText() + " DocTimeRel:"
-					+ property);
+		for (TimeMention mention : mentions) {
+			LOGGER.info("Event: " + mention.getCoveredText());
+			temp.add(mention.getCoveredText());
 		}
-		// assertEquals(2, temp.size());
-		// assertTrue(temp.contains("recently"));
-		// assertTrue(temp.contains("6 months ago"));
+		assertEquals(2, temp.size());
+		assertTrue(temp.contains("recently"));
+		assertTrue(temp.contains("6 months ago"));
 	}
 
 }
