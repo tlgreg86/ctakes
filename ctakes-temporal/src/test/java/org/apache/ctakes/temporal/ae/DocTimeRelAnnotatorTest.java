@@ -32,20 +32,26 @@ import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
 import org.apache.ctakes.temporal.ae.ClearTKDocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
+import org.apache.ctakes.typesystem.type.refsem.Event;
+import org.apache.ctakes.typesystem.type.refsem.EventProperties;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.classifier.CleartkAnnotator;
 import org.cleartk.classifier.jar.GenericJarClassifierFactory;
 import org.junit.Test;
+import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.factory.AggregateBuilder;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.JCasFactory;
 import org.uimafit.pipeline.SimplePipeline;
 import org.uimafit.util.JCasUtil;
+
+import com.google.common.collect.Lists;
 
 public class DocTimeRelAnnotatorTest {
 
@@ -79,6 +85,8 @@ public class DocTimeRelAnnotatorTest {
 		// Add EventAnnotator
 		builder.add(EventAnnotator
 				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
+		//link event to eventMention
+		builder.add(AnalysisEngineFactory.createPrimitiveDescription(AddEvent.class));
 		// Add Document Time Relative Annotator
 		builder.add(DocTimeRelAnnotator
 				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
@@ -104,6 +112,28 @@ public class DocTimeRelAnnotatorTest {
 		// assertEquals(2, temp.size());
 		// assertTrue(temp.contains("recently"));
 		// assertTrue(temp.contains("6 months ago"));
+	}
+
+	public static class AddEvent extends JCasAnnotator_ImplBase {
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			for (EventMention emention : Lists.newArrayList(JCasUtil.select(
+					jCas,
+					EventMention.class))) {
+				EventProperties eventProperties = new org.apache.ctakes.typesystem.type.refsem.EventProperties(jCas);
+
+				// create the event object
+				Event event = new Event(jCas);
+
+				// add the links between event, mention and properties
+				event.setProperties(eventProperties);
+				emention.setEvent(event);
+
+				// add the annotations to the indexes
+				eventProperties.addToIndexes();
+				event.addToIndexes();
+			}
+		}
 	}
 
 }
