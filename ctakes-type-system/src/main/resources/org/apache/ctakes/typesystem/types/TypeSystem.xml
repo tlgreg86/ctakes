@@ -2654,5 +2654,10 @@ More qualifying information on how the procedure was done.</description>
         </featureDescription>
       </features>
     </typeDescription>
+  <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.textsem.Markable</name>
+      <description>A type for representing text spans that can potentially be linked together via coreference.</description>
+      <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
+    </typeDescription>
   </types>
 </typeSystemDescription>
