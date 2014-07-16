@@ -29,9 +29,12 @@ import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
 import org.apache.ctakes.typesystem.type.relation.AspectualTextRelation;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
+import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
+import org.apache.ctakes.typesystem.type.relation.CoreferenceRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
+import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -39,7 +42,9 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.EmptyFSList;
 import org.apache.uima.jcas.cas.FSArray;
+import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.util.ViewURIUtil;
@@ -102,6 +107,7 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
 
     // determine possible Anafora XML file names
     List<File> possibleXMLFiles = Lists.newArrayList();
+    possibleXMLFiles.add(new File(this.anaforaDirectory, textFile.getName() + ".Coreference.gold.completed.xml"));
     for (String anaforaXMLSuffix : this.anaforaXMLSuffixes) {
       if (this.anaforaDirectory == null) {
         possibleXMLFiles.add(new File(textFile + anaforaXMLSuffix));
@@ -224,6 +230,11 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           timeMention.addToIndexes();
           annotation = timeMention;
 
+        } else if (type.equals("Markable")) {
+          Markable markable = new Markable(jCas, begin, end);
+          markable.addToIndexes();
+          annotation = markable;
+
         } else {
           throw new UnsupportedOperationException("unsupported entity type: " + type);
         }
@@ -264,6 +275,51 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           AspectualTextRelation relation = new AspectualTextRelation(jCas);
           addRelation(jCas, relation, sourceID, targetID, alinkType, idToAnnotation, id);
 
+        } else if (type.equals("Identical")) {
+          CollectionTextRelation chain = new CollectionTextRelation(jCas);
+          String mention = removeSingleChildText(propertiesElem, "FirstInstance", id);
+          NonEmptyFSList list = new NonEmptyFSList(jCas);
+          NonEmptyFSList root = list;
+          Markable antecedent, anaphor;
+          antecedent = (Markable) idToAnnotation.get(mention);
+          list.setHead(antecedent);
+          List<Element> corefs = propertiesElem.getChildren("Coreferring_String");
+//          while((mention = removeSingleChildText(propertiesElem, "Coreferring_String", id)) != null){
+          for(Element coref : corefs){
+            mention = coref.getText();
+            NonEmptyFSList child = new NonEmptyFSList(jCas);
+            anaphor = (Markable) idToAnnotation.get(mention);
+            child.setHead(anaphor);
+            CoreferenceRelation pair = new CoreferenceRelation(jCas);
+            pair.setCategory("Identity");
+            RelationArgument arg1 = new RelationArgument(jCas);
+            arg1.setArgument(antecedent);
+            arg1.setRole("antecedent");
+            pair.setArg1(arg1);
+            RelationArgument arg2 = new RelationArgument(jCas);
+            arg2.setArgument(anaphor);
+            arg2.setRole("anaphor");
+            pair.setArg2(arg2);
+            pair.addToIndexes();
+            list.setTail(child);
+            list = child;
+            antecedent = anaphor;
+          }
+          propertiesElem.removeChildren("Coreferring_String");
+          EmptyFSList tail = new EmptyFSList(jCas);
+          list.setTail(tail);
+          root.addToIndexes();
+          chain.setMembers(root);
+          chain.addToIndexes();
+        } else if (type.equals("Set/Subset")){
+          error("This reader has not implemented reading of Set/Subset relations yet", id);
+          
+        } else if (type.equals("Whole/Part")){
+          error("This reader has not implemented reading of Whole/Part relations yet", id);
+          
+        } else if (type.equals("Appositive")){
+          error("This reader has not implemented reading of Appositive relations yet", id);
+          
         } else {
           throw new UnsupportedOperationException("unsupported relation type: " + type);
         }
