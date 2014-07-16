@@ -152,6 +152,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					options.getXMLFormat(),
 					options.getXMIDirectory(),
 					options.getTreebankDirectory(),
+					options.getCoreferenceDirectory(),
 					options.getClosure(),
 					options.getPrintErrors(),
 					options.getPrintFormattedRelations(),
@@ -198,6 +199,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			XMLFormat xmlFormat,
 			File xmiDirectory,
 			File treebankDirectory,
+			File coreferenceDirectory,
 			boolean useClosure,
 			boolean printErrors,
 			boolean printRelations,
@@ -212,6 +214,7 @@ EvaluationOfTemporalRelations_ImplBase{
 				xmlFormat,
 				xmiDirectory,
 				treebankDirectory,
+				coreferenceDirectory,
 				printErrors,
 				printRelations,
 				params);
@@ -478,33 +481,6 @@ EvaluationOfTemporalRelations_ImplBase{
 		return result;
 	}
 	
-	private static Collection<BinaryTextRelation> correctArgOrder(
-			Collection<BinaryTextRelation> systemRelations,
-			Collection<BinaryTextRelation> goldRelations) {
-		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
-
-		for(BinaryTextRelation sysrel : systemRelations){
-			Annotation sysArg1 = sysrel.getArg1().getArgument();
-			Annotation sysArg2 = sysrel.getArg2().getArgument();
-			for(BinaryTextRelation goldrel : goldRelations){
-				Annotation goldArg1 = goldrel.getArg1().getArgument();
-				Annotation goldArg2 = goldrel.getArg2().getArgument();
-				if (matchSpan(sysArg2, goldArg1) && matchSpan(sysArg1, goldArg2)){//the order of system pair was flipped 
-					if(sysrel.getCategory().equals("OVERLAP")){ //if the relation is overlap, and the arg order was flipped, then change back the order
-						RelationArgument tempArg = (RelationArgument) sysrel.getArg1().clone();
-						sysrel.setArg1((RelationArgument) sysrel.getArg2().clone());
-						sysrel.setArg2(tempArg);
-					}//for other types of relation, still maintain the type.
-					continue;
-				}
-			}
-			goodSys.add(sysrel);
-		}
-
-		return goodSys;
-	}
-
-
 //	@SuppressWarnings("unchecked")
 //	private static <SPAN> Collection<BinaryTextRelation> getDuplicateRelations(
 //			Collection<BinaryTextRelation> goldRelations,

@@ -218,6 +218,7 @@ EvaluationOfTemporalRelations_ImplBase{
 				xmlFormat,
 				xmiDirectory,
 				treebankDirectory,
+				null,
 				printErrors,
 				printRelations,
 				params);
@@ -487,31 +488,76 @@ EvaluationOfTemporalRelations_ImplBase{
   }
 	 */
 
-	//		private static <SPAN_TYPE> Collection<BinaryTextRelation> removeNonGoldRelations(
-	//				Collection<BinaryTextRelation> systemRelations,
-	//				Collection<BinaryTextRelation> goldRelations, Function<BinaryTextRelation, ?> getSpan) {
-	//			//remove non-gold pairs from system relations:
-	//			Set<BinaryTextRelation> goodSys = Sets.newHashSet();
-	//			Set<SPAN_TYPE> goldspans = new HashSet<SPAN_TYPE>();
-	//			
-	//			for (BinaryTextRelation relation : goldRelations) {
-	//				goldspans.add(((SPAN_TYPE) getSpan.apply(relation)));			
-	//			}
-	//			
-	//			for (BinaryTextRelation relation : systemRelations) {
-	//				if (goldspans.contains(((SPAN_TYPE) getSpan.apply(relation)))) {
-	//					goodSys.add(relation);
-	//				}
-	//			}
-	//			
-	//			return goodSys;
-	//		}
-
+//		private static <SPAN_TYPE> Collection<BinaryTextRelation> removeNonGoldRelations(
+//				Collection<BinaryTextRelation> systemRelations,
+//				Collection<BinaryTextRelation> goldRelations, Function<BinaryTextRelation, ?> getSpan) {
+//			//remove non-gold pairs from system relations:
+//			Set<BinaryTextRelation> goodSys = Sets.newHashSet();
+//			Set<SPAN_TYPE> goldspans = new HashSet<SPAN_TYPE>();
+//			
+//			for (BinaryTextRelation relation : goldRelations) {
+//				goldspans.add(((SPAN_TYPE) getSpan.apply(relation)));			
+//			}
+//			
+//			for (BinaryTextRelation relation : systemRelations) {
+//				if (goldspans.contains(((SPAN_TYPE) getSpan.apply(relation)))) {
+//					goodSys.add(relation);
+//				}
+//			}
+//			
+//			return goodSys;
+//		}
+	
 //	private static boolean matchSpan(Annotation arg1, Annotation arg2) {
 //		boolean result = false;
-//		if(arg1==null || arg2 == null) return result;
 //		result = arg1.getBegin() == arg2.getBegin() && arg1.getEnd() == arg2.getEnd();
 //		return result;
+//	}
+	
+//	protected static Collection<BinaryTextRelation> correctArgOrder(
+//			Collection<BinaryTextRelation> systemRelations,
+//			Collection<BinaryTextRelation> goldRelations) {
+//		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
+//
+//		for(BinaryTextRelation sysrel : systemRelations){
+//			Annotation sysArg1 = sysrel.getArg1().getArgument();
+//			Annotation sysArg2 = sysrel.getArg2().getArgument();
+//			for(BinaryTextRelation goldrel : goldRelations){
+//				Annotation goldArg1 = goldrel.getArg1().getArgument();
+//				Annotation goldArg2 = goldrel.getArg2().getArgument();
+//				if (matchSpan(sysArg2, goldArg1) && matchSpan(sysArg1, goldArg2)){//the order of system pair was flipped 
+//					if(sysrel.getCategory().equals("OVERLAP")){ //if the relation is overlap, and the arg order was flipped, then change back the order
+//						RelationArgument tempArg = (RelationArgument) sysrel.getArg1().clone();
+//						sysrel.setArg1((RelationArgument) sysrel.getArg2().clone());
+//						sysrel.setArg2(tempArg);
+//					}//for other types of relation, still maintain the type.
+//					continue;
+//				}
+//			}
+//			goodSys.add(sysrel);
+//		}
+//
+//		return goodSys;
+//	}
+
+
+//	@SuppressWarnings("unchecked")
+//	private static <SPAN> Collection<BinaryTextRelation> getDuplicateRelations(
+//			Collection<BinaryTextRelation> goldRelations,
+//			Function<BinaryTextRelation, ?> getSpan) {
+//		Set<BinaryTextRelation> duplicateRelations = Sets.newHashSet();
+//		//build a multimap that map gold span to gold relation
+//		Multimap<SPAN, BinaryTextRelation> spanToRelation = HashMultimap.create();
+//		for (BinaryTextRelation relation : goldRelations) {
+//			spanToRelation.put((SPAN) getSpan.apply(relation), relation);			
+//		}
+//		for (SPAN span: spanToRelation.keySet()){
+//			Collection<BinaryTextRelation> relations = spanToRelation.get(span);
+//			if(relations.size()>1){//if same span maps to multiple relations
+//				duplicateRelations.addAll(relations);
+//			}
+//		}
+//		return duplicateRelations;
 //	}
 
 //	private static Collection<BinaryTextRelation> correctArgOrder(

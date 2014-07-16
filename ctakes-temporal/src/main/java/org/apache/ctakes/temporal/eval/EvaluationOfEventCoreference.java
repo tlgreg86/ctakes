@@ -16,8 +16,8 @@ import java.util.Stack;
 
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
-import org.apache.ctakes.coreference.ae.CoreferenceChainAnnotator;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
+import org.apache.ctakes.temporal.ae.CoreferenceChainAnnotator;
 import org.apache.ctakes.temporal.ae.EventCoreferenceAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;

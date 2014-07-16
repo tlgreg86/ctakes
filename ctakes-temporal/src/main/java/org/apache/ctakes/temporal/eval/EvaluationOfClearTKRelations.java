@@ -114,7 +114,7 @@ public class EvaluationOfClearTKRelations extends
       File xmlDirectory,
       org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat xmlFormat,
       File xmiDirectory) {
-    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null, false, false, defaultParams);
+    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null, null, false, false, defaultParams);
   }
   
   private void setExtractEventTime(boolean eventTime) {

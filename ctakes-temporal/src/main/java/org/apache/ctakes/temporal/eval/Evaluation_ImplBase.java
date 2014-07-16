@@ -20,6 +20,7 @@ package org.apache.ctakes.temporal.eval;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -147,6 +148,9 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
     @Option(longName = "treebank", defaultToNull=true)
     public File getTreebankDirectory();
     
+    @Option(longName = "coreference", defaultToNull=true)
+    public File getCoreferenceDirectory();
+    
     @Option
     public boolean getUseGoldTrees();
     
@@ -181,6 +185,8 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 
   protected File treebankDirectory;
   
+  protected File coreferenceDirectory;
+  
   protected boolean printErrors = false;
   
   protected boolean printOverlapping = false;
@@ -195,7 +201,8 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
       File xmlDirectory,
       XMLFormat xmlFormat,
       File xmiDirectory,
-      File treebankDirectory) {
+      File treebankDirectory,
+      File coreferenceDirectory) {
     super(baseDirectory);
     this.rawTextDirectory = rawTextDirectory;
     this.xmlDirectory = xmlDirectory;
@@ -203,6 +210,18 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
     this.xmiDirectory = xmiDirectory;
     this.xmiExists = this.xmiDirectory.exists() && this.xmiDirectory.listFiles().length > 0;
     this.treebankDirectory = treebankDirectory;
+    this.coreferenceDirectory = coreferenceDirectory;
+  }
+
+  public Evaluation_ImplBase(
+      File baseDirectory,
+      File rawTextDirectory,
+      File xmlDirectory,
+      XMLFormat xmlFormat,
+      File xmiDirectory,
+      File treebankDirectory) {
+    this(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat,
+        xmiDirectory, treebankDirectory, null);
   }
 
   public void setI2B2Output(String outDir){
@@ -225,7 +244,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
     this.xmiExists = true;
   }
   
-  private List<File> getFilesFor(List<Integer> patientSets) {
+  private List<File> getFilesFor(List<Integer> patientSets) throws FileNotFoundException {
 	  List<File> files = new ArrayList<File>();
 		if (this.rawTextDirectory == null
 		    && this.xmlFormat == XMLFormat.Anafora) {
@@ -260,13 +279,13 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 		        System.err.println("Text file in training has no corresponding xml -- skipping: " + train);
 		      }
 		    }
-		    File xmlText = new File(testDir, pt+".xml");
+		    File xmlTest = new File(testDir, pt+".xml");
 		    File test = new File(testDir, pt+".xml.txt");
-		    if(test.exists()){
-		      if(xmlText.exists()){
+		    if(xmlTest.exists()){
+		      if(test.exists()){
 		        files.add(test);
 		      }else{
-		        System.err.println("Text file in test has no corresponding xml -- skipping: " + test);
+		        throw new FileNotFoundException("Could not find the test text file -- for cTAKES usage you must copy the text files into the xml directory for the test set.");
 		      }
 		    }
 		    assert !(train.exists() && test.exists());
@@ -286,11 +305,21 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 		        }else{
 		          // look for equivalent in xml directory:
 		          File xmlFile = new File(xmlDirectory, file.getName());
-		          if(xmlFile.exists()){
-		            files.add(file);
-		          }else{
-		            System.err.println("Missing patient file : " + xmlFile);
-		          }
+              if(xmlFile.exists()){
+                if(coreferenceDirectory != null){
+                  // verify that coref version of xml exists
+                  File corefFile = new File(coreferenceDirectory, file.getName()+".Coreference.gold.completed.xml");
+                  if(corefFile.exists() && xmlFile.exists()){
+                    files.add(file);
+                  }else{
+                    System.err.println("Missing coref patient file : " + corefFile);
+                  }
+                }else{
+                  files.add(file);
+                }
+              }else{
+                System.err.println("Missing patient file : " + xmlFile);
+              }
 		        }
 		      } 
 		    }
@@ -357,6 +386,13 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
       break;
     }
 
+    if(this.coreferenceDirectory != null){
+      aggregateBuilder.add(
+          THYMEAnaforaXMLReader.getDescription(this.coreferenceDirectory),
+          CAS.NAME_DEFAULT_SOFA,
+          GOLD_VIEW_NAME);
+    }
+    
     // identify segments
     if(this.xmlFormat == XMLFormat.I2B2){
       aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SimpleSegmentAnnotator.class));
@@ -425,6 +461,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
     		UmlsDictionaryLookupAnnotator.createAnnotatorDescription()
     		);
 
+    /*
     // add lvg annotator
     String[] XeroxTreebankMap = {
         "adj|JJ",
@@ -487,6 +524,8 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
             new File(LvgCmdApiResourceImpl.class.getResource(
                 "/org/apache/ctakes/lvg/data/config/lvg.properties").toURI())));
     aggregateBuilder.add(lvgAnnotator);
+    */
+    aggregateBuilder.add(LvgAnnotator.createAnnotatorDescription());
 
     // add dependency parser
     aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearNLPDependencyParserAE.class));
@@ -502,7 +541,9 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
       // add ctakes constituency parses to system view
       aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ConstituencyParser.class,
           ConstituencyParser.PARAM_MODEL_FILENAME,
-          "org/apache/ctakes/constituency/parser/models/sharpacq-3.1.bin"));
+          "org/apache/ctakes/constituency/parser/models/thyme.bin"));
+//          "org/apache/ctakes/constituency/parser/models/sharp-3.1.bin"));
+//            "org/apache/ctakes/constituency/parser/models/thymeNotempeval.bin"));
 //      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(BerkeleyParserWrapper.class,
 //          BerkeleyParserWrapper.PARAM_MODEL_FILENAME,
 //          

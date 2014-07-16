@@ -8,13 +8,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.ctakes.coreference.ae.features.DistSemFeatureExtractor;
-import org.apache.ctakes.coreference.ae.features.DistanceFeatureExtractor;
-import org.apache.ctakes.coreference.ae.features.StringMatchingFeatureExtractor;
-import org.apache.ctakes.coreference.ae.features.TokenFeatureExtractor;
-import org.apache.ctakes.coreference.ae.features.UMLSFeatureExtractor;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.coreference.DistSemFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.coreference.DistanceFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.coreference.StringMatchingFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.coreference.TokenFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.coreference.UMLSFeatureExtractor;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.CoreferenceRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
