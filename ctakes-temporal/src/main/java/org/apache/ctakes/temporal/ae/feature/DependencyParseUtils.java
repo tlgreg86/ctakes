@@ -64,6 +64,29 @@ public class DependencyParseUtils {
 
     return paths;
   }
+  
+  /**
+   * Returns the common ancestor between them
+   */
+  public static ConllDependencyNode getCommonAncestor(ConllDependencyNode node1, ConllDependencyNode node2) {
+
+    LinkedList<ConllDependencyNode> node1ToHeadPath = DependencyParseUtils.getPathToSentenceHead(node1);
+    LinkedList<ConllDependencyNode> node2ToHeadPath = DependencyParseUtils.getPathToSentenceHead(node2);
+
+    // We will remove the last item in each path until they diverge
+    ConllDependencyNode ancestor = null;
+    while (!node1ToHeadPath.isEmpty() && !node2ToHeadPath.isEmpty()) {
+      if (node1ToHeadPath.getLast() == node2ToHeadPath.getLast()) {
+        node1ToHeadPath.removeLast();
+        ancestor = node2ToHeadPath.removeLast();
+      } else {
+        break;
+      }
+    }
+
+    //Return the common ancestor
+    return ancestor;
+  }
 
   /**
    * Finds the head word within a given annotation span
