@@ -110,13 +110,13 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 			evaluation.prepareXMIsFor(patientSets);
 			evaluation.logClassificationErrors(workingDir, "ctakes-event-property-errors");
 
-			List<Integer> allTraining = new ArrayList<Integer>(trainItems);
+			List<Integer> allTraining = new ArrayList<>(trainItems);
 			List<Integer> allTest = null;
 			if(options.getTest()){
 				allTraining.addAll(devItems);
-				allTest = new ArrayList<Integer>(testItems);
+				allTest = new ArrayList<>(testItems);
 			}else{
-				allTest = new ArrayList<Integer>(devItems);
+				allTest = new ArrayList<>(devItems);
 			}
 
 
@@ -169,6 +169,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected Map<String, AnnotationStatistics<String>> test(
 			CollectionReader collectionReader,
@@ -182,12 +183,12 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 
 		Function<EventMention, ?> eventMentionToSpan = AnnotationStatistics.annotationToSpan();
 		Map<String, Function<EventMention, String>> propertyGetters;
-		propertyGetters = new HashMap<String, Function<EventMention, String>>();
+		propertyGetters = new HashMap<>();
 		for (String name : PROPERTY_NAMES) {
 			propertyGetters.put(name, getPropertyGetter(name));
 		}
 
-		Map<String, AnnotationStatistics<String>> statsMap = new HashMap<String, AnnotationStatistics<String>>();
+		Map<String, AnnotationStatistics<String>> statsMap = new HashMap<>();
 
 		for(String propertyName : PROPERTY_NAMES){
 			statsMap.put(propertyName, new AnnotationStatistics<String>());
