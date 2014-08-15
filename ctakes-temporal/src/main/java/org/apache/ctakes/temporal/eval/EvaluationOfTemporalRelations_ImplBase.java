@@ -137,14 +137,10 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
       for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
           relationView,
           BinaryTextRelation.class))) {
-        String relationType = relation.getCategory();
-        if (relationType.startsWith("BEFORE")|| relationType.startsWith("BEGINS-ON")|| relationType.startsWith("ENDS-ON")) {
-          //        relation.getArg1().removeFromIndexes();
-          //        relation.getArg2().removeFromIndexes();
-          //        relation.removeFromIndexes();
-          relation.setCategory("RARE");
-        }else if(relationType.startsWith("CONTAINS")|| relationType.startsWith("OVERLAP")){
-          relation.setCategory("COMMON");
+        if (!relation.getCategory().startsWith("CONTAINS")) {
+          relation.getArg1().removeFromIndexes();
+          relation.getArg2().removeFromIndexes();
+          relation.removeFromIndexes();
         }
       }
     }
