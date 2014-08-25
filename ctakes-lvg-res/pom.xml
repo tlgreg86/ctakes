@@ -29,4 +29,41 @@
   <artifactId>ctakes-lvg-res</artifactId>
   <name>Apache cTAKES Resources lvg</name>
   <description>Resources Project for ctakes-lvg</description>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack-dependencies</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeArtifactId>ctakes-lvg-res</includeArtifactId>
+							<outputDirectory>${project.build.directory}/classes</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.4</version>
+					<configuration>
+			          <includes>
+			          <!-- Resources that are unpacked
+			          automatically by maven
+			          	are not jar'd and included in the bin distro
+			          	by default please download them from SF if needed. 
+			           -->
+			            <include>**/*.class</include>
+			            <include>**/types/*.xml</include>			            
+			            <include>**/META-INF/**</include>
+			          </includes>
+	        		</configuration>
+				</plugin>	    	
+		</plugins>
+	</build>    
 </project>
