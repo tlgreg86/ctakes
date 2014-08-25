@@ -700,14 +700,19 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
     public int compareTo(HashableArguments that) {
       int thisBegin = Math.min(this.arg1begin, this.arg2begin);
       int thatBegin = Math.min(that.arg1begin, that.arg2begin);
+      int thisEnd = Math.max(this.arg1end,  this.arg2end);
+      int thatEnd = Math.max(that.arg1end, that.arg2end);
+      
       if (thisBegin < thatBegin) {
         return -1;
       } else if (thisBegin > thatBegin) {
         return +1;
       } else if (this.equals(that)) {
         return 0;
-      } else {
-        return +1; // arbitrary choice for overlapping
+      } else if (thisEnd < thatEnd) {
+    	  return -1;
+      } else{
+    	  return 1;
       }
     }
 
