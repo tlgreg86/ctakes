@@ -49,14 +49,14 @@ inner join
 (
 select distinct code from anno_ontology_concept
 ) c on mrc.cui = c.code
-where mrc.sab in ( 'SNOMEDCT', 'RXNORM', 'SRC')
+where mrc.sab in ( 'SNOMEDCT', 'SNOMEDCT_US', 'RXNORM', 'SRC')
 and lat = 'ENG'
 ;
 
 select fw.*
 into outfile 'E:/projects/ytex/data/mysql/umls/umls_aui_fword.txt'
 from umls_aui_fword fw
-inner join umls.mrconso mrc on fw.aui = mrc.aui and mrc.sab in ( 'SNOMEDCT', 'RXNORM', 'SRC')
+inner join umls.mrconso mrc on fw.aui = mrc.aui and mrc.sab in ( 'SNOMEDCT', 'SNOMEDCT_US', 'RXNORM', 'SRC')
 inner join
 (
 select distinct code from anno_ontology_concept
@@ -85,7 +85,7 @@ coalesce(CVF,'')
 into outfile 'E:/projects/ytex-umls/mysql/MRCONSO.RRF'
 fields terminated by '|' ESCAPED BY '' lines terminated by '\r\n'
 from umls.MRCONSO mrc
-where SAB in ('SNOMEDCT', 'RXNORM', 'SRC')
+where SAB in ('SNOMEDCT', 'SNOMEDCT_US', 'RXNORM', 'SRC')
 and LAT = 'ENG'
 ;
 
@@ -104,13 +104,13 @@ inner join
 	(
 	select distinct cui
 	from umls.MRCONSO
-	where SAB in ('SNOMEDCT', 'RXNORM', 'SRC')
+	where SAB in ('SNOMEDCT', 'SNOMEDCT_US', 'RXNORM', 'SRC')
 	) c on sty.cui = c.cui
 ;
 
 select fw.*
 into outfile 'E:/projects/ytex-umls/mysql/umls_aui_fword.txt'
 from umls_aui_fword fw
-inner join umls.mrconso mrc on fw.aui = mrc.aui and mrc.sab in ('SNOMEDCT', 'RXNORM', 'SRC')
+inner join umls.mrconso mrc on fw.aui = mrc.aui and mrc.sab in ('SNOMEDCT', 'SNOMEDCT_US', 'RXNORM', 'SRC')
 ;
 

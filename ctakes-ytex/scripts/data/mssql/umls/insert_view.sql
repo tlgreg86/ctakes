@@ -22,7 +22,7 @@ select mrc.cui, t.tui, c.fword, c.fstem, c.tok_str, c.stem_str
 from $(db_schema).umls_aui_fword c
 inner join $(umls_catalog).$(umls_schema).MRCONSO mrc 
 	on c.aui = mrc.aui
-	and mrc.sab in ( 'SNOMEDCT','RXNORM' )
+	and mrc.sab in ( 'SNOMEDCT', 'SNOMEDCT_US', 'RXNORM' )
 inner join 
 (
 	select cui, min(tui) tui

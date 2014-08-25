@@ -73,7 +73,7 @@ where
 	'T019','T020','T037','T046','T047','T048','T049','T050','T190','T191',
 	'T033','T034','T040','T041','T042','T043','T044','T045','T046','T056','T057','T184'
 	)
-	and sourcetype = 'SNOMEDCT'
+	and sourcetype in ('SNOMEDCT', 'SNOMEDCT_US')
 ) 
 or cui in (
 	'C0079304', /* EGD */

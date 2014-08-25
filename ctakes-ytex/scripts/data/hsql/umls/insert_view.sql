@@ -20,7 +20,7 @@
 insert into v_snomed_fword_lookup (cui, tui, fword, fstem, tok_str, stem_str)
 select mrc.cui, t.tui, c.fword, c.fstem, c.tok_str, c.stem_str
 from umls_aui_fword c
-inner join MRCONSO mrc on c.aui = mrc.aui and mrc.SAB in ( 'SNOMEDCT', 'RXNORM')
+inner join MRCONSO mrc on c.aui = mrc.aui and mrc.SAB in ( 'SNOMEDCT', 'SNOMEDCT_US', 'RXNORM')
 inner join 
 (
 	select cui, min(tui) tui
