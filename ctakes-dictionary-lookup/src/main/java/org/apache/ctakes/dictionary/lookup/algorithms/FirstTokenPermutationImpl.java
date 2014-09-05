@@ -210,11 +210,12 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
       final List<List<Integer>> permutationList = iv_permCacheMap.get( permutationIndex );
       for ( List<Integer> permutations : permutationList ) {
          // Moved sort and offset calculation from inner (per MetaDataHit) iteration 2-21-2013 spf
-         Collections.sort( permutations );
+         List<Integer> permutationsSorted = (List) ((ArrayList)permutations).clone();
+         Collections.sort( permutationsSorted );
          int startOffset = firstWordStartOffset;
          int endOffset = firstWordEndOffset;
-         if ( !permutations.isEmpty() ) {
-            int firstIdx = permutations.get( 0 );
+         if ( !permutationsSorted.isEmpty() ) {
+            int firstIdx = permutationsSorted.get( 0 );
             if ( firstIdx <= firstTokenIndex ) {
                firstIdx--;
             }
@@ -222,7 +223,7 @@ public class FirstTokenPermutationImpl implements LookupAlgorithm {
             if ( firstToken.getStartOffset() < firstWordStartOffset ) {
                startOffset = firstToken.getStartOffset();
             }
-            int lastIdx = permutations.get( permutations.size() - 1 );
+            int lastIdx = permutationsSorted.get( permutationsSorted.size() - 1 );
             if ( lastIdx <= firstTokenIndex ) {
                lastIdx--;
             }
