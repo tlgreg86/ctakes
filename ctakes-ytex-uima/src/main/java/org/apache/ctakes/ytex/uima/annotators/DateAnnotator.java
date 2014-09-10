@@ -41,7 +41,7 @@ import com.mdimension.jchronic.utils.Span;
 /**
  * The cTAKES date doesn't actually parse the date. Parse the date with Chronic,
  * store a new annotation with the real date. Takes as initialization parameter
- * a type name; defaults to "edu.mayo.bmi.uima.cdt.ae.type.DateAnnotation"
+ * a type name; defaults to "org.apache.ctakes.typesystem.type.textsem.DateAnnotation"
  * Iterate through all annotations of this type, and use chronic to parse the
  * covered text.
  */
@@ -64,7 +64,7 @@ public class DateAnnotator extends JCasAnnotator_ImplBase {
 		super.initialize(aContext);
 		dateType = (String) aContext.getConfigParameterValue("dateType");
 		if (dateType == null) {
-			dateType = "edu.mayo.bmi.uima.core.type.textsem.DateAnnotation";
+			dateType = "org.apache.ctakes.typesystem.type.textsem.DateAnnotation";
 		}
 	}
 

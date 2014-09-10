@@ -154,7 +154,7 @@ from
 				-- sentence annotation
 				inner join esld.anno_base s on oda.document_id = s.document_id
 				inner join esld.ref_uima_type ut on s.uima_type_id = ut.uima_type_id
-				where ut.uima_type_name = 'edu.mayo.bmi.uima.core.sentence.type.Sentence'
+				where ut.uima_type_name = 'org.apache.ctakes.typesystem.type.textspan.Sentence'
 				-- get the report section
 				and seg.segment_id = 'REPORT'
 				-- radiology & abdomen annotations in same sentence

@@ -80,7 +80,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				</bean>
 				<bean class="org.apache.ctakes.ytex.uima.mapper.AnnoMappingInfo">
 					<property name="annoClassName"
-						value="edu.mayo.bmi.uima.coref.type.MarkablePairSet" />
+						value="org.apache.ctakes.coreference.type.MarkablePairSet" />
 					<property name="tableName" value="anno_link" />
 					<property name="columnMappingInfos">
 						<set>
@@ -99,7 +99,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				</bean>
 				<bean class="org.apache.ctakes.ytex.uima.mapper.AnnoMappingInfo">
 					<property name="annoClassName"
-						value="edu.mayo.bmi.uima.core.type.textsem.MedicationEventMention" />
+						value="org.apache.ctakes.typesystem.type.textsem.MedicationEventMention" />
 					<property name="tableName" value="anno_med_event" />
 					<property name="columnMappingInfos">
 						<set>

@@ -119,7 +119,7 @@ from
 				where s.uima_type_id in 
 					(select uima_type_id 
 					from esld.ref_uima_type 
-					where uima_type_name = 'edu.mayo.bmi.uima.core.sentence.type.Sentence')
+					where uima_type_name = 'org.apache.ctakes.typesystem.type.textspan.Sentence')
 				and liv.code in ('C1278929', 'C0023884', 'C0205054' /* hepatic */, 'C0227486' /* left lobe */, 'C0227481' /* right lobe */)
 				and mass.code in ('C0221198', 'C0577559', 'ESLD_MASS')
 				and mass.span_begin >= sda.span_begin

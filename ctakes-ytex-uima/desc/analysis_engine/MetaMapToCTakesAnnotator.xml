@@ -60,10 +60,10 @@
 					</type>
 				</inputs>
 				<outputs>
-					<type>edu.mayo.bmi.uima.core.type.textsem.EntityMention</type>
-					<type>edu.mayo.bmi.uima.core.type.textsem.IdentifiedAnnotation
+					<type>org.apache.ctakes.typesystem.type.textsem.EntityMention</type>
+					<type>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation
 					</type>
-					<type>edu.mayo.bmi.uima.core.type.textsem.MedicationEventMention
+					<type>org.apache.ctakes.typesystem.type.textsem.MedicationEventMention
 					</type>
 				</outputs>
 				<languagesSupported />

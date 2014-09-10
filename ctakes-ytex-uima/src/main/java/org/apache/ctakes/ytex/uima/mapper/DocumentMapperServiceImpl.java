@@ -383,7 +383,7 @@ public class DocumentMapperServiceImpl implements DocumentMapperService,
 				: analysisBatch);
 		// look for the ctakes DocumentID anno
 		if (setUimaDocId(jcas, doc,
-				"edu.mayo.bmi.uima.core.type.structured.DocumentID",
+				"org.apache.ctakes.typesystem.type.structured.DocumentID",
 				"documentID") == null) {
 			// look for the uima SourceDocumentInformation anno
 			setUimaDocId(jcas, doc,
