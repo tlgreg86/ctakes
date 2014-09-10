@@ -24,7 +24,7 @@
    <primitive>true</primitive>
    <annotatorImplementationName>org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator</annotatorImplementationName>
    <analysisEngineMetaData>
-      <name>SnomedOvLookupAnnotator</name>
+      <name>SnomedLookupAnnotator</name>
       <description>Lookup Annotator descriptor for Snomed Terms which are in a Rare Word -format Database, Ctakes</description>
       <version/>
       <vendor/>
@@ -52,39 +52,39 @@
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
          </configurationParameter>
-         <!--   UMLS User Verification  -->
-         <configurationParameter>
-            <name>ctakes.umlsaddr</name>
-            <description>
-               A UMLS is required to use the UMLS Dictionary.
-               Address to verify UMLS License.  If you do not have one,
-               Please request one at: https://uts.nlm.nih.gov/license.html
-            </description>
-            <type>String</type>
-            <multiValued>false</multiValued>
-            <mandatory>true</mandatory>
-         </configurationParameter>
-         <configurationParameter>
-            <name>ctakes.umlsvendor</name>
-            <description>UMLS Vendor ID</description>
-            <type>String</type>
-            <multiValued>false</multiValued>
-            <mandatory>true</mandatory>
-         </configurationParameter>
-         <configurationParameter>
-            <name>ctakes.umlsuser</name>
-            <description>UMLS User Name</description>
-            <type>String</type>
-            <multiValued>false</multiValued>
-            <mandatory>true</mandatory>
-         </configurationParameter>
-         <configurationParameter>
-            <name>ctakes.umlspw</name>
-            <description>UMLS Password</description>
-            <type>String</type>
-            <multiValued>false</multiValued>
-            <mandatory>true</mandatory>
-         </configurationParameter>
+         <!--&lt;!&ndash;   UMLS User Verification  &ndash;&gt;-->
+         <!--<configurationParameter>-->
+            <!--<name>ctakes.umlsaddr</name>-->
+            <!--<description>-->
+               <!--A UMLS is required to use the UMLS Dictionary.-->
+               <!--Address to verify UMLS License.  If you do not have one,-->
+               <!--Please request one at: https://uts.nlm.nih.gov/license.html-->
+            <!--</description>-->
+            <!--<type>String</type>-->
+            <!--<multiValued>false</multiValued>-->
+            <!--<mandatory>true</mandatory>-->
+         <!--</configurationParameter>-->
+         <!--<configurationParameter>-->
+            <!--<name>ctakes.umlsvendor</name>-->
+            <!--<description>UMLS Vendor ID</description>-->
+            <!--<type>String</type>-->
+            <!--<multiValued>false</multiValued>-->
+            <!--<mandatory>true</mandatory>-->
+         <!--</configurationParameter>-->
+         <!--<configurationParameter>-->
+            <!--<name>ctakes.umlsuser</name>-->
+            <!--<description>UMLS User Name</description>-->
+            <!--<type>String</type>-->
+            <!--<multiValued>false</multiValued>-->
+            <!--<mandatory>true</mandatory>-->
+         <!--</configurationParameter>-->
+         <!--<configurationParameter>-->
+            <!--<name>ctakes.umlspw</name>-->
+            <!--<description>UMLS Password</description>-->
+            <!--<type>String</type>-->
+            <!--<multiValued>false</multiValued>-->
+            <!--<mandatory>true</mandatory>-->
+         <!--</configurationParameter>-->
       </configurationParameters>
 
       <configurationParameterSettings>
@@ -109,31 +109,31 @@
                <string>3</string>
             </value>
          </nameValuePair>
-         <!--  UMLS User Verification  -->
-         <nameValuePair>
-            <name>ctakes.umlsaddr</name>
-            <value>
-               <string>https://uts-ws.nlm.nih.gov/restful/isValidctakes.umlsuser</string>
-            </value>
-         </nameValuePair>
-         <nameValuePair>
-            <name>ctakes.umlsvendor</name>
-            <value>
-               <string>NLM-6515182895</string>
-            </value>
-         </nameValuePair>
-         <nameValuePair>
-            <name>ctakes.umlsuser</name>
-            <value>
-               <string>YOUR_UMLS_USERNAME_HERE</string>
-            </value>
-         </nameValuePair>
-         <nameValuePair>
-            <name>ctakes.umlspw</name>
-            <value>
-               <string>YOUR_UMLS_PASSWORD_HERE</string>
-            </value>
-         </nameValuePair>
+         <!--&lt;!&ndash;  UMLS User Verification  &ndash;&gt;-->
+         <!--<nameValuePair>-->
+            <!--<name>ctakes.umlsaddr</name>-->
+            <!--<value>-->
+               <!--<string>https://uts-ws.nlm.nih.gov/restful/isValidctakes.umlsuser</string>-->
+            <!--</value>-->
+         <!--</nameValuePair>-->
+         <!--<nameValuePair>-->
+            <!--<name>ctakes.umlsvendor</name>-->
+            <!--<value>-->
+               <!--<string>NLM-6515182895</string>-->
+            <!--</value>-->
+         <!--</nameValuePair>-->
+         <!--<nameValuePair>-->
+            <!--<name>ctakes.umlsuser</name>-->
+            <!--<value>-->
+               <!--<string>YOUR_UMLS_USERNAME_HERE</string>-->
+            <!--</value>-->
+         <!--</nameValuePair>-->
+         <!--<nameValuePair>-->
+            <!--<name>ctakes.umlspw</name>-->
+            <!--<value>-->
+               <!--<string>YOUR_UMLS_PASSWORD_HERE</string>-->
+            <!--</value>-->
+         <!--</nameValuePair>-->
       </configurationParameterSettings>
 
       <typeSystemDescription>
@@ -182,7 +182,7 @@
    <resourceManagerConfiguration>
       <externalResources>
          <externalResource>
-            <!-- Kind of backwards.  The Binding is below, for DictionaryDescriptor = DictionaryDescriptorFile -->
+            <!-- The Binding is below, for DictionaryDescriptor = DictionaryDescriptorFile -->
             <name>DictionaryDescriptorFile</name>
             <description/>
             <fileResourceSpecifier>
@@ -190,6 +190,7 @@
             </fileResourceSpecifier>
             <implementationName>org.apache.ctakes.core.resource.FileResourceImpl</implementationName>
          </externalResource>
+
 
          <externalResource>
             <name>cTakesSnomedResource</name>
