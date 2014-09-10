@@ -25,22 +25,33 @@
       <!-- typeId 0 is the cTakes constant for unknown - let the consumer take care of typing  -->
       <dictionary id="cTakes" externalResourceKey="cTakesSnomed" caseSensitive="false" typeId="0">
          <implementation>
-            <rareWordUmls tableName="cTakes_umls"/>
+            <rareWordUmls tableName="cTakes_umls"  umlsUrl="https://uts-ws.nlm.nih.gov/restful/isValidctakes.umlsuser"
+                          vendor="NLM-6515182895" user="CHANGEME" password="CHANGEME"/>
          </implementation>
       </dictionary>
    </rareWordDictionaries>
 
-   <!-- PrecisionTermConsumer will only persist only the longest overlapping span of any semantic group -->
-   <rareWordConsumer className="org.apache.ctakes.dictionary.lookup2.consumer.PrecisionTermConsumer">
+    <!-- JdbcConceptFactory populates concept info from a database -->
+    <conceptFactory id="cTakes" externalResourceKey="cTakesSnomed">
+        <implementation>
+            <!-- cuiTables = JdbcConceptFactory; populates concept info from a database -->
+            <!--<cuiTables tui="TUI" snomedct="SNOMEDCT" rxNorm="RXNORM" icd9cm="ICD9CM" icd10pcs="ICD10PCS" preferredTerm="PREFTERM"/>-->
+            <primitiveConcept tui="TUI" preferredTerm="PREFTERM"/>
+        </implementation>
+    </conceptFactory>
+
+    <!-- PrecisionTermConsumer will only persist only the longest overlapping span of any semantic group -->
+   <!--<rareWordConsumer className="org.apache.ctakes.dictionary.lookup2.consumer.PrecisionTermConsumer">-->
+      <!--<properties>-->
+         <!--<property key="codingScheme" value="cTakes"/>-->
+      <!--</properties>-->
+   <!--</rareWordConsumer>-->
+
+   <!-- DefaultTermConsumer will persist all spans  -->
+   <rareWordConsumer className="org.apache.ctakes.dictionary.lookup2.consumer.DefaultTermConsumer">
       <properties>
          <property key="codingScheme" value="cTakes"/>
       </properties>
    </rareWordConsumer>
 
-   <!-- DefaultTermConsumer will persist all spans  -->
-<!--   <rareWordConsumer className="org.apache.ctakes.dictionary.lookup2.consumer.DefaultTermConsumer">
-      <properties>
-         <property key="codingScheme" value="cTakes"/>
-      </properties>
-   </rareWordConsumer>  -->
 </lookupSpecification>
