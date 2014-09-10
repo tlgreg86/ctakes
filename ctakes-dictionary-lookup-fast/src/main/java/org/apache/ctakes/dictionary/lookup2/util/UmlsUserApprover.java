@@ -18,25 +18,20 @@
  */
 package org.apache.ctakes.dictionary.lookup2.util;
 
+import org.apache.ctakes.utils.env.EnvironmentVariable;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
-import org.apache.ctakes.utils.env.EnvironmentVariable;
-
 
 /**
  * Used to validate UMLS license / user.
- *
+ * <p/>
  * TODO  Authentication before download would be nice, or perhaps an encrypted download
  * Author: SPF
  * Affiliation: CHIP-NLP
@@ -52,10 +47,12 @@ final public class UmlsUserApprover {
 
    static final private Logger LOGGER = Logger.getLogger( "UmlsUserApprover" );
 
-   private UmlsUserApprover() {}
+   private UmlsUserApprover() {
+   }
 
    /**
     * Silently validate the UMLS license / user
+    *
     * @param aContext contains information about the UMLS license / user
     * @throws ResourceInitializationException if the validation does not pass
     */
@@ -67,10 +64,10 @@ final public class UmlsUserApprover {
       LOGGER.info( "Using " + UMLSADDR_PARAM + ": " + umlsAddress + ": " + umlsUser );
       if ( !isValidUMLSUser( umlsAddress, umlsVendor, umlsUser, umlsPassword ) ) {
          LOGGER.error( "Error: Invalid UMLS License.  " +
-                        "A UMLS License is required to use the UMLS dictionary lookup. \n" +
-                        "Error: You may request one at: https://uts.nlm.nih.gov/license.html \n" +
-                        "Please verify your UMLS license settings in the " +
-                        "DictionaryLookupAnnotatorUMLS.xml configuration." );
+                       "A UMLS License is required to use the UMLS dictionary lookup. \n" +
+                       "Error: You may request one at: https://uts.nlm.nih.gov/license.html \n" +
+                       "Please verify your UMLS license settings in the " +
+                       "DictionaryLookupAnnotatorUMLS.xml configuration." );
          throw new ResourceInitializationException( new Exception( "Failed to initilize.  Invalid UMLS License" ) );
       }
    }

@@ -26,7 +26,7 @@ import java.util.Collection;
  * A useful key for hash collections based upon start and end indices and missing internal spans.
  * This is faster than using String as {@link String#hashCode()}
  * iterates over the internal character array of a new string (new(..), .substring(..), .lowercase(..), ...).
- *
+ * <p/>
  * There is a much better version of this in org.chboston.chip.nlp.annotation but this will do for now.
  */
 @Immutable
@@ -39,8 +39,9 @@ final public class MultiTextSpan implements TextSpan {
 
    /**
     * Given span indices should be ordered start < end, but it is not an absolute requirement.
+    *
     * @param start start index of a span, be it of a string or other
-    * @param end end index of a span,  be it of a  string or other
+    * @param end   end index of a span,  be it of a  string or other
     */
    public MultiTextSpan( final int start, final int end, final Collection<TextSpan> missingSpans ) {
       _start = start;
@@ -65,6 +66,20 @@ final public class MultiTextSpan implements TextSpan {
       return _end;
    }
 
+   /**
+    * return the length of the full span minus the lengths of the missing spans
+    * {@inheritDoc}
+    */
+   @Override
+   public int getLength() {
+      int length = _end - _start + 1;
+      for  ( TextSpan missingSpan : _missingSpans ) {
+         length -= missingSpan.getLength();
+      }
+      return length;
+   }
+
+
 
    public Collection<TextSpan> getMissingSpans() {
       return _missingSpans;
@@ -72,6 +87,7 @@ final public class MultiTextSpan implements TextSpan {
 
    /**
     * {@inheritDoc}
+    *
     * @return a hashcode based upon the start and end indices of this span key
     */
    @Override
@@ -81,18 +97,20 @@ final public class MultiTextSpan implements TextSpan {
 
    /**
     * {@inheritDoc}
+    *
     * @return true iff the start keys are equal and the end keys are equal
     */
    @Override
    public boolean equals( final Object object ) {
       return object instanceof MultiTextSpan
-            && _start == ((MultiTextSpan)object)._start
-            && _end == ((MultiTextSpan)object)._end
-            && _missingSpans.equals( ((MultiTextSpan) object)._missingSpans );
+             && _start == ((MultiTextSpan)object)._start
+             && _end == ((MultiTextSpan)object)._end
+             && _missingSpans.equals( ((MultiTextSpan)object)._missingSpans );
    }
 
    /**
     * {@inheritDoc}
+    *
     * @return "Discontiguous TextSpan for span [start index] to [end index] but missing:\n[missing spans]"
     */
    @Override

@@ -18,29 +18,31 @@
  */
 package org.apache.ctakes.dictionary.lookup2.consumer;
 
+import org.apache.ctakes.dictionary.lookup2.concept.Concept;
+import org.apache.ctakes.dictionary.lookup2.concept.ConceptCode;
 import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
-import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
+import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
+import org.apache.ctakes.dictionary.lookup2.util.SemanticUtil;
+import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
-import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
-import org.apache.ctakes.typesystem.type.textsem.DiseaseDisorderMention;
-import org.apache.ctakes.typesystem.type.textsem.EntityMention;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.LabMention;
-import org.apache.ctakes.typesystem.type.textsem.MedicationMention;
-import org.apache.ctakes.typesystem.type.textsem.ProcedureMention;
-import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
+import org.apache.ctakes.typesystem.type.textsem.*;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
+
+import static org.apache.ctakes.typesystem.type.constants.CONST.NE_TYPE_ID_DRUG;
+import static org.apache.ctakes.typesystem.type.constants.CONST.NE_TYPE_ID_ANATOMICAL_SITE;
+import static org.apache.ctakes.typesystem.type.constants.CONST.NE_TYPE_ID_DISORDER;
+import static org.apache.ctakes.typesystem.type.constants.CONST.NE_TYPE_ID_FINDING;
+import static org.apache.ctakes.typesystem.type.constants.CONST.NE_TYPE_ID_LAB;
+import static org.apache.ctakes.typesystem.type.constants.CONST.NE_TYPE_ID_PROCEDURE;
+
+
+
 
 /**
  * Author: SPF
@@ -54,67 +56,35 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
       super( uimaContext, properties );
    }
 
+
    /**
-    *
-    * @param jcas -
-    * @param codingScheme -
-    * @param typeId  cTakes IdentifiedAnnotation only accepts an integer as a typeId
-    * @param lookupHitMap map of spans to terms for those spans
+    * @param jcas           -
+    * @param codingScheme   -
+    * @param cTakesSemantic cTakes IdentifiedAnnotation only accepts an integer as a cTakesSemantic
     * @throws org.apache.uima.analysis_engine.AnalysisEngineProcessException
     */
-   protected void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int typeId,
-                                     final Map<TextSpan, Collection<RareWordTerm>> lookupHitMap )
+   protected void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int cTakesSemantic,
+                                     final CollectionMap<TextSpan, Long> textSpanCuis,
+                                     final CollectionMap<Long, Concept> cuiConcepts )
          throws AnalysisEngineProcessException {
-      // Set of Cuis to avoid duplicates at this offset
-      final Set<String> cuiSet = new HashSet<String>();
       // Collection of UmlsConcept objects
-      final Collection<UmlsConcept> conceptList = new ArrayList<UmlsConcept>();
+      final Collection<UmlsConcept> umlsConceptList = new ArrayList<>();
       try {
-         for ( Map.Entry<TextSpan, Collection<RareWordTerm>> entry : lookupHitMap.entrySet() ) {
-            cuiSet.clear();
-            conceptList.clear();
-            for ( RareWordTerm lookupHit : entry.getValue() ) {
-               final String cui = lookupHit.getCui() ;
-               if ( cuiSet.add( cui ) ) {
-                  final UmlsConcept concept = new UmlsConcept( jcas );
-                  concept.setCodingScheme( codingScheme );
-                  concept.setCui( cui );
-                  concept.setTui( lookupHit.getTui() );
-                  conceptList.add( concept );
-               }
+         for ( Map.Entry<TextSpan, Collection<Long>> spanCuis : textSpanCuis ) {
+            umlsConceptList.clear();
+            for ( Long cuiCode : spanCuis.getValue() ) {
+               umlsConceptList.addAll( createUmlsConcepts( jcas, codingScheme, cTakesSemantic, cuiCode, cuiConcepts ) );
             }
-            // Skip updating CAS if all Concepts for this type were filtered out for this span.
-            if ( conceptList.isEmpty() ) {
-               continue;
-            }
-            // code is only valid if the covered text is also present in the filter
-            final int neBegin = entry.getKey().getStart();
-            final int neEnd = entry.getKey().getEnd();
-            final FSArray conceptArr = new FSArray( jcas, conceptList.size() );
+            final FSArray conceptArr = new FSArray( jcas, umlsConceptList.size() );
             int arrIdx = 0;
-            for ( UmlsConcept umlsConcept : conceptList ) {
+            for ( UmlsConcept umlsConcept : umlsConceptList ) {
                conceptArr.set( arrIdx, umlsConcept );
                arrIdx++;
             }
-            IdentifiedAnnotation annotation;
-            if ( typeId == CONST.NE_TYPE_ID_DRUG ) {
-               annotation = new MedicationMention( jcas );
-            } else if ( typeId == CONST.NE_TYPE_ID_ANATOMICAL_SITE ) {
-               annotation = new AnatomicalSiteMention( jcas );
-            } else if ( typeId == CONST.NE_TYPE_ID_DISORDER ) {
-               annotation = new DiseaseDisorderMention( jcas );
-            } else if ( typeId == CONST.NE_TYPE_ID_FINDING ) {
-               annotation = new SignSymptomMention( jcas );
-            } else if ( typeId == CONST.NE_TYPE_ID_LAB ) {
-               annotation = new LabMention( jcas );
-            } else if ( typeId == CONST.NE_TYPE_ID_PROCEDURE ) {
-               annotation = new ProcedureMention( jcas );
-            } else {
-               annotation = new EntityMention( jcas );
-            }
-            annotation.setTypeID( typeId );
-            annotation.setBegin( neBegin );
-            annotation.setEnd( neEnd );
+            final IdentifiedAnnotation annotation = createSemanticAnnotation( jcas, cTakesSemantic );
+            annotation.setTypeID( cTakesSemantic );
+            annotation.setBegin( spanCuis.getKey().getStart() );
+            annotation.setEnd( spanCuis.getKey().getEnd() );
             annotation.setDiscoveryTechnique( CONST.NE_DISCOVERY_TECH_DICT_LOOKUP );
             annotation.setOntologyConceptArr( conceptArr );
             annotation.addToIndexes();
@@ -124,6 +94,84 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
          // What is really thrown?  The jcas "throwFeatMissing" is not a great help
          throw new AnalysisEngineProcessException( e );
       }
+   }
+
+   static private IdentifiedAnnotation createSemanticAnnotation( final JCas jcas, final int cTakesSemantic ) {
+      switch( cTakesSemantic ) {
+         case NE_TYPE_ID_DRUG: {
+            return new MedicationMention( jcas );
+         }
+         case NE_TYPE_ID_ANATOMICAL_SITE: {
+            return new AnatomicalSiteMention( jcas );
+         }
+         case NE_TYPE_ID_DISORDER: {
+            return new DiseaseDisorderMention( jcas );
+         }
+         case NE_TYPE_ID_FINDING: {
+            return new SignSymptomMention( jcas );
+         }
+         case NE_TYPE_ID_LAB: {
+            return new LabMention( jcas );
+         }
+         case NE_TYPE_ID_PROCEDURE: {
+            return new ProcedureMention( jcas );
+         }
+      }
+      return new EntityMention( jcas );
+   }
+
+
+   static private Collection<UmlsConcept> createUmlsConcepts( final JCas jcas,
+                                                              final String codingScheme,
+                                                              final int cTakesSemantic,
+                                                              final Long cui,
+                                                              final CollectionMap<Long, Concept> conceptMap ) {
+      final Collection<Concept> concepts = conceptMap.getCollection( cui );
+      if ( concepts == null || concepts.isEmpty() ) {
+         return Arrays.asList( createUmlsConcept( jcas, codingScheme, cui, null, null, null ) );
+      }
+      final Collection<UmlsConcept> umlsConcepts = new HashSet<>();
+      for ( Concept concept : concepts ) {
+         final String preferredText = concept.getPreferredText();
+         // The cTakes Type System for UmlsConcepts is inadequate.
+         // A single Cui can have multiple Tuis, Snomed and RxNorm and icd codes.
+         // Adding -disconnected- Ontology concepts is not correct, as an ontology concept such as snomed
+         // is actually connected to a cui, semantic type, preferredTerm - and cannot be stored alone just for a span
+         final Collection<String> tuis = concept.getCodes( ConceptCode.TUI );
+         if ( !tuis.isEmpty() ) {
+            for ( String tui : tuis ) {
+               // the concept could have tuis outside this cTakes semantic group
+               if ( SemanticUtil.getTuiSemanticGroupId( tui ) == cTakesSemantic ) {
+                  umlsConcepts.add( createUmlsConcept( jcas, codingScheme, cui, tui, preferredText, null ) );
+               }
+            }
+         } else {
+            umlsConcepts.add( createUmlsConcept( jcas, codingScheme, cui, null, preferredText, null ) );
+         }
+      }
+      return umlsConcepts;
+   }
+
+
+   // The cTakes Type System UmlsConcepts is inadequate.
+   // A single Cui can have multiple Tuis, Snomed and RxNorm and icd codes.
+   // Propagating a handful of UmlsConcepts for a single Cui with multiple Snomeds creates bloat
+   static private UmlsConcept createUmlsConcept( final JCas jcas, final String codingScheme,
+                                                 final Long cuiCode, final String tui,
+                                                 final String preferredText, final String code ) {
+      final UmlsConcept umlsConcept = new UmlsConcept( jcas );
+      umlsConcept.setCodingScheme( codingScheme );
+      umlsConcept.setCui( CuiCodeUtil.getAsCui( cuiCode ) );
+      if ( tui != null ) {
+         umlsConcept.setTui( tui );
+      }
+      if ( preferredText != null && !preferredText.isEmpty() ) {
+         umlsConcept.setPreferredText( preferredText );
+      }
+      if ( code != null ) {
+         umlsConcept.setCode( code );
+      }
+      return umlsConcept;
    }
 
 

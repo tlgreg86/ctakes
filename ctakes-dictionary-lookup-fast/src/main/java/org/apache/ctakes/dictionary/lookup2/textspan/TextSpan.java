@@ -24,6 +24,7 @@ package org.apache.ctakes.dictionary.lookup2.textspan;
  * Date: 1/29/14
  */
 public interface TextSpan {
+
    /**
     * @return the start index used for this text span
     */
@@ -33,4 +34,10 @@ public interface TextSpan {
     * @return the end index used for this text span
     */
    int getEnd();
+
+   /**
+    * @return the length of the text span in characters
+    */
+   int getLength();
+
 }

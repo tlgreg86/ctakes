@@ -18,14 +18,12 @@
  */
 package org.apache.ctakes.dictionary.lookup2.dictionary;
 
+import org.apache.ctakes.dictionary.lookup2.concept.ConceptFactory;
 import org.apache.ctakes.dictionary.lookup2.consumer.TermConsumer;
 import org.apache.ctakes.dictionary.lookup2.util.DictionarySpec;
-import org.apache.ctakes.dictionary.lookup2.util.UmlsUserApprover;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.annotator.AnnotatorContextException;
-import org.apache.uima.resource.ResourceAccessException;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -35,14 +33,10 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
- * Parses the XML descriptor indicated by the {@code externalResource} for {@code RareWordTermsDescriptorFile}
+ * Parses the XML descriptor indicated by the {@code externalResource} for {@code DictionaryDescriptorFile}
  * in the XML descriptor for the Rare Word Term Lookup Annotator
  * {@link org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator}
  * </p>
@@ -71,9 +65,13 @@ final public class DictionaryDescriptorParser {
    }
 
    /**
-    * XML key specifying the section that defines each {@link RareWordDictionary} that should be used for annotation
+    * XML keys specifying the main sections that define dictionaries, concept factories, and the pairing of the two
     */
-   static private final String DICTIONARIES_KEY = "rareWordDictionaries";
+   static private final String DICTIONARIES_KEY = "dictionaries";
+   static private final String CONCEPT_FACTORIES_KEY = "conceptFactories";
+   static private final String PAIRS_KEY = "dictionaryConceptPairs";
+
+
    /**
     * Each {@link RareWordDictionary} should have an id that specifies a unique name for that dictionary
     */
@@ -130,6 +128,14 @@ final public class DictionaryDescriptorParser {
     * </ul>
     */
    private static final String IMPLEMENTATION = "implementation";
+
+   /**
+    * XML key specifying the section that defines the single
+    * {@link org.apache.ctakes.dictionary.lookup2.concept.ConceptFactory} that should be used to create concepts for discovered terms.
+    */
+   static private final String CONCEPTS_KEY = "conceptFactory";
+
+
    /**
     * XML key specifying the section that defines the single {@link org.apache.ctakes.dictionary.lookup2.consumer.TermConsumer} that should be used to
     * consume discovered terms.
@@ -147,7 +153,7 @@ final public class DictionaryDescriptorParser {
     *                       for an example
     * @param uimaContext    -
     * @return {@link org.apache.ctakes.dictionary.lookup2.util.DictionarySpec} with specification of dictionaries and a consumer as read from the
-    *         {@code descriptorFile}
+    * {@code descriptorFile}
     * @throws AnnotatorContextException if the File could not be found/read or the xml could not be parsed
     */
    static public DictionarySpec parseDescriptor( final File descriptorFile, final UimaContext uimaContext )
@@ -157,16 +163,20 @@ final public class DictionaryDescriptorParser {
       Document doc;
       try {
          doc = saxBuilder.build( descriptorFile );
-      } catch ( JDOMException jdomE ) {
-         throw new AnnotatorContextException( "Could not parse " + descriptorFile.getPath(), new Object[0], jdomE );
-      } catch ( IOException ioE ) {
-         throw new AnnotatorContextException( "Could not parse " + descriptorFile.getPath(), new Object[0], ioE );
+      } catch ( JDOMException | IOException jdomioE ) {
+         throw new AnnotatorContextException( "Could not parse " + descriptorFile.getPath(), new Object[0], jdomioE );
       }
       final Map<String, RareWordDictionary> dictionaries
             = parseDictionaries( uimaContext, doc.getRootElement().getChild( DICTIONARIES_KEY ) );
-      final TermConsumer consumer = parseConsumerXml( uimaContext,
-                                                              doc.getRootElement().getChild( CONSUMER_KEY ) );
-      return new DictionarySpec( dictionaries.values(), consumer );
+      final Map<String, ConceptFactory> conceptFactories
+            = parseConceptFactories( uimaContext, doc.getRootElement().getChild( CONCEPT_FACTORIES_KEY ) );
+      final Map<String, String> pairDictionaryNames
+            = parsePairingNames( doc.getRootElement().getChild( PAIRS_KEY ), "dictionaryName" );
+      final Map<String, String> pairConceptFactoryNames
+            = parsePairingNames( doc.getRootElement().getChild( PAIRS_KEY ), "conceptFactoryName" );
+      final TermConsumer consumer = parseConsumerXml( uimaContext, doc.getRootElement().getChild( CONSUMER_KEY ) );
+      return new DictionarySpec( pairDictionaryNames, pairConceptFactoryNames, dictionaries, conceptFactories,
+            consumer );
    }
 
    /**
@@ -174,24 +184,26 @@ final public class DictionaryDescriptorParser {
     *
     * @param uimaContext         -
     * @param dictionariesElement contains definition of all dictionaries
-    * @return Mapping of dictionary names {@link this.NAME_ID} to new {@link RareWordDictionary} instances
+    * @return Mapping of dictionary names to new {@link RareWordDictionary} instances
     * @throws AnnotatorContextException if the resource specified by {@link this.EXTERNAL_RESOURCE} does not match
     *                                   the type specified by {@link this.IMPLEMENTATION} or for some reason could not be used
     */
    static private Map<String, RareWordDictionary> parseDictionaries( final UimaContext uimaContext,
-                                                                           final Element dictionariesElement )
+                                                                     final Element dictionariesElement )
          throws AnnotatorContextException {
-      final Map<String, RareWordDictionary> engines = new HashMap<String, RareWordDictionary>();
-      final Collection dictatteers = dictionariesElement.getChildren();
-      for ( Object dictatteer : dictatteers ) {
-         if ( dictatteer instanceof Element ) {
-            final String id = ((Element) dictatteer).getAttributeValue( NAME_ID );
-            final RareWordDictionary dictionary = parseDictionaryXml( uimaContext, (Element) dictatteer );
-            engines.put( id, dictionary );
+      final Map<String, RareWordDictionary> dictionaries = new HashMap<>();
+      final Collection dictionaryElements = dictionariesElement.getChildren();
+      for ( Object dictionaryElement : dictionaryElements ) {
+         if ( dictionaryElement instanceof Element ) {
+            final RareWordDictionary dictionary = parseDictionary( uimaContext, (Element)dictionaryElement );
+            if ( dictionary != null ) {
+               dictionaries.put( dictionary.getName(), dictionary );
+            }
          }
       }
-      return engines;
+      return dictionaries;
    }
+
 
    /**
     * Creates a dictionary by parsing each child element of {@link this.DICTIONARIES_KEY}
@@ -201,76 +213,217 @@ final public class DictionaryDescriptorParser {
     * @return a dictionary or null if there is a problem
     * @throws AnnotatorContextException if any of a dozen things goes wrong
     */
-   private static RareWordDictionary parseDictionaryXml( final UimaContext uimaContext,
-                                                         final Element dictionaryElement )
+   private static RareWordDictionary parseDictionary( final UimaContext uimaContext, final Element dictionaryElement )
          throws AnnotatorContextException {
-      final String externalResourceKey = dictionaryElement.getAttributeValue( EXTERNAL_RESOURCE );
-      final Boolean keepCase = Boolean.valueOf( dictionaryElement.getAttributeValue( CASE_SENSITIVE ) );
-      final String entityTypeId = dictionaryElement.getAttributeValue( TYPE_ID );
-      Object externalResource;
+      final Class[] constructionArgs = { String.class, UimaContext.class, Properties.class };
+
+      final String name = getName( "Dictionary Name", dictionaryElement );
+      final String className = dictionaryElement.getChildText( "implementationName" );
+      final Element propertiesElement = dictionaryElement.getChild( "properties" );
+      final Properties properties = parsePropertiesXml( propertiesElement );
+      Class dictionaryClass;
       try {
-         externalResource = uimaContext.getResourceObject( externalResourceKey );
-      } catch ( ResourceAccessException raE ) {
-         throw new AnnotatorContextException( "Could not access external resource " + externalResourceKey,
-                                              new Object[0], raE );
+         dictionaryClass = Class.forName( className );
+      } catch ( ClassNotFoundException cnfE ) {
+         throw new AnnotatorContextException( "Unknown class " + className, new Object[0], cnfE );
       }
-      if ( externalResource == null ) {
-         throw new AnnotatorContextException( "Could not find external resource " + externalResourceKey,
-                                              new Object[0] );
+      if ( !RareWordDictionary.class.isAssignableFrom( dictionaryClass ) ) {
+         throw new AnnotatorContextException( className + " is not a Rare Word Dictionary", new Object[0] );
       }
-      RareWordDictionary dictionary = null;
-      final Element implementationElement = (Element) dictionaryElement.getChild( IMPLEMENTATION ).getChildren().get( 0 );
-      final String implementationName = implementationElement.getName();
-      if ( implementationName.equals( "rareWordJdbc" ) ) {
-         dictionary = DictionaryFactory.createRareWordJdbc( implementationElement,
-                                                            externalResource,
-                                                            entityTypeId );
-      } else if ( implementationName.equals( "rareWordUmls" ) ) {
+      final Constructor[] constructors = dictionaryClass.getConstructors();
+      for ( Constructor constructor : constructors ) {
          try {
-            UmlsUserApprover.validateUMLSUser( uimaContext );
-            dictionary = DictionaryFactory.createRareWordJdbc( implementationElement,
-                                                               externalResource,
-                                                               entityTypeId );
-         } catch ( ResourceInitializationException riE ) {
-            throw new AnnotatorContextException( riE );
+            if ( Arrays.equals( constructionArgs, constructor.getParameterTypes() ) ) {
+               final Object[] args = new Object[]{ name, uimaContext, properties };
+               return (RareWordDictionary)constructor.newInstance( args );
+            }
+         } catch ( InstantiationException | IllegalAccessException | InvocationTargetException iniaitE ) {
+            throw new AnnotatorContextException( "Could not construct " + className, new Object[0], iniaitE );
          }
-      } else if ( implementationName.equals( "rareWordBsv" ) ) {
-         dictionary = DictionaryFactory.createRareWordBsv( externalResourceKey, externalResource, entityTypeId );
-//      } else if ( implementationName.equals( "luceneImpl" ) ) {
-//         dictionary = DictionaryFactory.createWrappedLucene( dictionaryElement,
-//                                                                     externalResourceKey,
-//                                                                     externalResource,
-//                                                                     entityTypeId );
-//      } else if ( implementationName.equals( "jdbcImpl" ) ) {
-//         dictionary = DictionaryFactory.createWrappedJdbc( dictionaryElement,
-//                                                                   implementationElement,
-//                                                                   externalResourceKey,
-//                                                                   externalResource,
-//                                                                   entityTypeId );
-//      } else if ( implementationName.equals( "csvImp" ) ) {
-//         dictionary = DictionaryFactory.createWrappedCsv( dictionaryElement,
-//                                                                  implementationElement,
-//                                                                  externalResourceKey,
-//                                                                  externalResource,
-//                                                                  entityTypeId );
-      } else {
-         throw new AnnotatorContextException( "Unsupported dictionary implementation " + implementationName,
-                                              new Object[0] );
       }
-      if ( dictionary == null ) {
-         throw new AnnotatorContextException( "No appropriate dictionary defined", new Object[0] );
-      }
-      // Deprecated -
-//      if ( dictionary instanceof Dictionary ) {
-//         final Collection metaFields = dictionaryElement.getChild( "metaFields" ).getChildren();
-//         for ( Object value : metaFields ) {
-//            String metaFieldName = ((Element) value).getAttributeValue( "fieldName" );
-//            ((Dictionary) dictionary).retainMetaData( metaFieldName );
-//         }
-//      }
-      return dictionary;
+      throw new AnnotatorContextException( "No Constructor for " + className, new Object[0] );
    }
 
+
+   /**
+    * Creates concept factories by parsing the section defined by {@link this.CONCEPT_FACTORY_KEY
+    *
+    * @param uimaContext             -
+    * @param conceptFactoriesElement contains definition of all concept factories
+    * @return Mapping of concept factory names to new {@link ConceptFactory} instances
+    * @throws AnnotatorContextException if the resource specified by {@link this.EXTERNAL_RESOURCE} does not match
+    *                                   the type specified by {@link this.IMPLEMENTATION} or for some reason could not be used
+    */
+   static private Map<String, ConceptFactory> parseConceptFactories( final UimaContext uimaContext,
+                                                                     final Element conceptFactoriesElement )
+         throws AnnotatorContextException {
+      final Map<String, ConceptFactory> conceptFactories = new HashMap<>();
+      final Collection conceptFactoryElements = conceptFactoriesElement.getChildren();
+      for ( Object conceptFactoryElement : conceptFactoryElements ) {
+         if ( conceptFactoryElement instanceof Element ) {
+            final ConceptFactory conceptFactory = parseConceptFactory( uimaContext, (Element)conceptFactoryElement );
+            if ( conceptFactory != null ) {
+               conceptFactories.put( conceptFactory.getName(), conceptFactory );
+            }
+         }
+      }
+      return conceptFactories;
+   }
+
+   /**
+    * Creates a dictionary by parsing each child element of {@link this.DICTIONARIES_KEY}
+    *
+    * @param uimaContext           -
+    * @param conceptFactoryElement contains the definition of a single dictionary
+    * @return a dictionary or null if there is a problem
+    * @throws AnnotatorContextException if any of a dozen things goes wrong
+    */
+   private static ConceptFactory parseConceptFactory( final UimaContext uimaContext,
+                                                      final Element conceptFactoryElement )
+         throws AnnotatorContextException {
+      final Class[] constructionArgs = { String.class, UimaContext.class, Properties.class };
+      final String name = getName( "Concept Factory Name", conceptFactoryElement );
+      final String className = conceptFactoryElement.getChildText( "implementationName" );
+      final Element propertiesElement = conceptFactoryElement.getChild( "properties" );
+      final Properties properties = parsePropertiesXml( propertiesElement );
+      Class conceptFactoryClass;
+      try {
+         conceptFactoryClass = Class.forName( className );
+      } catch ( ClassNotFoundException cnfE ) {
+         throw new AnnotatorContextException( "Unknown class " + className, new Object[0], cnfE );
+      }
+      if ( !ConceptFactory.class.isAssignableFrom( conceptFactoryClass ) ) {
+         throw new AnnotatorContextException( className + " is not a Concept Factory", new Object[0] );
+      }
+      final Constructor[] constructors = conceptFactoryClass.getConstructors();
+      for ( Constructor constructor : constructors ) {
+         try {
+            if ( Arrays.equals( constructionArgs, constructor.getParameterTypes() ) ) {
+               final Object[] args = new Object[]{ name, uimaContext, properties };
+               return (ConceptFactory)constructor.newInstance( args );
+            }
+         } catch ( InstantiationException | IllegalAccessException | InvocationTargetException iniaitE ) {
+            throw new AnnotatorContextException( "Could not construct " + className, new Object[0], iniaitE );
+         }
+      }
+      throw new AnnotatorContextException( "No Constructor for " + className, new Object[0] );
+   }
+
+
+   /**
+    * @param pairingsElement -
+    * @param pairingName     one of "dictionaryName" or "conceptFactoryName"
+    * @return -
+    * @throws AnnotatorContextException -
+    */
+   static private Map<String, String> parsePairingNames( final Element pairingsElement, final String pairingName )
+         throws AnnotatorContextException {
+      final Map<String, String> pairConceptFactoryNames = new HashMap<>();
+      final Collection pairingElements = pairingsElement.getChildren();
+      for ( Object pairingElement : pairingElements ) {
+         if ( pairingElement instanceof Element ) {
+            final String pairName = getName( "Dictionary - Concept Factory Pairing", (Element)pairingElement );
+            final String conceptFactorName = ((Element)pairingElement).getChildText( pairingName );
+            pairConceptFactoryNames.put( pairName, conceptFactorName );
+         }
+      }
+      return pairConceptFactoryNames;
+   }
+
+   static private String getName( final String elementName, final Element element ) throws AnnotatorContextException {
+      final String name = element.getChildText( "name" );
+      if ( name == null || name.isEmpty() ) {
+         throw new AnnotatorContextException( "Missing name for " + elementName, new Object[0] );
+      }
+      return name;
+   }
+
+
+//
+//
+//
+//
+//   /**
+//    * Creates a dictionary by parsing each child element of {@link this.DICTIONARIES_KEY}
+//    *
+//    * @param uimaContext       -
+//    * @param dictionaryElement contains the definition of a single dictionary
+//    * @return a dictionary or null if there is a problem
+//    * @throws AnnotatorContextException if any of a dozen things goes wrong
+//    */
+//   private static RareWordDictionary parseDictionaryXml( final UimaContext uimaContext,
+//                                                         final Element dictionaryElement )
+//         throws AnnotatorContextException {
+//      final String externalResourceKey = dictionaryElement.getAttributeValue( EXTERNAL_RESOURCE );
+//      final Boolean keepCase = Boolean.valueOf( dictionaryElement.getAttributeValue( CASE_SENSITIVE ) );
+//      final String entityTypeId = dictionaryElement.getAttributeValue( TYPE_ID );
+//      Object externalResource;
+//      try {
+//         externalResource = uimaContext.getResourceObject( externalResourceKey );
+//      } catch ( ResourceAccessException raE ) {
+//         throw new AnnotatorContextException( "Could not access external resource " + externalResourceKey,
+//                                              new Object[0], raE );
+//      }
+//      if ( externalResource == null ) {
+//         throw new AnnotatorContextException( "Could not find external resource " + externalResourceKey,
+//                                              new Object[0] );
+//      }
+//      RareWordDictionary dictionary = null;
+//      final Element implementationElement = (Element) dictionaryElement.getChild( IMPLEMENTATION ).getChildren().get( 0 );
+//      final String implementationName = implementationElement.getName();
+//      if ( implementationName.equals( "rareWordJdbc" ) ) {
+//         dictionary = DictionaryFactory.createRareWordJdbc( implementationElement,
+//                                                            externalResource,
+//                                                            entityTypeId );
+//      } else if ( implementationName.equals( "rareWordUmls" ) ) {
+//         // TODO move umls info to the dictionary descriptor and parse parameter values here
+//         // final String externalResourceKey = dictionaryElement.getAttributeValue( EXTERNAL_RESOURCE );
+//         // TODO eventually move the umls dictionary download to a secure server with password protection
+//         try {
+//            // TODO attempt user etc. fetch from uimaContext.  If empty, attempt fetch from dictionaryElement
+//            UmlsUserApprover.validateUMLSUser( uimaContext );
+//            dictionary = DictionaryFactory.createRareWordJdbc( implementationElement,
+//                                                               externalResource,
+//                                                               entityTypeId );
+//         } catch ( ResourceInitializationException riE ) {
+//            throw new AnnotatorContextException( riE );
+//         }
+//      } else if ( implementationName.equals( "rareWordBsv" ) ) {
+//         dictionary = DictionaryFactory.createRareWordBsv( externalResourceKey, externalResource, entityTypeId );
+////      } else if ( implementationName.equals( "luceneImpl" ) ) {
+////         dictionary = DictionaryFactory.createWrappedLucene( dictionaryElement,
+////                                                                     externalResourceKey,
+////                                                                     externalResource,
+////                                                                     entityTypeId );
+////      } else if ( implementationName.equals( "jdbcImpl" ) ) {
+////         dictionary = DictionaryFactory.createWrappedJdbc( dictionaryElement,
+////                                                                   implementationElement,
+////                                                                   externalResourceKey,
+////                                                                   externalResource,
+////                                                                   entityTypeId );
+////      } else if ( implementationName.equals( "csvImp" ) ) {
+////         dictionary = DictionaryFactory.createWrappedCsv( dictionaryElement,
+////                                                                  implementationElement,
+////                                                                  externalResourceKey,
+////                                                                  externalResource,
+////                                                                  entityTypeId );
+//      } else {
+//         throw new AnnotatorContextException( "Unsupported dictionary implementation " + implementationName,
+//                                              new Object[0] );
+//      }
+//      if ( dictionary == null ) {
+//         throw new AnnotatorContextException( "No appropriate dictionary defined", new Object[0] );
+//      }
+//      // Deprecated -
+////      if ( dictionary instanceof Dictionary ) {
+////         final Collection metaFields = dictionaryElement.getChild( "metaFields" ).getChildren();
+////         for ( Object value : metaFields ) {
+////            String metaFieldName = ((Element) value).getAttributeValue( "fieldName" );
+////            ((Dictionary) dictionary).retainMetaData( metaFieldName );
+////         }
+////      }
+//      return dictionary;
+//   }
 
 
    /**
@@ -282,12 +435,12 @@ final public class DictionaryDescriptorParser {
     * @throws AnnotatorContextException if any of a dozen things goes wrong
     */
    private static TermConsumer parseConsumerXml( final UimaContext uimaContext,
-                                                         final Element lookupConsumerElement ) throws
-                                                                                               AnnotatorContextException {
-      Class[] constrArgsConsum = {UimaContext.class, Properties.class, int.class};//ohnlp-Bugs-3296301
-      Class[] constrArgsConsumB = {UimaContext.class, Properties.class};
+                                                 final Element lookupConsumerElement ) throws
+         AnnotatorContextException {
+      Class[] constrArgsConsum = { UimaContext.class, Properties.class, int.class };//ohnlp-Bugs-3296301
+      Class[] constrArgsConsumB = { UimaContext.class, Properties.class };
 
-      String consumerClassName = lookupConsumerElement.getAttributeValue( "className" );
+      String consumerClassName = lookupConsumerElement.getChildText( "implementationName" );
       Element consumerPropertiesElement = lookupConsumerElement.getChild( "properties" );
       Properties consumerProperties = parsePropertiesXml( consumerPropertiesElement );
       Class consumerClass;
@@ -298,24 +451,21 @@ final public class DictionaryDescriptorParser {
       }
       if ( !TermConsumer.class.isAssignableFrom( consumerClass ) ) {
          throw new AnnotatorContextException( consumerClassName + " is not a TermConsumer",
-                                              new Object[0] );
+               new Object[0] );
       }
       final Constructor[] constructors = consumerClass.getConstructors();
       for ( Constructor constructor : constructors ) {
          try {
             if ( Arrays.equals( constrArgsConsum, constructor.getParameterTypes() ) ) {
-               final Object[] args = new Object[]{uimaContext, consumerProperties, MAX_LIST_SIZE}; //ohnlp-Bugs-3296301
-               return (TermConsumer) constructor.newInstance( args );
+               final Object[] args = new Object[]{ uimaContext, consumerProperties,
+                                                   MAX_LIST_SIZE }; //ohnlp-Bugs-3296301
+               return (TermConsumer)constructor.newInstance( args );
             } else if ( Arrays.equals( constrArgsConsumB, constructor.getParameterTypes() ) ) {
-               final Object[] args = new Object[]{uimaContext, consumerProperties};
-               return (TermConsumer) constructor.newInstance( args );
+               final Object[] args = new Object[]{ uimaContext, consumerProperties };
+               return (TermConsumer)constructor.newInstance( args );
             }
-         } catch ( InstantiationException inE ) {
-            throw new AnnotatorContextException( "Could not construct " + consumerClassName, new Object[0], inE );
-         } catch ( IllegalAccessException iaE ) {
-            throw new AnnotatorContextException( "Could not construct " + consumerClassName, new Object[0], iaE );
-         } catch ( InvocationTargetException itE ) {
-            throw new AnnotatorContextException( "Could not construct " + consumerClassName, new Object[0], itE );
+         } catch ( InstantiationException | IllegalAccessException | InvocationTargetException multE ) {
+            throw new AnnotatorContextException( "Could not construct " + consumerClassName, new Object[0], multE );
          }
       }
       throw new AnnotatorContextException( "No Constructor for " + consumerClassName, new Object[0] );
@@ -331,7 +481,7 @@ final public class DictionaryDescriptorParser {
       final Properties properties = new Properties();
       final Collection propertyElements = propertiesElement.getChildren();
       for ( Object value : propertyElements ) {
-         final Element propertyElement = (Element) value;
+         final Element propertyElement = (Element)value;
          final String key = propertyElement.getAttributeValue( "key" );
          final String propertyValue = propertyElement.getAttributeValue( "value" );
          properties.put( key, propertyValue );

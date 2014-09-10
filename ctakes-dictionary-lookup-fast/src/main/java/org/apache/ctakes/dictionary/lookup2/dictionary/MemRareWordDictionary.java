@@ -19,14 +19,13 @@
 package org.apache.ctakes.dictionary.lookup2.dictionary;
 
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
+import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * A RareWordDictionary that uses a HashMap of Rare Words and Terms for lookup
- *
+ * <p/>
  * Author: SPF
  * Affiliation: CHIP-NLP
  * Date: 1/9/14
@@ -34,15 +33,16 @@ import java.util.Map;
 final public class MemRareWordDictionary extends AbstractRareWordDictionary {
 
    // Map of rare tokens to terms that contain those tokens.  Used like "First Word Token Lookup" but faster
-   final private Map<String,Collection<RareWordTerm>> _rareWordTermMap;
+   final private CollectionMap<String, RareWordTerm> _rareWordTermMap;
 
    /**
     * {@inheritDoc}
+    *
     * @param rareWordTermMap Map with a Rare Word (tokens) as key, and RareWordTerm Collection as value
     */
-   public MemRareWordDictionary( final String name, final String semanticGroup,
-                                 final Map<String, Collection<RareWordTerm>> rareWordTermMap ) {
-      super( name, semanticGroup );
+   public MemRareWordDictionary( final String name,
+                                 final CollectionMap<String, RareWordTerm> rareWordTermMap ) {
+      super( name );
       _rareWordTermMap = rareWordTermMap;
    }
 
@@ -51,11 +51,7 @@ final public class MemRareWordDictionary extends AbstractRareWordDictionary {
     */
    @Override
    public Collection<RareWordTerm> getRareWordHits( final String rareWordText ) {
-      final Collection<RareWordTerm> hits = _rareWordTermMap.get( rareWordText );
-      if ( hits == null ) {
-         return Collections.emptyList();
-      }
-      return hits;
+      return _rareWordTermMap.getCollection( rareWordText );
    }
 
 }

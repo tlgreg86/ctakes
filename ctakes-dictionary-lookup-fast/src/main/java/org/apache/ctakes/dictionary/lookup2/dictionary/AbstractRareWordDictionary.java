@@ -19,14 +19,13 @@
 package org.apache.ctakes.dictionary.lookup2.dictionary;
 
 
-import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
+import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- *
  * Author: SPF
  * Affiliation: CHIP-NLP
  * Date: 11/25/13
@@ -34,16 +33,13 @@ import java.util.Collection;
 abstract public class AbstractRareWordDictionary implements RareWordDictionary {
 
    final private String _name;
-   final private String _semanticGroup;
+
 
    /**
-    *
     * @param name simple name for the dictionary
-    * @param semanticGroup the type of term that exists in the dictionary: Anatomical Site, Disease/Disorder, Drug, etc.
     */
-   public AbstractRareWordDictionary( final String name, final String semanticGroup ) {
+   public AbstractRareWordDictionary( final String name ) {
       _name = name;
-      _semanticGroup = semanticGroup;
    }
 
    /**
@@ -52,14 +48,6 @@ abstract public class AbstractRareWordDictionary implements RareWordDictionary {
    @Override
    public String getName() {
       return _name;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public String getSemanticGroup() {
-      return _semanticGroup;
    }
 
    /**

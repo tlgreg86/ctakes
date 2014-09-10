@@ -18,8 +18,8 @@
  */
 package org.apache.ctakes.dictionary.lookup2.dictionary;
 
-import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
+import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
 
 import java.util.Collection;
 
@@ -34,18 +34,15 @@ public interface RareWordDictionary {
    /**
     * The Type identifier and Name are used to maintain a collection of dictionaries,
     * so the combination of Type and Name should be unique for each dictionary if possible.
+    *
     * @return simple name for the dictionary
     */
    public String getName();
 
    /**
-    * @return the type of term that exists in the dictionary: Anatomical Site, Disease/Disorder, Drug, etc.
-    */
-   public String getSemanticGroup();
-
-   /**
     * Any single token can exist in zero or more terms in the dictionary.  It may exist as its -own- form or as an
     * alternate canonical variant.  This method will check the dictionary for both
+    *
     * @param fastLookupToken a single-word token
     * @return zero or more terms that contain the lookup token
     */

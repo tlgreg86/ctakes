@@ -19,21 +19,21 @@
 package org.apache.ctakes.dictionary.lookup2.dictionary;
 
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
+import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
+import org.apache.ctakes.dictionary.lookup2.util.TuiCodeUtil;
+import org.apache.ctakes.dictionary.lookup2.util.collection.ArrayListMap;
+import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * Given a collection of {@link CuiTuiTerm} Objects,
+ * Given a collection of {@link org.apache.ctakes.dictionary.lookup2.dictionary.RareWordTermMapCreator.CuiTerm} Objects,
  * this factory can create a Map of {@link org.apache.ctakes.dictionary.lookup2.term.RareWordTerm} collections
  * indexed by rare word.
  * This map can be used to create a {@link MemRareWordDictionary}
- *
+ * <p/>
  * Author: SPF
  * Affiliation: CHIP-NLP
  * Date: 1/9/14
@@ -42,9 +42,10 @@ final public class RareWordTermMapCreator {
 
    static private final Logger LOGGER = Logger.getLogger( "RareWordTermMapCreator" );
 
-   private RareWordTermMapCreator() {}
+   private RareWordTermMapCreator() {
+   }
 
-   static private final String [] PREFIXES = {
+   static private final String[] PREFIXES = {
          "e-",
          "a-",
          "u-",
@@ -100,8 +101,8 @@ final public class RareWordTermMapCreator {
          "ortho-",
          "phospho-",
    };
-   static private final String [] SUFFIXES = {"-esque", "-ette", "-fest", "-fold", "-gate", "-itis", "-less", "-most",
-                                              "-o-torium", "-rama", "-wise"};
+   static private final String[] SUFFIXES = { "-esque", "-ette", "-fest", "-fold", "-gate", "-itis", "-less", "-most",
+                                              "-o-torium", "-rama", "-wise" };
 
    // LookupDesc for the standard excluded pos tags are
    //   VB,VBD,VBG,VBN,VBP,VBZ,CC,CD,DT,EX,LS,MD,PDT,POS,PP,PP$,PRP,PRP$,RP,TO,WDT,WP,WPS,WRB
@@ -146,32 +147,27 @@ final public class RareWordTermMapCreator {
          "how", "where", "when", "however", "wherever", "whenever",
    };
 
-   static public Map<String,Collection<RareWordTerm>> createRareWordTermMap( final Collection<CuiTuiTerm> cuiTuiTerms ) {
-      final Map<String,Collection<RareWordTerm>> rareWordTermMap = new HashMap<String,Collection<RareWordTerm>>();
-      final Map<String,Integer> tokenCountMap = createTokenCountMap( cuiTuiTerms );
-      for ( CuiTuiTerm cuiTuiTerm : cuiTuiTerms ) {
-         final String rareWord = getRareWord( cuiTuiTerm.getTerm(), tokenCountMap );
-         final int wordIndex = getWordIndex( cuiTuiTerm.getTerm(), rareWord );
-         final int tokenCount = getTokenCount( cuiTuiTerm.getTerm() );
+   static public CollectionMap<String, RareWordTerm> createRareWordTermMap( final Collection<CuiTerm> cuiTerms ) {
+      final CollectionMap<String, RareWordTerm> rareWordTermMap = new ArrayListMap<>();
+      final Map<String, Integer> tokenCountMap = createTokenCountMap( cuiTerms );
+      for ( CuiTerm cuiTerm : cuiTerms ) {
+         final String rareWord = getRareWord( cuiTerm.getTerm(), tokenCountMap );
+         final int wordIndex = getWordIndex( cuiTerm.getTerm(), rareWord );
+         final int tokenCount = getTokenCount( cuiTerm.getTerm() );
          if ( wordIndex < 0 ) {
-            LOGGER.warning( "Bad Rare Word Index for " + rareWord + " in " + cuiTuiTerm.getTerm() );
+            LOGGER.warning( "Bad Rare Word Index for " + rareWord + " in " + cuiTerm.getTerm() );
             continue;
          }
-         Collection<RareWordTerm> rareWordTerms = rareWordTermMap.get( rareWord );
-         if ( rareWordTerms == null ) {
-            rareWordTerms = new ArrayList<RareWordTerm>();
-            rareWordTermMap.put( rareWord, rareWordTerms );
-         }
-         rareWordTerms.add( new RareWordTerm( cuiTuiTerm.getTerm(), cuiTuiTerm.__cui, cuiTuiTerm.__tui,
-                                              rareWord, wordIndex, tokenCount ) );
+         rareWordTermMap.placeValue( rareWord, new RareWordTerm( cuiTerm.getTerm(), cuiTerm.__cui,
+               rareWord, wordIndex, tokenCount ) );
       }
       return rareWordTermMap;
    }
 
-   static private Map<String,Integer> createTokenCountMap( final Collection<CuiTuiTerm> cuiTuiTerms ) {
-      final Map<String,Integer> tokenCountMap = new HashMap<String, Integer>();
-      for ( CuiTuiTerm cuiTuiTerm : cuiTuiTerms ) {
-         final String[] tokens = LookupUtil.fastSplit( cuiTuiTerm.getTerm(), ' ' );
+   static private Map<String, Integer> createTokenCountMap( final Collection<CuiTerm> cuiTerms ) {
+      final Map<String, Integer> tokenCountMap = new HashMap<>();
+      for ( CuiTerm cuiTerm : cuiTerms ) {
+         final String[] tokens = LookupUtil.fastSplit( cuiTerm.getTerm(), ' ' );
          for ( String token : tokens ) {
             if ( isRarableToken( token ) ) {
                // Don't bother to store counts for single-character tokens
@@ -179,14 +175,14 @@ final public class RareWordTermMapCreator {
                if ( count == null ) {
                   count = 0;
                }
-               tokenCountMap.put( token, (count+1) );
+               tokenCountMap.put( token, (count + 1) );
             }
          }
       }
       return tokenCountMap;
    }
 
-   static private String getRareWord( final String tokenizedTerm, final Map<String,Integer> tokenCountMap ) {
+   static private String getRareWord( final String tokenizedTerm, final Map<String, Integer> tokenCountMap ) {
       final String[] tokens = LookupUtil.fastSplit( tokenizedTerm, ' ' );
       if ( tokens.length == 1 ) {
          return tokens[0];
@@ -210,7 +206,7 @@ final public class RareWordTermMapCreator {
          return false;
       }
       boolean hasLetter = false;
-      for ( int i=0; i<token.length(); i++ ) {
+      for ( int i = 0; i < token.length(); i++ ) {
          if ( Character.isLetter( token.charAt( i ) ) ) {
             hasLetter = true;
             break;
@@ -244,7 +240,6 @@ final public class RareWordTermMapCreator {
    }
 
 
-
    // Can also use:
    // tokenizer = new TokenizerPTB();  List<Token> tokenList = tokenizer.tokenize( term );
    // for( token ) {
@@ -270,15 +265,15 @@ final public class RareWordTermMapCreator {
          }
       }
       // trim whitespace
-      sb.setLength( Math.max( 0, sb.length()-1 ) );
+      sb.setLength( Math.max( 0, sb.length() - 1 ) );
       return sb.toString();
    }
 
    static private List<String> getTokens( final String word ) {
-      final List<String> tokens = new ArrayList<String>();
+      final List<String> tokens = new ArrayList<>();
       final StringBuilder sb = new StringBuilder();
       final int count = word.length();
-      for ( int i=0; i<count; i++ ) {
+      for ( int i = 0; i < count; i++ ) {
          final char c = word.charAt( i );
          if ( Character.isLetterOrDigit( c ) ) {
             sb.append( c );
@@ -289,7 +284,7 @@ final public class RareWordTermMapCreator {
                tokens.add( sb.toString() );
                sb.setLength( 0 );
             }
-            tokens.add( ""+c );
+            tokens.add( "" + c );
             continue;
          }
          final boolean isPrefix = isPrefix( sb.toString() );
@@ -298,7 +293,7 @@ final public class RareWordTermMapCreator {
             sb.append( '-' );
             continue;
          }
-         final boolean isSuffix = isSuffix( word, i+1 );
+         final boolean isSuffix = isSuffix( word, i + 1 );
          if ( isSuffix ) {
             // what follows is a suffix, so append the dash and move on
             sb.append( '-' );
@@ -308,7 +303,7 @@ final public class RareWordTermMapCreator {
             tokens.add( sb.toString() );
             sb.setLength( 0 );
          }
-         tokens.add( ""+c );
+         tokens.add( "" + c );
       }
       if ( sb.length() != 0 ) {
          tokens.add( sb.toString() );
@@ -346,7 +341,7 @@ final public class RareWordTermMapCreator {
    static private String getNextCharTerm( final String word ) {
       final StringBuilder sb = new StringBuilder();
       final int count = word.length();
-      for ( int i=0; i<count; i++ ) {
+      for ( int i = 0; i < count; i++ ) {
          final char c = word.charAt( i );
          if ( !Character.isLetterOrDigit( c ) ) {
             return sb.toString();
@@ -357,32 +352,32 @@ final public class RareWordTermMapCreator {
    }
 
 
-   static public class CuiTuiTerm {
+   static public class CuiTerm {
+
       final private String __term;
-      final private String __cui;
-      final private String __tui;
+      final private Long __cui;
       final private int __hashcode;
-      public CuiTuiTerm( final String cui, final String tui, final String term ) {
+
+      public CuiTerm( final String cui, final String term ) {
          __term = getTokenizedTerm( term );
-         __cui = cui.startsWith( "C" ) ? cui : "C"+cui;
-         __tui = tui.startsWith( "T" ) ? tui : "T"+tui;
-         __hashcode = (__cui+"_"+__tui+"_"+__term).hashCode();
+         __cui = CuiCodeUtil.getCuiCode( cui );
+         __hashcode = (__cui + "_" + __term).hashCode();
       }
-      public String getCui() {
+
+      public Long getCui() {
          return __cui;
       }
-      public String getTui() {
-         return __tui;
-      }
+
       public String getTerm() {
          return __term;
       }
+
       public boolean equals( final Object value ) {
-         return value instanceof CuiTuiTerm
-               && __term.equals( ((CuiTuiTerm)value).__term )
-               && __cui.equals( ((CuiTuiTerm)value).__cui )
-               && __tui.equals( ((CuiTuiTerm)value).__tui );
+         return value instanceof CuiTerm
+                && __term.equals( ((CuiTerm)value).__term )
+                && __cui.equals( ((CuiTerm)value).__cui );
       }
+
       public int hashCode() {
          return __hashcode;
       }

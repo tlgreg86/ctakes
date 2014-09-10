@@ -19,16 +19,16 @@
 package org.apache.ctakes.dictionary.lookup2.ae;
 
 import org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary;
-import org.apache.ctakes.dictionary.lookup2.term.SpannedRareWordTerm;
+import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
+import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**
  * Processes an Annotation window in the cas, adding discovered terms to a map.
- *
+ * <p/>
  * Author: SPF
  * Affiliation: CHIP-NLP
  * Date: 12/5/13
@@ -37,18 +37,23 @@ public interface WindowProcessor {
 
    /**
     * Some windows should be skipped entirely, such as "[section *]"
+    *
     * @param window annotation in which to search for terms
     * @return true if window should be processed, false if it should not
     */
    boolean isWindowOk( Annotation window );
 
+
    /**
     * Processes a window of annotations for dictionary terms
-    * @param jcas -
-    * @param window annotation in which to search for terms
-    * @param dictionaryTermsMap map of entity types and terms for those types in the window
+    *
+    * @param jcas              -
+    * @param window            annotation in which to search for terms
+    * @param dictionaryTerms map of entity types and terms for those types in the window
     */
-   void processWindow( JCas jcas, Annotation window,
-                       Map<RareWordDictionary, Collection<SpannedRareWordTerm>> dictionaryTermsMap );
+   void processWindow( JCas jcas,
+                       Annotation window,
+                       Map<RareWordDictionary, CollectionMap<TextSpan, Long>> dictionaryTerms );
+
 
 }

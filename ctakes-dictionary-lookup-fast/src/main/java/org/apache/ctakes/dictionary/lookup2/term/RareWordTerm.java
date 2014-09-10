@@ -30,36 +30,31 @@ import javax.annotation.concurrent.Immutable;
 final public class RareWordTerm {
 
    final private String _text;
-   final private String _cui;
-   final private String _tui;
+   final private Long _cuiCode;
    final private String _rareWord;
    final private int _rareWordIndex;
    final private int _tokenCount;
    final private int _hashCode;
 
    /**
-    *
-    * @param text full text of term
-    * @param cui  umls cui for the term
-    * @param tui  semantic type tui for the term
-    * @param rareWord rare word in the term that is used for lookup
+    * @param text          full text of term
+    * @param cuiCode           umls cui for the term
+    * @param rareWord      rare word in the term that is used for lookup
     * @param rareWordIndex index of the rare word within the term
-    * @param tokenCount number of tokens within the term
+    * @param tokenCount    number of tokens within the term
     */
-   public RareWordTerm( final String text, final String cui, final String tui,
+   public RareWordTerm( final String text, final Long cuiCode,
                         final String rareWord, final int rareWordIndex,
                         final int tokenCount ) {
       _text = text;
-      _cui = cui;
-      _tui = tui;
+      _cuiCode = cuiCode;
       _rareWord = rareWord;
       _rareWordIndex = rareWordIndex;
       _tokenCount = tokenCount;
-      _hashCode = (_cui+_tui+ _text).hashCode();
+      _hashCode = (_cuiCode + _text).hashCode();
    }
 
    /**
-    *
     * @return full text of term
     */
    public String getText() {
@@ -67,23 +62,13 @@ final public class RareWordTerm {
    }
 
    /**
-    *
     * @return umls cui for the term
     */
-   public String getCui() {
-      return _cui;
+   public Long getCuiCode() {
+      return _cuiCode;
    }
 
    /**
-    *
-    * @return semantic type tui for the term
-    */
-   public String getTui() {
-      return _tui;
-   }
-
-   /**
-    *
     * @return rare word in the term that is used for lookup
     */
    public String getRareWord() {
@@ -91,7 +76,6 @@ final public class RareWordTerm {
    }
 
    /**
-    *
     * @return index of the rare word within the term
     */
    public int getRareWordIndex() {
@@ -99,7 +83,6 @@ final public class RareWordTerm {
    }
 
    /**
-    *
     * @return number of tokens within the term
     */
    public int getTokenCount() {
@@ -111,11 +94,11 @@ final public class RareWordTerm {
     */
    @Override
    public boolean equals( final Object value ) {
-      if ( !( value instanceof RareWordTerm) ) {
+      if ( !(value instanceof RareWordTerm) ) {
          return false;
       }
       final RareWordTerm other = (RareWordTerm)value;
-      return other.getCui().equals( _cui ) && other.getText().equals( _text ) && other.getTui().equals( _tui );
+      return other.getCuiCode().equals( _cuiCode ) && other.getText().equals( _text );
    }
 
    /**

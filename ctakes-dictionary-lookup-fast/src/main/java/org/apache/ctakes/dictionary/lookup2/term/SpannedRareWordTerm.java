@@ -29,6 +29,7 @@ import javax.annotation.concurrent.Immutable;
  * Affiliation: CHIP-NLP
  * Date: 11/18/13
  */
+// TODO No longer used - remove
 @Immutable
 final public class SpannedRareWordTerm {
 
@@ -37,19 +38,17 @@ final public class SpannedRareWordTerm {
    final private int _hashCode;
 
    /**
-    *
     * @param rareWordTerm contains a term from a {@link org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary}
-    * @param startOffset the start index of the term
-    * @param endOffset the end index of the term
+    * @param startOffset  the start index of the term
+    * @param endOffset    the end index of the term
     */
    public SpannedRareWordTerm( final RareWordTerm rareWordTerm, final int startOffset, final int endOffset ) {
       this( rareWordTerm, new DefaultTextSpan( startOffset, endOffset ) );
    }
 
    /**
-    *
     * @param rareWordTerm contains a term from a {@link org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary}
-    * @param spanKey the span of the term
+    * @param spanKey      the span of the term
     */
    public SpannedRareWordTerm( final RareWordTerm rareWordTerm, final TextSpan spanKey ) {
       _rareWordTerm = rareWordTerm;
@@ -65,7 +64,6 @@ final public class SpannedRareWordTerm {
    }
 
    /**
-    *
     * @return the term that was discovered in this span
     */
    public RareWordTerm getRareWordTerm() {
@@ -80,7 +78,7 @@ final public class SpannedRareWordTerm {
    @Override
    public boolean equals( final Object value ) {
       if ( value instanceof SpannedRareWordTerm ) {
-         final SpannedRareWordTerm other = (SpannedRareWordTerm) value;
+         final SpannedRareWordTerm other = (SpannedRareWordTerm)value;
          return _textSpan.equals( other._textSpan ) && _rareWordTerm.equals( other.getRareWordTerm() );
       }
       return false;

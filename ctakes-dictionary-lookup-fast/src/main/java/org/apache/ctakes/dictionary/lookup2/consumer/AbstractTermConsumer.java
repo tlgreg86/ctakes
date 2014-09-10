@@ -18,18 +18,16 @@
  */
 package org.apache.ctakes.dictionary.lookup2.consumer;
 
+import org.apache.ctakes.dictionary.lookup2.concept.Concept;
 import org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary;
 import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
-import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
-import org.apache.ctakes.dictionary.lookup2.term.SpannedRareWordTerm;
-import org.apache.ctakes.dictionary.lookup2.util.SemanticUtil;
+import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
+import org.apache.ctakes.dictionary.lookup2.util.collection.HashSetMap;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -49,91 +47,71 @@ abstract public class AbstractTermConsumer implements TermConsumer {
       _codingScheme = properties.getProperty( CODING_SCHEME_PRP_KEY );
    }
 
+
+
    /**
-    *
-    * @param jcas -
-    * @param codingScheme -
-    * @param typeId  cTakes IdentifiedAnnotation only accepts an integer as a typeId
-    * @param lookupHitMap map of spans to terms for those spans
+    * @param jcas           -
+    * @param codingScheme   -
+    * @param cTakesSemantic cTakes IdentifiedAnnotation only accepts an integer as a typeId
+    * @param textSpanCuis  map of spans to terms for those spans
+    * @param cuiConcepts     -
     * @throws org.apache.uima.analysis_engine.AnalysisEngineProcessException
     */
-   abstract protected void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int typeId,
-                                              final Map<TextSpan, Collection<RareWordTerm>> lookupHitMap )
+   abstract protected void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int cTakesSemantic,
+                                              final CollectionMap<TextSpan, Long> textSpanCuis,
+                                              final CollectionMap<Long, Concept> cuiConcepts )
          throws AnalysisEngineProcessException;
-
 
    /**
     * {@inheritDoc}
     */
    @Override
-   public void consumeHits( final JCas jcas, final RareWordDictionary dictionary,
-                            final Collection<SpannedRareWordTerm> dictionaryTerms )
+   public void consumeHits( final JCas jcas,
+                            final RareWordDictionary dictionary,
+                            final CollectionMap<TextSpan, Long> textSpanCuis,
+                            final CollectionMap<Long, Concept> cuiConcepts )
          throws AnalysisEngineProcessException {
       final String codingScheme = getCodingScheme();
-      final String entityType = dictionary.getSemanticGroup();
-      if ( entityType.equals( SemanticUtil.UNKNOWN_SEMANTIC_GROUP )
-            || entityType.equals( SemanticUtil.UNKNOWN_SEMANTIC_ZERO ) ) {
-         // The dictionary may have more than one type, create a map of types to terms and use them all
-         final Map<Integer,Collection<SpannedRareWordTerm>> typeIdLookupHitMap
-               = createTypeIdLookupHitMap( dictionaryTerms );
-         for ( Map.Entry<Integer,Collection<SpannedRareWordTerm>> typeIdLookupHits : typeIdLookupHitMap.entrySet() ) {
-            final Map<TextSpan, Collection<RareWordTerm>> lookupHitMap = createLookupHitMap( typeIdLookupHits.getValue() );
-            consumeTypeIdHits( jcas, codingScheme, typeIdLookupHits.getKey(), lookupHitMap );
+      final Collection<Integer> usedcTakesSemantics = getUsedcTakesSemantics( cuiConcepts );
+      // The dictionary may have more than one type, create a map of types to terms and use them all
+      for ( Integer cTakesSemantic : usedcTakesSemantics ) {
+         final CollectionMap<TextSpan, Long> semanticCuis = new HashSetMap<>();
+         for ( Map.Entry<TextSpan, Collection<Long>> spanCuis : textSpanCuis ) {
+            for ( Long cuiCode : spanCuis.getValue() ) {
+               final Collection<Concept> concepts = cuiConcepts.getCollection( cuiCode );
+               if ( hascTakesSemantic( cTakesSemantic, concepts ) ) {
+                  semanticCuis.placeValue( spanCuis.getKey(), cuiCode );
+               }
+            }
          }
-         return;
+         consumeTypeIdHits( jcas, codingScheme, cTakesSemantic, semanticCuis, cuiConcepts );
       }
-      // The dictionary has one type, consume all using that type id
-      final int typeId = SemanticUtil.getSemanticGroupId( entityType );
-      final Map<TextSpan, Collection<RareWordTerm>> lookupHitMap = createLookupHitMap( dictionaryTerms );
-      consumeTypeIdHits( jcas, codingScheme, typeId, lookupHitMap );
    }
-
 
    protected String getCodingScheme() {
       return _codingScheme;
    }
 
-   /**
-    *
-    * @param spannedRareWordTerms discovered terms
-    * @return Map of terms for each span
-    */
-   static protected Map<TextSpan, Collection<RareWordTerm>> createLookupHitMap(
-         final Collection<SpannedRareWordTerm> spannedRareWordTerms ) {
-      final Map<TextSpan,Collection<RareWordTerm>> lookupHitMap = new HashMap<TextSpan, Collection<RareWordTerm>>();
-      for ( SpannedRareWordTerm spannedRareWordTerm : spannedRareWordTerms ) {
-         Collection<RareWordTerm> rareWordTerms = lookupHitMap.get( spannedRareWordTerm.getTextSpan() );
-         if ( rareWordTerms == null ) {
-            rareWordTerms = new HashSet<RareWordTerm>();
-            lookupHitMap.put( spannedRareWordTerm.getTextSpan(), rareWordTerms );
+
+
+   static protected Collection<Integer> getUsedcTakesSemantics( final CollectionMap<Long, Concept> cuiConcepts ) {
+      final Collection<Integer> usedSemanticTypes = new HashSet<>();
+      for ( Collection<Concept> concepts : cuiConcepts.getAllCollections() ) {
+         for ( Concept concept : concepts ) {
+            usedSemanticTypes.addAll( concept.getCtakesSemantics() );
          }
-         rareWordTerms.add( spannedRareWordTerm.getRareWordTerm() );
       }
-      return lookupHitMap;
+      return usedSemanticTypes;
    }
 
-   /**
-    *
-    * @param spannedRareWordTerms discovered terms
-    * @return Map of type Ids and the discovered terms for each
-    */
-   static protected Map<Integer,Collection<SpannedRareWordTerm>> createTypeIdLookupHitMap(
-         final Collection<SpannedRareWordTerm> spannedRareWordTerms ) {
-      final Map<Integer,Collection<SpannedRareWordTerm>> typeIdLookupHitMap
-            = new HashMap<Integer, Collection<SpannedRareWordTerm>>( 6 );
-      for ( SpannedRareWordTerm spannedTerm : spannedRareWordTerms ) {
-         // Attempt to obtain one or more valid type ids from the tuis of the term
-         final Collection<Integer> typeIds = SemanticUtil.getSemanticGroupIdFromTui( spannedTerm.getRareWordTerm().getTui() );
-         for ( Integer typeId : typeIds ) {
-            Collection<SpannedRareWordTerm> typeIdHits = typeIdLookupHitMap.get( typeId );
-            if ( typeIdHits == null ) {
-               typeIdHits = new ArrayList<SpannedRareWordTerm>();
-               typeIdLookupHitMap.put( typeId, typeIdHits );
-            }
-            typeIdHits.add( spannedTerm );
+   static private boolean hascTakesSemantic( final Integer cTakesSemantic,
+                                             final Collection<Concept> concepts  ) {
+      for ( Concept concept : concepts ) {
+         if ( concept.getCtakesSemantics().contains( cTakesSemantic ) ) {
+            return true;
          }
       }
-      return typeIdLookupHitMap;
+      return false;
    }
 
 

@@ -28,14 +28,16 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 final public class DefaultTextSpan implements TextSpan {
+
    final private int _start;
    final private int _end;
    final private int _hashCode;
 
    /**
     * Given span indices should be ordered start < end, but it is not an absolute requirement.
+    *
     * @param start start index of a span, be it of a string or other
-    * @param end end index of a span,  be it of a  string or other
+    * @param end   end index of a span,  be it of a  string or other
     */
    public DefaultTextSpan( final int start, final int end ) {
       _start = start;
@@ -61,6 +63,15 @@ final public class DefaultTextSpan implements TextSpan {
 
    /**
     * {@inheritDoc}
+    */
+   @Override
+   public int getLength() {
+      return _end - _start + 1;
+   }
+
+   /**
+    * {@inheritDoc}
+    *
     * @return a hashcode based upon the start and end indices of this span key
     */
    @Override
@@ -70,17 +81,19 @@ final public class DefaultTextSpan implements TextSpan {
 
    /**
     * {@inheritDoc}
+    *
     * @return true iff the start keys are equal and the end keys are equal
     */
    @Override
    public boolean equals( final Object object ) {
       return object instanceof DefaultTextSpan
-            && _start == ((DefaultTextSpan)object)._start
-            && _end == ((DefaultTextSpan)object)._end;
+             && _start == ((DefaultTextSpan)object)._start
+             && _end == ((DefaultTextSpan)object)._end;
    }
 
    /**
     * {@inheritDoc}
+    *
     * @return "TextSpan for span [start index] to [end index]"
     */
    @Override

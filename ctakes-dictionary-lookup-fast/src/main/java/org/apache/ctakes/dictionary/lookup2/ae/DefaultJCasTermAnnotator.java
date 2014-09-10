@@ -20,9 +20,11 @@ package org.apache.ctakes.dictionary.lookup2.ae;
 
 import org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary;
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
-import org.apache.ctakes.dictionary.lookup2.term.SpannedRareWordTerm;
+import org.apache.ctakes.dictionary.lookup2.textspan.DefaultTextSpan;
+import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
 import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
 import org.apache.ctakes.dictionary.lookup2.util.TokenMatchUtil;
+import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 
 import java.util.Collection;
 import java.util.List;
@@ -40,8 +42,9 @@ final public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
     */
    @Override
    public void findTerms( final RareWordDictionary dictionary,
-                           final List<FastLookupToken> allTokens, final List<Integer> lookupTokenIndices,
-                           final Collection<SpannedRareWordTerm> termsFromDictionary ) {
+                          final List<FastLookupToken> allTokens,
+                          final List<Integer> lookupTokenIndices,
+                          final CollectionMap<TextSpan, Long> termsFromDictionary ) {
       Collection<RareWordTerm> rareWordHits;
       for ( Integer lookupTokenIndex : lookupTokenIndices ) {
          final FastLookupToken lookupToken = allTokens.get( lookupTokenIndex );
@@ -50,9 +53,12 @@ final public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
             continue;
          }
          for ( RareWordTerm rareWordHit : rareWordHits ) {
+            if ( lookupToken.getLength() < _minimumLookupSpan ) {
+               continue;
+            }
             if ( rareWordHit.getTokenCount() == 1 ) {
                // Single word term, add and move on
-               termsFromDictionary.add( new SpannedRareWordTerm( rareWordHit, lookupToken.getTextSpan() ) );
+               termsFromDictionary.placeValue( lookupToken.getTextSpan(), rareWordHit.getCuiCode() );
                continue;
             }
             final int termStartIndex = lookupTokenIndex - rareWordHit.getRareWordIndex();
@@ -64,7 +70,7 @@ final public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
             if ( TokenMatchUtil.isTermMatch( rareWordHit, allTokens, termStartIndex, termEndIndex ) ) {
                final int spanStart = allTokens.get( termStartIndex ).getStart();
                final int spanEnd = allTokens.get( termEndIndex ).getEnd();
-               termsFromDictionary.add( new SpannedRareWordTerm( rareWordHit, spanStart, spanEnd ) );
+               termsFromDictionary.placeValue( new DefaultTextSpan( spanStart, spanEnd ), rareWordHit.getCuiCode() );
             }
          }
       }

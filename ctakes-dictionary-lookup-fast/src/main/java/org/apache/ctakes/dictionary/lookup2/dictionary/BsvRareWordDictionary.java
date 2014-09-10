@@ -18,21 +18,20 @@
  */
 package org.apache.ctakes.dictionary.lookup2.dictionary;
 
-import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
+import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
 import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
+import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.log4j.Logger;
+import org.apache.uima.UimaContext;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
-
-import static org.apache.ctakes.dictionary.lookup2.dictionary.RareWordTermMapCreator.CuiTuiTerm;
+import java.util.Properties;
 
 /**
  * A RareWordDictionary created from a bar-separated value (BSV) file.  The file can have 2 or 3 columns,
@@ -47,17 +46,25 @@ final public class BsvRareWordDictionary implements RareWordDictionary {
 
    static private final Logger LOGGER = Logger.getLogger( "BsvRareWordDictionary" );
 
+   static private final String BSV_FILE_PATH = "bsvPath";
+
    private RareWordDictionary _delegateDictionary;
 
-   public BsvRareWordDictionary( final String name, final String entityId, final String bsvFilePath ) {
-      this( name, entityId, new File( bsvFilePath ) );
+
+   public BsvRareWordDictionary( final String name, final UimaContext uimaContext, final Properties properties ) {
+      this( name, properties.getProperty( BSV_FILE_PATH ) );
    }
 
-   public BsvRareWordDictionary( final String name, final String entityId, final File bsvFile ) {
-      final Collection<CuiTuiTerm> cuiTuiTerms = parseBsvFile( bsvFile, entityId );
-      final Map<String,Collection<RareWordTerm>> rareWordTermMap
-            = RareWordTermMapCreator.createRareWordTermMap( cuiTuiTerms );
-      _delegateDictionary = new MemRareWordDictionary( name, entityId, rareWordTermMap );
+
+   public BsvRareWordDictionary( final String name, final String bsvFilePath ) {
+      this( name, new File( bsvFilePath ) );
+   }
+
+   public BsvRareWordDictionary( final String name, final File bsvFile ) {
+      final Collection<RareWordTermMapCreator.CuiTerm> cuiTerms = parseBsvFile( bsvFile );
+      final CollectionMap<String, RareWordTerm> rareWordTermMap
+            = RareWordTermMapCreator.createRareWordTermMap( cuiTerms );
+      _delegateDictionary = new MemRareWordDictionary( name, rareWordTermMap );
    }
 
    /**
@@ -66,14 +73,6 @@ final public class BsvRareWordDictionary implements RareWordDictionary {
    @Override
    public String getName() {
       return _delegateDictionary.getName();
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public String getSemanticGroup() {
-      return _delegateDictionary.getSemanticGroup();
    }
 
    /**
@@ -94,68 +93,70 @@ final public class BsvRareWordDictionary implements RareWordDictionary {
 
 
    /**
-    * Create a collection of {@link RareWordTermMapCreator.CuiTuiTerm} Objects
+    * Create a collection of {@link org.apache.ctakes.dictionary.lookup2.dictionary.RareWordTermMapCreator.CuiTerm} Objects
     * by parsing a bsv file.  The file can be in one of two columnar formats:
     * <p>
-    *    CUI|Text
+    * CUI|Text
     * </p>
     * or
     * <p>
-    *    CUI|TUI|Text
+    * CUI|TUI|Text
+    * </p>
+    * or
+    * <p>
+    * CUI|TUI|Text|PreferredTerm
     * </p>
     * If the TUI column is omitted then the entityId for the dictionary is used as the TUI
+    *
     * @param bsvFile file containing term rows and bsv columns
-    * @param entityId the entity id for the dictionary
     * @return collection of all valid terms read from the bsv file
     */
-   static private Collection<CuiTuiTerm> parseBsvFile( final File bsvFile, final String entityId ) {
-      final Collection<CuiTuiTerm> cuiTuiTerms = new ArrayList<CuiTuiTerm>();
+   static private Collection<RareWordTermMapCreator.CuiTerm> parseBsvFile( final File bsvFile ) {
+      final Collection<RareWordTermMapCreator.CuiTerm> cuiTerms = new ArrayList<>();
       try {
          final BufferedReader reader = new BufferedReader( new FileReader( bsvFile ) );
          String line = reader.readLine();
          while ( line != null ) {
+            if ( line.startsWith( "//" ) || line.startsWith( "#" ) ) {
+               continue;
+            }
             final String[] columns = LookupUtil.fastSplit( line, '|' );
-            final CuiTuiTerm cuiTuiTerm = createCuiTuiTerm( columns, entityId );
-            if ( cuiTuiTerm != null ) {
+            final RareWordTermMapCreator.CuiTerm cuiTerm = createCuiTuiTerm( columns );
+            if ( cuiTerm != null ) {
                // Add to the dictionary
-               cuiTuiTerms.add( cuiTuiTerm );
+               cuiTerms.add( cuiTerm );
             } else {
                LOGGER.warn( "Bad BSV line " + line + " in " + bsvFile.getPath() );
             }
             line = reader.readLine();
          }
          reader.close();
-      } catch ( FileNotFoundException fnfE ) {
-         LOGGER.error( fnfE.getMessage() );
       } catch ( IOException ioE ) {
          LOGGER.error( ioE.getMessage() );
       }
-      return cuiTuiTerms;
+      return cuiTerms;
    }
 
    /**
     * @param columns two or three columns representing CUI,Text or CUI,TUI,Text respectively
-    * @param entityId the entity id for the dictionary, used as the Term TUI should one not be specified
     * @return a term created from the columns or null if the columns are malformed
     */
-   static private CuiTuiTerm createCuiTuiTerm( final String[] columns, final String entityId ) {
-      if ( columns.length != 2 && columns.length != 3 ) {
+   static private RareWordTermMapCreator.CuiTerm createCuiTuiTerm( final String[] columns ) {
+      if ( columns.length < 2 ) {
          return null;
       }
       final int cuiIndex = 0;
-      int tuiIndex = -1;
       int termIndex = 1;
-      if ( columns.length == 3 ) {
-         tuiIndex = 1;
+      if ( columns.length >= 3 ) {
+         // second column is a tui, so text is in the third column
          termIndex = 2;
       }
-      if ( columns[ cuiIndex ].trim().isEmpty() || columns[ termIndex ].trim().isEmpty() ) {
+      if ( columns[cuiIndex].trim().isEmpty() || columns[termIndex].trim().isEmpty() ) {
          return null;
       }
-      final String cui = columns[ cuiIndex ].trim();
-      final String tui = (tuiIndex < 0 || columns[tuiIndex].trim().isEmpty()) ? entityId : columns[ tuiIndex ].trim();
-      final String term = columns[ termIndex ].trim().toLowerCase();
-      return new CuiTuiTerm( cui, tui, term );
+      final String cui = columns[cuiIndex];
+      final String term = columns[termIndex].trim().toLowerCase();
+      return new RareWordTermMapCreator.CuiTerm( cui, term );
    }
 
 }

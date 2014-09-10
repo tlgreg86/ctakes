@@ -33,14 +33,15 @@ import java.sql.Connection;
  * all methods have been commented out.  Uncommenting, linking, and rebuilding is possible if use of an older dictionary
  * resource is required.
  * TODO
- *
+ * <p/>
  * Author: SPF
  * Affiliation: CHIP-NLP
  * Date: 2/20/14
  */
 final public class DictionaryFactory {
 
-   private DictionaryFactory() {}
+   private DictionaryFactory() {
+   }
 
 
    /**
@@ -57,7 +58,7 @@ final public class DictionaryFactory {
          throws AnnotatorContextException {
       checkResourceType( JdbcConnectionResource.class, externalResource );
       final String tableName = implementationElement.getAttributeValue( "tableName" );
-      final Connection connection = ((JdbcConnectionResource) externalResource).getConnection();
+      final Connection connection = ((JdbcConnectionResource)externalResource).getConnection();
       return new JdbcRareWordDictionary( entityTypeId, connection, tableName );
    }
 
@@ -74,8 +75,8 @@ final public class DictionaryFactory {
                                                        final String entityTypeId )
          throws AnnotatorContextException {
       checkResourceType( FileResource.class, externalResource );
-      final File bsvFile = ((FileResource) externalResource).getFile();
-      return new BsvRareWordDictionary( externalResourceKey, entityTypeId, bsvFile );
+      final File bsvFile = ((FileResource)externalResource).getFile();
+      return new BsvRareWordDictionary( externalResourceKey, bsvFile );
    }
 
 //   /**
@@ -205,7 +206,7 @@ final public class DictionaryFactory {
          return;
       }
       throw new AnnotatorContextException( "Expected external resource to be " + expectedClassType.getName()
-                                                 + " not " + typeValue.getClass().getName(), new Object[0] );
+                                           + " not " + typeValue.getClass().getName(), new Object[0] );
    }
 
 }

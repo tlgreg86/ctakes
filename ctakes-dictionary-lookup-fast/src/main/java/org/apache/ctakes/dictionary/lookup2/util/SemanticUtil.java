@@ -27,14 +27,15 @@ import java.util.HashSet;
 /**
  * Utility class to aid in the handling of semantic groups, semantic types, and tuis.
  * Used most by the term consumers.
- *
+ * <p/>
  * Author: SPF
  * Affiliation: CHIP-NLP
  * Date: 2/25/14
  */
 final public class SemanticUtil {
 
-   private SemanticUtil() {}
+   private SemanticUtil() {
+   }
 
    // cTakes types
    static private final String[] DRUG = { "T109", "T110", "T114", "T115", "T116", "T118", "T119",
@@ -44,7 +45,7 @@ final public class SemanticUtil {
    static private final String[] FIND = { "T033", "T034", "T040", "T041", "T042", "T043", "T044", "T045", "T046",
                                           "T056", "T057", "T184" };
    static private final String[] PROC = { "T059", "T060", "T061" };
-   static private final String[] ANAT = { "T021","T022", "T023", "T024", "T025", "T026", "T029", "T030" };
+   static private final String[] ANAT = { "T021", "T022", "T023", "T024", "T025", "T026", "T029", "T030" };
 
    // non-cTakes types
    // cTakes ID 7.  What is Clinical Attribute?  Just the single [standard] type?
@@ -57,68 +58,91 @@ final public class SemanticUtil {
    //   static private final String[] PHEN = { "T034", "T038", "T068", "T069", "T067", "T070" };
 
 
-   static private final Collection<String> ANAT_TUIS = new HashSet<String>( Arrays.asList( ANAT ) );
-   static private final Collection<String> DISO_TUIS = new HashSet<String>( Arrays.asList( DISO ) );
-   static private final Collection<String> FIND_TUIS = new HashSet<String>( Arrays.asList( FIND ) );
-   static private final Collection<String> PROC_TUIS = new HashSet<String>( Arrays.asList( PROC ) );
-   static private final Collection<String> DRUG_TUIS = new HashSet<String>( Arrays.asList( DRUG ) );
+   static private final Collection<String> ANAT_TUIS = new HashSet<>( Arrays.asList( ANAT ) );
+   static private final Collection<String> DISO_TUIS = new HashSet<>( Arrays.asList( DISO ) );
+   static private final Collection<String> FIND_TUIS = new HashSet<>( Arrays.asList( FIND ) );
+   static private final Collection<String> PROC_TUIS = new HashSet<>( Arrays.asList( PROC ) );
+   static private final Collection<String> DRUG_TUIS = new HashSet<>( Arrays.asList( DRUG ) );
 
 
-   static public final String UNKNOWN_SEMANTIC_GROUP = "UNKNOWN_SEMANTIC_GROUP";
-   static public final String UNKNOWN_SEMANTIC_ZERO = "0";
+//   static public final String UNKNOWN_SEMANTIC_GROUP = "UNKNOWN_SEMANTIC_GROUP";
+//   static public final String UNKNOWN_SEMANTIC_ZERO = "0";
 
 
-   /**
-    * cTakes IdentifiedAnnotation only accepts an integer as a typeId, which historically map to cTakes semantic groups
-    * @param entityType the text name of the semantic group or type
-    * @return the integer value of the entity type or {@code CONST.NE_TYPE_ID_UNKNOWN} if none or improperly formed
-    */
-   static public int getSemanticGroupId( final String entityType ) {
-      if ( entityType == null || entityType.isEmpty() ) {
-         return CONST.NE_TYPE_ID_UNKNOWN;
-      }
-      if ( entityType.equalsIgnoreCase( "DRUG" ) ) {
-         return CONST.NE_TYPE_ID_DRUG;
-      } else if ( entityType.equalsIgnoreCase( "DISO" ) ) {
-         return CONST.NE_TYPE_ID_DISORDER;
-      } else if ( entityType.equalsIgnoreCase( "FIND" ) ) {
-         return CONST.NE_TYPE_ID_FINDING;
-      } else if ( entityType.equalsIgnoreCase( "PROC" ) ) {
-         return CONST.NE_TYPE_ID_PROCEDURE;
-      } else if ( entityType.equalsIgnoreCase( "ANAT" ) ) {
-         return CONST.NE_TYPE_ID_ANATOMICAL_SITE;
-      }
-      try {
-         return Integer.parseInt( entityType );
-      } catch ( NumberFormatException nfe ) {
-         return CONST.NE_TYPE_ID_UNKNOWN;
-      }
-   }
+//   /**
+//    * cTakes IdentifiedAnnotation only accepts an integer as a typeId, which historically map to cTakes semantic groups
+//    *
+//    * @param entityType the text name of the semantic group or type
+//    * @return the integer value of the entity type or {@code CONST.NE_TYPE_ID_UNKNOWN} if none or improperly formed
+//    */
+//   static public int getSemanticGroupId( final String entityType ) {
+//      if ( entityType == null || entityType.isEmpty() ) {
+//         return CONST.NE_TYPE_ID_UNKNOWN;
+//      }
+//      if ( entityType.equalsIgnoreCase( "DRUG" ) ) {
+//         return CONST.NE_TYPE_ID_DRUG;
+//      } else if ( entityType.equalsIgnoreCase( "DISO" ) ) {
+//         return CONST.NE_TYPE_ID_DISORDER;
+//      } else if ( entityType.equalsIgnoreCase( "FIND" ) ) {
+//         return CONST.NE_TYPE_ID_FINDING;
+//      } else if ( entityType.equalsIgnoreCase( "PROC" ) ) {
+//         return CONST.NE_TYPE_ID_PROCEDURE;
+//      } else if ( entityType.equalsIgnoreCase( "ANAT" ) ) {
+//         return CONST.NE_TYPE_ID_ANATOMICAL_SITE;
+//      }
+//      try {
+//         return Integer.parseInt( entityType );
+//      } catch ( NumberFormatException nfe ) {
+//         return CONST.NE_TYPE_ID_UNKNOWN;
+//      }
+//   }
+//
+//   /**
+//    * Sometimes a
+//    *
+//    * @param tuis a comma-delimited collection of tuis that apply to some annotation
+//    * @return all cTakes groups for the given tuis
+//    */
+//   static public Collection<Integer> getSemanticGroupIdFromTui( final String tuis ) {
+//      final Collection<Integer> typeIds = new HashSet<>( 1 );
+//      final String[] splits = LookupUtil.fastSplit( tuis, ',' );
+//      for ( String tui : splits ) {
+//         if ( ANAT_TUIS.contains( tui ) ) {
+//            typeIds.add( CONST.NE_TYPE_ID_ANATOMICAL_SITE );
+//         } else if ( DISO_TUIS.contains( tui ) ) {
+//            typeIds.add( CONST.NE_TYPE_ID_DISORDER );
+//         } else if ( FIND_TUIS.contains( tui ) ) {
+//            typeIds.add( CONST.NE_TYPE_ID_FINDING );
+//         } else if ( PROC_TUIS.contains( tui ) ) {
+//            typeIds.add( CONST.NE_TYPE_ID_PROCEDURE );
+//         } else if ( DRUG_TUIS.contains( tui ) ) {
+//            typeIds.add( CONST.NE_TYPE_ID_DRUG );
+//         } else {
+//            typeIds.add( CONST.NE_TYPE_ID_UNKNOWN );
+//         }
+//      }
+//      return typeIds;
+//   }
 
    /**
     * Sometimes a
-    * @param tuis a comma-delimited collection of tuis that apply to some annotation
-    * @return all cTakes groups for the given tuis
+    *
+    * @param tui a comma-delimited collection of tuis that apply to some annotation
+    * @return the cTakes group for the given tui
     */
-   static public Collection<Integer> getSemanticGroupIdFromTui( final String tuis ) {
-      final Collection<Integer> typeIds = new HashSet<Integer>( 1 );
-      final String[] splits = LookupUtil.fastSplit( tuis, ',' );
-      for ( String tui : splits ) {
-         if ( ANAT_TUIS.contains( tui ) ) {
-            typeIds.add( CONST.NE_TYPE_ID_ANATOMICAL_SITE );
-         } else if ( DISO_TUIS.contains( tui ) ) {
-            typeIds.add( CONST.NE_TYPE_ID_DISORDER );
-         } else if ( FIND_TUIS.contains( tui ) ) {
-            typeIds.add( CONST.NE_TYPE_ID_FINDING );
-         } else if ( PROC_TUIS.contains( tui ) ) {
-            typeIds.add( CONST.NE_TYPE_ID_PROCEDURE );
-         } else if ( DRUG_TUIS.contains( tui ) ) {
-            typeIds.add( CONST.NE_TYPE_ID_DRUG );
-         } else {
-            typeIds.add( CONST.NE_TYPE_ID_UNKNOWN );
-         }
+   static public Integer getTuiSemanticGroupId( final String tui ) {
+      if ( ANAT_TUIS.contains( tui ) ) {
+         return CONST.NE_TYPE_ID_ANATOMICAL_SITE;
+      } else if ( DISO_TUIS.contains( tui ) ) {
+         return CONST.NE_TYPE_ID_DISORDER;
+      } else if ( FIND_TUIS.contains( tui ) ) {
+         return CONST.NE_TYPE_ID_FINDING;
+      } else if ( PROC_TUIS.contains( tui ) ) {
+         return CONST.NE_TYPE_ID_PROCEDURE;
+      } else if ( DRUG_TUIS.contains( tui ) ) {
+         return CONST.NE_TYPE_ID_DRUG;
       }
-      return typeIds;
+      return CONST.NE_TYPE_ID_UNKNOWN;
    }
 
 

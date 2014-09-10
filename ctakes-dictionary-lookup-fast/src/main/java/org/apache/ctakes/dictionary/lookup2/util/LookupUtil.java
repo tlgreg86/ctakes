@@ -28,31 +28,33 @@ import java.util.List;
  */
 final public class LookupUtil {
 
-   private LookupUtil() {}
+   private LookupUtil() {
+   }
 
 
    /**
     * Splits a string using a character.  Faster than String.split( regex )
+    *
     * @param line full text to split
-    * @param c character at which to split
+    * @param c    character at which to split
     * @return array of substrings or the original line if there are no characters c
     */
    static public String[] fastSplit( final String line, final char c ) {
       int nextSplit = line.indexOf( c );
       if ( nextSplit < 0 ) {
-         return new String[]{line};
+         return new String[]{ line };
       }
       final List<String> splits = new ArrayList<String>();
       int lastSplit = -1;
       while ( nextSplit > 0 ) {
-         splits.add( line.substring( lastSplit+1, nextSplit ) );
+         splits.add( line.substring( lastSplit + 1, nextSplit ) );
          lastSplit = nextSplit;
-         nextSplit = line.indexOf( c, lastSplit+1 );
+         nextSplit = line.indexOf( c, lastSplit + 1 );
       }
-      if ( lastSplit+1 < line.length() ) {
-         splits.add( line.substring( lastSplit+1 ) );
+      if ( lastSplit + 1 < line.length() ) {
+         splits.add( line.substring( lastSplit + 1 ) );
       }
-      return splits.toArray( new String[ splits.size() ] );
+      return splits.toArray( new String[splits.size()] );
    }
 
 }

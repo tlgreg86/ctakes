@@ -19,11 +19,12 @@
 package org.apache.ctakes.dictionary.lookup2.ae;
 
 import org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary;
+import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
+import org.apache.ctakes.dictionary.lookup2.textspan.DefaultTextSpan;
 import org.apache.ctakes.dictionary.lookup2.textspan.MultiTextSpan;
 import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
-import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
-import org.apache.ctakes.dictionary.lookup2.term.SpannedRareWordTerm;
 import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
+import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -47,9 +48,13 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
    private int _consecutiveSkipMax = 2;
    private int _totalSkipMax = 4;
 
-   /** specifies the number of consecutive non-comma tokens that can be skipped */
+   /**
+    * specifies the number of consecutive non-comma tokens that can be skipped
+    */
    static private final String CONS_SKIP_PRP_KEY = "consecutiveSkips";
-   /** specifies the number of total tokens that can be skipped */
+   /**
+    * specifies the number of total tokens that can be skipped
+    */
    static private final String TOTAL_SKIP_PRP_KEY = "totalTokenSkips";
 
 
@@ -72,13 +77,15 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
       _logger.info( "Maximum tokens that can be skipped: " + _totalSkipMax );
    }
 
+
    /**
     * {@inheritDoc}
     */
    @Override
    public void findTerms( final RareWordDictionary dictionary,
-                          final List<FastLookupToken> allTokens, final List<Integer> lookupTokenIndices,
-                          final Collection<SpannedRareWordTerm> termsFromDictionary ) {
+                          final List<FastLookupToken> allTokens,
+                          final List<Integer> lookupTokenIndices,
+                          final CollectionMap<TextSpan, Long> termsFromDictionary ) {
       Collection<RareWordTerm> rareWordHits;
       for ( Integer lookupTokenIndex : lookupTokenIndices ) {
          final FastLookupToken lookupToken = allTokens.get( lookupTokenIndex );
@@ -87,9 +94,12 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
             continue;
          }
          for ( RareWordTerm rareWordHit : rareWordHits ) {
+            if ( lookupToken.getLength() < _minimumLookupSpan ) {
+               continue;
+            }
             if ( rareWordHit.getTokenCount() == 1 ) {
                // Single word term, add and move on
-               termsFromDictionary.add( new SpannedRareWordTerm( rareWordHit, lookupToken.getTextSpan() ) );
+               termsFromDictionary.placeValue( lookupToken.getTextSpan(), rareWordHit.getCuiCode() );
                continue;
             }
             final int termStartIndex = lookupTokenIndex - rareWordHit.getRareWordIndex();
@@ -97,37 +107,39 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
                // term will extend beyond window
                continue;
             }
-            final SpannedRareWordTerm overlapTerm = getOverlapTerm( allTokens, lookupTokenIndex, rareWordHit,
-                                                                    _consecutiveSkipMax, _totalSkipMax );
-            if ( overlapTerm != null ) {
-               termsFromDictionary.add( overlapTerm );
+            final TextSpan overlapSpan = getOverlapTerm( allTokens, lookupTokenIndex, rareWordHit,
+                  _consecutiveSkipMax, _totalSkipMax );
+            if ( overlapSpan != null ) {
+               termsFromDictionary.placeValue( overlapSpan, rareWordHit.getCuiCode() );
             }
          }
       }
    }
 
+
    /**
     * Check to see if a given term overlaps a set of tokens
-    * @param allTokens all tokens in a window
+    *
+    * @param allTokens        all tokens in a window
     * @param lookupTokenIndex index of rare word in the window of all tokens
-    * @param rareWordHit some possible term
+    * @param rareWordHit      some possible term
     * @return a spanned term that is in the window in some overlapping manner, or null
     */
-   static private SpannedRareWordTerm getOverlapTerm( final List<FastLookupToken> allTokens, final int lookupTokenIndex,
-                                                      final RareWordTerm rareWordHit,
-                                                      final int consecutiveSkipMax, final int totalSkipMax ) {
+   static private TextSpan getOverlapTerm( final List<FastLookupToken> allTokens, final int lookupTokenIndex,
+                                           final RareWordTerm rareWordHit,
+                                           final int consecutiveSkipMax, final int totalSkipMax ) {
       final String[] rareWordTokens = fastSplit( rareWordHit.getText(), rareWordHit.getTokenCount() );
-      final List<TextSpan> missingSpanKeys = new ArrayList<TextSpan>();
+      final List<TextSpan> missingSpanKeys = new ArrayList<>();
       int consecutiveSkips = 0;
       int totalSkips = 0;
       int firstWordIndex = -1;
       if ( rareWordHit.getRareWordIndex() == 0 ) {
          firstWordIndex = lookupTokenIndex;
       } else {
-         int nextRareWordIndex = rareWordHit.getRareWordIndex()-1;
-         for ( int allTokensIndex=lookupTokenIndex-1; allTokensIndex>=0; allTokensIndex-- ) {
+         int nextRareWordIndex = rareWordHit.getRareWordIndex() - 1;
+         for ( int allTokensIndex = lookupTokenIndex - 1; allTokensIndex >= 0; allTokensIndex-- ) {
             if ( rareWordTokens[nextRareWordIndex].equals( allTokens.get( allTokensIndex ).getText() )
-                  || rareWordTokens[nextRareWordIndex].equals( allTokens.get( allTokensIndex ).getVariant() ) ) {
+                 || rareWordTokens[nextRareWordIndex].equals( allTokens.get( allTokensIndex ).getVariant() ) ) {
                nextRareWordIndex--;
                if ( nextRareWordIndex < 0 ) {
                   firstWordIndex = allTokensIndex;
@@ -149,19 +161,19 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
                break;
             }
          }
-         if  ( firstWordIndex == -1 ) {
+         if ( firstWordIndex == -1 ) {
             return null;
          }
       }
       int lastWordIndex = -1;
-      if ( rareWordHit.getRareWordIndex() == rareWordHit.getTokenCount()-1 ) {
+      if ( rareWordHit.getRareWordIndex() == rareWordHit.getTokenCount() - 1 ) {
          lastWordIndex = lookupTokenIndex;
       } else {
          consecutiveSkips = 0;
-         int nextRareWordIndex = rareWordHit.getRareWordIndex()+1;
-         for ( int allTokensIndex=lookupTokenIndex+1; allTokensIndex<allTokens.size(); allTokensIndex++ ) {
+         int nextRareWordIndex = rareWordHit.getRareWordIndex() + 1;
+         for ( int allTokensIndex = lookupTokenIndex + 1; allTokensIndex < allTokens.size(); allTokensIndex++ ) {
             if ( rareWordTokens[nextRareWordIndex].equals( allTokens.get( allTokensIndex ).getText() )
-                  || rareWordTokens[nextRareWordIndex].equals( allTokens.get( allTokensIndex ).getVariant() ) ) {
+                 || rareWordTokens[nextRareWordIndex].equals( allTokens.get( allTokensIndex ).getVariant() ) ) {
                nextRareWordIndex++;
                if ( nextRareWordIndex >= rareWordHit.getTokenCount() ) {
                   lastWordIndex = allTokensIndex;
@@ -185,16 +197,12 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
          }
       }
       if ( missingSpanKeys.isEmpty() ) {
-         return new SpannedRareWordTerm( rareWordHit,
-                                         allTokens.get( firstWordIndex ).getStart(),
-                                         allTokens.get( lastWordIndex ).getEnd() );
+         return new DefaultTextSpan( allTokens.get( firstWordIndex ).getStart(),
+               allTokens.get( lastWordIndex ).getEnd() );
       }
-      final TextSpan discontiguousSpanKey = new MultiTextSpan( allTokens.get( firstWordIndex ).getStart(),
-                                                                     allTokens.get( lastWordIndex ).getEnd(),
-                                                                     missingSpanKeys );
-      return new SpannedRareWordTerm( rareWordHit, discontiguousSpanKey );
+      return new MultiTextSpan( allTokens.get( firstWordIndex ).getStart(),
+            allTokens.get( lastWordIndex ).getEnd(), missingSpanKeys );
    }
-
 
 
    static private String[] fastSplit( final String line, final int tokenCount ) {
@@ -203,13 +211,13 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
       int previousSpaceIndex = -1;
       int spaceIndex = line.indexOf( ' ' );
       while ( spaceIndex > 0 && tokenIndex < tokenCount ) {
-         tokens[tokenIndex] = line.substring( previousSpaceIndex+1, spaceIndex );
+         tokens[tokenIndex] = line.substring( previousSpaceIndex + 1, spaceIndex );
          tokenIndex++;
          previousSpaceIndex = spaceIndex;
-         spaceIndex = line.indexOf( ' ', previousSpaceIndex+1 );
+         spaceIndex = line.indexOf( ' ', previousSpaceIndex + 1 );
       }
-      if ( previousSpaceIndex+1 < line.length() ) {
-         tokens[tokenCount-1] = line.substring( previousSpaceIndex+1 );
+      if ( previousSpaceIndex + 1 < line.length() ) {
+         tokens[tokenCount - 1] = line.substring( previousSpaceIndex + 1 );
       }
       return tokens;
    }

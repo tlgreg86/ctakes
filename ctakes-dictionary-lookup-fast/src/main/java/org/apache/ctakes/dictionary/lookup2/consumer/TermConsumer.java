@@ -18,12 +18,12 @@
  */
 package org.apache.ctakes.dictionary.lookup2.consumer;
 
+import org.apache.ctakes.dictionary.lookup2.concept.Concept;
 import org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary;
-import org.apache.ctakes.dictionary.lookup2.term.SpannedRareWordTerm;
+import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
+import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-
-import java.util.Collection;
 
 /**
  * Stores terms in the cas
@@ -33,13 +33,19 @@ import java.util.Collection;
  */
 public interface TermConsumer {
 
+
    /**
-    *
-    * @param jcas -
-    * @param dictionary the dictionary: Anatomical Site, Disease/Disorder, Drug, combination, etc.
-    * @param dictionaryTerms collection of discovered terms
+    * @param jcas            -
+    * @param dictionary      the dictionary: Anatomical Site, Disease/Disorder, Drug, combination, etc.
+    * @param textSpanCuis collection of discovered terms
+    * @param cuiConcepts      map of cuis to concepts
     * @throws AnalysisEngineProcessException
     */
-   void consumeHits( JCas jcas, RareWordDictionary dictionary, Collection<SpannedRareWordTerm> dictionaryTerms )
+   void consumeHits( final JCas jcas,
+                     final RareWordDictionary dictionary,
+                     final CollectionMap<TextSpan, Long> textSpanCuis,
+                     final CollectionMap<Long, Concept> cuiConcepts )
          throws AnalysisEngineProcessException;
+
+
 }

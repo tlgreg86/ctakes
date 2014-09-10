@@ -74,6 +74,13 @@ final public class FastLookupToken {
    }
 
    /**
+    * @return the length of the text span in characters
+    */
+   public int getLength() {
+      return _textSpan.getLength();
+   }
+
+   /**
     * @return the actual text in the document for the lookup token, in lowercase
     */
    public String getText() {
@@ -89,12 +96,13 @@ final public class FastLookupToken {
 
    /**
     * Two lookup tokens are equal iff the spans are equal.
+    *
     * @param value -
     * @return true if {@code value} is a {@code FastLookupToken} and has a span equal to this token's span
     */
    public boolean equals( final Object value ) {
       return value != null && value instanceof FastLookupToken
-            && _textSpan.equals( ((FastLookupToken)value).getTextSpan() );
+             && _textSpan.equals( ((FastLookupToken)value).getTextSpan() );
    }
 
    /**
