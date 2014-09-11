@@ -34,6 +34,7 @@ import org.apache.ctakes.temporal.ae.feature.selection.FeatureSelection;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -69,6 +70,21 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 		
 		@Option(longName = "SMOTENeighborNumber", defaultValue = "0")
 	    public float getSMOTENeighborNumber();
+		
+		@Option(shortName="b")
+		public boolean getRunBackwards();
+		
+		@Option(shortName="f")
+		public boolean getRunForwards();
+		
+		@Option(shortName="p")
+		public boolean getRunParserBased();
+		
+		@Option(shortName="c")
+		public boolean getRunCrfBased();
+		
+		@Option
+		public boolean getSkipTrain();
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -100,17 +116,26 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 		
 		// specify the annotator classes to use
 		List<Class<? extends JCasAnnotator_ImplBase>> annotatorClasses = Lists.newArrayList();
-		annotatorClasses.add(BackwardsTimeAnnotator.class);
-		annotatorClasses.add(TimeAnnotator.class);
-		annotatorClasses.add(ConstituencyBasedTimeAnnotator.class);
-		annotatorClasses.add(CRFTimeAnnotator.class);
-//		annotatorClasses.add(MetaTimeAnnotator.class);
+		if(options.getRunBackwards())	annotatorClasses.add(BackwardsTimeAnnotator.class);
+		if(options.getRunForwards()) annotatorClasses.add(TimeAnnotator.class);
+		if(options.getRunParserBased()) annotatorClasses.add(ConstituencyBasedTimeAnnotator.class);
+		if(options.getRunCrfBased()) annotatorClasses.add(CRFTimeAnnotator.class);
+		if(annotatorClasses.size() == 0){
+		  // run all
+		  annotatorClasses.add(BackwardsTimeAnnotator.class);
+		  annotatorClasses.add(TimeAnnotator.class);
+		  annotatorClasses.add(ConstituencyBasedTimeAnnotator.class);
+		  annotatorClasses.add(CRFTimeAnnotator.class);
+		}
 		Map<Class<? extends JCasAnnotator_ImplBase>, String[]> annotatorTrainingArguments = Maps.newHashMap();
-		annotatorTrainingArguments.put(BackwardsTimeAnnotator.class, new String[]{"-c", "0.3"});
+		
+		// THYME best params: Backwards: 0.1, CRF 0.3, Time 0.1, Constituency 0.3
+		// i2b2 best params: Backwards 0.1, CRF 3.0, Time 0.1, Constituency 0.3
+		String gridParam = "0.01";
+		annotatorTrainingArguments.put(BackwardsTimeAnnotator.class, new String[]{"-c", "0.1"});
 		annotatorTrainingArguments.put(TimeAnnotator.class, new String[]{"-c", "0.1"});
 		annotatorTrainingArguments.put(ConstituencyBasedTimeAnnotator.class, new String[]{"-c", "0.3"});
-		annotatorTrainingArguments.put(CRFTimeAnnotator.class, new String[]{"-p", "c2=0.03"});
-//		annotatorTrainingArguments.put(MetaTimeAnnotator.class, new String[]{"-p", "c2=0.3"});
+		annotatorTrainingArguments.put(CRFTimeAnnotator.class, new String[]{"-p", "c2=" + "0.3"});
 
 		// run one evaluation per annotator class
 		final Map<Class<?>, AnnotationStatistics<?>> annotatorStats = Maps.newHashMap();
@@ -128,6 +153,8 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 					options.getPrintOverlappingSpans(),
 					annotatorTrainingArguments.get(annotatorClass));
 			evaluation.prepareXMIsFor(patientSets);
+			evaluation.setSkipTrain(options.getSkipTrain());
+			evaluation.printErrors = options.getPrintErrors();
 			if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/" + annotatorClass.getSimpleName());
 			String name = String.format("%s.errors", annotatorClass.getSimpleName());
 			evaluation.setLogging(Level.FINE, new File("target/eval", name));
@@ -160,6 +187,8 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 	
 	private float smoteNeighborNumber;
 
+	private boolean skipTrain = false;
+	
 	public EvaluationOfTimeSpans(
 			File baseDirectory,
 			File rawTextDirectory,
@@ -180,6 +209,17 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 		this.smoteNeighborNumber = numOfSmoteNeighbors;
 	}
 
+	public void setSkipTrain(boolean val){
+	  this.skipTrain = val;
+	}
+	
+	@Override
+	public void train(CollectionReader reader, File directory) throws Exception{
+	  if(!skipTrain){
+	    super.train(reader, directory);
+	  }
+	}
+	
 	@Override
 	protected AnalysisEngineDescription getDataWriterDescription(File directory)
 			throws ResourceInitializationException {
