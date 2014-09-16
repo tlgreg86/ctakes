@@ -24,10 +24,10 @@ import java.util.List;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.Feature;
 
 import com.google.common.collect.Lists;
 

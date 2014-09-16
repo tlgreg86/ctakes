@@ -29,14 +29,14 @@ import java.util.regex.Pattern;
 
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
-public class ContextWordWindowExtractor implements SimpleFeatureExtractor {
+public class ContextWordWindowExtractor implements FeatureExtractor1 {
 
 	private HashMap<String,Double> termVals = null;
 	private static final Pattern linePatt = Pattern.compile("^([^ ]+) : (.+)$");

@@ -33,11 +33,11 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
@@ -73,7 +73,7 @@ public class EventEventDurationStatistics {
     List<File> trainFiles = Utils.getFilesFor(trainItems, options.getInputDirectory());
     CollectionReader collectionReader = Utils.getCollectionReader(trainFiles);
 
-    AnalysisEngine annotationConsumer = AnalysisEngineFactory.createPrimitive(
+    AnalysisEngine annotationConsumer = AnalysisEngineFactory.createEngine(
         AnalyseRelationArgumentDuration.class,
         "OutputFile",
         options.getOutputFile());

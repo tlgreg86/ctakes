@@ -23,26 +23,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
+import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.JCasFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.util.Options_ImplBase;
 import org.cleartk.util.cr.FilesCollectionReader;
 import org.cleartk.util.cr.XReader;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.JCasFactory;
-import org.uimafit.util.JCasUtil;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 
-import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
-import org.apache.ctakes.typesystem.type.textsem.EntityMention;
-
 public class PrintRelationStatistics {
 
-  public static class Options extends Options_ImplBase {
+  public static class Options {
 
     @Option(
         name = "--train-dir",
@@ -55,9 +54,10 @@ public class PrintRelationStatistics {
 
   public static void main(String[] args) throws Exception {
     Options options = new Options();
-    options.parseOptions(args);
+    CmdLineParser parser = new CmdLineParser(options);
+    parser.parseArgument(args);
 
-    CollectionReader reader = CollectionReaderFactory.createCollectionReader(
+    CollectionReader reader = CollectionReaderFactory.createReader(
         XReader.class,
         FilesCollectionReader.PARAM_ROOT_FILE,
         options.trainDirectory.getPath());

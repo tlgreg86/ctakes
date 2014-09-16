@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.ctakes.constituency.parser.util.AnnotationTreeUtils;
 import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.Feature;
+import org.cleartk.ml.Feature;
 
 public class ParseSpanFeatureExtractor  {
 

@@ -31,12 +31,12 @@ import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ExternalResourceFactory;
-import org.uimafit.factory.JCasFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.SimplePipeline;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.JCasFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 
 public class CommandLineParserUtil {
 
@@ -48,15 +48,15 @@ public class CommandLineParserUtil {
 	public static void main(String[] args) throws UIMAException, IOException {
 		TypeSystemDescription types = TypeSystemDescriptionFactory.createTypeSystemDescription();
 		
-//		AnalysisEngine ae = AnalysisEngineFactory.createAnalysisEngineFromPath("desc/analysis_engine/AggregateParsingProcessor.xml");
+//		AnalysisEngine ae = AnalysisEngineFactory.createEngineFromPath("desc/analysis_engine/AggregateParsingProcessor.xml");
 		AggregateBuilder builder = new AggregateBuilder();
-		builder.add(AnalysisEngineFactory.createPrimitiveDescription(SimpleSegmentAnnotator.class));
-	    builder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		builder.add(AnalysisEngineFactory.createEngineDescription(SimpleSegmentAnnotator.class));
+	    builder.add(AnalysisEngineFactory.createEngineDescription(
 	            SentenceDetector.class,
 	            SentenceDetector.SD_MODEL_FILE_PARAM,
 	            "org/apache/ctakes/core/sentdetect/sd-med-model.zip"));
-		builder.add(AnalysisEngineFactory.createPrimitiveDescription(TokenizerAnnotatorPTB.class));
-		builder.add(AnalysisEngineFactory.createPrimitiveDescription(ConstituencyParser.class));
+		builder.add(AnalysisEngineFactory.createEngineDescription(TokenizerAnnotatorPTB.class));
+		builder.add(AnalysisEngineFactory.createEngineDescription(ConstituencyParser.class));
 		
 		AnalysisEngine ae = builder.createAggregate();
 		

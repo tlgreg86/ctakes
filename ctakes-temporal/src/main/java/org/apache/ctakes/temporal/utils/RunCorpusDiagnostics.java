@@ -35,14 +35,14 @@ import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.utils.struct.CounterMap;
 import org.apache.uima.UIMAException;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
 import org.cleartk.util.cr.UriCollectionReader;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.JCasUtil;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -75,14 +75,14 @@ public class RunCorpusDiagnostics {
 		CollectionReader reader = UriCollectionReader.getCollectionReaderFromFiles(getFilesFor(options.getRawTextDirectory(), trainItems));
 		AggregateBuilder aggregateBuilder = new AggregateBuilder();
 		aggregateBuilder.add(UriToDocumentTextAnnotator.getDescription());
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
 				XMIReader.class,
 				XMIReader.PARAM_XMI_DIRECTORY,
 				options.getXMIDirectory()));
 
 		CounterMap<String> timeClassCounts = new CounterMap<String>();
 		
-		JCasIterable casIter = new JCasIterable(reader, aggregateBuilder.createAggregate());
+		JCasIterator casIter = new JCasIterator(reader, aggregateBuilder.createAggregate());
 		while(casIter.hasNext()){
 			JCas jcas = casIter.next();
 			JCas goldView = jcas.getView(Evaluation_ImplBase.GOLD_VIEW_NAME);

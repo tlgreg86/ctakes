@@ -8,8 +8,8 @@ import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.Feature;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.Feature;
+import org.apache.uima.fit.util.JCasUtil;
 
 public class TokenFeatureExtractor implements RelationFeaturesExtractor {
 

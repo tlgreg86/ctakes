@@ -24,16 +24,16 @@ import java.util.List;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.utils.struct.CounterMap;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
 import com.google.common.collect.Lists;
 
-public class UmlsSingleFeatureExtractor implements SimpleFeatureExtractor {
+public class UmlsSingleFeatureExtractor implements FeatureExtractor1 {
 
   @Override
   public List<Feature> extract(JCas jCas, Annotation focusAnnotation)

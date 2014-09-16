@@ -43,10 +43,10 @@ import org.apache.uima.jcas.cas.EmptyFSList;
 import org.apache.uima.jcas.cas.FSList;
 import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.TypeCapability;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.TypeCapability;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.googlecode.clearnlp.component.AbstractComponent;
 import com.googlecode.clearnlp.dependency.DEPArc;
@@ -99,19 +99,22 @@ final String language = AbstractReader.LANG_EN;
 
   @ConfigurationParameter(
 		  name = PARAM_PARSER_MODEL_FILE_NAME,
-		  description = "This parameter provides the file name of the semantic role labeler model required by the factory method provided by ClearNLPUtil.")
+		  description = "This parameter provides the file name of the semantic role labeler model required by the factory method provided by ClearNLPUtil.",
+		  defaultValue = DEFAULT_SRL_MODEL_FILE_NAME)
   private String parserModelFileName;
 
   public static final String PARAM_LEMMATIZER_DATA_FILE = "LemmatizerDataFile";
   
   @ConfigurationParameter(
 		  name = PARAM_PRED_MODEL_FILE_NAME,
-		  description = "This parameter provides the file name of the semantic role labeler model required by the factory method provided by ClearNLPUtil.")
+		  description = "This parameter provides the file name of the semantic role labeler model required by the factory method provided by ClearNLPUtil.",
+		  defaultValue = DEFAULT_PRED_MODEL_FILE_NAME)
   private String parserPredFileName;
 
   @ConfigurationParameter(
 		  name = PARAM_ROLE_MODEL_FILE_NAME,
-		  description = "This parameter provides the file name of the semantic role labeler model required by the factory method provided by ClearNLPUtil.")
+		  description = "This parameter provides the file name of the semantic role labeler model required by the factory method provided by ClearNLPUtil.",
+		  defaultValue = DEFAULT_ROLE_MODEL_FILE_NAME)
   private String parserRoleFileName;
 
   

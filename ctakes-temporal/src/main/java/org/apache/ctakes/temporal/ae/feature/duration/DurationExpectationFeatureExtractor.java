@@ -28,14 +28,14 @@ import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-public class DurationExpectationFeatureExtractor implements SimpleFeatureExtractor {
+public class DurationExpectationFeatureExtractor implements FeatureExtractor1 {
 
   @Override
   public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException { 

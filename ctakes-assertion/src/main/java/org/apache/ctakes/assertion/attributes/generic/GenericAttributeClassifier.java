@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 import org.apache.uima.UIMAException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.util.JCasUtil;
 import org.xml.sax.SAXException;
 
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;

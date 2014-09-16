@@ -43,12 +43,12 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.JCasFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.JCasFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 import org.xml.sax.SAXException;
 
 public class ClinicalPipelineFactory {
@@ -56,8 +56,8 @@ public class ClinicalPipelineFactory {
   public static AnalysisEngineDescription getDefaultPipeline() throws ResourceInitializationException{
     AggregateBuilder builder = new AggregateBuilder();
     builder.add(getTokenProcessingPipeline());
-    builder.add(AnalysisEngineFactory.createPrimitiveDescription(CopyNPChunksToLookupWindowAnnotations.class));
-    builder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEnclosedLookupWindows.class));
+    builder.add(AnalysisEngineFactory.createEngineDescription(CopyNPChunksToLookupWindowAnnotations.class));
+    builder.add(AnalysisEngineFactory.createEngineDescription(RemoveEnclosedLookupWindows.class));
     builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
     builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
     builder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());

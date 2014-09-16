@@ -97,20 +97,20 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.CasCopier;
 import org.apache.uima.util.XMLSerializer;
-import org.cleartk.util.ViewURIUtil;
+import org.cleartk.util.ViewUriUtil;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
 import org.cleartk.util.cr.UriCollectionReader;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.component.ViewCreatorAnnotator;
-import org.uimafit.component.ViewTextCopierAnnotator;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ExternalResourceFactory;
-import org.uimafit.factory.TypePrioritiesFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.component.ViewCreatorAnnotator;
+import org.apache.uima.fit.component.ViewTextCopierAnnotator;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.TypePrioritiesFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.ContentHandler;
@@ -342,7 +342,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 	protected AggregateBuilder getXMIReadingPreprocessorAggregateBuilder() throws UIMAException {
 		AggregateBuilder aggregateBuilder = new AggregateBuilder();
 		aggregateBuilder.add(UriToDocumentTextAnnotator.getDescription());
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
 				XMIReader.class,
 				XMIReader.PARAM_XMI_DIRECTORY,
 				this.xmiDirectory));
@@ -355,11 +355,11 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		aggregateBuilder.add(UriToDocumentTextAnnotator.getDescription());
 
 		// read manual annotations into gold view
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
 				ViewCreatorAnnotator.class,
 				ViewCreatorAnnotator.PARAM_VIEW_NAME,
 				GOLD_VIEW_NAME));
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
 				ViewTextCopierAnnotator.class,
 				ViewTextCopierAnnotator.PARAM_SOURCE_VIEW_NAME,
 				CAS.NAME_DEFAULT_SOFA,
@@ -395,22 +395,22 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 		// identify segments
 		if(this.xmlFormat == XMLFormat.I2B2){
-			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SimpleSegmentAnnotator.class));
+			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(SimpleSegmentAnnotator.class));
 		}else{
-			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
+			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
 		}
 		// identify sentences
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
 				SentenceDetector.class,
 				SentenceDetector.SD_MODEL_FILE_PARAM,
 				"org/apache/ctakes/core/sentdetect/sd-med-model.zip"));
 		// identify tokens
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(TokenizerAnnotatorPTB.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(TokenizerAnnotatorPTB.class));
 		// merge some tokens
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ContextDependentTokenizerAnnotator.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ContextDependentTokenizerAnnotator.class));
 
 		// identify part-of-speech tags
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
 				POSTagger.class,
 				TypeSystemDescriptionFactory.createTypeSystemDescription(),
 				TypePrioritiesFactory.createTypePriorities(Segment.class, Sentence.class, BaseToken.class),
@@ -418,7 +418,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				"org/apache/ctakes/postagger/models/mayo-pos.zip"));
 
 		// identify chunks
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
 				Chunker.class,
 				Chunker.CHUNKER_MODEL_FILE_PARAM,
 				FileLocator.locateFile("org/apache/ctakes/chunker/models/chunker-model.zip"),
@@ -428,23 +428,23 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		// identify UMLS named entities
 
 		// adjust NP in NP NP to span both
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
 				ChunkAdjuster.class,
 				ChunkAdjuster.PARAM_CHUNK_PATTERN,
 				new String[] { "NP", "NP" },
 				ChunkAdjuster.PARAM_EXTEND_TO_INCLUDE_TOKEN,
 				1));
 		// adjust NP in NP PP NP to span all three
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
 				ChunkAdjuster.class,
 				ChunkAdjuster.PARAM_CHUNK_PATTERN,
 				new String[] { "NP", "PP", "NP" },
 				ChunkAdjuster.PARAM_EXTEND_TO_INCLUDE_TOKEN,
 				2));
 		// add lookup windows for each NP
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(CopyNPChunksToLookupWindowAnnotations.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyNPChunksToLookupWindowAnnotations.class));
 		// maximize lookup windows
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
 				OverlapAnnotator.class,
 				"A_ObjectClass",
 				LookupWindowAnnotation.class,
@@ -494,7 +494,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
         "To",
         "with",
         "With" };
-    AnalysisEngineDescription lvgAnnotator = AnalysisEngineFactory.createPrimitiveDescription(
+    AnalysisEngineDescription lvgAnnotator = AnalysisEngineFactory.createEngineDescription(
         LvgAnnotator.class,
         "UseSegments",
         false,
@@ -528,30 +528,30 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		aggregateBuilder.add(LvgAnnotator.createAnnotatorDescription());
 
 		// add dependency parser
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearNLPDependencyParserAE.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ClearNLPDependencyParserAE.class));
 
 		// add semantic role labeler
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearNLPSemanticRoleLabelerAE.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ClearNLPSemanticRoleLabelerAE.class));
 
 		// add gold standard parses to gold view, and adjust gold view to correct a few annotation mis-steps
 		if(this.treebankDirectory != null){
 			aggregateBuilder.add(THYMETreebankReader.getDescription(this.treebankDirectory));
-			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(TimexAnnotationCorrector.class));
+			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(TimexAnnotationCorrector.class));
 		}else{
 			// add ctakes constituency parses to system view
-			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ConstituencyParser.class,
+			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ConstituencyParser.class,
 					ConstituencyParser.PARAM_MODEL_FILENAME,
 					"org/apache/ctakes/constituency/parser/models/thyme.bin"));
 			//          "org/apache/ctakes/constituency/parser/models/sharp-3.1.bin"));
 			//            "org/apache/ctakes/constituency/parser/models/thymeNotempeval.bin"));
-			//      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(BerkeleyParserWrapper.class,
+			//      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(BerkeleyParserWrapper.class,
 			//          BerkeleyParserWrapper.PARAM_MODEL_FILENAME,
 			//          
 			//        "org/apache/ctakes/constituency/parser/models/thyme.gcg.4sm.bin"));
 			//          "org/apache/ctakes/constituency/parser/models/thyme.4sm.bin"));
 		}
 		// write out the CAS after all the above annotations
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
 				XMIWriter.class,
 				XMIWriter.PARAM_XMI_DIRECTORY,
 				this.xmiDirectory));
@@ -645,7 +645,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 	}
 
 	static File getXMIFile(File xmiDirectory, JCas jCas) throws AnalysisEngineProcessException {
-		return getXMIFile(xmiDirectory, new File(ViewURIUtil.getURI(jCas).getPath()));
+		return getXMIFile(xmiDirectory, new File(ViewUriUtil.getURI(jCas).getPath()));
 	}
 
 	public static class XMIWriter extends JCasAnnotator_ImplBase {
@@ -773,7 +773,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 		public static AnalysisEngineDescription getDescription(Class<?>... classes)
 				throws ResourceInitializationException {
-			return AnalysisEngineFactory.createPrimitiveDescription(
+			return AnalysisEngineFactory.createEngineDescription(
 					CopyFromGold.class,
 					CopyFromGold.PARAM_ANNOTATION_CLASSES,
 					classes);
@@ -825,7 +825,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				// get the output file name from the input file name and output directory.
 				File outDir = new File(outputDir);
 				if(!outDir.exists()) outDir.mkdirs();
-				File inFile = new File(ViewURIUtil.getURI(jcas));
+				File inFile = new File(ViewUriUtil.getURI(jcas));
 				String outFile = inFile.getName().replace(".txt", "");
 
 				// build the xml

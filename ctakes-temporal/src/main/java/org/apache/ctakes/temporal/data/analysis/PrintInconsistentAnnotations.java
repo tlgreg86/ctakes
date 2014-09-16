@@ -20,6 +20,7 @@ package org.apache.ctakes.temporal.data.analysis;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -31,15 +32,15 @@ import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.util.ViewURIUtil;
+import org.cleartk.util.ViewUriUtil;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
 import org.cleartk.util.cr.UriCollectionReader;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.JCasUtil;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
@@ -73,14 +74,15 @@ public class PrintInconsistentAnnotations {
     CollectionReader reader = UriCollectionReader.getCollectionReaderFromFiles(files);
     AggregateBuilder aggregateBuilder = new AggregateBuilder();
     aggregateBuilder.add(UriToDocumentTextAnnotator.getDescription());
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
         XMIReader.class,
         XMIReader.PARAM_XMI_DIRECTORY,
         options.getXMIDirectory()));
 
     int totalDocTimeRels = 0;
     int totalInconsistentDocTimeRels = 0;
-    for (JCas jCas : new JCasIterable(reader, aggregateBuilder.createAggregate())) {
+    for (Iterator<JCas> casIter = new JCasIterator(reader, aggregateBuilder.createAggregate()); casIter.hasNext();) {
+      JCas jCas = casIter.next();
       String text = jCas.getDocumentText();
       JCas goldView = jCas.getView("GoldView");
 
@@ -149,7 +151,7 @@ public class PrintInconsistentAnnotations {
           int end = Math.min(offsets.get(offsets.size() - 1) + windowSize, text.length());
           System.err.printf(
               "Inconsistent DocTimeRels in %s, ...%s...\n",
-              new File(ViewURIUtil.getURI(jCas)).getName(),
+              new File(ViewUriUtil.getURI(jCas)).getName(),
               text.substring(begin, end).replaceAll("([\r\n])[\r\n]+", "$1"));
           if (container instanceof EventMention) {
             System.err.printf(

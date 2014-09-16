@@ -24,6 +24,7 @@ import info.bethard.timenorm.TimeSpan;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,13 +35,13 @@ import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
 import org.cleartk.util.cr.UriCollectionReader;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.JCasUtil;
 
 import scala.util.Try;
 
@@ -70,7 +71,7 @@ public class PrintFailedTimeNormalizations {
     CollectionReader reader = UriCollectionReader.getCollectionReaderFromFiles(files);
     AggregateBuilder aggregateBuilder = new AggregateBuilder();
     aggregateBuilder.add(UriToDocumentTextAnnotator.getDescription());
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
         XMIReader.class,
         XMIReader.PARAM_XMI_DIRECTORY,
         options.getXMIDirectory()));
@@ -78,7 +79,8 @@ public class PrintFailedTimeNormalizations {
     String grammarPath = "/org/apache/ctakes/temporal/timenorm.en.grammar";
     URL grammarURL = PrintFailedTimeNormalizations.class.getResource(grammarPath);
     TemporalExpressionParser parser = new TemporalExpressionParser(grammarURL);
-    for (JCas jCas : new JCasIterable(reader, aggregateBuilder.createAggregate())) {
+    for (Iterator<JCas> casIter = new JCasIterator(reader, aggregateBuilder.createAggregate()); casIter.hasNext();) {
+      JCas jCas = casIter.next();
       JCas goldView = jCas.getView("GoldView");
 
       Matcher matcher = DOC_TIME_PATTERN.matcher(goldView.getDocumentText());

@@ -26,10 +26,9 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.Feature;
-import org.cleartk.util.ViewURIUtil;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.Feature;
 
 public class NumberOfEventTimeBetweenCandidatesExtractor implements
 RelationFeaturesExtractor {
@@ -67,7 +66,7 @@ RelationFeaturesExtractor {
 		
 //		//print long distances
 //		if (eventsInBetween >= 200){
-//			System.out.println("++++++++++Long Distance Relation in "+ ViewURIUtil.getURI(jCas).toString() + "+++++++");
+//			System.out.println("++++++++++Long Distance Relation in "+ ViewUriUtil.getURI(jCas).toString() + "+++++++");
 //			System.out.println("["+arg1.getCoveredText()+"] "+ jCas.getDocumentText().substring(arg1.getEnd(), arg2.getBegin()) +" ["+arg2.getCoveredText()+"]");
 //		}
 

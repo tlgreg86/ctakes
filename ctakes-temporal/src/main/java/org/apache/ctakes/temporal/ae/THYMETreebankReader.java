@@ -38,19 +38,19 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FeatureStructure;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.FSCollectionFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.StringArray;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.FileUtils;
 import org.apache.uima.util.Level;
-import org.cleartk.corpus.penntreebank.TreebankFormatParser;
-import org.cleartk.util.ViewURIUtil;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.FSCollectionFactory;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.util.ViewUriUtil;
+import org.cleartk.util.treebank.TreebankFormatParser;
 
 public class THYMETreebankReader extends JCasAnnotator_ImplBase {
 
@@ -74,7 +74,7 @@ public class THYMETreebankReader extends JCasAnnotator_ImplBase {
 
 	@Override
 	public void process(JCas jcas) throws AnalysisEngineProcessException {
-		URI uri = ViewURIUtil.getURI(jcas);
+		URI uri = ViewUriUtil.getURI(jcas);
 		logger.info("Document id is: " + uri.toString());
 
 		String fn = uri.getPath().substring(uri.getPath().lastIndexOf('/')+1) + ".xml.tree";
@@ -109,7 +109,7 @@ public class THYMETreebankReader extends JCasAnnotator_ImplBase {
 			fileText.replace(m.start(), m.end(), getWhitespaceString(headerLen));
 		}
 		
-		List<org.cleartk.syntax.constituent.util.TopTreebankNode> utilTrees;
+		List<org.cleartk.util.treebank.TopTreebankNode> utilTrees;
 		try {
 			utilTrees = TreebankFormatParser.parseDocument(tbText, 0, fileText.toString());
 		} catch (Exception e) {
@@ -134,7 +134,7 @@ public class THYMETreebankReader extends JCasAnnotator_ImplBase {
 		
 
 		// add Token, Sentence and TreebankNode annotations for the text
-		for (org.cleartk.syntax.constituent.util.TopTreebankNode utilTree : utilTrees) {
+		for (org.cleartk.util.treebank.TopTreebankNode utilTree : utilTrees) {
 
 			// create a Sentence and set its parse
 			TopTreebankNode tree = convert(utilTree, jcas);
@@ -162,7 +162,7 @@ public class THYMETreebankReader extends JCasAnnotator_ImplBase {
 	// the ctakes syntax typesystem was modeled after cleartk -- as a result, the following methods borrow very liberally from 
 	// org.cleartk.syntax.constituent.util.TreebankNodeUtility, which has a convert method for going from
 	// a "normal" tree to a cleartk/uima tree.  This does the same, except goes to a ctakes/uima tree.
-	private static TopTreebankNode convert(org.cleartk.syntax.constituent.util.TopTreebankNode inTree, JCas jcas){
+	private static TopTreebankNode convert(org.cleartk.util.treebank.TopTreebankNode inTree, JCas jcas){
 		TopTreebankNode outTree = new TopTreebankNode(jcas, inTree.getTextBegin(), inTree.getTextEnd());
 		outTree.setTreebankParse(inTree.getTreebankParse());
 	    convert(inTree, jcas, outTree, null);
@@ -207,7 +207,7 @@ public class THYMETreebankReader extends JCasAnnotator_ImplBase {
 	}
 
 	public static TreebankNode convert(
-			org.cleartk.syntax.constituent.util.TreebankNode pojoNode,
+			org.cleartk.util.treebank.TreebankNode pojoNode,
 			JCas jCas,
 			TreebankNode uimaNode,
 			TreebankNode parentNode) {
@@ -219,7 +219,7 @@ public class THYMETreebankReader extends JCasAnnotator_ImplBase {
 		uimaNode.setParent(parentNode);
 
 		List<TreebankNode> uimaChildren = new ArrayList<TreebankNode>();
-		for (org.cleartk.syntax.constituent.util.TreebankNode child : pojoNode.getChildren()) {
+		for (org.cleartk.util.treebank.TreebankNode child : pojoNode.getChildren()) {
 			TreebankNode childNode;
 			if (child.isLeaf()) {
 				childNode = new TerminalTreebankNode(jCas, child.getTextBegin(), child.getTextEnd());
@@ -244,7 +244,7 @@ public class THYMETreebankReader extends JCasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription getDescription(File treebankDirectory)
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				THYMETreebankReader.class,
 				THYMETreebankReader.TREEBANK_DIRECTORY,
 				treebankDirectory);

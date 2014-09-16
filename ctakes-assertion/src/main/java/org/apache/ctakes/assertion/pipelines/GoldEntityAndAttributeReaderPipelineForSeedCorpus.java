@@ -29,19 +29,20 @@ import org.apache.ctakes.assertion.cr.MiPACQKnowtatorXMLReader;
 import org.apache.ctakes.assertion.cr.NegExCorpusReader;
 import org.apache.ctakes.assertion.pipelines.SharpCorpusSplit.Subcorpus;
 import org.apache.ctakes.core.ae.SHARPKnowtatorXMLReader;
+import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
 import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.SimplePipeline;
+
 import com.google.common.base.Function;
 
 /**
@@ -135,13 +136,13 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 			
 			TypeSystemDescription typeSystemDescription = 
 					// use the uimafit method of finding available type system
-					// descriptor via META-INF/org.uimafit/types.txt 
+					// descriptor via META-INF/org.apache.uima.fit/types.txt 
 					// (found in ctakes-type-system/src/main/resources)
 				TypeSystemDescriptionFactory.createTypeSystemDescription();
 			
 			AggregateBuilder aggregate = new AggregateBuilder();
 			
-			CollectionReaderDescription collectionReader = CollectionReaderFactory.createDescription(
+			CollectionReaderDescription collectionReader = CollectionReaderFactory.createReaderDescription(
 					FilesInDirectoryCollectionReader.class,
 					typeSystemDescription,
 					"InputDirectory",
@@ -149,7 +150,7 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 					);
 			
 			// read the UMLS_CEM data from Knowtator
-			AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createPrimitiveDescription(
+			AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createEngineDescription(
 					SHARPKnowtatorXMLReader.class,
 					typeSystemDescription,
 					"TextDirectory", // 3/13/13 halgrim changed from "TextURI" trying to work with new SHARPKnowtatorXMLReader.java
@@ -159,18 +160,16 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 			aggregate.add(goldAnnotator);
 
 			// write just the XMI version of what's in Knowtator UMLS_CEM
-			AnalysisEngineDescription xWriter = AnalysisEngineFactory.createPrimitiveDescription(
-					XWriter.class,
+			AnalysisEngineDescription xWriter = AnalysisEngineFactory.createEngineDescription(
+					XmiWriterCasConsumerCtakes.class,
 					typeSystemDescription,
-					XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-					xmiDirectory.toString(),
-					XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-					CtakesFileNamer.class.getName()
+					XmiWriterCasConsumerCtakes.PARAM_OUTPUTDIR,
+					xmiDirectory.toString()
 			);
 			aggregate.add(xWriter);
 
 			// fill in other values that are necessary for preprocessing
-			AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(
+			AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createEngineDescription(
 					"desc/analysis_engine/AttributeDiscoveryPreprocessor"
 					);
 			aggregate.add(preprocessAnnotator);
@@ -194,13 +193,11 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 					subcorpusDirectory = trainDirectory;
 					break;
 				}
-				AnalysisEngineDescription xWriter2 = AnalysisEngineFactory.createPrimitiveDescription(
-						XWriter.class,
+				AnalysisEngineDescription xWriter2 = AnalysisEngineFactory.createEngineDescription(
+						XmiWriterCasConsumerCtakes.class,
 						typeSystemDescription,
-						XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-						subcorpusDirectory,
-						XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-						CtakesFileNamer.class.getName()
+						XmiWriterCasConsumerCtakes.PARAM_OUTPUTDIR,
+						subcorpusDirectory
 				);
 				aggregate.add(xWriter2);
 //				SimplePipeline.runPipeline(collectionReader, goldAnnotator, xWriter, xWriter2);
@@ -247,14 +244,14 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 	    for(File batchDir : batches){
 	      TypeSystemDescription typeSystemDescription = 
 	          // use the uimafit method of finding available type system
-	          // descriptor via META-INF/org.uimafit/types.txt 
+	          // descriptor via META-INF/org.apache.uima.fit/types.txt 
 	          // (found in ctakes-type-system/src/main/resources)
 	        TypeSystemDescriptionFactory.createTypeSystemDescription();
 	      
 	      File textDirectory = new File(batchDir, "text");
 	      AggregateBuilder aggregate = new AggregateBuilder();
 	      
-	      CollectionReaderDescription collectionReader = CollectionReaderFactory.createDescription(
+	      CollectionReaderDescription collectionReader = CollectionReaderFactory.createReaderDescription(
 	          FilesInDirectoryCollectionReader.class,
 	          typeSystemDescription,
 	          "InputDirectory",
@@ -262,7 +259,7 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 	          );
 	      
 	      // read the UMLS_CEM data from Knowtator
-	      AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createPrimitiveDescription(
+	      AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createEngineDescription(
 	          SHARPKnowtatorXMLReader.class,
 	          typeSystemDescription,
 	          "TextDirectory", // 3/13/13 halgrim changed from "TextURI" trying to work with new SHARPKnowtatorXMLReader.java
@@ -272,7 +269,7 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 	      aggregate.add(goldAnnotator);
 
 	      // fill in other values that are necessary for preprocessing
-	      AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(
+	      AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createEngineDescription(
 	          "desc/analysis_engine/AttributeDiscoveryPreprocessor"
 	          );
 	      aggregate.add(preprocessAnnotator);
@@ -294,13 +291,11 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 	        subcorpusDir = trainDirectory;
 	      }
 	      
-	       AnalysisEngineDescription xWriter = AnalysisEngineFactory.createPrimitiveDescription(
-	            XWriter.class,
+	       AnalysisEngineDescription xWriter = AnalysisEngineFactory.createEngineDescription(
+	            XmiWriterCasConsumerCtakes.class,
 	            typeSystemDescription,
-	            XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-	            subcorpusDir,
-	            XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-	            CtakesFileNamer.class.getName()
+	            XmiWriterCasConsumerCtakes.PARAM_OUTPUTDIR,
+	            subcorpusDir
 	        );
 	       aggregate.add(xWriter);
 	       SimplePipeline.runPipeline(collectionReader, aggregate.createAggregateDescription());
@@ -314,13 +309,13 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 
 		TypeSystemDescription typeSystemDescription = 
 			// use the uimafit method of finding available type system
-			// descriptor via META-INF/org.uimafit/types.txt 
+			// descriptor via META-INF/org.apache.uima.fit/types.txt 
 			// (found in ctakes-type-system/src/main/resources)
 			TypeSystemDescriptionFactory.createTypeSystemDescription();
 
 		AggregateBuilder aggregate = new AggregateBuilder();
 
-		CollectionReaderDescription collectionReader = CollectionReaderFactory.createDescription(
+		CollectionReaderDescription collectionReader = CollectionReaderFactory.createReaderDescription(
 				I2B2Challenge2010CollectionReader.class,
 				typeSystemDescription,
 				"inputDir",
@@ -328,19 +323,17 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 		);
 
 		// fill in other values that are necessary for preprocessing
-		AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(
+		AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createEngineDescription(
 				"desc/analysis_engine/AttributeDiscoveryPreprocessor"
 		);
 		aggregate.add(preprocessAnnotator);
 
 		if (preprocessedDirectory!=null) {
-			AnalysisEngineDescription xWriter2 = AnalysisEngineFactory.createPrimitiveDescription(
-					XWriter.class,
+			AnalysisEngineDescription xWriter2 = AnalysisEngineFactory.createEngineDescription(
+					XmiWriterCasConsumerCtakes.class,
 					typeSystemDescription,
-					XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-					preprocessedDirectory,
-					XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-					CtakesFileNamer.class.getName()
+					XmiWriterCasConsumerCtakes.PARAM_OUTPUTDIR,
+					preprocessedDirectory
 			);
 			aggregate.add(xWriter2);
 			//		SimplePipeline.runPipeline(collectionReader, goldAnnotator, xWriter, xWriter2);
@@ -359,25 +352,23 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 		AggregateBuilder aggregate = new AggregateBuilder();
 
 		// input dir is hard-coded in AssertionConst
-		CollectionReaderDescription collectionReader = CollectionReaderFactory.createDescription(
+		CollectionReaderDescription collectionReader = CollectionReaderFactory.createReaderDescription(
 				NegExCorpusReader.class,
 				typeSystemDescription
 		);
 
 		// fill in other values that are necessary for preprocessing
-		AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(
+		AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createEngineDescription(
 				"desc/analysis_engine/AttributeDiscoveryPreprocessor"
 		);
 		aggregate.add(preprocessAnnotator);
 
 		if (preprocessedDirectory!=null) {
-			AnalysisEngineDescription xWriter2 = AnalysisEngineFactory.createPrimitiveDescription(
-					XWriter.class,
+			AnalysisEngineDescription xWriter2 = AnalysisEngineFactory.createEngineDescription(
+					XmiWriterCasConsumerCtakes.class,
 					typeSystemDescription,
-					XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-					preprocessedDirectory,
-					XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-					CtakesFileNamer.class.getName()
+					XmiWriterCasConsumerCtakes.PARAM_OUTPUTDIR,
+					preprocessedDirectory
 			);
 			aggregate.add(xWriter2);
 			//		SimplePipeline.runPipeline(collectionReader, goldAnnotator, xWriter, xWriter2);
@@ -400,7 +391,7 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 		for (File inDir : splitMipacq.keySet() ) {
 			AggregateBuilder aggregate = new AggregateBuilder();
 
-			CollectionReaderDescription collectionReader = CollectionReaderFactory.createDescription(
+			CollectionReaderDescription collectionReader = CollectionReaderFactory.createReaderDescription(
 					FilesInDirectoryCollectionReader.class,
 					typeSystemDescription,
 					"InputDirectory",
@@ -408,7 +399,7 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 					);
 
 			// read the UMLS_CEM data from Knowtator
-			AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createPrimitiveDescription(
+			AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createEngineDescription(
 					MiPACQKnowtatorXMLReader.class,
 					typeSystemDescription,
 					MiPACQKnowtatorXMLReader.PARAM_TEXT_DIRECTORY,
@@ -417,19 +408,17 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 
 			aggregate.add(goldAnnotator);
 			// fill in other values that are necessary for preprocessing
-			AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(
+			AnalysisEngineDescription preprocessAnnotator = AnalysisEngineFactory.createEngineDescription(
 					"desc/analysis_engine/AttributeDiscoveryPreprocessor"
 					);
 			aggregate.add(preprocessAnnotator);
 
 			if (preprocessedDirectory!=null) {
-				AnalysisEngineDescription xWriter2 = AnalysisEngineFactory.createPrimitiveDescription(
-						XWriter.class,
+				AnalysisEngineDescription xWriter2 = AnalysisEngineFactory.createEngineDescription(
+						XmiWriterCasConsumerCtakes.class,
 						typeSystemDescription,
-						XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-						splitMipacq.get(inDir),
-						XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-						CtakesFileNamer.class.getName()
+						XmiWriterCasConsumerCtakes.PARAM_OUTPUTDIR,
+						splitMipacq.get(inDir)
 						);
 				aggregate.add(xWriter2);
 				//		SimplePipeline.runPipeline(collectionReader, goldAnnotator, xWriter, xWriter2);

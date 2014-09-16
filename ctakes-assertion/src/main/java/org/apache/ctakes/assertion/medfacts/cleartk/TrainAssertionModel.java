@@ -19,7 +19,6 @@
 package org.apache.ctakes.assertion.medfacts.cleartk;
 
 import java.io.File;
-import java.util.Locale;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -32,35 +31,25 @@ import org.apache.commons.cli.ParseException;
 import org.apache.ctakes.assertion.eval.AssertionEvaluation;
 import org.apache.ctakes.assertion.eval.AssertionEvaluation.ReferenceAnnotationsSystemAssertionClearer;
 import org.apache.ctakes.assertion.eval.AssertionEvaluation.ReferenceIdentifiedAnnotationsSystemToGoldCopier;
+import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-
 import org.apache.uima.collection.CollectionReader;
-import org.apache.uima.collection.CollectionReaderDescription;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.CleartkAnnotatorDescriptionFactory;
-import org.cleartk.classifier.DataWriterFactory;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.cleartk.classifier.opennlp.DefaultMaxentDataWriterFactory;
-import org.cleartk.classifier.opennlp.MaxentDataWriter;
-import org.cleartk.classifier.opennlp.MaxentStringOutcomeDataWriter;
-import org.cleartk.util.cr.FilesCollectionReader;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.ConfigurationParameterFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.testing.util.HideOutput;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.DataWriterFactory;
+import org.cleartk.ml.jar.DefaultDataWriterFactory;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
+import org.cleartk.ml.opennlp.maxent.MaxentStringOutcomeDataWriter;
 import org.cleartk.util.cr.XReader;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.ConfigurationParameterFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.testing.util.HideOutput;
 //import org.junit.Test;
-import org.apache.ctakes.assertion.medfacts.AssertionAnalysisEngine;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 //import edu.mayo.bmi.uima.core.type.textsem.EntityMention;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-import org.apache.ctakes.typesystem.type.textspan.Sentence;
-import org.cleartk.classifier.jar.DefaultDataWriterFactory;
 
 
 public class TrainAssertionModel {
@@ -87,11 +76,11 @@ public class TrainAssertionModel {
 		try {
 		CollectionReader reader = FilesCollectionReader.getCollectionReader(trainDir);
 		AggregateBuilder builder = new AggregateBuilder();
-		//builder.add(AnalysisEngineFactory.createAnalysisEngineDescription("desc/AssertionMiniPipelineAnalysisEngine.xml", null));
-		//builder.add(AnalysisEngineFactory.createPrimitiveDescription(IdentifiedAnnotation.class));
-		//builder.add(AnalysisEngineFactory.createAnalysisEngineDescription("edu.mayo.bmi.uima.core.type.textsem.IdentifiedAnnotation"));
+		//builder.add(AnalysisEngineFactory.createEngineDescription("desc/AssertionMiniPipelineAnalysisEngine.xml", null));
+		//builder.add(AnalysisEngineFactory.createEngineDescription(IdentifiedAnnotation.class));
+		//builder.add(AnalysisEngineFactory.createEngineDescription("edu.mayo.bmi.uima.core.type.textsem.IdentifiedAnnotation"));
 	    builder.add(AssertionCleartkAnalysisEngine.getWriterDescription(outputDir));
-	    SimplePipeline.runPipeline(reader, builder.createAggregateDescription());
+	    SimplePipeline.runPipeline(reader, builder.createEngineDescription());
 	    org.cleartk.classifier.jar.Train.main(outputDir);
 		} catch (Exception e) {
 			System.err.println("Exception: " + e);
@@ -113,7 +102,7 @@ public class TrainAssertionModel {
     String evaluationOutputDataDirectory = "/work/medfacts/cleartk/data/eval2.output";
 
     String maxentModelOutputDirectory = modelOutputDirectory + "/maxent";
-    AnalysisEngineDescription dataWriter = AnalysisEngineFactory.createPrimitiveDescription(
+    AnalysisEngineDescription dataWriter = AnalysisEngineFactory.createEngineDescription(
         AssertionCleartkAnalysisEngine.class,
         AssertionComponents.CTAKES_CTS_TYPE_SYSTEM_DESCRIPTION,
         DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -233,7 +222,7 @@ public class TrainAssertionModel {
     String maxentModelOutputDirectory = modelDirectory + "/maxent";
     try
     {
-      AnalysisEngineDescription dataWriter = AnalysisEngineFactory.createPrimitiveDescription(
+      AnalysisEngineDescription dataWriter = AnalysisEngineFactory.createEngineDescription(
           AssertionCleartkAnalysisEngine.class,
           AssertionComponents.CTAKES_CTS_TYPE_SYSTEM_DESCRIPTION,
           DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -266,13 +255,13 @@ public class TrainAssertionModel {
       String... trainingArgs) throws Exception
   {
     
-    CollectionReader trainingCollectionReader = CollectionReaderFactory.createCollectionReader(
+    CollectionReader trainingCollectionReader = CollectionReaderFactory.createReader(
         XReader.class,
         XReader.PARAM_ROOT_FILE,
         trainingDataInputDirectory,
         XReader.PARAM_XML_SCHEME,
         XReader.XMI);
-    CollectionReader evaluationCollectionReader = CollectionReaderFactory.createCollectionReader(
+    CollectionReader evaluationCollectionReader = CollectionReaderFactory.createReader(
         XReader.class,
         XReader.PARAM_ROOT_FILE,
         decodingInputDirectory,
@@ -282,15 +271,15 @@ public class TrainAssertionModel {
     
     AggregateBuilder trainingBuilder = new AggregateBuilder();
     
-    AnalysisEngineDescription goldCopierAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
+    AnalysisEngineDescription goldCopierAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
     trainingBuilder.add(goldCopierAnnotator);
     
-    AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceAnnotationsSystemAssertionClearer.class);
+    AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceAnnotationsSystemAssertionClearer.class);
     trainingBuilder.add(assertionAttributeClearerAnnotator);
     
-    Class<? extends DataWriterFactory<String>> dataWriterFactoryClass = DefaultMaxentDataWriterFactory.class;
+//    Class<? extends DataWriterFactory<String>> dataWriterFactoryClass = DefaultMaxentDataWriterFactory.class;
     AnalysisEngineDescription trainingAssertionAnnotator = 
-        AnalysisEngineFactory.createPrimitiveDescription(
+        AnalysisEngineFactory.createEngineDescription(
             AssertionCleartkAnalysisEngine.class,
             AssertionComponents.CTAKES_CTS_TYPE_SYSTEM_DESCRIPTION
             );
@@ -298,8 +287,8 @@ public class TrainAssertionModel {
         trainingAssertionAnnotator,
         AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
         AssertionEvaluation.GOLD_VIEW_NAME,
-        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
-        dataWriterFactoryClass.getName(),
+//        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
+//        dataWriterFactoryClass.getName(),
         DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
         modelOutputDirectory
         );
@@ -336,20 +325,20 @@ public class TrainAssertionModel {
 
     HideOutput hider = new HideOutput();
     logger.info("starting training...");
-    org.cleartk.classifier.jar.Train.main(args);
+    org.cleartk.ml.jar.Train.main(args);
     logger.info("finished training.");
     hider.restoreOutput();
 
     AggregateBuilder decodingBuilder = new AggregateBuilder();
     
-    //AnalysisEngineDescription goldCopierAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
+    //AnalysisEngineDescription goldCopierAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
     decodingBuilder.add(goldCopierAnnotator);
     
-    //AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceAnnotationsSystemAssertionClearer.class);
+    //AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceAnnotationsSystemAssertionClearer.class);
     decodingBuilder.add(assertionAttributeClearerAnnotator);
     
     AnalysisEngineDescription decodingAssertionAnnotator =
-      AnalysisEngineFactory.createPrimitiveDescription(
+      AnalysisEngineFactory.createEngineDescription(
         AssertionCleartkAnalysisEngine.class,
         AssertionComponents.CTAKES_CTS_TYPE_SYSTEM_DESCRIPTION
         );
@@ -362,12 +351,12 @@ public class TrainAssertionModel {
         );
     decodingBuilder.add(decodingAssertionAnnotator);
     
-    //SimplePipeline.runPipeline(collectionReader,  builder.createAggregateDescription());
+    //SimplePipeline.runPipeline(collectionReader,  builder.createEngineDescription());
     AnalysisEngineDescription decodingAggregateDescription = decodingBuilder.createAggregateDescription();
     
     
     
-//    AnalysisEngineDescription taggerDescription = AnalysisEngineFactory.createPrimitiveDescription(
+//    AnalysisEngineDescription taggerDescription = AnalysisEngineFactory.createEngineDescription(
 //        AssertionCleartkAnalysisEngine.class,
 //        GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 //        //AssertionComponents.TYPE_SYSTEM_DESCRIPTION,
@@ -381,13 +370,11 @@ public class TrainAssertionModel {
 //        DefaultSnowballStemmer.getDescription("English"),
         //taggerDescription,
         decodingAggregateDescription,
-        AnalysisEngineFactory.createPrimitiveDescription(
-            XWriter.class,
+        AnalysisEngineFactory.createEngineDescription(
+            XmiWriterCasConsumerCtakes.class,
             AssertionComponents.CTAKES_CTS_TYPE_SYSTEM_DESCRIPTION,
-            XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-            decodingOutputDirectory,
-            XWriter.PARAM_XML_SCHEME_NAME,
-            XWriter.XMI));
+            XmiWriterCasConsumerCtakes.PARAM_OUTPUTDIR,
+            decodingOutputDirectory));
     logger.info("finished decoding.");
 
   }

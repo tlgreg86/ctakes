@@ -39,14 +39,14 @@ import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.junit.Test;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.JCasFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.JCasFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 
 public class BackwardsTimeAnnotatorTest {
 
@@ -65,9 +65,9 @@ public class BackwardsTimeAnnotatorTest {
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
 		builder.add(AnalysisEngineFactory
-				.createPrimitiveDescription(CopyNPChunksToLookupWindowAnnotations.class));
+				.createEngineDescription(CopyNPChunksToLookupWindowAnnotations.class));
 		builder.add(AnalysisEngineFactory
-				.createPrimitiveDescription(RemoveEnclosedLookupWindows.class));
+				.createEngineDescription(RemoveEnclosedLookupWindows.class));
 		// Commented out the Dictionary lookup for the test
 		// Uncomment and set -Dctakes.umlsuser and -Dctakes.umlspw env params if
 		// needed

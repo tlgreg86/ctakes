@@ -34,13 +34,13 @@ import org.apache.ctakes.typesystem.type.relation.DegreeOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.util.XMLInputSource;
 import org.apache.uima.util.XMLParser;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
+import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.ObjectArrays;
@@ -112,7 +112,7 @@ public class RelationExtractorTrain {
             ModifierExtractorEvaluation.BEST_PARAMETERS);
     evaluation.train(evaluation.getCollectionReader(trainFiles), modifierTrainDirectory);
     AnalysisEngineDescription modifierExtractorDesc =
-        AnalysisEngineFactory.createPrimitiveDescription(
+        AnalysisEngineFactory.createEngineDescription(
             ModifierExtractorAnnotator.class,
             GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
             "/" + modifierModelPath + "/model.jar");
@@ -184,7 +184,7 @@ public class RelationExtractorTrain {
         new Object[] { GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
             "/" + modelPath + "/model.jar" };
     AnalysisEngineDescription relationExtractorDescription =
-        AnalysisEngineFactory.createPrimitiveDescription(
+        AnalysisEngineFactory.createEngineDescription(
             annotatorClass,
             ObjectArrays.concat(params.configurationParameters, pathParameters, Object.class));
 

@@ -19,7 +19,6 @@
 package org.apache.ctakes.assertion.medfacts.cleartk;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 
@@ -31,9 +30,8 @@ import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
 public class GenericCleartkAnalysisEngine extends
 		AssertionCleartkAnalysisEngine {
@@ -67,7 +65,7 @@ public class GenericCleartkAnalysisEngine extends
 //				new CleartkExtractor(
 //						IdentifiedAnnotation.class, new GenericFeaturesExtractor()) );
 		if(this.entityFeatureExtractors == null){
-			this.entityFeatureExtractors = new ArrayList<SimpleFeatureExtractor>();
+			this.entityFeatureExtractors = new ArrayList<FeatureExtractor1>();
 		}
 		this.entityFeatureExtractors.add(new ContextWordWindowExtractor("org/apache/ctakes/assertion/models/generic.txt"));
 		this.entityFeatureExtractors.add(new GenericFeaturesExtractor());

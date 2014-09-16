@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -36,21 +37,21 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.component.ViewCreatorAnnotator;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.util.XMLInputSource;
 import org.apache.uima.util.XMLParser;
 import org.apache.uima.util.XMLSerializer;
 import org.cleartk.eval.AnnotationStatistics;
-import org.cleartk.util.ViewURIUtil;
+import org.cleartk.util.ViewUriUtil;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
 import org.cleartk.util.cr.UriCollectionReader;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.component.ViewCreatorAnnotator;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.JCasIterable;
 import org.xml.sax.ContentHandler;
 
 import com.google.common.base.Function;
@@ -167,22 +168,25 @@ public class SHARPXMI {
       XMLParser parser = UIMAFramework.getXMLParser();
       XMLInputSource source = new XMLInputSource(preprocessDescFile);
       builder.add(parser.parseAnalysisEngineDescription(source));
-      builder.add(AnalysisEngineFactory.createPrimitiveDescription(
+      builder.add(AnalysisEngineFactory.createEngineDescription(
           ViewCreatorAnnotator.class,
           ViewCreatorAnnotator.PARAM_VIEW_NAME,
           GOLD_VIEW_NAME));
-      builder.add(AnalysisEngineFactory.createPrimitiveDescription(CopyDocumentTextToGoldView.class));
+      builder.add(AnalysisEngineFactory.createEngineDescription(CopyDocumentTextToGoldView.class));
       builder.add(
-          AnalysisEngineFactory.createPrimitiveDescription(DocumentIDAnnotator.class),
+          AnalysisEngineFactory.createEngineDescription(DocumentIDAnnotator.class),
           CAS.NAME_DEFAULT_SOFA,
           GOLD_VIEW_NAME);
       builder.add(
-          AnalysisEngineFactory.createPrimitiveDescription(SHARPKnowtatorXMLReader.class),
+          AnalysisEngineFactory.createEngineDescription(SHARPKnowtatorXMLReader.class,
+        		  SHARPKnowtatorXMLReader.PARAM_SET_DEFAULTS,
+        		  true),
           CAS.NAME_DEFAULT_SOFA,
           GOLD_VIEW_NAME);
 
       // write out an XMI for each file
-      for (JCas jCas : new JCasIterable(reader, builder.createAggregate())) {
+      for (Iterator<JCas> casIter = new JCasIterator(reader, builder.createAggregate()); casIter.hasNext();) {
+    	JCas jCas = casIter.next();
         JCas goldView = jCas.getView(GOLD_VIEW_NAME);
         String documentID = DocumentIDAnnotationUtil.getDocumentID(goldView);
         if (documentID == null) {
@@ -203,7 +207,7 @@ public class SHARPXMI {
 
   public static interface EvaluationOptions extends Options {
     @Option(
-        longName = "evalute-on",
+        longName = "evaluate-on",
         defaultValue = "DEV",
         description = "perform evaluation using the training (TRAIN), development (DEV) or test "
             + "(TEST) data.")
@@ -223,7 +227,7 @@ public class SHARPXMI {
 
     @Override
     public CollectionReader getCollectionReader(List<File> items) throws Exception {
-      return CollectionReaderFactory.createCollectionReader(
+      return CollectionReaderFactory.createReader(
           XMIReader.class,
           TypeSystemDescriptionFactory.createTypeSystemDescription(),
           XMIReader.PARAM_FILES,
@@ -324,7 +328,7 @@ public class SHARPXMI {
 
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
-      String documentID = new File(ViewURIUtil.getURI(jCas)).getPath();
+      String documentID = new File(ViewUriUtil.getURI(jCas)).getPath();
       DocumentID documentIDAnnotation = new DocumentID(jCas);
       documentIDAnnotation.setDocumentID(documentID);
       documentIDAnnotation.addToIndexes();

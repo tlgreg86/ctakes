@@ -60,10 +60,10 @@ import org.apache.uima.jcas.cas.FSList;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.SimplePipeline;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 
 public class ODIEVectorFileWriter extends JCasAnnotator_ImplBase {
 
@@ -458,12 +458,12 @@ public class ODIEVectorFileWriter extends JCasAnnotator_ImplBase {
 //																			 "../assertion/desc/medfactsTypeSystem.xml");
 //		TypeSystemDescription corefTypeSystem = TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath();
 		try {
-			CollectionReader xmiReader = CollectionReaderFactory.createCollectionReader(XMIReader.class, 
+			CollectionReader xmiReader = CollectionReaderFactory.createReader(XMIReader.class, 
 //					typeSystem, 
 					XMIReader.PARAM_FILES, 
 					paths);
 			
-			AnalysisEngine consumer = AnalysisEngineFactory.createPrimitive(ODIEVectorFileWriter.class,
+			AnalysisEngine consumer = AnalysisEngineFactory.createEngine(ODIEVectorFileWriter.class,
 //					typeSystem,
 					ODIEVectorFileWriter.PARAM_VECTORS, true,
 					ODIEVectorFileWriter.PARAM_TREES, false,

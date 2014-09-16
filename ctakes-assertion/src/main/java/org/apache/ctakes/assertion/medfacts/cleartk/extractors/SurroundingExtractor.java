@@ -24,17 +24,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.assertion.zoner.types.Zone;
-import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.log4j.Logger;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
-public class SurroundingExtractor implements SimpleFeatureExtractor
+public class SurroundingExtractor implements FeatureExtractor1
 {
 	protected static final Logger logger = Logger.getLogger(SurroundingExtractor.class);
 	

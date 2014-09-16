@@ -20,8 +20,8 @@ package org.apache.ctakes.relationextractor.eval;
 
 import java.util.Arrays;
 
-import org.cleartk.classifier.DataWriter;
 import org.cleartk.eval.AnnotationStatistics;
+import org.cleartk.ml.DataWriter;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;

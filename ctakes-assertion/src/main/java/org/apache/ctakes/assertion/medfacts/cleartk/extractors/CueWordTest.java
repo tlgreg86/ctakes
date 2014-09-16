@@ -21,39 +21,28 @@ package org.apache.ctakes.assertion.medfacts.cleartk.extractors;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
 
-import org.apache.ctakes.core.ae.DocumentIdPrinterAnalysisEngine;
-import org.apache.ctakes.core.cr.XMIReader;
-import org.apache.ctakes.core.util.CtakesFileNamer;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.temporary.assertion.AssertionCuePhraseAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.JCasFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
-import org.cleartk.classifier.feature.extractor.simple.NamingExtractor;
-import org.cleartk.classifier.feature.extractor.simple.TypePathExtractor;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.JCasFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CombinedExtractor1;
+import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
+import org.cleartk.ml.feature.extractor.TypePathExtractor;
 
 public class CueWordTest
 {
@@ -98,8 +87,8 @@ public class CueWordTest
       sentenceToCoveredCuePhraseMap =
         JCasUtil.indexCovered(jcas, Sentence.class, AssertionCuePhraseAnnotation.class);
     
-    CombinedExtractor baseExtractorCuePhraseCategory =
-        new CombinedExtractor
+    CombinedExtractor1 baseExtractorCuePhraseCategory =
+        new CombinedExtractor1
           (
            new CoveredTextExtractor(),
            new TypePathExtractor(AssertionCuePhraseAnnotation.class, "cuePhrase"),

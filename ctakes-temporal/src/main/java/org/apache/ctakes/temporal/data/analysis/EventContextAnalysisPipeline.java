@@ -35,12 +35,12 @@ import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -79,7 +79,7 @@ public class EventContextAnalysisPipeline {
 		List<File> trainFiles = Arrays.asList(options.getInputDirectory().listFiles());
     CollectionReader collectionReader = getCollectionReader(trainFiles);
 		
-    AnalysisEngine annotationConsumer = AnalysisEngineFactory.createPrimitive(
+    AnalysisEngine annotationConsumer = AnalysisEngineFactory.createEngine(
     		EventAndTokenContextWriter.class,
     		"TokenOutputFile",
     		options.getTokenOutputFile(),
@@ -200,7 +200,7 @@ public class EventContextAnalysisPipeline {
     String[] paths = new String[fileNames.size()];
     fileNames.toArray(paths);
     
-    return CollectionReaderFactory.createCollectionReader(
+    return CollectionReaderFactory.createReader(
         XMIReader.class,
         XMIReader.PARAM_FILES,
         paths);

@@ -34,7 +34,7 @@ import org.apache.uima.util.XMLInputSource;
 import org.apache.uima.util.XMLParser;
 import org.junit.Assert;
 import org.junit.Test;
-import org.uimafit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AggregateBuilder;
 
 /**
  * TODO get rid of hard-coded path to Types.xml - load from classpath

@@ -35,10 +35,10 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 /**
  * This class provides a UIMA wrapper for the OpenNLP
@@ -168,11 +168,11 @@ public class Chunker extends JCasAnnotator_ImplBase {
 	}
 	
 	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
-	  return AnalysisEngineFactory.createPrimitiveDescription(Chunker.class);
+	  return AnalysisEngineFactory.createEngineDescription(Chunker.class);
 	}
 
 	 public static AnalysisEngineDescription createAnnotatorDescription(String modelFile) throws ResourceInitializationException{
-	    return AnalysisEngineFactory.createPrimitiveDescription(Chunker.class,
+	    return AnalysisEngineFactory.createEngineDescription(Chunker.class,
 	        Chunker.PARAM_CHUNKER_MODEL_FILE,
 	        modelFile);
 	  }

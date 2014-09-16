@@ -42,7 +42,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.uimafit.factory.JCasFactory;
+import org.apache.uima.fit.factory.JCasFactory;
 
 import com.google.common.collect.Lists;
 

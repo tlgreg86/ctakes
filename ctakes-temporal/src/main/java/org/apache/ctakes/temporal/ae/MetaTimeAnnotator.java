@@ -35,23 +35,23 @@ import org.apache.uima.cas.CASException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.CasCopier;
-import org.cleartk.classifier.CleartkSequenceAnnotator;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.Instances;
-import org.cleartk.classifier.SequenceDataWriter;
-import org.cleartk.classifier.chunking.BIOChunking;
-import org.cleartk.classifier.jar.DefaultSequenceDataWriterFactory;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.component.ViewCreatorAnnotator;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.CleartkSequenceAnnotator;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.Instances;
+import org.cleartk.ml.SequenceDataWriter;
+import org.cleartk.ml.chunking.BioChunking;
+import org.cleartk.ml.jar.DefaultSequenceDataWriterFactory;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.component.ViewCreatorAnnotator;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
 
-  private BIOChunking<BaseToken, TimeMention> timeChunking;
+  private BioChunking<BaseToken, TimeMention> timeChunking;
 
   @SuppressWarnings("unchecked")
   static Class<? extends JCasAnnotator_ImplBase>[] components = new Class[]{ BackwardsTimeAnnotator.class, TimeAnnotator.class, ConstituencyBasedTimeAnnotator.class, CRFTimeAnnotator.class };
@@ -66,7 +66,7 @@ public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
     AggregateBuilder builder = new AggregateBuilder();
     
     for(Class<?> component : components){
-      builder.add(AnalysisEngineFactory.createPrimitiveDescription(ViewCreatorAnnotator.class, ViewCreatorAnnotator.PARAM_VIEW_NAME, component.getSimpleName()));
+      builder.add(AnalysisEngineFactory.createEngineDescription(ViewCreatorAnnotator.class, ViewCreatorAnnotator.PARAM_VIEW_NAME, component.getSimpleName()));
     }
     
     builder.add(TimeAnnotator.createEnsembleDescription(
@@ -82,7 +82,7 @@ public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
         new File(directory, CRFTimeAnnotator.class.getSimpleName()), 
         CRFTimeAnnotator.class.getSimpleName()));
     
-    builder.add(AnalysisEngineFactory.createPrimitiveDescription(MetaTimeAnnotator.class,
+    builder.add(AnalysisEngineFactory.createEngineDescription(MetaTimeAnnotator.class,
           CleartkSequenceAnnotator.PARAM_IS_TRAINING,
           true,
           DefaultSequenceDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -96,7 +96,7 @@ public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
     AggregateBuilder builder = new AggregateBuilder();
     
     for(Class<?> component : components){
-      builder.add(AnalysisEngineFactory.createPrimitiveDescription(ViewCreatorAnnotator.class, ViewCreatorAnnotator.PARAM_VIEW_NAME, component.getSimpleName()));
+      builder.add(AnalysisEngineFactory.createEngineDescription(ViewCreatorAnnotator.class, ViewCreatorAnnotator.PARAM_VIEW_NAME, component.getSimpleName()));
     }
     builder.add(TimeAnnotator.createEnsembleDescription(
                       new File(directory, TimeAnnotator.class.getSimpleName()),
@@ -110,7 +110,7 @@ public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
     builder.add(CRFTimeAnnotator.createEnsembleDescription(
                       new File(directory, CRFTimeAnnotator.class.getSimpleName()), 
                       CRFTimeAnnotator.class.getSimpleName()));
-    builder.add(AnalysisEngineFactory.createPrimitiveDescription(
+    builder.add(AnalysisEngineFactory.createEngineDescription(
         MetaTimeAnnotator.class,
         CleartkSequenceAnnotator.PARAM_IS_TRAINING,
         false,
@@ -123,7 +123,7 @@ public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
   public void initialize(UimaContext context) throws ResourceInitializationException {
     super.initialize(context);
     // define chunking
-    this.timeChunking = new BIOChunking<>(BaseToken.class, TimeMention.class);
+    this.timeChunking = new BioChunking<>(BaseToken.class, TimeMention.class);
   }
   
   @Override

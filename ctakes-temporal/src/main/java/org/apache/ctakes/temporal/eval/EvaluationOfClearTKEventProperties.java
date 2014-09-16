@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.FileHandler;
@@ -31,9 +32,9 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.apache.ctakes.temporal.ae.EventToClearTKEventAnnotator;
-import org.apache.ctakes.temporal.ae.ClearTKDocumentCreationTimeAnnotator;
 import org.apache.ctakes.temporal.ae.ClearTKDocTimeRelAnnotator;
+import org.apache.ctakes.temporal.ae.ClearTKDocumentCreationTimeAnnotator;
+import org.apache.ctakes.temporal.ae.EventToClearTKEventAnnotator;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
@@ -42,24 +43,24 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.eval.AnnotationStatistics;
-import org.cleartk.syntax.opennlp.ParserAnnotator;
-import org.cleartk.syntax.opennlp.PosTaggerAnnotator;
-import org.cleartk.syntax.opennlp.SentenceAnnotator;
+import org.cleartk.opennlp.tools.ParserAnnotator;
+import org.cleartk.opennlp.tools.PosTaggerAnnotator;
+import org.cleartk.opennlp.tools.SentenceAnnotator;
+import org.cleartk.snowball.DefaultSnowballStemmer;
 import org.cleartk.timeml.event.EventAspectAnnotator;
 import org.cleartk.timeml.event.EventClassAnnotator;
 import org.cleartk.timeml.event.EventModalityAnnotator;
 import org.cleartk.timeml.event.EventPolarityAnnotator;
 import org.cleartk.timeml.event.EventTenseAnnotator;
 import org.cleartk.timeml.tlink.TemporalLinkEventToDocumentCreationTimeAnnotator;
-import org.cleartk.token.stem.snowball.DefaultSnowballStemmer;
 import org.cleartk.token.tokenizer.TokenAnnotator;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
@@ -158,7 +159,8 @@ public class EvaluationOfClearTKEventProperties extends
 
     Map<String, AnnotationStatistics<String>> statsMap = new HashMap<String, AnnotationStatistics<String>>();
     statsMap.put(DOC_TIME_REL, new AnnotationStatistics<String>());
-    for (JCas jCas : new JCasIterable(collectionReader, aggregateBuilder.createAggregate())) {
+    for (Iterator<JCas> casIter = new JCasIterator(collectionReader, aggregateBuilder.createAggregate()); casIter.hasNext();) {
+      JCas jCas = casIter.next();
       JCas goldView = jCas.getView(GOLD_VIEW_NAME);
       JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
       String text = goldView.getDocumentText();

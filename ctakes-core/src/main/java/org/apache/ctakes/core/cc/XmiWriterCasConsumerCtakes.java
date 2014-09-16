@@ -41,19 +41,20 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.uima.UIMAFramework;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
-import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.collection.CasConsumerDescription;
-import org.apache.uima.collection.CasConsumer_ImplBase;
-import org.apache.uima.examples.SourceDocumentInformation;
+import org.apache.uima.fit.component.CasConsumer_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceProcessException;
@@ -62,9 +63,6 @@ import org.apache.uima.util.UriUtils;
 import org.apache.uima.util.XMLInputSource;
 import org.apache.uima.util.XMLSerializer;
 import org.xml.sax.SAXException;
-
-import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
-import org.apache.ctakes.typesystem.type.structured.DocumentID;
 
 /**
  * A simple CAS consumer that writes the CAS to XMI format.
@@ -80,14 +78,15 @@ public class XmiWriterCasConsumerCtakes extends CasConsumer_ImplBase {
    * output files will be written.
    */
   public static final String PARAM_OUTPUTDIR = "OutputDirectory";
-
+  @ConfigurationParameter(name = PARAM_OUTPUTDIR, description = "Output directory to write xmi files", mandatory = true)
   private File mOutputDir;
 
   private int mDocNum;
 
-  public void initialize() throws ResourceInitializationException {
+  @Override
+  public void initialize(UimaContext context) throws ResourceInitializationException{
+    super.initialize(context);
     mDocNum = 0;
-    mOutputDir = new File((String) getConfigParameterValue(PARAM_OUTPUTDIR));
     if (!mOutputDir.exists()) {
       mOutputDir.mkdirs();
     }
@@ -99,21 +98,21 @@ public class XmiWriterCasConsumerCtakes extends CasConsumer_ImplBase {
    * 
    * @param aCAS
    *          a CAS which has been populated by the TAEs
-   * 
-   * @throws ResourceProcessException
-   *           if there is an error in processing the Resource
+ * @throws AnalysisEngineProcessException 
    * 
    * @see org.apache.uima.collection.base_cpm.CasObjectProcessor#processCas(org.apache.uima.cas.CAS)
    */
-  public void processCas(CAS aCAS) throws ResourceProcessException {
+  @Override
+  public void process(CAS aCAS) throws AnalysisEngineProcessException {
     String modelFileName = null;
 
     JCas jcas;
     try {
-      jcas = aCAS.getJCas();
-    } catch (CASException e) {
-      throw new ResourceProcessException(e);
-    }
+		jcas = aCAS.getJCas();
+	} catch (CASException e1) {
+		e1.printStackTrace();
+		throw new AnalysisEngineProcessException(e1);
+	}
     
     String originalFileName = DocumentIDAnnotationUtil.getDocumentID(jcas);
     File outFile = null;
@@ -148,9 +147,9 @@ public class XmiWriterCasConsumerCtakes extends CasConsumer_ImplBase {
     try {
       writeXmi(jcas.getCas(), outFile, modelFileName);
     } catch (IOException e) {
-      throw new ResourceProcessException(e);
+      throw new AnalysisEngineProcessException(e);
     } catch (SAXException e) {
-      throw new ResourceProcessException(e);
+      throw new AnalysisEngineProcessException(e);
     }
   }
 

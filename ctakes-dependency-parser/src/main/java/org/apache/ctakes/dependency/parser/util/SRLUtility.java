@@ -19,7 +19,7 @@
 package org.apache.ctakes.dependency.parser.util;
 
 import org.apache.uima.jcas.tcas.Annotation;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.util.JCasUtil;
 
 import org.apache.ctakes.typesystem.type.textsem.Predicate;
 import org.apache.ctakes.typesystem.type.textsem.SemanticRoleRelation;

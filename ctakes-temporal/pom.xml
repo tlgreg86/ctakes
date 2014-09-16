@@ -109,10 +109,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cleartk</groupId>
-			<artifactId>cleartk-syntax</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.cleartk</groupId>
 			<artifactId>cleartk-ml-libsvm</artifactId>
 		</dependency>
 		<dependency>

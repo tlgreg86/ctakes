@@ -28,16 +28,16 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.TreeFeature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.TreeFeature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 /**
  * Given a focused annotation, get the whole sentence-level parse tree that cover this annotation.
  * @author CH151862
  *
  */
-public class SyntaticSingleTreeExtractor implements SimpleFeatureExtractor {
+public class SyntaticSingleTreeExtractor implements FeatureExtractor1 {
 
 	public static final String FEAT_NAME = "TK_SingleT";
 

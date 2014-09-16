@@ -21,17 +21,16 @@ package org.apache.ctakes.assertion.medfacts.cleartk.extractors;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.cleartk.classifier.feature.function.FeatureFunction;
-import org.cleartk.classifier.feature.function.FeatureFunctionExtractor;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.feature.function.FeatureFunction;
+import org.cleartk.ml.feature.function.FeatureFunctionExtractor;
 
 public class ExtractorListFeatureFunctionConverter {
-	public static List<FeatureFunctionExtractor> convert( List<? extends SimpleFeatureExtractor> extractors, FeatureFunction ff ) {
+	public static List<FeatureFunctionExtractor> convert( List<? extends FeatureExtractor1> extractors, FeatureFunction ff ) {
 
 		List<FeatureFunctionExtractor> featureFunctionExtractors = new ArrayList<FeatureFunctionExtractor>();
 		if (null!=extractors) {
-			for (SimpleFeatureExtractor extractor : extractors) {
+			for (FeatureExtractor1 extractor : extractors) {
 				featureFunctionExtractors.add(
 						new FeatureFunctionExtractor(extractor,ff)
 						);

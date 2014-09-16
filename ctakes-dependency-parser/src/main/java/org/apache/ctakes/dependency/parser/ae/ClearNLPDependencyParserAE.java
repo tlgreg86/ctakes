@@ -34,11 +34,11 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.TypeCapability;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.TypeCapability;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.googlecode.clearnlp.component.AbstractComponent;
 import com.googlecode.clearnlp.dependency.DEPFeat;
@@ -74,29 +74,31 @@ import com.googlecode.clearnlp.reader.AbstractReader;
 		})
 public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 
-	final String language = AbstractReader.LANG_EN;
-	public Logger logger = Logger.getLogger(getClass().getName());
-	
-	// Default model values
-	public static final String DEFAULT_MODEL_FILE_NAME = "org/apache/ctakes/dependency/parser/models/dependency/mayo-en-dep-1.3.0.jar";
-	public static final String ENG_LEMMATIZER_DATA_FILE = "org/apache/ctakes/dependency/parser/models/lemmatizer/dictionary-1.3.1.jar";
-	
-	
-	// Configuration Parameters 
-	public static final String PARAM_PARSER_MODEL_FILE_NAME = "ParserModelFileName";
-	@ConfigurationParameter(
-			name = PARAM_PARSER_MODEL_FILE_NAME,
-			description = "This parameter provides the file name of the dependency parser model required " +
+  final String language = AbstractReader.LANG_EN;
+  public Logger logger = Logger.getLogger(getClass().getName());
+
+  // Default model values
+  public static final String DEFAULT_MODEL_FILE_NAME = "org/apache/ctakes/dependency/parser/models/dependency/mayo-en-dep-1.3.0.jar";
+  public static final String ENG_LEMMATIZER_DATA_FILE = "org/apache/ctakes/dependency/parser/models/lemmatizer/dictionary-1.3.1.jar";
+
+
+  // Configuration Parameters 
+  public static final String PARAM_PARSER_MODEL_FILE_NAME = "ParserModelFileName";
+  @ConfigurationParameter(
+		  name = PARAM_PARSER_MODEL_FILE_NAME,
+		  description = "This parameter provides the file name of the dependency parser model required " +
 					      "by the factory method provided by ClearNLPUtil.  If not specified, this " +
-					      "analysis engine will use a default model from the resources directory")
-	protected URI parserModelUri;
+					      "analysis engine will use a default model from the resources directory",
+		  defaultValue = DEFAULT_MODEL_FILE_NAME)
+  protected URI parserModelUri;
 
   public static final String PARAM_LEMMATIZER_DATA_FILE = "LemmatizerDataFile";
 
   @ConfigurationParameter(
       name = PARAM_LEMMATIZER_DATA_FILE,
       description = "This parameter provides the data file required for the MorphEnAnalyzer. If not "
-          + "specified, this analysis engine will use a default model from the resources directory")
+          + "specified, this analysis engine will use a default model from the resources directory",
+      defaultValue = ENG_LEMMATIZER_DATA_FILE)
   protected URI lemmatizerDataFile;
 
 	public static final String PARAM_USE_LEMMATIZER = "UseLemmatizer";
@@ -163,6 +165,6 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 	}
 	
 	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
-	  return AnalysisEngineFactory.createPrimitiveDescription(ClearNLPDependencyParserAE.class);
+	  return AnalysisEngineFactory.createEngineDescription(ClearNLPDependencyParserAE.class);
 	}
 }

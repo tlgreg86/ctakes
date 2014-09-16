@@ -26,12 +26,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.ctakes.assertion.util.AssertionConst;
+import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
 import org.apache.ctakes.core.knowtator.KnowtatorAnnotation;
 import org.apache.ctakes.core.knowtator.KnowtatorXMLParser;
 import org.apache.ctakes.core.util.CtakesFileNamer;
@@ -57,17 +57,13 @@ import org.apache.ctakes.typesystem.type.refsem.ProcedureDevice;
 import org.apache.ctakes.typesystem.type.refsem.ProcedureMethod;
 import org.apache.ctakes.typesystem.type.refsem.Severity;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
-import org.apache.ctakes.typesystem.type.relation.AffectsTextRelation;
-import org.apache.ctakes.typesystem.type.relation.AspectualTextRelation;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ComplicatesDisruptsTextRelation;
 import org.apache.ctakes.typesystem.type.relation.DegreeOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManagesTreatsTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManifestationOfTextRelation;
-import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.ResultOfTextRelation;
-import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
 import org.apache.ctakes.typesystem.type.textsem.BodyLateralityModifier;
@@ -94,7 +90,6 @@ import org.apache.ctakes.typesystem.type.textsem.MedicationMention;
 import org.apache.ctakes.typesystem.type.textsem.MedicationRouteModifier;
 import org.apache.ctakes.typesystem.type.textsem.MedicationStatusChangeModifier;
 import org.apache.ctakes.typesystem.type.textsem.MedicationStrengthModifier;
-import org.apache.ctakes.typesystem.type.textsem.Modifier;
 import org.apache.ctakes.typesystem.type.textsem.PolarityModifier;
 import org.apache.ctakes.typesystem.type.textsem.ProcedureDeviceModifier;
 import org.apache.ctakes.typesystem.type.textsem.ProcedureMention;
@@ -108,16 +103,15 @@ import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Feature;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.jdom2.JDOMException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
@@ -1399,15 +1393,12 @@ public class MiPACQKnowtatorXMLReader extends JCasAnnotator_ImplBase {
 		  dirs[0] = AssertionConst.MiPACQ_CORPUS;
 	  }
 
-	  AnalysisEngine mipacqReader = AnalysisEngineFactory.createPrimitive(MiPACQKnowtatorXMLReader.class);
+	  AnalysisEngine mipacqReader = AnalysisEngineFactory.createEngine(MiPACQKnowtatorXMLReader.class);
 
-	  AnalysisEngine xWriter = AnalysisEngineFactory.createPrimitive(
-			  XWriter.class,
-			  XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-			  "/usr/data/MiPACQ/cTAKES-xmi/",
-			  XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-			  CtakesFileNamer.class.getName()
-			  );
+	  AnalysisEngine xWriter = AnalysisEngineFactory.createEngine(
+			  XmiWriterCasConsumerCtakes.class,
+			  XmiWriterCasConsumerCtakes.PARAM_OUTPUTDIR,
+			  "/usr/data/MiPACQ/cTAKES-xmi/");
 
 	  int n = dirs.length;
 	  LOGGER.info("Processing " + n + " directories of knowtator xml files.");

@@ -39,12 +39,12 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -81,7 +81,7 @@ public class EventPrinterPipeline {
 		List<File> trainFiles = Arrays.asList(options.getInputDirectory().listFiles());
     CollectionReader collectionReader = getCollectionReader(trainFiles);
 		
-    AnalysisEngine annotationConsumer = AnalysisEngineFactory.createPrimitive(
+    AnalysisEngine annotationConsumer = AnalysisEngineFactory.createEngine(
     		EventWriter.class,
     		"UmlsSemanticType",
     		options.getUmlsSemanticType(),
@@ -183,7 +183,7 @@ public class EventPrinterPipeline {
 	  String[] paths = new String[fileNames.size()];
 	  fileNames.toArray(paths);
 
-	  return CollectionReaderFactory.createCollectionReader(
+	  return CollectionReaderFactory.createReader(
 	      XMIReader.class,
 	      XMIReader.PARAM_FILES,
 	      paths);

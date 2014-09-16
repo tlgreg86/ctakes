@@ -20,11 +20,9 @@ package org.apache.ctakes.assertion.eval;
 
 import java.io.File;
 
-import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
-import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.feature.transform.InstanceDataWriter;
-import org.cleartk.classifier.feature.transform.InstanceStream;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.feature.transform.InstanceDataWriter;
+import org.cleartk.ml.feature.transform.InstanceStream;
 
 public class TestFeatureSelection {
 

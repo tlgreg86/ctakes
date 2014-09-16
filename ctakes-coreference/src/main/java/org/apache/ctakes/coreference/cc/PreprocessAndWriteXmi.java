@@ -32,24 +32,23 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASRuntimeException;
 import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.ConfigurationParameterFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.XMLSerializer;
-import org.cleartk.util.Options_ImplBase;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.ConfigurationParameterFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.SimplePipeline;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 public class PreprocessAndWriteXmi {
-	public static class Options extends Options_ImplBase {
+	public static class Options {
 
 		@Option(name = "-t", 
 				aliases = "--textRoot", 
@@ -75,10 +74,12 @@ public class PreprocessAndWriteXmi {
 	 * @param args
 	 * @throws IOException 
 	 * @throws UIMAException 
+	 * @throws CmdLineException 
 	 */
-	public static void main(String[] args) throws UIMAException, IOException {
+	public static void main(String[] args) throws UIMAException, IOException, CmdLineException {
 		Options options = new Options();
-		options.parseOptions(args);
+		CmdLineParser parser = new CmdLineParser(options);
+		parser.parseArgument(args);
 
 		File outputRoot = options.outputRoot;
 		String inputRoot = options.textRoot;
@@ -86,14 +87,14 @@ public class PreprocessAndWriteXmi {
 //			TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath("../common-type-system/desc/common_type_system.xml", 
 //																			 "../assertion/desc/medfactsTypeSystem.xml");
 
-		AnalysisEngine ae = AnalysisEngineFactory.createAnalysisEngineFromPath("desc/analysis_engine/ODIESvmVectorCreator.xml");
+		AnalysisEngine ae = AnalysisEngineFactory.createEngineFromPath("desc/analysis_engine/ODIESvmVectorCreator.xml");
 
-		CollectionReader reader = CollectionReaderFactory.createCollectionReaderFromPath(
+		CollectionReader reader = CollectionReaderFactory.createReaderFromPath(
 				"../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
 				FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
 				inputRoot);
 
-		AnalysisEngine serializer = AnalysisEngineFactory.createPrimitive(
+		AnalysisEngine serializer = AnalysisEngineFactory.createEngine(
 				PreprocessAndWriteXmi.SerializeDocumentToXMI.class,
 //				typeSystem,
 				PreprocessAndWriteXmi.SerializeDocumentToXMI.PARAM_OUTPUT_DIRECTORY, 
@@ -103,10 +104,9 @@ public class PreprocessAndWriteXmi {
 	}
 
 	public static class SerializeDocumentToXMI extends JCasAnnotator_ImplBase {
-		public static final String PARAM_OUTPUT_DIRECTORY = ConfigurationParameterFactory
-		.createConfigurationParameterName(SerializeDocumentToXMI.class, "outputDirectory");
+		public static final String PARAM_OUTPUT_DIRECTORY = "OutputDirectory";
 
-		@ConfigurationParameter(mandatory = true, description = "Specifies the output directory in which to write xmi files")
+		@ConfigurationParameter(name = PARAM_OUTPUT_DIRECTORY, mandatory = true, description = "Specifies the output directory in which to write xmi files")
 		private File outputDirectory;
 
 		@Override

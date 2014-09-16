@@ -30,12 +30,12 @@ import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.JCasUtil;
 
 public abstract class BagOfAnnotationsGenerator<T extends Annotation,K> {
 
@@ -55,15 +55,15 @@ public abstract class BagOfAnnotationsGenerator<T extends Annotation,K> {
 	}
 	
 	public BagOfAnnotationsGenerator(String inputDir, String outputDir, String aePath) throws UIMAException, IOException {
-		reader = CollectionReaderFactory.createCollectionReaderFromPath("../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml", 
+		reader = CollectionReaderFactory.createReaderFromPath("../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml", 
 				FilesInDirectoryCollectionReader.PARAM_INPUTDIR, inputDir);
-		this.ae = AnalysisEngineFactory.createAnalysisEngineFromPath(aePath == null ? defaultAEPath : aePath);
+		this.ae = AnalysisEngineFactory.createEngineFromPath(aePath == null ? defaultAEPath : aePath);
 		this.outputDir = outputDir;
 		this.classOfT = getClassOfT();
 	}
 	
 	public void process() throws UIMAException, IOException{
-		JCasIterable casIter = new JCasIterable(reader, ae);
+		JCasIterator casIter = new JCasIterator(reader, ae);
 		while(casIter.hasNext()){
 			JCas jcas = casIter.next();
 			String docId = DocumentIDAnnotationUtil.getDocumentID(jcas);

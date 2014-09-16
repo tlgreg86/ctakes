@@ -21,9 +21,9 @@ package org.apache.ctakes.temporal.ae;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.CleartkAnnotator;
 
 public abstract class TemporalEntityAnnotator_ImplBase extends CleartkAnnotator<String> {
 

@@ -29,9 +29,9 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.timeml.type.Anchor;
 import org.cleartk.timeml.type.TemporalLink;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 public class ClearTKLinkToTHYMELinkAnnotator extends JCasAnnotator_ImplBase {
 
@@ -66,7 +66,7 @@ public class ClearTKLinkToTHYMELinkAnnotator extends JCasAnnotator_ImplBase {
   }
 
   public static AnalysisEngineDescription getAnnotatorDescription() throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(ClearTKLinkToTHYMELinkAnnotator.class);
+    return AnalysisEngineFactory.createEngineDescription(ClearTKLinkToTHYMELinkAnnotator.class);
   }
 
   private static String getMappedCategory(String cleartkCat){

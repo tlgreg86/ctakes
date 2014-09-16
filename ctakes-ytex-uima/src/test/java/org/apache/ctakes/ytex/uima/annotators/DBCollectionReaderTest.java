@@ -30,7 +30,7 @@ import org.apache.uima.collection.metadata.CpeDescriptorException;
 import org.apache.uima.jcas.JCas;
 import org.junit.Assert;
 import org.junit.Test;
-import org.uimafit.factory.JCasFactory;
+import org.apache.uima.fit.factory.JCasFactory;
 import org.xml.sax.SAXException;
 
 public class DBCollectionReaderTest {

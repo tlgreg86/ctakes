@@ -22,6 +22,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,17 +37,17 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.testing.util.HideOutput;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.cleartk.classifier.libsvm.LIBSVMStringOutcomeDataWriter;
 import org.cleartk.eval.AnnotationStatistics;
-import org.cleartk.util.ViewURIUtil;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.testing.util.HideOutput;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.jar.JarClassifierBuilder;
+import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
+import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -79,16 +80,16 @@ EvaluationOfTemporalRelations_ImplBase {
        {
     AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
     aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class, BinaryTextRelation.class));
-    //	    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(MergeContainsOverlap.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveCrossSentenceRelations.class));
+    //	    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(MergeContainsOverlap.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveCrossSentenceRelations.class));
     // TODO -- see if this applies to this relation:
     //	    if (this.useClosure) {
-    //	      aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class));
+    //	      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddTransitiveContainsRelations.class));
     //	    }
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(PreserveEventEventRelations.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PreserveEventEventRelations.class));
     aggregateBuilder.add(EventEventRelationAnnotator.createDataWriterDescription(
-        LIBSVMStringOutcomeDataWriter.class,
+        LibSvmStringOutcomeDataWriter.class,
 //        	        TKSVMlightStringOutcomeDataWriter.class,
         directory,
         1.0));
@@ -101,7 +102,6 @@ EvaluationOfTemporalRelations_ImplBase {
 //    JarClassifierBuilder.trainAndPackage(directory, "-t", "0", "-c", "10", "-N", "0");
 //    JarClassifierBuilder.trainAndPackage(directory,  "-t", "5", "-S", "0", "-N", "3", "-C", "+", "-T", "1.0");
     hider.restoreOutput();
-    hider.close();
   }
 
   @Override
@@ -109,14 +109,14 @@ EvaluationOfTemporalRelations_ImplBase {
       CollectionReader collectionReader, File directory) throws Exception {
     AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
     aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
-    //	    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(MergeContainsOverlap.class,
+    //	    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(MergeContainsOverlap.class,
     //	    		MergeContainsOverlap.PARAM_RELATION_VIEW,
     //	    		GOLD_VIEW_NAME));
     aggregateBuilder.add(
-        AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class),
+        AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class),
         CAS.NAME_DEFAULT_SOFA,
         GOLD_VIEW_NAME);
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
         RemoveCrossSentenceRelations.class,
         RemoveCrossSentenceRelations.PARAM_SENTENCE_VIEW,
         CAS.NAME_DEFAULT_SOFA,
@@ -125,16 +125,16 @@ EvaluationOfTemporalRelations_ImplBase {
     // TODO - use if relevant.
     //	    if (this.useClosure) {
     //	      aggregateBuilder.add(
-    //	          AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
+    //	          AnalysisEngineFactory.createEngineDescription(AddTransitiveContainsRelations.class),
     //	          CAS.NAME_DEFAULT_SOFA,
     //	          GOLD_VIEW_NAME);
     //	    }
     aggregateBuilder.add(
-        AnalysisEngineFactory.createPrimitiveDescription(PreserveEventEventRelations.class),
+        AnalysisEngineFactory.createEngineDescription(PreserveEventEventRelations.class),
         CAS.NAME_DEFAULT_SOFA,
         GOLD_VIEW_NAME);
 
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveRelations.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
     aggregateBuilder.add(
         EventEventRelationAnnotator.createAnnotatorDescription(directory));
 
@@ -146,10 +146,8 @@ EvaluationOfTemporalRelations_ImplBase {
     Function<BinaryTextRelation, String> getOutcome = AnnotationStatistics.annotationToFeatureValue("category");
 
     AnnotationStatistics<String> stats = new AnnotationStatistics<String>();
-    JCasIterable jcasIter =new JCasIterable(collectionReader, aggregateBuilder.createAggregate());
-    JCas jCas = null;
-    while(jcasIter.hasNext()) {
-      jCas = jcasIter.next();
+    for(Iterator<JCas> casIter = new JCasIterator(collectionReader, aggregateBuilder.createAggregate()); casIter.hasNext();){
+      JCas jCas = casIter.next();
       JCas goldView = jCas.getView(GOLD_VIEW_NAME);
       JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
       Collection<BinaryTextRelation> goldRelations = JCasUtil.select(
@@ -160,7 +158,7 @@ EvaluationOfTemporalRelations_ImplBase {
           BinaryTextRelation.class);
       stats.add(goldRelations, systemRelations, getSpan, getOutcome);
       if(this.printRelations){
-        URI uri = ViewURIUtil.getURI(jCas);
+        URI uri = ViewUriUtil.getURI(jCas);
         String[] path = uri.getPath().split("/");
         printRelationAnnotations(path[path.length - 1], systemRelations);
       }

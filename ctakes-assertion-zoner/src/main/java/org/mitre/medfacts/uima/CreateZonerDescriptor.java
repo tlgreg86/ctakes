@@ -27,8 +27,8 @@ import java.net.URISyntaxException;
 import org.apache.ctakes.core.ae.DocumentIdPrinterAnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.xml.sax.SAXException;
 
 public class CreateZonerDescriptor
@@ -53,7 +53,7 @@ public class CreateZonerDescriptor
     AggregateBuilder builder = new AggregateBuilder();
 
 //    AnalysisEngineDescription documentIdPrinter =
-//        AnalysisEngineFactory.createPrimitiveDescription(DocumentIdPrinterAnalysisEngine.class);
+//        AnalysisEngineFactory.createEngineDescription(DocumentIdPrinterAnalysisEngine.class);
 //    builder.add(documentIdPrinter);
   
     URI generalSectionRegexFileUri =
@@ -61,7 +61,7 @@ public class CreateZonerDescriptor
 //    ExternalResourceDescription generalSectionRegexDescription = ExternalResourceFactory.createExternalResourceDescription(
 //        SectionRegexConfigurationResource.class, new File(generalSectionRegexFileUri));
     AnalysisEngineDescription zonerAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
             ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
             generalSectionRegexFileUri
             );
@@ -72,7 +72,7 @@ public class CreateZonerDescriptor
 //      ExternalResourceDescription mayoSectionRegexDescription = ExternalResourceFactory.createExternalResourceDescription(
 //          SectionRegexConfigurationResource.class, new File(mayoSectionRegexFileUri));
     AnalysisEngineDescription mayoZonerAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
             ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
             mayoSectionRegexFileUri
             );

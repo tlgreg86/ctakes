@@ -31,8 +31,8 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.eval.AnnotationStatistics;
-import org.uimafit.component.NoOpAnnotator;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.component.NoOpAnnotator;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 
@@ -60,7 +60,7 @@ public class EvaluationOfNEPredicateEventSpans extends
 	protected AnalysisEngineDescription getDataWriterDescription(File directory)
 			throws ResourceInitializationException {
 		// not training a model - just using the NEs and predicates
-	    return AnalysisEngineFactory.createPrimitiveDescription(NoOpAnnotator.class);
+	    return AnalysisEngineFactory.createEngineDescription(NoOpAnnotator.class);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class EvaluationOfNEPredicateEventSpans extends
 	protected AnalysisEngineDescription getAnnotatorDescription(File directory)
 			throws ResourceInitializationException {
 		// not training a model - just using the NEs and predicates
-//		return AnalysisEngineFactory.createPrimitiveDescription(NoOpAnnotator.class);
+//		return AnalysisEngineFactory.createEngineDescription(NoOpAnnotator.class);
 	    return NEPredicateEventAnnotator.createAnnotatorDescription(directory);
 	}
 

@@ -38,11 +38,11 @@ import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.util.ViewURIUtil;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.util.ViewUriUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -72,7 +72,7 @@ public class GoldRelationViewer {
 		List<File> trainFiles = Utils.getFilesFor(trainItems, options.getInputDirectory());
     CollectionReader collectionReader = Utils.getCollectionReader(trainFiles);
 		
-    AnalysisEngine annotationConsumer = AnalysisEngineFactory.createPrimitive(
+    AnalysisEngine annotationConsumer = AnalysisEngineFactory.createEngine(
     		RelationContextPrinter.class);
     		
 		SimplePipeline.runPipeline(collectionReader, annotationConsumer);
@@ -111,7 +111,7 @@ public class GoldRelationViewer {
         relationLookup.put(Arrays.asList(arg1, arg2), relation);
       }
 
-      File noteFile = new File(ViewURIUtil.getURI(jCas).toString());
+      File noteFile = new File(ViewUriUtil.getURI(jCas).toString());
       String fileName = noteFile.getName();
       
       for(Sentence sentence : JCasUtil.select(systemView, Sentence.class)) {

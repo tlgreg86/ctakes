@@ -44,13 +44,13 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.DataWriter;
-import org.cleartk.classifier.jar.DefaultDataWriterFactory;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.DataWriter;
+import org.cleartk.ml.jar.DefaultDataWriterFactory;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.collect.Lists;
 
@@ -60,7 +60,7 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 		      Class<? extends DataWriter<String>> dataWriterClass,
 		      File outputDirectory,
 		      double probabilityOfKeepingANegativeExample) throws ResourceInitializationException {
-		    return AnalysisEngineFactory.createPrimitiveDescription(
+		    return AnalysisEngineFactory.createEngineDescription(
 		            EventEventRelationAnnotator.class,
 		            CleartkAnnotator.PARAM_IS_TRAINING,
 		            true,
@@ -75,7 +75,7 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 	  
 	  public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
 		      throws ResourceInitializationException {
-		    return AnalysisEngineFactory.createPrimitiveDescription(
+		    return AnalysisEngineFactory.createEngineDescription(
 		        EventEventRelationAnnotator.class,
 		        CleartkAnnotator.PARAM_IS_TRAINING,
 		        false,
@@ -90,7 +90,7 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 	   */	  
 	  public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
 		      throws ResourceInitializationException {
-		    return AnalysisEngineFactory.createPrimitiveDescription(
+		    return AnalysisEngineFactory.createEngineDescription(
 		        EventEventRelationAnnotator.class,
 		        CleartkAnnotator.PARAM_IS_TRAINING,
 		        false,

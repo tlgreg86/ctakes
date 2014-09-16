@@ -48,11 +48,11 @@ import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
+import org.cleartk.ml.Feature;
 import org.threeten.bp.temporal.TemporalField;
 import org.threeten.bp.temporal.TemporalUnit;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 import scala.collection.immutable.Set;
 import scala.util.Try;
@@ -393,7 +393,7 @@ public class Utils {
     String[] paths = new String[fileNames.size()];
     fileNames.toArray(paths);
 
-    return CollectionReaderFactory.createCollectionReader(
+    return CollectionReaderFactory.createReader(
         XMIReader.class,
         XMIReader.PARAM_FILES,
         paths);

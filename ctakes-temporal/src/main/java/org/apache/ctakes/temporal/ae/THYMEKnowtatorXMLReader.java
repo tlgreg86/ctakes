@@ -33,11 +33,11 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.util.ViewURIUtil;
+import org.cleartk.util.ViewUriUtil;
 import org.cleartk.util.cr.UriCollectionReader;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.SimplePipeline;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -51,7 +51,7 @@ public class THYMEKnowtatorXMLReader extends SHARPKnowtatorXMLReader {
 
   public static AnalysisEngineDescription getDescription(File knowtatorXMLDirectory)
       throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(
+    return AnalysisEngineFactory.createEngineDescription(
         THYMEKnowtatorXMLReader.class,
         THYMEKnowtatorXMLReader.PARAM_KNOWTATOR_XML_DIRECTORY,
         knowtatorXMLDirectory);
@@ -59,7 +59,7 @@ public class THYMEKnowtatorXMLReader extends SHARPKnowtatorXMLReader {
   
   @Override
   protected URI getTextURI(JCas jCas) throws AnalysisEngineProcessException {
-    return ViewURIUtil.getURI(jCas);
+    return ViewUriUtil.getURI(jCas);
   }
 
   @Override
@@ -106,7 +106,7 @@ public class THYMEKnowtatorXMLReader extends SHARPKnowtatorXMLReader {
       }
     }
     CollectionReader reader = UriCollectionReader.getCollectionReaderFromFiles(files);
-    AnalysisEngine engine = AnalysisEngineFactory.createPrimitive(
+    AnalysisEngine engine = AnalysisEngineFactory.createEngine(
         THYMEKnowtatorXMLReader.class,
         THYMEKnowtatorXMLReader.PARAM_KNOWTATOR_XML_DIRECTORY,
         options.getKnowtatorXMLDirectory());

@@ -26,8 +26,8 @@ import org.apache.ctakes.typesystem.type.textsem.Predicate;
 import org.apache.ctakes.typesystem.type.textsem.SemanticArgument;
 import org.apache.ctakes.typesystem.type.textsem.SemanticRoleRelation;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.Feature;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.Feature;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;

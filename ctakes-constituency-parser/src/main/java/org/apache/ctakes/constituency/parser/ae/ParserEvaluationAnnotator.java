@@ -30,21 +30,19 @@ import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.ParserModel;
 import opennlp.tools.parser.chunking.Parser;
 
-import org.apache.ctakes.constituency.parser.util.TreeUtils;
 import org.apache.ctakes.core.cr.LinesFromFileCollectionReader;
-import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.typesystem.type.syntax.TopTreebankNode;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.JCasUtil;
 
 public class ParserEvaluationAnnotator extends JCasAnnotator_ImplBase{
 
@@ -104,14 +102,14 @@ public class ParserEvaluationAnnotator extends JCasAnnotator_ImplBase{
 			System.exit(-1);
 		}
 		
-		CollectionReader reader = CollectionReaderFactory.createCollectionReader(LinesFromFileCollectionReader.class,
+		CollectionReader reader = CollectionReaderFactory.createReader(LinesFromFileCollectionReader.class,
 				LinesFromFileCollectionReader.PARAM_INPUT_FILE_NAME,
 				args[0]);
 		PrintWriter out = new PrintWriter(args[1]);
-		AnalysisEngine ae = AnalysisEngineFactory.createPrimitive(ParserEvaluationAnnotator.class, new Object[]{});
+		AnalysisEngine ae = AnalysisEngineFactory.createEngine(ParserEvaluationAnnotator.class, new Object[]{});
 		
 		JCas jcas = null;
-		JCasIterable casIter = new JCasIterable(reader, ae);
+		JCasIterator casIter = new JCasIterator(reader, ae);
 		while(casIter.hasNext()){
 			jcas = casIter.next();
 			Collection<TopTreebankNode> nodes = JCasUtil.select(jcas, TopTreebankNode.class);

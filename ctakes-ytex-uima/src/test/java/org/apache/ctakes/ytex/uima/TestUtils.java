@@ -31,9 +31,9 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.InvalidXMLException;
 import org.apache.uima.util.XMLInputSource;
 import org.apache.uima.util.XMLParser;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
 
 import com.google.common.base.Strings;
 
@@ -75,7 +75,7 @@ public class TestUtils {
 				"desc/analysis_engine/SentenceDetectorAnnotator.xml");
 		addDescriptor(builder,
 				"../ctakes-core/desc/analysis_engine/TokenizerAnnotator.xml");
-		builder.add(AnalysisEngineFactory.createPrimitiveDescription(
+		builder.add(AnalysisEngineFactory.createEngineDescription(
 				DBConsumer.class, "analysisBatch", dbAnalysisBatch,
 				"storeDocText", false, "storeCAS", true));
 		AnalysisEngine engine = builder.createAggregate();
@@ -85,7 +85,7 @@ public class TestUtils {
 	public static CollectionReader getFractureDemoCollectionReader()
 			throws ResourceInitializationException {
 		CollectionReader colReader = CollectionReaderFactory
-				.createCollectionReader(
+				.createReader(
 						DBCollectionReader.class,
 						"queryGetDocumentKeys",
 						String.format(queryGetDocumentKeys,

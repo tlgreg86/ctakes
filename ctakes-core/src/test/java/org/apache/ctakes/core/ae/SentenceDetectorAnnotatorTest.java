@@ -31,11 +31,11 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.junit.Test;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.JCasFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.JCasFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 
 public class SentenceDetectorAnnotatorTest {
 
@@ -90,11 +90,11 @@ public class SentenceDetectorAnnotatorTest {
     AggregateBuilder aggregateBuilder = new AggregateBuilder();
 
     // identify segments; use simple segment annotator on non-mayo notes
-    // aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(CDASegmentAnnotator.class));
+    // aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CDASegmentAnnotator.class));
 
     // identify sentences
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
         SentenceDetector.class,
         SentenceDetector.SD_MODEL_FILE_PARAM,
         "org/apache/ctakes/core/sentdetect/sd-med-model.zip",
@@ -108,11 +108,11 @@ public class SentenceDetectorAnnotatorTest {
     AggregateBuilder aggregateBuilder = new AggregateBuilder();
 
     // identify segments; use simple segment annotator on non-mayo notes
-    // aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SimpleSegmentAnnotator.class));
+    // aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(SimpleSegmentAnnotator.class));
 
     // identify sentences
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
         SentenceDetector.class,
         SentenceDetector.SD_MODEL_FILE_PARAM,
         "org/apache/ctakes/core/sentdetect/sd-med-model.zip"

@@ -35,11 +35,11 @@ import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 
 public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngine {
@@ -54,7 +54,7 @@ public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngin
 		probabilityOfKeepingADefaultExample = 1.0; //0.1;
 		
 		if(this.entityFeatureExtractors == null){
-			this.entityFeatureExtractors = new ArrayList<SimpleFeatureExtractor>();
+			this.entityFeatureExtractors = new ArrayList<FeatureExtractor1>();
 		}
 		
 		// polarity keyword list:
@@ -154,7 +154,7 @@ public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngin
 	}
 	
 	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath) throws ResourceInitializationException {
-	  return AnalysisEngineFactory.createPrimitiveDescription(PolarityCleartkAnalysisEngine.class,
+	  return AnalysisEngineFactory.createEngineDescription(PolarityCleartkAnalysisEngine.class,
 	      AssertionCleartkAnalysisEngine.PARAM_FEATURE_CONFIG,
         AssertionCleartkAnalysisEngine.FEATURE_CONFIG.DEP_REGEX,
 	      GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,

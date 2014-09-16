@@ -40,14 +40,14 @@ import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.junit.Test;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.JCasFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.JCasFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 import org.xml.sax.SAXException;
 
 public class ContextualModalityAnnotatorTest {
@@ -67,9 +67,9 @@ public class ContextualModalityAnnotatorTest {
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
 		builder.add(AnalysisEngineFactory
-				.createPrimitiveDescription(CopyNPChunksToLookupWindowAnnotations.class));
+				.createEngineDescription(CopyNPChunksToLookupWindowAnnotations.class));
 		builder.add(AnalysisEngineFactory
-				.createPrimitiveDescription(RemoveEnclosedLookupWindows.class));
+				.createEngineDescription(RemoveEnclosedLookupWindows.class));
 		// Commented out the Dictionary lookup for the test
 		// Uncomment and set -Dctakes.umlsuser and -Dctakes.umlspw env params if
 		// needed
@@ -90,7 +90,7 @@ public class ContextualModalityAnnotatorTest {
 		builder.add(DocTimeRelAnnotator
 				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
 
-		//builder.createAggregateDescription().toXML(new FileWriter("desc/analysis_engine/TemporalAggregateUMLSPipeline.xml"));
+		//builder.createEngineDescription().toXML(new FileWriter("desc/analysis_engine/TemporalAggregateUMLSPipeline.xml"));
 		
 		SimplePipeline.runPipeline(jcas, builder.createAggregateDescription());
 

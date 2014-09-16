@@ -25,11 +25,11 @@ import java.util.List;
 import org.apache.ctakes.relationextractor.eval.XMIReader;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.collection.CollectionReader;
-import org.cleartk.util.Options_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.SimplePipeline;
 
 /**
  * 
@@ -40,7 +40,7 @@ import org.uimafit.pipeline.SimplePipeline;
  */
 public class GoldAnnotationAnalysisPipeline {
 
-  public static class Options extends Options_ImplBase {
+  public static class Options {
 
     @Option(
         name = "--input-dir",
@@ -50,14 +50,14 @@ public class GoldAnnotationAnalysisPipeline {
   }
   
 	public static void main(String[] args) throws Exception {
-		
-		Options options = new Options();
-		options.parseOptions(args);
+      Options options = new Options();
+      CmdLineParser parser = new CmdLineParser(options);
+      parser.parseArgument(args);
 
-		List<File> trainFiles = Arrays.asList(options.inputDirectory.listFiles());
-    CollectionReader collectionReader = getCollectionReader(trainFiles);
+      List<File> trainFiles = Arrays.asList(options.inputDirectory.listFiles());
+      CollectionReader collectionReader = getCollectionReader(trainFiles);
 		
-    AnalysisEngine goldAnnotationStatsCalculator = AnalysisEngineFactory.createPrimitive(
+      AnalysisEngine goldAnnotationStatsCalculator = AnalysisEngineFactory.createEngine(
     		GoldAnnotationStatsCalculator.class);
     		
 		SimplePipeline.runPipeline(collectionReader, goldAnnotationStatsCalculator);
@@ -72,7 +72,7 @@ public class GoldAnnotationAnalysisPipeline {
     }
     
     // return a reader that will load each of the XMI files
-    return CollectionReaderFactory.createCollectionReader(
+    return CollectionReaderFactory.createReader(
         XMIReader.class,
         XMIReader.PARAM_FILES,
         paths);

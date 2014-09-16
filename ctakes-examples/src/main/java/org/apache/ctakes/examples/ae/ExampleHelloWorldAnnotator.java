@@ -28,10 +28,10 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 public class ExampleHelloWorldAnnotator extends JCasAnnotator_ImplBase {
 
@@ -75,7 +75,7 @@ public class ExampleHelloWorldAnnotator extends JCasAnnotator_ImplBase {
 	public static AnalysisEngineDescription createAnnotatorDescription(
 			boolean saveAnn, boolean printAnn)
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				ExampleHelloWorldAnnotator.class,
 				ExampleHelloWorldAnnotator.PARAM_SAVE_ANN, saveAnn,
 				ExampleHelloWorldAnnotator.PARAM_PRINT_ANN, printAnn);
@@ -83,7 +83,7 @@ public class ExampleHelloWorldAnnotator extends JCasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createAnnotatorDescription()
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				ExampleHelloWorldAnnotator.class,
 				ExampleHelloWorldAnnotator.PARAM_SAVE_ANN, true,
 				ExampleHelloWorldAnnotator.PARAM_PRINT_ANN, true);

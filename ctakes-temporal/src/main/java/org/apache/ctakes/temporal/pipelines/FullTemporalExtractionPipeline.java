@@ -27,11 +27,9 @@ import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.collection.CollectionReader;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.SimplePipeline;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -72,7 +70,7 @@ public class FullTemporalExtractionPipeline extends
   public static void main(String[] args) throws Exception {
     FullOptions options = CliFactory.parseArguments(FullOptions.class, args);
     
-    CollectionReader collectionReader = CollectionReaderFactory.createCollectionReaderFromPath(
+    CollectionReader collectionReader = CollectionReaderFactory.createReaderFromPath(
         "../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
         FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
         options.getInputDirectory());
@@ -85,7 +83,7 @@ public class FullTemporalExtractionPipeline extends
       aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(options.getEventEventRelationModelDirectory() + File.separator + "model.jar"));
     }
     
-    //aggregateBuilder.createAggregateDescription().toXML(new FileWriter("desc/analysis_engine/TemporalAggregateUMLSPipeline.xml"));
+    //aggregateBuilder.createEngineDescription().toXML(new FileWriter("desc/analysis_engine/TemporalAggregateUMLSPipeline.xml"));
     AnalysisEngine xWriter = getXMIWriter(options.getOutputDirectory());
     
     SimplePipeline.runPipeline(

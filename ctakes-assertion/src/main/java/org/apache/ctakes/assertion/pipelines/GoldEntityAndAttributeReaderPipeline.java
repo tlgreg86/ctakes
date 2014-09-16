@@ -21,19 +21,17 @@ package org.apache.ctakes.assertion.pipelines;
 
 import java.io.IOException;
 
+import org.apache.ctakes.core.ae.SHARPKnowtatorXMLReader;
+import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
+import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.SimplePipeline;
-
-import org.apache.ctakes.assertion.cr.GoldEntityAndAttributeReader;
-import org.apache.ctakes.core.ae.SHARPKnowtatorXMLReader;
-import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
 
 /**
  * 
@@ -49,11 +47,11 @@ public class GoldEntityAndAttributeReaderPipeline {
 		
 		TypeSystemDescription typeSystemDescription = 
 				// use the uimafit method of finding available type system
-				// descriptor via META-INF/org.uimafit/types.txt 
+				// descriptor via META-INF/org.apache.uima.fit/types.txt 
 				// (found in ctakes-type-system/src/main/resources)
 			TypeSystemDescriptionFactory.createTypeSystemDescription();
 		
-		CollectionReaderDescription collectionReader = CollectionReaderFactory.createDescription(
+		CollectionReaderDescription collectionReader = CollectionReaderFactory.createReaderDescription(
 				FilesInDirectoryCollectionReader.class,
 				typeSystemDescription,
 				"InputDirectory",
@@ -62,7 +60,7 @@ public class GoldEntityAndAttributeReaderPipeline {
 				//"/work/medfacts/sharp/data/2012-10-16_full_data_set_updated/Seed_Corpus/sandbox/batch02_mayo/text"
 				);
 		
-//		AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createPrimitiveDescription(
+//		AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createEngineDescription(
 //				GoldEntityAndAttributeReader.class,
 //				typeSystemDescription,
 //				"InputDirectory",
@@ -70,7 +68,7 @@ public class GoldEntityAndAttributeReaderPipeline {
 //				"/Users/m081914/work/sharpattr/ctakes/ctakes-assertion/sharp_data/one/xml/");
 ////				"/work/medfacts/sharp/data/2012-10-16_full_data_set_updated/Seed_Corpus/sandbox/batch02_mayo/knowtator/");
 
-		AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createPrimitiveDescription(
+		AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createEngineDescription(
 				SHARPKnowtatorXMLReader.class,
 				typeSystemDescription,
 				"KnowtatorURI",
@@ -78,16 +76,14 @@ public class GoldEntityAndAttributeReaderPipeline {
 				"TextURI",
 				"/Users/m081914/work/sharpattr/ctakes/ctakes-assertion/sharp_data/one/Knowtator/text");
 		
-		AnalysisEngineDescription xWriter = AnalysisEngineFactory.createPrimitiveDescription(
-        XWriter.class,
+		AnalysisEngineDescription xWriter = AnalysisEngineFactory.createEngineDescription(
+        XmiWriterCasConsumerCtakes.class,
         typeSystemDescription,
-        XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
+        XmiWriterCasConsumerCtakes.PARAM_OUTPUTDIR,
 //        "/Users/m081914/work/data/sharp/Seed_Corpus/Mayo/UMLS_CEM/ss1_batch10/Knowtator XMI/",
-    	"/Users/m081914/work/sharpattr/ctakes/ctakes-assertion/sharp_data/one/Knowtator_XMI/",
+    	"/Users/m081914/work/sharpattr/ctakes/ctakes-assertion/sharp_data/one/Knowtator_XMI/"
         // "/work/medfacts/sharp/data/2012-10-09_full_data_set/batch02",
 //        "/work/medfacts/sharp/data/2012-10-16_full_data_set_updated/Seed_Corpus/sandbox/batch02_mayo/xmi",
-        XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-        CtakesFileNamer.class.getName()
         );
     
 		SimplePipeline.runPipeline(collectionReader, goldAnnotator, xWriter);

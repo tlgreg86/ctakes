@@ -25,13 +25,12 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.ctakes.assertion.attributes.generic.GenericAttributeClassifier;
-import org.apache.ctakes.assertion.attributes.subject.SubjectAttributeClassifier;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
 
 /** SubjectFeaturesExtractor
@@ -40,7 +39,7 @@ import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
  * @author m081914
  *
  */
-public class GenericFeaturesExtractor implements SimpleFeatureExtractor {
+public class GenericFeaturesExtractor implements FeatureExtractor1 {
 	
 	
 	@Override

@@ -19,17 +19,15 @@
 package org.apache.ctakes.assertion.medfacts.cleartk;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
-
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.Instance;
 
 import org.apache.ctakes.assertion.attributes.features.selection.Chi2FeatureSelection;
 import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.cleartk.ml.Instance;
 
 public class ConditionalCleartkAnalysisEngine extends
 		AssertionCleartkAnalysisEngine {

@@ -284,7 +284,7 @@ public class FirstTokenPermLookupInitializerImpl implements LookupInitializer {
    public List<LookupToken> getSortedLookupTokens( final JCas jcas,
                                                    final Annotation covering ) throws AnnotatorInitializationException {
       final List<LookupToken> ltList = new ArrayList<LookupToken>();
-      final List<BaseToken> inputList = org.uimafit.util.JCasUtil.selectCovered( jcas, BaseToken.class, covering );
+      final List<BaseToken> inputList = org.apache.uima.fit.util.JCasUtil.selectCovered( jcas, BaseToken.class, covering );
       for ( BaseToken bta : inputList ) {
          final boolean isNonLookup = bta instanceof NewlineToken
                || bta instanceof PunctuationToken

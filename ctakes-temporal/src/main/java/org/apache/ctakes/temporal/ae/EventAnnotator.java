@@ -41,27 +41,27 @@ import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.chunking.BIOChunking;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Following;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Preceding;
-import org.cleartk.classifier.feature.extractor.simple.CharacterCategoryPatternExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CharacterCategoryPatternExtractor.PatternType;
-import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.cleartk.classifier.feature.extractor.simple.TypePathExtractor;
-import org.cleartk.classifier.jar.DefaultDataWriterFactory;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.chunking.BioChunking;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
+import org.cleartk.ml.feature.extractor.CombinedExtractor1;
+import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.feature.extractor.TypePathExtractor;
+import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction;
+import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction.PatternType;
+import org.cleartk.ml.jar.DefaultDataWriterFactory;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.HashMultimap;
@@ -108,7 +108,7 @@ public class EventAnnotator extends TemporalEntityAnnotator_ImplBase {
       File outputDirectory,
       float downratio,
       float featureSelect, float smoteNeighborNumber) throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(
+    return AnalysisEngineFactory.createEngineDescription(
         EventAnnotator.class,
         CleartkAnnotator.PARAM_IS_TRAINING,
         true,
@@ -126,7 +126,7 @@ public class EventAnnotator extends TemporalEntityAnnotator_ImplBase {
 
   public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
       throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(
+    return AnalysisEngineFactory.createEngineDescription(
         EventAnnotator.class,
         CleartkAnnotator.PARAM_IS_TRAINING,
         false,
@@ -138,7 +138,7 @@ public class EventAnnotator extends TemporalEntityAnnotator_ImplBase {
 
   public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
 	      throws ResourceInitializationException {
-	    return AnalysisEngineFactory.createPrimitiveDescription(
+	    return AnalysisEngineFactory.createEngineDescription(
 	        EventAnnotator.class,
 	        CleartkAnnotator.PARAM_IS_TRAINING,
 	        false,
@@ -148,7 +148,7 @@ public class EventAnnotator extends TemporalEntityAnnotator_ImplBase {
   
   public static AnalysisEngineDescription createAnnotatorDescription()
       throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(
+    return AnalysisEngineFactory.createEngineDescription(
         EventAnnotator.class,
         CleartkAnnotator.PARAM_IS_TRAINING,
         false,
@@ -158,13 +158,13 @@ public class EventAnnotator extends TemporalEntityAnnotator_ImplBase {
             EventAnnotator.class.getName().toLowerCase().replace('.', '/')));
   }
 
-  private BIOChunking<BaseToken, IdentifiedAnnotation> entityChunking;
+  private BioChunking<BaseToken, IdentifiedAnnotation> entityChunking;
 
-  private BIOChunking<BaseToken, EventMention> eventChunking;
+  private BioChunking<BaseToken, EventMention> eventChunking;
 
-  private BIOChunking<BaseToken, Chunk> phraseChunking;
+  private BioChunking<BaseToken, Chunk> phraseChunking;
 
-  protected SimpleFeatureExtractor tokenFeatureExtractor;
+  protected FeatureExtractor1 tokenFeatureExtractor;
 
   protected CleartkExtractor contextFeatureExtractor;
   
@@ -185,21 +185,21 @@ public class EventAnnotator extends TemporalEntityAnnotator_ImplBase {
     super.initialize(context);
 
     // define chunkings
-    this.entityChunking = new BIOChunking<BaseToken, IdentifiedAnnotation>(
+    this.entityChunking = new BioChunking<BaseToken, IdentifiedAnnotation>(
         BaseToken.class,
         IdentifiedAnnotation.class,
         "typeID");
-    this.phraseChunking = new BIOChunking<BaseToken, Chunk>(
+    this.phraseChunking = new BioChunking<BaseToken, Chunk>(
         BaseToken.class,
         Chunk.class,
         "chunkType");
-    this.eventChunking = new BIOChunking<BaseToken, EventMention>(
+    this.eventChunking = new BioChunking<BaseToken, EventMention>(
         BaseToken.class,
         EventMention.class);
 
-    this.tokenFeatureExtractor = new CombinedExtractor(
+    this.tokenFeatureExtractor = new CombinedExtractor1(
         new CoveredTextExtractor(),
-        new CharacterCategoryPatternExtractor(PatternType.ONE_PER_CHAR),
+        CharacterCategoryPatternFunction.<BaseToken>createExtractor(PatternType.ONE_PER_CHAR),
         new TypePathExtractor(BaseToken.class, "partOfSpeech"));
     this.contextFeatureExtractor = new CleartkExtractor(
         BaseToken.class,

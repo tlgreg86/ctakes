@@ -20,11 +20,10 @@ package org.apache.ctakes.relationextractor.ae.features;
 
 import java.util.List;
 
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.Feature;
-
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.cleartk.ml.Feature;
 
 /**
  * Define an interface for people to implement feature extractors.

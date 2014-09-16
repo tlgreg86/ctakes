@@ -19,28 +19,23 @@
 package org.apache.ctakes.temporal.ae.feature.treekernel;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.ctakes.dependency.parser.util.AnnotationDepUtils;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
-import org.apache.ctakes.typesystem.type.textsem.EventMention;
-import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.ctakes.utils.tree.SimpleTree;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.TreeFeature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.TreeFeature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 /**
  * Given a focused annotation, get the whole sentence-level dependency tree that cover this annotation.
  * @author CH151862
  *
  */
-public class DependencySingleTreeExtractor implements SimpleFeatureExtractor {
+public class DependencySingleTreeExtractor implements FeatureExtractor1 {
 
 	public static final String FEAT_NAME = "TK_DepSingleT";
 

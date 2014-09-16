@@ -24,9 +24,9 @@ import java.io.FileOutputStream;
 import java.net.URISyntaxException;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
 
 public class CreateAssertionZonerDescriptors
 {
@@ -62,7 +62,7 @@ public class CreateAssertionZonerDescriptors
     String generalSectionRegexFileUri =
       "org/mitre/medfacts/zoner/section_regex.xml";
     AnalysisEngineDescription zonerAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
             ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
             generalSectionRegexFileUri
             );
@@ -71,7 +71,7 @@ public class CreateAssertionZonerDescriptors
     String mayoSectionRegexFileUri =
       "org/mitre/medfacts/uima/mayo_sections.xml";
     AnalysisEngineDescription mayoZonerAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
             ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
             mayoSectionRegexFileUri
             );
@@ -96,7 +96,7 @@ public class CreateAssertionZonerDescriptors
     String generalSectionRegexFileUri =
       "org/mitre/medfacts/zoner/section_regex.xml";
     AnalysisEngineDescription zonerAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
             ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
             generalSectionRegexFileUri
             );
@@ -117,7 +117,7 @@ public class CreateAssertionZonerDescriptors
     String generalSectionRegexFileUri =
       "org/mitre/medfacts/uima/mayo_sections.xml";
     AnalysisEngineDescription zonerAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
             ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
             generalSectionRegexFileUri
             );

@@ -33,23 +33,23 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.Instances;
-import org.cleartk.classifier.chunking.BIOChunking;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Following;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Preceding;
-import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.cleartk.classifier.feature.extractor.simple.TypePathExtractor;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.Instances;
+import org.cleartk.ml.chunking.BioChunking;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
+import org.cleartk.ml.feature.extractor.CombinedExtractor1;
+import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.feature.extractor.TypePathExtractor;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 public class CRFTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
   public static final String PARAM_TIMEX_VIEW = "TimexView";
@@ -62,7 +62,7 @@ public class CRFTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
 //  public static AnalysisEngineDescription createDataWriterDescription(
 //      Class<? extends DataWriter<String>> dataWriterClass,
 //      File outputDirectory) throws ResourceInitializationException {
-//    return AnalysisEngineFactory.createPrimitiveDescription(
+//    return AnalysisEngineFactory.createEngineDescription(
 //        CRFTimeAnnotator.class,
 //        CleartkAnnotator.PARAM_IS_TRAINING,
 //        true,
@@ -74,7 +74,7 @@ public class CRFTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
 
   public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
 	      throws ResourceInitializationException {
-	    return AnalysisEngineFactory.createPrimitiveDescription(
+	    return AnalysisEngineFactory.createEngineDescription(
 	        CRFTimeAnnotator.class,
 	        CleartkAnnotator.PARAM_IS_TRAINING,
 	        false,
@@ -84,7 +84,7 @@ public class CRFTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
   
   public static AnalysisEngineDescription createEnsembleDescription(String modelPath,
 	      String viewName) throws ResourceInitializationException {
-	    return AnalysisEngineFactory.createPrimitiveDescription(
+	    return AnalysisEngineFactory.createEngineDescription(
 	        CRFTimeAnnotator.class,
 	        CleartkAnnotator.PARAM_IS_TRAINING,
 	        false,
@@ -101,7 +101,7 @@ public class CRFTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
    */
   public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
       throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(
+    return AnalysisEngineFactory.createEngineDescription(
         CRFTimeAnnotator.class,
         CleartkAnnotator.PARAM_IS_TRAINING,
         false,
@@ -116,7 +116,7 @@ public class CRFTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
    */
   public static AnalysisEngineDescription createEnsembleDescription(File modelDirectory,
       String viewName) throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(
+    return AnalysisEngineFactory.createEngineDescription(
         CRFTimeAnnotator.class,
         CleartkAnnotator.PARAM_IS_TRAINING,
         false,
@@ -126,32 +126,32 @@ public class CRFTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
         new File(modelDirectory, "model.jar"));
   }
 
-  protected List<SimpleFeatureExtractor> tokenFeatureExtractors;
+  protected List<FeatureExtractor1> tokenFeatureExtractors;
 
   protected List<CleartkExtractor> contextFeatureExtractors;
   
-//  protected List<SimpleFeatureExtractor> parseFeatureExtractors;
+//  protected List<FeatureExtractor1> parseFeatureExtractors;
   protected ParseSpanFeatureExtractor parseExtractor;
 
-  private BIOChunking<BaseToken, TimeMention> timeChunking;
+  private BioChunking<BaseToken, TimeMention> timeChunking;
 
   @Override
   public void initialize(UimaContext context) throws ResourceInitializationException {
     super.initialize(context);
 
     // define chunking
-    this.timeChunking = new BIOChunking<BaseToken, TimeMention>(BaseToken.class, TimeMention.class);
-    CombinedExtractor allExtractors = new CombinedExtractor(
+    this.timeChunking = new BioChunking<BaseToken, TimeMention>(BaseToken.class, TimeMention.class);
+    CombinedExtractor1 allExtractors = new CombinedExtractor1(
         new CoveredTextExtractor(),
 //        new CharacterCategoryPatternExtractor(PatternType.REPEATS_MERGED),
 //        new CharacterCategoryPatternExtractor(PatternType.ONE_PER_CHAR),
         new TypePathExtractor(BaseToken.class, "partOfSpeech"),
         new TimeWordTypeExtractor());
 
-//    CombinedExtractor parseExtractors = new CombinedExtractor(
+//    CombinedExtractor1 parseExtractors = new CombinedExtractor(
 //        new ParseSpanFeatureExtractor()
 //        );
-    this.tokenFeatureExtractors = new ArrayList<SimpleFeatureExtractor>();
+    this.tokenFeatureExtractors = new ArrayList<>();
     this.tokenFeatureExtractors.add(allExtractors);
 
     this.contextFeatureExtractors = new ArrayList<CleartkExtractor>();
@@ -191,7 +191,7 @@ public class CRFTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
 
         List<Feature> features = new ArrayList<Feature>();
         // features from token attributes
-        for (SimpleFeatureExtractor extractor : this.tokenFeatureExtractors) {
+        for (FeatureExtractor1 extractor : this.tokenFeatureExtractors) {
           features.addAll(extractor.extract(jCas, token));
         }
         // features from surrounding tokens

@@ -26,19 +26,18 @@ import java.util.logging.Level;
 
 import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.ctakes.temporal.ae.feature.selection.FeatureSelection;
-import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.feature.transform.InstanceDataWriter;
-import org.cleartk.classifier.feature.transform.InstanceStream;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.cleartk.classifier.liblinear.LIBLINEARStringOutcomeDataWriter;
 import org.cleartk.eval.AnnotationStatistics;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.feature.transform.InstanceDataWriter;
+import org.cleartk.ml.feature.transform.InstanceStream;
+import org.cleartk.ml.jar.JarClassifierBuilder;
+import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -124,7 +123,7 @@ public class EvaluationOfEventSpans extends EvaluationOfAnnotationSpans_ImplBase
       throws ResourceInitializationException {
     Class<?> dataWriterClass = this.featureSelectionThreshold >= 0f
         ? InstanceDataWriter.class
-        : LIBLINEARStringOutcomeDataWriter.class;
+        : LibLinearStringOutcomeDataWriter.class;
     return EventAnnotator.createDataWriterDescription(
         dataWriterClass,
         directory,
@@ -143,7 +142,7 @@ public class EvaluationOfEventSpans extends EvaluationOfAnnotationSpans_ImplBase
       featureSelection.train(instances);
       featureSelection.save(EventAnnotator.createFeatureSelectionURI(directory));
       // now write in the libsvm format
-      LIBLINEARStringOutcomeDataWriter dataWriter = new LIBLINEARStringOutcomeDataWriter(directory);
+      LibLinearStringOutcomeDataWriter dataWriter = new LibLinearStringOutcomeDataWriter(directory);
       for (Instance<String> instance : instances) {
         dataWriter.write(featureSelection.transform(instance));
       }

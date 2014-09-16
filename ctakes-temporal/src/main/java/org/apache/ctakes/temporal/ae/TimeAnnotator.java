@@ -38,28 +38,27 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
-import org.apache.uima.cas.CASRuntimeException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.chunking.BIOChunking;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Following;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Preceding;
-import org.cleartk.classifier.feature.extractor.simple.CharacterCategoryPatternExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CharacterCategoryPatternExtractor.PatternType;
-import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.cleartk.classifier.feature.extractor.simple.TypePathExtractor;
-import org.cleartk.classifier.jar.DefaultDataWriterFactory;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.chunking.BioChunking;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
+import org.cleartk.ml.feature.extractor.CombinedExtractor1;
+import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.feature.extractor.TypePathExtractor;
+import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction;
+import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction.PatternType;
+import org.cleartk.ml.jar.DefaultDataWriterFactory;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 public class TimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 
@@ -99,7 +98,7 @@ public class TimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 					File outputDirectory,
 					float featureSelect,
 					float smoteNeighborNumber) throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				TimeAnnotator.class,
 				CleartkAnnotator.PARAM_IS_TRAINING,
 				true,
@@ -115,7 +114,7 @@ public class TimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				TimeAnnotator.class,
 				CleartkAnnotator.PARAM_IS_TRAINING,
 				false,
@@ -130,7 +129,7 @@ public class TimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 	   */		
 	public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				TimeAnnotator.class,
 				CleartkAnnotator.PARAM_IS_TRAINING,
 				false,
@@ -142,7 +141,7 @@ public class TimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createEnsembleDescription(File modelDirectory, String mappedView)
 	    throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(
+    return AnalysisEngineFactory.createEngineDescription(
         TimeAnnotator.class,
         CleartkAnnotator.PARAM_IS_TRAINING,
         false,
@@ -154,14 +153,14 @@ public class TimeAnnotator extends TemporalEntityAnnotator_ImplBase {
         TimeAnnotator.createFeatureSelectionURI(modelDirectory));	  
 	}
 	
-	protected List<SimpleFeatureExtractor> tokenFeatureExtractors;
+	protected List<FeatureExtractor1> tokenFeatureExtractors;
 
 	protected List<CleartkExtractor> contextFeatureExtractors;
 
-	//  protected List<SimpleFeatureExtractor> parseFeatureExtractors;
+	//  protected List<FeatureExtractor1> parseFeatureExtractors;
 	protected ParseSpanFeatureExtractor parseExtractor;
 
-	private BIOChunking<BaseToken, TimeMention> timeChunking;
+	private BioChunking<BaseToken, TimeMention> timeChunking;
 	
 	private FeatureSelection<String> featureSelection;
 
@@ -180,19 +179,19 @@ public class TimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 		super.initialize(context);
 
 		// define chunking
-		this.timeChunking = new BIOChunking<BaseToken, TimeMention>(BaseToken.class, TimeMention.class);
+		this.timeChunking = new BioChunking<BaseToken, TimeMention>(BaseToken.class, TimeMention.class);
 
-		CombinedExtractor allExtractors = new CombinedExtractor(
+		CombinedExtractor1 allExtractors = new CombinedExtractor1(
 				new CoveredTextExtractor(),
-				new CharacterCategoryPatternExtractor(PatternType.REPEATS_MERGED),
-				new CharacterCategoryPatternExtractor(PatternType.ONE_PER_CHAR),
+		        CharacterCategoryPatternFunction.<BaseToken>createExtractor(PatternType.REPEATS_MERGED),
+		        CharacterCategoryPatternFunction.<BaseToken>createExtractor(PatternType.ONE_PER_CHAR),
 				new TypePathExtractor(BaseToken.class, "partOfSpeech"),
 				new TimeWordTypeExtractor());
 
-		//    CombinedExtractor parseExtractors = new CombinedExtractor(
+		//    CombinedExtractor1 parseExtractors = new CombinedExtractor(
 		//        new ParseSpanFeatureExtractor()
 		//        );
-		this.tokenFeatureExtractors = new ArrayList<SimpleFeatureExtractor>();
+		this.tokenFeatureExtractors = new ArrayList<FeatureExtractor1>();
 		this.tokenFeatureExtractors.add(allExtractors);
 
 		this.contextFeatureExtractors = new ArrayList<CleartkExtractor>();
@@ -248,7 +247,7 @@ public class TimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 
 				List<Feature> features = new ArrayList<Feature>();
 				// features from token attributes
-				for (SimpleFeatureExtractor extractor : this.tokenFeatureExtractors) {
+				for (FeatureExtractor1 extractor : this.tokenFeatureExtractors) {
 					features.addAll(extractor.extract(jCas, token));
 				}
 				// features from surrounding tokens
@@ -266,7 +265,7 @@ public class TimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 				features.add(new Feature("SegmentID", segment.getId()));
 
 				// features from dominating parse tree
-				//        for(SimpleFeatureExtractor extractor : this.parseFeatureExtractors){
+				//        for(FeatureExtractor1 extractor : this.parseFeatureExtractors){
 				BaseToken startToken = token;
 				for(int i = tokenIndex-1; i >= 0; --i){
 					String outcome = outcomes.get(i);

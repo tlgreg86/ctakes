@@ -28,13 +28,13 @@ import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.TreeFeature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.TreeFeature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.cleartk.util.CleartkInitializationException;
 
-public class AssertionAboveLeftTreeExtractor implements SimpleFeatureExtractor {
+public class AssertionAboveLeftTreeExtractor implements FeatureExtractor1 {
   protected SemanticClasses sems = null;
 
   public AssertionAboveLeftTreeExtractor() throws CleartkInitializationException{

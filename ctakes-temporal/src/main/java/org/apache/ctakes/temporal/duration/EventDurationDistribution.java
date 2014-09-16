@@ -46,12 +46,12 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -93,7 +93,7 @@ public class EventDurationDistribution {
 		List<File> trainFiles = Arrays.asList(options.inputDirectory.listFiles());
     CollectionReader collectionReader = getCollectionReader(trainFiles);
 		
-    AnalysisEngine temporalDurationExtractor = AnalysisEngineFactory.createPrimitive(
+    AnalysisEngine temporalDurationExtractor = AnalysisEngineFactory.createEngine(
     		TemporalDurationExtractor.class,
     		"OutputFile",
     		options.outputFile);
@@ -283,7 +283,7 @@ public class EventDurationDistribution {
       paths[i] = items.get(i).getPath();
     }
     
-    return CollectionReaderFactory.createCollectionReader(
+    return CollectionReaderFactory.createReader(
         XMIReader.class,
         XMIReader.PARAM_FILES,
         paths);

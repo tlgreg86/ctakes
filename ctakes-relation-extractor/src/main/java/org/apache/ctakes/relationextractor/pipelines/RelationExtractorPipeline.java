@@ -18,18 +18,21 @@
  */
 package org.apache.ctakes.relationextractor.pipelines;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
 import org.apache.uima.UIMAException;
-import org.apache.uima.analysis_engine.AnalysisEngine;
-import org.apache.uima.collection.CollectionReader;
-import org.cleartk.util.Options_ImplBase;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.CasIOUtil;
+import org.apache.uima.jcas.JCas;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.SimplePipeline;
 
 /**
  * A simple pipeline that runs relation extraction on all files in a directory and saves
@@ -42,7 +45,7 @@ import org.uimafit.pipeline.SimplePipeline;
  */
 public class RelationExtractorPipeline {
 
-  public static class Options extends Options_ImplBase {
+  public static class Options {
 
     @Option(
         name = "--input-dir",
@@ -57,25 +60,25 @@ public class RelationExtractorPipeline {
     public String outputDirectory;
   }
   
-	public static void main(String[] args) throws UIMAException, IOException {
+	public static void main(String[] args) throws UIMAException, IOException, CmdLineException {
 		
 		Options options = new Options();
-		options.parseOptions(args);
+		CmdLineParser parser = new CmdLineParser(options);
+		parser.parseArgument(args);
 
-		CollectionReader collectionReader = CollectionReaderFactory.createCollectionReaderFromPath(
+		CollectionReaderDescription collectionReader = CollectionReaderFactory.createReaderDescriptionFromPath(
 				"../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
 				FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
 				options.inputDirectory);
 
 		// make sure the model parameters match those used for training
-		AnalysisEngine relationExtractor = AnalysisEngineFactory.createAnalysisEngineFromPath(
+		AnalysisEngineDescription relationExtractor = AnalysisEngineFactory.createEngineDescriptionFromPath(
 				"desc/analysis_engine/RelationExtractorAggregate.xml");
     
-    AnalysisEngine xWriter = AnalysisEngineFactory.createPrimitive(
-    		XWriter.class,
-    		XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-    		options.outputDirectory);
-		
-		SimplePipeline.runPipeline(collectionReader, relationExtractor, xWriter);
+		int fileNum = 0;
+		for(JCas jcas : SimplePipeline.iteratePipeline(collectionReader, relationExtractor)){
+			CasIOUtil.writeXmi(jcas, new File(options.outputDirectory, String.format("%d.txt", fileNum++)));
+		}
+    
 	}
 }

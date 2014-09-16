@@ -27,16 +27,16 @@ import java.util.Map;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.cleartk.timeml.util.TimeWordsExtractor;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 
-public class TimeWordTypeExtractor implements SimpleFeatureExtractor {
+public class TimeWordTypeExtractor<T extends Annotation> implements FeatureExtractor1<T> {
   
   private static final String FEATURE_NAME = "TimeWordType";
   

@@ -25,11 +25,11 @@ import java.util.List;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
-public class EventPropertyExtractor implements SimpleFeatureExtractor {
+public class EventPropertyExtractor implements FeatureExtractor1 {
 
   private String name;
   

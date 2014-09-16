@@ -27,22 +27,22 @@ import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ConfigurationParameterFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.chunking.BIOChunking;
-import org.cleartk.classifier.chunking.Chunking;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ConfigurationParameterFactory;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.chunking.BioChunking;
+import org.cleartk.ml.chunking.Chunking;
 
 public class ModifierExtractorAnnotator extends CleartkAnnotator<String> {
 
   public static AnalysisEngineDescription getDescription(Object... additionalConfiguration)
       throws ResourceInitializationException {
-    AnalysisEngineDescription desc = AnalysisEngineFactory.createPrimitiveDescription(ModifierExtractorAnnotator.class);
+    AnalysisEngineDescription desc = AnalysisEngineFactory.createEngineDescription(ModifierExtractorAnnotator.class);
     if (additionalConfiguration.length > 0) {
       ConfigurationParameterFactory.addConfigurationParameters(desc, additionalConfiguration);
     }
@@ -57,7 +57,7 @@ public class ModifierExtractorAnnotator extends CleartkAnnotator<String> {
   public void initialize(UimaContext context) throws ResourceInitializationException {
     RelationExtractorAnnotator.allowClassifierModelOnClasspath(context);
     super.initialize(context);
-    this.chunking = new BIOChunking<BaseToken, Modifier>(BaseToken.class, Modifier.class, "typeID");
+    this.chunking = new BioChunking<BaseToken, Modifier>(BaseToken.class, Modifier.class, "typeID");
   }
 
   @Override

@@ -21,34 +21,29 @@ package org.apache.ctakes.assertion.medfacts.cleartk;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.ctakes.assertion.eval.AssertionEvaluation;
 import org.apache.ctakes.assertion.eval.AssertionEvaluation.ReferenceAnnotationsSystemAssertionClearer;
 import org.apache.ctakes.assertion.eval.AssertionEvaluation.ReferenceIdentifiedAnnotationsSystemToGoldCopier;
 import org.apache.ctakes.assertion.eval.AssertionEvaluation.ReferenceSupportingAnnotationsSystemToGoldCopier;
-import org.apache.ctakes.core.ae.DocumentIdPrinterAnalysisEngine;
+import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ConfigurationParameterFactory;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.DataWriterFactory;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.cleartk.classifier.opennlp.DefaultMaxentDataWriterFactory;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.DataWriterFactory;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
+import org.cleartk.ml.opennlp.maxent.MaxentStringOutcomeDataWriter;
 import org.mitre.medfacts.uima.ZoneAnnotator;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ConfigurationParameterFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.xml.sax.SAXException;
 
 public class CreateAssertionDescriptor
 {
   
-  public static final Class<? extends DataWriterFactory<String>> dataWriterFactoryClass = DefaultMaxentDataWriterFactory.class;
+//  public static final Class<? extends DataWriterFactory<String>> dataWriterFactoryClass = MaxentStringOutcomeDataWriter.class;
 
   /**
    * @param args
@@ -77,19 +72,19 @@ public class CreateAssertionDescriptor
     AggregateBuilder builder = new AggregateBuilder();
 
 ////
-    AnalysisEngineDescription goldCopierIdentifiedAnnotsAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
+    AnalysisEngineDescription goldCopierIdentifiedAnnotsAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
     builder.add(goldCopierIdentifiedAnnotsAnnotator);
     
-    AnalysisEngineDescription goldCopierSupportingAnnotsAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceSupportingAnnotationsSystemToGoldCopier.class);
+    AnalysisEngineDescription goldCopierSupportingAnnotsAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceSupportingAnnotationsSystemToGoldCopier.class);
     builder.add(goldCopierSupportingAnnotsAnnotator);
     
-    AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceAnnotationsSystemAssertionClearer.class);
+    AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceAnnotationsSystemAssertionClearer.class);
     builder.add(assertionAttributeClearerAnnotator);
     
     String generalSectionRegexFileUri =
         "org/mitre/medfacts/zoner/section_regex.xml";
     AnalysisEngineDescription zonerAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
             ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
             generalSectionRegexFileUri
             );
@@ -98,68 +93,68 @@ public class CreateAssertionDescriptor
     String mayoSectionRegexFileUri =
         "org/mitre/medfacts/uima/mayo_sections.xml";
     AnalysisEngineDescription mayoZonerAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
             ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
             mayoSectionRegexFileUri
             );
     builder.add(mayoZonerAnnotator);
     
     
-    AnalysisEngineDescription polarityAnnotator = AnalysisEngineFactory.createPrimitiveDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    AnalysisEngineDescription polarityAnnotator = AnalysisEngineFactory.createEngineDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
     ConfigurationParameterFactory.addConfigurationParameters(
         polarityAnnotator,
         AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
         AssertionEvaluation.GOLD_VIEW_NAME,
-        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
-        this.dataWriterFactoryClass.getName(),
+//        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
+//        this.dataWriterFactoryClass.getName(),
         DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
         new File(directory, "polarity").getPath()
         );
     builder.add(polarityAnnotator);
 
-    AnalysisEngineDescription conditionalAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ConditionalCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    AnalysisEngineDescription conditionalAnnotator = AnalysisEngineFactory.createEngineDescription(ConditionalCleartkAnalysisEngine.class); //,  this.additionalParamemters);
     ConfigurationParameterFactory.addConfigurationParameters(
         conditionalAnnotator,
         AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
         AssertionEvaluation.GOLD_VIEW_NAME,
-        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
-        this.dataWriterFactoryClass.getName(),
+//        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
+//        this.dataWriterFactoryClass.getName(),
         DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
         new File(directory, "conditional").getPath()
         );
     builder.add(conditionalAnnotator);
 
-    AnalysisEngineDescription uncertaintyAnnotator = AnalysisEngineFactory.createPrimitiveDescription(UncertaintyCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    AnalysisEngineDescription uncertaintyAnnotator = AnalysisEngineFactory.createEngineDescription(UncertaintyCleartkAnalysisEngine.class); //,  this.additionalParamemters);
     ConfigurationParameterFactory.addConfigurationParameters(
         uncertaintyAnnotator,
         AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
         AssertionEvaluation.GOLD_VIEW_NAME,
-        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
-        this.dataWriterFactoryClass.getName(),
+//        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
+//        this.dataWriterFactoryClass.getName(),
         DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
         new File(directory, "uncertainty").getPath()
         );
     builder.add(uncertaintyAnnotator);
 
-    AnalysisEngineDescription subjectAnnotator = AnalysisEngineFactory.createPrimitiveDescription(SubjectCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    AnalysisEngineDescription subjectAnnotator = AnalysisEngineFactory.createEngineDescription(SubjectCleartkAnalysisEngine.class); //,  this.additionalParamemters);
     ConfigurationParameterFactory.addConfigurationParameters(
         subjectAnnotator,
         AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
         AssertionEvaluation.GOLD_VIEW_NAME,
         CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
-        this.dataWriterFactoryClass.getName(),
-        DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
+//        this.dataWriterFactoryClass.getName(),
+//        DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
         new File(directory, "subject").getPath()
         );
     builder.add(subjectAnnotator);
 
-    AnalysisEngineDescription genericAnnotator = AnalysisEngineFactory.createPrimitiveDescription(GenericCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    AnalysisEngineDescription genericAnnotator = AnalysisEngineFactory.createEngineDescription(GenericCleartkAnalysisEngine.class); //,  this.additionalParamemters);
     ConfigurationParameterFactory.addConfigurationParameters(
         genericAnnotator,
         AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
         AssertionEvaluation.GOLD_VIEW_NAME,
-        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
-        this.dataWriterFactoryClass.getName(),
+//        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
+//        this.dataWriterFactoryClass.getName(),
         DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
         new File(directory, "generic").getPath()
         );
@@ -182,16 +177,16 @@ public class CreateAssertionDescriptor
     AggregateBuilder builder = new AggregateBuilder();
 
 ////
-    AnalysisEngineDescription goldCopierAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
+    AnalysisEngineDescription goldCopierAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
     builder.add(goldCopierAnnotator);
     
-    AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceAnnotationsSystemAssertionClearer.class);
+    AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceAnnotationsSystemAssertionClearer.class);
     builder.add(assertionAttributeClearerAnnotator);
     
     String generalSectionRegexFileUri =
       "org/mitre/medfacts/zoner/section_regex.xml";
     AnalysisEngineDescription zonerAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
             ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
             generalSectionRegexFileUri
             );
@@ -200,13 +195,13 @@ public class CreateAssertionDescriptor
     String mayoSectionRegexFileUri =
       "org/mitre/medfacts/uima/mayo_sections.xml";
     AnalysisEngineDescription mayoZonerAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
             ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
             mayoSectionRegexFileUri
             );
     builder.add(mayoZonerAnnotator);
     
-    AnalysisEngineDescription polarityAnnotator = AnalysisEngineFactory.createPrimitiveDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    AnalysisEngineDescription polarityAnnotator = AnalysisEngineFactory.createEngineDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
     ConfigurationParameterFactory.addConfigurationParameters(
         polarityAnnotator,
         AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -216,7 +211,7 @@ public class CreateAssertionDescriptor
         );
     builder.add(polarityAnnotator);
 
-    AnalysisEngineDescription conditionalAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ConditionalCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    AnalysisEngineDescription conditionalAnnotator = AnalysisEngineFactory.createEngineDescription(ConditionalCleartkAnalysisEngine.class); //,  this.additionalParamemters);
     ConfigurationParameterFactory.addConfigurationParameters(
         conditionalAnnotator,
         AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -226,7 +221,7 @@ public class CreateAssertionDescriptor
         );
     builder.add(conditionalAnnotator);
   
-    AnalysisEngineDescription uncertaintyAnnotator = AnalysisEngineFactory.createPrimitiveDescription(UncertaintyCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    AnalysisEngineDescription uncertaintyAnnotator = AnalysisEngineFactory.createEngineDescription(UncertaintyCleartkAnalysisEngine.class); //,  this.additionalParamemters);
     ConfigurationParameterFactory.addConfigurationParameters(
         uncertaintyAnnotator,
         AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -236,7 +231,7 @@ public class CreateAssertionDescriptor
         );
     builder.add(uncertaintyAnnotator);
 
-    AnalysisEngineDescription subjectAnnotator = AnalysisEngineFactory.createPrimitiveDescription(SubjectCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    AnalysisEngineDescription subjectAnnotator = AnalysisEngineFactory.createEngineDescription(SubjectCleartkAnalysisEngine.class); //,  this.additionalParamemters);
     ConfigurationParameterFactory.addConfigurationParameters(
         subjectAnnotator,
         AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -246,7 +241,7 @@ public class CreateAssertionDescriptor
         );
     builder.add(subjectAnnotator);
 
-    AnalysisEngineDescription genericAnnotator = AnalysisEngineFactory.createPrimitiveDescription(GenericCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    AnalysisEngineDescription genericAnnotator = AnalysisEngineFactory.createEngineDescription(GenericCleartkAnalysisEngine.class); //,  this.additionalParamemters);
     ConfigurationParameterFactory.addConfigurationParameters(
         genericAnnotator,
         AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -257,13 +252,11 @@ public class CreateAssertionDescriptor
     builder.add(genericAnnotator);
 
     AnalysisEngineDescription xwriter =
-    AnalysisEngineFactory.createPrimitiveDescription(
-          XWriter.class,
+    AnalysisEngineFactory.createEngineDescription(
+          XmiWriterCasConsumerCtakes.class,
           AssertionComponents.CTAKES_CTS_TYPE_SYSTEM_DESCRIPTION,
-          XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-          testOutputDirectory,
-          XWriter.PARAM_XML_SCHEME_NAME,
-          XWriter.XMI);
+          XmiWriterCasConsumerCtakes.PARAM_OUTPUTDIR,
+          testOutputDirectory);
     builder.add(xwriter);
 ////
     

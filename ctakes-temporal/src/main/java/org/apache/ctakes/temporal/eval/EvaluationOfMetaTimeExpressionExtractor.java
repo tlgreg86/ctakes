@@ -30,22 +30,21 @@ import org.apache.ctakes.temporal.ae.CRFTimeAnnotator;
 import org.apache.ctakes.temporal.ae.ConstituencyBasedTimeAnnotator;
 import org.apache.ctakes.temporal.ae.MetaTimeAnnotator;
 import org.apache.ctakes.temporal.ae.TimeAnnotator;
-import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.crfsuite.CRFSuiteStringOutcomeDataWriter;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
 import org.cleartk.eval.AnnotationStatistics;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.pipeline.SimplePipeline;
+import org.cleartk.ml.crfsuite.CrfSuiteStringOutcomeDataWriter;
+import org.cleartk.ml.jar.JarClassifierBuilder;
 
 import com.google.common.collect.Maps;
 import com.lexicalscope.jewel.cli.CliFactory;
@@ -117,7 +116,7 @@ public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotat
     annotatorTrainingArguments.put(ConstituencyBasedTimeAnnotator.class, new String[]{"-c", "0.3"});
     annotatorTrainingArguments.put(CRFTimeAnnotator.class, new String[]{"-p", "c2=0.03"});
     
-    JCasIterable[] casIters = new JCasIterable[nFolds];
+    JCasIterator[] casIters = new JCasIterator[nFolds];
     for (int fold = 0; fold < nFolds; ++fold) {
       List<Integer> xfoldTrain = selectTrainItems(allTrain, nFolds, fold);
       List<Integer> xfoldTest = selectTestItems(allTrain, nFolds, fold);
@@ -148,15 +147,16 @@ public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotat
         }
         
       }
-      casIters[fold] = new JCasIterable(getCollectionReader(xfoldTest), aggregateBuilder.createAggregate());
+      casIters[fold] = new JCasIterator(getCollectionReader(xfoldTest), aggregateBuilder.createAggregate());
     }
     // run meta data-writer for this fold:
     AggregateBuilder writerBuilder = new AggregateBuilder();
     writerBuilder.add(CopyFromGold.getDescription(TimeMention.class));
     writerBuilder.add(this.getDataWriterDescription(directory));
     AnalysisEngine writer = writerBuilder.createAggregate();
-    for(JCasIterable casIter : casIters){
-      for(JCas jcas : casIter){
+    for(JCasIterator casIter : casIters){
+      while(casIter.hasNext()){
+        JCas jcas = casIter.next();
         SimplePipeline.runPipeline(jcas, writer);
       }
     }
@@ -188,7 +188,7 @@ public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotat
   @Override
   protected AnalysisEngineDescription getDataWriterDescription(File directory)
       throws ResourceInitializationException {
-    return MetaTimeAnnotator.getDataWriterDescription(CRFSuiteStringOutcomeDataWriter.class, directory);          
+    return MetaTimeAnnotator.getDataWriterDescription(CrfSuiteStringOutcomeDataWriter.class, directory);          
   }
 
   @Override

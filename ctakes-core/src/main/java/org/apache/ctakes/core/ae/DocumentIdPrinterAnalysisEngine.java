@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.uimafit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 
 public class DocumentIdPrinterAnalysisEngine extends JCasAnnotator_ImplBase
 {

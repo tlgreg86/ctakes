@@ -44,14 +44,14 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.ResourceMetaData;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.component.NoOpAnnotator;
-import org.uimafit.component.ViewCreatorAnnotator;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.component.NoOpAnnotator;
+import org.apache.uima.fit.component.ViewCreatorAnnotator;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 /**
  * 
@@ -95,7 +95,7 @@ public class MergeGoldViewFromOneCasIntoInitialViewOfAnotherCas extends JCasAnno
 		viewWithPreexistingGoldAnnotations = getViewWithGoldAnnotations(correspondingCasThatHasGoldAnnotations);
 
 		// Create the new view in the current CAS so the current CAS has both views
-		// org.uimafit.util.ViewNames.INITIAL_VIEW; // org.uimafit.examples.experiment.pos.ViewNames
+		// org.apache.uima.fit.util.ViewNames.INITIAL_VIEW; // org.apache.uima.fit.examples.experiment.pos.ViewNames
 
 
 		//newGoldView = jCas.createView(AssertionEvaluation.GOLD_VIEW_NAME);
@@ -231,14 +231,14 @@ public class MergeGoldViewFromOneCasIntoInitialViewOfAnotherCas extends JCasAnno
 			// uimafit find available type systems on classpath
 			TypeSystemDescription typeSystemDescription = TypeSystemDescriptionFactory.createTypeSystemDescription();
 
-			AnalysisEngineDescription noOp = AnalysisEngineFactory.createPrimitiveDescription(NoOpAnnotator.class, typeSystemDescription);
+			AnalysisEngineDescription noOp = AnalysisEngineFactory.createEngineDescription(NoOpAnnotator.class, typeSystemDescription);
 			builder.add(noOp);
 		} catch (ResourceInitializationException e) {
 			throw new RuntimeException(e);
 		}
 
 		try {
-			//SimplePipeline.runPipeline(cr, builder.createAggregate());
+			//SimplePipeline.runPipeline(cr, builder.createEngine());
 			AnalysisEngine engine = builder.createAggregate();
 
 			final List<ResourceMetaData> metaData = new ArrayList<ResourceMetaData>();
@@ -272,7 +272,7 @@ public class MergeGoldViewFromOneCasIntoInitialViewOfAnotherCas extends JCasAnno
 		    for (int i = 0; i < paths.length; ++i) {
 		      paths[i] = items.get(i).getPath();
 		    }
-		    return CollectionReaderFactory.createCollectionReader(
+		    return CollectionReaderFactory.createReader(
 		        XMIReader.class,
 		        TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath(),
 		        XMIReader.PARAM_FILES,

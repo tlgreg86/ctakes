@@ -63,20 +63,20 @@
 //import org.apache.uima.jcas.JCas;
 //import org.apache.uima.resource.ResourceInitializationException;
 //import org.apache.uima.util.FileUtils;
-//import org.cleartk.classifier.jar.JarClassifierBuilder;
-////import org.cleartk.classifier.libsvm.LIBSVMStringOutcomeDataWriter;
-//import org.cleartk.classifier.tksvmlight.model.CompositeKernel.ComboOperator;
-////import org.cleartk.classifier.liblinear.LIBLINEARStringOutcomeDataWriter;
+//import org.cleartk.ml.jar.JarClassifierBuilder;
+////import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
+//import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
+////import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 //import org.cleartk.eval.AnnotationStatistics;
-//import org.cleartk.ml.libsvm.tk.TKLIBSVMStringOutcomeDataWriter;
-//import org.cleartk.util.ViewURIUtil;
-//import org.uimafit.component.JCasAnnotator_ImplBase;
-//import org.uimafit.factory.AggregateBuilder;
-//import org.uimafit.factory.AnalysisEngineFactory;
-//import org.uimafit.pipeline.JCasIterable;
-//import org.uimafit.pipeline.SimplePipeline;
-////import org.uimafit.testing.util.HideOutput;
-//import org.uimafit.util.JCasUtil;
+//import org.cleartk.ml.libsvm.tk.TKLibSvmStringOutcomeDataWriter;
+//import org.cleartk.util.ViewUriUtil;
+//import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+//import org.apache.uima.fit.factory.AggregateBuilder;
+//import org.apache.uima.fit.factory.AnalysisEngineFactory;
+//import org.apache.uima.fit.pipeline.JCasIterable;
+//import org.apache.uima.fit.pipeline.SimplePipeline;
+////import org.apache.uima.fit.testing.util.HideOutput;
+//import org.apache.uima.fit.util.JCasUtil;
 //
 //import com.google.common.base.Function;
 //import com.google.common.collect.Maps;
@@ -192,11 +192,11 @@
 //		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class));
 //		aggregateBuilder.add(CopyFromGold.getDescription(TimeMention.class));
 //		aggregateBuilder.add(DocTimeRelWithTreeAnnotator.createDataWriterDescription(
-//				//			  LIBSVMStringOutcomeDataWriter.class,
-//				TKLIBSVMStringOutcomeDataWriter.class,
+//				//			  LibSvmStringOutcomeDataWriter.class,
+//				TKLibSvmStringOutcomeDataWriter.class,
 //				new File(directory, DOC_TIME_REL)));
-//		//	  aggregateBuilder.add(ContextualModalityAnnotator.createDataWriterDescription(LIBSVMStringOutcomeDataWriter.class, new File(directory, CONTEXTUAL_MODALITY)));
-//		SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
+//		//	  aggregateBuilder.add(ContextualModalityAnnotator.createDataWriterDescription(LibSvmStringOutcomeDataWriter.class, new File(directory, CONTEXTUAL_MODALITY)));
+//		SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createEngine());
 //		//	      for(String propertyName : PROPERTY_NAMES){
 //		//	        JarClassifierBuilder.trainAndPackage(new File(directory, propertyName), "-h","0","-c", "1000");
 //		//	      }
@@ -238,7 +238,7 @@
 //		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 //		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class));
 //		aggregateBuilder.add(CopyFromGold.getDescription(TimeMention.class));
-//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearEventProperties.class));
+//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ClearEventProperties.class));
 //		aggregateBuilder.add(DocTimeRelWithTreeAnnotator.createAnnotatorDescription(new File(directory, DOC_TIME_REL)));
 //		//	  aggregateBuilder.add(ContextualModalityAnnotator.createAnnotatorDescription(new File(directory, CONTEXTUAL_MODALITY)));
 //
@@ -255,7 +255,7 @@
 //			statsMap.put(propertyName, new AnnotationStatistics<String>());
 //		}
 //
-//		for (JCas jCas : new JCasIterable(collectionReader, aggregateBuilder.createAggregate())) {
+//		for (JCas jCas : new JCasIterable(collectionReader, aggregateBuilder.createEngine())) {
 //			JCas goldView = jCas.getView(GOLD_VIEW_NAME);
 //			JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
 //			String text = goldView.getDocumentText();
@@ -264,7 +264,7 @@
 //					List<EventMention> goldEvents = selectExact(goldView, EventMention.class, segment);
 //					List<EventMention> systemEvents = selectExact(systemView, EventMention.class, segment);
 //					for (String name : PROPERTY_NAMES) {
-//						this.loggers.get(name).fine("Errors in : " + ViewURIUtil.getURI(jCas).toString());
+//						this.loggers.get(name).fine("Errors in : " + ViewUriUtil.getURI(jCas).toString());
 //						Function<EventMention, String> getProperty = propertyGetters.get(name);
 //						statsMap.get(name).add(
 //								goldEvents,

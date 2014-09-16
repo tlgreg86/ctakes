@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -33,14 +34,14 @@ import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.util.ViewURIUtil;
+import org.cleartk.util.ViewUriUtil;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
 import org.cleartk.util.cr.UriCollectionReader;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.JCasUtil;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
@@ -83,8 +84,9 @@ public class PrintRelations {
     aggregateBuilder.add(THYMEKnowtatorXMLReader.getDescription(knowtatorXMLDirectory));
 
     // walk through each document in the collection
-    for (JCas jCas : new JCasIterable(reader, aggregateBuilder.createAggregate())) {
-      System.err.println(ViewURIUtil.getURI(jCas));
+    for (Iterator<JCas> casIter = new JCasIterator(reader, aggregateBuilder.createAggregate()); casIter.hasNext();) {
+      JCas jCas = casIter.next();
+      System.err.println(ViewUriUtil.getURI(jCas));
 
       // collect all relations and sort them by the order they appear in the text
       Collection<BinaryTextRelation> relations = JCasUtil.select(jCas, BinaryTextRelation.class);

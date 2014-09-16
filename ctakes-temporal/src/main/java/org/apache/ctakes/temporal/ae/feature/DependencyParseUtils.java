@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.util.JCasUtil;
 
 /**
  * This is a slightly modified version of the same class from relation extraction.

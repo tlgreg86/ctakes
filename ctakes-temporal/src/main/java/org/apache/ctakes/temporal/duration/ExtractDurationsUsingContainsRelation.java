@@ -39,12 +39,12 @@ import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.threeten.bp.temporal.TemporalUnit;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 
 import scala.collection.immutable.Set;
 
@@ -80,7 +80,7 @@ public class ExtractDurationsUsingContainsRelation {
     List<File> files = Arrays.asList(options.getInputDirectory().listFiles());
     CollectionReader collectionReader = getCollectionReader(files);
 
-    AnalysisEngine annotationConsumer = AnalysisEngineFactory.createPrimitive(
+    AnalysisEngine annotationConsumer = AnalysisEngineFactory.createEngine(
         ProcessRelations.class,
         "EventOutputFile",
         options.getEventOutputFile());
@@ -193,7 +193,7 @@ public class ExtractDurationsUsingContainsRelation {
     String[] paths = new String[fileNames.size()];
     fileNames.toArray(paths);
 
-    return CollectionReaderFactory.createCollectionReader(
+    return CollectionReaderFactory.createReader(
         XMIReader.class,
         XMIReader.PARAM_FILES,
         paths);

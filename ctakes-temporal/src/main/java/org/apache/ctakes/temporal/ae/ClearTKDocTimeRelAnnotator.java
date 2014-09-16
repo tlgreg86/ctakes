@@ -28,9 +28,9 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.timeml.type.Anchor;
 import org.cleartk.timeml.type.DocumentCreationTime;
 import org.cleartk.timeml.type.TemporalLink;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.collect.Maps;
 
@@ -76,7 +76,7 @@ public class ClearTKDocTimeRelAnnotator extends JCasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription getAnnotatorDescription()
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(ClearTKDocTimeRelAnnotator.class);
+		return AnalysisEngineFactory.createEngineDescription(ClearTKDocTimeRelAnnotator.class);
 	}
 
 }

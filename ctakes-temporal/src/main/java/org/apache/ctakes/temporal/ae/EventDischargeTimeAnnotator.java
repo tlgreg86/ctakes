@@ -43,25 +43,25 @@ import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.DataWriter;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Covered;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Following;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Preceding;
-import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
-import org.cleartk.classifier.feature.extractor.simple.TypePathExtractor;
-import org.cleartk.classifier.jar.DefaultDataWriterFactory;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.DataWriter;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Covered;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
+import org.cleartk.ml.feature.extractor.CombinedExtractor1;
+import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
+import org.cleartk.ml.feature.extractor.TypePathExtractor;
+import org.cleartk.ml.jar.DefaultDataWriterFactory;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 //import com.google.common.base.Charsets;
 
@@ -70,7 +70,7 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 	public static AnalysisEngineDescription createDataWriterDescription(
 			Class<? extends DataWriter<String>> dataWriterClass,
 					File outputDirectory) throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				EventDischargeTimeAnnotator.class,
 				CleartkAnnotator.PARAM_IS_TRAINING,
 				true,
@@ -82,7 +82,7 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 
 	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				EventDischargeTimeAnnotator.class,
 				CleartkAnnotator.PARAM_IS_TRAINING,
 				false,
@@ -96,7 +96,7 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 	   */
 	public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				EventDischargeTimeAnnotator.class,
 				CleartkAnnotator.PARAM_IS_TRAINING,
 				false,
@@ -118,7 +118,7 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
-		CombinedExtractor baseExtractor = new CombinedExtractor(
+		CombinedExtractor1 baseExtractor = new CombinedExtractor1(
 				new CoveredTextExtractor(),
 				new TypePathExtractor(BaseToken.class, "partOfSpeech"));
 		this.contextExtractor = new CleartkExtractor(

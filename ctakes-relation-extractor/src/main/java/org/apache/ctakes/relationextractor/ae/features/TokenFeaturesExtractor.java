@@ -28,31 +28,32 @@ import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Bag;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Covered;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.FirstCovered;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Following;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.LastCovered;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Preceding;
-import org.cleartk.classifier.feature.extractor.annotationpair.DistanceExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
-import org.cleartk.classifier.feature.extractor.simple.NamingExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Bag;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Covered;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.FirstCovered;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.LastCovered;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
+import org.cleartk.ml.feature.extractor.CombinedExtractor1;
+import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
+import org.cleartk.ml.feature.extractor.DistanceExtractor;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.feature.extractor.NamingExtractor1;
 
 public class TokenFeaturesExtractor implements RelationFeaturesExtractor {
 
-  private SimpleFeatureExtractor coveredText = new CoveredTextExtractor();
+  private FeatureExtractor1 coveredText = new CoveredTextExtractor();
 
   /**
    * First word of the mention, last word of the mention, all words of the mention as a bag, the
    * preceding 3 words, the following 3 words
    */
-  private SimpleFeatureExtractor tokenContext = new CleartkExtractor(
+  private FeatureExtractor1 tokenContext = new CleartkExtractor(
       BaseToken.class,
       coveredText,
       new FirstCovered(1),
@@ -64,25 +65,23 @@ public class TokenFeaturesExtractor implements RelationFeaturesExtractor {
   /**
    * All extractors for mention 1, with features named to distinguish them from mention 2
    */
-  private SimpleFeatureExtractor mention1FeaturesExtractor = new NamingExtractor(
+  private FeatureExtractor1 mention1FeaturesExtractor = new NamingExtractor1(
       "mention1",
-      coveredText,
-      tokenContext);
+      new CombinedExtractor1(coveredText, tokenContext));
 
   /**
    * All extractors for mention 2, with features named to distinguish them from mention 1
    */
-  private SimpleFeatureExtractor mention2FeaturesExtractor = new NamingExtractor(
+  private FeatureExtractor1 mention2FeaturesExtractor = new NamingExtractor1(
       "mention2",
-      coveredText,
-      tokenContext);
+      new CombinedExtractor1(coveredText, tokenContext));
 
   /**
    * First word, last word, and all words between the mentions
    */
   private CleartkExtractor tokensBetween = new CleartkExtractor(
       BaseToken.class,
-      new NamingExtractor("BetweenMentions", coveredText),
+      new NamingExtractor1("BetweenMentions", coveredText),
       new FirstCovered(1),
       new LastCovered(1),
       new Bag(new Covered()));

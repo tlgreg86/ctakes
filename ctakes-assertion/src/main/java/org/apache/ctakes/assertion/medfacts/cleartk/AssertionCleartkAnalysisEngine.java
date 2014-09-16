@@ -34,7 +34,6 @@ import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelectio
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.FedaFeatureFunction;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.constants.CONST;
-import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.temporary.assertion.AssertionCuePhraseAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
@@ -46,22 +45,22 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ConfigurationParameterFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.TreeFeature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.cleartk.classifier.feature.extractor.simple.TypePathExtractor;
-import org.cleartk.classifier.feature.function.FeatureFunctionExtractor;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ConfigurationParameterFactory;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.TreeFeature;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CombinedExtractor1;
+import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.feature.extractor.TypePathExtractor;
+import org.cleartk.ml.feature.function.FeatureFunctionExtractor;
 
 import scala.actors.threadpool.Arrays;
 //import org.chboston.cnlp.ctakes.relationextractor.ae.ModifierExtractorAnnotator;
@@ -162,14 +161,14 @@ public abstract class AssertionCleartkAnalysisEngine extends
   
 	
 	
-//private SimpleFeatureExtractor tokenFeatureExtractor;
+//private FeatureExtractor1 tokenFeatureExtractor;
 //  protected List<ContextExtractor<IdentifiedAnnotation>> contextFeatureExtractors;
 //  protected List<ContextExtractor<BaseToken>> tokenContextFeatureExtractors;
   protected List<CleartkExtractor> contextFeatureExtractors;
   protected List<CleartkExtractor> tokenContextFeatureExtractors;
   protected List<CleartkExtractor> tokenCleartkExtractors;
-  protected List<SimpleFeatureExtractor> entityFeatureExtractors;
-  protected List<SimpleFeatureExtractor> entityTreeExtractors;
+  protected List<FeatureExtractor1> entityFeatureExtractors;
+  protected List<FeatureExtractor1> entityTreeExtractors;
   protected CleartkExtractor cuePhraseInWindowExtractor;
   
   protected List<FeatureFunctionExtractor> featureFunctionExtractors;
@@ -216,7 +215,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
     // a list of feature extractors that require only the token:
     // the stem of the word, the text of the word itself, plus
     // features created from the word text like character ngrams
-    this.entityFeatureExtractors = new ArrayList<SimpleFeatureExtractor>();
+    this.entityFeatureExtractors = new ArrayList<FeatureExtractor1>();
     
     // a list of feature extractors that require the token and the sentence
 //    this.contextFeatureExtractors = new ArrayList<CleartkExtractor>();
@@ -263,8 +262,8 @@ public abstract class AssertionCleartkAnalysisEngine extends
     //List<Feature> features = new ArrayList<Feature>();
     //ConllDependencyNode node1 = findAnnotationHead(jCas, arg1);
 
-    CombinedExtractor baseExtractorCuePhraseCategory =
-        new CombinedExtractor
+    CombinedExtractor1 baseExtractorCuePhraseCategory =
+        new CombinedExtractor1
           (
            new CoveredTextExtractor(),
            new TypePathExtractor(AssertionCuePhraseAnnotation.class, "cuePhrase"),
@@ -290,7 +289,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
     	// set up FeatureFunction for all the laggard, non-Extractor features
     	ffDomainAdaptor = new FedaFeatureFunction( new ArrayList<String>(new HashSet<String>(fileToDomain.values())) );
     }
-    entityTreeExtractors =  new ArrayList<SimpleFeatureExtractor>();
+    entityTreeExtractors =  new ArrayList<FeatureExtractor1>();
   }
 
   @Override
@@ -461,12 +460,12 @@ public abstract class AssertionCleartkAnalysisEngine extends
       
       // only extract these features if not doing domain adaptation
       if (ffDomainAdaptor==null) {
-    	  for (SimpleFeatureExtractor extractor : this.entityFeatureExtractors) {
+    	  for (FeatureExtractor1 extractor : this.entityFeatureExtractors) {
     		  instance.addAll(extractor.extract(jCas, entityOrEventMention));
     	  }
       }
 
-      for (SimpleFeatureExtractor extractor : this.entityTreeExtractors) {
+      for (FeatureExtractor1 extractor : this.entityTreeExtractors) {
         instance.addAll(extractor.extract(jCas, entityOrEventMention));
       }
 
@@ -541,7 +540,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
 
   public static AnalysisEngineDescription getDescription(Object... additionalConfiguration)
 	      throws ResourceInitializationException {
-	    AnalysisEngineDescription desc = AnalysisEngineFactory.createPrimitiveDescription(AssertionCleartkAnalysisEngine.class);
+	    AnalysisEngineDescription desc = AnalysisEngineFactory.createEngineDescription(AssertionCleartkAnalysisEngine.class);
 	    if (additionalConfiguration.length > 0) {
 	      ConfigurationParameterFactory.addConfigurationParameters(desc, additionalConfiguration);
 	    }

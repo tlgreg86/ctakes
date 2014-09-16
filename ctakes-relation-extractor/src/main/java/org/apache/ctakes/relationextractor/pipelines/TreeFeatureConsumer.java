@@ -46,11 +46,11 @@ import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 
 /*
  * This class is for writing trees to a file which are then used by a tree-kernel
@@ -58,7 +58,7 @@ import org.uimafit.util.JCasUtil;
  * 
  * @author Tim Miller (timothy.miller@childrens.harvard.edu)
  */
-public class TreeFeatureConsumer extends org.uimafit.component.JCasAnnotator_ImplBase {
+public class TreeFeatureConsumer extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 	private static final String NO_RELATION_CATEGORY = "-NONE-";
 	public static final String PARAM_OUTFILE = "outputFilename";
 	public static final String PARAM_CLASSIFY_BOTH_DIRECTIONS = "ClassifyBothDirections";
@@ -231,8 +231,8 @@ public class TreeFeatureConsumer extends org.uimafit.component.JCasAnnotator_Imp
 		}
 //		TypeSystemDescription typeSystem = TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath("../common-type-system/desc/common_type_system.xml");
 		try {
-			CollectionReader xmiReader = CollectionReaderFactory.createCollectionReader(XMIReader.class, XMIReader.PARAM_FILES, paths);
-			AnalysisEngine treeConsumer = AnalysisEngineFactory.createPrimitive(TreeFeatureConsumer.class, 
+			CollectionReader xmiReader = CollectionReaderFactory.createReader(XMIReader.class, XMIReader.PARAM_FILES, paths);
+			AnalysisEngine treeConsumer = AnalysisEngineFactory.createEngine(TreeFeatureConsumer.class, 
 													TreeFeatureConsumer.PARAM_OUTFILE, args[1], 
 													TreeFeatureConsumer.PARAM_CLASSIFY_BOTH_DIRECTIONS, true);
 			SimplePipeline.runPipeline(xmiReader, treeConsumer);

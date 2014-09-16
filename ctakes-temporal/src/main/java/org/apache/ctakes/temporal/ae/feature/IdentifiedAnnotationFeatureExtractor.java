@@ -30,12 +30,12 @@ import java.util.logging.Logger;
 
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
@@ -47,7 +47,7 @@ import com.google.common.io.LineProcessor;
  * 2/28/2013
  *
  */
-public class IdentifiedAnnotationFeatureExtractor implements SimpleFeatureExtractor {
+public class IdentifiedAnnotationFeatureExtractor implements FeatureExtractor1 {
 
   private String name;
 

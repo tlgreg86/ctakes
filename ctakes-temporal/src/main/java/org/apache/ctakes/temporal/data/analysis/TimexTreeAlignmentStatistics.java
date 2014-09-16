@@ -21,6 +21,7 @@ package org.apache.ctakes.temporal.data.analysis;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.ctakes.constituency.parser.util.TreeUtils;
@@ -33,13 +34,13 @@ import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
 import org.cleartk.util.cr.UriCollectionReader;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.JCasUtil;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -71,7 +72,7 @@ public class TimexTreeAlignmentStatistics {
     CollectionReader reader = UriCollectionReader.getCollectionReaderFromFiles(THYMEData.getFilesFor(trainItems, options.getRawTextDirectory()));
     AggregateBuilder aggregateBuilder = new AggregateBuilder();
     aggregateBuilder.add(UriToDocumentTextAnnotator.getDescription());
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
         XMIReader.class,
         XMIReader.PARAM_XMI_DIRECTORY,
         options.getXMIDirectory()));
@@ -79,10 +80,11 @@ public class TimexTreeAlignmentStatistics {
     int numMentions=0;
     int numMatches=0;
     
-    for(JCas jCas : new JCasIterable(reader, ae)){
+    for(Iterator<JCas> casIter = new JCasIterator(reader, ae); casIter.hasNext();){
       //      String docId = DocumentIDAnnotationUtil.getDocumentID(jCas);
       //      String docId = jCas.
       //      System.out.println("Document: " + docId);
+      JCas jCas = casIter.next();
       for(Segment segment : JCasUtil.select(jCas, Segment.class)){
     	  if(THYMEData.SEGMENTS_TO_SKIP.contains(segment.getId())) continue;
         Collection<TimeMention> mentions = JCasUtil.selectCovered(jCas.getView("GoldView"), TimeMention.class, segment);

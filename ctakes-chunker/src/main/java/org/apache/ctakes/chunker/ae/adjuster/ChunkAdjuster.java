@@ -32,10 +32,10 @@ import org.apache.uima.analysis_engine.annotator.AnnotatorConfigurationException
 import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 /**
  * UIMA annotator that uses a pattern and a rule about that pattern to adjust
@@ -284,7 +284,7 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 	}
 
 	public static AnalysisEngineDescription createAnnotatorDescription(String[] chunkPattern, int patternIndex) throws ResourceInitializationException{
-	  return AnalysisEngineFactory.createPrimitiveDescription(ChunkAdjuster.class, 
+	  return AnalysisEngineFactory.createEngineDescription(ChunkAdjuster.class, 
 	      ChunkAdjuster.PARAM_CHUNK_PATTERN,
 	      chunkPattern,
 	      ChunkAdjuster.PARAM_EXTEND_TO_INCLUDE_TOKEN,

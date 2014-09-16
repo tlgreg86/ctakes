@@ -30,8 +30,8 @@ import org.apache.ctakes.utils.struct.CounterMap;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.Feature;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.Feature;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.collect.Lists;
 

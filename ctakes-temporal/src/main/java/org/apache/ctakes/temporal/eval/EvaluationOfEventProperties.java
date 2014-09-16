@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.FileHandler;
@@ -41,20 +42,20 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.FileUtils;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.cleartk.classifier.libsvm.LIBSVMStringOutcomeDataWriter;
-//import org.cleartk.classifier.liblinear.LIBLINEARStringOutcomeDataWriter;
+//import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 import org.cleartk.eval.AnnotationStatistics;
-import org.cleartk.util.ViewURIUtil;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.jar.JarClassifierBuilder;
+import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
+import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
@@ -158,10 +159,10 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class));
 		aggregateBuilder.add(CopyFromGold.getDescription(TimeMention.class));
 		aggregateBuilder.add(DocTimeRelAnnotator.createDataWriterDescription(
-				LIBSVMStringOutcomeDataWriter.class,
+				LibSvmStringOutcomeDataWriter.class,
 				new File(directory, DOC_TIME_REL)));
 		aggregateBuilder.add(ContextualModalityAnnotator.createDataWriterDescription(
-				LIBSVMStringOutcomeDataWriter.class, 
+				LibSvmStringOutcomeDataWriter.class, 
 				new File(directory, CONTEXTUAL_MODALITY)));
 		SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
 		for(String propertyName : PROPERTY_NAMES){
@@ -177,7 +178,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class));
 		aggregateBuilder.add(CopyFromGold.getDescription(TimeMention.class));
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearEventProperties.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ClearEventProperties.class));
 		aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription(new File(directory, DOC_TIME_REL)));
 		aggregateBuilder.add(ContextualModalityAnnotator.createAnnotatorDescription(new File(directory, CONTEXTUAL_MODALITY)));
 
@@ -194,7 +195,8 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 			statsMap.put(propertyName, new AnnotationStatistics<String>());
 		}
 
-		for (JCas jCas : new JCasIterable(collectionReader, aggregateBuilder.createAggregate())) {
+		for (Iterator<JCas> casIter = new JCasIterator(collectionReader, aggregateBuilder.createAggregate()); casIter.hasNext();){
+			JCas jCas = casIter.next();
 			JCas goldView = jCas.getView(GOLD_VIEW_NAME);
 			JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
 			String text = goldView.getDocumentText();
@@ -203,7 +205,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 					List<EventMention> goldEvents = selectExact(goldView, EventMention.class, segment);
 					List<EventMention> systemEvents = selectExact(systemView, EventMention.class, segment);
 					for (String name : PROPERTY_NAMES) {
-						this.loggers.get(name).fine("Errors in : " + ViewURIUtil.getURI(jCas).toString());
+						this.loggers.get(name).fine("Errors in : " + ViewUriUtil.getURI(jCas).toString());
 						Function<EventMention, String> getProperty = propertyGetters.get(name);
 						statsMap.get(name).add(
 								goldEvents,

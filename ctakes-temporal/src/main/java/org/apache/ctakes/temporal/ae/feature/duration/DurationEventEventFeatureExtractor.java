@@ -29,7 +29,7 @@ import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.Feature;
+import org.cleartk.ml.Feature;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;

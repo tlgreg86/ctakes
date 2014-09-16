@@ -23,13 +23,14 @@ import java.io.File;
 import java.util.Date;
 
 import org.apache.ctakes.assertion.util.AssertionConst;
-import org.apache.ctakes.core.util.CtakesFileNamer;
+import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.CasIOUtil;
+import org.apache.uima.jcas.JCas;
 import org.cleartk.util.cr.FilesCollectionReader;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.SimplePipeline;
 
 /**
  * Run the plaintext clinical pipeline, using the dictionary of terms from UMLS.
@@ -53,24 +54,17 @@ public class ClinicalPipelineWithUmls {
 		//InputStream inStream = InputStreamCollectionReader.convertToByteArrayInputStream(documentText);
 		//CollectionReader collectionReader = InputStreamCollectionReader.getCollectionReader(inStream);
 		
-		CollectionReader collectionReader = FilesCollectionReader.getCollectionReader(AssertionConst.CORPUS_WO_GOLD_STD_TO_RUN_THROUGH_CTAKES);
+		CollectionReaderDescription collectionReader = FilesCollectionReader.getDescription(AssertionConst.CORPUS_WO_GOLD_STD_TO_RUN_THROUGH_CTAKES);
 
 		System.out.println("Reading from directory: " + AssertionConst.CORPUS_WO_GOLD_STD_TO_RUN_THROUGH_CTAKES);
 		System.out.println("Outputting to directory: " + AssertionConst.evalOutputDir);
 		
-		AnalysisEngineDescription pipelineIncludingUmlsDictionaries = AnalysisEngineFactory.createAnalysisEngineDescription(
+		AnalysisEngineDescription pipelineIncludingUmlsDictionaries = AnalysisEngineFactory.createEngineDescription(
 				"desc/analysis_engine/AggregatePlaintextUMLSProcessor");
 
-		AnalysisEngineDescription xWriter = AnalysisEngineFactory.createPrimitiveDescription(
-				XWriter.class,
-				XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-				AssertionConst.evalOutputDir,
-	            XWriter.PARAM_XML_SCHEME_NAME,
-	            XWriter.XMI,
-	            XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-	            CtakesFileNamer.class.getName());
-
-		SimplePipeline.runPipeline(collectionReader, pipelineIncludingUmlsDictionaries, xWriter);
+		for(JCas jCas : SimplePipeline.iteratePipeline(collectionReader, pipelineIncludingUmlsDictionaries)){
+			CasIOUtil.writeXmi(jCas, new File(AssertionConst.evalOutputDir, DocumentIDAnnotationUtil.getDocumentID(jCas) + ".xmi"));
+		}
 		
 	    System.out.println("Done at " + new Date());
 	}

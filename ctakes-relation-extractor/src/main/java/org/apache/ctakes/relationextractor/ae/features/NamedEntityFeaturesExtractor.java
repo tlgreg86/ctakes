@@ -22,21 +22,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.ctakes.typesystem.type.textsem.EntityMention;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.annotationpair.DistanceExtractor;
-import org.cleartk.classifier.feature.extractor.simple.NamingExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-
-import org.apache.ctakes.typesystem.type.textsem.EntityMention;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.DistanceExtractor;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.feature.extractor.NamingExtractor1;
 
 public class NamedEntityFeaturesExtractor implements RelationFeaturesExtractor {
 
-  private SimpleFeatureExtractor namedEntityType = new SimpleFeatureExtractor() {
+  private FeatureExtractor1 namedEntityType = new FeatureExtractor1() {
     @Override
     public List<Feature> extract(JCas jCas, Annotation ann) throws CleartkExtractorException {
       IdentifiedAnnotation idAnn = (IdentifiedAnnotation)ann;
@@ -47,14 +46,14 @@ public class NamedEntityFeaturesExtractor implements RelationFeaturesExtractor {
   /**
    * All extractors for mention 1, with features named to distinguish them from mention 2
    */
-  private SimpleFeatureExtractor mention1FeaturesExtractor = new NamingExtractor(
+  private FeatureExtractor1 mention1FeaturesExtractor = new NamingExtractor1(
       "mention1",
       namedEntityType);
 
   /**
    * All extractors for mention 2, with features named to distinguish them from mention 1
    */
-  private SimpleFeatureExtractor mention2FeaturesExtractor = new NamingExtractor(
+  private FeatureExtractor1 mention2FeaturesExtractor = new NamingExtractor1(
       "mention2",
       namedEntityType);
 

@@ -39,28 +39,28 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.DataWriter;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Bag;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Covered;
-import org.cleartk.classifier.feature.extractor.simple.CharacterCategoryPatternExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CharacterCategoryPatternExtractor.PatternType;
-import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.cleartk.classifier.feature.extractor.simple.TypePathExtractor;
-import org.cleartk.classifier.jar.DefaultDataWriterFactory;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.DataWriter;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Bag;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Covered;
+import org.cleartk.ml.feature.extractor.CombinedExtractor1;
+import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.feature.extractor.TypePathExtractor;
+import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction;
+import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction.PatternType;
+import org.cleartk.ml.jar.DefaultDataWriterFactory;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.cleartk.timeml.util.TimeWordsExtractor;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
@@ -84,7 +84,7 @@ TemporalEntityAnnotator_ImplBase {
   public static AnalysisEngineDescription createDataWriterDescription(
       Class<? extends DataWriter<String>> dataWriterClass,
           File outputDirectory) throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(
+    return AnalysisEngineFactory.createEngineDescription(
         ConstituencyBasedTimeAnnotator.class,
         CleartkAnnotator.PARAM_IS_TRAINING,
         true,
@@ -96,7 +96,7 @@ TemporalEntityAnnotator_ImplBase {
 
   public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
 	      throws ResourceInitializationException {
-	    return AnalysisEngineFactory.createPrimitiveDescription(
+	    return AnalysisEngineFactory.createEngineDescription(
 	        ConstituencyBasedTimeAnnotator.class,
 	        CleartkAnnotator.PARAM_IS_TRAINING,
 	        false,
@@ -106,7 +106,7 @@ TemporalEntityAnnotator_ImplBase {
   
   public static AnalysisEngineDescription createEnsembleDescription(String modelPath,
 	      String viewName) throws ResourceInitializationException {
-	    return AnalysisEngineFactory.createPrimitiveDescription(
+	    return AnalysisEngineFactory.createEngineDescription(
 	        ConstituencyBasedTimeAnnotator.class,
 	        CleartkAnnotator.PARAM_IS_TRAINING,
 	        false,
@@ -122,7 +122,7 @@ TemporalEntityAnnotator_ImplBase {
    */
   public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
       throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(
+    return AnalysisEngineFactory.createEngineDescription(
         ConstituencyBasedTimeAnnotator.class,
         CleartkAnnotator.PARAM_IS_TRAINING,
         false,
@@ -137,7 +137,7 @@ TemporalEntityAnnotator_ImplBase {
    */
   public static AnalysisEngineDescription createEnsembleDescription(File modelDirectory,
       String viewName) throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(
+    return AnalysisEngineFactory.createEngineDescription(
         ConstituencyBasedTimeAnnotator.class,
         CleartkAnnotator.PARAM_IS_TRAINING,
         false,
@@ -147,9 +147,9 @@ TemporalEntityAnnotator_ImplBase {
         new File(modelDirectory, "model.jar"));
   }
 
-  protected List<SimpleFeatureExtractor> featureExtractors;
+  protected List<FeatureExtractor1> featureExtractors;
   
-  protected SimpleFeatureExtractor wordTypeExtractor;
+  protected FeatureExtractor1 wordTypeExtractor;
   
   private static final String LOOKUP_PATH = "/org/apache/ctakes/temporal/time_word_types.txt";
   
@@ -160,8 +160,8 @@ TemporalEntityAnnotator_ImplBase {
       throws ResourceInitializationException {
     super.initialize(context);
 
-    CombinedExtractor charExtractors = new CombinedExtractor(new CharacterCategoryPatternExtractor(PatternType.REPEATS_MERGED),
-            new CharacterCategoryPatternExtractor(PatternType.ONE_PER_CHAR));
+    CombinedExtractor1<BaseToken> charExtractors = new CombinedExtractor1<>(CharacterCategoryPatternFunction.<BaseToken>createExtractor(PatternType.REPEATS_MERGED),
+            CharacterCategoryPatternFunction.<BaseToken>createExtractor(PatternType.ONE_PER_CHAR));
     
     this.wordTypes = Maps.newHashMap();
     URL url = TimeWordsExtractor.class.getResource(LOOKUP_PATH);
@@ -177,17 +177,17 @@ TemporalEntityAnnotator_ImplBase {
       throw new ResourceInitializationException(e);
     }
     
-    CombinedExtractor allExtractors = new CombinedExtractor(
-        new CoveredTextExtractor(),
+    CombinedExtractor1<BaseToken> allExtractors = new CombinedExtractor1<>(
+        new CoveredTextExtractor<BaseToken>(),
 //        new TimeWordTypeExtractor(),
         charExtractors,
-        new TypePathExtractor(BaseToken.class, "partOfSpeech"));
+        new TypePathExtractor<>(BaseToken.class, "partOfSpeech"));
     
-    featureExtractors = new ArrayList<SimpleFeatureExtractor>();
+    featureExtractors = new ArrayList<FeatureExtractor1>();
 //    featureExtractors.add(new CleartkExtractor(BaseToken.class, new CoveredTextExtractor(), new Bag(new Covered())));
     featureExtractors.add(new CleartkExtractor(BaseToken.class, allExtractors, new Bag(new Covered())));
 //    featureExtractors.add(charExtractors);
-    wordTypeExtractor = new CleartkExtractor(BaseToken.class, new TimeWordTypeExtractor(), new Bag(new Covered()));
+    wordTypeExtractor = new CleartkExtractor(BaseToken.class, new TimeWordTypeExtractor<BaseToken>(), new Bag(new Covered()));
 //    featureExtractors.add(new CleartkExtractor(BaseToken.class, new CoveredTextExtractor(), new Bag(new Preceding(1))));
  //   featureExtractors.add(new CleartkExtractor(BaseToken.class, new CoveredTextExtractor(), new Bag(new Following(1))));
     // bag of constituent descendent labels
@@ -247,7 +247,7 @@ TemporalEntityAnnotator_ImplBase {
     }
     
     // other feature types:
-    for(SimpleFeatureExtractor extractor : featureExtractors){
+    for(FeatureExtractor1 extractor : featureExtractors){
       features.addAll(extractor.extract(jCas, node));
     }
       
@@ -269,7 +269,8 @@ TemporalEntityAnnotator_ImplBase {
         this.dataWriter.write(new Instance<String>(category, features));
       }
     }else{
-      score = this.classifier.score(features, 1).get(0).getScore();
+      Map<String,Double> outcomes = this.classifier.score(features);
+      score = outcomes.get(MENTION);
       category = this.classifier.classify(features);
       if(category.equals(MENTION)){
         // add to cas

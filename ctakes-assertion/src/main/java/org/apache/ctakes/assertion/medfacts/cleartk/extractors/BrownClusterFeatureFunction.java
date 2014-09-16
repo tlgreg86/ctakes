@@ -30,8 +30,8 @@ import javax.annotation.Nullable;
 
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.function.FeatureFunction;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.function.FeatureFunction;
 
 import com.google.common.collect.Maps;
 

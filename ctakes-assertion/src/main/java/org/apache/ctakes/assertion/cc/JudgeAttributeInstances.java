@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.apache.ctakes.assertion.eval.AssertionEvaluation.Options;
+import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.relation.Relation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
@@ -60,16 +61,14 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.impl.XCASSerializer;
 import org.apache.uima.cas.impl.XmiCasSerializer;
+import org.apache.uima.fit.component.JCasConsumer_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.initializable.InitializableFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.XMLSerializer;
-import org.uimafit.component.JCasConsumer_ImplBase;
-import org.uimafit.component.xwriter.XWriterFileNamer;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.ConfigurationParameterFactory;
-import org.uimafit.factory.initializable.InitializableFactory;
-import org.uimafit.util.JCasUtil;
 import org.xml.sax.SAXException;
 
 /**
@@ -85,29 +84,18 @@ public class JudgeAttributeInstances extends JCasConsumer_ImplBase {
 	/**
 	 * The parameter name for the configuration parameter that specifies the output directory
 	 */
-	public static final String PARAM_OUTPUT_DIRECTORY_NAME = ConfigurationParameterFactory
-	.createConfigurationParameterName(JudgeAttributeInstances.class, "outputDirectoryName");
-	@ConfigurationParameter(mandatory = true, description = "takes a path to directory into which output files will be written.")
+	public static final String PARAM_OUTPUT_DIRECTORY_NAME = "outputDirectoryName";
+	@ConfigurationParameter(name = PARAM_OUTPUT_DIRECTORY_NAME, mandatory = true, description = "takes a path to directory into which output files will be written.")
 	private String outputDirectoryName;
 
 	/**
 	 * The parameter name for the configuration parameter that provides the name of the XML scheme
 	 * to use.
 	 */
-	public static final String PARAM_XML_SCHEME_NAME = ConfigurationParameterFactory
-	.createConfigurationParameterName(JudgeAttributeInstances.class, "xmlSchemeName");
-	@ConfigurationParameter(mandatory = true, defaultValue = "XMI", description = "specifies the UIMA XML serialization scheme that should be used. "
+	public static final String PARAM_XML_SCHEME_NAME = "xmlSchemeName";
+	@ConfigurationParameter(name = PARAM_XML_SCHEME_NAME, mandatory = true, defaultValue = "XMI", description = "specifies the UIMA XML serialization scheme that should be used. "
 		+ "Valid values for this parameter are 'XMI' (default) and 'XCAS'.")
 		private String xmlSchemeName;
-
-	/**
-	 * The parameter name for the configuration parameter that specifies the name of the class that
-	 * implements the file namer
-	 */
-	public static final String PARAM_FILE_NAMER_CLASS_NAME = ConfigurationParameterFactory
-	.createConfigurationParameterName(JudgeAttributeInstances.class, "fileNamerClassName");
-	@ConfigurationParameter(mandatory = true, description = "the class name of the XWriterFileNamer implementation to use", defaultValue = "org.uimafit.component.xwriter.IntegerFileNamer")
-	protected String fileNamerClassName;
 
 	/**
 	 * The parameter name which to ignore
@@ -158,8 +146,6 @@ public class JudgeAttributeInstances extends JCasConsumer_ImplBase {
 
 	private boolean useXMI = true;
 
-	private XWriterFileNamer fileNamer;
-
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
@@ -181,14 +167,12 @@ public class JudgeAttributeInstances extends JCasConsumer_ImplBase {
 					XMI, XCAS), null);
 		}
 
-		fileNamer = InitializableFactory
-		.create(context, fileNamerClassName, XWriterFileNamer.class);
 	}
 
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
-		String fileName = fileNamer.nameFile(jCas);
-		System.out.println("==================\nFile: "+fileName);
+		String sourceFileName = DocumentIDAnnotationUtil.getDocumentID(jCas);
+		System.out.println("==================\nFile: "+sourceFileName);
 		deletableMentions = new ArrayList<IdentifiedAnnotation>();
 
 //		JCas jCas = null;
@@ -206,10 +190,10 @@ public class JudgeAttributeInstances extends JCasConsumer_ImplBase {
 		
 		try {
 			if (useXMI) {
-				writeXmi(jCas.getCas(), fileName);
+				writeXmi(jCas.getCas(), sourceFileName);
 			}
 			else {
-				writeXCas(jCas.getCas(), fileName);
+				writeXCas(jCas.getCas(), sourceFileName);
 			}
 		}
 		catch (IOException e) {

@@ -31,7 +31,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.junit.Assert;
 import org.junit.Test;
-import org.uimafit.factory.JCasFactory;
+import org.apache.uima.fit.factory.JCasFactory;
 
 /**
  * TODO get rid of hard-coded path to Types.xml - load from classpath

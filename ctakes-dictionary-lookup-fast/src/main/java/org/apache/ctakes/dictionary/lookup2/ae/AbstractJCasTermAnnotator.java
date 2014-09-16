@@ -251,7 +251,7 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
    protected void getAnnotationsInWindow( final JCas jcas, final Annotation window,
                                           final List<FastLookupToken> allTokens,
                                           final List<Integer> lookupTokenIndices ) {
-      final List<BaseToken> allBaseTokens = org.uimafit.util.JCasUtil.selectCovered( jcas, BaseToken.class, window );
+      final List<BaseToken> allBaseTokens = org.apache.uima.fit.util.JCasUtil.selectCovered( jcas, BaseToken.class, window );
       for ( BaseToken baseToken : allBaseTokens ) {
          if ( baseToken instanceof NewlineToken ) {
             continue;

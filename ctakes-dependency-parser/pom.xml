@@ -69,10 +69,6 @@
 			<groupId>org.cleartk</groupId>
 			<artifactId>cleartk-util</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.uimafit</groupId>
-			<artifactId>uimafit</artifactId>
-		</dependency>
 		<!-- we excluded spring-context uimafit transitive dependency in the parent pom, include it here -->
 		<dependency>
 				<groupId>org.springframework</groupId>
@@ -93,6 +89,10 @@
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.uima</groupId>
+			<artifactId>uimafit-core</artifactId>
 		</dependency>
 	</dependencies>
 	<description>This wraps the ClearNLP dependency parser and semantic role labeler into a UIMA friendly annotator</description>

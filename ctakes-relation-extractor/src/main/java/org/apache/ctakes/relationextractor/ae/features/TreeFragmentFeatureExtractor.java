@@ -36,7 +36,7 @@ import org.apache.ctakes.utils.tree.FragmentUtils;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.Feature;
+import org.cleartk.ml.Feature;
 
 /* 
  * This class implements a ClearTK feature extractor for tree kernel fragment features

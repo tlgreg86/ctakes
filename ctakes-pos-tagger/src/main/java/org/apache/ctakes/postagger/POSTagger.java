@@ -66,12 +66,12 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.TypePrioritiesFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.TypePrioritiesFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 public class POSTagger extends JCasAnnotator_ImplBase {
 
@@ -141,7 +141,7 @@ public class POSTagger extends JCasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createAnnotatorDescription()
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				POSTagger.class, TypeSystemDescriptionFactory
 						.createTypeSystemDescription(), TypePrioritiesFactory
 						.createTypePriorities(Segment.class, Sentence.class,
@@ -150,7 +150,7 @@ public class POSTagger extends JCasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createAnnotatorDescription(
 			String model) throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				POSTagger.class, TypeSystemDescriptionFactory
 						.createTypeSystemDescription(), TypePrioritiesFactory
 						.createTypePriorities(Segment.class, Sentence.class,

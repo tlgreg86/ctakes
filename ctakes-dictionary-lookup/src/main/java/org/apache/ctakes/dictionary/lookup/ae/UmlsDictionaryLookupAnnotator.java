@@ -34,8 +34,8 @@ import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 
 /**
  * UIMA annotator that identified entities based on lookup.
@@ -115,7 +115,7 @@ public class UmlsDictionaryLookupAnnotator extends DictionaryLookupAnnotator
 	
 	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
 	  try {
-      return AnalysisEngineFactory.createPrimitiveDescription(UmlsDictionaryLookupAnnotator.class,
+      return AnalysisEngineFactory.createEngineDescription(UmlsDictionaryLookupAnnotator.class,
           UMLSADDR_PARAM,
           "https://uts-ws.nlm.nih.gov/restful/isValidUMLSUser",
           UMLSVENDOR_PARAM,

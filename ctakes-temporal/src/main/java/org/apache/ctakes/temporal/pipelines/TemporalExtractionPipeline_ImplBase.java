@@ -18,44 +18,23 @@
  */
 package org.apache.ctakes.temporal.pipelines;
 
-import java.io.File;
-
 import org.apache.ctakes.chunker.ae.Chunker;
-import org.apache.ctakes.chunker.ae.DefaultChunkCreator;
-import org.apache.ctakes.chunker.ae.adjuster.ChunkAdjuster;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
 import org.apache.ctakes.constituency.parser.ae.ConstituencyParser;
 import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
-import org.apache.ctakes.core.resource.FileLocator;
-import org.apache.ctakes.core.resource.FileResourceImpl;
-import org.apache.ctakes.core.resource.JdbcConnectionResourceImpl;
-import org.apache.ctakes.core.resource.LuceneIndexReaderResourceImpl;
+import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
-import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
-import org.apache.ctakes.lvg.ae.LvgAnnotator;
-import org.apache.ctakes.lvg.resource.LvgCmdApiResourceImpl;
 import org.apache.ctakes.postagger.POSTagger;
-import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.CopyNPChunksToLookupWindowAnnotations;
-import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.RemoveEnclosedLookupWindows;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
-import org.apache.ctakes.typesystem.type.textspan.Segment;
-import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngine;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.component.xwriter.XWriterFileNamer;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ExternalResourceFactory;
-import org.uimafit.factory.TypePrioritiesFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
 
 import com.lexicalscope.jewel.cli.Option;
 
@@ -81,8 +60,8 @@ public abstract class TemporalExtractionPipeline_ImplBase {
     AggregateBuilder aggregateBuilder = new AggregateBuilder();
     aggregateBuilder.add(ClinicalPipelineFactory.getDefaultPipeline());
     // add semantic role labeler
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearNLPSemanticRoleLabelerAE.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ConstituencyParser.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ClearNLPSemanticRoleLabelerAE.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ConstituencyParser.class));
     return aggregateBuilder;
   }
   
@@ -93,7 +72,7 @@ public abstract class TemporalExtractionPipeline_ImplBase {
      * 
      */
     // identify segments; use simple segment annotator on non-mayo notes
-    // aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
+    // aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
     
     aggregateBuilder.add(SimpleSegmentAnnotator.createAnnotatorDescription());
     aggregateBuilder.add(SentenceDetector.createAnnotatorDescription());
@@ -102,26 +81,17 @@ public abstract class TemporalExtractionPipeline_ImplBase {
     aggregateBuilder.add(POSTagger.createAnnotatorDescription());
     aggregateBuilder.add(Chunker.createAnnotatorDescription());
     aggregateBuilder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ClearNLPSemanticRoleLabelerAE.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ConstituencyParser.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ClearNLPSemanticRoleLabelerAE.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ConstituencyParser.class));
 
     return aggregateBuilder;
   }
   
   protected static AnalysisEngine getXMIWriter(String outputDirectory) throws ResourceInitializationException{
-    return AnalysisEngineFactory.createPrimitive(
-        XWriter.class,
-        XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-        outputDirectory,
-        XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-        DocIDFileNamer.class.getName()
+    return AnalysisEngineFactory.createEngine(
+        XmiWriterCasConsumerCtakes.class,
+        XmiWriterCasConsumerCtakes.PARAM_OUTPUTDIR,
+        outputDirectory
         );
-  }
-  
-  public static class DocIDFileNamer implements XWriterFileNamer {
-    @Override
-    public String nameFile(JCas jCas) {
-      return DocumentIDAnnotationUtil.getDocumentID(jCas);
-    }
   }
 }

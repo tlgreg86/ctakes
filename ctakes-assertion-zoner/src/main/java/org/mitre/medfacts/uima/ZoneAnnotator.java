@@ -46,10 +46,10 @@ import org.mitre.medfacts.zoner.ZonerCli.Range;
 //import org.mitre.medfacts.zoner.ZonerCliSimplified;
 //import org.mitre.medfacts.zoner.ZonerCliSimplified.HeadingRange;
 //import org.mitre.medfacts.zoner.ZonerCliSimplified.Range;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.descriptor.TypeCapability;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.descriptor.TypeCapability;
 
 @TypeCapability(outputs =
 {

@@ -20,15 +20,15 @@ package org.apache.ctakes.temporal.pipelines;
 
 import java.io.File;
 
+import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
 import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.collection.CollectionReader;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.SimplePipeline;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -53,7 +53,7 @@ public class EventExtractionPipeline extends TemporalExtractionPipeline_ImplBase
 		
 		EventOptions options = CliFactory.parseArguments(EventOptions.class, args);
 
-		CollectionReader collectionReader = CollectionReaderFactory.createCollectionReaderFromPath(
+		CollectionReader collectionReader = CollectionReaderFactory.createReaderFromPath(
 				"../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
 				FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
 				options.getInputDirectory());
@@ -61,9 +61,9 @@ public class EventExtractionPipeline extends TemporalExtractionPipeline_ImplBase
 		AggregateBuilder aggregateBuilder = getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(EventAnnotator.createAnnotatorDescription(new File(options.getModelDirectory())));
 		
-    AnalysisEngine xWriter = AnalysisEngineFactory.createPrimitive(
-        XWriter.class,
-        XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
+    AnalysisEngine xWriter = AnalysisEngineFactory.createEngine(
+        XmiWriterCasConsumerCtakes.class,
+        XmiWriterCasConsumerCtakes.PARAM_OUTPUTDIR,
         options.getOutputDirectory());
 		
     SimplePipeline.runPipeline(

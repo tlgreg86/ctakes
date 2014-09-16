@@ -54,11 +54,11 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.cas.FSList;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 
 /**
  * UIMA annotator that uses the UMLS LVG package to find the canonical form of
@@ -562,7 +562,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
 	  try {
-      return AnalysisEngineFactory.createPrimitiveDescription(LvgAnnotator.class,
+      return AnalysisEngineFactory.createEngineDescription(LvgAnnotator.class,
           LvgAnnotator.PARAM_USE_CMD_CACHE,
           false,
           LvgAnnotator.PARAM_USE_LEMMA_CACHE,

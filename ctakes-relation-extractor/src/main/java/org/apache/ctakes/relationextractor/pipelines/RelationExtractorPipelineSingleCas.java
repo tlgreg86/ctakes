@@ -47,9 +47,9 @@ import java.io.IOException;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.jcas.JCas;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.JCasFactory;
-import org.uimafit.pipeline.SimplePipeline;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.JCasFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 
 /**
  * Run relation extraction AE on a single sentence.
@@ -66,10 +66,10 @@ public class RelationExtractorPipelineSingleCas {
 			JCas jCas = JCasFactory.createJCas();
 			jCas.setDocumentText(sampleSentence);
 
-			AnalysisEngine relationExtractor = AnalysisEngineFactory.createAnalysisEngineFromPath(
+			AnalysisEngine relationExtractor = AnalysisEngineFactory.createEngineFromPath(
 					"desc/analysis_engine/RelationExtractorAggregate.xml");
 
-		  AnalysisEngine relationConsumer = AnalysisEngineFactory.createPrimitive(
+		  AnalysisEngine relationConsumer = AnalysisEngineFactory.createEngine(
 	    		RelationExtractorConsumer.class);
 
 			SimplePipeline.runPipeline(jCas, relationExtractor, relationConsumer);

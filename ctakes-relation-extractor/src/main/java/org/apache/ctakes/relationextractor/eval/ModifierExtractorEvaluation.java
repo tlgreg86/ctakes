@@ -20,6 +20,7 @@ package org.apache.ctakes.relationextractor.eval;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -31,18 +32,18 @@ import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.jar.DefaultDataWriterFactory;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.cleartk.classifier.liblinear.LIBLINEARStringOutcomeDataWriter;
 import org.cleartk.eval.AnnotationStatistics;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.jar.DefaultDataWriterFactory;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
+import org.cleartk.ml.jar.JarClassifierBuilder;
+import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -51,8 +52,8 @@ import com.lexicalscope.jewel.cli.CliFactory;
 public class ModifierExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 
   public static final ParameterSettings BEST_PARAMETERS = new ParameterSettings(
-      LIBLINEARStringOutcomeDataWriter.class,
-      new String[] { "-s", "1", "-c", "0.5" });
+      LibLinearStringOutcomeDataWriter.class,
+      new String[] { "-s", "0", "-c", "100.0" });
 
   public static void main(String[] args) throws Exception {
     // parse the options, validate them, and generate XMI if necessary
@@ -61,13 +62,13 @@ public class ModifierExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
     SHARPXMI.generateXMI(options);
 
     // determine the grid of parameters to search through
-    // for the full set of LIBLINEAR parameters, see:
+    // for the full set of LibLinear parameters, see:
     // https://github.com/bwaldvogel/liblinear-java/blob/master/src/main/java/de/bwaldvogel/liblinear/Train.java
     List<ParameterSettings> gridOfSettings = Lists.newArrayList();
     for (int solver : new int[] { 0 /* logistic regression */, 1 /* SVM */}) {
       for (double svmCost : new double[] { 0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100 }) {
         gridOfSettings.add(new ParameterSettings(
-            LIBLINEARStringOutcomeDataWriter.class,
+            LibLinearStringOutcomeDataWriter.class,
             new String[] { "-s", String.valueOf(solver), "-c", String.valueOf(svmCost) }));
       }
     }
@@ -99,7 +100,7 @@ public class ModifierExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 
     SimplePipeline.runPipeline(
         collectionReader,
-        AnalysisEngineFactory.createPrimitiveDescription(OnlyGoldModifiers.class),
+        AnalysisEngineFactory.createEngineDescription(OnlyGoldModifiers.class),
         ModifierExtractorAnnotator.getDescription(
             DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
             this.parameterSettings.dataWriterClass,
@@ -112,12 +113,13 @@ public class ModifierExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
   protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
       throws Exception {
     AnalysisEngine classifierAnnotator =
-        AnalysisEngineFactory.createPrimitive(ModifierExtractorAnnotator.getDescription(
+        AnalysisEngineFactory.createEngine(ModifierExtractorAnnotator.getDescription(
             GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
             JarClassifierBuilder.getModelJarFile(directory)));
 
     AnnotationStatistics<String> stats = new AnnotationStatistics<String>();
-    for (JCas jCas : new JCasIterable(collectionReader, classifierAnnotator)) {
+    for (Iterator<JCas> casIter = new JCasIterator(collectionReader, classifierAnnotator); casIter.hasNext();) {
+      JCas jCas = casIter.next();
       JCas goldView;
       try {
         goldView = jCas.getView(SHARPXMI.GOLD_VIEW_NAME);

@@ -28,19 +28,20 @@ import org.apache.ctakes.assertion.util.AssertionConst;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.cleartk.util.Options_ImplBase;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.SimplePipeline;
 
 import scala.actors.threadpool.Arrays;
 
 public class RunJudgeAttributeInstances {
-	public static class Options extends Options_ImplBase {
+	public static class Options {
 		@Option(
 				name = "--input-dir",
 				usage = "where to read the fully-annotated xmi data from",
@@ -94,9 +95,11 @@ public class RunJudgeAttributeInstances {
 
 	/**
 	 * @param args
+	 * @throws CmdLineException 
 	 */
-	public static void main(String[] args) {
-		options.parseOptions(args);
+	public static void main(String[] args) throws CmdLineException {
+		CmdLineParser parser = new CmdLineParser(options);
+		parser.parseArgument(args);
 
 		TypeSystemDescription typeSystemDescription;
 		CollectionReaderDescription collectionReader = null;
@@ -111,19 +114,17 @@ public class RunJudgeAttributeInstances {
 		      paths[i] = items.get(i).getAbsolutePath();
 		    }
 			
-			collectionReader = CollectionReaderFactory.createDescription(
+			collectionReader = CollectionReaderFactory.createReaderDescription(
 			        XMIReader.class,
 			        TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath(),
 			        XMIReader.PARAM_FILES,
 			        paths);
 			
-			userInput = AnalysisEngineFactory.createPrimitiveDescription(
+			userInput = AnalysisEngineFactory.createEngineDescription(
 					JudgeAttributeInstances.class,
 					typeSystemDescription,
 					JudgeAttributeInstances.PARAM_OUTPUT_DIRECTORY_NAME,
-					options.outputDir,
-					JudgeAttributeInstances.PARAM_FILE_NAMER_CLASS_NAME,
-					CtakesFileNamer.class.getName()
+					options.outputDir
 			);			
 			
 		} catch (ResourceInitializationException e) {

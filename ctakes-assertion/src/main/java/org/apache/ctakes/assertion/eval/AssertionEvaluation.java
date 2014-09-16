@@ -73,6 +73,17 @@ import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.component.NoOpAnnotator;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.ConfigurationParameterFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.CasIOUtil;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -80,31 +91,20 @@ import org.apache.uima.resource.ResourceProcessException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCopier;
 import org.apache.uima.util.FileUtils;
-import org.cleartk.classifier.DataWriter;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.feature.transform.InstanceDataWriter;
-import org.cleartk.classifier.feature.transform.InstanceStream;
-import org.cleartk.classifier.jar.DefaultDataWriterFactory;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.cleartk.classifier.libsvm.LIBSVMStringOutcomeDataWriter;
 import org.cleartk.eval.Evaluation_ImplBase;
-//import org.cleartk.ml.libsvm.tk.TKLIBSVMStringOutcomeDataWriter;
+import org.cleartk.ml.DataWriter;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.feature.transform.InstanceDataWriter;
+import org.cleartk.ml.feature.transform.InstanceStream;
+import org.cleartk.ml.jar.DefaultDataWriterFactory;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
+import org.cleartk.ml.jar.JarClassifierBuilder;
+import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
+//import org.cleartk.ml.libsvm.tk.TKLibSvmStringOutcomeDataWriter;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.BooleanOptionHandler;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.component.NoOpAnnotator;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.ConfigurationParameterFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -362,7 +362,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
 
     // determine the type of classifier to be trained
 //    Class<? extends DataWriterFactory<String>> dataWriterFactoryClass = DefaultMaxentDataWriterFactory.class;
-//    Class<? extends DataWriterFactory<String>> dataWriterFactoryClass = DefaultMultiClassLIBSVMDataWriterFactory.class;
+//    Class<? extends DataWriterFactory<String>> dataWriterFactoryClass = DefaultMultiClassLibSvmDataWriterFactory.class;
     
     // TODO Class<? extends DataWriterFactory<String>> dataWriterFactoryClass = DefaultDataWriterFactory.class;
     //
@@ -392,10 +392,10 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     }
     Class<? extends DataWriter<String>> dw = null;
     if(options.featConfig == FEATURE_CONFIG.STK || options.featConfig == FEATURE_CONFIG.PTK){ 
-//        dw = TKLIBSVMStringOutcomeDataWriter.class;
+//        dw = TKLibSvmStringOutcomeDataWriter.class;
       throw new UnsupportedOperationException("This requires cleartk-2.0 which");
     }
-    dw = LIBSVMStringOutcomeDataWriter.class;
+    dw = LibSvmStringOutcomeDataWriter.class;
     
     AssertionEvaluation evaluation = new AssertionEvaluation(
         modelsDir,
@@ -406,7 +406,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
         kernelParams
 //        "-t",
 //        "0",
-//       TKLIBSVMStringOutcomeDataWriter.class,
+//       TKLibSvmStringOutcomeDataWriter.class,
 //        "-c",
 //        "1"
 //        "-t",
@@ -627,7 +627,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     for (int i = 0; i < paths.length; ++i) {
       paths[i] = items.get(i).getPath();
     }
-    return CollectionReaderFactory.createCollectionReader(
+    return CollectionReaderFactory.createReader(
         XMIReader.class,
         TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath(),
         XMIReader.PARAM_FILES,
@@ -663,32 +663,32 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
   public void train(CollectionReader collectionReader, File directory) throws Exception {
     AggregateBuilder builder = new AggregateBuilder();
     
-    //builder.add(AnalysisEngineFactory.createPrimitiveDescription(ReplaceCTakesEntityMentionsAndModifiersWithGold.class));
+    //builder.add(AnalysisEngineFactory.createEngineDescription(ReplaceCTakesEntityMentionsAndModifiersWithGold.class));
 
 //    AnalysisEngineDescription assertionDescription = AssertionCleartkAnalysisEngine.getDescription(
 //        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
-//        //MultiClassLIBSVMDataWriterFactory.class.getName(),
+//        //MultiClassLibSvmDataWriterFactory.class.getName(),
 //        MaxentStringOutcomeDataWriter.class.getName(),
 //        DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
 //        directory.getPath());
 //    builder.add(assertionDescription);
     
-    AnalysisEngineDescription documentIdPrinterAnnotator = AnalysisEngineFactory.createPrimitiveDescription(DocumentIdPrinterAnalysisEngine.class);
+    AnalysisEngineDescription documentIdPrinterAnnotator = AnalysisEngineFactory.createEngineDescription(DocumentIdPrinterAnalysisEngine.class);
     builder.add(documentIdPrinterAnnotator);
     
-    AnalysisEngineDescription goldCopierIdentifiedAnnotsAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
+    AnalysisEngineDescription goldCopierIdentifiedAnnotsAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
     builder.add(goldCopierIdentifiedAnnotsAnnotator);
     
-    AnalysisEngineDescription goldCopierSupportingAnnotsAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceSupportingAnnotationsSystemToGoldCopier.class);
+    AnalysisEngineDescription goldCopierSupportingAnnotsAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceSupportingAnnotationsSystemToGoldCopier.class);
     builder.add(goldCopierSupportingAnnotsAnnotator);
     
-    AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceAnnotationsSystemAssertionClearer.class);
+    AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceAnnotationsSystemAssertionClearer.class);
     builder.add(assertionAttributeClearerAnnotator);
     
 //    String generalSectionRegexFileUri =
 //        "org/mitre/medfacts/zoner/section_regex.xml";
 //    AnalysisEngineDescription zonerAnnotator =
-//        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+//        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
 //            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
 //            generalSectionRegexFileUri
 //            );
@@ -697,7 +697,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 //    String mayoSectionRegexFileUri =
 //        "org/mitre/medfacts/uima/mayo_sections.xml";
 //    AnalysisEngineDescription mayoZonerAnnotator =
-//        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+//        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
 //            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
 //            mayoSectionRegexFileUri
 //            );
@@ -710,7 +710,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 //
 //    
 //    AnalysisEngineDescription cuePhraseLookupAnnotator =
-//        AnalysisEngineFactory.createAnalysisEngineDescription("org/apache/ctakes/dictionary/lookup/AssertionCuePhraseDictionaryLookupAnnotator");
+//        AnalysisEngineFactory.createEngineDescription("org/apache/ctakes/dictionary/lookup/AssertionCuePhraseDictionaryLookupAnnotator");
 //    builder.add(cuePhraseLookupAnnotator);
 
     // Set up Feature Selection parameters
@@ -721,16 +721,16 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     }
     
     // Add each assertion Analysis Engine to the pipeline!
-    builder.add(AnalysisEngineFactory.createPrimitiveDescription(AlternateCuePhraseAnnotator.class, new Object[]{}));
+    builder.add(AnalysisEngineFactory.createEngineDescription(AlternateCuePhraseAnnotator.class, new Object[]{}));
     
     if (!options.ignorePolarity)
     {
     	AnalysisEngineDescription polarityAnnotator;
     	if (options.useYtexNegation) {
-    		 polarityAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(YTEX_NEGATION_DESCRIPTOR);
+    		 polarityAnnotator = AnalysisEngineFactory.createEngineDescription(YTEX_NEGATION_DESCRIPTOR);
     	} else {
     		if (options.feda) {
-    			polarityAnnotator = AnalysisEngineFactory.createPrimitiveDescription(PolarityFedaCleartkAnalysisEngine.class);
+    			polarityAnnotator = AnalysisEngineFactory.createEngineDescription(PolarityFedaCleartkAnalysisEngine.class);
 
       			ConfigurationParameterFactory.addConfigurationParameters(
         				polarityAnnotator,
@@ -739,7 +739,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
         				);
     		} else {
     			// default: cleartk-based polarity, no domain adaptation
-    			polarityAnnotator = AnalysisEngineFactory.createPrimitiveDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    			polarityAnnotator = AnalysisEngineFactory.createEngineDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
       		}
     		ConfigurationParameterFactory.addConfigurationParameters(
     				polarityAnnotator,
@@ -764,7 +764,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 
     if (!options.ignoreConditional)
     {
-	    AnalysisEngineDescription conditionalAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ConditionalCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+	    AnalysisEngineDescription conditionalAnnotator = AnalysisEngineFactory.createEngineDescription(ConditionalCleartkAnalysisEngine.class); //,  this.additionalParamemters);
 	    ConfigurationParameterFactory.addConfigurationParameters(
 	        conditionalAnnotator,
 	        AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -785,7 +785,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 
     if (!options.ignoreUncertainty)
     {
-	    AnalysisEngineDescription uncertaintyAnnotator = AnalysisEngineFactory.createPrimitiveDescription(UncertaintyCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+	    AnalysisEngineDescription uncertaintyAnnotator = AnalysisEngineFactory.createEngineDescription(UncertaintyCleartkAnalysisEngine.class); //,  this.additionalParamemters);
 	    ConfigurationParameterFactory.addConfigurationParameters(
 	        uncertaintyAnnotator,
 	        AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -808,7 +808,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 
     if (!options.ignoreSubject)
     {
-	    AnalysisEngineDescription subjectAnnotator = AnalysisEngineFactory.createPrimitiveDescription(SubjectCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+	    AnalysisEngineDescription subjectAnnotator = AnalysisEngineFactory.createEngineDescription(SubjectCleartkAnalysisEngine.class); //,  this.additionalParamemters);
 	    ConfigurationParameterFactory.addConfigurationParameters(
 	        subjectAnnotator,
 	        AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -829,7 +829,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 
     if (!options.ignoreGeneric)
     {
-		AnalysisEngineDescription genericAnnotator = AnalysisEngineFactory.createPrimitiveDescription(GenericCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+		AnalysisEngineDescription genericAnnotator = AnalysisEngineFactory.createEngineDescription(GenericCleartkAnalysisEngine.class); //,  this.additionalParamemters);
 		ConfigurationParameterFactory.addConfigurationParameters(
 		    genericAnnotator,
 		    AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -850,7 +850,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     
     // 2/20/13 srh adding
     if (!options.ignoreHistory) {
-    	AnalysisEngineDescription historyAnnotator = AnalysisEngineFactory.createPrimitiveDescription(HistoryCleartkAnalysisEngine.class);
+    	AnalysisEngineDescription historyAnnotator = AnalysisEngineFactory.createEngineDescription(HistoryCleartkAnalysisEngine.class);
     	ConfigurationParameterFactory.addConfigurationParameters(
     			historyAnnotator,
     			AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -870,7 +870,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     }
 
 /*
-    AnalysisEngineDescription classifierAnnotator = AnalysisEngineFactory.createPrimitiveDescription(
+    AnalysisEngineDescription classifierAnnotator = AnalysisEngineFactory.createEngineDescription(
         this.classifierAnnotatorClass,
         this.additionalParameters);
     ConfigurationParameterFactory.addConfigurationParameters(
@@ -898,7 +898,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
   @Override
   protected Map<String, AnnotationStatisticsCompact> test(CollectionReader collectionReader, File directory)
       throws Exception {
-//    AnalysisEngine classifierAnnotator = AnalysisEngineFactory.createPrimitive(AssertionCleartkAnalysisEngine.getDescription(
+//    AnalysisEngine classifierAnnotator = AnalysisEngineFactory.createEngine(AssertionCleartkAnalysisEngine.getDescription(
 //        GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 //        new File(directory, "model.jar").getPath()));
 
@@ -906,10 +906,10 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     
     // directory is such as /cTAKES/workspaces/Apache-cTAKES-trunk/ctakes/ctakes-assertion/sharp_data/model/eval.model
     
-    AnalysisEngineDescription goldCopierAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
+    AnalysisEngineDescription goldCopierAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
     builder.add(goldCopierAnnotator);
     
-    AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ReferenceAnnotationsSystemAssertionClearer.class);
+    AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceAnnotationsSystemAssertionClearer.class);
     builder.add(assertionAttributeClearerAnnotator);
     
     if ( options.noCleartk ) {
@@ -926,31 +926,18 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     	TypeSystemDescription typeSystemDescription = TypeSystemDescriptionFactory.createTypeSystemDescription();
     	
         AnalysisEngineDescription noOp =
-    		AnalysisEngineFactory.createPrimitiveDescription(
+    		AnalysisEngineFactory.createEngineDescription(
 	            NoOpAnnotator.class,
 	            typeSystemDescription);
     	builder.add(noOp);
     	
         AnalysisEngineDescription mergeGold =
-    		AnalysisEngineFactory.createPrimitiveDescription(org.apache.ctakes.assertion.eval.MergeGoldViewFromOneCasIntoInitialViewOfAnotherCas.class, typeSystemDescription);
-    	builder.add(mergeGold);
-    	
-    } else if (evaluationOutputDirectory!=null)  {
-        AnalysisEngineDescription xwriter =
-    		AnalysisEngineFactory.createPrimitiveDescription(
-	            XWriter.class,
-	            AssertionComponents.CTAKES_CTS_TYPE_SYSTEM_DESCRIPTION,
-	            XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-	            evaluationOutputDirectory,
-	            XWriter.PARAM_XML_SCHEME_NAME,
-	            XWriter.XMI,
-	            XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-	            CtakesFileNamer.class.getName());
-        builder.add(xwriter);
+    		AnalysisEngineFactory.createEngineDescription(org.apache.ctakes.assertion.eval.MergeGoldViewFromOneCasIntoInitialViewOfAnotherCas.class, typeSystemDescription);
+    	builder.add(mergeGold); 	
     }
     
-    //SimplePipeline.runPipeline(collectionReader,  builder.createAggregateDescription());
-    //AnalysisEngineDescription aggregateDescription = builder.createAggregateDescription();
+    //SimplePipeline.runPipeline(collectionReader,  builder.createEngineDescription());
+    //AnalysisEngineDescription aggregateDescription = builder.createEngineDescription();
     
     AnalysisEngine aggregate = builder.createAggregate();
     
@@ -994,7 +981,8 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     }
 
     // run on existing output that has both system (or instance gathering) and gold
-    for (JCas jCas : new JCasIterable(collectionReader, aggregate)) {
+    for (Iterator<JCas> casIter = new JCasIterator(collectionReader, aggregate); casIter.hasNext();) {
+      JCas jCas = casIter.next();
     	
 //    	printViewNames("Views found by JCasIterable:", jCas);
     	
@@ -1036,6 +1024,11 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
       Collection<EventMention> systemEvents = JCasUtil.select(jCas, EventMention.class);
       systemEntitiesAndEvents.addAll(systemEvents);
 //      System.out.format("system entities: %d%nsystem events: %d%n%n", systemEntities.size(), systemEvents.size());
+      
+      if (evaluationOutputDirectory != null){
+          String sourceFileName = DocumentIDAnnotationUtil.getDocumentID(jCas);
+          CasIOUtil.writeXmi(jCas, new File(evaluationOutputDirectory, sourceFileName + ".xmi"));
+      }
       
       if (!options.ignorePolarity)
       {
@@ -1155,7 +1148,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 
 
 	      // now write in the libsvm format
-//	      LIBLINEARStringOutcomeDataWriter dataWriter = new LIBLINEARStringOutcomeDataWriter(directory);
+//	      LibLinearStringOutcomeDataWriter dataWriter = new LibLinearStringOutcomeDataWriter(directory);
 		  Constructor c = this.dataWriterClass.getConstructor(File.class);
 	      DataWriter dataWriter = (DataWriter) c.newInstance(directory);
 	      
@@ -1501,7 +1494,7 @@ public static class HashableAnnotation implements Comparable<HashableAnnotation>
 private void addExternalAttributeAnnotatorsToAggregate(AggregateBuilder builder)
 		throws UIMAException, IOException {
 	// RUN ALL THE OLD (non-ClearTK) CLASSIFIERS
-	AnalysisEngineDescription oldAssertionAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription("desc/assertionAnalysisEngine"); 
+	AnalysisEngineDescription oldAssertionAnnotator = AnalysisEngineFactory.createEngineDescription("desc/assertionAnalysisEngine"); 
 	ConfigurationParameterFactory.addConfigurationParameters(
 			oldAssertionAnnotator,
 			AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -1509,7 +1502,7 @@ private void addExternalAttributeAnnotatorsToAggregate(AggregateBuilder builder)
 	);
 	builder.add(oldAssertionAnnotator);
 
-	AnalysisEngineDescription oldConversionAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription("desc/conceptConverterAnalysisEngine"); 
+	AnalysisEngineDescription oldConversionAnnotator = AnalysisEngineFactory.createEngineDescription("desc/conceptConverterAnalysisEngine"); 
 	ConfigurationParameterFactory.addConfigurationParameters(
 			oldConversionAnnotator,
 			AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -1517,7 +1510,7 @@ private void addExternalAttributeAnnotatorsToAggregate(AggregateBuilder builder)
 	);
 	builder.add(oldConversionAnnotator);
 
-	AnalysisEngineDescription oldSubjectAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription("desc/SubjectAttributeAnalysisEngine"); 
+	AnalysisEngineDescription oldSubjectAnnotator = AnalysisEngineFactory.createEngineDescription("desc/SubjectAttributeAnalysisEngine"); 
 	ConfigurationParameterFactory.addConfigurationParameters(
 			oldSubjectAnnotator,
 			AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -1525,7 +1518,7 @@ private void addExternalAttributeAnnotatorsToAggregate(AggregateBuilder builder)
 	);
 	builder.add(oldSubjectAnnotator);
 
-	AnalysisEngineDescription oldGenericAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription("desc/GenericAttributeAnalysisEngine"); 
+	AnalysisEngineDescription oldGenericAnnotator = AnalysisEngineFactory.createEngineDescription("desc/GenericAttributeAnalysisEngine"); 
 	ConfigurationParameterFactory.addConfigurationParameters(
 			oldGenericAnnotator,
 			AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -1538,14 +1531,14 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 		AggregateBuilder builder) throws UIMAException, IOException,
 		ResourceInitializationException {
 //	AnalysisEngineDescription cuePhraseLookupAnnotator =
-//		AnalysisEngineFactory.createAnalysisEngineDescription("org/apache/ctakes/dictionary/lookup/AssertionCuePhraseDictionaryLookupAnnotator");
+//		AnalysisEngineFactory.createEngineDescription("org/apache/ctakes/dictionary/lookup/AssertionCuePhraseDictionaryLookupAnnotator");
 //	builder.add(cuePhraseLookupAnnotator);
-    builder.add(AnalysisEngineFactory.createPrimitiveDescription(AlternateCuePhraseAnnotator.class, new Object[]{}));
+    builder.add(AnalysisEngineFactory.createEngineDescription(AlternateCuePhraseAnnotator.class, new Object[]{}));
 
 //	String generalSectionRegexFileUri =
 //		"org/mitre/medfacts/zoner/section_regex.xml";
 //	AnalysisEngineDescription zonerAnnotator =
-//		AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+//		AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
 //				ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
 //				generalSectionRegexFileUri
 //		);
@@ -1554,7 +1547,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 //	String mayoSectionRegexFileUri =
 //		"org/mitre/medfacts/uima/mayo_sections.xml";
 //	AnalysisEngineDescription mayoZonerAnnotator =
-//		AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+//		AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
 //				ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
 //				mayoSectionRegexFileUri
 //		);
@@ -1565,11 +1558,11 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 	{
 		AnalysisEngineDescription polarityAnnotator;
     	if (options.useYtexNegation) {
-    		polarityAnnotator = AnalysisEngineFactory.createAnalysisEngineDescription(YTEX_NEGATION_DESCRIPTOR);
+    		polarityAnnotator = AnalysisEngineFactory.createEngineDescription(YTEX_NEGATION_DESCRIPTOR);
     		builder.add(polarityAnnotator);
     	} else {
     		if (options.feda) {
-    			polarityAnnotator = AnalysisEngineFactory.createPrimitiveDescription(PolarityFedaCleartkAnalysisEngine.class);
+    			polarityAnnotator = AnalysisEngineFactory.createEngineDescription(PolarityFedaCleartkAnalysisEngine.class);
 
       			ConfigurationParameterFactory.addConfigurationParameters(
         				polarityAnnotator,
@@ -1578,7 +1571,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
         				);
     		} else {
     			// default: cleartk-based polarity, no domain adaptation
-    			polarityAnnotator = AnalysisEngineFactory.createPrimitiveDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+    			polarityAnnotator = AnalysisEngineFactory.createEngineDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
       		}
     		ConfigurationParameterFactory.addConfigurationParameters(
     				polarityAnnotator,
@@ -1596,7 +1589,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 	// Add the rest of the ClearTk classifiers
 	if (!options.ignoreConditional)
 	{
-		AnalysisEngineDescription conditionalAnnotator = AnalysisEngineFactory.createPrimitiveDescription(ConditionalCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+		AnalysisEngineDescription conditionalAnnotator = AnalysisEngineFactory.createEngineDescription(ConditionalCleartkAnalysisEngine.class); //,  this.additionalParamemters);
 		ConfigurationParameterFactory.addConfigurationParameters(
 				conditionalAnnotator,
 				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -1609,7 +1602,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 
 	if (!options.ignoreUncertainty)
 	{
-		AnalysisEngineDescription uncertaintyAnnotator = AnalysisEngineFactory.createPrimitiveDescription(UncertaintyCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+		AnalysisEngineDescription uncertaintyAnnotator = AnalysisEngineFactory.createEngineDescription(UncertaintyCleartkAnalysisEngine.class); //,  this.additionalParamemters);
 		ConfigurationParameterFactory.addConfigurationParameters(
 				uncertaintyAnnotator,
 				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -1622,7 +1615,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 
 	if (!options.ignoreSubject)
 	{
-		AnalysisEngineDescription subjectAnnotator = AnalysisEngineFactory.createPrimitiveDescription(SubjectCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+		AnalysisEngineDescription subjectAnnotator = AnalysisEngineFactory.createEngineDescription(SubjectCleartkAnalysisEngine.class); //,  this.additionalParamemters);
 		ConfigurationParameterFactory.addConfigurationParameters(
 				subjectAnnotator,
 				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -1635,7 +1628,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 
 	if (!options.ignoreGeneric)
 	{
-		AnalysisEngineDescription genericAnnotator = AnalysisEngineFactory.createPrimitiveDescription(GenericCleartkAnalysisEngine.class); //,  this.additionalParamemters);
+		AnalysisEngineDescription genericAnnotator = AnalysisEngineFactory.createEngineDescription(GenericCleartkAnalysisEngine.class); //,  this.additionalParamemters);
 		ConfigurationParameterFactory.addConfigurationParameters(
 				genericAnnotator,
 				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,
@@ -1647,7 +1640,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 	}
 	
 	if(!options.ignoreHistory){
-		AnalysisEngineDescription historyAnnotator = AnalysisEngineFactory.createPrimitiveDescription(HistoryCleartkAnalysisEngine.class);
+		AnalysisEngineDescription historyAnnotator = AnalysisEngineFactory.createEngineDescription(HistoryCleartkAnalysisEngine.class);
 		ConfigurationParameterFactory.addConfigurationParameters(
 				historyAnnotator,
 				AssertionCleartkAnalysisEngine.PARAM_GOLD_VIEW_NAME,

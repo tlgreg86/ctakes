@@ -28,9 +28,9 @@ import java.net.URI;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.feature.transform.TransformableFeature;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.feature.transform.TransformableFeature;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashBasedTable;

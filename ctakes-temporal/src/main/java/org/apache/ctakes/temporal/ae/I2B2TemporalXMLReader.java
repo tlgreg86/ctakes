@@ -34,17 +34,17 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.util.ViewURIUtil;
+import org.cleartk.util.ViewUriUtil;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
 
 import com.google.common.collect.Sets;
 
@@ -68,7 +68,7 @@ public class I2B2TemporalXMLReader extends JCasAnnotator_ImplBase {
   
   @Override
   public void process(JCas jcas) throws AnalysisEngineProcessException {
-    File textFile = new File(ViewURIUtil.getURI(jcas));
+    File textFile = new File(ViewUriUtil.getURI(jcas));
     File xmlFile = new File(textFile.getAbsolutePath().substring(0, textFile.getAbsolutePath().length()-4));
     Map<String,Annotation> id2entity = new HashMap<>();
     
@@ -158,7 +158,7 @@ public class I2B2TemporalXMLReader extends JCasAnnotator_ImplBase {
   }
 
   public static AnalysisEngineDescription getDescription(File xmlDirectory) throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(
+    return AnalysisEngineFactory.createEngineDescription(
         I2B2TemporalXMLReader.class,
         I2B2TemporalXMLReader.PARAM_INPUT_DIR,
         xmlDirectory);

@@ -27,7 +27,7 @@ import org.apache.ctakes.constituency.parser.util.TreeUtils;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
+import org.cleartk.ml.Feature;
 import org.cleartk.util.CleartkInitializationException;
 
 public class AboveLeftFragmentExtractor extends TreeFragmentFeatureExtractor {

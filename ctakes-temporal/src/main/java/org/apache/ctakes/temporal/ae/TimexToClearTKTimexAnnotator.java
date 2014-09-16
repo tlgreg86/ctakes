@@ -24,9 +24,9 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.timeml.type.Time;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 public class TimexToClearTKTimexAnnotator extends JCasAnnotator_ImplBase {
 
@@ -42,6 +42,6 @@ public class TimexToClearTKTimexAnnotator extends JCasAnnotator_ImplBase {
   
   public static AnalysisEngineDescription getAnnotatorDescription()
       throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(TimexToClearTKTimexAnnotator.class);
+    return AnalysisEngineFactory.createEngineDescription(TimexToClearTKTimexAnnotator.class);
   }
 }

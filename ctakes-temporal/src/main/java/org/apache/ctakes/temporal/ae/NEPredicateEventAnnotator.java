@@ -29,10 +29,10 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 public class NEPredicateEventAnnotator extends TemporalEntityAnnotator_ImplBase {
 
@@ -89,7 +89,7 @@ public class NEPredicateEventAnnotator extends TemporalEntityAnnotator_ImplBase 
 
 	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
 		      throws ResourceInitializationException {
-		    return AnalysisEngineFactory.createPrimitiveDescription(
+		    return AnalysisEngineFactory.createEngineDescription(
 		    	NEPredicateEventAnnotator.class,
 		    	CleartkAnnotator.PARAM_IS_TRAINING,
 		        false,
@@ -104,7 +104,7 @@ public class NEPredicateEventAnnotator extends TemporalEntityAnnotator_ImplBase 
 	   */	 
 	public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
 		      throws ResourceInitializationException {
-		    return AnalysisEngineFactory.createPrimitiveDescription(
+		    return AnalysisEngineFactory.createEngineDescription(
 		    	NEPredicateEventAnnotator.class,
 		    	CleartkAnnotator.PARAM_IS_TRAINING,
 		        false,

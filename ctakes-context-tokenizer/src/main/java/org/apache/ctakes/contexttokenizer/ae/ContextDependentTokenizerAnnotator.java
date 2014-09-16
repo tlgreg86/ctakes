@@ -68,9 +68,9 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 /**
  * Finds tokens based on context.
@@ -230,6 +230,6 @@ public class ContextDependentTokenizerAnnotator extends JCasAnnotator_ImplBase {
 	}
 	
 	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
-	  return AnalysisEngineFactory.createPrimitiveDescription(ContextDependentTokenizerAnnotator.class);
+	  return AnalysisEngineFactory.createEngineDescription(ContextDependentTokenizerAnnotator.class);
 	}
 }

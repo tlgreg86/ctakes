@@ -21,7 +21,6 @@ package org.apache.ctakes.assertion.pipelines;
 import static org.apache.ctakes.assertion.util.AssertionTreeUtils.extractAboveLeftConceptTree;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -40,13 +39,13 @@ import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.JCasUtil;
 
 public class GenerateTreeRepresentation{
 
@@ -99,12 +98,12 @@ public class GenerateTreeRepresentation{
 	    for (int i = 0; i < paths.length; ++i) {
 	      paths[i] = trainFiles.get(i).getPath();
 	    }
-	    CollectionReader reader = CollectionReaderFactory.createCollectionReader(
+	    CollectionReader reader = CollectionReaderFactory.createReader(
 	            XMIReader.class,
 	            XMIReader.PARAM_FILES,
 	            paths);
 	       
-	    JCasIterable casIter = new JCasIterable(reader);
+	    JCasIterator casIter = new JCasIterator(reader);
 	    while(casIter.hasNext()){
 	    	JCas jcas = casIter.next();
 	    	processDocument(jcas);

@@ -24,9 +24,9 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.timeml.type.Event;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 /**
  * for every cTAKES EventMention annotation, create a ClearTK Event Annotation
@@ -58,7 +58,7 @@ public class EventToClearTKEventAnnotator extends JCasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription getAnnotatorDescription()
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(EventToClearTKEventAnnotator.class);
+		return AnalysisEngineFactory.createEngineDescription(EventToClearTKEventAnnotator.class);
 	}
 
 }

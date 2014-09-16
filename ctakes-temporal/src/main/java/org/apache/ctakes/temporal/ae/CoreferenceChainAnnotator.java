@@ -19,9 +19,9 @@ import org.apache.uima.jcas.cas.EmptyFSList;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 /*
  * Does not find coreference -- simply turns annotated pairs into chains of clustered mentions
@@ -118,6 +118,6 @@ public class CoreferenceChainAnnotator extends JCasAnnotator_ImplBase {
   }
   
   public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
-    return AnalysisEngineFactory.createPrimitiveDescription(CoreferenceChainAnnotator.class);
+    return AnalysisEngineFactory.createEngineDescription(CoreferenceChainAnnotator.class);
   }
 }

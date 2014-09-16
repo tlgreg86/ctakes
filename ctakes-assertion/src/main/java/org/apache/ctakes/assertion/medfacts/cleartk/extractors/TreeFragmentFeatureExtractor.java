@@ -30,8 +30,8 @@ import org.apache.ctakes.utils.tree.FragmentUtils;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.cleartk.util.CleartkInitializationException;
 
 /* 
@@ -40,7 +40,7 @@ import org.cleartk.util.CleartkInitializationException;
  * Model location is hardcoded as of right now.
  * TODO: Parameterize this so that, e.g., multiple projects could use this feature if necessary.
  */
-public abstract class TreeFragmentFeatureExtractor implements SimpleFeatureExtractor {
+public abstract class TreeFragmentFeatureExtractor implements FeatureExtractor1 {
 	public static final String PARAM_OUTPUTDIR = "outputDir";
 	public static final String PARAM_SEMDIR = "semDir";
 	protected HashSet<SimpleTree> frags = null;

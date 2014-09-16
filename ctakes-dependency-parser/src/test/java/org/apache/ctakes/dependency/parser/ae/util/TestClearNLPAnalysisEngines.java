@@ -18,33 +18,25 @@
  */
 package org.apache.ctakes.dependency.parser.ae.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-
-import org.apache.uima.UIMAException;
-import org.apache.uima.analysis_engine.AnalysisEngine;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.collection.CollectionReader;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.cleartk.util.Options_ImplBase;
-import org.cleartk.util.cr.FilesCollectionReader;
-import org.junit.Test;
-import org.kohsuke.args4j.Option;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
-import org.xml.sax.SAXException;
-
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.dependency.parser.util.SRLUtility;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.uima.analysis_engine.AnalysisEngine;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.cleartk.util.cr.FilesCollectionReader;
+import org.junit.Test;
+import org.kohsuke.args4j.Option;
 
 /**
  * This class illustrates the pipeline needed to run the ClearNLP dependency parser and SRL systems
@@ -61,7 +53,7 @@ public class TestClearNLPAnalysisEngines{
 	//public static final String DEP_DUMMY_MODEL_FILE = "org/apache/ctakes/dependency/parser/models/dependency/dummy.dep.mod.jar";
 	//public static final String SRL_DUMMY_MODEL_FILE = "org/apache/ctakes/dependency/parser/models/srl/dummy.srl.mod.jar";
 	public static String INPUT_FILE = "../ctakes-clinical-pipeline/src/test/data/plaintext/testpatient_plaintext_1.txt";
-	public static class Options extends Options_ImplBase {
+	public static class Options {
 		
 		@Option(name = "-d",
 				aliases = "--depModelFile",
@@ -83,7 +75,7 @@ public class TestClearNLPAnalysisEngines{
 		public String inputFile = INPUT_FILE;
 	}
 
-	
+
 	/**
 	 * Simple inner class for dumping out ClearNLP output
 	 * @author lbecker
@@ -110,7 +102,7 @@ public class TestClearNLPAnalysisEngines{
 		
 		TypeSystemDescription typeSystem = TypeSystemDescriptionFactory.createTypeSystemDescription();
 		
-		CollectionReader reader1 = CollectionReaderFactory.createCollectionReader(
+		CollectionReader reader1 = CollectionReaderFactory.createReader(
 				FilesCollectionReader.class,
 				typeSystem,
 				FilesCollectionReader.PARAM_ROOT_FILE,
@@ -122,19 +114,19 @@ public class TestClearNLPAnalysisEngines{
 		
 		// Create dependency parsers analysis engine with the default models
 		// The dummy models from ClearParser haven't been updated to work with ClearNLP.
-		AnalysisEngine ClearNLPDepParser = AnalysisEngineFactory.createPrimitive(
+		AnalysisEngine ClearNLPDepParser = AnalysisEngineFactory.createEngine(
 				ClearNLPDependencyParserAE.class,
 				typeSystem
 				);
 	
 				
 		// Create analysis engine for SRL
-		AnalysisEngine ClearNLPSRL = AnalysisEngineFactory.createPrimitive(
+		AnalysisEngine ClearNLPSRL = AnalysisEngineFactory.createEngine(
 				ClearNLPSemanticRoleLabelerAE.class,
 				typeSystem
 				);
 		
-		AnalysisEngine dumpClearNLPOutput = AnalysisEngineFactory.createPrimitive(
+		AnalysisEngine dumpClearNLPOutput = AnalysisEngineFactory.createEngine(
 				DumpClearNLPOutputAE.class,
 				typeSystem);
 		

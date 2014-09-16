@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +19,6 @@ import org.apache.ctakes.temporal.eval.EvaluationOfEventCoreference.ParagraphAnn
 import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMIReader;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
-import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.syntax.WordToken;
 import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.ctakes.typesystem.type.textspan.Paragraph;
@@ -28,17 +28,16 @@ import org.apache.ctakes.utils.distsem.WordVectorReader;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSList;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.cleartk.util.ViewURIUtil;
+import org.cleartk.util.ViewUriUtil;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
 import org.cleartk.util.cr.UriCollectionReader;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.JCasUtil;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -64,11 +63,11 @@ public class CoreferenceLinkDistanceAnalyzer {
     CollectionReader reader = UriCollectionReader.getCollectionReaderFromFiles(getFiles(options.getInputDirectory(), options.getXMIDirectory()));
     AggregateBuilder aggregateBuilder = new AggregateBuilder();
     aggregateBuilder.add(UriToDocumentTextAnnotator.getDescription());
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
         XMIReader.class,
         XMIReader.PARAM_XMI_DIRECTORY,
         options.getXMIDirectory()));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ParagraphAnnotator.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphAnnotator.class));
     
     WordEmbeddings words = WordVectorReader.getEmbeddings(FileLocator.getAsStream("org/apache/ctakes/coreference/distsem/mimic_vectors.txt"));
 
@@ -83,10 +82,11 @@ public class CoreferenceLinkDistanceAnalyzer {
     // compute paragraph vectors for every paragraph
     AnalysisEngine ae = aggregateBuilder.createAggregate();
     
-    for(JCas jcas : new JCasIterable(reader, ae)){
+    for(Iterator<JCas> casIter = new JCasIterator(reader, ae); casIter.hasNext();){
+      JCas jcas = casIter.next();
       numDocs++;
       // print out document name
-      System.out.println("######### Document id: " + ViewURIUtil.getURI(jcas).toString());
+      System.out.println("######### Document id: " + ViewUriUtil.getURI(jcas).toString());
       JCas goldView = jcas.getView(GOLD_VIEW_NAME);
       
       Map<Markable,Integer> markable2par = new HashMap<>();

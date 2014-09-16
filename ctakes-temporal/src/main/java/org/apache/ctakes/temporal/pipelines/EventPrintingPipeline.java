@@ -30,11 +30,11 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -71,7 +71,7 @@ public class EventPrintingPipeline {
       paths[i] = items.get(i).getPath();
     }
     
-    return CollectionReaderFactory.createCollectionReader(
+    return CollectionReaderFactory.createReader(
         XMIReader.class,
         XMIReader.PARAM_FILES,
         paths);
@@ -80,7 +80,7 @@ public class EventPrintingPipeline {
   public static class PrintEventAnnotations extends JCasAnnotator_ImplBase {
 
     public static AnalysisEngine getDescription() throws ResourceInitializationException {
-      return AnalysisEngineFactory.createPrimitive(PrintEventAnnotations.class);
+      return AnalysisEngineFactory.createEngine(PrintEventAnnotations.class);
     }
 
     @Override

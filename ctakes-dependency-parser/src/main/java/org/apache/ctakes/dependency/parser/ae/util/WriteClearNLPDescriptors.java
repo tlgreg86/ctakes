@@ -28,16 +28,17 @@ import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 import org.apache.uima.util.XMLInputSource;
 import org.apache.uima.util.XMLParser;
-import org.cleartk.util.Options_ImplBase;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
 import org.xml.sax.SAXException;
 
 
@@ -55,7 +56,7 @@ public class WriteClearNLPDescriptors {
 	public static final String DEP_NAME="ClearNLPDependencyParser";
 	public static final String SRL_NAME="ClearNLPSRL";
 
-	public static class Options extends Options_ImplBase {
+	public static class Options {
 		@Option(name = "-o",
 				aliases = "--outputRoot",
 				usage = "specify the directory to write out descriptor files",
@@ -75,19 +76,21 @@ public class WriteClearNLPDescriptors {
 	 * @throws IOException 
 	 * @throws UIMAException 
 	 * @throws SAXException 
+	 * @throws CmdLineException 
 	 */
-	public static void main(String[] args) throws IOException, UIMAException, SAXException {
+	public static void main(String[] args) throws IOException, UIMAException, SAXException, CmdLineException {
 		Options options = new Options();
-		options.parseOptions(args);
+		CmdLineParser parser = new CmdLineParser(options);
+		parser.parseArgument(args);
 
 		TypeSystemDescription typeSystem = TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath("../../../ctakes-type-system/src/main/resources/org/apache/ctakes/typesystem/types/TypeSystem.xml");
 
-		AnalysisEngineDescription ClearNLPSRLDesc = AnalysisEngineFactory.createPrimitiveDescription(
+		AnalysisEngineDescription ClearNLPSRLDesc = AnalysisEngineFactory.createEngineDescription(
 				ClearNLPSemanticRoleLabelerAE.class,
 				typeSystem
 				);
 
-		AnalysisEngineDescription ClearNLPDepParserDesc = AnalysisEngineFactory.createPrimitiveDescription(
+		AnalysisEngineDescription ClearNLPDepParserDesc = AnalysisEngineFactory.createEngineDescription(
 				ClearNLPDependencyParserAE.class,
 				typeSystem
 				);

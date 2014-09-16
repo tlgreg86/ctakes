@@ -26,7 +26,7 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.Feature;
+import org.cleartk.ml.Feature;
 
 public class DocTimeRelFeatureExtractor implements RelationFeaturesExtractor {
 

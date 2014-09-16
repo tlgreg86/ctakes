@@ -21,27 +21,21 @@ package org.apache.ctakes.assertion.medfacts.cleartk;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.ctakes.assertion.attributes.features.selection.Chi2FeatureSelection;
 import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AboveLeftFragmentExtractor;
-import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AboveRightFragmentExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ContextWordWindowExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ExtractorListFeatureFunctionConverter;
-import org.apache.ctakes.assertion.medfacts.cleartk.extractors.FedaFeatureFunction;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.NegationDependencyFeatureExtractor;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.cleartk.classifier.feature.function.FeatureFunctionExtractor;
-import org.uimafit.descriptor.ConfigurationParameter;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.feature.function.FeatureFunctionExtractor;
 
 
 public class PolarityFedaCleartkAnalysisEngine extends PolarityCleartkAnalysisEngine {
@@ -55,7 +49,7 @@ public class PolarityFedaCleartkAnalysisEngine extends PolarityCleartkAnalysisEn
 		probabilityOfKeepingADefaultExample = 1.0; //0.1;
 
 		if(this.entityFeatureExtractors == null){
-			this.entityFeatureExtractors = new ArrayList<SimpleFeatureExtractor>();
+			this.entityFeatureExtractors = new ArrayList<FeatureExtractor1>();
 		}
 		this.entityFeatureExtractors.add(new NegationDependencyFeatureExtractor());
 		this.entityFeatureExtractors.add(new ContextWordWindowExtractor("org/apache/ctakes/assertion/models/polarity.txt"));

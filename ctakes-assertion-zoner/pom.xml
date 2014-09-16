@@ -42,10 +42,6 @@
       <groupId>org.apache.uima</groupId>
       <artifactId>uimaj-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.uimafit</groupId>
-			<artifactId>uimafit</artifactId>
-		</dependency>
 		<!-- we excluded spring-context uimafit transitive dependency in the parent pom, include it here -->
 		<dependency>
 				<groupId>org.springframework</groupId>
@@ -55,6 +51,10 @@
       <groupId>org.apache.ctakes</groupId>
       <artifactId>ctakes-core</artifactId>
     </dependency>
+		<dependency>
+			<groupId>org.apache.uima</groupId>
+			<artifactId>uimafit-core</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

@@ -21,27 +21,26 @@ package org.apache.ctakes.relationextractor.ae.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Bag;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Covered;
-import org.cleartk.classifier.feature.extractor.simple.NamingExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.cleartk.classifier.feature.extractor.simple.TypePathExtractor;
-
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.jcas.JCas;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Bag;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Covered;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.feature.extractor.NamingExtractor1;
+import org.cleartk.ml.feature.extractor.TypePathExtractor;
 
 public class PartOfSpeechFeaturesExtractor implements RelationFeaturesExtractor {
 
-  private SimpleFeatureExtractor pos = new TypePathExtractor(BaseToken.class, "partOfSpeech");
+  private FeatureExtractor1 pos = new TypePathExtractor(BaseToken.class, "partOfSpeech");
 
   /**
    * All part-of-speech tags of the mention as a bag
    */
-  private SimpleFeatureExtractor tokenPOS = new CleartkExtractor(
+  private FeatureExtractor1 tokenPOS = new CleartkExtractor(
       BaseToken.class,
       pos,
       new Bag(new Covered()));
@@ -49,14 +48,14 @@ public class PartOfSpeechFeaturesExtractor implements RelationFeaturesExtractor 
   /**
    * All extractors for mention 1, with features named to distinguish them from mention 2
    */
-  private SimpleFeatureExtractor mention1FeaturesExtractor = new NamingExtractor(
+  private FeatureExtractor1 mention1FeaturesExtractor = new NamingExtractor1(
       "mention1",
       tokenPOS);
 
   /**
    * All extractors for mention 2, with features named to distinguish them from mention 1
    */
-  private SimpleFeatureExtractor mention2FeaturesExtractor = new NamingExtractor(
+  private FeatureExtractor1 mention2FeaturesExtractor = new NamingExtractor1(
       "mention2",
       tokenPOS);
 

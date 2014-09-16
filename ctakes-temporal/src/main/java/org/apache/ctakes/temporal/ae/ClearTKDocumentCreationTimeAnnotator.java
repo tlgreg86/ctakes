@@ -23,8 +23,8 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.timeml.type.DocumentCreationTime;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 
 /**
  * for every cTAKES JCas, create a ClearTK Document Creation Time Annotation, fake span, no attribute. 
@@ -47,7 +47,7 @@ public class ClearTKDocumentCreationTimeAnnotator extends JCasAnnotator_ImplBase
 	}
 
 	public static AnalysisEngineDescription getAnnotatorDescription() throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(ClearTKDocumentCreationTimeAnnotator.class);
+		return AnalysisEngineFactory.createEngineDescription(ClearTKDocumentCreationTimeAnnotator.class);
 	}
 
 }

@@ -41,21 +41,21 @@ import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.EmptyFSList;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.util.ViewURIUtil;
+import org.cleartk.util.ViewUriUtil;
 import org.cleartk.util.cr.UriCollectionReader;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.SimplePipeline;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -88,12 +88,12 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
       ".Temporal-Relation.gold.completed.xml"};
 
   public static AnalysisEngineDescription getDescription() throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(THYMEAnaforaXMLReader.class);
+    return AnalysisEngineFactory.createEngineDescription(THYMEAnaforaXMLReader.class);
   }
 
   public static AnalysisEngineDescription getDescription(File anaforaDirectory)
       throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(
+    return AnalysisEngineFactory.createEngineDescription(
         THYMEAnaforaXMLReader.class,
         THYMEAnaforaXMLReader.PARAM_ANAFORA_DIRECTORY,
         anaforaDirectory);
@@ -102,7 +102,7 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
   @Override
   public void process(JCas jCas) throws AnalysisEngineProcessException {
     // determine source text file
-    File textFile = new File(ViewURIUtil.getURI(jCas));
+    File textFile = new File(ViewUriUtil.getURI(jCas));
     LOGGER.info("processing " + textFile);
 
     // determine possible Anafora XML file names
@@ -412,7 +412,7 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
       files.add(new File(path));
     }
     CollectionReader reader = UriCollectionReader.getCollectionReaderFromFiles(files);
-    AnalysisEngine engine = AnalysisEngineFactory.createPrimitive(THYMEAnaforaXMLReader.class);
+    AnalysisEngine engine = AnalysisEngineFactory.createEngine(THYMEAnaforaXMLReader.class);
     SimplePipeline.runPipeline(reader, engine);
   }
 }

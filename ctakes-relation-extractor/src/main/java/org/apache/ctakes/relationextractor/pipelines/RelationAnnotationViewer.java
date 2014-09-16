@@ -32,14 +32,14 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.util.Options_ImplBase;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
 
 /**
  * View the annotations obtained by running the relation extractor on clinical notes.
@@ -49,7 +49,7 @@ import org.uimafit.util.JCasUtil;
  */
 public class RelationAnnotationViewer {
 
-  public static class Options extends Options_ImplBase {
+  public static class Options {
 
     @Option(
         name = "--input-dir",
@@ -61,12 +61,13 @@ public class RelationAnnotationViewer {
 	public static void main(String[] args) throws Exception {
 		
 		Options options = new Options();
-		options.parseOptions(args);
+		CmdLineParser parser = new CmdLineParser(options);
+		parser.parseArgument(args);
 
 		List<File> trainFiles = Arrays.asList(options.inputDirectory.listFiles());
     CollectionReader collectionReader = getCollectionReader(trainFiles);
 		
-    AnalysisEngine relationExtractorPrinter = AnalysisEngineFactory.createPrimitive(
+    AnalysisEngine relationExtractorPrinter = AnalysisEngineFactory.createEngine(
     		RelationExtractorPrinter.class);
     		
 		SimplePipeline.runPipeline(collectionReader, relationExtractorPrinter);
@@ -126,7 +127,7 @@ public class RelationAnnotationViewer {
       paths[i] = items.get(i).getPath();
     }
     
-    return CollectionReaderFactory.createCollectionReader(
+    return CollectionReaderFactory.createReader(
         XMIReader.class,
         XMIReader.PARAM_FILES,
         paths);

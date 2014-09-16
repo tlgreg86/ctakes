@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -36,16 +37,16 @@ import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.eval.AnnotationStatistics;
-import org.cleartk.util.ViewURIUtil;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
@@ -120,7 +121,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(this.getAnnotatorDescription(directory), "TimexView", CAS.NAME_DEFAULT_SOFA);
 		if(this.i2b2Output != null){
-			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
+			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
 		}
 		AnnotationStatistics<String> stats = new AnnotationStatistics<String>();
 		Ordering<Annotation> bySpans = Ordering.<Integer> natural().lexicographical().onResultOf(
@@ -130,7 +131,8 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 						return Arrays.asList(annotation.getBegin(), annotation.getEnd());
 					}
 				});
-		for (JCas jCas : new JCasIterable(collectionReader, aggregateBuilder.createAggregate())) {
+		for (Iterator<JCas> casIter = new JCasIterator(collectionReader, aggregateBuilder.createAggregate()); casIter.hasNext();) {
+			JCas jCas = casIter.next();
 			JCas goldView = jCas.getView(GOLD_VIEW_NAME);
 			JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
 			for (Segment segment : JCasUtil.select(jCas, Segment.class)) {
@@ -162,7 +164,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 
 					String text = jCas.getDocumentText().replaceAll("[\r\n]", " ");
 					if (!goldOnly.isEmpty() || !systemOnly.isEmpty()) {
-						this.logger.fine("Errors in : " + ViewURIUtil.getURI(jCas).toString());
+						this.logger.fine("Errors in : " + ViewUriUtil.getURI(jCas).toString());
 						Set<Annotation> errors = new TreeSet<Annotation>(bySpans);
 						errors.addAll(goldOnly);
 						errors.addAll(systemOnly);

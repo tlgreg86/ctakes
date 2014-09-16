@@ -29,7 +29,7 @@ import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.Feature;
+import org.cleartk.ml.Feature;
 
 public class PETFeatureExtractor implements RelationFeaturesExtractor {
 

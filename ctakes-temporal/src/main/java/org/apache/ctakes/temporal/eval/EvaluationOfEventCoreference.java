@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,13 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.FSList;
@@ -45,18 +53,11 @@ import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.FileUtils;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.cleartk.classifier.liblinear.LIBLINEARStringOutcomeDataWriter;
-import org.cleartk.classifier.tksvmlight.model.CompositeKernel.ComboOperator;
 import org.cleartk.eval.AnnotationStatistics;
-import org.cleartk.util.ViewURIUtil;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.jar.JarClassifierBuilder;
+import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
+import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
+import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultiset;
@@ -150,18 +151,18 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
   protected void train(CollectionReader collectionReader, File directory)
       throws Exception {
     AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(DocumentIDPrinter.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ParagraphAnnotator.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ParagraphVectorAnnotator.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DocumentIDPrinter.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphAnnotator.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphVectorAnnotator.class));
     aggregateBuilder.add(CopyFromGold.getDescription(Markable.class, CoreferenceRelation.class, CollectionTextRelation.class));
     aggregateBuilder.add(EventCoreferenceAnnotator.createDataWriterDescription(
 //        TKSVMlightStringOutcomeDataWriter.class,
-        LIBLINEARStringOutcomeDataWriter.class,
+        LibLinearStringOutcomeDataWriter.class,
         directory,
         params.probabilityOfKeepingANegativeExample
         ));
     // create gold chains for writing out which we can then use for our scoring tool
-//    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(CoreferenceChainScoringOutput.class,
+//    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
 //        CoreferenceChainScoringOutput.PARAM_OUTPUT_DIR,
 //        this.outputDirectory + "train"));
     SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
@@ -195,18 +196,18 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
   protected AnnotationStatistics<String> test(
       CollectionReader collectionReader, File directory) throws Exception {
     AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(DocumentIDPrinter.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ParagraphAnnotator.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(ParagraphVectorAnnotator.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DocumentIDPrinter.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphAnnotator.class));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphVectorAnnotator.class));
     aggregateBuilder.add(CopyFromGold.getDescription(Markable.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(CoreferenceChainScoringOutput.class,
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
         CoreferenceChainScoringOutput.PARAM_OUTPUT_FILENAME,
         this.outputDirectory + "gold.chains",
         CoreferenceChainScoringOutput.PARAM_USE_GOLD_CHAINS,
         true));
     aggregateBuilder.add(EventCoreferenceAnnotator.createAnnotatorDescription(directory));
     aggregateBuilder.add(CoreferenceChainAnnotator.createAnnotatorDescription());
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(CoreferenceChainScoringOutput.class,
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
         CoreferenceChainScoringOutput.PARAM_OUTPUT_FILENAME,
         this.outputDirectory + "system.chains"));
 
@@ -222,10 +223,8 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     };
     AnnotationStatistics<String> stats = new AnnotationStatistics<>();
 
-    JCasIterable jcasIter =new JCasIterable(collectionReader, aggregateBuilder.createAggregate());
-    JCas jCas = null;
-    while(jcasIter.hasNext()) {
-      jCas = jcasIter.next();
+    for(Iterator<JCas> casIter =new JCasIterator(collectionReader, aggregateBuilder.createAggregate()); casIter.hasNext();){
+      JCas jCas = casIter.next();
       JCas goldView = jCas.getView(GOLD_VIEW_NAME);
       JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
       Collection<CoreferenceRelation> goldRelations = JCasUtil.select(
@@ -299,7 +298,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
-      File filename = new File(ViewURIUtil.getURI(jCas));
+      File filename = new File(ViewUriUtil.getURI(jCas));
       JCas chainsCas = null;
       try {
          chainsCas = useGoldChains? jCas.getView(GOLD_VIEW_NAME) : jCas;
@@ -415,7 +414,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     public void process(JCas jCas) throws AnalysisEngineProcessException {
       String docId = DocumentIDAnnotationUtil.getDocumentID(jCas);
       if(docId == null){
-        docId = new File(ViewURIUtil.getURI(jCas)).getName();
+        docId = new File(ViewUriUtil.getURI(jCas)).getName();
       }
       logger.info(String.format("Processing %s\n", docId));
     }

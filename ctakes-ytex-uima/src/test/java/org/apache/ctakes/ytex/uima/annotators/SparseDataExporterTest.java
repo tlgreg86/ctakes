@@ -35,7 +35,7 @@ import org.apache.uima.util.InvalidXMLException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.uimafit.pipeline.SimplePipeline;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 
 public class SparseDataExporterTest {
 	static final String instanceClassQuery = "select note_id,  fracture, case when note_set = 'train' then 1 else 0 end train from %sfracture_demo";

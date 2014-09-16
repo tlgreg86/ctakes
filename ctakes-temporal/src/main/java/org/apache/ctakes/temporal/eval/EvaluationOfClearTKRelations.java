@@ -21,6 +21,7 @@ package org.apache.ctakes.temporal.eval;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
@@ -34,11 +35,16 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.eval.AnnotationStatistics;
-import org.cleartk.syntax.opennlp.ParserAnnotator;
-import org.cleartk.syntax.opennlp.PosTaggerAnnotator;
-import org.cleartk.syntax.opennlp.SentenceAnnotator;
+import org.cleartk.opennlp.tools.ParserAnnotator;
+import org.cleartk.opennlp.tools.PosTaggerAnnotator;
+import org.cleartk.opennlp.tools.SentenceAnnotator;
+import org.cleartk.snowball.DefaultSnowballStemmer;
 import org.cleartk.timeml.event.EventAspectAnnotator;
 import org.cleartk.timeml.event.EventClassAnnotator;
 import org.cleartk.timeml.event.EventModalityAnnotator;
@@ -47,12 +53,7 @@ import org.cleartk.timeml.event.EventTenseAnnotator;
 import org.cleartk.timeml.time.TimeTypeAnnotator;
 import org.cleartk.timeml.tlink.TemporalLinkEventToSameSentenceTimeAnnotator;
 import org.cleartk.timeml.tlink.TemporalLinkEventToSubordinatedEventAnnotator;
-import org.cleartk.token.stem.snowball.DefaultSnowballStemmer;
 import org.cleartk.token.tokenizer.TokenAnnotator;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.JCasUtil;
 
 import com.google.common.base.Function;
 import com.lexicalscope.jewel.cli.CliFactory;
@@ -136,7 +137,7 @@ public class EvaluationOfClearTKRelations extends
       CollectionReader collectionReader, File directory) throws Exception {
     AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
     aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
         RemoveCrossSentenceRelations.class,
         RemoveCrossSentenceRelations.PARAM_SENTENCE_VIEW,
         CAS.NAME_DEFAULT_SOFA,
@@ -144,13 +145,13 @@ public class EvaluationOfClearTKRelations extends
         GOLD_VIEW_NAME));
     if(!this.doEventEvent){
       aggregateBuilder.add(
-          AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class),
+          AnalysisEngineFactory.createEngineDescription(RemoveEventEventRelations.class),
           CAS.NAME_DEFAULT_SOFA,
           GOLD_VIEW_NAME);
     }
     if(!this.doEventTime){
       aggregateBuilder.add(
-          AnalysisEngineFactory.createPrimitiveDescription(PreserveEventEventRelations.class),
+          AnalysisEngineFactory.createEngineDescription(PreserveEventEventRelations.class),
           CAS.NAME_DEFAULT_SOFA,
           GOLD_VIEW_NAME);
     }
@@ -187,7 +188,8 @@ public class EvaluationOfClearTKRelations extends
     };
     Function<BinaryTextRelation, String> getOutcome = AnnotationStatistics.annotationToFeatureValue("category");
     AnnotationStatistics<String> stats = new AnnotationStatistics<String>();
-    for (JCas jCas : new JCasIterable(collectionReader, aggregateBuilder.createAggregate())) {
+    for (Iterator<JCas> casIter = new JCasIterator(collectionReader, aggregateBuilder.createAggregate()); casIter.hasNext();) {
+      JCas jCas = casIter.next();
       JCas goldView = jCas.getView(GOLD_VIEW_NAME);
       JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
       Collection<BinaryTextRelation> goldRelations = JCasUtil.select(

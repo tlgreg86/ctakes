@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,24 +48,24 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ConfigurationParameterFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.util.CasCopier;
 import org.apache.uima.util.Level;
 import org.apache.uima.util.XMLInputSource;
-import org.cleartk.classifier.jar.DefaultDataWriterFactory;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.cleartk.classifier.liblinear.LIBLINEARStringOutcomeDataWriter;
 import org.cleartk.eval.AnnotationStatistics;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ConfigurationParameterFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.pipeline.SimplePipeline;
-import org.uimafit.util.JCasUtil;
+import org.cleartk.ml.jar.DefaultDataWriterFactory;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
+import org.cleartk.ml.jar.JarClassifierBuilder;
+import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
@@ -120,18 +121,18 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
     RELATION_CLASSES.put("degree_of", DegreeOfTextRelation.class);
     ANNOTATOR_CLASSES.put(DegreeOfTextRelation.class, DegreeOfRelationExtractorAnnotator.class);
     BEST_PARAMETERS.put(DegreeOfTextRelation.class, new ParameterSettings(
-        LIBLINEARStringOutcomeDataWriter.class,
+        LibLinearStringOutcomeDataWriter.class,
         new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-            1.0f },
-        new String[] { "-s", "1", "-c", "10.0" }));
+            0.5f },
+        new String[] { "-s", "1", "-c", "0.5" }));
 
     RELATION_CLASSES.put("location_of", LocationOfTextRelation.class);
     ANNOTATOR_CLASSES.put(LocationOfTextRelation.class, LocationOfRelationExtractorAnnotator.class);
     BEST_PARAMETERS.put(LocationOfTextRelation.class, new ParameterSettings(
-        LIBLINEARStringOutcomeDataWriter.class,
+        LibLinearStringOutcomeDataWriter.class,
         new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-            1.0f },
-        new String[] { "-s", "1", "-c", "0.05" }));
+            0.5f },
+        new String[] { "-s", "0", "-c", "1.0" }));
   }
 
   public static void main(String[] args) throws Exception {
@@ -141,14 +142,14 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
     SHARPXMI.generateXMI(options);
 
     // determine the grid of parameters to search through
-    // for the full set of LIBLINEAR parameters, see:
+    // for the full set of LibLinear parameters, see:
     // https://github.com/bwaldvogel/liblinear-java/blob/master/src/main/java/de/bwaldvogel/liblinear/Train.java
     List<ParameterSettings> gridOfSettings = Lists.newArrayList();
     for (float probabilityOfKeepingANegativeExample : new float[] { 0.5f, 1.0f }) {
       for (int solver : new int[] { 0 /* logistic regression */, 1 /* SVM */}) {
         for (double svmCost : new double[] { 0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100 }) {
           gridOfSettings.add(new ParameterSettings(
-              LIBLINEARStringOutcomeDataWriter.class,
+              LibLinearStringOutcomeDataWriter.class,
               new Object[] {
                   RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
                   probabilityOfKeepingANegativeExample },
@@ -269,10 +270,10 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
     AggregateBuilder builder = new AggregateBuilder();
     // remove cTAKES entity mentions and modifiers in the system view and copy
     // in the gold relations
-    builder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveCTakesMentionsAndCopyGoldRelations.class));
+    builder.add(AnalysisEngineFactory.createEngineDescription(RemoveCTakesMentionsAndCopyGoldRelations.class));
     // add the relation extractor, configured for training mode
     AnalysisEngineDescription classifierAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(
+        AnalysisEngineFactory.createEngineDescription(
             this.classifierAnnotatorClass,
             this.parameterSettings.configurationParameters);
     ConfigurationParameterFactory.addConfigurationParameters(
@@ -300,15 +301,15 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
       XMLInputSource source = new XMLInputSource(file);
       builder.add(UIMAFramework.getXMLParser().parseAnalysisEngineDescription(source));
       // remove extraneous entity mentions
-      builder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveSmallerEventMentions.class));
+      builder.add(AnalysisEngineFactory.createEngineDescription(RemoveSmallerEventMentions.class));
     } else {
       // replace cTAKES entity mentions and modifiers in the system view with
       // the gold annotations
-      builder.add(AnalysisEngineFactory.createPrimitiveDescription(ReplaceCTakesMentionsWithGoldMentions.class));
+      builder.add(AnalysisEngineFactory.createEngineDescription(ReplaceCTakesMentionsWithGoldMentions.class));
     }
     // add the relation extractor, configured for classification mode
     AnalysisEngineDescription classifierAnnotator =
-        AnalysisEngineFactory.createPrimitiveDescription(
+        AnalysisEngineFactory.createEngineDescription(
             this.classifierAnnotatorClass,
             this.parameterSettings.configurationParameters);
     ConfigurationParameterFactory.addConfigurationParameters(
@@ -332,8 +333,8 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 
     // calculate statistics, iterating over the results of the classifier
     AnalysisEngine engine = builder.createAggregate();
-    for (JCas jCas : new JCasIterable(collectionReader, engine)) {
-
+    for (Iterator<JCas> casIter = new JCasIterator(collectionReader, engine); casIter.hasNext();) {
+      JCas jCas = casIter.next();
       // get the gold view
       JCas goldView;
       try {

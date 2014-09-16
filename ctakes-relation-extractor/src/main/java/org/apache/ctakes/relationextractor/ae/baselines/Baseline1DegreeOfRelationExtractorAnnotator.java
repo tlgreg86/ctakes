@@ -24,8 +24,8 @@ import java.util.List;
 import org.apache.ctakes.relationextractor.ae.DegreeOfRelationExtractorAnnotator;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.CleartkProcessingException;
-import org.cleartk.classifier.Feature;
+import org.cleartk.ml.CleartkProcessingException;
+import org.cleartk.ml.Feature;
 
 /**
  * Annotated degree_of relation in sentences containing a single entity mention

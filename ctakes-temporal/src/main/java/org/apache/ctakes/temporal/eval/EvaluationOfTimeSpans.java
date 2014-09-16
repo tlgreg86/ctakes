@@ -34,25 +34,25 @@ import org.apache.ctakes.temporal.ae.feature.selection.FeatureSelection;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkAnnotator;
-import org.cleartk.classifier.CleartkSequenceAnnotator;
-import org.cleartk.classifier.Instance;
-import org.cleartk.classifier.crfsuite.CRFSuiteStringOutcomeDataWriter;
-import org.cleartk.classifier.feature.transform.InstanceDataWriter;
-import org.cleartk.classifier.feature.transform.InstanceStream;
-import org.cleartk.classifier.jar.DefaultDataWriterFactory;
-import org.cleartk.classifier.jar.DefaultSequenceDataWriterFactory;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.GenericJarClassifierFactory;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.cleartk.classifier.liblinear.LIBLINEARStringOutcomeDataWriter;
 import org.cleartk.eval.AnnotationStatistics;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.CleartkSequenceAnnotator;
+import org.cleartk.ml.Instance;
+import org.cleartk.ml.crfsuite.CrfSuiteStringOutcomeDataWriter;
+import org.cleartk.ml.feature.transform.InstanceDataWriter;
+import org.cleartk.ml.feature.transform.InstanceStream;
+import org.cleartk.ml.jar.DefaultDataWriterFactory;
+import org.cleartk.ml.jar.DefaultSequenceDataWriterFactory;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
+import org.cleartk.ml.jar.JarClassifierBuilder;
+import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -224,35 +224,35 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 	protected AnalysisEngineDescription getDataWriterDescription(File directory)
 			throws ResourceInitializationException {
 		if(MetaTimeAnnotator.class.isAssignableFrom(this.annotatorClass)){
-			return MetaTimeAnnotator.getDataWriterDescription(CRFSuiteStringOutcomeDataWriter.class, directory);          
+			return MetaTimeAnnotator.getDataWriterDescription(CrfSuiteStringOutcomeDataWriter.class, directory);          
 		}else if(CleartkAnnotator.class.isAssignableFrom(this.annotatorClass)){
 			//limit feature selection only to TimeAnnotator
 			if("org.apache.ctakes.temporal.ae.TimeAnnotator".equals(this.annotatorClass.getName())){
 				Class<?> dataWriterClass = this.featureSelectionThreshold > 0f
 				        ? InstanceDataWriter.class
-				        : LIBLINEARStringOutcomeDataWriter.class;
+				        : LibLinearStringOutcomeDataWriter.class;
 				return TimeAnnotator.createDataWriterDescription(
 						dataWriterClass,
 						this.getModelDirectory(directory),
 						this.featureSelectionThreshold,
 						this.smoteNeighborNumber);
 			}
-			return AnalysisEngineFactory.createPrimitiveDescription(
+			return AnalysisEngineFactory.createEngineDescription(
 					this.annotatorClass,
 					CleartkAnnotator.PARAM_IS_TRAINING,
 					true,
 					DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
-					LIBLINEARStringOutcomeDataWriter.class,
+					LibLinearStringOutcomeDataWriter.class,
 					DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
 					this.getModelDirectory(directory));
 			
 		}else if(CleartkSequenceAnnotator.class.isAssignableFrom(this.annotatorClass)){
-			return AnalysisEngineFactory.createPrimitiveDescription(
+			return AnalysisEngineFactory.createEngineDescription(
 					this.annotatorClass,
 					CleartkSequenceAnnotator.PARAM_IS_TRAINING,
 					true,
 					DefaultSequenceDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
-					CRFSuiteStringOutcomeDataWriter.class,
+					CrfSuiteStringOutcomeDataWriter.class,
 					DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
 					this.getModelDirectory(directory));
 		}else{
@@ -270,7 +270,7 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 			featureSelection.train(instances);
 			featureSelection.save(TimeAnnotator.createFeatureSelectionURI(this.getModelDirectory(directory)));
 			// now write in the libsvm format
-			LIBLINEARStringOutcomeDataWriter dataWriter = new LIBLINEARStringOutcomeDataWriter(this.getModelDirectory(directory));
+			LibLinearStringOutcomeDataWriter dataWriter = new LibLinearStringOutcomeDataWriter(this.getModelDirectory(directory));
 			for (Instance<String> instance : instances) {
 				dataWriter.write(featureSelection.transform(instance));
 			}
@@ -287,7 +287,7 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 		}else if("org.apache.ctakes.temporal.ae.TimeAnnotator".equals(this.annotatorClass.getName() )){
 			return TimeAnnotator.createAnnotatorDescription(this.getModelDirectory(directory));
 		}
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				this.annotatorClass,
 				CleartkAnnotator.PARAM_IS_TRAINING,
 				false,
