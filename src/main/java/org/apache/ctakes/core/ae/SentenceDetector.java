@@ -53,10 +53,10 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 /**
  * Wraps the OpenNLP sentence detector in a UIMA annotator
@@ -250,7 +250,7 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 	}
 
 	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
-	  return AnalysisEngineFactory.createPrimitiveDescription(SentenceDetector.class,
+	  return AnalysisEngineFactory.createEngineDescription(SentenceDetector.class,
 	      SentenceDetector.PARAM_SD_MODEL_FILE,
 	      "org/apache/ctakes/core/sentdetect/sd-med-model.zip");
 	}

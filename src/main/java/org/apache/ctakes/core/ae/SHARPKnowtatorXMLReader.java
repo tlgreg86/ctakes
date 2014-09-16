@@ -106,17 +106,17 @@ import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Feature;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.CasIOUtil;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.util.UriUtils;
 import org.jdom2.JDOMException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.component.xwriter.XWriter;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.JCasUtil;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
@@ -129,9 +129,10 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
   public static final String PARAM_TEXT_DIRECTORY = "TextDirectory";
   @ConfigurationParameter(
       name = PARAM_TEXT_DIRECTORY,
+      mandatory = false,
       description = "directory containing the text files (if DocumentIDs are just filenames); "
           + "defaults to assuming that DocumentIDs are full file paths")
-  private File textDirectory;
+  private File textDirectory=null;
   
   public static final String PARAM_SET_DEFAULTS = "SetDefaults";
   @ConfigurationParameter(
@@ -1530,15 +1531,7 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
           "usage: java %s path/to/Knowtator/text [path/to/Knowtator/text ...]",
           SHARPKnowtatorXMLReader.class.getName()));
     }
-    AnalysisEngine engine = AnalysisEngineFactory.createPrimitive(SHARPKnowtatorXMLReader.class);
-    
-    AnalysisEngine xWriter = AnalysisEngineFactory.createPrimitive(
-            XWriter.class,
-            XWriter.PARAM_OUTPUT_DIRECTORY_NAME,
-	    	    "/tmp",
-	    	    XWriter.PARAM_FILE_NAMER_CLASS_NAME,
-	    	    CtakesFileNamer.class.getName()
-           );
+    AnalysisEngine engine = AnalysisEngineFactory.createEngine(SHARPKnowtatorXMLReader.class);
     
     for (String knowtatorTextDirectoryPath : args) {
       File knowtatorTextDirectory = new File(knowtatorTextDirectoryPath);
@@ -1550,7 +1543,7 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
         documentID.addToIndexes();
         engine.process(jCas);
         documentID.setDocumentID(textFile.getName());
-        xWriter.process(jCas);
+        CasIOUtil.writeXmi(jCas, new File("/tmp", textFile.toURI().toString()));
       }
     }
 

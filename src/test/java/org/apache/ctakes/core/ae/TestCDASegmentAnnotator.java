@@ -21,19 +21,19 @@ package org.apache.ctakes.core.ae;
 import junit.framework.Assert;
 
 import org.apache.ctakes.typesystem.type.textspan.Segment;
-import org.apache.uima.analysis_engine.AnalysisEngine;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.JCasIterable;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.cleartk.util.cr.FilesCollectionReader;
 import org.junit.Test;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.JCasUtil;
 
 public class TestCDASegmentAnnotator {
 
@@ -44,14 +44,14 @@ public class TestCDASegmentAnnotator {
 		TypeSystemDescription typeSystem = TypeSystemDescriptionFactory
 				.createTypeSystemDescription();
 
-		CollectionReader reader = CollectionReaderFactory
-				.createCollectionReader(FilesCollectionReader.class,
+		CollectionReaderDescription reader = CollectionReaderFactory
+				.createReaderDescription(FilesCollectionReader.class,
 						typeSystem, FilesCollectionReader.PARAM_ROOT_FILE,
 						INPUT_FILE);
 
-		AnalysisEngine sectionAnnotator = AnalysisEngineFactory
-				.createPrimitive(CDASegmentAnnotator.class, typeSystem);
-		AnalysisEngine dumpOutput = AnalysisEngineFactory.createPrimitive(
+		AnalysisEngineDescription sectionAnnotator = AnalysisEngineFactory
+				.createEngineDescription(CDASegmentAnnotator.class, typeSystem);
+		AnalysisEngineDescription dumpOutput = AnalysisEngineFactory.createEngineDescription(
 				DumpOutputAE.class, typeSystem);
 		// SimplePipeline.runPipeline(reader, sectionAnnotator, dumpOutput);
 		JCasIterable casIter = new JCasIterable(reader, sectionAnnotator,
@@ -63,8 +63,7 @@ public class TestCDASegmentAnnotator {
 		int section_begin = 0;
 		int section_end = 0;
 
-		while (casIter.hasNext()) {
-			JCas jCas = casIter.next();
+		for(JCas jCas : casIter){
 			for (Segment segment : JCasUtil.select(jCas, Segment.class)) {
 				if (expected_hpi_section.equalsIgnoreCase(segment.getId())) {
 					section_exists = true;

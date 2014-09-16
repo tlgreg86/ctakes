@@ -24,9 +24,9 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 
 /**
  * Creates a single segment annotation that spans the entire document. This is
@@ -65,11 +65,11 @@ public class SimpleSegmentAnnotator extends JCasAnnotator_ImplBase {
 	}
 	
 	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
-	  return AnalysisEngineFactory.createPrimitiveDescription(SimpleSegmentAnnotator.class);
+	  return AnalysisEngineFactory.createEngineDescription(SimpleSegmentAnnotator.class);
 	}
 	
 	public static AnalysisEngineDescription createAnnotatorDescription(String segmentID) throws ResourceInitializationException {
-    return AnalysisEngineFactory.createPrimitiveDescription(SimpleSegmentAnnotator.class,
+    return AnalysisEngineFactory.createEngineDescription(SimpleSegmentAnnotator.class,
         SimpleSegmentAnnotator.PARAM_SEGMENT_ID,
         segmentID);
 	}
