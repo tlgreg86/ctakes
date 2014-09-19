@@ -26,6 +26,8 @@ final public class Concept {
    final private CollectionMap<ConceptCode, String> _codes;
    final private Collection<Integer> _ctakesSemantics;
 
+   final private int _hashcode;
+
    public Concept( final String cui ) {
       this( cui, "" );
    }
@@ -47,6 +49,7 @@ final public class Concept {
          ctakesSemantics.add( CONST.NE_TYPE_ID_UNKNOWN );
       }
       _ctakesSemantics = Collections.unmodifiableCollection( ctakesSemantics );
+      _hashcode = (cui + "_" + preferredText + "_" + codes.hashCode()).hashCode();
    }
 
    public String getCui() {
@@ -73,6 +76,26 @@ final public class Concept {
 
    public boolean isEmpty() {
       return (_preferredText == null || _preferredText.isEmpty()) && _codes.isEmpty();
+   }
+
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public boolean equals( final Object value ) {
+      return value instanceof Concept
+             && _cui.equals( ((Concept)value)._cui )
+             && _preferredText.equals( ((Concept)value)._preferredText )
+             && _codes.equals( ((Concept)value)._codes );
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public int hashCode() {
+      return _hashcode;
    }
 
 }
