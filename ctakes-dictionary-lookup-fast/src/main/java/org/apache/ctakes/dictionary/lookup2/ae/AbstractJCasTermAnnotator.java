@@ -132,8 +132,8 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
       _logger.debug( "Starting processing" );
       final JFSIndexRepository indexes = jcas.getJFSIndexRepository();
-      final AnnotationIndex annotationIndex = indexes.getAnnotationIndex( _lookupWindowType );
-      if ( annotationIndex == null ) {  // I don't trust AnnotationIndex.size(), so don't check
+      final AnnotationIndex<Annotation> lookupWindows = indexes.getAnnotationIndex( _lookupWindowType );
+      if ( lookupWindows == null ) {  // I don't trust AnnotationIndex.size(), so don't check
          return;
       }
       final Map<RareWordDictionary, CollectionMap<TextSpan, Long>> dictionaryTermsMap
@@ -142,12 +142,10 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
          final CollectionMap<TextSpan, Long> textSpanCuis = new HashSetMap<>();
          dictionaryTermsMap.put( dictionary, textSpanCuis );
       }
-      final Iterator windowIterator = annotationIndex.iterator();
       try {
-         while ( windowIterator.hasNext() ) {
-            final Annotation window = (Annotation)windowIterator.next();
-            if ( isWindowOk( window ) ) {
-               processWindow( jcas, window, dictionaryTermsMap );
+         for ( Object window : lookupWindows ) {
+            if ( isWindowOk( (Annotation)window ) ) {
+               processWindow( jcas, (Annotation)window, dictionaryTermsMap );
             }
          }
       } catch ( ArrayIndexOutOfBoundsException iobE ) {
@@ -155,10 +153,11 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
          _logger.warn( iobE.getMessage() );
       }
       // Let the consumer handle uniqueness and ordering - some may not care
+      final Collection<Long> allDictionaryCuis = new HashSet<>();
       for ( Map.Entry<RareWordDictionary, CollectionMap<TextSpan, Long>> dictionaryCuis : dictionaryTermsMap.entrySet() ) {
+         allDictionaryCuis.clear();
          final RareWordDictionary dictionary = dictionaryCuis.getKey();
          final CollectionMap<TextSpan, Long> textSpanCuis = dictionaryCuis.getValue();
-         final Collection<Long> allDictionaryCuis = new HashSet<>();
          for ( Collection<Long> cuiCodes : textSpanCuis.getAllCollections() ) {
             allDictionaryCuis.addAll( cuiCodes );
          }

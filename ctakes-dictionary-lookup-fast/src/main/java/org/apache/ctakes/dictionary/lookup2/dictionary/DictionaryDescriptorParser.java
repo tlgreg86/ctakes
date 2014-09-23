@@ -20,6 +20,7 @@ package org.apache.ctakes.dictionary.lookup2.dictionary;
 
 import org.apache.ctakes.dictionary.lookup2.concept.ConceptFactory;
 import org.apache.ctakes.dictionary.lookup2.consumer.TermConsumer;
+import org.apache.ctakes.dictionary.lookup2.util.DefaultDictionarySpec;
 import org.apache.ctakes.dictionary.lookup2.util.DictionarySpec;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
@@ -152,7 +153,7 @@ final public class DictionaryDescriptorParser {
     * @param descriptorFile XML-formatted file, see the dictionary-lookup resources file {@code RareWordTermsUMLS.xml}
     *                       for an example
     * @param uimaContext    -
-    * @return {@link org.apache.ctakes.dictionary.lookup2.util.DictionarySpec} with specification of dictionaries and a consumer as read from the
+    * @return {@link org.apache.ctakes.dictionary.lookup2.util.DefaultDictionarySpec} with specification of dictionaries and a consumer as read from the
     * {@code descriptorFile}
     * @throws AnnotatorContextException if the File could not be found/read or the xml could not be parsed
     */
@@ -164,7 +165,7 @@ final public class DictionaryDescriptorParser {
       try {
          doc = saxBuilder.build( descriptorFile );
       } catch ( JDOMException | IOException jdomioE ) {
-         throw new AnnotatorContextException( "Could not parse " + descriptorFile.getPath(), new Object[0], jdomioE );
+         throw new AnnotatorContextException( "Could not parse " + descriptorFile.getPath(), new Object[ 0 ], jdomioE );
       }
       final Map<String, RareWordDictionary> dictionaries
             = parseDictionaries( uimaContext, doc.getRootElement().getChild( DICTIONARIES_KEY ) );
@@ -175,7 +176,7 @@ final public class DictionaryDescriptorParser {
       final Map<String, String> pairConceptFactoryNames
             = parsePairingNames( doc.getRootElement().getChild( PAIRS_KEY ), "conceptFactoryName" );
       final TermConsumer consumer = parseConsumerXml( uimaContext, doc.getRootElement().getChild( CONSUMER_KEY ) );
-      return new DictionarySpec( pairDictionaryNames, pairConceptFactoryNames, dictionaries, conceptFactories,
+      return new DefaultDictionarySpec( pairDictionaryNames, pairConceptFactoryNames, dictionaries, conceptFactories,
             consumer );
    }
 
@@ -225,23 +226,23 @@ final public class DictionaryDescriptorParser {
       try {
          dictionaryClass = Class.forName( className );
       } catch ( ClassNotFoundException cnfE ) {
-         throw new AnnotatorContextException( "Unknown class " + className, new Object[0], cnfE );
+         throw new AnnotatorContextException( "Unknown class " + className, new Object[ 0 ], cnfE );
       }
       if ( !RareWordDictionary.class.isAssignableFrom( dictionaryClass ) ) {
-         throw new AnnotatorContextException( className + " is not a Rare Word Dictionary", new Object[0] );
+         throw new AnnotatorContextException( className + " is not a Rare Word Dictionary", new Object[ 0 ] );
       }
       final Constructor[] constructors = dictionaryClass.getConstructors();
       for ( Constructor constructor : constructors ) {
          try {
             if ( Arrays.equals( constructionArgs, constructor.getParameterTypes() ) ) {
-               final Object[] args = new Object[]{ name, uimaContext, properties };
+               final Object[] args = new Object[] { name, uimaContext, properties };
                return (RareWordDictionary)constructor.newInstance( args );
             }
          } catch ( InstantiationException | IllegalAccessException | InvocationTargetException iniaitE ) {
-            throw new AnnotatorContextException( "Could not construct " + className, new Object[0], iniaitE );
+            throw new AnnotatorContextException( "Could not construct " + className, new Object[ 0 ], iniaitE );
          }
       }
-      throw new AnnotatorContextException( "No Constructor for " + className, new Object[0] );
+      throw new AnnotatorContextException( "No Constructor for " + className, new Object[ 0 ] );
    }
 
 
@@ -290,23 +291,23 @@ final public class DictionaryDescriptorParser {
       try {
          conceptFactoryClass = Class.forName( className );
       } catch ( ClassNotFoundException cnfE ) {
-         throw new AnnotatorContextException( "Unknown class " + className, new Object[0], cnfE );
+         throw new AnnotatorContextException( "Unknown class " + className, new Object[ 0 ], cnfE );
       }
       if ( !ConceptFactory.class.isAssignableFrom( conceptFactoryClass ) ) {
-         throw new AnnotatorContextException( className + " is not a Concept Factory", new Object[0] );
+         throw new AnnotatorContextException( className + " is not a Concept Factory", new Object[ 0 ] );
       }
       final Constructor[] constructors = conceptFactoryClass.getConstructors();
       for ( Constructor constructor : constructors ) {
          try {
             if ( Arrays.equals( constructionArgs, constructor.getParameterTypes() ) ) {
-               final Object[] args = new Object[]{ name, uimaContext, properties };
+               final Object[] args = new Object[] { name, uimaContext, properties };
                return (ConceptFactory)constructor.newInstance( args );
             }
          } catch ( InstantiationException | IllegalAccessException | InvocationTargetException iniaitE ) {
-            throw new AnnotatorContextException( "Could not construct " + className, new Object[0], iniaitE );
+            throw new AnnotatorContextException( "Could not construct " + className, new Object[ 0 ], iniaitE );
          }
       }
-      throw new AnnotatorContextException( "No Constructor for " + className, new Object[0] );
+      throw new AnnotatorContextException( "No Constructor for " + className, new Object[ 0 ] );
    }
 
 
@@ -333,7 +334,7 @@ final public class DictionaryDescriptorParser {
    static private String getName( final String elementName, final Element element ) throws AnnotatorContextException {
       final String name = element.getChildText( "name" );
       if ( name == null || name.isEmpty() ) {
-         throw new AnnotatorContextException( "Missing name for " + elementName, new Object[0] );
+         throw new AnnotatorContextException( "Missing name for " + elementName, new Object[ 0 ] );
       }
       return name;
    }
@@ -436,7 +437,7 @@ final public class DictionaryDescriptorParser {
     */
    private static TermConsumer parseConsumerXml( final UimaContext uimaContext,
                                                  final Element lookupConsumerElement ) throws
-         AnnotatorContextException {
+                                                                                       AnnotatorContextException {
       Class[] constrArgsConsum = { UimaContext.class, Properties.class, int.class };//ohnlp-Bugs-3296301
       Class[] constrArgsConsumB = { UimaContext.class, Properties.class };
 
@@ -447,28 +448,28 @@ final public class DictionaryDescriptorParser {
       try {
          consumerClass = Class.forName( consumerClassName );
       } catch ( ClassNotFoundException cnfE ) {
-         throw new AnnotatorContextException( "Unknown class " + consumerClassName, new Object[0], cnfE );
+         throw new AnnotatorContextException( "Unknown class " + consumerClassName, new Object[ 0 ], cnfE );
       }
       if ( !TermConsumer.class.isAssignableFrom( consumerClass ) ) {
          throw new AnnotatorContextException( consumerClassName + " is not a TermConsumer",
-               new Object[0] );
+               new Object[ 0 ] );
       }
       final Constructor[] constructors = consumerClass.getConstructors();
       for ( Constructor constructor : constructors ) {
          try {
             if ( Arrays.equals( constrArgsConsum, constructor.getParameterTypes() ) ) {
-               final Object[] args = new Object[]{ uimaContext, consumerProperties,
-                                                   MAX_LIST_SIZE }; //ohnlp-Bugs-3296301
+               final Object[] args = new Object[] { uimaContext, consumerProperties,
+                                                    MAX_LIST_SIZE }; //ohnlp-Bugs-3296301
                return (TermConsumer)constructor.newInstance( args );
             } else if ( Arrays.equals( constrArgsConsumB, constructor.getParameterTypes() ) ) {
-               final Object[] args = new Object[]{ uimaContext, consumerProperties };
+               final Object[] args = new Object[] { uimaContext, consumerProperties };
                return (TermConsumer)constructor.newInstance( args );
             }
          } catch ( InstantiationException | IllegalAccessException | InvocationTargetException multE ) {
-            throw new AnnotatorContextException( "Could not construct " + consumerClassName, new Object[0], multE );
+            throw new AnnotatorContextException( "Could not construct " + consumerClassName, new Object[ 0 ], multE );
          }
       }
-      throw new AnnotatorContextException( "No Constructor for " + consumerClassName, new Object[0] );
+      throw new AnnotatorContextException( "No Constructor for " + consumerClassName, new Object[ 0 ] );
    }
 
    /**

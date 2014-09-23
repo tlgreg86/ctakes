@@ -31,12 +31,10 @@ import java.util.HashSet;
 import java.util.Map;
 
 /**
- * Simple Container class that holds a {@link org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary}
- * collection, a a {@link org.apache.ctakes.dictionary.lookup2.concept.ConceptFactory}
- * and a {@link org.apache.ctakes.dictionary.lookup2.consumer.TermConsumer}
+ * {@inheritDoc}
  */
 @Immutable
-final public class DictionarySpec {
+final public class DefaultDictionarySpec implements DictionarySpec {
 
    static private final RareWordDictionary EMPTY_DICTIONARY = new RareWordDictionary() {
       public String getName() {
@@ -66,39 +64,43 @@ final public class DictionarySpec {
       }
    };
 
-   final Collection<String> _pairNames;
-   final Map<String, String> _pairDictionaryNames;
-   final Map<String, String> _pairConceptFactoryNames;
-   final Map<String, RareWordDictionary> _dictionaries;
-   final Map<String, ConceptFactory> _conceptFactories;
-
+   final private Collection<String> _pairNames;
+   final private Map<String, String> _pairDictionaryNames;
+   final private Map<String, String> _pairConceptFactoryNames;
+   final private Map<String, RareWordDictionary> _dictionaries;
+   final private Map<String, ConceptFactory> _conceptFactories;
    final private TermConsumer _termConsumer;
 
    /**
     * @param termConsumer the consumer to add terms to the Cas
     */
-   public DictionarySpec( final Map<String, String> pairDictionaryNames,
-                          final Map<String, String> pairConceptFactoryNames,
-                          final Map<String, RareWordDictionary> dictionaries,
-                          final Map<String, ConceptFactory> conceptFactories,
-                          final TermConsumer termConsumer ) {
+   public DefaultDictionarySpec( final Map<String, String> pairDictionaryNames,
+                                 final Map<String, String> pairConceptFactoryNames,
+                                 final Map<String, RareWordDictionary> dictionaries,
+                                 final Map<String, ConceptFactory> conceptFactories,
+                                 final TermConsumer termConsumer ) {
       _pairNames = new HashSet<>( pairDictionaryNames.keySet() );
       _pairNames.addAll( pairConceptFactoryNames.keySet() );
       // TODO check for completion of pairings
-      _pairDictionaryNames = pairDictionaryNames;
-      _pairConceptFactoryNames = pairConceptFactoryNames;
-      _dictionaries = dictionaries;
-      _conceptFactories = conceptFactories;
+      _pairDictionaryNames = Collections.unmodifiableMap( pairDictionaryNames );
+      _pairConceptFactoryNames = Collections.unmodifiableMap( pairConceptFactoryNames );
+      _dictionaries = Collections.unmodifiableMap( dictionaries );
+      _conceptFactories = Collections.unmodifiableMap( conceptFactories );
       _termConsumer = termConsumer;
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public Collection<String> getPairNames() {
       return _pairNames;
    }
 
    /**
-    * @return the dictionary for the given pair name
+    * {@inheritDoc}
     */
+   @Override
    public RareWordDictionary getDictionary( final String pairName ) {
       final String dictionaryName = _pairDictionaryNames.get( pairName );
       if ( dictionaryName != null ) {
@@ -112,8 +114,9 @@ final public class DictionarySpec {
    }
 
    /**
-    * @return the concept factory for concept creation
+    * {@inheritDoc}
     */
+   @Override
    public ConceptFactory getConceptFactory( final String pairName ) {
       final String conceptFactoryName = _pairConceptFactoryNames.get( pairName );
       if ( conceptFactoryName != null ) {
@@ -126,6 +129,10 @@ final public class DictionarySpec {
       return EMPTY_CONCEPT_FACTORY;
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public Collection<RareWordDictionary> getPairedDictionaries( final String conceptFactoryName ) {
       final Collection<RareWordDictionary> dictionaries = new HashSet<>();
       for ( Map.Entry<String, String> pairConceptFactoryName : _pairConceptFactoryNames.entrySet() ) {
@@ -136,6 +143,10 @@ final public class DictionarySpec {
       return dictionaries;
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public Collection<ConceptFactory> getPairedConceptFactories( final String dictionaryName ) {
       final Collection<ConceptFactory> conceptFactories = new HashSet<>();
       for ( Map.Entry<String, String> pairDictionaryName : _pairDictionaryNames.entrySet() ) {
@@ -146,17 +157,26 @@ final public class DictionarySpec {
       return conceptFactories;
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public Collection<RareWordDictionary> getDictionaries() {
       return new HashSet<>( _dictionaries.values() );
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public Collection<ConceptFactory> getConceptFactories() {
       return new HashSet<>( _conceptFactories.values() );
    }
 
    /**
-    * @return the consumer to add terms to the Cas
+    * {@inheritDoc}
     */
+   @Override
    public TermConsumer getConsumer() {
       return _termConsumer;
    }
