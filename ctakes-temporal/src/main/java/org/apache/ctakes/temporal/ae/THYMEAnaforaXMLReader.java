@@ -75,6 +75,7 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
 
   @ConfigurationParameter(
       name = PARAM_ANAFORA_XML_SUFFIXES,
+      mandatory = false,
       description = "list of suffixes that might be added to a file name to identify the Anafora "
           + "XML annotations file; only the first suffix corresponding to a file will be used")
   private String[] anaforaXMLSuffixes = new String[] {
