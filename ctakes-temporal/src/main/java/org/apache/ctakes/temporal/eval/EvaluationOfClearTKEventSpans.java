@@ -50,18 +50,9 @@ public class EvaluationOfClearTKEventSpans extends EvaluationOfAnnotationSpans_I
   public static void main(String[] args) throws Exception {
     Options options = CliFactory.parseArguments(Options.class, args);
     List<Integer> patientSets = options.getPatients().getList();
-    List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-    List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
-    List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
+    List<Integer> trainItems = getTrainItems(options);
+    List<Integer> testItems = getTestItems(options);
     
-    List<Integer> allTraining = new ArrayList<Integer>(trainItems);
-    List<Integer> allTest;
-    if (options.getTest()) {
-      allTraining.addAll(devItems);
-      allTest = new ArrayList<Integer>(testItems);
-    } else {
-      allTest = new ArrayList<Integer>(devItems);
-    }
     EvaluationOfClearTKEventSpans evaluation = new EvaluationOfClearTKEventSpans(
         new File("target/eval/cleartk-event-spans"),
         options.getRawTextDirectory(),
@@ -70,7 +61,7 @@ public class EvaluationOfClearTKEventSpans extends EvaluationOfAnnotationSpans_I
         options.getXMIDirectory());
     evaluation.prepareXMIsFor(patientSets);
     evaluation.setLogging(Level.FINE, new File("target/eval/cleartk-event-errors.log"));
-    AnnotationStatistics<String> stats = evaluation.trainAndTest(allTraining, allTest);
+    AnnotationStatistics<String> stats = evaluation.trainAndTest(trainItems, testItems);
     System.err.println(stats);
   }
 

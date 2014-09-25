@@ -50,18 +50,8 @@ public class EvaluationOfClearTKTimeSpans extends EvaluationOfAnnotationSpans_Im
   public static void main(String[] args) throws Exception {
     Options options = CliFactory.parseArguments(Options.class, args);
     List<Integer> patientSets = options.getPatients().getList();
-    List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-    List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
-    List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
-    
-    List<Integer> allTraining = new ArrayList<Integer>(trainItems);
-    List<Integer> allTest;
-    if (options.getTest()) {
-      allTraining.addAll(devItems);
-      allTest = new ArrayList<Integer>(testItems);
-    } else {
-      allTest = new ArrayList<Integer>(devItems);
-    }
+    List<Integer> trainItems = getTrainItems(options);
+    List<Integer> testItems = getTestItems(options);
     
     EvaluationOfClearTKTimeSpans evaluation = new EvaluationOfClearTKTimeSpans(
         new File("target/eval/cleartk-time-spans"),
@@ -71,7 +61,7 @@ public class EvaluationOfClearTKTimeSpans extends EvaluationOfAnnotationSpans_Im
         options.getXMIDirectory());
     evaluation.prepareXMIsFor(patientSets);
     evaluation.setLogging(Level.FINE, new File("target/eval/cleartk-time-errors.log"));
-    AnnotationStatistics<String> stats = evaluation.trainAndTest(allTraining, allTest);
+    AnnotationStatistics<String> stats = evaluation.trainAndTest(trainItems, testItems);
     System.err.println(stats);
   }
 

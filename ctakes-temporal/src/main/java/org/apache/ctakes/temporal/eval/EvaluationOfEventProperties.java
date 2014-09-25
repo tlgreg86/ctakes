@@ -88,9 +88,8 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 	public static void main(String[] args) throws Exception {
 		TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
 		List<Integer> patientSets = options.getPatients().getList();
-		List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-		List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
-		List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
+		List<Integer> trainItems = getTrainItems(options);
+		List<Integer> testItems = getTestItems(options);
 
 		try{
 			File workingDir = new File("target/eval/event-properties");
@@ -111,17 +110,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 			evaluation.prepareXMIsFor(patientSets);
 			evaluation.logClassificationErrors(workingDir, "ctakes-event-property-errors");
 
-			List<Integer> allTraining = new ArrayList<>(trainItems);
-			List<Integer> allTest = null;
-			if(options.getTest()){
-				allTraining.addAll(devItems);
-				allTest = new ArrayList<>(testItems);
-			}else{
-				allTest = new ArrayList<>(devItems);
-			}
-
-
-			Map<String, AnnotationStatistics<String>> stats = evaluation.trainAndTest(allTraining, allTest);
+			Map<String, AnnotationStatistics<String>> stats = evaluation.trainAndTest(trainItems, testItems);
 			for (String name : PROPERTY_NAMES) {
 				System.err.println("====================");
 				System.err.println(name);

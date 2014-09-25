@@ -20,10 +20,7 @@ package org.apache.ctakes.temporal.eval;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.google.common.collect.Sets;
 
@@ -33,40 +30,43 @@ import com.google.common.collect.Sets;
 public class THYMEData {
   public static final Set<String> SEGMENTS_TO_SKIP = Sets.newHashSet("20104", "20105", "20116", "20138");
 
+  public static final Set<Integer> TRAIN_REMAINDERS = Sets.newHashSet(0, 1, 2, 3);
+  public static final Set<Integer> DEV_REMAINDERS = Sets.newHashSet(4, 5);
+  public static final Set<Integer> TEST_REMAINDERS = Sets.newHashSet(6, 7);
+
+  public static List<Integer> getPatientSets(List<Integer> patientSets, Collection<Integer> remainders) {
+    List<Integer> items = new ArrayList<Integer>();
+    for (Integer i : patientSets) {
+      int remainder = i % 8;
+      if (remainders.contains(remainder)) {
+        items.add(i);
+      }
+    }
+    return items;
+  }
+
+  /**
+   * @deprecated Use getPatientSets(patientSets, TRAIN_REMAINDERS)
+   */
   public static List<Integer> getTrainPatientSets(List<Integer> patientSets) {
-    List<Integer> items = new ArrayList<Integer>();
-    for (Integer i : patientSets) {
-      int remainder = i % 8;
-      if (remainder < 4) {
-        items.add(i);
-      }
-    }
-    return items;
+    return getPatientSets(patientSets, TRAIN_REMAINDERS);
   }
 
+  /**
+   * @deprecated Use getPatientSets(patientSets, DEV_REMAINDERS)
+   */
   public static List<Integer> getDevPatientSets(List<Integer> patientSets) {
-    List<Integer> items = new ArrayList<Integer>();
-    for (Integer i : patientSets) {
-      int remainder = i % 8;
-      if (4 <= remainder && remainder < 6) {
-        items.add(i);
-      }
-    }
-    return items;
+    return getPatientSets(patientSets, DEV_REMAINDERS);
   }
 
+  /**
+   * @deprecated Use getPatientSets(patientSets, TEST_REMAINDERS)
+   */
   public static List<Integer> getTestPatientSets(List<Integer> patientSets) {
-    List<Integer> items = new ArrayList<Integer>();
-    for (Integer i : patientSets) {
-      int remainder = i % 8;
-      if (6 <= remainder) {
-        items.add(i);
-      }
-    }
-    return items;
+    return getPatientSets(patientSets, TEST_REMAINDERS);
   }
-  
-  public static List<File> getFilesFor(List<Integer> patientSets, File rawTextDirectory) {
+
+    public static List<File> getFilesFor(List<Integer> patientSets, File rawTextDirectory) {
 	  if ( !rawTextDirectory.exists() ) {
 		  return Collections.emptyList();
 	  }

@@ -93,8 +93,8 @@ public class EvaluationOfNEPredicateEventSpans extends
 	public static void main(String[] args) throws Exception{
 		Options options = CliFactory.parseArguments(Options.class, args);
 	    List<Integer> patientSets = options.getPatients().getList();
-	    List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-	    List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
+	    List<Integer> trainItems = getTrainItems(options);
+	    List<Integer> testItems = getTestItems(options);
 	    EvaluationOfNEPredicateEventSpans evaluation = new EvaluationOfNEPredicateEventSpans(
 	        new File("target/eval/event-spans"),
 	        options.getRawTextDirectory(),
@@ -103,7 +103,7 @@ public class EvaluationOfNEPredicateEventSpans extends
 	        options.getXMIDirectory());
 	    evaluation.prepareXMIsFor(patientSets);
 	    evaluation.setLogging(Level.FINE, new File("target/eval/ctakes-event-errors.log"));
-	    AnnotationStatistics<String> stats = evaluation.trainAndTest(trainItems, devItems);
+	    AnnotationStatistics<String> stats = evaluation.trainAndTest(trainItems, testItems);
 	    System.err.println(stats);
 
 	}

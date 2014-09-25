@@ -196,9 +196,9 @@ EvaluationOfTemporalRelations_ImplBase {
   public static void main(String[] args) throws Exception{
     TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
     List<Integer> patientSets = options.getPatients().getList();
-    List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-    List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
-    List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
+    List<Integer> trainItems = getTrainItems(options);
+    List<Integer> testItems = getTestItems(options);
+
     File workingDir = new File("target/eval/temporal-relations/event-event/");
     ParameterSettings params = defaultParams;
     EvaluationOfEventEventRelations evaluation = new EvaluationOfEventEventRelations(
@@ -213,15 +213,8 @@ EvaluationOfTemporalRelations_ImplBase {
         options.getBaseline(),
         params);
     evaluation.prepareXMIsFor(patientSets);
-    List<Integer> training = trainItems;
-    List<Integer> testing = null;
-    if(options.getTest()){
-      training.addAll(devItems);
-      testing = testItems;
-    }else{
-      testing = devItems;
-    }
-    AnnotationStatistics<String> stats = evaluation.trainAndTest(training, testing);
+
+    AnnotationStatistics<String> stats = evaluation.trainAndTest(trainItems, testItems);
     System.err.println(stats);
   }
 

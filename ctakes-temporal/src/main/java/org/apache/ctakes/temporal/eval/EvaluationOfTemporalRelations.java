@@ -133,9 +133,9 @@ EvaluationOfTemporalRelations_ImplBase{
 			devItems = I2B2Data.getDevPatientSets(options.getXMLDirectory());
 			testItems = I2B2Data.getTestPatientSets(options.getXMLDirectory());
 		}else{
-			trainItems = THYMEData.getTrainPatientSets(patientSets);
-			devItems = THYMEData.getDevPatientSets(patientSets);
-			testItems = THYMEData.getTestPatientSets(patientSets);
+			trainItems = THYMEData.getPatientSets(patientSets, options.getTrainRemainders().getList());
+			devItems = THYMEData.getPatientSets(patientSets, options.getDevRemainders().getList());
+			testItems = THYMEData.getPatientSets(patientSets, options.getTestRemainders().getList());
 		}
 		ParameterSettings params = allParams;
 

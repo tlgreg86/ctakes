@@ -82,18 +82,8 @@ public class EvaluationOfClearTKRelations extends
       System.exit(-1);
     }
     List<Integer> patientSets = options.getPatients().getList();
-    List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-    List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
-    List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
-    
-    List<Integer> allTraining = new ArrayList<Integer>(trainItems);
-    List<Integer> allTest;
-    if (options.getTest()) {
-      allTraining.addAll(devItems);
-      allTest = new ArrayList<Integer>(testItems);
-    } else {
-      allTest = new ArrayList<Integer>(devItems);
-    }
+    List<Integer> trainItems = getTrainItems(options);
+    List<Integer> testItems = getTestItems(options);
     
     EvaluationOfClearTKRelations evaluation = new EvaluationOfClearTKRelations(
         new File("target/eval/cleartk-event-time-links"),
@@ -105,7 +95,7 @@ public class EvaluationOfClearTKRelations extends
     evaluation.setExtractEventTime(!options.getIgnoreEventTime());
     
     evaluation.prepareXMIsFor(patientSets);
-    AnnotationStatistics<String> stats = evaluation.trainAndTest(allTraining, allTest);
+    AnnotationStatistics<String> stats = evaluation.trainAndTest(trainItems, testItems);
     System.err.println(stats);
   }
   

@@ -85,14 +85,11 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
 
   public static void main(String[] args) throws Exception {
     CoreferenceOptions options = CliFactory.parseArguments(CoreferenceOptions.class, args);
-    List<Integer> trainItems = null;
-    List<Integer> devItems = null;
-    List<Integer> testItems = null;
-    
+
     List<Integer> patientSets = options.getPatients().getList();
-    trainItems = THYMEData.getTrainPatientSets(patientSets);
-    devItems = THYMEData.getDevPatientSets(patientSets);
-    testItems = THYMEData.getTestPatientSets(patientSets);
+    List<Integer> trainItems = getTrainItems(options);
+    List<Integer> testItems = getTestItems(options);
+
     ParameterSettings params = allParams;
     File workingDir = new File("target/eval/temporal-relations/coreference");
     if(!workingDir.exists()) workingDir.mkdirs();
@@ -117,15 +114,8 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         options.getOutputDirectory());
 
     eval.prepareXMIsFor(patientSets);
-    List<Integer> training = trainItems;
-    List<Integer> testing = null;
-    if(options.getTest()){
-      training.addAll(devItems);
-      testing = testItems;
-    }else{
-      testing = devItems;
-    }
-    params.stats = eval.trainAndTest(training, testing);//training);//
+
+    params.stats = eval.trainAndTest(trainItems, testItems);//training);//
     //      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
     System.err.println(params.stats);
 

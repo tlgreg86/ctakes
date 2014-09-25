@@ -65,7 +65,7 @@ public class PrintFailedTimeNormalizations {
   public static void main(String[] args) throws Exception {
     Options options = CliFactory.parseArguments(Options.class, args);
     List<Integer> patientSets = options.getPatients().getList();
-    List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
+    List<Integer> trainItems = THYMEData.getPatientSets(patientSets, THYMEData.TRAIN_REMAINDERS);
     List<File> files = THYMEData.getFilesFor(trainItems, options.getRawTextDirectory());
 
     CollectionReader reader = UriCollectionReader.getCollectionReaderFromFiles(files);

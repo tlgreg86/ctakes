@@ -71,7 +71,7 @@ public class RunCorpusDiagnostics {
 	public static void main(String[] args) throws UIMAException, IOException {
 		Options options = CliFactory.parseArguments(Options.class, args);
 		List<Integer> patientSets = options.getPatients().getList();
-		List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
+		List<Integer> trainItems = THYMEData.getPatientSets(patientSets, THYMEData.TRAIN_REMAINDERS);
 		CollectionReader reader = UriCollectionReader.getCollectionReaderFromFiles(getFilesFor(options.getRawTextDirectory(), trainItems));
 		AggregateBuilder aggregateBuilder = new AggregateBuilder();
 		aggregateBuilder.add(UriToDocumentTextAnnotator.getDescription());

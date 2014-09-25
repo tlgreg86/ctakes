@@ -68,7 +68,7 @@ public class GoldRelationViewer {
 		Options options = CliFactory.parseArguments(Options.class, args);
 		
 		List<Integer> patientSets = options.getPatients().getList();
-		List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
+		List<Integer> trainItems = THYMEData.getPatientSets(patientSets, THYMEData.TRAIN_REMAINDERS);
 		List<File> trainFiles = Utils.getFilesFor(trainItems, options.getInputDirectory());
     CollectionReader collectionReader = Utils.getCollectionReader(trainFiles);
 		

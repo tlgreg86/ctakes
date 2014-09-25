@@ -145,6 +145,15 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		@Option(longName = "patients")
 		public CommandLine.IntegerRanges getPatients();
 
+		@Option(longName = "train-remainders", defaultValue = "0-3")
+		public CommandLine.IntegerRanges getTrainRemainders();
+
+		@Option(longName = "dev-remainders", defaultValue = "4-5")
+		public CommandLine.IntegerRanges getDevRemainders();
+
+		@Option(longName = "test-remainders", defaultValue = "6-7")
+		public CommandLine.IntegerRanges getTestRemainders();
+
 		@Option(longName = "treebank", defaultToNull=true)
 		public File getTreebankDirectory();
 
@@ -173,7 +182,27 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		public String getI2B2Output();
 	}
 
-	protected File rawTextDirectory;
+    public static List<Integer> getTrainItems(Options options) {
+        List<Integer> patientSets = options.getPatients().getList();
+        List<Integer> trainItems = THYMEData.getPatientSets(patientSets, options.getTrainRemainders().getList());
+        if (options.getTest()) {
+            trainItems.addAll(THYMEData.getPatientSets(patientSets, options.getDevRemainders().getList()));
+        }
+        return trainItems;
+    }
+
+    public static List<Integer> getTestItems(Options options) {
+        List<Integer> patientSets = options.getPatients().getList();
+        List<Integer> testItems;
+        if (options.getTest()) {
+            testItems = THYMEData.getPatientSets(patientSets, options.getTestRemainders().getList());
+        } else {
+            testItems = THYMEData.getPatientSets(patientSets, options.getDevRemainders().getList());
+        }
+        return testItems;
+    }
+
+    protected File rawTextDirectory;
 
 	protected File xmlDirectory;
 

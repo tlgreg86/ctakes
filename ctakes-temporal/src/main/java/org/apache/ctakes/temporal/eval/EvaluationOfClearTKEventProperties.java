@@ -76,18 +76,8 @@ public class EvaluationOfClearTKEventProperties extends
   public static void main(String[] args) throws Exception {
     Options options = CliFactory.parseArguments(Options.class, args);
     List<Integer> patientSets = options.getPatients().getList();
-    List<Integer> trainItems = THYMEData.getTrainPatientSets(patientSets);
-    List<Integer> devItems = THYMEData.getDevPatientSets(patientSets);
-    List<Integer> testItems = THYMEData.getTestPatientSets(patientSets);
-    
-    List<Integer> allTraining = new ArrayList<Integer>(trainItems);
-    List<Integer> allTest = null;
-    if(options.getTest()){
-      allTraining.addAll(devItems);
-      allTest = new ArrayList<Integer>(testItems);
-    }else{
-      allTest = new ArrayList<Integer>(devItems);
-    }
+    List<Integer> trainItems = getTrainItems(options);
+    List<Integer> testItems = getTestItems(options);
     
     EvaluationOfClearTKEventProperties evaluation = new EvaluationOfClearTKEventProperties(
         new File("target/eval/event-properties"),
@@ -97,7 +87,7 @@ public class EvaluationOfClearTKEventProperties extends
         options.getXMIDirectory());
     evaluation.prepareXMIsFor(patientSets);
     evaluation.logClassificationErrors(new File("target/eval"), "ctakes-event-property-errors");
-    Map<String, AnnotationStatistics<String>> stats = evaluation.trainAndTest(allTraining, allTest);
+    Map<String, AnnotationStatistics<String>> stats = evaluation.trainAndTest(trainItems, testItems);
     for (String name : PROPERTY_NAMES) {
       System.err.println("====================");
       System.err.println(name);
