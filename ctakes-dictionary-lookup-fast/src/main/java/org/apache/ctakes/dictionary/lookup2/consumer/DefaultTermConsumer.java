@@ -34,14 +34,7 @@ import org.apache.uima.jcas.cas.FSArray;
 
 import java.util.*;
 
-import static org.apache.ctakes.typesystem.type.constants.CONST.NE_TYPE_ID_DRUG;
-import static org.apache.ctakes.typesystem.type.constants.CONST.NE_TYPE_ID_ANATOMICAL_SITE;
-import static org.apache.ctakes.typesystem.type.constants.CONST.NE_TYPE_ID_DISORDER;
-import static org.apache.ctakes.typesystem.type.constants.CONST.NE_TYPE_ID_FINDING;
-import static org.apache.ctakes.typesystem.type.constants.CONST.NE_TYPE_ID_LAB;
-import static org.apache.ctakes.typesystem.type.constants.CONST.NE_TYPE_ID_PROCEDURE;
-
-
+import static org.apache.ctakes.typesystem.type.constants.CONST.*;
 
 
 /**
@@ -58,19 +51,17 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
 
 
    /**
-    * @param jcas           -
-    * @param codingScheme   -
-    * @param cTakesSemantic cTakes IdentifiedAnnotation only accepts an integer as a cTakesSemantic
-    * @throws org.apache.uima.analysis_engine.AnalysisEngineProcessException
+    * {@inheritDoc}
     */
-   protected void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int cTakesSemantic,
-                                     final CollectionMap<TextSpan, Long> textSpanCuis,
-                                     final CollectionMap<Long, Concept> cuiConcepts )
+   @Override
+   public void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int cTakesSemantic,
+                                  final CollectionMap<TextSpan, Long, ? extends Collection<Long>> textSpanCuis,
+                                  final CollectionMap<Long, Concept, ? extends Collection<Concept>> cuiConcepts )
          throws AnalysisEngineProcessException {
       // Collection of UmlsConcept objects
       final Collection<UmlsConcept> umlsConceptList = new ArrayList<>();
       try {
-         for ( Map.Entry<TextSpan, Collection<Long>> spanCuis : textSpanCuis ) {
+         for ( Map.Entry<TextSpan, ? extends Collection<Long>> spanCuis : textSpanCuis ) {
             umlsConceptList.clear();
             for ( Long cuiCode : spanCuis.getValue() ) {
                umlsConceptList.addAll( createUmlsConcepts( jcas, codingScheme, cTakesSemantic, cuiCode, cuiConcepts ) );
@@ -97,7 +88,7 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
    }
 
    static private IdentifiedAnnotation createSemanticAnnotation( final JCas jcas, final int cTakesSemantic ) {
-      switch( cTakesSemantic ) {
+      switch ( cTakesSemantic ) {
          case NE_TYPE_ID_DRUG: {
             return new MedicationMention( jcas );
          }
@@ -125,7 +116,7 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
                                                               final String codingScheme,
                                                               final int cTakesSemantic,
                                                               final Long cui,
-                                                              final CollectionMap<Long, Concept> conceptMap ) {
+                                                              final CollectionMap<Long, Concept, ? extends Collection<Concept>> conceptMap ) {
       final Collection<Concept> concepts = conceptMap.getCollection( cui );
       if ( concepts == null || concepts.isEmpty() ) {
          return Arrays.asList( createUmlsConcept( jcas, codingScheme, cui, null, null, null ) );

@@ -25,6 +25,8 @@ import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 
+import java.util.Collection;
+
 /**
  * Stores terms in the cas
  * Author: SPF
@@ -35,17 +37,27 @@ public interface TermConsumer {
 
 
    /**
-    * @param jcas            -
-    * @param dictionary      the dictionary: Anatomical Site, Disease/Disorder, Drug, combination, etc.
+    * @param jcas         -
+    * @param dictionary   the dictionary: Anatomical Site, Disease/Disorder, Drug, combination, etc.
     * @param textSpanCuis collection of discovered terms
-    * @param cuiConcepts      map of cuis to concepts
+    * @param cuiConcepts  map of cuis to concepts
     * @throws AnalysisEngineProcessException
     */
    void consumeHits( final JCas jcas,
                      final RareWordDictionary dictionary,
-                     final CollectionMap<TextSpan, Long> textSpanCuis,
-                     final CollectionMap<Long, Concept> cuiConcepts )
+                     final CollectionMap<TextSpan, Long, ? extends Collection<Long>> textSpanCuis,
+                     final CollectionMap<Long, Concept, ? extends Collection<Concept>> cuiConcepts )
          throws AnalysisEngineProcessException;
 
+   /**
+    * @param jcas           -
+    * @param codingScheme   -
+    * @param cTakesSemantic cTakes IdentifiedAnnotation only accepts an integer as a cTakesSemantic
+    * @throws org.apache.uima.analysis_engine.AnalysisEngineProcessException
+    */
+   void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int cTakesSemantic,
+                           final CollectionMap<TextSpan, Long, ? extends Collection<Long>> textSpanCuis,
+                           final CollectionMap<Long, Concept, ? extends Collection<Concept>> cuiConcepts )
+         throws AnalysisEngineProcessException;
 
 }

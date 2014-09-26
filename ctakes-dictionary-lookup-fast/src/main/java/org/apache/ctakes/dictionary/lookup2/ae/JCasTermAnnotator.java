@@ -19,9 +19,13 @@
 package org.apache.ctakes.dictionary.lookup2.ae;
 
 import org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary;
+import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
+import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
+import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.uima.analysis_component.AnalysisComponent;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * An annotator that looks up dictionary terms in text using
@@ -39,5 +43,18 @@ public interface JCasTermAnnotator extends AnalysisComponent {
     * @return Dictionaries that are used by this WindowProcessor
     */
    public Collection<RareWordDictionary> getDictionaries();
+
+   /**
+    * Given a dictionary, tokens, and lookup token indices, populate a terms collection with discovered terms
+    *
+    * @param dictionary          -
+    * @param allTokens           -
+    * @param lookupTokenIndices  -
+    * @param termsFromDictionary -
+    */
+   void findTerms( RareWordDictionary dictionary,
+                   List<FastLookupToken> allTokens,
+                   List<Integer> lookupTokenIndices,
+                   CollectionMap<TextSpan, Long, ? extends Collection<Long>> termsFromDictionary );
 
 }

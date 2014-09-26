@@ -2,31 +2,19 @@ package org.apache.ctakes.dictionary.lookup2.util.collection;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Author: SPF
  * Affiliation: CHIP-NLP
  * Date: 6/24/14
  */
-public interface CollectionMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>> {
-
-
-   public Set<K> keySet();
+public interface CollectionMap<K, V, T extends Collection<V>> extends Map<K, T>, Iterable<Map.Entry<K, T>> {
 
    /**
     * @return all of the collections for all keys
     */
-   public Collection<Collection<V>> getAllCollections();
+   public Collection<T> getAllCollections();
 
-
-   /**
-    * check the collection map for a key
-    *
-    * @param key key for internal collection
-    * @return <tt>true</tt> if this CollectionMap contain the key
-    */
-   public boolean containsKey( K key );
 
    /**
     * gets a collection mapped with key.  If one does not exist then an empty collection is returned
@@ -34,7 +22,7 @@ public interface CollectionMap<K, V> extends Iterable<Map.Entry<K, Collection<V>
     * @param key key for internal collection
     * @return collection mapped with key or an empty collection if there is none
     */
-   public Collection<V> getCollection( K key );
+   public T getCollection( K key );
 
    /**
     * obtains a collection mapped with key.  If one does not exist then one is added to this CollectionMap
@@ -42,7 +30,7 @@ public interface CollectionMap<K, V> extends Iterable<Map.Entry<K, Collection<V>
     * @param key key for internal collection
     * @return (possibly new) collection mapped with key
     */
-   public Collection<V> obtainCollection( K key );
+   public T obtainCollection( K key );
 
    /**
     * check the collection map for a key and value combination
@@ -85,7 +73,7 @@ public interface CollectionMap<K, V> extends Iterable<Map.Entry<K, Collection<V>
     * @param collection collection of values to place in internal collection
     * @return the number of new items added
     */
-   public int addAllValues( K key, Collection<V> collection );
+   public <C extends Collection<V>> int addAllValues( K key, C collection );
 
    /**
     * clearCollection the collection mapped with key
@@ -99,8 +87,7 @@ public interface CollectionMap<K, V> extends Iterable<Map.Entry<K, Collection<V>
     *
     * @return map of java.util.Collection
     */
-   public Map<K, Collection<V>> toSimpleMap();
+   public Map<K, T> toSimpleMap();
 
-   public boolean isEmpty();
 
 }

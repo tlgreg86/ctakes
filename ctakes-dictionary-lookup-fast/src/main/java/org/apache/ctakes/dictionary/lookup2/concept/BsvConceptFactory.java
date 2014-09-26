@@ -4,7 +4,7 @@ import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
 import org.apache.ctakes.dictionary.lookup2.util.TuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
-import org.apache.ctakes.dictionary.lookup2.util.collection.HashSetMap;
+import org.apache.ctakes.dictionary.lookup2.util.collection.EnumSetMap;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 
@@ -13,8 +13,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-
-import static org.apache.ctakes.dictionary.lookup2.concept.ConceptCode.TUI;
 
 /**
  * Author: SPF
@@ -35,15 +33,16 @@ final public class BsvConceptFactory implements ConceptFactory {
       this( name, properties.getProperty( BSV_FILE_PATH ) );
    }
 
-   public BsvConceptFactory( final String name,  final String bsvFilePath ) {
+   public BsvConceptFactory( final String name, final String bsvFilePath ) {
       this( name, new File( bsvFilePath ) );
    }
 
    public BsvConceptFactory( final String name, final File bsvFile ) {
       final Collection<CuiTuiTerm> cuiTuiTerms = parseBsvFile( bsvFile );
-      final Map<Long,Concept> conceptMap = new HashMap<>( cuiTuiTerms.size() );
+      final Map<Long, Concept> conceptMap = new HashMap<>( cuiTuiTerms.size() );
       for ( CuiTuiTerm cuiTuiTerm : cuiTuiTerms ) {
-         final CollectionMap<ConceptCode,String> codes = new HashSetMap<>( 1 );
+         final CollectionMap<ConceptCode, String, ? extends Collection<String>> codes
+               = new EnumSetMap<>( ConceptCode.class );
          codes.placeValue( ConceptCode.TUI, TuiCodeUtil.getAsTui( cuiTuiTerm.getTui() ) );
          conceptMap.put( CuiCodeUtil.getCuiCode( cuiTuiTerm.getCui() ),
                new Concept( cuiTuiTerm.getCui(), cuiTuiTerm.getPrefTerm(), codes ) );
@@ -51,29 +50,26 @@ final public class BsvConceptFactory implements ConceptFactory {
       _delegateFactory = new MemConceptFactory( name, conceptMap );
    }
 
-
    /**
-    * The Type identifier and Name are used to maintain a collection of dictionaries,
-    * so the combination of Type and Name should be unique for each dictionary if possible.
-    *
-    * @return simple name for the dictionary
+    * {@inheritDoc}
     */
+   @Override
    public String getName() {
       return _delegateFactory.getName();
    }
 
    /**
-    * @param cuiCode concept unique identifier
-    * @return the information about the concept that exists in the repository.
+    * {@inheritDoc}
     */
-   public Concept createConcept( final Long cuiCode )  {
+   @Override
+   public Concept createConcept( final Long cuiCode ) {
       return _delegateFactory.createConcept( cuiCode );
    }
 
    /**
-    * @param cuiCodes concept unique identifiers
-    * @return the information about the concepts that exist in the repository.
+    * {@inheritDoc}
     */
+   @Override
    public Map<Long, Concept> createConcepts( final Collection<Long> cuiCodes ) {
       return _delegateFactory.createConcepts( cuiCodes );
    }
@@ -100,8 +96,7 @@ final public class BsvConceptFactory implements ConceptFactory {
     */
    static private Collection<CuiTuiTerm> parseBsvFile( final File bsvFile ) {
       final Collection<CuiTuiTerm> cuiTuiTerms = new ArrayList<>();
-      try {
-         final BufferedReader reader = new BufferedReader( new FileReader( bsvFile ) );
+      try ( final BufferedReader reader = new BufferedReader( new FileReader( bsvFile ) ) ) {
          String line = reader.readLine();
          while ( line != null ) {
             if ( line.startsWith( "//" ) || line.startsWith( "#" ) ) {
@@ -128,7 +123,7 @@ final public class BsvConceptFactory implements ConceptFactory {
     * @param columns two or three columns representing CUI,Text or CUI,TUI,Text respectively
     * @return a term created from the columns or null if the columns are malformed
     */
-   static private CuiTuiTerm createCuiTuiTerm( final String[] columns ) {
+   static private CuiTuiTerm createCuiTuiTerm( final String... columns ) {
       if ( columns.length < 2 ) {
          return null;
       }
@@ -139,13 +134,13 @@ final public class BsvConceptFactory implements ConceptFactory {
          // third column is text, fourth column is preferred term text
          termIndex = 3;
       }
-      if ( columns[cuiIndex].trim().isEmpty() || columns[tuiIndex].trim().isEmpty() ) {
+      if ( columns[ cuiIndex ].trim().isEmpty() || columns[ tuiIndex ].trim().isEmpty() ) {
          return null;
       }
-      final String cui = columns[cuiIndex];
+      final String cui = columns[ cuiIndex ];
       // default for an empty tui column is tui 0 = unknown
-      final String tui = (columns[tuiIndex].trim().isEmpty()) ? "T000" : columns[tuiIndex].trim();
-      final String term = (termIndex < 0 || columns[termIndex].trim().isEmpty()) ? "" : columns[termIndex].trim();
+      final String tui = (columns[ tuiIndex ].trim().isEmpty()) ? "T000" : columns[ tuiIndex ].trim();
+      final String term = (termIndex < 0 || columns[ termIndex ].trim().isEmpty()) ? "" : columns[ termIndex ].trim();
       return new CuiTuiTerm( cui, tui, term );
    }
 

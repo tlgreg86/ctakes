@@ -47,36 +47,22 @@ abstract public class AbstractTermConsumer implements TermConsumer {
       _codingScheme = properties.getProperty( CODING_SCHEME_PRP_KEY );
    }
 
-
-
-   /**
-    * @param jcas           -
-    * @param codingScheme   -
-    * @param cTakesSemantic cTakes IdentifiedAnnotation only accepts an integer as a typeId
-    * @param textSpanCuis  map of spans to terms for those spans
-    * @param cuiConcepts     -
-    * @throws org.apache.uima.analysis_engine.AnalysisEngineProcessException
-    */
-   abstract protected void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int cTakesSemantic,
-                                              final CollectionMap<TextSpan, Long> textSpanCuis,
-                                              final CollectionMap<Long, Concept> cuiConcepts )
-         throws AnalysisEngineProcessException;
-
    /**
     * {@inheritDoc}
     */
    @Override
    public void consumeHits( final JCas jcas,
                             final RareWordDictionary dictionary,
-                            final CollectionMap<TextSpan, Long> textSpanCuis,
-                            final CollectionMap<Long, Concept> cuiConcepts )
+                            final CollectionMap<TextSpan, Long, ? extends Collection<Long>> textSpanCuis,
+                            final CollectionMap<Long, Concept, ? extends Collection<Concept>> cuiConcepts )
          throws AnalysisEngineProcessException {
       final String codingScheme = getCodingScheme();
       final Collection<Integer> usedcTakesSemantics = getUsedcTakesSemantics( cuiConcepts );
       // The dictionary may have more than one type, create a map of types to terms and use them all
+      final CollectionMap<TextSpan, Long, ? extends Collection<Long>> semanticCuis = new HashSetMap<>();
       for ( Integer cTakesSemantic : usedcTakesSemantics ) {
-         final CollectionMap<TextSpan, Long> semanticCuis = new HashSetMap<>();
-         for ( Map.Entry<TextSpan, Collection<Long>> spanCuis : textSpanCuis ) {
+         semanticCuis.clear();
+         for ( Map.Entry<TextSpan, ? extends Collection<Long>> spanCuis : textSpanCuis ) {
             for ( Long cuiCode : spanCuis.getValue() ) {
                final Collection<Concept> concepts = cuiConcepts.getCollection( cuiCode );
                if ( hascTakesSemantic( cTakesSemantic, concepts ) ) {
@@ -93,8 +79,8 @@ abstract public class AbstractTermConsumer implements TermConsumer {
    }
 
 
-
-   static protected Collection<Integer> getUsedcTakesSemantics( final CollectionMap<Long, Concept> cuiConcepts ) {
+   static protected Collection<Integer> getUsedcTakesSemantics(
+         final CollectionMap<Long, Concept, ? extends Collection<Concept>> cuiConcepts ) {
       final Collection<Integer> usedSemanticTypes = new HashSet<>();
       for ( Collection<Concept> concepts : cuiConcepts.getAllCollections() ) {
          for ( Concept concept : concepts ) {
@@ -105,7 +91,7 @@ abstract public class AbstractTermConsumer implements TermConsumer {
    }
 
    static private boolean hascTakesSemantic( final Integer cTakesSemantic,
-                                             final Collection<Concept> concepts  ) {
+                                             final Collection<Concept> concepts ) {
       for ( Concept concept : concepts ) {
          if ( concept.getCtakesSemantics().contains( cTakesSemantic ) ) {
             return true;

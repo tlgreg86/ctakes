@@ -2,7 +2,7 @@ package org.apache.ctakes.dictionary.lookup2.concept;
 
 import org.apache.ctakes.dictionary.lookup2.util.SemanticUtil;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
-import org.apache.ctakes.dictionary.lookup2.util.collection.HashSetMap;
+import org.apache.ctakes.dictionary.lookup2.util.collection.EnumSetMap;
 import org.apache.ctakes.dictionary.lookup2.util.collection.ImmutableCollectionMap;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 
@@ -23,7 +23,7 @@ final public class Concept {
 
    final private String _cui;
    final private String _preferredText;
-   final private CollectionMap<ConceptCode, String> _codes;
+   final private CollectionMap<ConceptCode, String, ? extends Collection<String>> _codes;
    final private Collection<Integer> _ctakesSemantics;
 
    final private int _hashcode;
@@ -33,10 +33,11 @@ final public class Concept {
    }
 
    public Concept( final String cui, final String preferredText ) {
-      this( cui, preferredText, new HashSetMap<ConceptCode, String>( 0 ) );
+      this( cui, preferredText, new EnumSetMap<ConceptCode, String>( ConceptCode.class ) );
    }
 
-   public Concept( final String cui, final String preferredText, final CollectionMap<ConceptCode, String> codes ) {
+   public Concept( final String cui, final String preferredText,
+                   final CollectionMap<ConceptCode, String, ? extends Collection<String>> codes ) {
       _cui = cui;
       _preferredText = preferredText;
       _codes = new ImmutableCollectionMap<>( codes );

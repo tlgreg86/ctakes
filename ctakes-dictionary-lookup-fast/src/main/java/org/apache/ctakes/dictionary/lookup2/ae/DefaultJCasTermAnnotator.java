@@ -44,7 +44,7 @@ final public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
    public void findTerms( final RareWordDictionary dictionary,
                           final List<FastLookupToken> allTokens,
                           final List<Integer> lookupTokenIndices,
-                          final CollectionMap<TextSpan, Long> termsFromDictionary ) {
+                          final CollectionMap<TextSpan, Long, ? extends Collection<Long>> termsFromDictionary ) {
       Collection<RareWordTerm> rareWordHits;
       for ( Integer lookupTokenIndex : lookupTokenIndices ) {
          final FastLookupToken lookupToken = allTokens.get( lookupTokenIndex );

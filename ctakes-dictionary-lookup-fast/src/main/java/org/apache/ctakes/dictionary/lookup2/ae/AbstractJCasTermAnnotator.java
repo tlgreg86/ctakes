@@ -36,6 +36,7 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorContextException;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
@@ -58,7 +59,7 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
       implements JCasTermAnnotator, WindowProcessor {
 
    // LOG4J logger based on interface name
-   final private Logger _logger = Logger.getLogger( "AbstractJCasTermAnnotator" );
+   final static private Logger LOGGER = Logger.getLogger( "AbstractJCasTermAnnotator" );
 
    /**
     * specifies the type of window to use for lookup
@@ -72,6 +73,11 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
     * optional minimum span for tokens that should not be used for lookup
     */
    static private final String MIN_SPAN_PRP_KEY = "minimumSpan";
+
+
+   static private final String DEFAULT_LOOKUP_WINDOW = "org.apache.ctakes.typesystem.type.textspan.Sentence";
+   static private final String DEFAULT_EXCLUSION_TAGS
+         = "VB,VBD,VBG,VBN,VBP,VBZ,CC,CD,DT,EX,IN,LS,MD,PDT,POS,PP,PP$,PRP,PRP$,RP,TO,WDT,WP,WPS,WRB";
 
    private DictionarySpec _dictionarySpec;
 
@@ -89,32 +95,36 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
    public void initialize( final UimaContext uimaContext ) throws ResourceInitializationException {
       super.initialize( uimaContext );
       try {
-         final String windowClassName = (String)uimaContext.getConfigParameterValue( WINDOW_ANNOT_PRP_KEY );
-         _logger.info( "Using dictionary lookup window type: " + windowClassName );
-         _lookupWindowType = JCasUtil.getType( windowClassName );
-
-         // optional exclusion POS tags
-         final String exclusionTags = (String)uimaContext.getConfigParameterValue( EXC_TAGS_PRP_KEY );
-         if ( exclusionTags != null ) {
-            final String[] tagArr = exclusionTags.split( "," );
-            for ( String tag : tagArr ) {
-               _exclusionPartsOfSpeech.add( tag.toUpperCase() );
-            }
-            final List<String> posList = new ArrayList<>( _exclusionPartsOfSpeech );
-            Collections.sort( posList );
-            final StringBuilder sb = new StringBuilder();
-            for ( String pos : posList ) {
-               sb.append( pos ).append( " " );
-            }
-            _logger.info( "Exclusion tagset loaded: " + sb.toString() );
+         String windowClassName = (String)uimaContext.getConfigParameterValue( WINDOW_ANNOT_PRP_KEY );
+         if ( windowClassName == null || windowClassName.isEmpty() ) {
+            windowClassName = DEFAULT_LOOKUP_WINDOW;
          }
+         LOGGER.info( "Using dictionary lookup window type: " + windowClassName );
+         _lookupWindowType = JCasUtil.getType( windowClassName );
+         // optional exclusion POS tags
+         String exclusionTags = (String)uimaContext.getConfigParameterValue( EXC_TAGS_PRP_KEY );
+         if ( exclusionTags == null ) {
+            // Notice that exclusion tags can be set to empty on purpose
+            exclusionTags = DEFAULT_EXCLUSION_TAGS;
+         }
+         final String[] tagArr = exclusionTags.split( "," );
+         for ( String tag : tagArr ) {
+            _exclusionPartsOfSpeech.add( tag.toUpperCase() );
+         }
+         final List<String> posList = new ArrayList<>( _exclusionPartsOfSpeech );
+         Collections.sort( posList );
+         final StringBuilder sb = new StringBuilder();
+         for ( String pos : posList ) {
+            sb.append( pos ).append( " " );
+         }
+         LOGGER.info( "Exclusion tagset loaded: " + sb.toString() );
 
          // optional minimum span, default is 3
          final Object minimumSpan = uimaContext.getConfigParameterValue( MIN_SPAN_PRP_KEY );
          if ( minimumSpan != null ) {
             _minimumLookupSpan = parseInt( minimumSpan, MIN_SPAN_PRP_KEY, _minimumLookupSpan );
          }
-         _logger.info( "Using minimum lookup token span: " + _minimumLookupSpan );
+         LOGGER.info( "Using minimum lookup token span: " + _minimumLookupSpan );
          final FileResource fileResource = (FileResource)uimaContext.getResourceObject( DICTIONARY_DESCRIPTOR_KEY );
          final File descriptorFile = fileResource.getFile();
          _dictionarySpec = DictionaryDescriptorParser.parseDescriptor( descriptorFile, uimaContext );
@@ -124,22 +134,21 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
    }
 
 
-
    /**
     * {@inheritDoc}
     */
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
-      _logger.debug( "Starting processing" );
+      LOGGER.debug( "Starting processing" );
       final JFSIndexRepository indexes = jcas.getJFSIndexRepository();
       final AnnotationIndex<Annotation> lookupWindows = indexes.getAnnotationIndex( _lookupWindowType );
       if ( lookupWindows == null ) {  // I don't trust AnnotationIndex.size(), so don't check
          return;
       }
-      final Map<RareWordDictionary, CollectionMap<TextSpan, Long>> dictionaryTermsMap
+      final Map<RareWordDictionary, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> dictionaryTermsMap
             = new HashMap<>( getDictionaries().size() );
       for ( RareWordDictionary dictionary : getDictionaries() ) {
-         final CollectionMap<TextSpan, Long> textSpanCuis = new HashSetMap<>();
+         final CollectionMap<TextSpan, Long, ? extends Collection<Long>> textSpanCuis = new HashSetMap<>();
          dictionaryTermsMap.put( dictionary, textSpanCuis );
       }
       try {
@@ -150,27 +159,29 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
          }
       } catch ( ArrayIndexOutOfBoundsException iobE ) {
          // JCasHashMap will throw this every once in a while.  Assume the windows are done and move on
-         _logger.warn( iobE.getMessage() );
+         LOGGER.warn( iobE.getMessage() );
       }
       // Let the consumer handle uniqueness and ordering - some may not care
       final Collection<Long> allDictionaryCuis = new HashSet<>();
-      for ( Map.Entry<RareWordDictionary, CollectionMap<TextSpan, Long>> dictionaryCuis : dictionaryTermsMap.entrySet() ) {
+      final CollectionMap<Long, Concept, ? extends Collection<Concept>> allConceptsMap = new HashSetMap<>();
+      for ( Map.Entry<RareWordDictionary, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> dictionaryCuis : dictionaryTermsMap
+            .entrySet() ) {
          allDictionaryCuis.clear();
          final RareWordDictionary dictionary = dictionaryCuis.getKey();
-         final CollectionMap<TextSpan, Long> textSpanCuis = dictionaryCuis.getValue();
+         final CollectionMap<TextSpan, Long, ? extends Collection<Long>> textSpanCuis = dictionaryCuis.getValue();
          for ( Collection<Long> cuiCodes : textSpanCuis.getAllCollections() ) {
             allDictionaryCuis.addAll( cuiCodes );
          }
          final Collection<ConceptFactory> conceptFactories
                = _dictionarySpec.getPairedConceptFactories( dictionary.getName() );
-         final CollectionMap<Long, Concept> allConceptsMap = new HashSetMap<>();
+         allConceptsMap.clear();
          for ( ConceptFactory conceptFactory : conceptFactories ) {
             final Map<Long, Concept> conceptMap = conceptFactory.createConcepts( allDictionaryCuis );
             allConceptsMap.placeMap( conceptMap );
          }
          _dictionarySpec.getConsumer().consumeHits( jcas, dictionary, textSpanCuis, allConceptsMap );
       }
-      _logger.debug( "Finished processing" );
+      LOGGER.debug( "Finished processing" );
    }
 
 
@@ -200,7 +211,7 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
     */
    @Override
    public void processWindow( final JCas jcas, final Annotation window,
-                              final Map<RareWordDictionary, CollectionMap<TextSpan, Long>> dictionaryTerms ) {
+                              final Map<RareWordDictionary, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> dictionaryTerms ) {
       final List<FastLookupToken> allTokens = new ArrayList<>();
       final List<Integer> lookupTokenIndices = new ArrayList<>();
       getAnnotationsInWindow( jcas, window, allTokens, lookupTokenIndices );
@@ -215,27 +226,15 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
     * @param lookupTokenIndices -
     * @param dictionaryTermsMap -
     */
-   private void findTerms( final Collection<RareWordDictionary> dictionaries,
+   private void findTerms( final Iterable<RareWordDictionary> dictionaries,
                            final List<FastLookupToken> allTokens, final List<Integer> lookupTokenIndices,
-                           final Map<RareWordDictionary, CollectionMap<TextSpan, Long>> dictionaryTermsMap ) {
+                           final Map<RareWordDictionary, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> dictionaryTermsMap ) {
       for ( RareWordDictionary dictionary : dictionaries ) {
-         CollectionMap<TextSpan, Long> termsFromDictionary = dictionaryTermsMap.get( dictionary );
+         CollectionMap<TextSpan, Long, ? extends Collection<Long>> termsFromDictionary = dictionaryTermsMap
+               .get( dictionary );
          findTerms( dictionary, allTokens, lookupTokenIndices, termsFromDictionary );
       }
    }
-
-   /**
-    * Given a dictionary, tokens, and lookup token indices, populate a terms collection with discovered terms
-    *
-    * @param dictionary          -
-    * @param allTokens           -
-    * @param lookupTokenIndices  -
-    * @param termsFromDictionary -
-    */
-   abstract void findTerms( RareWordDictionary dictionary,
-                            List<FastLookupToken> allTokens,
-                            List<Integer> lookupTokenIndices,
-                            CollectionMap<TextSpan, Long> termsFromDictionary );
 
 
    /**
@@ -247,10 +246,11 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
     * @param allTokens          filled with all tokens, including punctuation, etc.
     * @param lookupTokenIndices filled with indices of tokens to use for lookup
     */
-   protected void getAnnotationsInWindow( final JCas jcas, final Annotation window,
+   protected void getAnnotationsInWindow( final JCas jcas, final AnnotationFS window,
                                           final List<FastLookupToken> allTokens,
-                                          final List<Integer> lookupTokenIndices ) {
-      final List<BaseToken> allBaseTokens = org.apache.uima.fit.util.JCasUtil.selectCovered( jcas, BaseToken.class, window );
+                                          final Collection<Integer> lookupTokenIndices ) {
+      final List<BaseToken> allBaseTokens = org.apache.uima.fit.util.JCasUtil
+            .selectCovered( jcas, BaseToken.class, window );
       for ( BaseToken baseToken : allBaseTokens ) {
          if ( baseToken instanceof NewlineToken ) {
             continue;
@@ -273,17 +273,17 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
    }
 
 
-   protected int parseInt( final Object value, final String name, final int defaultValue ) {
+   static protected int parseInt( final Object value, final String name, final int defaultValue ) {
       if ( value instanceof Integer ) {
          return (Integer)value;
       } else if ( value instanceof String ) {
          try {
             return Integer.parseInt( (String)value );
          } catch ( NumberFormatException nfE ) {
-            _logger.warn( "Could not parse " + name + " " + value + " as an integer" );
+            LOGGER.warn( "Could not parse " + name + " " + value + " as an integer" );
          }
       } else {
-         _logger.warn( "Could not parse " + name + " " + value + " as an integer" );
+         LOGGER.warn( "Could not parse " + name + " " + value + " as an integer" );
       }
       return defaultValue;
    }

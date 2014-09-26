@@ -39,7 +39,7 @@ import java.util.*;
  */
 final public class PrecisionTermConsumer extends AbstractTermConsumer {
 
-   private final AbstractTermConsumer _idHitConsumer;
+   private final TermConsumer _idHitConsumer;
 
    public PrecisionTermConsumer( final UimaContext uimaContext, final Properties properties ) {
       super( uimaContext, properties );
@@ -52,11 +52,12 @@ final public class PrecisionTermConsumer extends AbstractTermConsumer {
     * {@inheritDoc}
     */
    @Override
-   protected void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int cTakesSemantic,
-                                     final CollectionMap<TextSpan, Long> semanticTerms,
-                                     final CollectionMap<Long, Concept> conceptMap )
+   public void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int cTakesSemantic,
+                                  final CollectionMap<TextSpan, Long, ? extends Collection<Long>> semanticTerms,
+                                  final CollectionMap<Long, Concept, ? extends Collection<Concept>> conceptMap )
          throws AnalysisEngineProcessException {
-      final CollectionMap<TextSpan, Long> preciseTerms = createPreciseTerms( semanticTerms );
+      final CollectionMap<TextSpan, Long, ? extends Collection<Long>> preciseTerms
+            = createPreciseTerms( semanticTerms );
       _idHitConsumer.consumeTypeIdHits( jcas, codingScheme, cTakesSemantic, preciseTerms, conceptMap );
    }
 
@@ -68,8 +69,8 @@ final public class PrecisionTermConsumer extends AbstractTermConsumer {
     * @param semanticTerms terms in the dictionary
     * @return terms with the longest spans
     */
-   static private CollectionMap<TextSpan, Long> createPreciseTerms(
-         final CollectionMap<TextSpan, Long> semanticTerms ) {
+   static private CollectionMap<TextSpan, Long, ? extends Collection<Long>> createPreciseTerms(
+         final CollectionMap<TextSpan, Long, ? extends Collection<Long>> semanticTerms ) {
       final Collection<TextSpan> discardSpans = new HashSet<>();
       final List<TextSpan> textSpans = new ArrayList<>( semanticTerms.keySet() );
       final int count = textSpans.size();
@@ -125,8 +126,9 @@ final public class PrecisionTermConsumer extends AbstractTermConsumer {
             }
          }
       }
-      final CollectionMap<TextSpan, Long> preciseHitMap = new HashSetMap<>( textSpans.size() - discardSpans.size() );
-      for ( Map.Entry<TextSpan, Collection<Long>> entry : semanticTerms ) {
+      final CollectionMap<TextSpan, Long, ? extends Collection<Long>> preciseHitMap = new HashSetMap<>(
+            textSpans.size() - discardSpans.size() );
+      for ( Map.Entry<TextSpan, ? extends Collection<Long>> entry : semanticTerms ) {
          if ( !discardSpans.contains( entry.getKey() ) ) {
             preciseHitMap.addAllValues( entry.getKey(), entry.getValue() );
          }

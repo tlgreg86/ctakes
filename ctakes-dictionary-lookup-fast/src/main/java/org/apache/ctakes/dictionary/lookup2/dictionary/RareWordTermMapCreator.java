@@ -21,11 +21,13 @@ package org.apache.ctakes.dictionary.lookup2.dictionary;
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
 import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
-import org.apache.ctakes.dictionary.lookup2.util.TuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.collection.ArrayListMap;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -147,8 +149,9 @@ final public class RareWordTermMapCreator {
          "how", "where", "when", "however", "wherever", "whenever",
    };
 
-   static public CollectionMap<String, RareWordTerm> createRareWordTermMap( final Collection<CuiTerm> cuiTerms ) {
-      final CollectionMap<String, RareWordTerm> rareWordTermMap = new ArrayListMap<>();
+   static public CollectionMap<String, RareWordTerm, List<RareWordTerm>> createRareWordTermMap(
+         final Iterable<CuiTerm> cuiTerms ) {
+      final CollectionMap<String, RareWordTerm, List<RareWordTerm>> rareWordTermMap = new ArrayListMap<>();
       final Map<String, Integer> tokenCountMap = createTokenCountMap( cuiTerms );
       for ( CuiTerm cuiTerm : cuiTerms ) {
          final String rareWord = getRareWord( cuiTerm.getTerm(), tokenCountMap );
@@ -164,7 +167,7 @@ final public class RareWordTermMapCreator {
       return rareWordTermMap;
    }
 
-   static private Map<String, Integer> createTokenCountMap( final Collection<CuiTerm> cuiTerms ) {
+   static private Map<String, Integer> createTokenCountMap( final Iterable<CuiTerm> cuiTerms ) {
       final Map<String, Integer> tokenCountMap = new HashMap<>();
       for ( CuiTerm cuiTerm : cuiTerms ) {
          final String[] tokens = LookupUtil.fastSplit( cuiTerm.getTerm(), ' ' );
@@ -185,9 +188,9 @@ final public class RareWordTermMapCreator {
    static private String getRareWord( final String tokenizedTerm, final Map<String, Integer> tokenCountMap ) {
       final String[] tokens = LookupUtil.fastSplit( tokenizedTerm, ' ' );
       if ( tokens.length == 1 ) {
-         return tokens[0];
+         return tokens[ 0 ];
       }
-      String bestWord = tokens[0];
+      String bestWord = tokens[ 0 ];
       int bestCount = Integer.MAX_VALUE;
       for ( String token : tokens ) {
          if ( isRarableToken( token ) ) {

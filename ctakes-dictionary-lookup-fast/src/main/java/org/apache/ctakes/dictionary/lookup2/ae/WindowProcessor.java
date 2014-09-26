@@ -24,6 +24,7 @@ import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -47,13 +48,13 @@ public interface WindowProcessor {
    /**
     * Processes a window of annotations for dictionary terms
     *
-    * @param jcas              -
-    * @param window            annotation in which to search for terms
+    * @param jcas            -
+    * @param window          annotation in which to search for terms
     * @param dictionaryTerms map of entity types and terms for those types in the window
     */
    void processWindow( JCas jcas,
                        Annotation window,
-                       Map<RareWordDictionary, CollectionMap<TextSpan, Long>> dictionaryTerms );
+                       Map<RareWordDictionary, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> dictionaryTerms );
 
 
 }

@@ -3,7 +3,7 @@ package org.apache.ctakes.dictionary.lookup2.concept;
 import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.TuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
-import org.apache.ctakes.dictionary.lookup2.util.collection.HashSetMap;
+import org.apache.ctakes.dictionary.lookup2.util.collection.EnumSetMap;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 
@@ -103,7 +103,8 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
    @Override
    public Concept createConcept( final Long cuiCode ) {
       final String prefTerm = (_selectPrefTermCall == null) ? null : getPreferredTerm( cuiCode );
-      final CollectionMap<ConceptCode, String> codes = new HashSetMap<>( 5 );
+      final CollectionMap<ConceptCode, String, ? extends Collection<String>> codes
+            = new EnumSetMap<>( ConceptCode.class );
       if ( _selectTuiCall != null ) {
          codes.addAllValues( TUI, getTuis( cuiCode ) );
       }
@@ -210,11 +211,10 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
     * @param cuiCode -
     * @throws SQLException if the {@code PreparedStatement} could not be created or changed
     */
-   private void fillSelectCall( final PreparedStatement selectCall, final Long cuiCode ) throws SQLException {
+   static private void fillSelectCall( final PreparedStatement selectCall, final Long cuiCode ) throws SQLException {
       selectCall.clearParameters();
       selectCall.setLong( 1, cuiCode );
    }
-
 
 
 }

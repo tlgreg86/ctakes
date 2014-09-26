@@ -33,7 +33,7 @@ import java.util.Collection;
 final public class MemRareWordDictionary extends AbstractRareWordDictionary {
 
    // Map of rare tokens to terms that contain those tokens.  Used like "First Word Token Lookup" but faster
-   final private CollectionMap<String, RareWordTerm> _rareWordTermMap;
+   final private CollectionMap<String, RareWordTerm, ? extends Collection<RareWordTerm>> _rareWordTermMap;
 
    /**
     * {@inheritDoc}
@@ -41,7 +41,7 @@ final public class MemRareWordDictionary extends AbstractRareWordDictionary {
     * @param rareWordTermMap Map with a Rare Word (tokens) as key, and RareWordTerm Collection as value
     */
    public MemRareWordDictionary( final String name,
-                                 final CollectionMap<String, RareWordTerm> rareWordTermMap ) {
+                                 final CollectionMap<String, RareWordTerm, ? extends Collection<RareWordTerm>> rareWordTermMap ) {
       super( name );
       _rareWordTermMap = rareWordTermMap;
    }
