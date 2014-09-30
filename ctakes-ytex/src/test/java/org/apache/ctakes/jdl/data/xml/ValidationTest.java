@@ -66,8 +66,6 @@ public class ValidationTest {
 	public void setSchema() {
 		validation.setSchema(SchemaUtil.urlToSchema(XSD));
 		assertThat(validation.getError(), nullValue());
-		validation.setSchema(XSD.getPath());
-		assertThat(validation.getError(), nullValue());
 	}
 
 	@Theory
