@@ -42,7 +42,7 @@ final public class LookupUtil {
    static public String[] fastSplit( final String line, final char c ) {
       int nextSplit = line.indexOf( c );
       if ( nextSplit < 0 ) {
-         return new String[]{ line };
+         return new String[] { line };
       }
       final List<String> splits = new ArrayList<String>();
       int lastSplit = -1;
@@ -54,7 +54,7 @@ final public class LookupUtil {
       if ( lastSplit + 1 < line.length() ) {
          splits.add( line.substring( lastSplit + 1 ) );
       }
-      return splits.toArray( new String[splits.size()] );
+      return splits.toArray( new String[ splits.size() ] );
    }
 
 }

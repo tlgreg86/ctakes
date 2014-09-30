@@ -87,7 +87,7 @@ final public class TokenMatchUtil {
          return false;
       }
       for ( int tokenCharIndex = 0; tokenCharIndex < tokenChars.length; tokenCharIndex++ ) {
-         if ( tokenChars[tokenCharIndex] != rareWordHitChars[hitCharIndex + tokenCharIndex] ) {
+         if ( tokenChars[ tokenCharIndex ] != rareWordHitChars[ hitCharIndex + tokenCharIndex ] ) {
             return false;
          }
       }
