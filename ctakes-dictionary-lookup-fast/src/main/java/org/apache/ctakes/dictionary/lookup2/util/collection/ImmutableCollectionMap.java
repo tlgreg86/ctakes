@@ -31,7 +31,7 @@ final public class ImmutableCollectionMap<K, V, T extends Collection<V>> impleme
     */
    @Override
    public Collection<T> getAllCollections() {
-      return new HashSet<>( _protectedMap.values() );
+      return Collections.unmodifiableCollection( _protectedMap.values() );
    }
 
    /**
@@ -39,6 +39,7 @@ final public class ImmutableCollectionMap<K, V, T extends Collection<V>> impleme
     */
    @Override
    public T getCollection( final K key ) {
+      // unfortunately, we cannot use an unmodifiable from Collections
       return _protectedMap.getCollection( key );
    }
 
@@ -47,7 +48,7 @@ final public class ImmutableCollectionMap<K, V, T extends Collection<V>> impleme
     */
    @Override
    public T obtainCollection( final K key ) {
-      return _protectedMap.obtainCollection( key );
+      return getCollection( key );
    }
 
 
