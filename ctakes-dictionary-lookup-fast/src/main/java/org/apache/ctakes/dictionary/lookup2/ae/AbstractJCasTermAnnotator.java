@@ -124,7 +124,7 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
          if ( minimumSpan != null ) {
             _minimumLookupSpan = parseInt( minimumSpan, MIN_SPAN_PRP_KEY, _minimumLookupSpan );
          }
-         LOGGER.info( "Using minimum lookup token span: " + _minimumLookupSpan );
+         LOGGER.info( "Using minimum term text span: " + _minimumLookupSpan );
          final FileResource fileResource = (FileResource)uimaContext.getResourceObject( DICTIONARY_DESCRIPTOR_KEY );
          final File descriptorFile = fileResource.getFile();
          _dictionarySpec = DictionaryDescriptorParser.parseDescriptor( descriptorFile, uimaContext );
@@ -202,7 +202,8 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
       final String coveredText = window.getCoveredText();
       return !coveredText.equals( "section id" )
              && !coveredText.startsWith( "[start section id" )
-             && !coveredText.startsWith( "[end section id" );
+             && !coveredText.startsWith( "[end section id" )
+             && !coveredText.startsWith( "[meta rev_" );
    }
 
 

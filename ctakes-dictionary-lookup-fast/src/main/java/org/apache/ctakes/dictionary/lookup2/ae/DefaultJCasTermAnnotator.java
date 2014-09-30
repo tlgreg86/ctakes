@@ -53,7 +53,7 @@ final public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
             continue;
          }
          for ( RareWordTerm rareWordHit : rareWordHits ) {
-            if ( lookupToken.getLength() < _minimumLookupSpan ) {
+            if ( rareWordHit.getText().length() < _minimumLookupSpan ) {
                continue;
             }
             if ( rareWordHit.getTokenCount() == 1 ) {
