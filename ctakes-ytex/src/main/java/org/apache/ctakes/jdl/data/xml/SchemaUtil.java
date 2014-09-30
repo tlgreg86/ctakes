@@ -19,10 +19,13 @@
 package org.apache.ctakes.jdl.data.xml;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URL;
 
 import javax.xml.XMLConstants;
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -44,11 +47,26 @@ public final class SchemaUtil {
 	 * @return the schema
 	 */
 	public static Schema srcToSchema(final String srcXsd) {
-		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		SchemaFactory factory = SchemaFactory
+				.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+
 		try {
-			return factory.newSchema(new File(srcXsd));
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
+			File f = new File(srcXsd);
+			if (f.exists())
+				return factory.newSchema(new File(srcXsd));
+			else {
+				InputStream is = null;
+				try {
+					is = SchemaUtil.class.getClassLoader().getResourceAsStream(
+							srcXsd);
+					return factory.newSchema(new StreamSource(is));
+				} finally {
+					if (is != null)
+						is.close();
+				}
+			}
+
+		} catch (SAXException | IOException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -60,7 +78,8 @@ public final class SchemaUtil {
 	 * @return the schema
 	 */
 	public static Schema urlToSchema(final URL url) {
-		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		SchemaFactory factory = SchemaFactory
+				.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		try {
 			return factory.newSchema(url);
 		} catch (SAXException e) {
@@ -76,9 +95,11 @@ public final class SchemaUtil {
 	 * @return the schema
 	 */
 	public static Schema strToSchema(final String strXsd) {
-		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		SchemaFactory factory = SchemaFactory
+				.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		try {
-			return factory.newSchema(new StreamSource(new StringReader(strXsd)));
+			return factory
+					.newSchema(new StreamSource(new StringReader(strXsd)));
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
