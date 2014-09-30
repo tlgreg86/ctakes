@@ -73,12 +73,11 @@ final public class MultiTextSpan implements TextSpan {
    @Override
    public int getLength() {
       int length = _end - _start + 1;
-      for  ( TextSpan missingSpan : _missingSpans ) {
+      for ( TextSpan missingSpan : _missingSpans ) {
          length -= missingSpan.getLength();
       }
       return length;
    }
-
 
 
    public Collection<TextSpan> getMissingSpans() {
