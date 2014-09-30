@@ -1,13 +1,17 @@
 package org.apache.ctakes.dictionary.lookup2.concept;
 
 import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
+import org.apache.ctakes.dictionary.lookup2.util.JdbcConnectionFactory;
 import org.apache.ctakes.dictionary.lookup2.util.TuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.util.collection.EnumSetMap;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Properties;
@@ -23,7 +27,7 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
 
 
    // LOG4J logger based on class name
-   final private Logger _logger = Logger.getLogger( getClass().getName() );
+   static final private Logger LOGGER = Logger.getLogger( "JdbcConceptFactory" );
 
 
    // TODO move to Constants class
@@ -39,7 +43,7 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
    static private final String ICD10_TABLE = "icd10Table";
 
 
-   final private Connection _connection;
+   //   final private Connection _connection;
    private PreparedStatement _selectTuiCall;
    private PreparedStatement _selectPrefTermCall;
    private PreparedStatement _selectSnomedCall;
@@ -49,7 +53,7 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
 
 
    public JdbcConceptFactory( final String name, final UimaContext uimaContext, final Properties properties )
-         throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+         throws SQLException {
       this( name,
             properties.getProperty( JDBC_DRIVER ), properties.getProperty( JDBC_URL ),
             properties.getProperty( JDBC_USER ), properties.getProperty( JDBC_PASS ),
@@ -64,35 +68,28 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
                               final String tuiName, final String prefTermName,
                               final String snomedName, final String rxnormName,
                               final String icd9Name, final String icd10Name )
-         throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+         throws SQLException {
       super( name );
+      boolean connected = false;
       try {
-         final Driver driver = (Driver)Class.forName( jdbcDriver ).newInstance();
-         DriverManager.registerDriver( driver );
+         // DO NOT use try with resources here.
+         // Try with resources uses a closable and closes it when exiting the try block
+         final Connection connection = JdbcConnectionFactory.getInstance()
+               .getConnection( jdbcDriver, jdbcUrl, jdbcUser, jdbcPass );
+         connected = connection != null;
+         _selectTuiCall = createSelectCall( connection, tuiName );
+         _selectPrefTermCall = createSelectCall( connection, prefTermName );
+         _selectSnomedCall = createSelectCall( connection, snomedName );
+         _selectRxNormCall = createSelectCall( connection, rxnormName );
+         _selectIcd9Call = createSelectCall( connection, icd9Name );
+         _selectIcd10Call = createSelectCall( connection, icd10Name );
       } catch ( SQLException sqlE ) {
-         _logger.error( "Could not register Driver " + jdbcDriver, sqlE );
-         throw new InstantiationException( "Could not register Driver " + jdbcDriver );
-      } catch ( ClassNotFoundException | InstantiationException | IllegalAccessException multE ) {
-         _logger.error( "Could not create Driver " + jdbcDriver, multE );
-         throw multE;
-      }
-      Connection connection = null;
-      try {
-         connection = DriverManager.getConnection( jdbcUrl, jdbcUser, jdbcPass );
-      } catch ( SQLException sqlE ) {
-         _logger.error( "Could not create Connection with " + jdbcUrl + " as " + jdbcUser, sqlE );
-         throw new InstantiationException( "Could not create Connection with " + jdbcUrl + " as " + jdbcUser );
-      }
-      _connection = connection;
-      try {
-         _selectTuiCall = createSelectCall( tuiName );
-         _selectPrefTermCall = createSelectCall( prefTermName );
-         _selectSnomedCall = createSelectCall( snomedName );
-         _selectRxNormCall = createSelectCall( rxnormName );
-         _selectIcd9Call = createSelectCall( icd9Name );
-         _selectIcd10Call = createSelectCall( icd10Name );
-      } catch ( SQLException sqlE ) {
-         _logger.error( "Could not create Concept Data Selection Call", sqlE );
+         if ( !connected ) {
+            LOGGER.error( "Could not Connect to Concept Factory " + name );
+         } else {
+            LOGGER.error( "Could not create Concept Data Selection Call", sqlE );
+         }
+         throw sqlE;
       }
    }
 
@@ -136,7 +133,7 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
          // it is up to the driver to implement this behavior ...  historically some drivers have not done so
          resultSet.close();
       } catch ( SQLException e ) {
-         _logger.error( e.getMessage() );
+         LOGGER.error( e.getMessage() );
       }
       return tuis;
    }
@@ -153,7 +150,7 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
          // it is up to the driver to implement this behavior ...  historically some drivers have not done so
          resultSet.close();
       } catch ( SQLException e ) {
-         _logger.error( e.getMessage() );
+         LOGGER.error( e.getMessage() );
       }
       return preferredName;
    }
@@ -171,7 +168,7 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
          // it is up to the driver to implement this behavior ...  historically some drivers have not done so
          resultSet.close();
       } catch ( SQLException e ) {
-         _logger.error( e.getMessage() );
+         LOGGER.error( e.getMessage() );
       }
       return codes;
    }
@@ -189,7 +186,7 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
          // it is up to the driver to implement this behavior ...  historically some drivers have not done so
          resultSet.close();
       } catch ( SQLException e ) {
-         _logger.error( e.getMessage() );
+         LOGGER.error( e.getMessage() );
       }
       return codes;
    }
@@ -198,12 +195,13 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
     * @param tableName -
     * @throws SQLException if the {@code PreparedStatement} could not be created or changed
     */
-   private PreparedStatement createSelectCall( final String tableName ) throws SQLException {
+   private PreparedStatement createSelectCall( final Connection connection, final String tableName )
+         throws SQLException {
       if ( tableName == null || tableName.isEmpty() || tableName.equalsIgnoreCase( "null" ) ) {
          return null;
       }
       final String lookupSql = "SELECT * FROM " + tableName + " WHERE CUI = ?";
-      return _connection.prepareStatement( lookupSql );
+      return connection.prepareStatement( lookupSql );
    }
 
 
