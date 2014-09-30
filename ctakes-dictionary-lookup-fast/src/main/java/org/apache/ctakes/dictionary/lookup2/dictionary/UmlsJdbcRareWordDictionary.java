@@ -6,6 +6,7 @@ import org.apache.ctakes.dictionary.lookup2.util.UmlsUserApprover;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Properties;
 
@@ -28,7 +29,7 @@ final public class UmlsJdbcRareWordDictionary implements RareWordDictionary {
 
 
    public UmlsJdbcRareWordDictionary( final String name, final UimaContext uimaContext, final Properties properties )
-         throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+         throws SQLException {
       final String umlsUrl = properties.getProperty( URL_PARAM );
       final String vendor = properties.getProperty( VENDOR_PARAM );
       final String user = properties.getProperty( USER_PARAM );
@@ -36,8 +37,9 @@ final public class UmlsJdbcRareWordDictionary implements RareWordDictionary {
       final boolean isValidUser = UmlsUserApprover.isValidUMLSUser( umlsUrl, vendor, user, pass );
       if ( !isValidUser ) {
          LOGGER.error( "UMLS Account at " + umlsUrl + " is not valid for user " + user + " with " + pass );
-         throw new InstantiationException();
+         throw new SQLException( "Invalid User for UMLS dictionary " + name );
       }
+      LOGGER.info( "UMLS Account at " + umlsUrl + " for user " + user + " has been validated" );
       _delegateDictionary = new JdbcRareWordDictionary( name, uimaContext, properties );
    }
 

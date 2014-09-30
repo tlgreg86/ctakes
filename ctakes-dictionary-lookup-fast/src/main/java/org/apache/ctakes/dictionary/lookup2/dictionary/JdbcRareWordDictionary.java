@@ -19,11 +19,14 @@
 package org.apache.ctakes.dictionary.lookup2.dictionary;
 
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
-import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
+import org.apache.ctakes.dictionary.lookup2.util.JdbcConnectionFactory;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -53,7 +56,7 @@ final public class JdbcRareWordDictionary extends AbstractRareWordDictionary {
    }
 
    // LOG4J logger based on class name
-   final private Logger _logger = Logger.getLogger( getClass().getName() );
+   static final private Logger LOGGER = Logger.getLogger( "JdbcRareWordDictionary" );
 
 
    // TODO move to Constants class
@@ -64,12 +67,12 @@ final public class JdbcRareWordDictionary extends AbstractRareWordDictionary {
    static private final String RARE_WORD_TABLE = "rareWordTable";
 
 
-   final private Connection _connection;
+   //   final private Connection _connection;
    private PreparedStatement _selectTermCall;
 
 
    public JdbcRareWordDictionary( final String name, final UimaContext uimaContext, final Properties properties )
-         throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+         throws SQLException {
       this( name,
             properties.getProperty( JDBC_DRIVER ), properties.getProperty( JDBC_URL ),
             properties.getProperty( JDBC_USER ), properties.getProperty( JDBC_PASS ),
@@ -83,56 +86,32 @@ final public class JdbcRareWordDictionary extends AbstractRareWordDictionary {
                                   final String jdbcUser,
                                   final String jdbcPass,
                                   final String tableName )
-         throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+         throws SQLException {
       super( name );
+      boolean connected = false;
       try {
-         final Driver driver = (Driver)Class.forName( jdbcDriver ).newInstance();
-         DriverManager.registerDriver( driver );
+         // DO NOT use try with resources here.  Try with resources uses a closable and closes it when exiting the try
+         final Connection connection = JdbcConnectionFactory.getInstance()
+               .getConnection( jdbcDriver, jdbcUrl, jdbcUser, jdbcPass );
+         connected = connection != null;
+         _selectTermCall = createSelectCall( connection, tableName );
       } catch ( SQLException sqlE ) {
-         _logger.error( "Could not register Driver " + jdbcDriver, sqlE );
-         throw new InstantiationException( "Could not register Driver " + jdbcDriver );
-      } catch ( ClassNotFoundException | InstantiationException | IllegalAccessException multE ) {
-         _logger.error( "Could not create Driver " + jdbcDriver, multE );
-         throw multE;
-      }
-      Connection connection = null;
-      try {
-         connection = DriverManager.getConnection( jdbcUrl, jdbcUser, jdbcPass );
-      } catch ( SQLException sqlE ) {
-         _logger.error( "Could not create Connection with " + jdbcUrl + " as " + jdbcUser, sqlE );
-         throw new InstantiationException( "Could not create Connection with " + jdbcUrl + " as " + jdbcUser );
-      }
-      _connection = connection;
-      try {
-         _selectTermCall = createSelectCall( tableName );
-      } catch ( SQLException sqlE ) {
-         _logger.error( "Could not create Term Data Selection Call", sqlE );
+         if ( !connected ) {
+            LOGGER.error( "Could not Connect to Dictionary " + name );
+         } else {
+            LOGGER.error( "Could not create Term Data Selection Call", sqlE );
+         }
+         throw sqlE;
       }
    }
 
-
-   /**
-    * @param connection database connection
-    * @param tableName  name of the database table to use for lookup.  Used as the simple name for the dictionary
-    */
-   public JdbcRareWordDictionary( final String name,
-                                  final Connection connection,
-                                  final String tableName ) {
-      super( name );
-      _connection = connection;
-      try {
-         _selectTermCall = createSelectCall( tableName );
-      } catch ( SQLException sqlE ) {
-         _logger.error( "Could not create Term Data Selection Call", sqlE );
-      }
-   }
 
    /**
     * {@inheritDoc}
     */
    @Override
    public Collection<RareWordTerm> getRareWordHits( final String rareWordText ) {
-      final List<RareWordTerm> rareWordTerms = new ArrayList<RareWordTerm>();
+      final List<RareWordTerm> rareWordTerms = new ArrayList<>();
       try {
          fillSelectCall( rareWordText );
          final ResultSet resultSet = _selectTermCall.executeQuery();
@@ -148,7 +127,7 @@ final public class JdbcRareWordDictionary extends AbstractRareWordDictionary {
          // it is up to the driver to implement this behavior ...  historically some drivers have not done so
          resultSet.close();
       } catch ( SQLException e ) {
-         _logger.error( e.getMessage() );
+         LOGGER.error( e.getMessage() );
       }
       return rareWordTerms;
    }
@@ -157,9 +136,10 @@ final public class JdbcRareWordDictionary extends AbstractRareWordDictionary {
     * @return an sql call to use for term lookup
     * @throws SQLException if the {@code PreparedStatement} could not be created or changed
     */
-   private PreparedStatement createSelectCall( final String tableName ) throws SQLException {
+   static private PreparedStatement createSelectCall( final Connection connection, final String tableName )
+         throws SQLException {
       final String lookupSql = "SELECT * FROM " + tableName + " WHERE RWORD = ?";
-      return _connection.prepareStatement( lookupSql );
+      return connection.prepareStatement( lookupSql );
    }
 
    /**
