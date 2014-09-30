@@ -38,7 +38,7 @@ final public class RareWordTerm {
 
    /**
     * @param text          full text of term
-    * @param cuiCode           umls cui for the term
+    * @param cuiCode       umls cui for the term
     * @param rareWord      rare word in the term that is used for lookup
     * @param rareWordIndex index of the rare word within the term
     * @param tokenCount    number of tokens within the term
