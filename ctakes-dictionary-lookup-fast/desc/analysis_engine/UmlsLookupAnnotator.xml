@@ -22,10 +22,12 @@
 <taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
    <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
    <primitive>true</primitive>
-   <annotatorImplementationName>org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator</annotatorImplementationName>
+   <annotatorImplementationName>org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator
+   </annotatorImplementationName>
    <analysisEngineMetaData>
       <name>UmlsLookupAnnotator</name>
-      <description>Lookup Annotator descriptor for Snomed Terms which are in a Rare Word -format Database, Ctakes</description>
+      <description>Lookup Annotator descriptor for Snomed Terms which are in a Rare Word -format Database, Ctakes
+      </description>
       <version/>
       <vendor/>
 
@@ -47,7 +49,7 @@
          </configurationParameter>
          <configurationParameter>
             <name>minimumSpan</name>
-            <description>Minimum required span length of tokens to use for lookup.  Default is 3</description>
+            <description>Minimum required span length of tokens to use for lookup. Default is 3</description>
             <type>String</type>
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
@@ -61,7 +63,7 @@
                <!--  LookupWindowAnnotation is supposed to be a refined Noun Phrase  -->
                <!--<string>org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation</string>-->
                <!--  In some instances LookupWindowAnnotation is missing tokens and Sentence can be used -->
-                 <string>org.apache.ctakes.typesystem.type.textspan.Sentence</string>
+               <string>org.apache.ctakes.typesystem.type.textspan.Sentence</string>
             </value>
          </nameValuePair>
          <nameValuePair>
@@ -89,7 +91,7 @@
             <inputs>
                <type allAnnotatorFeatures="true">org.apache.ctakes.typesystem.type.syntax.BaseToken</type>
                <!--<type allAnnotatorFeatures="true">org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation</type>-->
-                <type allAnnotatorFeatures="true">org.apache.ctakes.typesystem.type.textspan.Sentence</type>
+               <type allAnnotatorFeatures="true">org.apache.ctakes.typesystem.type.textspan.Sentence</type>
             </inputs>
             <outputs>
                <type allAnnotatorFeatures="true">org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</type>
@@ -122,7 +124,7 @@
             <name>DictionaryDescriptorFile</name>
             <description/>
             <fileResourceSpecifier>
-               <fileUrl>file:org/apache/ctakes/dictionary/fast/cTakesHsql.xml</fileUrl>
+               <fileUrl>file:org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml</fileUrl>
             </fileResourceSpecifier>
             <implementationName>org.apache.ctakes.core.resource.FileResourceImpl</implementationName>
          </externalResource>
