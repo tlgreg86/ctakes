@@ -99,7 +99,7 @@ final public class DictionaryDescriptorParser {
    static private final String PROPERTIES_KEY = "properties";
 
    // Added 'maxListSize'.  Size equals max int by default  - used for lucene dictionaries
-   private static int MAX_LIST_SIZE = Integer.MAX_VALUE; //ohnlp-Bugs-3296301
+   final private static int MAX_LIST_SIZE = Integer.MAX_VALUE; //ohnlp-Bugs-3296301
 
    /**
     * Initiates the parsing of the XML descriptor file containing definition of dictionaries and a consumer for the
@@ -115,6 +115,11 @@ final public class DictionaryDescriptorParser {
    static public DictionarySpec parseDescriptor( final File descriptorFile, final UimaContext uimaContext )
          throws AnnotatorContextException {
       LOGGER.info( "Parsing dictionary specifications: " + descriptorFile.getPath() );
+      if ( !descriptorFile.canRead() ) {
+         LOGGER.error( "Missing Dictionary specifications file " + descriptorFile.getPath() );
+         throw new AnnotatorContextException( "Missing Dictionary specifications file " + descriptorFile.getPath(),
+               EMPTY_OBJECT_ARRAY );
+      }
       final SAXBuilder saxBuilder = new SAXBuilder();
       Document doc;
       try {

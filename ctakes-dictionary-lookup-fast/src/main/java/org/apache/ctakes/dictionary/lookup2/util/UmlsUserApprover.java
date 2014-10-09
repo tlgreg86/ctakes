@@ -21,12 +21,12 @@ package org.apache.ctakes.dictionary.lookup2.util;
 import org.apache.ctakes.utils.env.EnvironmentVariable;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
-import org.apache.uima.resource.ResourceInitializationException;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.Properties;
 
 
 /**
@@ -39,11 +39,18 @@ import java.net.URLEncoder;
  */
 final public class UmlsUserApprover {
 
-
+   // environment, matches old
    private final static String UMLSADDR_PARAM = "ctakes.umlsaddr";
    private final static String UMLSVENDOR_PARAM = "ctakes.umlsvendor";
    private final static String UMLSUSER_PARAM = "ctakes.umlsuser";
    private final static String UMLSPW_PARAM = "ctakes.umlspw";
+
+   // properties, matches new
+   private final static String URL_PARAM = "umlsUrl";
+   private final static String VENDOR_PARAM = "umlsVendor";
+   private final static String USER_PARAM = "umlsUser";
+   private final static String PASS_PARAM = "umlsPass";
+
 
    static final private Logger LOGGER = Logger.getLogger( "UmlsUserApprover" );
 
@@ -51,53 +58,60 @@ final public class UmlsUserApprover {
    }
 
    /**
-    * Silently validate the UMLS license / user
+    * validate the UMLS license / user
     *
-    * @param aContext contains information about the UMLS license / user
-    * @throws ResourceInitializationException if the validation does not pass
+    * @param uimaContext contains information about the UMLS license / user
+    * @param properties  -
+    * @return true if the server at umlsaddr approves of the vendor, user, password combination
     */
-   static public void validateUMLSUser( final UimaContext aContext ) throws ResourceInitializationException {
-      final String umlsAddress = EnvironmentVariable.getEnv( UMLSADDR_PARAM, aContext );
-      final String umlsVendor = EnvironmentVariable.getEnv( UMLSVENDOR_PARAM, aContext );
-      final String umlsUser = EnvironmentVariable.getEnv( UMLSUSER_PARAM, aContext );
-      final String umlsPassword = EnvironmentVariable.getEnv( UMLSPW_PARAM, aContext );
-      LOGGER.info( "Using " + UMLSADDR_PARAM + ": " + umlsAddress + ": " + umlsUser );
-      if ( !isValidUMLSUser( umlsAddress, umlsVendor, umlsUser, umlsPassword ) ) {
-         LOGGER.error( "Error: Invalid UMLS License.  " +
-                       "A UMLS License is required to use the UMLS dictionary lookup. \n" +
-                       "Error: You may request one at: https://uts.nlm.nih.gov/license.html \n" +
-                       "Please verify your UMLS license settings in the " +
-                       "DictionaryLookupAnnotatorUMLS.xml configuration." );
-         throw new ResourceInitializationException( new Exception( "Failed to initilize.  Invalid UMLS License" ) );
+   public static boolean isValidUMLSUser( final UimaContext uimaContext, final Properties properties ) {
+      String umlsUrl = EnvironmentVariable.getEnv( UMLSADDR_PARAM, uimaContext );
+      if ( umlsUrl == null || umlsUrl.equals( EnvironmentVariable.NOT_PRESENT ) ) {
+         umlsUrl = properties.getProperty( URL_PARAM );
       }
+      String vendor = EnvironmentVariable.getEnv( UMLSVENDOR_PARAM, uimaContext );
+      if ( vendor == null || vendor.equals( EnvironmentVariable.NOT_PRESENT ) ) {
+         vendor = properties.getProperty( VENDOR_PARAM );
+      }
+      String user = EnvironmentVariable.getEnv( UMLSUSER_PARAM, uimaContext );
+      if ( user == null || user.equals( EnvironmentVariable.NOT_PRESENT ) ) {
+         user = properties.getProperty( USER_PARAM );
+      }
+      String pass = EnvironmentVariable.getEnv( UMLSPW_PARAM, uimaContext );
+      if ( pass == null || pass.equals( EnvironmentVariable.NOT_PRESENT ) ) {
+         pass = properties.getProperty( PASS_PARAM );
+      }
+      return isValidUMLSUser( umlsUrl, vendor, user, pass );
    }
 
    /**
-    * @param umlsaddr -
-    * @param vendor   -
-    * @param username -
-    * @param password -
+    * validate the UMLS license / user
+    *
+    * @param umlsUrl -
+    * @param vendor  -
+    * @param user    -
+    * @param pass    -
     * @return true if the server at umlsaddr approves of the vendor, user, password combination
     */
-   public static boolean isValidUMLSUser( final String umlsaddr, final String vendor,
-                                          final String username, final String password ) {
+   public static boolean isValidUMLSUser( final String umlsUrl, final String vendor,
+                                          final String user, final String pass ) {
       String data;
       try {
          data = URLEncoder.encode( "licenseCode", "UTF-8" ) + "=" + URLEncoder.encode( vendor, "UTF-8" );
-         data += "&" + URLEncoder.encode( "user", "UTF-8" ) + "=" + URLEncoder.encode( username, "UTF-8" );
-         data += "&" + URLEncoder.encode( "password", "UTF-8" ) + "=" + URLEncoder.encode( password, "UTF-8" );
+         data += "&" + URLEncoder.encode( "user", "UTF-8" ) + "=" + URLEncoder.encode( user, "UTF-8" );
+         data += "&" + URLEncoder.encode( "password", "UTF-8" ) + "=" + URLEncoder.encode( pass, "UTF-8" );
       } catch ( UnsupportedEncodingException unseE ) {
-         LOGGER.error( "Could not encode URL for " + username + " with vendor license " + vendor );
+         LOGGER.error( "Could not encode URL for " + user + " with vendor license " + vendor );
          return false;
       }
       try {
-         final URL url = new URL( umlsaddr );
+         final URL url = new URL( umlsUrl );
          final URLConnection connection = url.openConnection();
          connection.setDoOutput( true );
          final OutputStreamWriter writer = new OutputStreamWriter( connection.getOutputStream() );
          writer.write( data );
          writer.flush();
-         boolean result = false;
+         boolean isValidUser = false;
          final BufferedReader reader = new BufferedReader( new InputStreamReader( connection.getInputStream() ) );
          String line;
          while ( (line = reader.readLine()) != null ) {
@@ -105,11 +119,16 @@ final public class UmlsUserApprover {
             if ( trimline.isEmpty() ) {
                break;
             }
-            result = trimline.equalsIgnoreCase( "<Result>true</Result>" );
+            isValidUser = trimline.equalsIgnoreCase( "<Result>true</Result>" );
          }
          writer.close();
          reader.close();
-         return result;
+         if ( isValidUser ) {
+            LOGGER.info( "UMLS Account at " + umlsUrl + " for user " + user + " has been validated" );
+         } else {
+            LOGGER.error( "UMLS Account at " + umlsUrl + " is not valid for user " + user + " with " + pass );
+         }
+         return isValidUser;
       } catch ( IOException ioE ) {
          LOGGER.error( ioE.getMessage() );
          return false;
