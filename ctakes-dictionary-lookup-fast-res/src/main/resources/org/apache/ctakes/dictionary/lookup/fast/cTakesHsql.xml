@@ -24,8 +24,7 @@
    <dictionaries>
       <dictionary>
          <name>UmlsHsqlRareWord</name>
-         <implementationName>org.apache.ctakes.dictionary.lookup2.dictionary.UmlsJdbcRareWordDictionary
-         </implementationName>
+         <implementationName>org.apache.ctakes.dictionary.lookup2.dictionary.UmlsJdbcRareWordDictionary</implementationName>
          <properties>
             <property key="jdbcDriver" value="org.hsqldb.jdbcDriver"/>
             <property key="jdbcUrl"
