@@ -32,6 +32,8 @@ import org.apache.ctakes.temporal.ae.feature.selection.Chi2FeatureSelection;
 import org.apache.ctakes.temporal.ae.feature.selection.FeatureSelection;
 import org.apache.ctakes.temporal.utils.SMOTEplus;
 import org.apache.ctakes.typesystem.type.constants.CONST;
+import org.apache.ctakes.typesystem.type.refsem.Event;
+import org.apache.ctakes.typesystem.type.refsem.EventProperties;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -358,7 +360,17 @@ public class EventAnnotator extends TemporalEntityAnnotator_ImplBase {
 
       // during prediction, convert chunk labels to events and add them to the CAS
       if (!this.isTraining()) {
-        this.eventChunking.createChunks(jCas, tokens, outcomes);
+        List<EventMention> createdEvents = this.eventChunking.createChunks(jCas, tokens, outcomes);
+        for(EventMention mention : createdEvents){
+          if(mention.getEvent() == null){
+            Event event = new Event(jCas);
+            EventProperties props = new EventProperties(jCas);
+            props.addToIndexes();
+            event.setProperties(props);
+            mention.setEvent(event);
+            event.addToIndexes();
+          }
+        }
       }
     }
     if(this.isTraining() && this.smoteNumOfNeighbors >= 1){ //add synthetic instances to datawriter, if smote is selected
