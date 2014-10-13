@@ -24,14 +24,21 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.syntax.ContractionToken;
+import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
+import org.apache.ctakes.typesystem.type.syntax.NumToken;
+import org.apache.ctakes.typesystem.type.syntax.PunctuationToken;
+import org.apache.ctakes.typesystem.type.syntax.SymbolToken;
 import org.apache.ctakes.typesystem.type.syntax.TerminalTreebankNode;
 import org.apache.ctakes.typesystem.type.syntax.TopTreebankNode;
 import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
+import org.apache.ctakes.typesystem.type.syntax.WordToken;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
@@ -46,6 +53,7 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.StringArray;
+import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.FileUtils;
 import org.apache.uima.util.Level;
@@ -62,6 +70,8 @@ public class THYMETreebankReader extends JCasAnnotator_ImplBase {
 	protected File treebankDirectory;
 	File[] subdirs = null;
 
+	enum TOKEN_TYPE {WORD, PUNCT, SYMBOL, NUM, NEWLINE, CONTRACTION }
+	
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
@@ -127,8 +137,24 @@ public class THYMETreebankReader extends JCasAnnotator_ImplBase {
 		for(Sentence sent : sents){
 			sent.removeFromIndexes();
 		}
+		HashMap<String,TOKEN_TYPE> tokMap = new HashMap<>();
 		List<BaseToken> toks = new ArrayList<BaseToken>(JCasUtil.select(jcas, BaseToken.class));
 		for(BaseToken tok : toks){
+		  String key = getAnnotationKey(tok);
+		  
+		  if(tok instanceof WordToken){
+		    tokMap.put(key, TOKEN_TYPE.WORD);
+		  }else if(tok instanceof PunctuationToken){
+		    tokMap.put(key, TOKEN_TYPE.PUNCT);
+		  }else if(tok instanceof SymbolToken){
+		    tokMap.put(key, TOKEN_TYPE.SYMBOL);
+		  }else if(tok instanceof NumToken){
+		    tokMap.put(key,  TOKEN_TYPE.NUM);
+		  }else if(tok instanceof NewlineToken){
+		    tokMap.put(key, TOKEN_TYPE.NEWLINE);
+		  }else if(tok instanceof ContractionToken){
+		    tokMap.put(key, TOKEN_TYPE.CONTRACTION);
+		  }
 			tok.removeFromIndexes();
 		}
 		
@@ -144,11 +170,39 @@ public class THYMETreebankReader extends JCasAnnotator_ImplBase {
 			// create the Tokens and add them to the Sentence
 			for (int i = 0; i < tree.getTerminals().size(); i++) {
 				TreebankNode leaf = tree.getTerminals(i);
-				if (leaf.getBegin() != leaf.getEnd()) {
-					BaseToken token = new BaseToken(jcas, leaf.getBegin(), leaf.getEnd());
-					token.setPartOfSpeech(leaf.getNodeType());
-					token.addToIndexes();
-				}
+        if (leaf.getBegin() != leaf.getEnd()) {
+          String key = getAnnotationKey(leaf);
+          BaseToken token = null;
+          if(tokMap.containsKey(key)){
+            TOKEN_TYPE tokType = tokMap.get(key);
+            switch(tokType){            
+            case CONTRACTION:
+              token = new ContractionToken(jcas, leaf.getBegin(), leaf.getEnd());
+              break;
+            case NEWLINE:
+              token = new NewlineToken(jcas, leaf.getBegin(), leaf.getEnd());
+              break;
+            case NUM:
+              token = new NumToken(jcas, leaf.getBegin(), leaf.getEnd());
+              break;
+            case PUNCT:
+              token = new PunctuationToken(jcas, leaf.getBegin(), leaf.getEnd());
+              break;
+            case SYMBOL:
+              token = new SymbolToken(jcas, leaf.getBegin(), leaf.getEnd());
+              break;
+            case WORD:
+              token = new WordToken(jcas, leaf.getBegin(), leaf.getEnd());
+              break;
+            default:
+              token = new BaseToken(jcas, leaf.getBegin(), leaf.getEnd());
+            }
+          }else{
+            token = new BaseToken(jcas, leaf.getBegin(), leaf.getEnd());
+          }
+          token.setPartOfSpeech(leaf.getNodeType());
+          token.addToIndexes();
+        }
 			}
 		}
 	}
@@ -263,5 +317,9 @@ public class THYMETreebankReader extends JCasAnnotator_ImplBase {
 		while(m.find()){
 			System.out.println("FOund match at: " + m.start() + "-" + m.end());
 		}
+	}
+	
+	public static final String getAnnotationKey(Annotation a){
+	  return a.getBegin() + "-" + a.getEnd();
 	}
 }
