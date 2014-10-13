@@ -48,23 +48,30 @@ import org.cleartk.ml.jar.JarClassifierBuilder;
 
 import com.google.common.collect.Maps;
 import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
 
 public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotationSpans_ImplBase {
   public static int nFolds = 5;
   private List<Integer> allTrain = null;
+  private boolean skipTrainComponents = false;
   
+  interface MetaOptions extends Options {
+    @Option
+    boolean getSkipTrainComponents();  
+  }
+
   public EvaluationOfMetaTimeExpressionExtractor(File baseDirectory,
       File rawTextDirectory, File xmlDirectory,
       org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat xmlFormat,
       File xmiDirectory, File treebankDirectory,
       List<Integer> allTrain, Class<? extends Annotation> annotationClass) {
     super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory,
-        treebankDirectory, annotationClass);
+        treebankDirectory, null, annotationClass);
     this.allTrain = allTrain;
   }
 
   public static void main(String[] args) throws Exception {
-    Options options = CliFactory.parseArguments(Options.class, args);
+    MetaOptions options = CliFactory.parseArguments(MetaOptions.class, args);
     List<Integer> patientSets = options.getPatients().getList();
     List<Integer> trainItems = null;
     List<Integer> devItems = null;
@@ -98,70 +105,78 @@ public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotat
             options.getTreebankDirectory(),
             allTrain,
             TimeMention.class);
+    if(options.getSkipTrainComponents()) eval.setSkipTrainComponents(true);
     if(options.getI2B2Output()!=null) eval.setI2B2Output(options.getI2B2Output());
+    if(options.getPrintOverlappingSpans()) eval.printOverlapping = true;
     AnnotationStatistics<String> stats = eval.trainAndTest(allTrain, allTest);
     System.out.println(stats.toString());
+  }
+
+  private void setSkipTrainComponents(boolean skip) {
+    this.skipTrainComponents = skip;
   }
 
   @Override
   protected void train(CollectionReader collectionReader, File directory)
       throws Exception {
     
-    Class<? extends JCasAnnotator_ImplBase>[] annotatorClasses = MetaTimeAnnotator.getComponents();
-    
-    // add more annotator types?
-    Map<Class<? extends JCasAnnotator_ImplBase>, String[]> annotatorTrainingArguments = Maps.newHashMap();
-    annotatorTrainingArguments.put(BackwardsTimeAnnotator.class, new String[]{"-c", "0.3"});
-    annotatorTrainingArguments.put(TimeAnnotator.class, new String[]{"-c", "0.1"});
-    annotatorTrainingArguments.put(ConstituencyBasedTimeAnnotator.class, new String[]{"-c", "0.3"});
-    annotatorTrainingArguments.put(CRFTimeAnnotator.class, new String[]{"-p", "c2=0.03"});
-    
-    JCasIterator[] casIters = new JCasIterator[nFolds];
-    for (int fold = 0; fold < nFolds; ++fold) {
-      List<Integer> xfoldTrain = selectTrainItems(allTrain, nFolds, fold);
-      List<Integer> xfoldTest = selectTestItems(allTrain, nFolds, fold);
-      AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-      File modelDirectory = getModelDirectory(new File("target/eval/time-spans/fold_"+fold));
-      for (Class<? extends JCasAnnotator_ImplBase> annotatorClass : annotatorClasses) {
-        EvaluationOfTimeSpans evaluation = new EvaluationOfTimeSpans(
-            new File("target/eval/time-spans/" ),
-            this.rawTextDirectory,
-            this.xmlDirectory,
-            this.xmlFormat,
-            this.xmiDirectory,
-            this.treebankDirectory,
-            1,
-            0,
-            annotatorClass,
-            false,
-            annotatorTrainingArguments.get(annotatorClass));
-        evaluation.prepareXMIsFor(allTrain);
-        String name = String.format("%s.errors", annotatorClass.getSimpleName());
-        evaluation.setLogging(Level.FINE, new File("target/eval", name));
+    if(!this.skipTrainComponents){
+      Class<? extends JCasAnnotator_ImplBase>[] annotatorClasses = MetaTimeAnnotator.getComponents();
 
-        // train on 4 of the folds of the training data:
-        evaluation.train(evaluation.getCollectionReader(xfoldTrain), modelDirectory);
-        if(fold == 0){
-          // train the main model as well:
-          evaluation.train(evaluation.getCollectionReader(allTrain), directory);
+      // add more annotator types?
+      Map<Class<? extends JCasAnnotator_ImplBase>, String[]> annotatorTrainingArguments = Maps.newHashMap();
+      annotatorTrainingArguments.put(BackwardsTimeAnnotator.class, new String[]{"-c", "0.1"});
+      annotatorTrainingArguments.put(TimeAnnotator.class, new String[]{"-c", "0.1"});
+      annotatorTrainingArguments.put(ConstituencyBasedTimeAnnotator.class, new String[]{"-c", "0.3"});
+      annotatorTrainingArguments.put(CRFTimeAnnotator.class, new String[]{"-p", "c2=0.3"});
+
+      JCasIterator[] casIters = new JCasIterator[nFolds];
+      for (int fold = 0; fold < nFolds; ++fold) {
+        List<Integer> xfoldTrain = selectTrainItems(allTrain, nFolds, fold);
+        List<Integer> xfoldTest = selectTestItems(allTrain, nFolds, fold);
+        AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+        File modelDirectory = getModelDirectory(new File("target/eval/time-spans/fold_"+fold));
+        for (Class<? extends JCasAnnotator_ImplBase> annotatorClass : annotatorClasses) {
+          EvaluationOfTimeSpans evaluation = new EvaluationOfTimeSpans(
+              new File("target/eval/time-spans/" ),
+              this.rawTextDirectory,
+              this.xmlDirectory,
+              this.xmlFormat,
+              this.xmiDirectory,
+              this.treebankDirectory,
+              1,
+              0,
+              annotatorClass,
+              false,
+              annotatorTrainingArguments.get(annotatorClass));
+          evaluation.prepareXMIsFor(allTrain);
+          String name = String.format("%s.errors", annotatorClass.getSimpleName());
+          evaluation.setLogging(Level.FINE, new File("target/eval", name));
+
+          // train on 4 of the folds of the training data:
+          evaluation.train(evaluation.getCollectionReader(xfoldTrain), modelDirectory);
+          if(fold == 0){
+            // train the main model as well:
+            evaluation.train(evaluation.getCollectionReader(allTrain), directory);
+          }
+
         }
-        
+        casIters[fold] = new JCasIterator(getCollectionReader(xfoldTest), aggregateBuilder.createAggregate());
       }
-      casIters[fold] = new JCasIterator(getCollectionReader(xfoldTest), aggregateBuilder.createAggregate());
-    }
-    // run meta data-writer for this fold:
-    AggregateBuilder writerBuilder = new AggregateBuilder();
-    writerBuilder.add(CopyFromGold.getDescription(TimeMention.class));
-    writerBuilder.add(this.getDataWriterDescription(directory));
-    AnalysisEngine writer = writerBuilder.createAggregate();
-    for(JCasIterator casIter : casIters){
-      while(casIter.hasNext()){
-        JCas jcas = casIter.next();
-        SimplePipeline.runPipeline(jcas, writer);
+      // run meta data-writer for this fold:
+      AggregateBuilder writerBuilder = new AggregateBuilder();
+      writerBuilder.add(CopyFromGold.getDescription(TimeMention.class));
+      writerBuilder.add(this.getDataWriterDescription(directory));
+      AnalysisEngine writer = writerBuilder.createAggregate();
+      for(JCasIterator casIter : casIters){
+        while(casIter.hasNext()){
+          JCas jcas = casIter.next();
+          SimplePipeline.runPipeline(jcas, writer);
+        }
       }
+      writer.collectionProcessComplete();
     }
-    writer.collectionProcessComplete();
-    JarClassifierBuilder.trainAndPackage(getModelDirectory(directory), new String[]{"-p", "c2=0.3"});
+    JarClassifierBuilder.trainAndPackage(getModelDirectory(directory), new String[]{"-p", "c2=3.0"});
   }
   
   private static List<Integer> selectTrainItems(List<Integer> items, int numFolds, int fold) {
@@ -193,6 +208,7 @@ public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotat
 
   @Override
   protected void trainAndPackage(File directory) throws Exception {
+    System.err.println("\n\n***\n\n\nChanging the classifier setup\n\n\n");
     JarClassifierBuilder.trainAndPackage(getModelDirectory(directory), "-p", "c2=0.3");
   }
 
