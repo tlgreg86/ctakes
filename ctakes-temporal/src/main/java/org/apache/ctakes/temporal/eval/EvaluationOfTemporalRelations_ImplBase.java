@@ -101,7 +101,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
   public static class PreserveEventEventRelations extends JCasAnnotator_ImplBase {
     public static final String PARAM_GOLD_VIEW = "GoldView";
 
-    @ConfigurationParameter(name = PARAM_GOLD_VIEW)
+    @ConfigurationParameter(name = PARAM_GOLD_VIEW,mandatory=false)
     private String goldViewName = CAS.NAME_DEFAULT_SOFA;
 
     @Override
@@ -123,7 +123,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
   public static class RemoveNonContainsRelations extends JCasAnnotator_ImplBase {
     public static final String PARAM_RELATION_VIEW = "RelationView";
 
-    @ConfigurationParameter(name = PARAM_RELATION_VIEW)
+    @ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
     private String relationViewName = CAS.NAME_DEFAULT_SOFA;
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
