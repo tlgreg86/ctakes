@@ -47,13 +47,14 @@ public class EventPropertyExtractor implements FeatureExtractor1 {
 	  
 	  //1 get event:
 	  EventMention event = (EventMention)annotation;
-	  String contextModal = event.getEvent().getProperties().getContextualModality();
-	  if ( "GENERIC".equals(contextModal) ){
-		  Feature contexmod = new Feature(this.name, contextModal);
-		  features.add(contexmod);
-//		  logger.info("found a event: "+ contextModal);
+	  if(event.getEvent()!= null && event.getEvent().getProperties() != null){
+	    String contextModal = event.getEvent().getProperties().getContextualModality();
+	    if ( "GENERIC".equals(contextModal) ){
+	      Feature contexmod = new Feature(this.name, contextModal);
+	      features.add(contexmod);
+	      //		  logger.info("found a event: "+ contextModal);
+	    }
 	  }
-	  
 	  return features;
   }
 
