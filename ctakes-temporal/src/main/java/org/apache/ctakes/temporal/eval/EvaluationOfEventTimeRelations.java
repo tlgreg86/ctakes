@@ -530,7 +530,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 	public static class RemoveEventEventRelations extends JCasAnnotator_ImplBase {
 		public static final String PARAM_RELATION_VIEW = "RelationView";
-		@ConfigurationParameter(name = PARAM_RELATION_VIEW)
+		@ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
 		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
 
 		@Override
@@ -580,12 +580,12 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		public static final String PARAM_SENTENCE_VIEW = "SentenceView";
 
-		@ConfigurationParameter(name = PARAM_SENTENCE_VIEW)
+		@ConfigurationParameter(name = PARAM_SENTENCE_VIEW,mandatory=false)
 		private String sentenceViewName = CAS.NAME_DEFAULT_SOFA;
 
 		public static final String PARAM_RELATION_VIEW = "RelationView";
 
-		@ConfigurationParameter(name = PARAM_RELATION_VIEW)
+		@ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
 		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
 
 		@Override
