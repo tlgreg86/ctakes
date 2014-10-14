@@ -18,32 +18,67 @@
  */
 package org.apache.ctakes.assertion.medfacts.cleartk;
 
+import static org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine.FEATURE_CONFIG.PTK;
+import static org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine.FEATURE_CONFIG.PTK_FRAGS;
+import static org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine.FEATURE_CONFIG.STK;
+import static org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine.FEATURE_CONFIG.STK_FRAGS;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.ArrayList;
 
 import org.apache.ctakes.assertion.attributes.features.selection.Chi2FeatureSelection;
 import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AboveLeftFragmentExtractor;
+import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AssertionAboveLeftTreeExtractor;
+import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AssertionDependencyTreeExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ContextWordWindowExtractor;
+import org.apache.ctakes.assertion.medfacts.cleartk.extractors.DependencyPathRegexpFeatureExtractor;
+import org.apache.ctakes.assertion.medfacts.cleartk.extractors.DependencyWordsFragmentExtractor;
+import org.apache.ctakes.assertion.medfacts.cleartk.extractors.UncertaintyFeatureExtractor;
+import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.Instance;
-import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 public class UncertaintyCleartkAnalysisEngine extends AssertionCleartkAnalysisEngine {
 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
-		probabilityOfKeepingADefaultExample = 0.1;
+		probabilityOfKeepingADefaultExample = 0.5;
 		if(this.entityFeatureExtractors == null){
-			this.entityFeatureExtractors = new ArrayList<FeatureExtractor1>();
+			this.entityFeatureExtractors = new ArrayList<>();
 		}
 		this.entityFeatureExtractors.add(new ContextWordWindowExtractor("org/apache/ctakes/assertion/models/uncertainty.txt"));
-		this.entityFeatureExtractors.add(new AboveLeftFragmentExtractor("ALUncertainty", "org/apache/ctakes/assertion/models/sharpUncertaintyFrags.txt"));
+		this.entityFeatureExtractors.add(new UncertaintyFeatureExtractor());
+		try {
+      this.entityFeatureExtractors.add(new DependencyPathRegexpFeatureExtractor());
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+      throw new ResourceInitializationException(e);
+    }
+		
+		if(featConfig == STK_FRAGS){
+		  this.entityFeatureExtractors.add(new AboveLeftFragmentExtractor("AL_Unc", "org/apache/ctakes/assertion/models/jbi_paper_unc_seed_frags.txt"));
+		}
+		
+		if(featConfig == PTK_FRAGS){
+		  this.entityFeatureExtractors.add(new DependencyWordsFragmentExtractor("DW_Uncertainty", "org/apache/ctakes/assertion/models/jbi_paper_uncertainty_dw_frags.txt"));
+		}
+		if(featConfig == STK){
+		  this.entityTreeExtractors.add(new AssertionAboveLeftTreeExtractor());
+		}
+		
+		if(featConfig == PTK){
+		  this.entityTreeExtractors.add(new AssertionDependencyTreeExtractor());
+		}
 
 		initializeFeatureSelection();
 		
@@ -53,7 +88,7 @@ public class UncertaintyCleartkAnalysisEngine extends AssertionCleartkAnalysisEn
 	public void setClassLabel(IdentifiedAnnotation entityOrEventMention, Instance<String> instance) throws AnalysisEngineProcessException {
 		if (this.isTraining())
 	      {
-	        String uncertainty = (entityOrEventMention.getUncertainty() == 1) ? "uncertain" : "certain";
+	        String uncertainty = (entityOrEventMention.getUncertainty() == CONST.NE_UNCERTAINTY_PRESENT) ? "uncertain" : "certain";
 
 	        // downsampling. initialize probabilityOfKeepingADefaultExample to 1.0 for no downsampling
 	        if ("certain".equals(uncertainty) 
@@ -68,17 +103,17 @@ public class UncertaintyCleartkAnalysisEngine extends AssertionCleartkAnalysisEn
 	        int uncertainty = 0;
 	        if (label!= null && label.equals("uncertain"))
 	        {
-	          uncertainty = 1;
+	          uncertainty = CONST.NE_UNCERTAINTY_PRESENT;
 	        } else if (label != null && label.equals("certain"))
 	        {
-	          uncertainty = 0;
+	          uncertainty = CONST.NE_UNCERTAINTY_ABSENT;
 	        }
 	        entityOrEventMention.setUncertainty(uncertainty);
 	      }
 	}
 	
 	public static FeatureSelection<String> createFeatureSelection(double threshold) {
-		return new Chi2FeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
+		return new Chi2FeatureSelection<>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
 		//		  return new MutualInformationFeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME);
 	}
 
@@ -91,7 +126,7 @@ public class UncertaintyCleartkAnalysisEngine extends AssertionCleartkAnalysisEn
 	    if (featureSelectionThreshold == 0) {
 	    	this.featureSelection = null;
 	    } else {
-	    	this.featureSelection = this.createFeatureSelection(this.featureSelectionThreshold);
+	    	this.featureSelection = createFeatureSelection(this.featureSelectionThreshold);
 
 //	    	if ( (new File(this.featureSelectionURI)).exists() ) {
 //	    		try {
@@ -103,5 +138,15 @@ public class UncertaintyCleartkAnalysisEngine extends AssertionCleartkAnalysisEn
 	    }		
 	}
 	  
-
+  public static AnalysisEngineDescription createAnnotatorDescription(String modelPath) throws ResourceInitializationException {
+    return AnalysisEngineFactory.createEngineDescription(UncertaintyCleartkAnalysisEngine.class,
+        AssertionCleartkAnalysisEngine.PARAM_FEATURE_CONFIG,
+        AssertionCleartkAnalysisEngine.FEATURE_CONFIG.DEP_REGEX,
+        GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+        modelPath);
+  }
+  
+  public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
+    return createAnnotatorDescription("/org/apache/ctakes/assertion/models/uncertainty/model.jar");
+  }
 }
