@@ -26,10 +26,10 @@ import java.util.Scanner;
 
 import org.apache.ctakes.assertion.util.SemanticClasses;
 import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.utils.tree.FragmentUtils;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.cleartk.util.CleartkInitializationException;
@@ -40,7 +40,7 @@ import org.cleartk.util.CleartkInitializationException;
  * Model location is hardcoded as of right now.
  * TODO: Parameterize this so that, e.g., multiple projects could use this feature if necessary.
  */
-public abstract class TreeFragmentFeatureExtractor implements FeatureExtractor1 {
+public abstract class TreeFragmentFeatureExtractor implements FeatureExtractor1<IdentifiedAnnotation> {
 	public static final String PARAM_OUTPUTDIR = "outputDir";
 	public static final String PARAM_SEMDIR = "semDir";
 	protected HashSet<SimpleTree> frags = null;
@@ -55,7 +55,6 @@ public abstract class TreeFragmentFeatureExtractor implements FeatureExtractor1 
 		}catch(Exception e){
 		  throw new CleartkInitializationException(e, "org/apache/ctakes/assertion/all_cues.txt", "Could not find semantic classes resource.", new Object[]{});
 		}
-
 	}
 
 	private void initializeFrags(String resourceFilename){
@@ -74,5 +73,5 @@ public abstract class TreeFragmentFeatureExtractor implements FeatureExtractor1 
 	}
 
 	@Override
-	public abstract List<Feature> extract(JCas jcas, Annotation annotation);
+	public abstract List<Feature> extract(JCas jcas, IdentifiedAnnotation annotation);
 }

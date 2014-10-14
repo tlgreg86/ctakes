@@ -28,15 +28,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
-public class ContextWordWindowExtractor implements FeatureExtractor1 {
+public class ContextWordWindowExtractor implements FeatureExtractor1<IdentifiedAnnotation> {
 
 	private HashMap<String,Double> termVals = null;
 	private static final Pattern linePatt = Pattern.compile("^([^ ]+) : (.+)$");
@@ -82,7 +82,7 @@ public class ContextWordWindowExtractor implements FeatureExtractor1 {
 	}
 	
 	@Override
-	public List<Feature> extract(JCas view, Annotation mention)
+	public List<Feature> extract(JCas view, IdentifiedAnnotation mention)
 			throws CleartkExtractorException {
 		ArrayList<Feature> feats = new ArrayList<Feature>();
 		List<Sentence> sents = JCasUtil.selectCovering(view, Sentence.class, mention.getBegin(), mention.getEnd());

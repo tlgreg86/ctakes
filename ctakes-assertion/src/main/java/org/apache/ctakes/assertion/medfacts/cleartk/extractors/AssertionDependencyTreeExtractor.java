@@ -26,11 +26,11 @@ import org.apache.ctakes.assertion.util.AssertionTreeUtils;
 import org.apache.ctakes.assertion.util.SemanticClasses;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.TreeFeature;
 import org.cleartk.ml.feature.extractor.CleartkExtractorException;
@@ -39,7 +39,7 @@ import org.cleartk.util.CleartkInitializationException;
 
 import com.google.common.collect.Lists;
 
-public class AssertionDependencyTreeExtractor implements FeatureExtractor1 {
+public class AssertionDependencyTreeExtractor implements FeatureExtractor1<IdentifiedAnnotation> {
   protected SemanticClasses sems = null;
 
   public AssertionDependencyTreeExtractor() throws CleartkInitializationException {
@@ -51,7 +51,7 @@ public class AssertionDependencyTreeExtractor implements FeatureExtractor1 {
   }
   
   @Override
-  public List<Feature> extract(JCas jCas, Annotation arg1)
+  public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1)
       throws CleartkExtractorException {
     List<Feature> feats = Lists.newArrayList();
     TreeFeature f1 = null;

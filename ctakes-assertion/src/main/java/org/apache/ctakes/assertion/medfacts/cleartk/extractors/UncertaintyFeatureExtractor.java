@@ -29,14 +29,14 @@ import org.cleartk.ml.Feature;
 import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
-public class UncertaintyFeatureExtractor implements FeatureExtractor1 {
+public class UncertaintyFeatureExtractor implements FeatureExtractor1<IdentifiedAnnotation> {
 
   @Override
-  public List<Feature> extract(JCas view, Annotation focusAnnotation)
+  public List<Feature> extract(JCas view, IdentifiedAnnotation focusAnnotation)
       throws CleartkExtractorException {
-    List<Feature> featList = new ArrayList<Feature>();
+    List<Feature> featList = new ArrayList<>();
     
-    IdentifiedAnnotation mention = (IdentifiedAnnotation) focusAnnotation;
+    IdentifiedAnnotation mention = focusAnnotation;
     featList.add(new Feature("IsNegated", mention.getPolarity() == CONST.NE_POLARITY_NEGATION_PRESENT));
     return featList;
   }
