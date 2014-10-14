@@ -19,17 +19,27 @@
 package org.apache.ctakes.temporal.pipelines;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
+import org.apache.ctakes.temporal.ae.CoreferenceChainAnnotator;
+import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
+import org.apache.ctakes.temporal.ae.EventCoreferenceAnnotator;
 import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
+import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.analysis_engine.AnalysisEngine;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -41,14 +51,20 @@ public class FullTemporalExtractionPipeline extends
     @Option(
         shortName = "e",
         description = "specify the path to the directory where the trained event model is located",
-        defaultValue="target/eval/event-spans/train_and_test/")
+        defaultValue="org/apache/ctakes/temporal/ae/eventannotator/")
     public String getEventModelDirectory();
     
     @Option(
         shortName = "t",
         description = "specify the path to the directory where the trained event model is located",
-        defaultValue="target/eval/time-spans/train_and_test/BackwardsTimeAnnotator/")
+        defaultValue="/org/apache/ctakes/temporal/ae/timeannotator/")
     public String getTimeModelDirectory();
+    
+    @Option(
+        shortName = "d",
+        description = "specify the path to the directory where the trained event-doctime relation model is located",
+        defaultValue="/org/apache/ctakes/temporal/ae/doctimerel")
+    public String getDoctimerelModelDirectory();
     
     @Option(
         shortName = "r",
@@ -61,6 +77,12 @@ public class FullTemporalExtractionPipeline extends
         description = "Specify the path to the directory where the trained event-event relation model is located",
         defaultToNull=true) // add in default value once we have a satisfying trained model
     public String getEventEventRelationModelDirectory();  
+    
+    @Option(
+        shortName = "c",
+        description = "Specify the path to the directory where the trained coreference model is located",
+        defaultToNull=true)
+    public String getCoreferenceModelDirectory();
   }
 
   /**
@@ -75,12 +97,18 @@ public class FullTemporalExtractionPipeline extends
         FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
         options.getInputDirectory());
 
-    AggregateBuilder aggregateBuilder = getLightweightPreprocessorAggregateBuilder();
-    aggregateBuilder.add(EventAnnotator.createAnnotatorDescription(new File(options.getEventModelDirectory())));
-    aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(options.getTimeModelDirectory() + File.pathSeparator + "model.jar"));
+    AggregateBuilder aggregateBuilder = getPreprocessorAggregateBuilder();
+    aggregateBuilder.add(EventAnnotator.createAnnotatorDescription());
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyPropertiesToTemporalEventAnnotator.class));
+    aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription(options.getDoctimerelModelDirectory() + File.separator + "model.jar"));
+    aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(options.getTimeModelDirectory() + File.separator + "model.jar"));
     aggregateBuilder.add(EventTimeRelationAnnotator.createAnnotatorDescription(options.getEventTimeRelationModelDirectory() + File.separator + "model.jar"));
     if(options.getEventEventRelationModelDirectory()!=null){
       aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(options.getEventEventRelationModelDirectory() + File.separator + "model.jar"));
+    }
+    if(options.getCoreferenceModelDirectory()!=null){
+      aggregateBuilder.add(EventCoreferenceAnnotator.createAnnotatorDescription(options.getCoreferenceModelDirectory() + File.separator + "model.jar"));
+      aggregateBuilder.add(CoreferenceChainAnnotator.createAnnotatorDescription());
     }
     
     //aggregateBuilder.createEngineDescription().toXML(new FileWriter("desc/analysis_engine/TemporalAggregateUMLSPipeline.xml"));
@@ -92,4 +120,36 @@ public class FullTemporalExtractionPipeline extends
         xWriter);
   }
 
+  public static class CopyPropertiesToTemporalEventAnnotator extends JCasAnnotator_ImplBase {
+
+    @Override
+    public void process(JCas jcas) throws AnalysisEngineProcessException {
+      for(EventMention mention : JCasUtil.select(jcas, EventMention.class)){
+        // get temporal event mentions and not dictinoary-derived subclasses
+        // find either an exact matching span, or an end-matching span with the smallest overlap
+        if(mention.getClass().equals(EventMention.class)){
+          EventMention bestCovering = null;
+          int smallestSpan = Integer.MAX_VALUE;
+          for(EventMention covering : JCasUtil.selectCovering(EventMention.class, mention)){
+            if(covering.getClass().equals(EventMention.class)) continue;
+            if(covering.getBegin() == mention.getBegin() && covering.getEnd() == mention.getEnd()){
+              bestCovering = covering;
+              break;
+            }else if(covering.getEnd() == mention.getEnd()){
+              int span = covering.getEnd() - covering.getBegin();
+              if(span < smallestSpan){
+                span = smallestSpan;
+                bestCovering = covering;
+              }
+            }
+          }
+          if(bestCovering != null){
+            mention.setPolarity(bestCovering.getPolarity());
+//            mention.getEvent().getProperties().setPolarity(bestCovering.getPolarity());
+            mention.setUncertainty(bestCovering.getUncertainty());
+          }
+        }
+      }
+    }
+  }
 }
