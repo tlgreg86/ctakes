@@ -106,6 +106,14 @@ public abstract class AssertionCleartkAnalysisEngine extends
       description = "probability that a default example should be retained for training")
   protected double probabilityOfKeepingADefaultExample = 1.0;
 
+  public static final String PARAM_PORTION_OF_DATA_TO_USE = "PortionOfDataToUse";
+  @ConfigurationParameter(
+      name = PARAM_PORTION_OF_DATA_TO_USE,
+      mandatory = false,
+      description = "How much data to actually use during training (e.g. for building learning curves)"
+      )
+  protected double portionOfDataToUse=1.0;
+  
   public static final String PARAM_FEATURE_SELECTION_THRESHOLD = "WhetherToDoFeatureSelection"; // Accurate name? Actually uses the threshold, right?
 
   @ConfigurationParameter(
@@ -119,7 +127,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
       name = PARAM_FEATURE_CONFIG,
       description = "Feature configuration to use (for experiments)",
       mandatory = false
-  )protected FEATURE_CONFIG featConfig = FEATURE_CONFIG.ALL_SYN;
+  )protected FEATURE_CONFIG featConfig = FEATURE_CONFIG.NO_SYN;
 
   public static final String PARAM_FEATURE_SELECTION_URI = "FeatureSelectionURI";
 
@@ -129,7 +137,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
       description = "provides a URI where the feature selection data will be written")
   protected URI featureSelectionURI;
   
-  protected Random coin = new Random(0);
+  protected static Random coin = new Random(0);
 
   protected static final String FEATURE_SELECTION_NAME = "SelectNeighborFeatures";
 
@@ -164,12 +172,12 @@ public abstract class AssertionCleartkAnalysisEngine extends
 //private FeatureExtractor1 tokenFeatureExtractor;
 //  protected List<ContextExtractor<IdentifiedAnnotation>> contextFeatureExtractors;
 //  protected List<ContextExtractor<BaseToken>> tokenContextFeatureExtractors;
-  protected List<CleartkExtractor> contextFeatureExtractors;
-  protected List<CleartkExtractor> tokenContextFeatureExtractors;
-  protected List<CleartkExtractor> tokenCleartkExtractors;
-  protected List<FeatureExtractor1> entityFeatureExtractors;
-  protected List<FeatureExtractor1> entityTreeExtractors;
-  protected CleartkExtractor cuePhraseInWindowExtractor;
+  protected List<CleartkExtractor<IdentifiedAnnotation,BaseToken>> contextFeatureExtractors;
+  protected List<CleartkExtractor<IdentifiedAnnotation,BaseToken>> tokenContextFeatureExtractors;
+  protected List<CleartkExtractor<IdentifiedAnnotation,BaseToken>> tokenCleartkExtractors;
+  protected List<FeatureExtractor1<IdentifiedAnnotation>> entityFeatureExtractors;
+  protected List<FeatureExtractor1<IdentifiedAnnotation>> entityTreeExtractors;
+  protected CleartkExtractor<IdentifiedAnnotation,BaseToken> cuePhraseInWindowExtractor;
   
   protected List<FeatureFunctionExtractor> featureFunctionExtractors;
   protected FedaFeatureFunction ffDomainAdaptor;
@@ -215,19 +223,19 @@ public abstract class AssertionCleartkAnalysisEngine extends
     // a list of feature extractors that require only the token:
     // the stem of the word, the text of the word itself, plus
     // features created from the word text like character ngrams
-    this.entityFeatureExtractors = new ArrayList<FeatureExtractor1>();
+    this.entityFeatureExtractors = new ArrayList<>();
     
     // a list of feature extractors that require the token and the sentence
 //    this.contextFeatureExtractors = new ArrayList<CleartkExtractor>();
     
-    this.tokenCleartkExtractors = new ArrayList<CleartkExtractor>();
+    this.tokenCleartkExtractors = new ArrayList<>();
 
-    CleartkExtractor tokenExtraction1 = 
-    		new CleartkExtractor(
+    CleartkExtractor<IdentifiedAnnotation,BaseToken> tokenExtraction1 = 
+    		new CleartkExtractor<>(
     				BaseToken.class, 
 //    				new FeatureFunctionExtractor(new CoveredTextExtractor(), new LowerCaseFeatureFunction()),
 //            new FeatureFunctionExtractor(new CoveredTextExtractor(), new BrownClusterFeatureFunction()),
-    				new CoveredTextExtractor(),
+    				new CoveredTextExtractor<BaseToken>(),
     				//new CleartkExtractor.Covered(),
     				new CleartkExtractor.LastCovered(2),
     				new CleartkExtractor.Preceding(5),
@@ -265,7 +273,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
     CombinedExtractor1 baseExtractorCuePhraseCategory =
         new CombinedExtractor1
           (
-           new CoveredTextExtractor(),
+           new CoveredTextExtractor<BaseToken>(),
            new TypePathExtractor(AssertionCuePhraseAnnotation.class, "cuePhrase"),
            new TypePathExtractor(AssertionCuePhraseAnnotation.class, "cuePhraseCategory"),
            new TypePathExtractor(AssertionCuePhraseAnnotation.class, "cuePhraseAssertionFamily")
@@ -289,7 +297,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
     	// set up FeatureFunction for all the laggard, non-Extractor features
     	ffDomainAdaptor = new FedaFeatureFunction( new ArrayList<String>(new HashSet<String>(fileToDomain.values())) );
     }
-    entityTreeExtractors =  new ArrayList<FeatureExtractor1>();
+    entityTreeExtractors =  new ArrayList<FeatureExtractor1<IdentifiedAnnotation>>();
   }
 
   @Override
@@ -504,7 +512,9 @@ public abstract class AssertionCleartkAnalysisEngine extends
 
     	  // ensures that the (possibly) transformed feats are used
     	  if (instance.getOutcome()!=null) {
-    		  this.dataWriter.write(new Instance<String>(instance.getOutcome(),feats));
+    	    if(coin.nextDouble() < this.portionOfDataToUse){
+    	      this.dataWriter.write(new Instance<String>(instance.getOutcome(),feats));
+    	    }
     	  }
       }
     }
