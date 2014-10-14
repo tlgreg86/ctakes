@@ -41,6 +41,12 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<property name="conceptGraphName" value="${ytex.conceptGraphName}" />
 		<property name="conceptSetName" value="${ytex.conceptSetName}" />
 		<property name="preload" value="false" />
+		<property name="lcsCache">
+			<bean class="net.sf.ehcache.Cache" factory-bean="cacheManager"
+				factory-method="getCache">
+				<constructor-arg value="lcsCache" />
+			</bean>
+		</property>		
 	</bean>
 	<bean id="semanticSimBean" class="org.apache.ctakes.ytex.web.search.SemanticSimServiceBean">
 		<property name="conceptSearchService" ref="umlsFirstWordService" />
