@@ -40,4 +40,4 @@
 @rem -------------------------------------------
 
 @set ANT_CP=%CTAKES_HOME%\lib\ant-1.9.2.jar;%CTAKES_HOME%\lib\ant-launcher-1.9.2.jar;%CTAKES_HOME%\lib\ant-contrib-1.0b3.jar
-@set CLASSPATH="%CTAKES_HOME%/lib/*;%CTAKES_HOME%/desc/;%CTAKES_HOME%/resources/"
+@set CLASSPATH="%CTAKES_HOME%/desc/;%CTAKES_HOME%/resources/;%CTAKES_HOME%/lib/*"
