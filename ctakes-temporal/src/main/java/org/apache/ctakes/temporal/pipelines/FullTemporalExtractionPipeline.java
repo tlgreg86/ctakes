@@ -106,10 +106,10 @@ public class FullTemporalExtractionPipeline extends
     if(options.getEventEventRelationModelDirectory()!=null){
       aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(options.getEventEventRelationModelDirectory() + File.separator + "model.jar"));
     }
-    if(options.getCoreferenceModelDirectory()!=null){
-      aggregateBuilder.add(EventCoreferenceAnnotator.createAnnotatorDescription(options.getCoreferenceModelDirectory() + File.separator + "model.jar"));
-      aggregateBuilder.add(CoreferenceChainAnnotator.createAnnotatorDescription());
-    }
+//    if(options.getCoreferenceModelDirectory()!=null){
+//      aggregateBuilder.add(EventCoreferenceAnnotator.createAnnotatorDescription(options.getCoreferenceModelDirectory() + File.separator + "model.jar"));
+//      aggregateBuilder.add(CoreferenceChainAnnotator.createAnnotatorDescription());
+//    }
     
     //aggregateBuilder.createEngineDescription().toXML(new FileWriter("desc/analysis_engine/TemporalAggregateUMLSPipeline.xml"));
     AnalysisEngine xWriter = getXMIWriter(options.getOutputDirectory());
