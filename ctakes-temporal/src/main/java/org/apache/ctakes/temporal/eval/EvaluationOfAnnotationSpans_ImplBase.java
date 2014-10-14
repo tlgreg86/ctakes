@@ -79,8 +79,9 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 			XMLFormat xmlFormat,
 			File xmiDirectory,
 			File treebankDirectory,
+			File coreferenceDirectory,
 			Class<? extends Annotation> annotationClass) {
-		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, treebankDirectory);
+		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, treebankDirectory, coreferenceDirectory);
 		this.annotationClass = annotationClass;
 	}
 
@@ -91,7 +92,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 			XMLFormat xmlFormat,
 			File xmiDirectory,
 			Class<? extends Annotation> annotationClass) {
-		this(baseDirectory,rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null, annotationClass);
+		this(baseDirectory,rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null, null, annotationClass);
 	}
 
 	protected abstract AnalysisEngineDescription getDataWriterDescription(File directory)
@@ -113,7 +114,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 
 	protected abstract Collection<? extends Annotation> getGoldAnnotations(JCas jCas, Segment segment);
 
-	protected abstract Collection<? extends Annotation> getSystemAnnotations(JCas jCas, Segment segment);
+  protected abstract Collection<? extends Annotation> getSystemAnnotations(JCas jCas, Segment segment);
 
 	@Override
 	protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
@@ -135,6 +136,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 			JCas jCas = casIter.next();
 			JCas goldView = jCas.getView(GOLD_VIEW_NAME);
 			JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
+      this.logger.fine("Errors in : " + ViewUriUtil.getURI(jCas).toString());
 			for (Segment segment : JCasUtil.select(jCas, Segment.class)) {
 				if (!THYMEData.SEGMENTS_TO_SKIP.contains(segment.getId())) {
 					Collection<? extends Annotation> goldAnnotations = this.getGoldAnnotations(goldView, segment);
