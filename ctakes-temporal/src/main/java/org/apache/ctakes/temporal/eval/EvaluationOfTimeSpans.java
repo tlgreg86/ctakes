@@ -201,7 +201,7 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 			Class<? extends JCasAnnotator_ImplBase> annotatorClass,
 					boolean printOverlapping,
 					String[] trainingArguments) {
-		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, treebankDirectory, TimeMention.class);
+		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, treebankDirectory, null, TimeMention.class);
 		this.annotatorClass = annotatorClass;
 		this.featureSelectionThreshold = featureSelectionThreshold;
 		this.trainingArguments = trainingArguments;
