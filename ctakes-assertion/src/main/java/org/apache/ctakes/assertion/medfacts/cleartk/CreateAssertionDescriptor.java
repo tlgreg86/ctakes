@@ -34,11 +34,8 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.ConfigurationParameterFactory;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.CleartkAnnotator;
-import org.cleartk.ml.DataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
-import org.cleartk.ml.opennlp.maxent.MaxentStringOutcomeDataWriter;
-import org.mitre.medfacts.uima.ZoneAnnotator;
 
 public class CreateAssertionDescriptor
 {
@@ -81,23 +78,23 @@ public class CreateAssertionDescriptor
     AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceAnnotationsSystemAssertionClearer.class);
     builder.add(assertionAttributeClearerAnnotator);
     
-    String generalSectionRegexFileUri =
-        "org/mitre/medfacts/zoner/section_regex.xml";
-    AnalysisEngineDescription zonerAnnotator =
-        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
-            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
-            generalSectionRegexFileUri
-            );
-    builder.add(zonerAnnotator);
-
-    String mayoSectionRegexFileUri =
-        "org/mitre/medfacts/uima/mayo_sections.xml";
-    AnalysisEngineDescription mayoZonerAnnotator =
-        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
-            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
-            mayoSectionRegexFileUri
-            );
-    builder.add(mayoZonerAnnotator);
+//    String generalSectionRegexFileUri =
+//        "org/mitre/medfacts/zoner/section_regex.xml";
+//    AnalysisEngineDescription zonerAnnotator =
+//        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+//            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
+//            generalSectionRegexFileUri
+//            );
+//    builder.add(zonerAnnotator);
+//
+//    String mayoSectionRegexFileUri =
+//        "org/mitre/medfacts/uima/mayo_sections.xml";
+//    AnalysisEngineDescription mayoZonerAnnotator =
+//        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+//            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
+//            mayoSectionRegexFileUri
+//            );
+//    builder.add(mayoZonerAnnotator);
     
     
     AnalysisEngineDescription polarityAnnotator = AnalysisEngineFactory.createEngineDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
@@ -183,23 +180,23 @@ public class CreateAssertionDescriptor
     AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceAnnotationsSystemAssertionClearer.class);
     builder.add(assertionAttributeClearerAnnotator);
     
-    String generalSectionRegexFileUri =
-      "org/mitre/medfacts/zoner/section_regex.xml";
-    AnalysisEngineDescription zonerAnnotator =
-        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
-            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
-            generalSectionRegexFileUri
-            );
-    builder.add(zonerAnnotator);
-
-    String mayoSectionRegexFileUri =
-      "org/mitre/medfacts/uima/mayo_sections.xml";
-    AnalysisEngineDescription mayoZonerAnnotator =
-        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
-            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
-            mayoSectionRegexFileUri
-            );
-    builder.add(mayoZonerAnnotator);
+//    String generalSectionRegexFileUri =
+//      "org/mitre/medfacts/zoner/section_regex.xml";
+//    AnalysisEngineDescription zonerAnnotator =
+//        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+//            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
+//            generalSectionRegexFileUri
+//            );
+//    builder.add(zonerAnnotator);
+//
+//    String mayoSectionRegexFileUri =
+//      "org/mitre/medfacts/uima/mayo_sections.xml";
+//    AnalysisEngineDescription mayoZonerAnnotator =
+//        AnalysisEngineFactory.createPrimitiveDescription(ZoneAnnotator.class,
+//            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
+//            mayoSectionRegexFileUri
+//            );
+//    builder.add(mayoZonerAnnotator);
     
     AnalysisEngineDescription polarityAnnotator = AnalysisEngineFactory.createEngineDescription(PolarityCleartkAnalysisEngine.class); //,  this.additionalParamemters);
     ConfigurationParameterFactory.addConfigurationParameters(
