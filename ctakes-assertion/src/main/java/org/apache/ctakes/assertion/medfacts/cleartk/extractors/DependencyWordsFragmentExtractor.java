@@ -26,11 +26,11 @@ import org.apache.ctakes.assertion.util.AssertionDepUtils;
 import org.apache.ctakes.assertion.util.AssertionTreeUtils;
 import org.apache.ctakes.constituency.parser.util.TreeUtils;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 import org.cleartk.util.CleartkInitializationException;
 
@@ -41,7 +41,7 @@ public class DependencyWordsFragmentExtractor extends TreeFragmentFeatureExtract
   }
 
   @Override
-  public List<Feature> extract(JCas jCas, Annotation mention) {
+  public List<Feature> extract(JCas jCas, IdentifiedAnnotation mention) {
     List<Feature> features = new ArrayList<Feature>();
 
     List<Sentence> sents = JCasUtil.selectCovering(jCas, Sentence.class, mention.getBegin(), mention.getEnd());
