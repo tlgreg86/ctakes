@@ -29,18 +29,14 @@
 		<version>3.2.1-SNAPSHOT</version>
 	</parent>
 	<dependencies>
+    <dependency>
+      <groupId>org.apache.ctakes</groupId>
+      <artifactId>ctakes-type-system</artifactId>
+    </dependency>
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-assertion-res</artifactId>
 		</dependency>	    
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-assertion-zoner</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-type-system</artifactId>
-		</dependency>
     <dependency>
       <groupId>org.apache.ctakes</groupId>
       <artifactId>ctakes-dictionary-lookup</artifactId>
@@ -76,10 +72,6 @@
 		<dependency>
 			<groupId>org.cleartk</groupId>
 			<artifactId>cleartk-ml-opennlp-maxent</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.cleartk</groupId>
-			<artifactId>cleartk-util</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.cleartk</groupId>
@@ -224,6 +216,14 @@
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-chunker</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ctakes</groupId>
+			<artifactId>ctakes-relation-extractor</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.cleartk</groupId>
+			<artifactId>cleartk-ml-liblinear</artifactId>
 		</dependency>
 	</dependencies>	
 	<build>
