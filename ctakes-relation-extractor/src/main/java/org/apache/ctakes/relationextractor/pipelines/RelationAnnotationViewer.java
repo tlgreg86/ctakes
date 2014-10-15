@@ -77,37 +77,23 @@ public class RelationAnnotationViewer {
 
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
-
+      
       JCas systemView;
       try {
         systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
       } catch (CASException e) {
         throw new AnalysisEngineProcessException(e);
       }   
-      
+            
       for(BinaryTextRelation binaryTextRelation : JCasUtil.select(systemView, BinaryTextRelation.class)) {
 
         IdentifiedAnnotation entity1 = (IdentifiedAnnotation) binaryTextRelation.getArg1().getArgument();
         IdentifiedAnnotation entity2 = (IdentifiedAnnotation) binaryTextRelation.getArg2().getArgument();
 
         String category = binaryTextRelation.getCategory();
-        if(! category.equals("location_of")) {
-          continue;
-        }
-        
+
         String arg1 = entity1.getCoveredText().toLowerCase();
         String arg2 = entity2.getCoveredText().toLowerCase();
-        int type1 = entity1.getTypeID();
-        int type2 = entity2.getTypeID();
-        
-        // first argument has to be an anatomical site
-        if(type1 != CONST.NE_TYPE_ID_ANATOMICAL_SITE) {
-          continue;
-        }
-        // skip location_of(anatomical site, anatomical site)
-        if(type1 == CONST.NE_TYPE_ID_ANATOMICAL_SITE && type2 == CONST.NE_TYPE_ID_ANATOMICAL_SITE) {
-          continue; 
-        }
         
         List<Sentence> enclosingSentences = JCasUtil.selectCovering(
             systemView, 
@@ -115,7 +101,7 @@ public class RelationAnnotationViewer {
             entity1.getBegin(), 
             entity2.getEnd());
         
-        System.out.format("%s|%s|%s\n", arg1, arg2, enclosingSentences.get(0).getCoveredText());
+        System.out.format("%s|%s|%s|%s\n", category, arg1, arg2, enclosingSentences.get(0).getCoveredText());
       }
     }
   }
