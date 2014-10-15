@@ -38,14 +38,14 @@ public class NearbyVerbTenseRelationExtractor implements RelationFeaturesExtract
 	@Override
 	public List<Feature> extract(JCas jcas, IdentifiedAnnotation arg1,
 			IdentifiedAnnotation arg2) throws AnalysisEngineProcessException {
-		List<Feature> feats = new ArrayList<Feature>();
+		List<Feature> feats = new ArrayList<>();
 
 		//find event
-		EventMention event = null;
+		List<EventMention> events = new ArrayList<>();
 		if(arg1 instanceof EventMention){
-			event = (EventMention) arg1;
-		}else if(arg1 instanceof EventMention){
-			event = (EventMention) arg2;
+			events.add((EventMention) arg1);
+		}else if(arg2 instanceof EventMention){
+			events.add((EventMention) arg2);
 		}else{
 			return feats;
 		}
@@ -53,25 +53,40 @@ public class NearbyVerbTenseRelationExtractor implements RelationFeaturesExtract
 		//1 get covering sentence:
 		Map<EventMention, Collection<Sentence>> coveringMap =
 				JCasUtil.indexCovering(jcas, EventMention.class, Sentence.class);
-		Collection<Sentence> sentList = coveringMap.get(event);
+		
+		Sentence knowSentence = null;
+		String seenVbPattern = null;
 
-		//2 get Verb Tense
-		if (sentList != null && !sentList.isEmpty()){
-			for(Sentence sent : sentList) {
-				String verbTP ="";
-				for ( WordToken wt : JCasUtil.selectCovered(jcas, WordToken.class, sent)) {
-					if (wt != null){
-						String pos = wt.getPartOfSpeech();
-						if (pos.startsWith("VB")){
-							verbTP = verbTP + "_" + pos;
+		for(EventMention event: events){
+			Collection<Sentence> sentList = coveringMap.get(event);
+
+			//2 get Verb Tense
+			if (sentList != null && !sentList.isEmpty()){
+				for(Sentence sent : sentList) {
+					String verbTP ="";
+					for ( WordToken wt : JCasUtil.selectCovered(jcas, WordToken.class, sent)) {
+						if (wt != null){
+							String pos = wt.getPartOfSpeech();
+							if (pos.startsWith("VB")){
+								verbTP = verbTP + "_" + pos;
+							}
 						}
 					}
+					Feature feature = new Feature("VerbTenseFeature", verbTP);
+					feats.add(feature);
+					//logger.info("found nearby verb's pos tag: "+ verbTP);
+					
+					//check if the verb pattern is different from the old
+					if(knowSentence == null && !verbTP.equals("")){
+						knowSentence = sent;
+						seenVbPattern = verbTP;
+					}else if(knowSentence != null && knowSentence != sent && verbTP.equals(seenVbPattern)){
+						feature = new Feature("TwoSentenceShareTheSameVerbPattern", verbTP);
+						feats.add(feature);
+					}
 				}
-				Feature feature = new Feature("VerbTenseFeature", verbTP);
-				feats.add(feature);
-				//logger.info("found nearby verb's pos tag: "+ verbTP);
-			}
 
+			}
 		}
 		return feats;
 	}

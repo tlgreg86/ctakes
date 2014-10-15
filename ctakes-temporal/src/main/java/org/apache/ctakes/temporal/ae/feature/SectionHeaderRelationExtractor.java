@@ -32,36 +32,71 @@ import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 import org.apache.uima.fit.util.JCasUtil;
 
+import com.google.common.collect.Lists;
+
 public class SectionHeaderRelationExtractor implements RelationFeaturesExtractor{
 
 	@Override
 	public List<Feature> extract(JCas jcas, IdentifiedAnnotation arg1,
 			IdentifiedAnnotation arg2) throws AnalysisEngineProcessException {
-		List<Feature> feats = new ArrayList<Feature>();
+		List<Feature> feats = new ArrayList<>();
 
 		//find event
-		EventMention event = null;
+		EventMention eventA = null;
+		EventMention eventB = null;
 		if(arg1 instanceof EventMention){
-			event = (EventMention) arg1;
-		}else if(arg1 instanceof EventMention){
-			event = (EventMention) arg2;
-		}else{
+			eventA = (EventMention) arg1;
+		}
+		if(arg2 instanceof EventMention){
+			eventB = (EventMention) arg2;
+		}
+		
+		if(eventA==null && eventB==null){
 			return feats;
 		}
 
 		//get covering segment set:
 		Map<EventMention, Collection<Segment>> coveringMap =
 				JCasUtil.indexCovering(jcas, EventMention.class, Segment.class);
-		Collection<Segment> segList = coveringMap.get(event);
-
-		//get segment id
-		if (segList != null && !segList.isEmpty()){
-			for(Segment seg : segList) {
-				String segname = seg.getId();
-				Feature feature = new Feature("SegmentID", segname);
-				feats.add(feature);
+		List<Segment> segListA = Lists.newArrayList();
+		List<Segment> segListB = Lists.newArrayList();
+		if(eventA != null){
+			for ( Segment seg : coveringMap.get(eventA)){
+				if (!seg.getId().equals("SIMPLE_SEGMENT")){//remove simple segment
+					segListA.add(seg);
+				}
 			}
-
+		}
+		if(eventB != null){
+			for ( Segment seg : coveringMap.get(eventB)){
+				if (!seg.getId().equals("SIMPLE_SEGMENT")){//remove simple segment
+					segListB.add(seg);
+				}
+			}
+		}
+		
+		//get segment id
+		List<String> segANames = Lists.newArrayList();
+		List<String> segBNames = Lists.newArrayList();
+		for(Segment seg : segListA) {
+			String segname = seg.getId();
+			Feature feature = new Feature("SegmentID_arg1", segname);
+			feats.add(feature);
+			segANames.add(segname);
+		}
+		for(Segment seg : segListB) {
+			String segname = seg.getId();
+			Feature feature = new Feature("SegmentID_arg2", segname);
+			feats.add(feature);
+			segBNames.add(segname);
+		}
+		for(String segA : segANames){
+			for(String segB : segBNames){
+				if(segA.equals(segB)){
+					Feature feature = new Feature("InTheSameSegment_", segA);
+					feats.add(feature);
+				}
+			}
 		}
 		return feats;
 	}
