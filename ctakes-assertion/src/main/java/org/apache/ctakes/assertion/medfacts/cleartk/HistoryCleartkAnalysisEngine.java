@@ -67,7 +67,7 @@ public class HistoryCleartkAnalysisEngine extends
 //						IdentifiedAnnotation.class, new HistoryFeaturesExtractor()) );
 //		
 		if(this.entityFeatureExtractors == null){
-			this.entityFeatureExtractors = new ArrayList<FeatureExtractor1>();
+			this.entityFeatureExtractors = new ArrayList<>();
 		}
 		this.entityFeatureExtractors.add(new ContextWordWindowExtractor("org/apache/ctakes/assertion/models/history.txt"));
 		this.entityFeatureExtractors.add(new HistoryFeaturesExtractor());

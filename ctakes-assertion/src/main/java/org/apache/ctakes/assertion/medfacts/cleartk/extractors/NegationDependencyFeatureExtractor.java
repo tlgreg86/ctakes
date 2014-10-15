@@ -24,16 +24,16 @@ import java.util.List;
 import org.apache.ctakes.assertion.util.NegationManualDepContextAnalyzer;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
 public class NegationDependencyFeatureExtractor implements
-		FeatureExtractor1 {
+		FeatureExtractor1<IdentifiedAnnotation> {
 
 	NegationManualDepContextAnalyzer conAnal = null;
 
@@ -42,9 +42,9 @@ public class NegationDependencyFeatureExtractor implements
 	}
 	
 	@Override
-	public List<Feature> extract(JCas jcas, Annotation focusAnnotation)
+	public List<Feature> extract(JCas jcas, IdentifiedAnnotation focusAnnotation)
 			throws CleartkExtractorException {
-		List<Feature> feats = new ArrayList<Feature>();
+		List<Feature> feats = new ArrayList<>();
 		Sentence sent = null;
 		
 		List<Sentence> sents = JCasUtil.selectCovering(jcas, Sentence.class, focusAnnotation.getBegin(), focusAnnotation.getEnd());

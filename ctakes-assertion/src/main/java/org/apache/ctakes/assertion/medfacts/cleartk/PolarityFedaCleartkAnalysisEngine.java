@@ -34,14 +34,10 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.Instance;
-import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.cleartk.ml.feature.function.FeatureFunctionExtractor;
 
 
 public class PolarityFedaCleartkAnalysisEngine extends PolarityCleartkAnalysisEngine {
-
-	public static final String NEGATED = "NEGATED";
-	public static final String NOT_NEGATED = "NOT_NEGATED";
 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
@@ -49,7 +45,7 @@ public class PolarityFedaCleartkAnalysisEngine extends PolarityCleartkAnalysisEn
 		probabilityOfKeepingADefaultExample = 1.0; //0.1;
 
 		if(this.entityFeatureExtractors == null){
-			this.entityFeatureExtractors = new ArrayList<FeatureExtractor1>();
+			this.entityFeatureExtractors = new ArrayList<>();
 		}
 		this.entityFeatureExtractors.add(new NegationDependencyFeatureExtractor());
 		this.entityFeatureExtractors.add(new ContextWordWindowExtractor("org/apache/ctakes/assertion/models/polarity.txt"));
@@ -96,7 +92,7 @@ public class PolarityFedaCleartkAnalysisEngine extends PolarityCleartkAnalysisEn
 	      }
 	}
 	public static FeatureSelection<String> createFeatureSelection(double threshold) {
-		return new Chi2FeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
+		return new Chi2FeatureSelection<>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
 		//		  return new MutualInformationFeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME);
 	}
 
@@ -106,20 +102,20 @@ public class PolarityFedaCleartkAnalysisEngine extends PolarityCleartkAnalysisEn
 
 	private void initializeDomainAdaptation() {
 		// Do domain adaptation
-		featureFunctionExtractors = new ArrayList<FeatureFunctionExtractor>();
+		featureFunctionExtractors = new ArrayList<>();
 		//			FedaFeatureFunction ff = new FedaFeatureFunction(new ArrayList<String>(trainFileToDomain.values()));
 		featureFunctionExtractors.addAll(ExtractorListFeatureFunctionConverter.convert(contextFeatureExtractors, ffDomainAdaptor));
 		featureFunctionExtractors.addAll(ExtractorListFeatureFunctionConverter.convert(tokenContextFeatureExtractors, ffDomainAdaptor));
 		featureFunctionExtractors.addAll(ExtractorListFeatureFunctionConverter.convert(tokenCleartkExtractors, ffDomainAdaptor));
 		featureFunctionExtractors.addAll(ExtractorListFeatureFunctionConverter.convert(entityFeatureExtractors, ffDomainAdaptor));
-		featureFunctionExtractors.add(new FeatureFunctionExtractor(cuePhraseInWindowExtractor, ffDomainAdaptor));
+		featureFunctionExtractors.add(new FeatureFunctionExtractor<>(cuePhraseInWindowExtractor, ffDomainAdaptor));
 	}
 	@Override
 	protected void initializeFeatureSelection() throws ResourceInitializationException {
 	    if (featureSelectionThreshold == 0) {
 	    	this.featureSelection = null;
 	    } else {
-	    	this.featureSelection = this.createFeatureSelection(this.featureSelectionThreshold);
+	    	this.featureSelection = createFeatureSelection(this.featureSelectionThreshold);
 
 //	    	if ( (new File(this.featureSelectionURI)).exists() ) {
 //	    		try {

@@ -54,7 +54,7 @@ public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngin
 		probabilityOfKeepingADefaultExample = 1.0; //0.1;
 		
 		if(this.entityFeatureExtractors == null){
-			this.entityFeatureExtractors = new ArrayList<FeatureExtractor1>();
+			this.entityFeatureExtractors = new ArrayList<>();
 		}
 		
 		// polarity keyword list:
@@ -64,7 +64,8 @@ public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngin
 		
 		// stk frags feature:
 		if(featConfig == FEATURE_CONFIG.STK_FRAGS || featConfig == FEATURE_CONFIG.ALL_SYN){
-		  this.entityFeatureExtractors.add(new AboveLeftFragmentExtractor("AL_Polarity","org/apache/ctakes/assertion/models/jbi_paper_polarity_sems_frags.txt"));
+//		  this.entityFeatureExtractors.add(new AboveLeftFragmentExtractor("AL_Polarity","org/apache/ctakes/assertion/models/jbi_paper_polarity_sems_frags.txt"));
+		  this.entityFeatureExtractors.add(new AboveLeftFragmentExtractor("AL_Polarity","org/apache/ctakes/assertion/models/sharpPolarityFrags.txt"));
 //		  this.entityFeatureExtractors.add(new ConceptModifierPETFragmentExtractor("NegRel", "org/apache/ctakes/assertion/models/polarityRelnFragsStrat.txt"));
 		}
 		
