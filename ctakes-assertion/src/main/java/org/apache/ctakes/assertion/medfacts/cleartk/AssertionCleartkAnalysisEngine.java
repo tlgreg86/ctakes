@@ -56,13 +56,9 @@ import org.cleartk.ml.Feature;
 import org.cleartk.ml.Instance;
 import org.cleartk.ml.TreeFeature;
 import org.cleartk.ml.feature.extractor.CleartkExtractor;
-import org.cleartk.ml.feature.extractor.CombinedExtractor1;
 import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
-import org.cleartk.ml.feature.extractor.TypePathExtractor;
 import org.cleartk.ml.feature.function.FeatureFunctionExtractor;
-
-import scala.actors.threadpool.Arrays;
 //import org.chboston.cnlp.ctakes.relationextractor.ae.ModifierExtractorAnnotator;
 
 /**
@@ -146,7 +142,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
 		  mandatory = false,
 		  description = "a map of filenames to their respective domains (i.e., directories that contain them)")
   protected String fileDomainMap;
-  protected Map<String,String> fileToDomain = new HashMap<String,String>();
+  protected Map<String,String> fileToDomain = new HashMap<>();
   
   protected String lastLabel;
   
@@ -179,7 +175,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
   protected List<FeatureExtractor1<IdentifiedAnnotation>> entityTreeExtractors;
   protected CleartkExtractor<IdentifiedAnnotation,BaseToken> cuePhraseInWindowExtractor;
   
-  protected List<FeatureFunctionExtractor> featureFunctionExtractors;
+  protected List<FeatureFunctionExtractor<IdentifiedAnnotation>> featureFunctionExtractors;
   protected FedaFeatureFunction ffDomainAdaptor;
   
   protected FeatureSelection<String> featureSelection;
@@ -270,18 +266,18 @@ public abstract class AssertionCleartkAnalysisEngine extends
     //List<Feature> features = new ArrayList<Feature>();
     //ConllDependencyNode node1 = findAnnotationHead(jCas, arg1);
 
-    CombinedExtractor1 baseExtractorCuePhraseCategory =
-        new CombinedExtractor1
-          (
-           new CoveredTextExtractor<BaseToken>(),
-           new TypePathExtractor(AssertionCuePhraseAnnotation.class, "cuePhrase"),
-           new TypePathExtractor(AssertionCuePhraseAnnotation.class, "cuePhraseCategory"),
-           new TypePathExtractor(AssertionCuePhraseAnnotation.class, "cuePhraseAssertionFamily")
-          );
+//    CombinedExtractor1 baseExtractorCuePhraseCategory =
+//        new CombinedExtractor1
+//          (
+//           new CoveredTextExtractor<BaseToken>(),
+//           new TypePathExtractor(AssertionCuePhraseAnnotation.class, "cuePhrase"),
+//           new TypePathExtractor(AssertionCuePhraseAnnotation.class, "cuePhraseCategory"),
+//           new TypePathExtractor(AssertionCuePhraseAnnotation.class, "cuePhraseAssertionFamily")
+//          );
     
-    cuePhraseInWindowExtractor = new CleartkExtractor(
+    cuePhraseInWindowExtractor = new CleartkExtractor<>(
         BaseToken.class,
-        new CoveredTextExtractor(),
+        new CoveredTextExtractor<BaseToken>(),
         new CleartkExtractor.Bag(new CleartkExtractor.Covered())
 //          AssertionCuePhraseAnnotation.class,
 //          baseExtractorCuePhraseCategory,
@@ -295,9 +291,9 @@ public abstract class AssertionCleartkAnalysisEngine extends
 
     if (!fileToDomain.isEmpty()) {
     	// set up FeatureFunction for all the laggard, non-Extractor features
-    	ffDomainAdaptor = new FedaFeatureFunction( new ArrayList<String>(new HashSet<String>(fileToDomain.values())) );
+    	ffDomainAdaptor = new FedaFeatureFunction( new ArrayList<>(new HashSet<>(fileToDomain.values())) );
     }
-    entityTreeExtractors =  new ArrayList<FeatureExtractor1<IdentifiedAnnotation>>();
+    entityTreeExtractors =  new ArrayList<>();
   }
 
   @Override
@@ -373,7 +369,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
             entityOrEventMention.getPolarity(),
             entityOrEventMention.getClass().getName()));
       }
-      Instance<String> instance = new Instance<String>();
+      Instance<String> instance = new Instance<>();
       
 //      // extract all features that require only the entity mention annotation
 //      instance.addAll(tokenFeatureExtractor.extract(jCas, entityMention));
@@ -403,7 +399,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
       
       // only use extract this version if not doing domain adaptation 
       if (ffDomainAdaptor==null) {
-    	  for (CleartkExtractor extractor : this.tokenCleartkExtractors) {
+    	  for (CleartkExtractor<IdentifiedAnnotation, BaseToken> extractor : this.tokenCleartkExtractors) {
     		  //instance.addAll(extractor.extractWithin(identifiedAnnotationView, entityMention, sentence));
     		  instance.addAll(extractor.extract(identifiedAnnotationView, entityOrEventMention));
     	  }
@@ -413,7 +409,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
 //          cuePhraseInWindowExtractor.extract(jCas, entityOrEventMention);
           //cuePhraseInWindowExtractor.extractWithin(jCas, entityMention, firstCoveringSentence);
 //      List<Sentence> sents = new ArrayList<Sentence>(coveringSents.get(entityOrEventMention));
-      List<Sentence> sents = new ArrayList<Sentence>(JCasUtil.selectCovering(jCas, Sentence.class, entityOrEventMention.getBegin(), entityOrEventMention.getEnd()));
+      List<Sentence> sents = new ArrayList<>(JCasUtil.selectCovering(jCas, Sentence.class, entityOrEventMention.getBegin(), entityOrEventMention.getEnd()));
       if(sents.size() > 0){
         Sentence sentence = sents.get(0);
         List<AssertionCuePhraseAnnotation> cues = JCasUtil.selectCovered(AssertionCuePhraseAnnotation.class, sentence);
@@ -468,12 +464,12 @@ public abstract class AssertionCleartkAnalysisEngine extends
       
       // only extract these features if not doing domain adaptation
       if (ffDomainAdaptor==null) {
-    	  for (FeatureExtractor1 extractor : this.entityFeatureExtractors) {
+    	  for (FeatureExtractor1<IdentifiedAnnotation> extractor : this.entityFeatureExtractors) {
     		  instance.addAll(extractor.extract(jCas, entityOrEventMention));
     	  }
       }
 
-      for (FeatureExtractor1 extractor : this.entityTreeExtractors) {
+      for (FeatureExtractor1<IdentifiedAnnotation> extractor : this.entityTreeExtractors) {
         instance.addAll(extractor.extract(jCas, entityOrEventMention));
       }
 
@@ -495,7 +491,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
       }
 
       if (!fileToDomain.isEmpty() && ffDomainAdaptor!=null) {
-    	  for (FeatureFunctionExtractor extractor : this.featureFunctionExtractors) {
+    	  for (FeatureFunctionExtractor<IdentifiedAnnotation> extractor : this.featureFunctionExtractors) {
     		  // TODO: extend to the case where the extractors take a different argument besides entityOrEventMention
     		  instance.addAll(extractor.extract(jCas, entityOrEventMention));
     	  }
@@ -513,7 +509,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
     	  // ensures that the (possibly) transformed feats are used
     	  if (instance.getOutcome()!=null) {
     	    if(coin.nextDouble() < this.portionOfDataToUse){
-    	      this.dataWriter.write(new Instance<String>(instance.getOutcome(),feats));
+    	      this.dataWriter.write(new Instance<>(instance.getOutcome(),feats));
     	    }
     	  }
       }
@@ -572,7 +568,8 @@ public void setTrainFileToDomain(Map<String, String> trainFileToDomain) {
 public static String normalizeToDomain(String dir) {
 	  // TODO: real normalization
 	  String[] p = dir.split("/");
-	  List<String> parts = Arrays.asList(p);
+	  List<String> parts = new ArrayList<>();
+	  Collections.addAll(parts, p);
 	  Collections.reverse(parts);
 	  for (String part : parts) {
 		  if ( part.toLowerCase().startsWith("test") || part.toLowerCase().startsWith("train") || part.toLowerCase().startsWith("dev") ) {
