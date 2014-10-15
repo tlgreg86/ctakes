@@ -111,7 +111,7 @@ public class GenerateTreeRepresentation{
 	    out.close();
 	}
 
-	public static void processDocument(JCas jcas) {
+	private static void processDocument(JCas jcas) {
 		log.info("Processing document: " + DocumentIDAnnotationUtil.getDocumentID(jcas));
 		Collection<IdentifiedAnnotation> mentions = JCasUtil.select(jcas, IdentifiedAnnotation.class);
 		for(IdentifiedAnnotation mention : mentions){
@@ -129,11 +129,11 @@ public class GenerateTreeRepresentation{
 		    if(options.attributeType == ATTRIBUTE.NEG){ 
 		      if(mention.getPolarity() == CONST.NE_POLARITY_NEGATION_PRESENT) label = "+1";
 		      else label = "-1";
-          tree = getNegationTree(jcas, mention);
+          tree = getNegationTree(jcas, mention, sems);
 		    }else if(options.attributeType == ATTRIBUTE.UNC){
 		      if(mention.getUncertainty() == CONST.NE_UNCERTAINTY_PRESENT) label = "+1";
 		      else label = "-1";
-		      tree = getUncertaintyTree(jcas, mention);
+		      tree = getUncertaintyTree(jcas, mention, sems);
 		    }else{
 		      throw new IllegalArgumentException("Do not have this attribute type!");
 		    }
@@ -147,16 +147,20 @@ public class GenerateTreeRepresentation{
 		}
 	}
 
-  private static SimpleTree getUncertaintyTree(JCas jcas, IdentifiedAnnotation mention) {
-    SimpleTree tree = null;
-    tree = extractAboveLeftConceptTree(jcas, mention, sems);    
-    return tree;
-  }
-
-  private static SimpleTree getNegationTree(JCas jcas, IdentifiedAnnotation mention) {
+  public static SimpleTree getUncertaintyTree(JCas jcas, IdentifiedAnnotation mention, SemanticClasses sems) {
     SimpleTree tree = null;
     tree = extractAboveLeftConceptTree(jcas, mention, sems);
-    return tree;
+    String treeStr = tree.toString();
+    treeStr = treeStr.replace("CONCEPT", "CONCEPT" + mention.getTypeID());
+    return SimpleTree.fromString(treeStr);
+  }
+
+  public static SimpleTree getNegationTree(JCas jcas, IdentifiedAnnotation mention, SemanticClasses sems) {
+    SimpleTree tree = null;
+    tree = extractAboveLeftConceptTree(jcas, mention, sems);
+    String treeStr = tree.toString();
+//    treeStr = treeStr.replace("CONCEPT", "CONCEPT" + mention.getTypeID());
+    return SimpleTree.fromString(treeStr);
   }
 
 }
