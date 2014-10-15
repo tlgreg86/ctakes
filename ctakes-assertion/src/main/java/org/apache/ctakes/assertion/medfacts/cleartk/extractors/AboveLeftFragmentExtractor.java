@@ -18,15 +18,14 @@
  */
 package org.apache.ctakes.assertion.medfacts.cleartk.extractors;
 
-import static org.apache.ctakes.assertion.util.AssertionTreeUtils.extractAboveLeftConceptTree;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ctakes.assertion.pipelines.GenerateTreeRepresentation;
 import org.apache.ctakes.constituency.parser.util.TreeUtils;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 import org.cleartk.util.CleartkInitializationException;
 
@@ -38,14 +37,17 @@ public class AboveLeftFragmentExtractor extends TreeFragmentFeatureExtractor {
   }
 
   @Override
-  public List<Feature> extract(JCas jcas, Annotation annotation) {
-    List<Feature> features = new ArrayList<Feature>();
-    SimpleTree tree = extractAboveLeftConceptTree(jcas, annotation, sems);
+  public List<Feature> extract(JCas jcas, IdentifiedAnnotation annotation) {
+    List<Feature> features = new ArrayList<>();
+//    SimpleTree tree = AssertionTreeUtils.extractAboveLeftConceptTree(jcas, annotation, sems);
+    SimpleTree tree = GenerateTreeRepresentation.getNegationTree(jcas, annotation, sems);
     
     for(SimpleTree frag : frags){
       if(TreeUtils.containsIgnoreCase(tree, frag)){
         features.add(new Feature("TreeFrag_" + prefix, frag.toString()));
       }
+      
+//      features.add(new Feature("TreeFrag_" + prefix + "_" + frag.toString(), TreeUtils.countFrags(tree, frag)));
     }
   
     return features;

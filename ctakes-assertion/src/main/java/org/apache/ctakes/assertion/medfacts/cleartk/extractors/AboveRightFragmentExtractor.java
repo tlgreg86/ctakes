@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ctakes.constituency.parser.util.TreeUtils;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -38,7 +39,7 @@ public class AboveRightFragmentExtractor extends TreeFragmentFeatureExtractor {
   }
 
   @Override
-  public List<Feature> extract(JCas jcas, Annotation annotation) {
+  public List<Feature> extract(JCas jcas, IdentifiedAnnotation annotation) {
     List<Feature> features = new ArrayList<Feature>();
     SimpleTree tree = extractAboveRightConceptTree(jcas, annotation, sems);
     
@@ -50,4 +51,5 @@ public class AboveRightFragmentExtractor extends TreeFragmentFeatureExtractor {
   
     return features;
   }
+
 }
