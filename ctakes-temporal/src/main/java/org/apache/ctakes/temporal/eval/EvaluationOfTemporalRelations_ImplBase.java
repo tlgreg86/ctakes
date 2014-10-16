@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
+import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
@@ -109,7 +110,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
       for(BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(jCas, BinaryTextRelation.class))){
         RelationArgument arg1 = relation.getArg1();
         RelationArgument arg2 = relation.getArg2();
-        if(arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof EventMention){
+        if(arg1.getArgument() instanceof EventMention && arg2.getArgument() instanceof EventMention && relation instanceof TemporalTextRelation){
           // these are the kind we keep.
           continue;
         }
