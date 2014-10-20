@@ -28,62 +28,65 @@ import com.google.common.collect.Sets;
  * A class for splitting the THYME data into appropriate sets for evaluation.
  */
 public class THYMEData {
-  public static final Set<String> SEGMENTS_TO_SKIP = Sets.newHashSet("20104", "20105", "20116", "20138");
+	public static final Set<String> SEGMENTS_TO_SKIP = Sets.newHashSet("20104", "20105", "20116", "20138");
 
-  public static final Set<Integer> TRAIN_REMAINDERS = Sets.newHashSet(0, 1, 2);//, 3);
-  public static final Set<Integer> DEV_REMAINDERS = Sets.newHashSet(3);//(4, 5);
-  public static final Set<Integer> TEST_REMAINDERS = Sets.newHashSet(4, 5);//(6, 7); //6 and 7 were reserved.
+	public static final Set<Integer> TRAIN_REMAINDERS = Sets.newHashSet(0, 1, 2);//, 3);
+	public static final Set<Integer> DEV_REMAINDERS = Sets.newHashSet(3);//(4, 5);
+	public static final Set<Integer> TEST_REMAINDERS = Sets.newHashSet(4, 5);//(6, 7); //6 and 7 were reserved.
 
-  public static List<Integer> getPatientSets(List<Integer> patientSets, Collection<Integer> remainders) {
-    List<Integer> items = new ArrayList<>();
-    for (Integer i : patientSets) {
-      int remainder = i % 8;
-      if (remainders.contains(remainder)) {
-        items.add(i);
-      }
-    }
-    return items;
-  }
+	public static List<Integer> getPatientSets(List<Integer> patientSets, Collection<Integer> remainders) {
+		List<Integer> items = new ArrayList<>();
+		for (Integer i : patientSets) {
+			int remainder = i % 8;
+			if (remainders.contains(remainder)) {
+				items.add(i);
+			}
+		}
+		return items;
+	}
 
-  /**
-   * @deprecated Use getPatientSets(patientSets, TRAIN_REMAINDERS)
-   */
-  public static List<Integer> getTrainPatientSets(List<Integer> patientSets) {
-    return getPatientSets(patientSets, TRAIN_REMAINDERS);
-  }
+	/**
+	 * @deprecated Use getPatientSets(patientSets, TRAIN_REMAINDERS)
+	 */
+	@Deprecated
+	public static List<Integer> getTrainPatientSets(List<Integer> patientSets) {
+		return getPatientSets(patientSets, TRAIN_REMAINDERS);
+	}
 
-  /**
-   * @deprecated Use getPatientSets(patientSets, DEV_REMAINDERS)
-   */
-  public static List<Integer> getDevPatientSets(List<Integer> patientSets) {
-    return getPatientSets(patientSets, DEV_REMAINDERS);
-  }
+	/**
+	 * @deprecated Use getPatientSets(patientSets, DEV_REMAINDERS)
+	 */
+	@Deprecated
+	public static List<Integer> getDevPatientSets(List<Integer> patientSets) {
+		return getPatientSets(patientSets, DEV_REMAINDERS);
+	}
 
-  /**
-   * @deprecated Use getPatientSets(patientSets, TEST_REMAINDERS)
-   */
-  public static List<Integer> getTestPatientSets(List<Integer> patientSets) {
-    return getPatientSets(patientSets, TEST_REMAINDERS);
-  }
+	/**
+	 * @deprecated Use getPatientSets(patientSets, TEST_REMAINDERS)
+	 */
+	@Deprecated
+	public static List<Integer> getTestPatientSets(List<Integer> patientSets) {
+		return getPatientSets(patientSets, TEST_REMAINDERS);
+	}
 
-    public static List<File> getFilesFor(List<Integer> patientSets, File rawTextDirectory) {
-	  if ( !rawTextDirectory.exists() ) {
-		  return Collections.emptyList();
-	  }
-	  List<File> files = new ArrayList<>();
-	  for (Integer set : patientSets) {
-		  final int setNum = set;
-		  for (File file : rawTextDirectory.listFiles(new FilenameFilter(){
-			  @Override
-			  public boolean accept(File dir, String name) {
-				  return name.contains(String.format("ID%03d", setNum));
-			  }})) {
-			  // skip hidden files like .svn
-			  if (!file.isHidden()) {
-				  files.add(file);
-			  } 
-		  }
-	  }
-	  return files;
-  }
+	public static List<File> getFilesFor(List<Integer> patientSets, File rawTextDirectory) {
+		if ( !rawTextDirectory.exists() ) {
+			return Collections.emptyList();
+		}
+		List<File> files = new ArrayList<>();
+		for (Integer set : patientSets) {
+			final int setNum = set;
+			for (File file : rawTextDirectory.listFiles(new FilenameFilter(){
+				@Override
+				public boolean accept(File dir, String name) {
+					return name.contains(String.format("ID%03d", setNum));
+				}})) {
+				// skip hidden files like .svn
+				if (!file.isHidden()) {
+					files.add(file);
+				} 
+			}
+		}
+		return files;
+	}
 }
