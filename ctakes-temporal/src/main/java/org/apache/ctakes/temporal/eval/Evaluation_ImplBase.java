@@ -145,13 +145,13 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		@Option(longName = "patients")
 		public CommandLine.IntegerRanges getPatients();
 
-		@Option(longName = "train-remainders", defaultValue = "0-3")
+		@Option(longName = "train-remainders", defaultValue = "0-2")
 		public CommandLine.IntegerRanges getTrainRemainders();
 
-		@Option(longName = "dev-remainders", defaultValue = "4-5")
+		@Option(longName = "dev-remainders", defaultValue = "3")
 		public CommandLine.IntegerRanges getDevRemainders();
 
-		@Option(longName = "test-remainders", defaultValue = "6-7")
+		@Option(longName = "test-remainders", defaultValue = "4-5")
 		public CommandLine.IntegerRanges getTestRemainders();
 
 		@Option(longName = "treebank", defaultToNull=true)
@@ -274,11 +274,11 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 	}
 
 	private List<File> getFilesFor(List<Integer> patientSets) throws FileNotFoundException {
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		if (this.rawTextDirectory == null
 				&& this.xmlFormat == XMLFormat.Anafora) {
 			for (File dir : this.xmlDirectory.listFiles()) {
-				Set<String> ids = new HashSet<String>();
+				Set<String> ids = new HashSet<>();
 				for (Integer set : patientSets) {
 					ids.add(String.format("ID%03d", set));
 				}
@@ -614,7 +614,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
-			List<LookupWindowAnnotation> lws = new ArrayList<LookupWindowAnnotation>(JCasUtil.select(jCas, LookupWindowAnnotation.class));
+			List<LookupWindowAnnotation> lws = new ArrayList<>(JCasUtil.select(jCas, LookupWindowAnnotation.class));
 			// we'll navigate backwards so that as we delete things we shorten the list from the back
 			for(int i = lws.size()-2; i >= 0; i--){
 				LookupWindowAnnotation lw1 = lws.get(i);
