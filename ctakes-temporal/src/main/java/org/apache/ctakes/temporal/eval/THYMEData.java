@@ -30,12 +30,12 @@ import com.google.common.collect.Sets;
 public class THYMEData {
   public static final Set<String> SEGMENTS_TO_SKIP = Sets.newHashSet("20104", "20105", "20116", "20138");
 
-  public static final Set<Integer> TRAIN_REMAINDERS = Sets.newHashSet(0, 1, 2, 3);
-  public static final Set<Integer> DEV_REMAINDERS = Sets.newHashSet(4, 5);
-  public static final Set<Integer> TEST_REMAINDERS = Sets.newHashSet(6, 7);
+  public static final Set<Integer> TRAIN_REMAINDERS = Sets.newHashSet(0, 1, 2);//, 3);
+  public static final Set<Integer> DEV_REMAINDERS = Sets.newHashSet(3);//(4, 5);
+  public static final Set<Integer> TEST_REMAINDERS = Sets.newHashSet(4, 5);//(6, 7); //6 and 7 were reserved.
 
   public static List<Integer> getPatientSets(List<Integer> patientSets, Collection<Integer> remainders) {
-    List<Integer> items = new ArrayList<Integer>();
+    List<Integer> items = new ArrayList<>();
     for (Integer i : patientSets) {
       int remainder = i % 8;
       if (remainders.contains(remainder)) {
@@ -70,7 +70,7 @@ public class THYMEData {
 	  if ( !rawTextDirectory.exists() ) {
 		  return Collections.emptyList();
 	  }
-	  List<File> files = new ArrayList<File>();
+	  List<File> files = new ArrayList<>();
 	  for (Integer set : patientSets) {
 		  final int setNum = set;
 		  for (File file : rawTextDirectory.listFiles(new FilenameFilter(){
