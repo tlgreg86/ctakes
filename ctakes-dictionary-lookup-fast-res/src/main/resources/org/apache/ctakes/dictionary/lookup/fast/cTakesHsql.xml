@@ -77,6 +77,7 @@
    <!-- DefaultTermConsumer will persist all spans  -->
    <rareWordConsumer>
       <name>Term Consumer</name>
+      <!--<implementationName>org.apache.ctakes.dictionary.lookup2.consumer.MetaWsdTermConsumer</implementationName>-->
       <!--<implementationName>org.apache.ctakes.dictionary.lookup2.consumer.PrecisionTermConsumer</implementationName>-->
       <implementationName>org.apache.ctakes.dictionary.lookup2.consumer.DefaultTermConsumer</implementationName>
       <properties>
