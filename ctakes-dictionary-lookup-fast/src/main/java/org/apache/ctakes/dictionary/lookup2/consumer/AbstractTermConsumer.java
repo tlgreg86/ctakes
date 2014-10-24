@@ -90,8 +90,7 @@ abstract public class AbstractTermConsumer implements TermConsumer {
       return usedSemanticTypes;
    }
 
-   static private boolean hascTakesSemantic( final Integer cTakesSemantic,
-                                             final Collection<Concept> concepts ) {
+   static protected boolean hascTakesSemantic( final Integer cTakesSemantic, final Iterable<Concept> concepts ) {
       for ( Concept concept : concepts ) {
          if ( concept.getCtakesSemantics().contains( cTakesSemantic ) ) {
             return true;

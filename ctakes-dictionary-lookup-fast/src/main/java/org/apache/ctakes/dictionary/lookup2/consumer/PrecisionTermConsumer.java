@@ -69,7 +69,7 @@ final public class PrecisionTermConsumer extends AbstractTermConsumer {
     * @param semanticTerms terms in the dictionary
     * @return terms with the longest spans
     */
-   static private CollectionMap<TextSpan, Long, ? extends Collection<Long>> createPreciseTerms(
+   static public CollectionMap<TextSpan, Long, ? extends Collection<Long>> createPreciseTerms(
          final CollectionMap<TextSpan, Long, ? extends Collection<Long>> semanticTerms ) {
       final Collection<TextSpan> discardSpans = new HashSet<>();
       final List<TextSpan> textSpans = new ArrayList<>( semanticTerms.keySet() );
