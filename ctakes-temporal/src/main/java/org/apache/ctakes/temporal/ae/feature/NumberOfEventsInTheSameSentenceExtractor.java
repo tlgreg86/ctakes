@@ -72,10 +72,10 @@ RelationFeaturesExtractor {
 			int arg2Index = -1;
 			for(int i=0; i< eventsNum; i++){
 				EventMention currentEvent = events.get(i);
-				if(currentEvent==arg1){
+				if(hasOverlappingSpan(currentEvent,arg1)){
 					arg1Index = i;
 				}
-				if(currentEvent==arg2){
+				if(hasOverlappingSpan(currentEvent,arg2)){
 					arg2Index = i;
 				}
 				if(arg1Index!=-1 && arg2Index!=-1){
@@ -105,6 +105,18 @@ RelationFeaturesExtractor {
 			}
 		}
 		return feats;
+	}
+
+	private static boolean hasOverlappingSpan(EventMention cevent,
+			IdentifiedAnnotation arg) {
+		if(cevent.getBegin()==arg.getBegin() && arg.getEnd()>=cevent.getEnd()){
+			return true;
+		}else if(arg.getBegin()<=cevent.getBegin() && cevent.getEnd()==arg.getEnd()){
+			return true;
+		}else if(arg.getBegin()<=cevent.getBegin() && arg.getEnd()>=cevent.getEnd()){ //if argument cover current (gold) event mention.
+			return true;
+		}
+		return false;
 	}
 
 }

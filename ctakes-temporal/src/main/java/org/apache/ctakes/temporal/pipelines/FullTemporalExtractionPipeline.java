@@ -69,13 +69,13 @@ public class FullTemporalExtractionPipeline extends
     @Option(
         shortName = "r",
         description = "Specify the path to the directory where the trained event-time relation model is located",
-        defaultValue="target/eval/temporal-relations/event-time/train_and_test/")
+        defaultValue="target/eval/thyme/train_and_test/event-time/")
     public String getEventTimeRelationModelDirectory();
 
     @Option(
         shortName = "s",
         description = "Specify the path to the directory where the trained event-event relation model is located",
-        defaultToNull=true) // add in default value once we have a satisfying trained model
+        defaultValue="target/eval/thyme/train_and_test/event-event/") // add in default value once we have a satisfying trained model
     public String getEventEventRelationModelDirectory();  
     
     @Option(
@@ -102,7 +102,7 @@ public class FullTemporalExtractionPipeline extends
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyPropertiesToTemporalEventAnnotator.class));
     aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription(options.getDoctimerelModelDirectory() + File.separator + "model.jar"));
     aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(options.getTimeModelDirectory() + File.separator + "model.jar"));
-    aggregateBuilder.add(EventTimeRelationAnnotator.createAnnotatorDescription(options.getEventTimeRelationModelDirectory() + File.separator + "model.jar"));
+    aggregateBuilder.add(EventTimeRelationAnnotator.createEngineDescription(options.getEventTimeRelationModelDirectory() + File.separator + "model.jar"));
     if(options.getEventEventRelationModelDirectory()!=null){
       aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(options.getEventEventRelationModelDirectory() + File.separator + "model.jar"));
     }

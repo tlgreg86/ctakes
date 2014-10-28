@@ -85,7 +85,7 @@ RelationFeaturesExtractor {
 		TimeMention admissionTime = null;
 		//may need better way to identify Discharge Time other than relative span information:
 		for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, 15, 30)) {
-			if(time.getTimeClass().equals("DATE")){
+			if(time.getTimeClass() != null && time.getTimeClass().equals("DATE")){
 				admissionTime = time;
 				break;
 			}
@@ -94,7 +94,7 @@ RelationFeaturesExtractor {
 		TimeMention dischargeTime = null;
 		//may need better way to identify Discharge Time other than relative span information:
 		for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, 40, 60)) {
-			if(time.getTimeClass().equals("DATE")){
+			if(time.getTimeClass() != null && time.getTimeClass().equals("DATE")){
 				dischargeTime = time;
 				break;
 			}

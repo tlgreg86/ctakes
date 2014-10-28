@@ -28,14 +28,29 @@ import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtra
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.TokenFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.CheckSpecialWordRelationExtractor;
+import org.apache.ctakes.temporal.ae.feature.ConjunctionRelationFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.DependencyFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.DependencyPathFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.EventArgumentPropertyExtractor;
+//import org.apache.ctakes.temporal.ae.feature.EventIndexOfSameSentenceRelationFeaturesExtractor;
+//import org.apache.ctakes.temporal.ae.feature.EventPositionRelationFeaturesExtractor;
+//import org.apache.ctakes.temporal.ae.feature.EventTimeRelationFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.NearbyVerbTenseRelationExtractor;
 import org.apache.ctakes.temporal.ae.feature.NearestFlagFeatureExtractor;
-import org.apache.ctakes.temporal.ae.feature.SectionHeaderRelationExtractor;
+import org.apache.ctakes.temporal.ae.feature.NumberOfEventTimeBetweenCandidatesExtractor;
+import org.apache.ctakes.temporal.ae.feature.OverlappedHeadFeaturesExtractor;
+//import org.apache.ctakes.temporal.ae.feature.SRLRelationFeaturesExtractor;
+//import org.apache.ctakes.temporal.ae.feature.SectionHeaderRelationExtractor;
+import org.apache.ctakes.temporal.ae.feature.TemporalAttributeFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.TemporalPETFlatExtractor;
+//import org.apache.ctakes.temporal.ae.feature.TimeWordTypeRelationExtractor;
+import org.apache.ctakes.temporal.ae.feature.TimeXPropertyRelationFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.TimeXRelationFeaturesExtractor;
+//import org.apache.ctakes.temporal.ae.feature.UnexpandedTokenFeaturesExtractor;
 //import org.apache.ctakes.temporal.ae.feature.TemporalAttributeFeatureExtractor;
 //import org.apache.ctakes.temporal.ae.feature.treekernel.EventTimeFlatTreeFeatureExtractor;
 //import org.apache.ctakes.temporal.ae.feature.treekernel.EventVerbRelationTreeExtractor;
-import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPETExtractor;
+//import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPETExtractor;
 //import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPathExtractor;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
@@ -77,7 +92,7 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 				(float) probabilityOfKeepingANegativeExample);
 	}
 
-	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
+	public static AnalysisEngineDescription createEngineDescription(String modelPath)
 			throws ResourceInitializationException {
 		return AnalysisEngineFactory.createEngineDescription(
 				EventTimeRelationAnnotator.class,
@@ -86,12 +101,13 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 				modelPath);
 	}
-	  /**
-	   * @deprecated use String path instead of File.
-	   * ClearTK will automatically Resolve the String to an InputStream.
-	   * This will allow resources to be read within from a jar as well as File.  
-	   */	 
-	public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
+	/**
+	 * @deprecated use String path instead of File.
+	 * ClearTK will automatically Resolve the String to an InputStream.
+	 * This will allow resources to be read within from a jar as well as File.  
+	 */	 
+	@Deprecated
+	public static AnalysisEngineDescription createEngineDescription(File modelDirectory)
 			throws ResourceInitializationException {
 		return AnalysisEngineFactory.createEngineDescription(
 				EventTimeRelationAnnotator.class,
@@ -105,18 +121,31 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 	protected List<RelationFeaturesExtractor> getFeatureExtractors() {
 		return Lists.newArrayList(
 				new TokenFeaturesExtractor()
+				//				new UnexpandedTokenFeaturesExtractor() //use unexpanded version for i2b2 data
 				, new PartOfSpeechFeaturesExtractor()
-				//    						, new TemporalAttributeFeatureExtractor()
+				, new TemporalAttributeFeatureExtractor()
 				//				, new EventTimeFlatTreeFeatureExtractor()
-				, new TemporalPETExtractor()
-				//				, new TemporalPathExtractor()
+				//				, new TemporalPETExtractor()
+				//, new TemporalPathExtractor()
 				//				, new EventVerbRelationTreeExtractor()
-				, new SectionHeaderRelationExtractor()
+				, new NumberOfEventTimeBetweenCandidatesExtractor()
+				//				, new SectionHeaderRelationExtractor()
 				, new NearbyVerbTenseRelationExtractor()
 				, new CheckSpecialWordRelationExtractor()
 				, new NearestFlagFeatureExtractor()
 				, new DependencyPathFeaturesExtractor()
-				//				, new DependencyFeatureExtractor()
+				, new DependencyFeatureExtractor()
+				//				, new SRLRelationFeaturesExtractor()// tried, but not helpful
+				, new EventArgumentPropertyExtractor()
+				, new OverlappedHeadFeaturesExtractor()
+				//				, new EventTimeRelationFeatureExtractor()
+				, new ConjunctionRelationFeaturesExtractor()
+				//				, new EventPositionRelationFeaturesExtractor() //tried, but not helpful
+				, new TimeXRelationFeaturesExtractor()
+				, new TemporalPETFlatExtractor()
+				, new TimeXPropertyRelationFeaturesExtractor()
+				//				, new TimeWordTypeRelationExtractor() //tried, but not helpful
+				//				, new EventIndexOfSameSentenceRelationFeaturesExtractor() //tried, but not helpful
 				);
 	}
 
@@ -133,9 +162,18 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 		for (EventMention event : JCasUtil.selectCovered(jCas, EventMention.class, sentence)) {
 			// ignore subclasses like Procedure and Disease/Disorder
 			if (event.getClass().equals(EventMention.class)) {
-				for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, sentence)) {
-					pairs.add(new IdentifiedAnnotationPair(event, time));
-				}
+//				boolean eventValid = false;
+//				for (EventMention ev : JCasUtil.selectCovered(jCas, EventMention.class, event)){
+//					if(!ev.getClass().equals(EventMention.class)){// if there is an valid UMLS type in the same span, then true
+//						eventValid = true;
+//						break;
+//					}
+//				}
+//				if(eventValid){
+					for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, sentence)) {
+						pairs.add(new IdentifiedAnnotationPair(event, time));
+					}
+//				}
 			}
 		}
 
@@ -196,6 +234,11 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 			if (relation != null) {
 				if(relation.getCategory().equals("OVERLAP")){
 					category = relation.getCategory();
+					//				}else if (relation.getCategory().equals("BEFORE")){
+					//					category = "AFTER";
+					//				}else if (relation.getCategory().equals("AFTER")){
+					//					category = "BEFORE";
+					//				}
 				}else{
 					category = relation.getCategory() + "-1";
 				}
