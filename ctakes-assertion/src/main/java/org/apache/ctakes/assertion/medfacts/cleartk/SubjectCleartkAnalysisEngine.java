@@ -39,7 +39,7 @@ public class SubjectCleartkAnalysisEngine extends
   @Override
   public void initialize(UimaContext context) throws ResourceInitializationException {
     super.initialize(context);
-    probabilityOfKeepingADefaultExample = 0.1;
+    probabilityOfKeepingADefaultExample = 1.0;
 
     if (this.isTraining() && this.goldViewName == null) {
       throw new IllegalArgumentException(PARAM_GOLD_VIEW_NAME + " must be defined during training");
