@@ -93,7 +93,7 @@ public class SubjectCleartkAnalysisEngine extends
 	      }
 	}
 	public static FeatureSelection<String> createFeatureSelection(double threshold) {
-		return new Chi2FeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
+		return new Chi2FeatureSelection<>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
 		//		  return new MutualInformationFeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME);
 	}
 
@@ -106,7 +106,7 @@ public class SubjectCleartkAnalysisEngine extends
 	    if (featureSelectionThreshold == 0) {
 	    	this.featureSelection = null;
 	    } else {
-	    	this.featureSelection = this.createFeatureSelection(this.featureSelectionThreshold);
+	    	this.featureSelection = createFeatureSelection(this.featureSelectionThreshold);
 
 //	    	if ( (new File(this.featureSelectionURI)).exists() ) {
 //	    		try {

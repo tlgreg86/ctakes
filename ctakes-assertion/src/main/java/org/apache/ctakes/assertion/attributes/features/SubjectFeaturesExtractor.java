@@ -27,8 +27,8 @@ import java.util.List;
 import org.apache.ctakes.assertion.attributes.subject.SubjectAttributeClassifier;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
@@ -39,13 +39,13 @@ import org.cleartk.ml.feature.extractor.FeatureExtractor1;
  * @author m081914
  *
  */
-public class SubjectFeaturesExtractor implements FeatureExtractor1 {
+public class SubjectFeaturesExtractor implements FeatureExtractor1<IdentifiedAnnotation> {
 	
 	
 	@Override
-	public List<Feature> extract(JCas jCas, Annotation arg) {
+	public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg) {
 		
-		List<Feature> features = new ArrayList<Feature>();
+		List<Feature> features = new ArrayList<>();
 		
 		// Pull in general dependency-based features -- externalize to another extractor?
 	    ConllDependencyNode node = DependencyUtility.getNominalHeadNode(jCas, arg);
@@ -66,10 +66,10 @@ public class SubjectFeaturesExtractor implements FeatureExtractor1 {
 	    return features;
 	}
 
-	private Collection<? extends Feature> hashToFeatureList(
+	private static Collection<? extends Feature> hashToFeatureList(
 			HashMap<String, Boolean> featsIn) {
 		
-		Collection<Feature> featsOut = new HashSet<Feature>();
+		Collection<Feature> featsOut = new HashSet<>();
 		for (String featName : featsIn.keySet()) {
 			featsOut.add(new Feature(featName,featsIn.get(featName)));
 		}
