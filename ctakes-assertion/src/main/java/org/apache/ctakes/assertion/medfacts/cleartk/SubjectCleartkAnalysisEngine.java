@@ -45,24 +45,13 @@ public class SubjectCleartkAnalysisEngine extends
 			throw new IllegalArgumentException(PARAM_GOLD_VIEW_NAME + " must be defined during training");
 		}
 		
-//		if (USE_DEFAULT_EXTRACTORS) {
-//		} else {
-			initialize_subject_extractor();
-//		}
-			initializeFeatureSelection();
+		initialize_subject_extractor();
+		initializeFeatureSelection();
 
 	}
 
 
 	private void initialize_subject_extractor() {
-		
-//		if (this.contextFeatureExtractors==null) {
-//			this.contextFeatureExtractors = new ArrayList<CleartkExtractor>();
-//		}
-//		this.contextFeatureExtractors.add( 
-//				new CleartkExtractor(
-//						IdentifiedAnnotation.class, new SubjectFeaturesExtractor()) );
-				
 		this.entityFeatureExtractors.add( new SubjectFeaturesExtractor());
 	}
 	
@@ -79,11 +68,9 @@ public class SubjectCleartkAnalysisEngine extends
 	        	return;
 	        }
 	        instance.setOutcome(subj);
-//	        this.dataWriter.write(instance);
 	        logger.log(Level.DEBUG,  String.format("[%s] expected: ''; actual: ''; features: %s",
 		      		  this.getClass().getSimpleName(),
 		      		  instance.toString()
-		      		  //StringUtils.join(instance.getFeatures(), ", ")
 		      		  ));
 	      } else
 	      {
@@ -94,7 +81,6 @@ public class SubjectCleartkAnalysisEngine extends
 	}
 	public static FeatureSelection<String> createFeatureSelection(double threshold) {
 		return new Chi2FeatureSelection<>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
-		//		  return new MutualInformationFeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME);
 	}
 
 	public static URI createFeatureSelectionURI(File outputDirectoryName) {
@@ -107,14 +93,6 @@ public class SubjectCleartkAnalysisEngine extends
 	    	this.featureSelection = null;
 	    } else {
 	    	this.featureSelection = createFeatureSelection(this.featureSelectionThreshold);
-
-//	    	if ( (new File(this.featureSelectionURI)).exists() ) {
-//	    		try {
-//	    			this.featureSelection.load(this.featureSelectionURI);
-//	    		} catch (IOException e) {
-//	    			throw new ResourceInitializationException(e);
-//	    		}
-//	    	}
 	    }		
 	}
 	  
