@@ -32,68 +32,68 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.Instance;
 
 public class SubjectCleartkAnalysisEngine extends
-		AssertionCleartkAnalysisEngine {
+    AssertionCleartkAnalysisEngine {
 
-	boolean USE_DEFAULT_EXTRACTORS = false;
-	
-	@Override
-	public void initialize(UimaContext context) throws ResourceInitializationException {
-		super.initialize(context);
-		probabilityOfKeepingADefaultExample = 0.1;
+  boolean USE_DEFAULT_EXTRACTORS = false;
+  
+  @Override
+  public void initialize(UimaContext context) throws ResourceInitializationException {
+    super.initialize(context);
+    probabilityOfKeepingADefaultExample = 0.1;
 
-		if (this.isTraining() && this.goldViewName == null) {
-			throw new IllegalArgumentException(PARAM_GOLD_VIEW_NAME + " must be defined during training");
-		}
-		
-		initialize_subject_extractor();
-		initializeFeatureSelection();
+    if (this.isTraining() && this.goldViewName == null) {
+      throw new IllegalArgumentException(PARAM_GOLD_VIEW_NAME + " must be defined during training");
+    }
+    
+    initialize_subject_extractor();
+    initializeFeatureSelection();
 
-	}
+  }
 
 
-	private void initialize_subject_extractor() {
-		this.entityFeatureExtractors.add( new SubjectFeaturesExtractor());
-	}
-	
-	@Override
-	public void setClassLabel(IdentifiedAnnotation entityOrEventMention,
-			Instance<String> instance) throws AnalysisEngineProcessException {
-		if (this.isTraining())
-	      {
-	        String subj = entityOrEventMention.getSubject();
-	        
-	        // downsampling. initialize probabilityOfKeepingADefaultExample to 1.0 for no downsampling
-	        if ("patient".equals(subj) 
-	        		&& coin.nextDouble() >= this.probabilityOfKeepingADefaultExample) {
-	        	return;
-	        }
-	        instance.setOutcome(subj);
-	        logger.log(Level.DEBUG,  String.format("[%s] expected: ''; actual: ''; features: %s",
-		      		  this.getClass().getSimpleName(),
-		      		  instance.toString()
-		      		  ));
-	      } else
-	      {
-	        String label = this.classifier.classify(instance.getFeatures());
-	        entityOrEventMention.setSubject(label);
-	        logger.log(Level.DEBUG, "SUBJECT is being set on an IdentifiedAnnotation: "+label+" "+entityOrEventMention.getSubject());
-	      }
-	}
-	public static FeatureSelection<String> createFeatureSelection(double threshold) {
-		return new Chi2FeatureSelection<>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
-	}
+  private void initialize_subject_extractor() {
+    this.entityFeatureExtractors.add( new SubjectFeaturesExtractor());
+  }
+  
+  @Override
+  public void setClassLabel(IdentifiedAnnotation entityOrEventMention,
+      Instance<String> instance) throws AnalysisEngineProcessException {
+    if (this.isTraining())
+        {
+          String subj = entityOrEventMention.getSubject();
+          
+          // downsampling. initialize probabilityOfKeepingADefaultExample to 1.0 for no downsampling
+          if ("patient".equals(subj) 
+              && coin.nextDouble() >= this.probabilityOfKeepingADefaultExample) {
+            return;
+          }
+          instance.setOutcome(subj);
+          logger.log(Level.DEBUG,  String.format("[%s] expected: ''; actual: ''; features: %s",
+                this.getClass().getSimpleName(),
+                instance.toString()
+                ));
+        } else
+        {
+          String label = this.classifier.classify(instance.getFeatures());
+          entityOrEventMention.setSubject(label);
+          logger.log(Level.DEBUG, "SUBJECT is being set on an IdentifiedAnnotation: "+label+" "+entityOrEventMention.getSubject());
+        }
+  }
+  public static FeatureSelection<String> createFeatureSelection(double threshold) {
+    return new Chi2FeatureSelection<>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
+  }
 
-	public static URI createFeatureSelectionURI(File outputDirectoryName) {
-		return new File(outputDirectoryName, FEATURE_SELECTION_NAME + "_Chi2_extractor.dat").toURI();
-	}
-	
-	@Override
-	protected void initializeFeatureSelection() throws ResourceInitializationException {
-	    if (featureSelectionThreshold == 0) {
-	    	this.featureSelection = null;
-	    } else {
-	    	this.featureSelection = createFeatureSelection(this.featureSelectionThreshold);
-	    }		
-	}
-	  
+  public static URI createFeatureSelectionURI(File outputDirectoryName) {
+    return new File(outputDirectoryName, FEATURE_SELECTION_NAME + "_Chi2_extractor.dat").toURI();
+  }
+  
+  @Override
+  protected void initializeFeatureSelection() throws ResourceInitializationException {
+      if (featureSelectionThreshold == 0) {
+        this.featureSelection = null;
+      } else {
+        this.featureSelection = createFeatureSelection(this.featureSelectionThreshold);
+      }    
+  }
+    
 }
