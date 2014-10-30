@@ -140,9 +140,9 @@ public abstract class RelationExtractorAnnotator extends CleartkAnnotator<String
     // lookup from pair of annotations to binary text relation
     // note: assumes that there will be at most one relation per pair
     Map<List<Annotation>, BinaryTextRelation> relationLookup;
-    relationLookup = new HashMap<List<Annotation>, BinaryTextRelation>();
+    relationLookup = new HashMap<>();
     if (this.isTraining()) {
-      relationLookup = new HashMap<List<Annotation>, BinaryTextRelation>();
+      relationLookup = new HashMap<>();
       for (BinaryTextRelation relation : JCasUtil.select(jCas, this.getRelationClass())) {
         Annotation arg1 = relation.getArg1().getArgument();
         Annotation arg2 = relation.getArg2().getArgument();
@@ -163,7 +163,7 @@ public abstract class RelationExtractorAnnotator extends CleartkAnnotator<String
         IdentifiedAnnotation arg1 = pair.getArg1();
         IdentifiedAnnotation arg2 = pair.getArg2();
         // apply all the feature extractors to extract the list of features
-        List<Feature> features = new ArrayList<Feature>();
+        List<Feature> features = new ArrayList<>();
         for (RelationFeaturesExtractor extractor : this.featureExtractors) {
           features.addAll(extractor.extract(jCas, arg1, arg2));
         }
@@ -171,8 +171,10 @@ public abstract class RelationExtractorAnnotator extends CleartkAnnotator<String
         // sanity check on feature values
         for (Feature feature : features) {
           if (feature.getValue() == null) {
-            String message = "Null value found in %s from %s";
-            throw new IllegalArgumentException(String.format(message, feature, features));
+        	feature.setValue("NULL");
+            String message = String.format("Null value found in %s from %s", feature, features);
+            System.err.println(message);
+//            throw new IllegalArgumentException(String.format(message, feature, features));
           }
         }
 
@@ -184,7 +186,7 @@ public abstract class RelationExtractorAnnotator extends CleartkAnnotator<String
           }
 
           // create a classification instance and write it to the training data
-          this.dataWriter.write(new Instance<String>(category, features));
+          this.dataWriter.write(new Instance<>(category, features));
         }
 
         // during classification feed the features to the classifier and create
