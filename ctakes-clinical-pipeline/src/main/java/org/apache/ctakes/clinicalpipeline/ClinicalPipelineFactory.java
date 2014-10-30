@@ -25,14 +25,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.SubjectCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.UncertaintyCleartkAnalysisEngine;
 import org.apache.ctakes.chunker.ae.Chunker;
 import org.apache.ctakes.chunker.ae.adjuster.ChunkAdjuster;
 import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
+import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.core.resource.FileResourceImpl;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
+import org.apache.ctakes.dictionary.lookup2.ae.AbstractJCasTermAnnotator;
+import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
+import org.apache.ctakes.dictionary.lookup2.ae.JCasTermAnnotator;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.postagger.POSTagger;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
@@ -41,14 +48,15 @@ import org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.xml.sax.SAXException;
 
 public class ClinicalPipelineFactory {
@@ -61,6 +69,31 @@ public class ClinicalPipelineFactory {
     builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
     builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
     builder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());
+    builder.add(UncertaintyCleartkAnalysisEngine.createAnnotatorDescription());
+    return builder.createAggregateDescription();
+  }
+  
+  public static AnalysisEngineDescription getFastPipeline() throws ResourceInitializationException{
+    AggregateBuilder builder = new AggregateBuilder();
+    builder.add(getTokenProcessingPipeline());
+    builder.add(AnalysisEngineFactory.createEngineDescription(CopyNPChunksToLookupWindowAnnotations.class));
+    builder.add(AnalysisEngineFactory.createEngineDescription(RemoveEnclosedLookupWindows.class));
+    try {
+      builder.add(AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotator.class,
+          AbstractJCasTermAnnotator.PARAM_WINDOW_ANNOT_PRP,
+          "org.apache.ctakes.typesystem.type.textspan.Sentence",
+          JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY,
+          ExternalResourceFactory.createExternalResourceDescription(
+              FileResourceImpl.class,
+              FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml"))
+          ));
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+      throw new ResourceInitializationException(e);
+    }
+    builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
+    builder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());
+    builder.add(UncertaintyCleartkAnalysisEngine.createAnnotatorDescription());
     return builder.createAggregateDescription();
   }
   
@@ -126,15 +159,17 @@ public class ClinicalPipelineFactory {
   }
   
   public static void main(String[] args) throws FileNotFoundException, IOException, UIMAException, SAXException{
-    AnalysisEngineDescription aed = getDefaultPipeline();
-    String note = "The patient is suffering from extreme pain due to shark bite. Recommend continuing use of aspirin, oxycodone, and coumadin. Continue exercise for obesity and hypertension." +
-                  "Patient denies smoking and chest pain. Patient has no cancer. There is no sign of multiple sclerosis.";
+    AnalysisEngineDescription aed = getFastPipeline();
+//    String note = "54 year old woman with left breast cancer.";
+        
+    String note = "Patient's mother had diabetes and sister has gout. The patient is suffering from extreme pain due to shark bite. Recommend continuing use of aspirin, oxycodone, and coumadin. Continue exercise for obesity and hypertension." +
+                  "Patient denies smoking and chest pain. Patient has no cancer. There is no sign of multiple sclerosis. Consider possible adjuvant chemotherapy. May have rickets.";
     JCas jcas = JCasFactory.createJCas();
     jcas.setDocumentText(note);
     SimplePipeline.runPipeline(jcas, aed);
 
     for(IdentifiedAnnotation entity : JCasUtil.select(jcas, IdentifiedAnnotation.class)){
-      System.out.println("Entity: " + entity.getCoveredText() + " === Polarity: " + entity.getPolarity());
+      System.out.println("Entity: " + entity.getCoveredText() + " === Polarity: " + entity.getPolarity() + " === Uncertainty: " + entity.getUncertainty() + " === Subject: " + entity.getSubject() + " === Entity class: " + entity.getClass().getSimpleName());
     }
     
     if(args.length > 0)
