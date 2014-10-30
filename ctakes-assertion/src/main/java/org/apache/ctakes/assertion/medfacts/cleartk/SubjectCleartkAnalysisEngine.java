@@ -27,9 +27,12 @@ import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelectio
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.log4j.Level;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.Instance;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 public class SubjectCleartkAnalysisEngine extends
     AssertionCleartkAnalysisEngine {
@@ -95,5 +98,17 @@ public class SubjectCleartkAnalysisEngine extends
         this.featureSelection = createFeatureSelection(this.featureSelectionThreshold);
       }    
   }
+  
+	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath) throws ResourceInitializationException {
+		  return AnalysisEngineFactory.createEngineDescription(SubjectCleartkAnalysisEngine.class,
+		      AssertionCleartkAnalysisEngine.PARAM_FEATURE_CONFIG,
+	        AssertionCleartkAnalysisEngine.FEATURE_CONFIG.DEP_REGEX,
+		      GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+		      modelPath);
+		}
+
+		public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
+		  return createAnnotatorDescription("/org/apache/ctakes/assertion/models/subject/model.jar");
+		}  
     
 }
