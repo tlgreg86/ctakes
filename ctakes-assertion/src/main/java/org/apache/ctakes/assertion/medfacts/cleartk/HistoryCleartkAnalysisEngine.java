@@ -29,10 +29,12 @@ import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ContextWordWindow
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.Instance;
-import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 public class HistoryCleartkAnalysisEngine extends
 		AssertionCleartkAnalysisEngine {
@@ -42,30 +44,14 @@ public class HistoryCleartkAnalysisEngine extends
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
-		probabilityOfKeepingADefaultExample = 0.1;
+		probabilityOfKeepingADefaultExample = 0.5;
 	
-//		if (this.isTraining() && this.goldViewName == null) {
-//			throw new IllegalArgumentException(PARAM_GOLD_VIEW_NAME + " must be defined during training");
-//		}
-		
-//		if (USE_DEFAULT_EXTRACTORS) {
-//			super.initialize(context);
-//		} else {
-			initialize_history_extractor();
-//		}
-			initializeFeatureSelection();
-
+		initialize_history_extractor();
+		initializeFeatureSelection();
 	}
 
-	private void initialize_history_extractor() throws ResourceInitializationException {
+	private void initialize_history_extractor() {
 		
-//		if (this.contextFeatureExtractors==null) {
-//			this.contextFeatureExtractors = new ArrayList<CleartkExtractor>();
-//		}
-//		this.contextFeatureExtractors.add( 
-//				new CleartkExtractor(
-//						IdentifiedAnnotation.class, new HistoryFeaturesExtractor()) );
-//		
 		if(this.entityFeatureExtractors == null){
 			this.entityFeatureExtractors = new ArrayList<>();
 		}
@@ -87,7 +73,6 @@ public class HistoryCleartkAnalysisEngine extends
 	        }
 	                
 	        instance.setOutcome(String.valueOf(history));
-//	        this.dataWriter.write(instance);
 	      } else
 	      {
 	        String label = this.classifier.classify(instance.getFeatures());
@@ -95,8 +80,7 @@ public class HistoryCleartkAnalysisEngine extends
 	      }
 	}
 	public static FeatureSelection<String> createFeatureSelection(double threshold) {
-		return new Chi2FeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
-		//		  return new MutualInformationFeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME);
+		return new Chi2FeatureSelection<>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
 	}
 
 	public static URI createFeatureSelectionURI(File outputDirectoryName) {
@@ -108,16 +92,17 @@ public class HistoryCleartkAnalysisEngine extends
 	    if (featureSelectionThreshold == 0) {
 	    	this.featureSelection = null;
 	    } else {
-	    	this.featureSelection = this.createFeatureSelection(this.featureSelectionThreshold);
-
-//	    	if ( (new File(this.featureSelectionURI)).exists() ) {
-//	    		try {
-//	    			this.featureSelection.load(this.featureSelectionURI);
-//	    		} catch (IOException e) {
-//	    			throw new ResourceInitializationException(e);
-//	    		}
-//	    	}
+	    	this.featureSelection = createFeatureSelection(this.featureSelectionThreshold);
 	    }		
 	}
-	  
+
+	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath) throws ResourceInitializationException {
+		return AnalysisEngineFactory.createEngineDescription(HistoryCleartkAnalysisEngine.class,
+				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+				modelPath);
+	}
+
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
+		return createAnnotatorDescription("/org/apache/ctakes/assertion/models/historyOf/model.jar");
+	}
 }

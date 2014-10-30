@@ -28,10 +28,12 @@ import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelectio
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ContextWordWindowExtractor;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.Instance;
-import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 public class GenericCleartkAnalysisEngine extends
 		AssertionCleartkAnalysisEngine {
@@ -41,29 +43,13 @@ public class GenericCleartkAnalysisEngine extends
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
-		probabilityOfKeepingADefaultExample = 0.1;
-	
-//		if (this.isTraining() && this.goldViewName == null) {
-//			throw new IllegalArgumentException(PARAM_GOLD_VIEW_NAME + " must be defined during training");
-//		}
-		
-//		if (USE_DEFAULT_EXTRACTORS) {
-//			super.initialize(context);
-//		} else {
-			initialize_generic_extractor();
-//		}
-			initializeFeatureSelection();
+		probabilityOfKeepingADefaultExample = 0.5;
 
+		initialize_generic_extractor();
+		initializeFeatureSelection();
 	}
 
-	private void initialize_generic_extractor() throws ResourceInitializationException {
-		
-//		if (this.contextFeatureExtractors==null) {
-//			this.contextFeatureExtractors = new ArrayList<CleartkExtractor>();
-//		}
-//		this.contextFeatureExtractors.add( 
-//				new CleartkExtractor(
-//						IdentifiedAnnotation.class, new GenericFeaturesExtractor()) );
+	private void initialize_generic_extractor() {		
 		if(this.entityFeatureExtractors == null){
 			this.entityFeatureExtractors = new ArrayList<>();
 		}
@@ -76,24 +62,22 @@ public class GenericCleartkAnalysisEngine extends
 			Instance<String> instance) throws AnalysisEngineProcessException {
 		if (this.isTraining())
 	      {
-	        String generic = entityOrEventMention.getGeneric()? "1":"0";
+	        boolean generic = entityOrEventMention.getGeneric();
 
 	        // downsampling. initialize probabilityOfKeepingADefaultExample to 1.0 for no downsampling
-	        if ("0".equals(generic) 
+	        if (!generic 
 	        		&& coin.nextDouble() >= this.probabilityOfKeepingADefaultExample) {
 	        	return;
 	        }
-	        instance.setOutcome(generic);
-//	        this.dataWriter.write(instance);
+	        instance.setOutcome(""+generic);
 	      } else
 	      {
 	        String label = this.classifier.classify(instance.getFeatures());
-	        entityOrEventMention.setGeneric("1".equals(label));
+	        entityOrEventMention.setGeneric(Boolean.parseBoolean(label));
 	      }
 	}
 	public static FeatureSelection<String> createFeatureSelection(double threshold) {
-		return new Chi2FeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
-		//		  return new MutualInformationFeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME);
+		return new Chi2FeatureSelection<>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
 	}
 
 	public static URI createFeatureSelectionURI(File outputDirectoryName) {
@@ -105,16 +89,18 @@ public class GenericCleartkAnalysisEngine extends
 	    if (featureSelectionThreshold == 0) {
 	    	this.featureSelection = null;
 	    } else {
-	    	this.featureSelection = this.createFeatureSelection(this.featureSelectionThreshold);
-
-//	    	if ( (new File(this.featureSelectionURI)).exists() ) {
-//	    		try {
-//	    			this.featureSelection.load(this.featureSelectionURI);
-//	    		} catch (IOException e) {
-//	    			throw new ResourceInitializationException(e);
-//	    		}
-//	    	}
+	    	this.featureSelection = createFeatureSelection(this.featureSelectionThreshold);
 	    }		
 	}
-	  
+
+	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath) throws ResourceInitializationException {
+		return AnalysisEngineFactory.createEngineDescription(GenericCleartkAnalysisEngine.class,
+				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+				modelPath);
+	}
+
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
+		return createAnnotatorDescription("/org/apache/ctakes/assertion/models/generic/model.jar");
+	}
+
 }

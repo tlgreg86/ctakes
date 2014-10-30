@@ -23,11 +23,15 @@ import java.net.URI;
 
 import org.apache.ctakes.assertion.attributes.features.selection.Chi2FeatureSelection;
 import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
+import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.Instance;
+import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 public class ConditionalCleartkAnalysisEngine extends
 		AssertionCleartkAnalysisEngine {
@@ -35,9 +39,8 @@ public class ConditionalCleartkAnalysisEngine extends
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
-		probabilityOfKeepingADefaultExample = 0.1;
+		probabilityOfKeepingADefaultExample = 1.0;
 		initializeFeatureSelection();
-
 	}
 	
 	@Override
@@ -45,33 +48,26 @@ public class ConditionalCleartkAnalysisEngine extends
 			Instance<String> instance) throws AnalysisEngineProcessException {
 		if (this.isTraining())
 	      {
-	        String conditional = (entityOrEventMention.getConditional()) ? "conditional" : "nonconditional";
+	        boolean conditional = entityOrEventMention.getConditional();
 	        
 	        // downsampling. initialize probabilityOfKeepingADefaultExample to 1.0 for no downsampling
-	        if ("nonconditional".equals(conditional) 
+	        if (!conditional 
 	        		&& coin.nextDouble() >= this.probabilityOfKeepingADefaultExample) {
 	        	return;
 	        }
-	        instance.setOutcome(conditional);
-//	        this.dataWriter.write(instance);
-
+	        instance.setOutcome(""+conditional);
 	      } else
 	      {
 	        String label = this.classifier.classify(instance.getFeatures());
 	        boolean conditional = false;
-	        if (label!= null && label.equals("conditional"))
-	        {
-	          conditional = true;
-	        } else if (label != null && label.equals("nonconditional"))
-	        {
-	          conditional = false;
+	        if (label!= null){
+	        	conditional = Boolean.parseBoolean(label);
 	        }
 	        entityOrEventMention.setConditional(conditional);
 	      }
 	}
 	public static FeatureSelection<String> createFeatureSelection(double threshold) {
-		return new Chi2FeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
-		//		  return new MutualInformationFeatureSelection<String>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME);
+		return new Chi2FeatureSelection<>(AssertionCleartkAnalysisEngine.FEATURE_SELECTION_NAME, threshold, false);
 	}
 
 	public static URI createFeatureSelectionURI(File outputDirectoryName) {
@@ -83,16 +79,18 @@ public class ConditionalCleartkAnalysisEngine extends
 	    if (featureSelectionThreshold == 0) {
 	    	this.featureSelection = null;
 	    } else {
-	    	this.featureSelection = this.createFeatureSelection(this.featureSelectionThreshold);
-
-//	    	if ( (new File(this.featureSelectionURI)).exists() ) {
-//	    		try {
-//	    			this.featureSelection.load(this.featureSelectionURI);
-//	    		} catch (IOException e) {
-//	    			throw new ResourceInitializationException(e);
-//	    		}
-//	    	}
+	    	this.featureSelection = createFeatureSelection(this.featureSelectionThreshold);
 	    }		
 	}
-	  
+
+	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath) throws ResourceInitializationException {
+		return AnalysisEngineFactory.createEngineDescription(ConditionalCleartkAnalysisEngine.class,
+				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+				modelPath);
+	}
+
+	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
+		return createAnnotatorDescription("/org/apache/ctakes/assertion/models/conditional/model.jar");
+	}
+
 }
