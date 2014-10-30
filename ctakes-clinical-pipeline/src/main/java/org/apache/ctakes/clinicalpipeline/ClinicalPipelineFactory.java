@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ctakes.assertion.medfacts.cleartk.ConditionalCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.GenericCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.HistoryCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.SubjectCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.UncertaintyCleartkAnalysisEngine;
@@ -42,6 +45,7 @@ import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.JCasTermAnnotator;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.postagger.POSTagger;
+import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation;
@@ -70,6 +74,11 @@ public class ClinicalPipelineFactory {
     builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
     builder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());
     builder.add(UncertaintyCleartkAnalysisEngine.createAnnotatorDescription());
+    builder.add(HistoryCleartkAnalysisEngine.createAnnotatorDescription());
+    builder.add(ConditionalCleartkAnalysisEngine.createAnnotatorDescription());
+    builder.add(GenericCleartkAnalysisEngine.createAnnotatorDescription());
+    builder.add(SubjectCleartkAnalysisEngine.createAnnotatorDescription());
+    
     return builder.createAggregateDescription();
   }
   
@@ -159,17 +168,23 @@ public class ClinicalPipelineFactory {
   }
   
   public static void main(String[] args) throws FileNotFoundException, IOException, UIMAException, SAXException{
-    AnalysisEngineDescription aed = getFastPipeline();
-//    String note = "54 year old woman with left breast cancer.";
-        
-    String note = "Patient's mother had diabetes and sister has gout. The patient is suffering from extreme pain due to shark bite. Recommend continuing use of aspirin, oxycodone, and coumadin. Continue exercise for obesity and hypertension." +
-                  "Patient denies smoking and chest pain. Patient has no cancer. There is no sign of multiple sclerosis. Consider possible adjuvant chemotherapy. May have rickets.";
+    AnalysisEngineDescription aed = getDefaultPipeline();
+    String note = "History of diabetes and hypertension. Mother had breast cancer. Sister with multiple sclerosis. " +
+    			  "The patient is suffering from extreme pain due to shark bite. Recommend continuing use of aspirin, oxycodone, and coumadin. Continue exercise for obesity and hypertension." +
+                  "Patient denies smoking and chest pain. Patient has no cancer. There is no sign of multiple sclerosis. " +
+    			  "Mass is suspicious for breast cancer. Discussed surgery and chemotherapy. Will return if pain continues.";
     JCas jcas = JCasFactory.createJCas();
     jcas.setDocumentText(note);
     SimplePipeline.runPipeline(jcas, aed);
 
     for(IdentifiedAnnotation entity : JCasUtil.select(jcas, IdentifiedAnnotation.class)){
-      System.out.println("Entity: " + entity.getCoveredText() + " === Polarity: " + entity.getPolarity() + " === Uncertainty: " + entity.getUncertainty() + " === Subject: " + entity.getSubject() + " === Entity class: " + entity.getClass().getSimpleName());
+      System.out.println("Entity: " + entity.getCoveredText() + " === Polarity: " + entity.getPolarity() +
+    		  													" === Uncertain? " + (entity.getUncertainty()==CONST.NE_UNCERTAINTY_PRESENT) +
+    		  													" === Subject: " + entity.getSubject() + 
+    		  													" === Generic? "  + (entity.getGeneric() == CONST.NE_GENERIC_TRUE) +
+    		  													" === Conditional? " + (entity.getConditional() == CONST.NE_CONDITIONAL_TRUE) +
+    		  													" === History? " + (entity.getHistoryOf() == CONST.NE_HISTORY_OF_PRESENT)
+    		  );
     }
     
     if(args.length > 0)
