@@ -20,41 +20,52 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.apache.ctakes</groupId>
-    <artifactId>ctakes</artifactId>
-    <version>3.2.1-SNAPSHOT</version>
-  </parent>
-  <artifactId>ctakes-dictionary-lookup-fast-res</artifactId>
-  <name>Apache cTAKES Resources dictionary-lookup-fast-res</name>
-  <description>Resources Project for ctakes-dictionary-lookup-fast</description>
-  <dependencies>
-      	<dependency>
-			<groupId>net.sourceforge.ctakesresources</groupId>
-			<artifactId>ctakes-resources-snomed-rword-hsqldb-2011ab</artifactId>
-			<version>3.1.2</version>
-		</dependency>		
-  </dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>unpack-dependencies</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>unpack-dependencies</goal>
-						</goals>
-						<configuration>
-							<includeArtifactId>ctakes-resources-snomed-rword-hsqldb-2011ab</includeArtifactId>							
-							<outputDirectory>${project.build.directory}/classes</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>    
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>org.apache.ctakes</groupId>
+      <artifactId>ctakes</artifactId>
+      <version>3.2.1-SNAPSHOT</version>
+   </parent>
+   <artifactId>ctakes-dictionary-lookup-fast-res</artifactId>
+   <name>Apache cTAKES Resources dictionary-lookup-fast-res</name>
+   <description>Resources Project for ctakes-dictionary-lookup-fast</description>
+   <dependencies>
+      <dependency>
+         <groupId>net.sourceforge.ctakesresources</groupId>
+         <artifactId>ctakes-resources-snomed-rword-hsqldb-2011ab</artifactId>
+         <version>3.2.0</version>
+      </dependency>
+   </dependencies>
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>unpack-dependencies-ide</id>
+                  <phase>process-resources</phase>
+                  <goals>
+                     <goal>unpack-dependencies</goal>
+                  </goals>
+                  <configuration>
+                     <!-- copy the hsql database to ${basedir}/resources to work with IDE -->
+                     <outputDirectory>${project.basedir}/../resources</outputDirectory>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>unpack-dependencies-bin</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>unpack-dependencies</goal>
+                  </goals>
+                  <configuration>
+                     <!-- copy the hsql database to target/classes/ for the bin package -->
+                     <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
 </project>
