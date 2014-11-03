@@ -32,6 +32,7 @@ import org.apache.ctakes.assertion.medfacts.cleartk.SubjectCleartkAnalysisEngine
 import org.apache.ctakes.assertion.medfacts.cleartk.UncertaintyCleartkAnalysisEngine;
 import org.apache.ctakes.chunker.ae.Chunker;
 import org.apache.ctakes.chunker.ae.adjuster.ChunkAdjuster;
+import org.apache.ctakes.constituency.parser.ae.ConstituencyParser;
 import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
@@ -106,10 +107,12 @@ public class ClinicalPipelineFactory {
     return builder.createAggregateDescription();
   }
   
-  // TODO
-  public static AnalysisEngineDescription getParsingPipeline(){
+  public static AnalysisEngineDescription getParsingPipeline() throws ResourceInitializationException{
     AggregateBuilder builder = new AggregateBuilder();
-    throw new UnsupportedOperationException("Not yet implemented!");
+    builder.add(getTokenProcessingPipeline());
+    builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
+    builder.add(AnalysisEngineFactory.createEngineDescription(ConstituencyParser.class));
+    return builder.createAggregateDescription();
   }
   
   public static AnalysisEngineDescription getTokenProcessingPipeline() throws ResourceInitializationException {
