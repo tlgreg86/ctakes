@@ -19,18 +19,19 @@ import java.util.logging.Logger;
  * Also a start at wsd by trim of overlapping terms of conflicting but related semantic group.
  * In this incarnation, any sign / symptom that is within a disease / disorder is assumed to be
  * less specific than the disease disorder and is discarded.
+ * In addition, any s/s or d/d that has the same span as an anatomical site is discarded.
  *
  * @author SPF , chip-nlp
  * @version %I%
  * @since 10/24/2014
  */
-public class MetaWsdTermConsumer extends AbstractTermConsumer {
+public class SemanticCleanupTermConsumer extends AbstractTermConsumer {
 
    static private final Logger LOGGER = Logger.getLogger( "MetaWsdTermConsumer" );
 
    private final TermConsumer _idHitConsumer;
 
-   public MetaWsdTermConsumer( final UimaContext uimaContext, final Properties properties ) {
+   public SemanticCleanupTermConsumer( final UimaContext uimaContext, final Properties properties ) {
       super( uimaContext, properties );
       _idHitConsumer = new PrecisionTermConsumer( uimaContext, properties );
    }
@@ -58,9 +59,8 @@ public class MetaWsdTermConsumer extends AbstractTermConsumer {
       final Map<Integer, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> groupedSemanticCuis
             = new HashMap<>();
       // The dictionary may have more than one type, create a map of types to terms and use them all
-      final CollectionMap<TextSpan, Long, ? extends Collection<Long>> semanticTerms = new HashSetMap<>();
       for ( Integer cTakesSemantic : usedcTakesSemantics ) {
-         semanticTerms.clear();
+         final CollectionMap<TextSpan, Long, ? extends Collection<Long>> semanticTerms = new HashSetMap<>();
          for ( Map.Entry<TextSpan, ? extends Collection<Long>> spanCuis : textSpanCuis ) {
             for ( Long cuiCode : spanCuis.getValue() ) {
                final Collection<Concept> concepts = cuiConcepts.getCollection( cuiCode );
@@ -69,30 +69,50 @@ public class MetaWsdTermConsumer extends AbstractTermConsumer {
                }
             }
          }
-         groupedSemanticCuis.put( cTakesSemantic, PrecisionTermConsumer.createPreciseTerms( semanticTerms ) );
+         groupedSemanticCuis.put( cTakesSemantic, semanticTerms );
+      }
+      // Clean up sign/symptoms and disease/disorder spans that are also anatomical sites
+      if ( groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_ANATOMICAL_SITE ) ) {
+         if ( groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_FINDING ) ) {
+            for ( TextSpan anatomicalSpan : groupedSemanticCuis.get( CONST.NE_TYPE_ID_ANATOMICAL_SITE ).keySet() ) {
+               groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING ).remove( anatomicalSpan );
+            }
+         }
+         if ( groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_DISORDER ) ) {
+            for ( TextSpan anatomicalSpan : groupedSemanticCuis.get( CONST.NE_TYPE_ID_ANATOMICAL_SITE ).keySet() ) {
+               groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING ).remove( anatomicalSpan );
+            }
+         }
       }
       // Clean up sign/symptoms that are also within disease/disorder spans
-      semanticTerms.clear();
-      for ( Map.Entry<TextSpan, ? extends Collection<Long>> diseases : groupedSemanticCuis
-            .get( CONST.NE_TYPE_ID_DISORDER ) ) {
-         semanticTerms.addAllValues( diseases.getKey(), diseases.getValue() );
-      }
-      for ( Map.Entry<TextSpan, ? extends Collection<Long>> diseases : groupedSemanticCuis
-            .get( CONST.NE_TYPE_ID_FINDING ) ) {
-         semanticTerms.addAllValues( diseases.getKey(), diseases.getValue() );
-      }
-      final CollectionMap<TextSpan, Long, ? extends Collection<Long>> preciseDiseaseTerms
-            = PrecisionTermConsumer.createPreciseTerms( semanticTerms );
-      final Iterable<TextSpan> findingSpans = new ArrayList<>( groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING )
-            .keySet() );
-      for ( TextSpan findingSpan : findingSpans ) {
-         if ( !preciseDiseaseTerms.containsKey( findingSpan ) ) {
-            groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING ).remove( findingSpan );
+      if ( groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_FINDING )
+           && groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_DISORDER ) ) {
+         final CollectionMap<TextSpan, Long, ? extends Collection<Long>> semanticTerms = new HashSetMap<>();
+         for ( Map.Entry<TextSpan, ? extends Collection<Long>> diseases : groupedSemanticCuis
+               .get( CONST.NE_TYPE_ID_DISORDER ) ) {
+            semanticTerms.addAllValues( diseases.getKey(), diseases.getValue() );
+            groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING ).remove( diseases.getKey() );
+         }
+         for ( Map.Entry<TextSpan, ? extends Collection<Long>> findings : groupedSemanticCuis
+               .get( CONST.NE_TYPE_ID_FINDING ) ) {
+            semanticTerms.addAllValues( findings.getKey(), findings.getValue() );
+         }
+         // We just created a collection with only the largest Textspans.
+         // Any smaller Finding textspans are therefore within a larger d/d textspan and should be removed.
+         final CollectionMap<TextSpan, Long, ? extends Collection<Long>> preciseDiseaseTerms
+               = PrecisionTermConsumer.createPreciseTerms( semanticTerms );
+         final Iterable<TextSpan> findingSpans = new ArrayList<>( groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING )
+               .keySet() );
+         for ( TextSpan findingSpan : findingSpans ) {
+            if ( !preciseDiseaseTerms.containsKey( findingSpan ) ) {
+               groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING ).remove( findingSpan );
+            }
          }
       }
       for ( Map.Entry<Integer, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> group : groupedSemanticCuis
             .entrySet() ) {
-         consumeTypeIdHits( jcas, codingScheme, group.getKey(), group.getValue(), cuiConcepts );
+         consumeTypeIdHits( jcas, codingScheme, group.getKey(),
+               PrecisionTermConsumer.createPreciseTerms( group.getValue() ), cuiConcepts );
       }
    }
 
