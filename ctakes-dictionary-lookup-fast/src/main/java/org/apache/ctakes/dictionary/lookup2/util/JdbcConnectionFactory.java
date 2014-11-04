@@ -2,6 +2,7 @@ package org.apache.ctakes.dictionary.lookup2.util;
 
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -23,6 +24,8 @@ public enum JdbcConnectionFactory {
 
    static final private Logger LOGGER = Logger.getLogger( "JdbcConnectionFactory" );
 
+   static private final String HSQL_FILE_PREFIX = "jdbc:hsqldb:file:";
+   static private final String HSQL_DB_EXT = ".script";
    private final Map<String, Connection> CONNECTIONS = Collections.synchronizedMap( new HashMap<String, Connection>() );
 
    public static JdbcConnectionFactory getInstance() {
@@ -48,6 +51,28 @@ public enum JdbcConnectionFactory {
       if ( connection != null ) {
          return connection;
       }
+      String trueJdbcUrl = jdbcUrl;
+      if ( jdbcUrl.startsWith( HSQL_FILE_PREFIX ) ) {
+         // Hack for hsqldb file needing to be absolute or relative to current working directory
+         final String urlFilePath = jdbcUrl.substring( HSQL_FILE_PREFIX.length() ) + HSQL_DB_EXT;
+         File file = new File( urlFilePath );
+         if ( !file.exists() ) {
+            // file url is not absolute, check for relative directly under current working directory
+            final String cwd = System.getProperty( "user.dir" );
+            file = new File( cwd, urlFilePath );
+            if ( !file.exists() ) {
+               // Users running projects out of an ide may have the module directory as cwd
+               final String cwdParent = new File( cwd ).getParent();
+               file = new File( cwdParent, urlFilePath );
+               if ( file.exists() ) {
+                  trueJdbcUrl = "../" + jdbcUrl;
+               } else {
+                  LOGGER.error( "Could not find " + urlFilePath + " as absolute or in " + cwd + " or in " + cwdParent );
+                  throw new SQLException( "No HsqlDB script file exists at Url" );
+               }
+            }
+         }
+      }
       try {
          // DO NOT use try with resources here.
          // Try with resources uses a closable and closes it when exiting the try block
@@ -64,9 +89,9 @@ public enum JdbcConnectionFactory {
          // DO NOT use try with resources here.
          // Try with resources uses a closable and closes it when exiting the try block
          // We need the Connection later, and if it is closed then it is useless
-         connection = DriverManager.getConnection( jdbcUrl, jdbcUser, jdbcPass );
+         connection = DriverManager.getConnection( trueJdbcUrl, jdbcUser, jdbcPass );
       } catch ( SQLException sqlE ) {
-         LOGGER.error( "Could not create Connection with " + jdbcUrl + " as " + jdbcUser, sqlE );
+         LOGGER.error( "Could not create Connection with " + trueJdbcUrl + " as " + jdbcUser, sqlE );
          throw sqlE;
       }
       CONNECTIONS.put( jdbcUrl, connection );
