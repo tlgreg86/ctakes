@@ -79,6 +79,9 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 
 		@Option
 		public boolean getUseGoldAttributes();
+
+		@Option
+		public boolean getSkipTrain();
 	}
 	private static final String DOC_TIME_REL = "docTimeRel";
 	private static final String CONTEXTUAL_MODALITY = "contextualModality";
@@ -107,7 +110,12 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 					options.getXMLDirectory(),
 					options.getXMLFormat(),
 					options.getXMIDirectory());
-			evaluation.prepareXMIsFor(patientSets);
+			evaluation.skipTrain = options.getSkipTrain();
+			if(evaluation.skipTrain && options.getTest()){
+				evaluation.prepareXMIsFor(testItems);
+			}else{
+				evaluation.prepareXMIsFor(patientSets);
+			}
 			evaluation.logClassificationErrors(workingDir, "ctakes-event-property-errors");
 
 			Map<String, AnnotationStatistics<String>> stats = evaluation.trainAndTest(trainItems, testItems);
@@ -129,6 +137,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 	}
 
 	private Map<String, Logger> loggers = Maps.newHashMap();
+	protected boolean skipTrain=false;
 
 	public EvaluationOfEventProperties(
 			File baseDirectory,
@@ -144,6 +153,8 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 
 	@Override
 	protected void train(CollectionReader collectionReader, File directory) throws Exception {
+		//	  if(this.baseline) return;
+		if(this.skipTrain) return;
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class));
 		aggregateBuilder.add(CopyFromGold.getDescription(TimeMention.class));
