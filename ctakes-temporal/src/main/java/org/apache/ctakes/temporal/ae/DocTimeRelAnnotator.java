@@ -153,8 +153,10 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
       //        features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
       //        features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
       if (this.isTraining()) {
-        String outcome = eventMention.getEvent().getProperties().getDocTimeRel();
-        this.dataWriter.write(new Instance<String>(outcome, features));
+    	  if(eventMention.getEvent() != null){
+    		  String outcome = eventMention.getEvent().getProperties().getDocTimeRel();
+    		  this.dataWriter.write(new Instance<String>(outcome, features));
+    	  }
       } else {
         String outcome = this.classifier.classify(features);
         if (eventMention.getEvent() == null) {
