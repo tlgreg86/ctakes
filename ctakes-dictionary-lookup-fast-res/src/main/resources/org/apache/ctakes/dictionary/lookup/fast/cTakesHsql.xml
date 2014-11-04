@@ -27,8 +27,14 @@
          <implementationName>org.apache.ctakes.dictionary.lookup2.dictionary.UmlsJdbcRareWordDictionary</implementationName>
          <properties>
             <property key="jdbcDriver" value="org.hsqldb.jdbcDriver"/>
+            <!-- urls for hsqldb memory connections must be file types in hsql 1.8.
+            These file urls must be either absolute path or relative to current working directory.
+            They cannot be based upon the classpath.
+            Though JdbcConnectionFactory will attempt to "find" a db based upon the parent dir of the url
+            for the sake of ide ease-of-use, the user should be aware of these hsql limitations.
+            -->
             <property key="jdbcUrl"
-                      value="jdbc:hsqldb:file:resources/org/apache/ctakes/dictionary/lookup/fast/ctakessnorx/ctakessnorx"/>
+                      value="jdbc:hsqldb:file:resources/org/apache/ctakes/dictionary/lookup/fast/ctakesnewsnorx/ctakesnewsnorx"/>
             <property key="jdbcUser" value="sa"/>
             <property key="jdbcPass" value=""/>
             <property key="rareWordTable" value="cui_terms"/>
@@ -47,11 +53,14 @@
          <properties>
             <property key="jdbcDriver" value="org.hsqldb.jdbcDriver"/>
             <property key="jdbcUrl"
-                      value="jdbc:hsqldb:file:resources/org/apache/ctakes/dictionary/lookup/fast/ctakessnorx/ctakessnorx"/>
+                      value="jdbc:hsqldb:file:resources/org/apache/ctakes/dictionary/lookup/fast/ctakesnewsnorx/ctakesnewsnorx"/>
             <property key="jdbcUser" value="sa"/>
             <property key="jdbcPass" value=""/>
             <property key="tuiTable" value="tui"/>
             <property key="prefTermTable" value="prefTerm"/>
+            <!-- Optional tables for optional term info.
+            Uncommenting these lines alone may not persist term information;
+            persistence depends upon the TermConsumer.  -->
             <!--<property key="snomedTable" value="snomedct"/>-->
             <!--<property key="rxNormTable" value="rxnorm"/>-->
             <!--<property key="icd9Table" value="icd9cm"/>-->
@@ -73,13 +82,15 @@
       </dictionaryConceptPair>
    </dictionaryConceptPairs>
 
-   <!-- PrecisionTermConsumer will only persist only the longest overlapping span of any semantic group -->
-   <!-- DefaultTermConsumer will persist all spans  -->
+   <!-- DefaultTermConsumer will persist all spans.
+   PrecisionTermConsumer will only persist only the longest overlapping span of any semantic group.
+   SemanticCleanupTermConsumer works as Precision** but also removes signs/sympoms contained within disease/disorder,
+    and (just in case) removes any s/s and d/d that are also (exactly) anatomical sites. -->
    <rareWordConsumer>
       <name>Term Consumer</name>
-      <!--<implementationName>org.apache.ctakes.dictionary.lookup2.consumer.MetaWsdTermConsumer</implementationName>-->
-      <!--<implementationName>org.apache.ctakes.dictionary.lookup2.consumer.PrecisionTermConsumer</implementationName>-->
       <implementationName>org.apache.ctakes.dictionary.lookup2.consumer.DefaultTermConsumer</implementationName>
+      <!--<implementationName>org.apache.ctakes.dictionary.lookup2.consumer.PrecisionTermConsumer</implementationName>-->
+      <!--<implementationName>org.apache.ctakes.dictionary.lookup2.consumer.SemanticCleanupTermConsumer</implementationName>-->
       <properties>
          <property key="codingScheme" value="cTakes"/>
       </properties>
