@@ -138,6 +138,9 @@ final public class DefaultCollectionMap<K, V, T extends Collection<V>> implement
     */
    @Override
    public <C extends Collection<V>> int addAllValues( final K key, final C values ) {
+      if ( values == null || values.isEmpty() ) {
+         return 0;
+      }
       T collection = _delegate.get( key );
       if ( collection == null ) {
          collection = _collectionCreator.createCollection();
