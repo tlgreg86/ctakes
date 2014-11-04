@@ -33,7 +33,7 @@
       <dependency>
          <groupId>net.sourceforge.ctakesresources</groupId>
          <artifactId>ctakes-resources-snomed-rword-hsqldb-2011ab</artifactId>
-         <version>3.2.0</version>
+         <version>3.2.1</version>
       </dependency>
    </dependencies>
    <build>
@@ -53,18 +53,35 @@
                      <outputDirectory>${project.basedir}/../resources</outputDirectory>
                   </configuration>
                </execution>
-               <execution>
-                  <id>unpack-dependencies-bin</id>
-                  <phase>package</phase>
-                  <goals>
-                     <goal>unpack-dependencies</goal>
-                  </goals>
-                  <configuration>
-                     <!-- copy the hsql database to target/classes/ for the bin package -->
-                     <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                  </configuration>
-               </execution>
+               <!--  Unpacking should not be performed when building a package  -->
+               <!--<execution>-->
+                  <!--<id>unpack-dependencies-bin</id>-->
+                  <!--<phase>package</phase>-->
+                  <!--<goals>-->
+                     <!--<goal>unpack-dependencies</goal>-->
+                  <!--</goals>-->
+                  <!--<configuration>-->
+                     <!--&lt;!&ndash; copy the hsql database to target/classes/ for the bin package &ndash;&gt;-->
+                     <!--<outputDirectory>${project.build.directory}/classes</outputDirectory>-->
+                  <!--</configuration>-->
+               <!--</execution>-->
             </executions>
+         </plugin>
+         <plugin>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>2.4</version>
+            <configuration>
+               <includes>
+                  <!-- Dictionary lookup Resources that are unpacked
+                     automatically by maven
+                     are not jar'd and included in the bin distro
+                     by default please download them from SF if needed.
+                   -->
+                  <include>**/*.class</include>
+                  <include>**/types/*.xml</include>
+                  <include>**/META-INF/**</include>
+               </includes>
+            </configuration>
          </plugin>
       </plugins>
    </build>
