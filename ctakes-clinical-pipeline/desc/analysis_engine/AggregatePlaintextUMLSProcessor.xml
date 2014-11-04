@@ -33,7 +33,7 @@
       <import location="../../../ctakes-context-tokenizer/desc/analysis_engine/ContextDependentTokenizerAnnotator.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="DictionaryLookupAnnotatorDB">
-      <import location="../../../ctakes-dictionary-lookup/desc/analysis_engine/DictionaryLookupAnnotatorUMLS.xml"/>
+       <import location="../../../ctakes-dictionary-lookup-fast/desc/analysis_engine/UmlsLookupAnnotator.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="StatusAnnotator">
       <import location="../../../ctakes-ne-contexts/desc/StatusAnnotator.xml"/>
@@ -47,9 +47,24 @@
     <delegateAnalysisEngine key="SentenceDetectorAnnotator">
       <import location="../../../ctakes-core/desc/analysis_engine/SentenceDetectorAnnotator.xml"/>
     </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="LookupWindowAnnotator">
-      <import location="LookupWindowAnnotator.xml"/>
-    </delegateAnalysisEngine>
+     <!-- By default, the dictionary lookup window is Sentence.
+          The change was made in 3.2.1 because experiments showed that many terms were missed when relying upon the
+          accuracy of LookupWindowAnnotator to correctly identify all present full noun phrases.
+          Instead, reliance is now upon the fact that most terms in the dictionary itself are (or fit in) noun phrases.
+     To revert to LookupWindowAnnotation:
+       1.  uncomment the following lines to load the LookupWindowAnnotator,
+       2.  uncomment the LookupWindowAnnotator line in <fixedFlow>,
+       3.  uncomment the LookupWindowAnnotation line in <capability> <outputs> <type>
+       4.  in ctakes-dictionary-lookup-fast .. /desc/analysis_engine/UmlsLookupAnnotator.xml
+       switch the value for <nameValuePair> windowAnnotations.
+       LookupWindowAnnotation is still there, just commented
+       5.  also uncomment <capability> <inputs> <type> ... LookupWindowAnnotation in UmlsLookupAnnotator.xml
+       The AdjustNounPhrase*** annotators have been left in case another module needs them.
+       I leave it to somebody with more applicable knowledge to remove them from the flow.
+       -->
+    <!--<delegateAnalysisEngine key="LookupWindowAnnotator">-->
+      <!--<import location="LookupWindowAnnotator.xml"/>-->
+    <!--</delegateAnalysisEngine>-->
     <delegateAnalysisEngine key="AdjustNounPhraseToIncludeFollowingNP">
       <import location="../../../ctakes-chunker/desc/AdjustNounPhraseToIncludeFollowingNP.xml"/>
     </delegateAnalysisEngine>
@@ -128,7 +143,7 @@ and requires an UMLS license.  Please update DictionaryLookupAnnotatorUMLS.xml f
         <node>Chunker</node>
         <node>AdjustNounPhraseToIncludeFollowingNP</node>
         <node>AdjustNounPhraseToIncludeFollowingPPNP</node>
-        <node>LookupWindowAnnotator</node>
+        <!--<node>LookupWindowAnnotator</node>-->
         <node>DictionaryLookupAnnotatorDB</node>
         <node>DependencyParser</node>
 		<node>SemanticRoleLabeler</node>        
@@ -182,7 +197,7 @@ and requires an UMLS license.  Please update DictionaryLookupAnnotatorUMLS.xml f
           <type allAnnotatorFeatures="true">org.apache.ctakes.typesystem.type.syntax.NumToken</type>
           <type allAnnotatorFeatures="true">org.apache.ctakes.typesystem.type.syntax.</type>
           <type allAnnotatorFeatures="true">org.apache.ctakes.typesystem.type.textsem.MeasurementAnnotation</type>
-          <type allAnnotatorFeatures="true">edu.mayo.bmi.uima.lookup.type.LookupWindowAnnotation</type>
+          <!--<type allAnnotatorFeatures="true">edu.mayo.bmi.uima.lookup.type.LookupWindowAnnotation</type>-->
           <type allAnnotatorFeatures="true">org.apache.ctakes.typesystem.type.syntax.Lemma</type>
           <type allAnnotatorFeatures="true">org.apache.ctakes.typesystem.type.syntax.LST</type>
           <type allAnnotatorFeatures="true">org.apache.ctakes.typesystem.type.syntax.INTJ</type>
