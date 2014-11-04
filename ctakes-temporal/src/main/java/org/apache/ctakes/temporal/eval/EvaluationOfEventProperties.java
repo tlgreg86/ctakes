@@ -269,7 +269,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 		};
 	}
 
-	public static class ClearEventProperties extends JCasAnnotator_ImplBase {
+	public static class ClearEventProperties extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
 			for (EventProperties eventProperties : JCasUtil.select(jCas, EventProperties.class)) {

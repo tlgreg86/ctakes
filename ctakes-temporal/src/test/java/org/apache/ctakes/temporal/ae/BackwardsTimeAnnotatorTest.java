@@ -86,6 +86,7 @@ public class BackwardsTimeAnnotatorTest {
 		ArrayList<String> temp = new ArrayList<>();
 		for (TimeMention mention : mentions) {
 			LOGGER.info("Event: " + mention.getCoveredText());
+			//LOGGER.info("Time: " + mention.getTime().getNormalizedForm());
 			temp.add(mention.getCoveredText());
 		}
 		assertEquals(2, temp.size());

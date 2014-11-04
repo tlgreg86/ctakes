@@ -256,7 +256,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     return stats;
   }
 
-  public static class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase {
+  public static class CoreferenceChainScoringOutput extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
     public static final String PARAM_OUTPUT_FILENAME = "OutputDirectory";
     @ConfigurationParameter(
         name = PARAM_OUTPUT_FILENAME,
@@ -398,7 +398,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
       }
     }
   }
-  public static class DocumentIDPrinter extends JCasAnnotator_ImplBase {
+  public static class DocumentIDPrinter extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
     static Logger logger = Logger.getLogger(DocumentIDPrinter.class);
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -411,7 +411,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     
   }
   
-  public static class ParagraphAnnotator extends JCasAnnotator_ImplBase {
+  public static class ParagraphAnnotator extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 
     @Override
     public void process(JCas jcas) throws AnalysisEngineProcessException {
@@ -437,7 +437,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     
   }
   
-  public static class ParagraphVectorAnnotator extends JCasAnnotator_ImplBase {
+  public static class ParagraphVectorAnnotator extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
     WordEmbeddings words = null;
 
     @Override

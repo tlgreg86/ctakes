@@ -454,7 +454,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		return stats;
 	}
 
-	public static class RemoveNonUMLSEvents extends JCasAnnotator_ImplBase {
+	public static class RemoveNonUMLSEvents extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 		public static final String PARAM_GOLD_VIEW = "GoldView";
 
 		@ConfigurationParameter(name = PARAM_GOLD_VIEW,mandatory=false)
@@ -498,7 +498,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}   
 	}
 	
-	public static class AddEEPotentialRelations extends JCasAnnotator_ImplBase {
+	public static class AddEEPotentialRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 		public static final String PARAM_RELATION_VIEW = "RelationView";
 		@ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
 		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
@@ -659,7 +659,7 @@ EvaluationOfTemporalRelations_ImplBase{
     }
   }*/
 
-	public static class RemoveCrossSentenceRelations extends JCasAnnotator_ImplBase {
+	public static class RemoveCrossSentenceRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 
 		public static final String PARAM_SENTENCE_VIEW = "SentenceView";
 
@@ -710,7 +710,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	}
 
 
-	public static class RemoveRelations extends JCasAnnotator_ImplBase {
+	public static class RemoveRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
 			for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
@@ -724,7 +724,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	}
 
 
-	public static class AddTransitiveContainsRelations extends JCasAnnotator_ImplBase {
+	public static class AddTransitiveContainsRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -789,7 +789,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 	}
 
-	public static class AddContain2Overlap extends JCasAnnotator_ImplBase {
+	public static class AddContain2Overlap extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -815,7 +815,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 
-	public static class AddFlippedOverlap extends JCasAnnotator_ImplBase {
+	public static class AddFlippedOverlap extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {

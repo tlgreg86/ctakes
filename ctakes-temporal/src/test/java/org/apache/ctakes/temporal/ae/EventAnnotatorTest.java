@@ -83,8 +83,7 @@ public class EventAnnotatorTest {
 
 		ArrayList<String> temp = new ArrayList<>();
 		for (EventMention mention : mentions) {
-			LOGGER.info("Event: " + mention.getCoveredText() + " Confidence:"
-					+ mention.getConfidence());
+			LOGGER.info("Event: " + mention.getCoveredText() );
 			temp.add(mention.getCoveredText());
 		}
 		assertEquals(3, temp.size());

@@ -99,7 +99,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 		this.printErrors =  printErrors;
 	}
 
-	public static class PreserveEventEventRelations extends JCasAnnotator_ImplBase {
+	public static class PreserveEventEventRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 		public static final String PARAM_GOLD_VIEW = "GoldView";
 
 		@ConfigurationParameter(name = PARAM_GOLD_VIEW,mandatory=false)
@@ -121,7 +121,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 		}   
 	}
 
-	public static class RemoveNonContainsRelations extends JCasAnnotator_ImplBase {
+	public static class RemoveNonContainsRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 		public static final String PARAM_RELATION_VIEW = "RelationView";
 
 		@ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
