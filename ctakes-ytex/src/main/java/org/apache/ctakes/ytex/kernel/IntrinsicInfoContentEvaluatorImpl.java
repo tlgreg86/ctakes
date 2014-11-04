@@ -18,10 +18,6 @@
  */
 package org.apache.ctakes.ytex.kernel;
 
-import gnu.trove.iterator.TIntIterator;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -30,6 +26,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -146,18 +143,18 @@ public class IntrinsicInfoContentEvaluatorImpl implements
 	 * @return
 	 * @throws IOException
 	 */
-	private TIntSet getLeaves(ConcRel concept,
-			SoftReference<TIntSet>[] leafCache,
+	private HashSet<Integer> getLeaves(ConcRel concept,
+			SoftReference<HashSet<Integer>>[] leafCache,
 			Map<String, IntrinsicICInfo> icInfoMap, ConceptGraph cg,
-			BufferedWriter w, TIntSet visitedNodes) throws IOException {
+			BufferedWriter w, HashSet<Integer> visitedNodes) throws IOException {
 		// look in cache
-		SoftReference<TIntSet> refLeaves = leafCache[concept.getNodeIndex()];
+		SoftReference<HashSet<Integer>> refLeaves = leafCache[concept.getNodeIndex()];
 		if (refLeaves != null && refLeaves.get() != null) {
 			return refLeaves.get();
 		}
 		// not in cache - compute recursively
-		TIntSet leaves = new TIntHashSet();
-		leafCache[concept.getNodeIndex()] = new SoftReference<TIntSet>(leaves);
+		HashSet<Integer> leaves = new HashSet<Integer>();
+		leafCache[concept.getNodeIndex()] = new SoftReference<HashSet<Integer>>(leaves);
 		if (concept.isLeaf()) {
 			// for leaves, just add the concept id
 			leaves.add(concept.getNodeIndex());
@@ -168,7 +165,7 @@ public class IntrinsicInfoContentEvaluatorImpl implements
 			// if no, then compute it now and revisit previously visited nodes
 			// if we have to
 			boolean needLeaves = (icInfo != null && icInfo.getLeafCount() == 0);
-			TIntSet visitedNodesLocal = visitedNodes;
+			HashSet<Integer> visitedNodesLocal = visitedNodes;
 			if (needLeaves || visitedNodesLocal == null) {
 				// allocate a set to keep track of nodes we've already visited
 				// so that we don't revisit them. if we have already computed
@@ -177,7 +174,7 @@ public class IntrinsicInfoContentEvaluatorImpl implements
 				// if we haven't already computed this node's leaf count,
 				// allocate a new set to avoid duplications in the traversal for
 				// this node
-				visitedNodesLocal = new TIntHashSet();
+				visitedNodesLocal = new HashSet<Integer>();
 			}
 			// for inner nodes, recurse
 			for (ConcRel child : concept.getChildren()) {
@@ -204,7 +201,7 @@ public class IntrinsicInfoContentEvaluatorImpl implements
 					w.write("\t");
 					w.write(Integer.toString(leaves.size()));
 					w.write("\t");
-					TIntIterator iter = leaves.iterator();
+					Iterator<Integer> iter = leaves.iterator();
 					while (iter.hasNext()) {
 						w.write(cg.getConceptList().get(iter.next())
 								.getConceptID());
@@ -359,8 +356,8 @@ public class IntrinsicInfoContentEvaluatorImpl implements
 		}
 		log.info("computing leaf counts");
 		@SuppressWarnings("unchecked")
-		SoftReference<TIntSet>[] leafCache = (SoftReference<TIntSet>[]) Array
-				.newInstance((new SoftReference<TIntSet>(new TIntHashSet()))
+		SoftReference<HashSet<Integer>>[] leafCache = (SoftReference<HashSet<Integer>>[]) Array
+				.newInstance((new SoftReference<HashSet<Integer>>(new HashSet<Integer>()))
 						.getClass(), cg.getConceptList().size());
 		// compute leaf count of all concepts in this graph
 		try {

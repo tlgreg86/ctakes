@@ -18,9 +18,7 @@
  */
 package org.apache.ctakes.ytex.umls.dao;
 
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.TShortSet;
-
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -65,7 +63,7 @@ public interface UMLSDao {
 	 * 
 	 * @return
 	 */
-	public abstract TIntSet getRXNORMCuis();
+	public abstract HashSet<Integer> getRXNORMCuis();
 
 	public abstract boolean isRXNORMCui(String cui);
 

@@ -18,10 +18,8 @@
  */
 package org.apache.ctakes.ytex.umls.dao;
 
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
-
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -149,8 +147,8 @@ public class UMLSDaoImpl implements UMLSDao {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public TIntSet getRXNORMCuis() {
-		TIntSet cuis = new TIntHashSet();
+	public HashSet<Integer> getRXNORMCuis() {
+		HashSet<Integer> cuis = new HashSet();
 		for (String cui : (List<String>) sessionFactory.getCurrentSession()
 				.getNamedQuery("getRXNORMCuis").list()) {
 			Matcher m = UMLSDao.cuiPattern.matcher(cui);

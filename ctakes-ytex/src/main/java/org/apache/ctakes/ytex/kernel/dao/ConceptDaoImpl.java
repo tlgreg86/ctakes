@@ -18,9 +18,6 @@
  */
 package org.apache.ctakes.ytex.kernel.dao;
 
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -425,7 +422,7 @@ public class ConceptDaoImpl implements ConceptDao {
 	}
 
 	private boolean checkCycle(ConcRel crPar, ConcRel crChild) {
-		TIntSet visitedNodes = new TIntHashSet();
+		HashSet<Integer> visitedNodes = new HashSet<Integer>();
 		return hasAncestor(crPar, crChild, visitedNodes);
 	}
 
@@ -442,7 +439,7 @@ public class ConceptDaoImpl implements ConceptDao {
 	 * @return true if crChild is an ancestor of crPar
 	 */
 	private boolean hasAncestor(ConcRel crPar, ConcRel crChild,
-			TIntSet visitedNodes) {
+			HashSet<Integer> visitedNodes) {
 		// see if we've already visited this node - if yes then no need to redo
 		// this
 		if (visitedNodes.contains(crPar.getNodeIndex()))
