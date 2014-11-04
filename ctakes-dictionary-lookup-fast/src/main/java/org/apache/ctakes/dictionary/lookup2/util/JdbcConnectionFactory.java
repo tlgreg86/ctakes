@@ -54,7 +54,8 @@ public enum JdbcConnectionFactory {
       String trueJdbcUrl = jdbcUrl;
       if ( jdbcUrl.startsWith( HSQL_FILE_PREFIX ) ) {
          // Hack for hsqldb file needing to be absolute or relative to current working directory
-         final String urlFilePath = jdbcUrl.substring( HSQL_FILE_PREFIX.length() ) + HSQL_DB_EXT;
+         final String urlDbPath = jdbcUrl.substring( HSQL_FILE_PREFIX.length() );
+         final String urlFilePath = urlDbPath + HSQL_DB_EXT;
          File file = new File( urlFilePath );
          if ( !file.exists() ) {
             // file url is not absolute, check for relative directly under current working directory
@@ -65,7 +66,7 @@ public enum JdbcConnectionFactory {
                final String cwdParent = new File( cwd ).getParent();
                file = new File( cwdParent, urlFilePath );
                if ( file.exists() ) {
-                  trueJdbcUrl = "../" + jdbcUrl;
+                  trueJdbcUrl = HSQL_FILE_PREFIX + "../" + urlDbPath;
                } else {
                   LOGGER.error( "Could not find " + urlFilePath + " as absolute or in " + cwd + " or in " + cwdParent );
                   throw new SQLException( "No HsqlDB script file exists at Url" );
