@@ -173,7 +173,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					options.getUseGoldAttributes(),
 					options.getKernelParams(),
 					params);
-			evaluation.prepareXMIsFor(patientSets);
+			
 			if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/temporal-relations/event-time");
 			List<Integer> training = trainItems;
 			List<Integer> testing = null;
@@ -185,6 +185,12 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 			//do closure on system, but not on gold, to calculate recall
 			evaluation.skipTrain = options.getSkipTrain();
+			if(evaluation.skipTrain && options.getTest()){
+				evaluation.prepareXMIsFor(testing);
+			}else{
+				evaluation.prepareXMIsFor(patientSets);
+			}
+			
 			params.stats = evaluation.trainAndTest(training, testing);//training);//
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
 			System.err.println("No closure on gold::Closure on System::Recall Mode");
@@ -580,7 +586,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	//	}
 
 
-	public static class RemoveEventEventRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+	public static class RemoveEventEventRelations extends JCasAnnotator_ImplBase {
 		public static final String PARAM_RELATION_VIEW = "RelationView";
 		@ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
 		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
@@ -613,7 +619,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 	
-	public static class AddPotentialRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+	public static class AddPotentialRelations extends JCasAnnotator_ImplBase {
 		public static final String PARAM_RELATION_VIEW = "RelationView";
 		@ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
 		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
@@ -688,7 +694,7 @@ EvaluationOfTemporalRelations_ImplBase{
     }
   }*/
 
-	public static class RemoveCrossSentenceRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+	public static class RemoveCrossSentenceRelations extends JCasAnnotator_ImplBase {
 
 		public static final String PARAM_SENTENCE_VIEW = "SentenceView";
 
@@ -739,7 +745,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	}
 
 
-	public static class RemoveRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+	public static class RemoveRelations extends JCasAnnotator_ImplBase {
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
 			for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
@@ -836,7 +842,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 
-	public static class AddTransitiveContainsRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+	public static class AddTransitiveContainsRelations extends JCasAnnotator_ImplBase {
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -901,7 +907,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 	}
 
-	public static class AddContain2Overlap extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+	public static class AddContain2Overlap extends JCasAnnotator_ImplBase {
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -927,7 +933,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 
-	public static class AddFlippedOverlap extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+	public static class AddFlippedOverlap extends JCasAnnotator_ImplBase {
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -967,7 +973,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 
-	public static class AddClosure extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+	public static class AddClosure extends JCasAnnotator_ImplBase {
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
