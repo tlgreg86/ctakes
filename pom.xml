@@ -534,13 +534,6 @@
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
 				<version>10.0</version>
-				<exclusions>
-				    <!-- Exclude LGPL Licensed transitive dependency -->
-				    <exclusion>
-				        <groupId>com.google.code.findbugs</groupId>
-				        <artifact>jsr305</artifact>
-				    </exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.carrotsearch</groupId>
