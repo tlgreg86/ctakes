@@ -61,7 +61,7 @@
                      <!--<goal>unpack-dependencies</goal>-->
                   <!--</goals>-->
                   <!--<configuration>-->
-                     <!--&lt;!&ndash; copy the hsql database to target/classes/ for the bin package &ndash;&gt;-->
+                     <!-- copy the hsql database to target/classes/ for the bin package -->
                      <!--<outputDirectory>${project.build.directory}/classes</outputDirectory>-->
                   <!--</configuration>-->
                <!--</execution>-->
