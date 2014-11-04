@@ -169,7 +169,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					options.getUseGoldAttributes(),
 					options.getKernelParams(),
 					params);
-			evaluation.prepareXMIsFor(patientSets);
+//			evaluation.prepareXMIsFor(patientSets);
 			if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/temporal-relations/event-event");
 			List<Integer> training = trainItems;
 			List<Integer> testing = null;
@@ -181,6 +181,11 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 			//do closure on system, but not on gold, to calculate recall
 			evaluation.skipTrain = options.getSkipTrain();
+			if(evaluation.skipTrain && options.getTest()){
+				evaluation.prepareXMIsFor(testing);
+			}else{
+				evaluation.prepareXMIsFor(patientSets);
+			}
 			params.stats = evaluation.trainAndTest(training, testing);//training);//
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
 			System.err.println("No closure on gold::Closure on System::Recall Mode");
@@ -371,11 +376,11 @@ EvaluationOfTemporalRelations_ImplBase{
 					GOLD_VIEW_NAME,
 					CAS.NAME_DEFAULT_SOFA
 					);
-			outf =  new File("target/eval/thyme/SystemError_eventEvent_recall_UMLSsingle_dev.txt");
+			outf =  new File("target/eval/thyme/SystemError_eventEvent_recall_test.txt");
 		}else if (!recallModeEvaluation && this.useClosure){
-			outf =  new File("target/eval/thyme/SystemError_eventEvent_precision_UMLSsingle_dev.txt");
+			outf =  new File("target/eval/thyme/SystemError_eventEvent_precision_test.txt");
 		}else{
-			outf =  new File("target/eval/thyme/SystemError_eventEvent_plain_UMLSsingle_dev.txt");
+			outf =  new File("target/eval/thyme/SystemError_eventEvent_plain_test.txt");
 		}
 
 		PrintWriter outDrop =null;
