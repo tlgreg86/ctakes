@@ -85,9 +85,28 @@
     <delegateAnalysisEngine key="LvgAnnotator">
       <import location="../../../ctakes-lvg/desc/analysis_engine/LvgAnnotator.xml"/>
     </delegateAnalysisEngine>
+<!--     
     <delegateAnalysisEngine key="AssertionAnnotator">
       <import location="../../../ctakes-assertion/desc/AssertionMiniPipelineAnalysisEngine.xml"/>
     </delegateAnalysisEngine>
+ -->
+     <delegateAnalysisEngine key="GenericCleartkAnalysisEngine">
+      <import location="../../../ctakes-assertion/desc/analysis_engine/GenericCleartkAnalysisEngine.xml"/>
+     </delegateAnalysisEngine>
+     
+     <delegateAnalysisEngine key="HistoryCleartkAnalysisEngine">
+      <import location="../../../ctakes-assertion/desc/analysis_engine/HistoryCleartkAnalysisEngine.xml"/>
+     </delegateAnalysisEngine>
+     <delegateAnalysisEngine key="PolarityCleartkAnalysisEngine">
+      <import location="../../../ctakes-assertion/desc/analysis_engine/PolarityCleartkAnalysisEngine.xml"/>
+     </delegateAnalysisEngine>
+     <delegateAnalysisEngine key="SubjectCleartkAnalysisEngine">
+      <import location="../../../ctakes-assertion/desc/analysis_engine/SubjectCleartkAnalysisEngine.xml"/>
+     </delegateAnalysisEngine>
+     <delegateAnalysisEngine key="UncertaintyCleartkAnalysisEngine">
+      <import location="../../../ctakes-assertion/desc/analysis_engine/UncertaintyCleartkAnalysisEngine.xml"/>
+     </delegateAnalysisEngine>
+     
     <delegateAnalysisEngine key="DependencyParser">
       <import location="../../../ctakes-dependency-parser/desc/analysis_engine/ClearNLPDependencyParserAE.xml"/>
     </delegateAnalysisEngine>
@@ -147,11 +166,15 @@ and requires an UMLS license.  Please update DictionaryLookupAnnotatorUMLS.xml f
         <node>DictionaryLookupAnnotatorDB</node>
         <node>DependencyParser</node>
 		<node>SemanticRoleLabeler</node>        
-        <node>AssertionAnnotator</node>
-        <!-- 
-        	<node>StatusAnnotator</node>
-        	<node>NegationAnnotator</node>
-         -->
+        <!-- <node>AssertionAnnotator</node> -->
+        <!-- <node>StatusAnnotator</node> -->
+       	<!-- <node>NegationAnnotator</node> -->
+       	<node>GenericCleartkAnalysisEngine"></node>
+		<node>HistoryCleartkAnalysisEngine"></node>
+		<node>PolarityCleartkAnalysisEngine</node>
+		<node>SubjectCleartkAnalysisEngine</node>
+		<node>UncertaintyCleartkAnalysisEngine</node>
+		    
         <node>ExtractionPrepAnnotator</node>
       </fixedFlow>
     </flowConstraints>

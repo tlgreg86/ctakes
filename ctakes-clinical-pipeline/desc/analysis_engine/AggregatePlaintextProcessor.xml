@@ -35,9 +35,11 @@
 <delegateAnalysisEngine key="ExtractionPrepAnnotator">
 <import location="ExtractionPrepAnnotator.xml"/>
 </delegateAnalysisEngine>
+<!-- 
 <delegateAnalysisEngine key="NegationAnnotator">
 <import location="../../../ctakes-ne-contexts/desc/NegationAnnotator.xml"/>
 </delegateAnalysisEngine>
+ -->
 <delegateAnalysisEngine key="SentenceDetectorAnnotator">
 <import location="../../../ctakes-core/desc/analysis_engine/SentenceDetectorAnnotator.xml"/>
 </delegateAnalysisEngine>
@@ -52,9 +54,11 @@
 <import location="../../../ctakes-pos-tagger/desc/ClearNLPPOSTagger.xml"/>
 </delegateAnalysisEngine>
  -->
+ <!-- 
 <delegateAnalysisEngine key="StatusAnnotator">
 <import location="../../../ctakes-ne-contexts/desc/StatusAnnotator.xml"/>
 </delegateAnalysisEngine>
+ -->
 <delegateAnalysisEngine key="AdjustNounPhraseToIncludeFollowingNP">
 <import location="../../../ctakes-chunker/desc/AdjustNounPhraseToIncludeFollowingNP.xml"/>
 </delegateAnalysisEngine>
@@ -69,10 +73,28 @@
 </delegateAnalysisEngine>
 <delegateAnalysisEngine key="DictionaryLookupAnnotator">
 <import location="../../../ctakes-dictionary-lookup/desc/analysis_engine/DictionaryLookupAnnotator.xml"/>
-</delegateAnalysisEngine>
-<delegateAnalysisEngine key="AssertionAnnotator">
-<import location="../../../ctakes-assertion/desc/AssertionMiniPipelineAnalysisEngine.xml"/>
-</delegateAnalysisEngine>
+<!--     
+    <delegateAnalysisEngine key="AssertionAnnotator">
+      <import location="../../../ctakes-assertion/desc/AssertionMiniPipelineAnalysisEngine.xml"/>
+    </delegateAnalysisEngine>
+ -->
+     <delegateAnalysisEngine key="GenericCleartkAnalysisEngine">
+      <import location="../../../ctakes-assertion/desc/analysis_engine/GenericCleartkAnalysisEngine.xml"/>
+     </delegateAnalysisEngine>
+     
+     <delegateAnalysisEngine key="HistoryCleartkAnalysisEngine">
+      <import location="../../../ctakes-assertion/desc/analysis_engine/HistoryCleartkAnalysisEngine.xml"/>
+     </delegateAnalysisEngine>
+     <delegateAnalysisEngine key="PolarityCleartkAnalysisEngine">
+      <import location="../../../ctakes-assertion/desc/analysis_engine/PolarityCleartkAnalysisEngine.xml"/>
+     </delegateAnalysisEngine>
+     <delegateAnalysisEngine key="SubjectCleartkAnalysisEngine">
+      <import location="../../../ctakes-assertion/desc/analysis_engine/SubjectCleartkAnalysisEngine.xml"/>
+     </delegateAnalysisEngine>
+     <delegateAnalysisEngine key="UncertaintyCleartkAnalysisEngine">
+      <import location="../../../ctakes-assertion/desc/analysis_engine/UncertaintyCleartkAnalysisEngine.xml"/>
+     </delegateAnalysisEngine>
+     
 <delegateAnalysisEngine key="DependencyParser">
 <import location="../../../ctakes-dependency-parser/desc/analysis_engine/ClearNLPDependencyParserAE.xml"/>
 </delegateAnalysisEngine>
@@ -132,11 +154,16 @@ Includes adjusting NP chunks to include NP NP and NP PP NP.</description>
 <node>DependencyParser</node>
 <node>SemanticRoleLabeler</node>
 
-<node>AssertionAnnotator</node>
-<!-- 
-	<node>StatusAnnotator</node>
-	<node>NegationAnnotator</node>
- -->
+		<node>SemanticRoleLabeler</node>        
+        <!-- <node>AssertionAnnotator</node> -->
+        <!-- <node>StatusAnnotator</node> -->
+       	<!-- <node>NegationAnnotator</node> -->
+       	<node>GenericCleartkAnalysisEngine"></node>
+		<node>HistoryCleartkAnalysisEngine"></node>
+		<node>PolarityCleartkAnalysisEngine</node>
+		<node>SubjectCleartkAnalysisEngine</node>
+		<node>UncertaintyCleartkAnalysisEngine</node>
+		
 <node>ExtractionPrepAnnotator</node>
 </fixedFlow>
 </flowConstraints>
