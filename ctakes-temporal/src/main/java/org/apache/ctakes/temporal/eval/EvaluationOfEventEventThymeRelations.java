@@ -202,7 +202,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			//do closure on train, but not on test, to calculate plain results
 			evaluation.skipTrain = true;
 			evaluation.useClosure = false;
-			evaluation.printErrors = false;
+//			evaluation.printErrors = false;
 			params.stats = evaluation.trainAndTest(training, testing);//training);//
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
 			System.err.println("Closure on train::No closure on Test::Plain Mode");
