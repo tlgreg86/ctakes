@@ -314,7 +314,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
       }
     } else
     {
-      logger.warn("processing next doc (doc id is null)");
+      logger.debug("processing next doc (doc id is null)");
     }
     
     this.lastLabel = "<BEGIN>";
