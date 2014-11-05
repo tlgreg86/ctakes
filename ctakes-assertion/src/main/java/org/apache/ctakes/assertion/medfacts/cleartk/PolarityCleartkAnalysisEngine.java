@@ -157,7 +157,7 @@ public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngin
 	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath) throws ResourceInitializationException {
 	  return AnalysisEngineFactory.createEngineDescription(PolarityCleartkAnalysisEngine.class,
 	      AssertionCleartkAnalysisEngine.PARAM_FEATURE_CONFIG,
-        AssertionCleartkAnalysisEngine.FEATURE_CONFIG.DEP_REGEX,
+        AssertionCleartkAnalysisEngine.FEATURE_CONFIG.ALL_SYN,
 	      GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 	      modelPath);
 	}

@@ -123,7 +123,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
       name = PARAM_FEATURE_CONFIG,
       description = "Feature configuration to use (for experiments)",
       mandatory = false
-  )protected FEATURE_CONFIG featConfig = FEATURE_CONFIG.NO_SYN;
+  )protected FEATURE_CONFIG featConfig = FEATURE_CONFIG.ALL_SYN;
 
   public static final String PARAM_FEATURE_SELECTION_URI = "FeatureSelectionURI";
 
