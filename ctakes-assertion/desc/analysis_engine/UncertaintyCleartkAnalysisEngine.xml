@@ -120,7 +120,7 @@
             <nameValuePair>
                 <name>classifierJarPath</name>
                 <value>
-                    <string>org/apache/ctakes/assertion/models/uncertainty/model.jar</string>
+                    <string>/org/apache/ctakes/assertion/models/uncertainty/model.jar</string>
                 </value>
             </nameValuePair>
         </configurationParameterSettings>

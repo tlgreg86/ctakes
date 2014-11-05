@@ -120,7 +120,7 @@
             <nameValuePair>
                 <name>classifierJarPath</name>
                 <value>
-                    <string>org/apache/ctakes/assertion/models/polarity/sharpi2b2mipacqnegex/model.jar</string>
+                    <string>/org/apache/ctakes/assertion/models/polarity/sharpi2b2mipacqnegex/model.jar</string>
                 </value>
             </nameValuePair>
         </configurationParameterSettings>

@@ -158,8 +158,8 @@ Includes adjusting NP chunks to include NP NP and NP PP NP.</description>
         <!-- <node>AssertionAnnotator</node> -->
         <!-- <node>StatusAnnotator</node> -->
        	<!-- <node>NegationAnnotator</node> -->
-       	<node>GenericCleartkAnalysisEngine"></node>
-		<node>HistoryCleartkAnalysisEngine"></node>
+       	<node>GenericCleartkAnalysisEngine</node>
+		<node>HistoryCleartkAnalysisEngine</node>
 		<node>PolarityCleartkAnalysisEngine</node>
 		<node>SubjectCleartkAnalysisEngine</node>
 		<node>UncertaintyCleartkAnalysisEngine</node>
