@@ -39,7 +39,7 @@ public class UmlsSingleFeatureExtractor implements FeatureExtractor1 {
   public List<Feature> extract(JCas jCas, Annotation focusAnnotation)
 			throws CleartkExtractorException {
 
-    List<Feature> features = new ArrayList<Feature>();
+    List<Feature> features = new ArrayList<>();
     
     JCas systemView = jCas;
 //    try {
@@ -79,7 +79,7 @@ public class UmlsSingleFeatureExtractor implements FeatureExtractor1 {
   }
   
   private static CounterMap<String> getMentionTypes(List<EventMention> entities){
-    CounterMap<String> typeCounts = new CounterMap<String>();
+    CounterMap<String> typeCounts = new CounterMap<>();
     for(EventMention entityMention : entities) {
       if(entityMention.getDiscoveryTechnique() == CONST.NE_DISCOVERY_TECH_DICT_LOOKUP)
         typeCounts.add(String.valueOf(entityMention.getTypeID()));

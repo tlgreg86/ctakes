@@ -47,7 +47,7 @@ public class DateAndMeasurementExtractor implements FeatureExtractor1 {
 
   @Override
   public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException {
-	  List<Feature> features = new ArrayList<Feature>();
+	  List<Feature> features = new ArrayList<>();
 	  
 	  //1 get covering sentence:
 	  Map<EventMention, Collection<Sentence>> coveringMap =

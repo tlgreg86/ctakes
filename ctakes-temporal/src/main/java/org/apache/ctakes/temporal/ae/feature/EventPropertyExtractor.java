@@ -43,7 +43,7 @@ public class EventPropertyExtractor implements FeatureExtractor1 {
 
   @Override
   public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException {
-	  List<Feature> features = new ArrayList<Feature>();
+	  List<Feature> features = new ArrayList<>();
 	  
 	  //1 get event:
 	  EventMention event = (EventMention)annotation;

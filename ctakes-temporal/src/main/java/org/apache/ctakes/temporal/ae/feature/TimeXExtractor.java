@@ -48,7 +48,7 @@ public class TimeXExtractor implements FeatureExtractor1 {
   private String name;
 //  private TemporalPETExtractor path;
   private TemporalAttributeFeatureExtractor attr;
-  private TimeWordTypeExtractor timewd;
+  private TimeWordTypeExtractor<IdentifiedAnnotation> timewd;
 //  private TemporalSingleTreeExtractor treeExt;
   
 //  private Logger logger = Logger.getLogger(this.getClass().getName());
@@ -58,13 +58,13 @@ public class TimeXExtractor implements FeatureExtractor1 {
     this.name = "TimeXFeature";
 //    this.path = new TemporalPETExtractor();
     this.attr = new TemporalAttributeFeatureExtractor();
-    this.timewd = new TimeWordTypeExtractor();
+    this.timewd = new TimeWordTypeExtractor<>();
 //    this.treeExt = new TemporalSingleTreeExtractor();
   }
 
   @Override
   public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException {
-	  List<Feature> features = new ArrayList<Feature>();
+	  List<Feature> features = new ArrayList<>();
 	  
 	  //1 get covering sentence:
 	  Map<EventMention, Collection<Sentence>> coveringMap =
@@ -89,7 +89,7 @@ public class TimeXExtractor implements FeatureExtractor1 {
 //		}
 	  
 	  if (sentList != null && !sentList.isEmpty()){
-		  timeDistMap = new TreeMap<Integer, IdentifiedAnnotation>();
+		  timeDistMap = new TreeMap<>();
 		  
 		  for(Sentence sent : sentList) {
 			  for (TimeMention time : JCasUtil.selectCovered(view, TimeMention.class, sent)) {

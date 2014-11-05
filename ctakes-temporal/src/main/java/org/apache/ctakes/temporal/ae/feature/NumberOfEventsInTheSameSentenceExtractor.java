@@ -109,11 +109,11 @@ RelationFeaturesExtractor {
 
 	private static boolean hasOverlappingSpan(EventMention cevent,
 			IdentifiedAnnotation arg) {
-		if(cevent.getBegin()==arg.getBegin() && arg.getEnd()>=cevent.getEnd()){
+		if(cevent.getBegin()==arg.getBegin() || arg.getEnd()==cevent.getEnd()){
 			return true;
-		}else if(arg.getBegin()<=cevent.getBegin() && cevent.getEnd()==arg.getEnd()){
+		}else if(arg.getBegin()<=cevent.getBegin() && cevent.getEnd()>=arg.getEnd()){
 			return true;
-		}else if(arg.getBegin()<=cevent.getBegin() && arg.getEnd()>=cevent.getEnd()){ //if argument cover current (gold) event mention.
+		}else if(arg.getBegin()>=cevent.getBegin() && cevent.getEnd()<=arg.getEnd()){ //if argument cover current (gold) event mention.
 			return true;
 		}
 		return false;

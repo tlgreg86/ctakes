@@ -105,7 +105,7 @@ public class EventAdmissionTimeAnnotator extends CleartkAnnotator<String> {
 				new File(modelDirectory, "model.jar"));
 	}
 
-	private CleartkExtractor contextExtractor;
+	private CleartkExtractor<EventMention, BaseToken> contextExtractor;
 	private NearbyVerbTenseXExtractor verbTensePatternExtractor;
 	private SectionHeaderExtractor sectionIDExtractor;
 	private ClosestVerbExtractor closestVerbExtractor;
@@ -119,10 +119,10 @@ public class EventAdmissionTimeAnnotator extends CleartkAnnotator<String> {
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
-		CombinedExtractor1 baseExtractor = new CombinedExtractor1(
-				new CoveredTextExtractor(),
-				new TypePathExtractor(BaseToken.class, "partOfSpeech"));
-		this.contextExtractor = new CleartkExtractor(
+		CombinedExtractor1<BaseToken> baseExtractor = new CombinedExtractor1<>(
+				new CoveredTextExtractor<BaseToken>(),
+				new TypePathExtractor<>(BaseToken.class, "partOfSpeech"));
+		this.contextExtractor = new CleartkExtractor<>(
 				BaseToken.class,
 				baseExtractor,
 				new Preceding(3),

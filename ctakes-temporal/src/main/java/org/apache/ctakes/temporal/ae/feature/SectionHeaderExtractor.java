@@ -35,37 +35,41 @@ import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
 public class SectionHeaderExtractor implements FeatureExtractor1 {
 
-  private String name;
+	private String name;
 
-//  private Logger logger = Logger.getLogger(this.getClass().getName());
+	//  private Logger logger = Logger.getLogger(this.getClass().getName());
 
-  public SectionHeaderExtractor() {
-    super();
-    this.name = "SectionHeader";
-    
-  }
+	public SectionHeaderExtractor() {
+		super();
+		this.name = "SectionHeader";
 
-  @Override
-  public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException {
-	  List<Feature> features = new ArrayList<Feature>();
-	  
-	  //1 get covering sentence:
-	  Map<EventMention, Collection<Segment>> coveringMap =
-			  JCasUtil.indexCovering(view, EventMention.class, Segment.class);
-	  EventMention targetTokenAnnotation = (EventMention)annotation;
-	  Collection<Segment> segList = coveringMap.get(targetTokenAnnotation);
-	  
-	  //2 get Verb Tense
-	  if (segList != null && !segList.isEmpty()){
-		  for(Segment seg : segList) {
-			  String segname = seg.getId();
-			  Feature feature = new Feature(this.name, segname);
-			  features.add(feature);
-//			  logger.info("found segment id: "+ segname);
-		  }
-		  
-	  }
-	  return features;
-  }
+	}
+
+	@Override
+	public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException {
+		List<Feature> features = new ArrayList<>();
+
+		//1 get covering sentence:
+		Map<EventMention, Collection<Segment>> coveringMap =
+				JCasUtil.indexCovering(view, EventMention.class, Segment.class);
+		EventMention targetTokenAnnotation = (EventMention)annotation;
+		Collection<Segment> segList = coveringMap.get(targetTokenAnnotation);
+
+		//2 get Verb Tense
+		if (segList != null && !segList.isEmpty()){
+			for(Segment seg : segList) {
+				String segname = seg.getId();
+				if (!segname.equals("SIMPLE_SEGMENT")){//remove simple segment
+					Feature feature = new Feature(this.name, segname);
+					features.add(feature);
+				}else{
+					continue;
+				}
+				//			  logger.info("found segment id: "+ segname);
+			}
+
+		}
+		return features;
+	}
 
 }

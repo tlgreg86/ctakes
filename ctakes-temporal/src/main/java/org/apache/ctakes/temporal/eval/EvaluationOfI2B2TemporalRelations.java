@@ -18,7 +18,11 @@
  */
 package org.apache.ctakes.temporal.eval;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -30,7 +34,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.ctakes.core.ae.CDASegmentAnnotator;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
+import org.apache.ctakes.temporal.ae.ConsecutiveSentencesEventEventRelationAnnotator;
+import org.apache.ctakes.temporal.ae.ConsecutiveSentencesEventTimeRelationAnnotator;
+import org.apache.ctakes.temporal.ae.EventTimeSelfRelationAnnotator;
+import org.apache.ctakes.temporal.ae.TemporalRelationRuleAnnotator;
+import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAdmissionTimeAnnotator;
 import org.apache.ctakes.temporal.ae.EventDischargeTimeAnnotator;
 import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
@@ -42,11 +52,13 @@ import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
 import org.apache.ctakes.temporal.utils.TLinkTypeArray2;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
+import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
@@ -63,10 +75,17 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.FileUtils;
 import org.cleartk.eval.AnnotationStatistics;
 import org.cleartk.ml.jar.JarClassifierBuilder;
-import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
-import org.cleartk.ml.tksvmlight.TkSvmLightStringOutcomeDataWriter;
+//import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
+import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
+//import org.cleartk.classifier.tksvmlight.TKSVMlightStringOutcomeDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
 import org.cleartk.util.ViewUriUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
@@ -121,6 +140,11 @@ EvaluationOfTemporalRelations_ImplBase{
 	private static final String EVENT_EVENT = "event_event";
 	private static final String EVENT_DISCHARGE = "event_dischargeTime";
 	private static final String EVENT_ADMISSION = "event_admissionTime";
+	private static final String TIME_DISCHARGE = "time_dischargeTime";
+	private static final String TIME_ADMISSION = "time_admissionTime";
+	//	private static final String EVENT_ADMIT = "event_admission";
+	private static final String TEMP_CROSSSENT = "temp_crossSentence";
+	private static final String TEMPET_CROSSSENT = "eventTime_crossSentence";
 	public static void main(String[] args) throws Exception {
 		TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
 		List<Integer> trainItems = null;
@@ -244,8 +268,15 @@ EvaluationOfTemporalRelations_ImplBase{
 		//	  if(this.baseline) return;
 		if(this.skipTrain) return;
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+		//add sectionizer
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
+				CDASegmentAnnotator.class,
+				CDASegmentAnnotator.PARAM_SECTIONS_FILE,
+				"org/apache/ctakes/temporal/ae/section/ccda_sections.txt"));
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class, BinaryTextRelation.class));
-		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveCrossSentenceRelations.class));
+		aggregateBuilder.add(DocTimeRelAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
+		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveCrossSentenceRelations.class));
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNullArgumentRelations.class));
 		if(!this.useGoldAttributes){
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveGoldAttributes.class));
@@ -255,27 +286,49 @@ EvaluationOfTemporalRelations_ImplBase{
 			//			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddContain2Overlap.class));
 			//			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddTransitiveBeforeAndOnRelations.class));
 		}
-		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class));
+		//output all long distances
+		//		aggregateBuilder.add(
+		//				AnalysisEngineFactory.createPrimitiveDescription(FindLongDisRelations.class));//AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
+		//				CAS.NAME_DEFAULT_SOFA,
+		//				GOLD_VIEW_NAME);
+		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
 
-		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveEventEventRelations.class));
-		aggregateBuilder.add(EventTimeRelationAnnotator.createDataWriterDescription(
-				//                LibSvmStringOutcomeDataWriter.class,
-				TkSvmLightStringOutcomeDataWriter.class,
-				//        TKLibSvmStringOutcomeDataWriter.class,
+		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class));
+		//test rules:
+		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(TemporalRelationRuleAnnotator.class));
+
+		aggregateBuilder.add(EventTimeSelfRelationAnnotator.createDataWriterDescription(
+				//				LibSvmStringOutcomeDataWriter.class,
+				LibLinearStringOutcomeDataWriter.class,
+				// TKSVMlightStringOutcomeDataWriter.class,
+				//        TKLIBSVMStringOutcomeDataWriter.class,
 				//        SVMlightStringOutcomeDataWriter.class,        
 				new File(directory,EVENT_TIME),
 				params.probabilityOfKeepingANegativeExample));
 		aggregateBuilder.add(EventEventRelationAnnotator.createDataWriterDescription(
-				LibSvmStringOutcomeDataWriter.class,
+				LibLinearStringOutcomeDataWriter.class,//TKSVMlightStringOutcomeDataWriter.class,//
+				//				LIBLINEARStringOutcomeDataWriter.class,
 				new File(directory,EVENT_EVENT), 
 				params.probabilityOfKeepingANegativeExample));
 		aggregateBuilder.add(EventDischargeTimeAnnotator.createDataWriterDescription(
-				LibSvmStringOutcomeDataWriter.class,
+				//				LibSvmStringOutcomeDataWriter.class,
+				LibLinearStringOutcomeDataWriter.class,
 				new File(directory,EVENT_DISCHARGE)));
 		aggregateBuilder.add(EventAdmissionTimeAnnotator.createDataWriterDescription(
-				LibSvmStringOutcomeDataWriter.class,
+				//				LibSvmStringOutcomeDataWriter.class,
+				LibLinearStringOutcomeDataWriter.class,
 				new File(directory,EVENT_ADMISSION)));
+		aggregateBuilder.add(ConsecutiveSentencesEventEventRelationAnnotator.createDataWriterDescription(
+				//				LibSvmStringOutcomeDataWriter.class,
+				LibLinearStringOutcomeDataWriter.class,
+				new File(directory,TEMP_CROSSSENT), 
+				params.probabilityOfKeepingANegativeExample));
+		aggregateBuilder.add(ConsecutiveSentencesEventTimeRelationAnnotator.createDataWriterDescription(
+				//				LibSvmStringOutcomeDataWriter.class,
+				LibLinearStringOutcomeDataWriter.class,
+				new File(directory,TEMPET_CROSSSENT), 
+				params.probabilityOfKeepingANegativeExample));
 		SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
 		String[] optArray;
 
@@ -302,21 +355,32 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		//    HideOutput hider = new HideOutput();
-		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_TIME), optArray);
-		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_EVENT), "-h","0","-c", "1000");
-		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_DISCHARGE), "-h","0","-c", "1000");
-		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_ADMISSION), "-h","0","-c", "1000");
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_TIME), "-c", "0.001");//"-h","0","-c", "1000");//optArray);//"-c", "0.05");//
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_EVENT), "-c", "0.001");
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_DISCHARGE), "-c", "0.001");
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_ADMISSION), "-c", "0.001");
+		//		JarClassifierBuilder.trainAndPackage(new File(directory,TIME_ADMISSION), "-h","0","-c", "1000");
+		//		JarClassifierBuilder.trainAndPackage(new File(directory,TIME_DISCHARGE), "-h","0","-c", "1000");
+		JarClassifierBuilder.trainAndPackage(new File(directory,TEMP_CROSSSENT), "-c", "0.001");
+		JarClassifierBuilder.trainAndPackage(new File(directory,TEMPET_CROSSSENT), "-c", "0.001");
 		//    hider.restoreOutput();
 		//    hider.close();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
 			throws Exception {
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+		//add sectionizer
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
+				CDASegmentAnnotator.class,
+				CDASegmentAnnotator.PARAM_SECTIONS_FILE,
+				"org/apache/ctakes/temporal/ae/section/ccda_sections.txt"));
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
-
-		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
+		aggregateBuilder.add(DocTimeRelAnnotator
+				.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
+		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
 		//				RemoveCrossSentenceRelations.class,
 		//				RemoveCrossSentenceRelations.PARAM_SENTENCE_VIEW,
 		//				CAS.NAME_DEFAULT_SOFA,
@@ -348,20 +412,28 @@ EvaluationOfTemporalRelations_ImplBase{
 		//				GOLD_VIEW_NAME);
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
-		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
-			EventTimeRelationAnnotator.createEngineDescription(new File(directory,EVENT_TIME)));
-		aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(new File(directory,EVENT_EVENT)));
-		aggregateBuilder.add(EventDischargeTimeAnnotator.createAnnotatorDescription(new File(directory,EVENT_DISCHARGE)));
+
 		aggregateBuilder.add(EventAdmissionTimeAnnotator.createAnnotatorDescription(new File(directory,EVENT_ADMISSION)));
-		
-		if (this.useClosure) {//add closure for system output
-			aggregateBuilder.add(
-					AnalysisEngineFactory.createEngineDescription(AddClosure.class),//AnalysisEngineFactory.createEngineDescription(AddTransitiveContainsRelations.class),
-					GOLD_VIEW_NAME,
-					CAS.NAME_DEFAULT_SOFA
-					);
-		}
-				
+		aggregateBuilder.add(EventDischargeTimeAnnotator.createAnnotatorDescription(new File(directory,EVENT_DISCHARGE)));
+		//		aggregateBuilder.add(TimexAdmissionTimeAnnotator.createAnnotatorDescription(new File(directory,TIME_ADMISSION)));
+		//		aggregateBuilder.add(TimexDischargeTimeAnnotator.createAnnotatorDescription(new File(directory,TIME_DISCHARGE)));
+
+		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
+			EventTimeSelfRelationAnnotator.createEngineDescription(new File(directory,EVENT_TIME)));
+		aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(new File(directory,EVENT_EVENT)));
+		aggregateBuilder.add(ConsecutiveSentencesEventEventRelationAnnotator.createAnnotatorDescription(new File(directory,TEMP_CROSSSENT)));
+		aggregateBuilder.add(ConsecutiveSentencesEventTimeRelationAnnotator.createAnnotatorDescription(new File(directory,TEMPET_CROSSSENT)));
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(TemporalRelationRuleAnnotator.class));
+
+
+		//		if (this.useClosure) {//add closure for system output
+		//			aggregateBuilder.add(
+		//					AnalysisEngineFactory.createPrimitiveDescription(AddClosure.class),//AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
+		//					GOLD_VIEW_NAME,
+		//					CAS.NAME_DEFAULT_SOFA
+		//					);
+		//		}
+
 		if(this.i2b2Output != null){
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
 		}
@@ -635,8 +707,8 @@ EvaluationOfTemporalRelations_ImplBase{
 	//		return goodSys;
 	//	}
 
-
-	public static class RemoveEventEventRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+/**
+	public static class RemoveEventEventRelations extends JCasAnnotator_ImplBase {
 		public static final String PARAM_RELATION_VIEW = "RelationView";
 		@ConfigurationParameter(name = PARAM_RELATION_VIEW)
 		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
@@ -668,6 +740,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		}
 	}
+	 */
 
 	public static class RemoveNullArgumentRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 		@Override
@@ -684,22 +757,22 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 
-	/*  public static class RemoveNonTLINKRelations extends JCasAnnotator_ImplBase {
-    @Override
-    public void process(JCas jCas) throws AnalysisEngineProcessException {
-      for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
-          jCas,
-          BinaryTextRelation.class))) {
-        if (!(relation instanceof TemporalTextRelation)) {
-          relation.getArg1().removeFromIndexes();
-          relation.getArg2().removeFromIndexes();
-          relation.removeFromIndexes();
-        }
-      }
-    }
-  }*/
-
-	public static class RemoveCrossSentenceRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+	public static class RemoveNonTLINKRelations extends JCasAnnotator_ImplBase {
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
+					jCas,
+					BinaryTextRelation.class))) {
+				if (!(relation instanceof TemporalTextRelation)) {
+					relation.getArg1().removeFromIndexes();
+					relation.getArg2().removeFromIndexes();
+					relation.removeFromIndexes();
+				}
+			}
+		}
+	}
+	/**
+	public static class RemoveCrossSentenceRelations extends JCasAnnotator_ImplBase {
 
 		public static final String PARAM_SENTENCE_VIEW = "SentenceView";
 
@@ -748,9 +821,10 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 		}
 	}
+	 */
 
-
-	public static class RemoveRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+	
+	public static class RemoveRelations extends JCasAnnotator_ImplBase {
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
 			for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
@@ -763,182 +837,9 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 
-	/**
-	 * Holds a set of parameters for a relation extraction model
-	 */
-	//	public static class ParameterSettings {
-	//		public boolean classifyBothDirections;
-	//
-	//		public float probabilityOfKeepingANegativeExample;
-	//
-	//		public String svmKernel;
-	//
-	//		public int svmKernelIndex;
-	//
-	//		public double svmCost;
-	//
-	//		public double svmGamma;
-	//
-	//		public String secondKernel;
-	//		public int secondKernelIndex;
-	//		public CompositeKernel.ComboOperator comboOperator;
-	//		public double tkWeight;
-	//		public double lambda;
-	//
-	//		public AnnotationStatistics<String> stats;
-	//
-	//		static List<String> SVM_KERNELS = Arrays.asList(
-	//				"linear",
-	//				"polynomial",
-	//				"radial basis function",
-	//				"sigmoid",
-	//				"user",
-	//				"tk");
-	//
-	//		public ParameterSettings(
-	//				boolean classifyBothDirections,
-	//				float probabilityOfKeepingANegativeExample,
-	//				String svmKernel,
-	//				double svmCost,
-	//				double svmGamma,
-	//				String secondKernel,
-	//				CompositeKernel.ComboOperator comboOperator,
-	//				double tkWeight,
-	//				double lambda) {
-	//			super();
-	//			this.classifyBothDirections = classifyBothDirections;
-	//			this.probabilityOfKeepingANegativeExample = probabilityOfKeepingANegativeExample;
-	//			this.svmKernel = svmKernel;
-	//			this.svmKernelIndex = SVM_KERNELS.indexOf(this.svmKernel);
-	//			if (this.svmKernelIndex == -1) {
-	//				throw new IllegalArgumentException("Unrecognized kernel: " + this.svmKernel);
-	//			}
-	//			this.svmCost = svmCost;
-	//			this.svmGamma = svmGamma;
-	//			this.secondKernel = secondKernel;
-	//			this.secondKernelIndex = SVM_KERNELS.indexOf(this.secondKernel);
-	//			this.comboOperator = comboOperator;
-	//			this.tkWeight = tkWeight;
-	//			this.lambda = lambda;
-	//		}
-	//
-	//		@Override
-	//		public String toString() {
-	//			StringBuffer buff = new StringBuffer();
-	//			//      buff.append("Bothdirections=");
-	//			//      buff.append(classifyBothDirections);
-	//			//      buff.append(",downsamplingratio=");
-	//			//      buff.append(probabilityOfKeepingANegativeExample);
-	//			buff.append(",Kernel=");
-	//			buff.append(svmKernel);
-	//			buff.append(",Cost=");
-	//			buff.append(svmCost);
-	//			buff.append(",Gamma=");
-	//			buff.append(svmGamma);
-	//			buff.append(",secondKernel=");
-	//			buff.append(secondKernel);
-	//			buff.append(",operator=");
-	//			buff.append(comboOperator);
-	//			buff.append(",tkWeight=");
-	//			buff.append(tkWeight);
-	//			buff.append(",lambda=");
-	//			buff.append(lambda);
-	//			return buff.toString();
-	//		}
-	//	}
+	
 
-	public static class AddTransitiveContainsRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
-
-		@Override
-		public void process(JCas jCas) throws AnalysisEngineProcessException {
-
-			// collect many-to-many mappings of containment relations 
-			Multimap<Annotation, Annotation> isContainedIn = HashMultimap.create();
-			Multimap<Annotation, Annotation> contains = HashMultimap.create();
-			Set<BinaryTextRelation> containsRelations = Sets.newHashSet();
-			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
-				if (relation.getCategory().equals("CONTAINS")) {
-					containsRelations.add(relation);
-					Annotation arg1 = relation.getArg1().getArgument();
-					Annotation arg2 = relation.getArg2().getArgument();
-					contains.put(arg1, arg2);
-					isContainedIn.put(arg2, arg1);
-				}
-			}
-
-			// look for X -> Y -> Z containment chains and add X -> Z relations
-			Deque<Annotation> todo = new ArrayDeque<>(isContainedIn.keySet());
-			while (!todo.isEmpty()) {
-				Annotation next = todo.removeFirst();
-				for (Annotation parent : Lists.newArrayList(isContainedIn.get(next))) {
-					for (Annotation grandParent : Lists.newArrayList(isContainedIn.get(parent))) {
-						if (!isContainedIn.containsEntry(next, grandParent)) {
-							isContainedIn.put(next, grandParent);
-							contains.put(grandParent, next);
-
-							// once X -> Z has been added, we need to re-do all W where W -> X
-							for (Annotation child : contains.get(next)) {
-								todo.add(child);
-							}
-						}
-					}
-				}
-			}
-
-			// remove old relations
-			for (BinaryTextRelation relation : containsRelations) {
-				relation.getArg1().removeFromIndexes();
-				relation.getArg2().removeFromIndexes();
-				relation.removeFromIndexes();
-			}
-
-			// add new, transitive relations
-			for (Annotation contained : isContainedIn.keySet()) {
-				for (Annotation container : isContainedIn.get(contained)) {
-					RelationArgument arg1 = new RelationArgument(jCas);
-					arg1.setArgument(container);
-					RelationArgument arg2 = new RelationArgument(jCas);
-					arg2.setArgument(contained);
-					BinaryTextRelation relation = new BinaryTextRelation(jCas);
-					relation.setArg1(arg1);
-					relation.setArg2(arg2);
-					relation.setCategory("CONTAINS");
-					arg1.addToIndexes();
-					arg2.addToIndexes();
-					relation.addToIndexes();
-				}
-			}
-		}
-
-	}
-
-	public static class AddContain2Overlap extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
-
-		@Override
-		public void process(JCas jCas) throws AnalysisEngineProcessException {
-
-			Set<BinaryTextRelation> containsRelations = Sets.newHashSet();
-			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
-				if (relation.getCategory().equals("CONTAINS")) {
-					containsRelations.add(relation);
-				}
-			}
-
-			for (BinaryTextRelation relation : containsRelations) {
-				RelationArgument arg1 = (RelationArgument) relation.getArg1().clone();
-				RelationArgument arg2 = (RelationArgument) relation.getArg2().clone();
-				BinaryTextRelation newrelation = new BinaryTextRelation(jCas);
-				newrelation.setArg1(arg1);
-				newrelation.setArg2(arg2);
-				newrelation.setCategory("OVERLAP");
-				arg1.addToIndexes();
-				arg2.addToIndexes();
-				newrelation.addToIndexes();
-			}
-		}
-	}
-
-	public static class AddFlippedOverlap extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+	public static class AddFlippedOverlap extends JCasAnnotator_ImplBase {
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -975,6 +876,94 @@ EvaluationOfTemporalRelations_ImplBase{
 				}
 
 			}
+		}
+	}
+
+	public static class FindLongDisRelations extends JCasAnnotator_ImplBase {
+
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+
+			try{
+				JCas goldView = jCas.getView(GOLD_VIEW_NAME);
+				JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
+				File outf = new File("target/eval/temporal-relations/RelationDistance.txt");
+				File outI = new File("target/eval/temporal-relations/LongRelationInstances.txt");
+				File outA = new File("target/eval/temporal-relations/AdjacentRelationInstances.txt");
+				BufferedWriter output   = new BufferedWriter(new FileWriter(outf, true));
+				PrintWriter outIns = new PrintWriter(new BufferedWriter(new FileWriter(outI, true)));
+				PrintWriter outAdj = new PrintWriter(new BufferedWriter(new FileWriter(outA, true)));
+
+				Set<TemporalTextRelation> temporalRelations = Sets.newHashSet();
+				for (TemporalTextRelation relation : JCasUtil.select(goldView, TemporalTextRelation.class)) {
+					temporalRelations.add(relation);
+				}
+
+				for (BinaryTextRelation orelation : temporalRelations) {
+					Annotation argA = orelation.getArg1().getArgument();
+					Annotation argB = orelation.getArg2().getArgument();
+					//suppose arg1 is before arg2
+					int begin = argA==null? 1000000 : argA.getEnd();
+					int end   = argB==null? 0: argB.getBegin();
+
+					if(begin < end){
+						int sentencesInBetween = 0;
+						List<Sentence> sentences = JCasUtil.selectCovered(systemView, Sentence.class, begin, end);
+
+						sentencesInBetween = sentences==null? 0: sentences.size();
+
+						boolean adjacentSent = false; 						
+						if(sentencesInBetween == 0){//differentiate relations in adjacent sentences
+							//find the sentence after argA
+							List<Sentence> follwingSentences = JCasUtil.selectFollowing(systemView, Sentence.class, argA, 1);
+							if(follwingSentences !=null && follwingSentences.size()>=1){
+								Sentence nextSent = follwingSentences.get(0);
+								if( nextSent.getBegin()>end){
+									sentencesInBetween =-1;//find within-sentence relations
+								}else{//find adjacent-sentence relations
+									adjacentSent = true;
+								}
+							}else{//if there is no following sentence
+								List<Sentence> prededingSentences = JCasUtil.selectPreceding(systemView, Sentence.class, argB, 1);
+								if(prededingSentences==null || prededingSentences.size()==0){
+									sentencesInBetween = -1;
+								}else{
+									Sentence preSent = prededingSentences.get(0);
+									if( preSent.getEnd()< begin){
+										sentencesInBetween =-1;//find within-sentence relations
+									}else{//find adjacent-sentence relations
+										adjacentSent = true;
+									}
+								}
+							}
+						}
+
+						String text = systemView.getDocumentText();
+						int windowBegin = Math.max(0, argA.getBegin() - 50);
+						int windowEnd = Math.min(text.length(), argB.getEnd() + 50);
+						if (adjacentSent){
+							outAdj.println("++++++++++Adjacent X-sentence Relation in "+ ViewUriUtil.getURI(jCas).toString() + "+++++++");
+							outAdj.println(text.substring(windowBegin,argA.getBegin())+"["+argA.getCoveredText()+"] "+ text.substring(argA.getEnd(), argB.getBegin()) +" ["+argB.getCoveredText()+"]"+text.substring(argB.getEnd(),windowEnd));
+						}
+
+						output.append(sentencesInBetween+"\n");
+						if (sentencesInBetween > 5){
+							outIns.println("++++++++++Long Distance Relation in "+ ViewUriUtil.getURI(jCas).toString() + "+++++++");
+							outIns.println(text.substring(windowBegin,argA.getBegin())+"["+argA.getCoveredText()+"] "+ text.substring(argA.getEnd(), argB.getBegin()) +" ["+argB.getCoveredText()+"]"+text.substring(argB.getEnd(),windowEnd));//"["+argA.getCoveredText()+"] "+ systemView.getDocumentText().substring(argA.getEnd(), argB.getBegin()) +" ["+argB.getCoveredText()+"]");
+						}
+					}
+				}
+				output.close();
+				outIns.close();
+				outAdj.close();
+			}catch (IOException e) {
+				//exception handling left as an exercise for the reader
+			} catch (CASException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+
 		}
 	}
 
@@ -1079,108 +1068,4 @@ EvaluationOfTemporalRelations_ImplBase{
 			return false;
 		}
 	}
-
-	//	public static class AddTransitiveBeforeAndOnRelations extends JCasAnnotator_ImplBase {
-	//
-	//		@Override
-	//		public void process(JCas jCas) throws AnalysisEngineProcessException {
-	//
-	//			// collect many-to-many mappings of containment relations 
-	//			Multimap<Annotation, Annotation> contains = HashMultimap.create();
-	//			Multimap<Annotation, Annotation> before = HashMultimap.create();
-	//			Multimap<Annotation, Annotation> endson = HashMultimap.create();
-	//			Multimap<Annotation, Annotation> beginson = HashMultimap.create();
-	//			Set<BinaryTextRelation> beforeRel = Sets.newHashSet();
-	//
-	//			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
-	//				if (relation.getCategory().equals("CONTAINS")) {
-	//					Annotation arg1 = relation.getArg1().getArgument();
-	//					Annotation arg2 = relation.getArg2().getArgument();
-	//					contains.put(arg1, arg2);
-	//				}else if (relation.getCategory().equals("BEFORE")) {
-	//					Annotation arg1 = relation.getArg1().getArgument();
-	//					Annotation arg2 = relation.getArg2().getArgument();
-	//					before.put(arg1, arg2);
-	//					beforeRel.add(relation);
-	//				}else if (relation.getCategory().equals("ENDS-ON")) {
-	//					Annotation arg1 = relation.getArg1().getArgument();
-	//					Annotation arg2 = relation.getArg2().getArgument();
-	//					endson.put(arg1, arg2);
-	//					if (!endson.containsEntry(arg2, arg1)) {
-	//						endson.put(arg2, arg1);
-	//					}
-	//				}else if (relation.getCategory().equals("BEGINS-ON")) {
-	//					Annotation arg1 = relation.getArg1().getArgument();
-	//					Annotation arg2 = relation.getArg2().getArgument();
-	//					beginson.put(arg1, arg2);
-	//					if (!beginson.containsEntry(arg2, arg1)) {
-	//						beginson.put(arg2, arg1);
-	//					}
-	//				}
-	//			}
-	//
-	//			// for A BEFORE B, check if A and B Contain anything
-	//			for (BinaryTextRelation brelation : beforeRel) {
-	//				Annotation argA = brelation.getArg1().getArgument();
-	//				Annotation argB = brelation.getArg2().getArgument();
-	//				//add contained before
-	//				for (Annotation childA : contains.get(argA)) {
-	//					for (Annotation childB : contains.get(argB)) {
-	//						if (!before.containsEntry(childA, childB)) {
-	//							//create a new before relation:
-	//							RelationArgument arg1 = new RelationArgument(jCas);
-	//							arg1.setArgument(childA);
-	//							RelationArgument arg2 = new RelationArgument(jCas);
-	//							arg2.setArgument(childB);
-	//							BinaryTextRelation relation = new BinaryTextRelation(jCas);
-	//							relation.setArg1(arg1);
-	//							relation.setArg2(arg2);
-	//							relation.setCategory("BEFORE");
-	//							arg1.addToIndexes();
-	//							arg2.addToIndexes();
-	//							relation.addToIndexes();
-	//							before.put(childA, childB);
-	//						}
-	//					}
-	//				}
-	//				//add ends-on A
-	//				for (Annotation endsOnA : endson.get(argA)) {
-	//					if (!before.containsEntry(endsOnA, argB)) {
-	//						//create a new before relation:
-	//						RelationArgument arg1 = new RelationArgument(jCas);
-	//						arg1.setArgument(endsOnA);
-	//						RelationArgument arg2 = new RelationArgument(jCas);
-	//						arg2.setArgument(argB);
-	//						BinaryTextRelation relation = new BinaryTextRelation(jCas);
-	//						relation.setArg1(arg1);
-	//						relation.setArg2(arg2);
-	//						relation.setCategory("BEFORE");
-	//						arg1.addToIndexes();
-	//						arg2.addToIndexes();
-	//						relation.addToIndexes();
-	//						before.put(endsOnA, argB);
-	//					}
-	//				}
-	//				//add begins-on B
-	//				for (Annotation beginsOnB : beginson.get(argB)) {
-	//					if (!before.containsEntry(argA, beginsOnB)) {
-	//						//create a new before relation:
-	//						RelationArgument arg1 = new RelationArgument(jCas);
-	//						arg1.setArgument(argA);
-	//						RelationArgument arg2 = new RelationArgument(jCas);
-	//						arg2.setArgument(beginsOnB);
-	//						BinaryTextRelation relation = new BinaryTextRelation(jCas);
-	//						relation.setArg1(arg1);
-	//						relation.setArg2(arg2);
-	//						relation.setCategory("BEFORE");
-	//						arg1.addToIndexes();
-	//						arg2.addToIndexes();
-	//						relation.addToIndexes();
-	//						before.put(argA, beginsOnB);
-	//					}
-	//				}
-	//			}
-	//		}
-	//
-	//	}
 }

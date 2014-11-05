@@ -50,14 +50,14 @@ public class TemporalAttributeFeatureExtractor implements
 		if(arg1 instanceof EventMention && arg2 instanceof TimeMention){
 			event = JCasUtil.selectCovering(jCas, EventMention.class, arg1.getBegin(), arg1.getEnd()).get(0);
 			time = (TimeMention)arg2;
-			if(event!=null && event.getEvent()!=null)
+			if(event!=null && event.getEvent()!=null && event.getEvent().getProperties().getContextualModality()!=null)
 				feats.add(new Feature("Event-Modality-", event.getEvent().getProperties().getContextualModality()));
 			feats.add(new Feature("Time-Class-", time.getTimeClass()));
 		}else if(arg2 instanceof EventMention && arg1 instanceof TimeMention){
 			time = (TimeMention)arg1;
 			event = JCasUtil.selectCovering(jCas, EventMention.class, arg2.getBegin(), arg2.getEnd()).get(0);
 			feats.add(new Feature("Timex-Class-", time.getTimeClass()));
-			if(event!=null && event.getEvent()!=null)
+			if(event!=null && event.getEvent()!=null && event.getEvent().getProperties().getContextualModality()!=null)
 				feats.add(new Feature("Event-Modality-", event.getEvent().getProperties().getContextualModality()));
 		}
 		
