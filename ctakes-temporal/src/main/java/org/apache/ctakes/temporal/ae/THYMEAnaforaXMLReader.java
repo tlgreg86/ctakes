@@ -86,7 +86,8 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
       ".Temporal-Entity.gold.completed.xml",
       ".Temporal-Relation-Adjudication.gold.completed.xml",
       ".Temporal-Entity-Adjudication.gold.completed.xml",
-      ".Temporal-Relation.gold.completed.xml"};
+      ".Temporal-Relation.gold.completed.xml",
+      ".Temporal-Relations.gold.completed.xml"};
 
   public static AnalysisEngineDescription getDescription() throws ResourceInitializationException {
     return AnalysisEngineFactory.createEngineDescription(THYMEAnaforaXMLReader.class);
