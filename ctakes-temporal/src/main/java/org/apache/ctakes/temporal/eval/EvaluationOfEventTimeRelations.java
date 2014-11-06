@@ -364,6 +364,7 @@ EvaluationOfTemporalRelations_ImplBase{
 				AnalysisEngineFactory.createEngineDescription(RemoveEventEventRelations.class),
 				CAS.NAME_DEFAULT_SOFA,
 				GOLD_VIEW_NAME);
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEtEvents.class));
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
 		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
@@ -385,11 +386,11 @@ EvaluationOfTemporalRelations_ImplBase{
 					GOLD_VIEW_NAME,
 					CAS.NAME_DEFAULT_SOFA
 					);
-			outf =  new File("target/eval/thyme/SystemError_eventTime_recall_dev.txt");
+			outf =  new File("target/eval/thyme/SystemError_eventTime_recall_test.txt");
 		}else if (!recallModeEvaluation && this.useClosure){
-			outf =  new File("target/eval/thyme/SystemError_eventTime_precision_dev.txt");
+			outf =  new File("target/eval/thyme/SystemError_eventTime_precision_test.txt");
 		}else{
-			outf =  new File("target/eval/thyme/SystemError_eventTime_plain_dev.txt");
+			outf =  new File("target/eval/thyme/SystemError_eventTime_plain_test.txt");
 		}
 
 		PrintWriter outDrop =null;
@@ -467,6 +468,51 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 		outDrop.close();
 		return stats;
+	}
+	
+	public static class RemoveNonUMLSEtEvents extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+		public static final String PARAM_GOLD_VIEW = "GoldView";
+
+		@ConfigurationParameter(name = PARAM_GOLD_VIEW,mandatory=false)
+		private String goldViewName = CAS.NAME_DEFAULT_SOFA;
+
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			JCas sysView;
+			JCas goldView;
+			try {
+				sysView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
+				goldView = jCas.getView(PARAM_GOLD_VIEW);
+			} catch (CASException e) {
+				throw new AnalysisEngineProcessException(e);
+			}
+			for(TemporalTextRelation relation : Lists.newArrayList(JCasUtil.select(goldView, TemporalTextRelation.class))){
+				Annotation arg1 = relation.getArg1().getArgument();
+				Annotation arg2 = relation.getArg2().getArgument();
+				Annotation argEvent = null;
+				if(arg1 instanceof EventMention && arg2 instanceof TimeMention){
+					argEvent = arg1;
+				}else if(arg1 instanceof TimeMention && arg2 instanceof EventMention){
+					argEvent = arg2;
+				}else{
+					continue;
+				}
+				boolean eventValid = false;
+				for (EventMention event : JCasUtil.selectCovered(sysView, EventMention.class, argEvent)){
+					if(!event.getClass().equals(EventMention.class)){
+						eventValid = true;
+						break;
+					}
+				}
+				if(eventValid){
+					// these are the kind we keep.
+					continue;
+				}
+				arg1.removeFromIndexes();
+				arg2.removeFromIndexes();
+				relation.removeFromIndexes();
+			}
+		}   
 	}
 
 	/*

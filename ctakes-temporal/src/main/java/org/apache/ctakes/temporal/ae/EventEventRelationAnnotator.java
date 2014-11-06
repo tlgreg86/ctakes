@@ -203,6 +203,11 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 								pairs.add(new IdentifiedAnnotationPair(event1, event2));
 							}
 						}
+						for(EventMention event1 : JCasUtil.selectCovered(jCas, EventMention.class, eventA)){
+							for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
+								pairs.add(new IdentifiedAnnotationPair(event1, event2));
+							}
+						}
 					}
 					pairs.add(new IdentifiedAnnotationPair(eventA, eventB));
 				}

@@ -161,23 +161,33 @@ public class EventTimeSelfRelationAnnotator extends RelationExtractorAnnotator {
 			Annotation sentence) {
 		Map<EventMention, Collection<EventMention>> coveringMap =
 				JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
-		
+
 		List<IdentifiedAnnotationPair> pairs = Lists.newArrayList();
 		for (EventMention event : JCasUtil.selectCovered(jCas, EventMention.class, sentence)) {
-			// ignore subclasses like Procedure and Disease/Disorder
-			if(this.isTraining()){//if training mode, train on both gold event and nearby system events
-				
-				if (event.getClass().equals(EventMention.class)) {
+			boolean eventValid = false;
+			if (event.getClass().equals(EventMention.class)) {//event is a gold event
+				for( EventMention aEve : JCasUtil.selectCovered(jCas, EventMention.class, event)){
+					if(!aEve.getClass().equals(EventMention.class)){//this event cover a UMLS semantic type
+						eventValid = true;
+						break;
+					}
+				}
+			}
+
+			if(eventValid){
+				// ignore subclasses like Procedure and Disease/Disorder
+				if(this.isTraining()){//if training mode, train on both gold event and span-overlapping system events
 					for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, sentence)) {
 						Collection<EventMention> eventList = coveringMap.get(event);
 						for(EventMention covEvent : eventList){
 							pairs.add(new IdentifiedAnnotationPair(covEvent, time));
 						}
 						pairs.add(new IdentifiedAnnotationPair(event, time));
+						for(EventMention covedEvent : JCasUtil.selectCovered(jCas, EventMention.class, event)){//select covered events
+							pairs.add(new IdentifiedAnnotationPair(covedEvent, time));
+						}
 					}
-				}
-			}else{//if testing mode, only test on system generated events
-				if (event.getClass().equals(EventMention.class)) {
+				}else{//if testing mode, only test on system generated events
 					for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, sentence)) {
 						pairs.add(new IdentifiedAnnotationPair(event, time));
 					}
