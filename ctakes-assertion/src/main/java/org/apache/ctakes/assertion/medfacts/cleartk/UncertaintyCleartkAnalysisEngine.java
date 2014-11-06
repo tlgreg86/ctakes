@@ -18,13 +18,13 @@
  */
 package org.apache.ctakes.assertion.medfacts.cleartk;
 
+import static org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine.FEATURE_CONFIG.ALL_SYN;
 import static org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine.FEATURE_CONFIG.PTK;
 import static org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine.FEATURE_CONFIG.PTK_FRAGS;
 import static org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine.FEATURE_CONFIG.STK;
 import static org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine.FEATURE_CONFIG.STK_FRAGS;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.ArrayList;
 
@@ -34,7 +34,6 @@ import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AboveLeftFragment
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AssertionAboveLeftTreeExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AssertionDependencyTreeExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ContextWordWindowExtractor;
-import org.apache.ctakes.assertion.medfacts.cleartk.extractors.DependencyPathRegexpFeatureExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.DependencyWordsFragmentExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.UncertaintyFeatureExtractor;
 import org.apache.ctakes.typesystem.type.constants.CONST;
@@ -52,7 +51,7 @@ public class UncertaintyCleartkAnalysisEngine extends AssertionCleartkAnalysisEn
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
-		probabilityOfKeepingADefaultExample = 0.5;
+		probabilityOfKeepingADefaultExample = 0.25;
 		if(this.entityFeatureExtractors == null){
 			this.entityFeatureExtractors = new ArrayList<>();
 		}
@@ -132,7 +131,7 @@ public class UncertaintyCleartkAnalysisEngine extends AssertionCleartkAnalysisEn
   public static AnalysisEngineDescription createAnnotatorDescription(String modelPath) throws ResourceInitializationException {
     return AnalysisEngineFactory.createEngineDescription(UncertaintyCleartkAnalysisEngine.class,
         AssertionCleartkAnalysisEngine.PARAM_FEATURE_CONFIG,
-        AssertionCleartkAnalysisEngine.FEATURE_CONFIG.DEP_REGEX,
+        AssertionCleartkAnalysisEngine.FEATURE_CONFIG.ALL_SYN,
         GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
         modelPath);
   }

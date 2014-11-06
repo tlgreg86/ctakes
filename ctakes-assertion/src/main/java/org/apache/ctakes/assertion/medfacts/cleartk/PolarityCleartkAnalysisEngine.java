@@ -71,7 +71,7 @@ public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngin
 		
 		if(featConfig == FEATURE_CONFIG.PTK_FRAGS || featConfig == FEATURE_CONFIG.DEP_REGEX_FRAGS || featConfig == FEATURE_CONFIG.ALL_SYN){
 //	     ptk frags feature:
-		  this.entityFeatureExtractors.add(new DependencyWordsFragmentExtractor("DW_Polarity", "org/apache/ctakes/assertion/models/jbi_paper_polarity_dw_frags.txt"));		  
+//		  this.entityFeatureExtractors.add(new DependencyWordsFragmentExtractor("DW_Polarity", "org/apache/ctakes/assertion/models/jbi_paper_polarity_dw_frags.txt"));		  
 		}
 
 		if(featConfig == FEATURE_CONFIG.DEP_REGEX || featConfig == FEATURE_CONFIG.DEP_REGEX_FRAGS || featConfig == FEATURE_CONFIG.ALL_SYN){

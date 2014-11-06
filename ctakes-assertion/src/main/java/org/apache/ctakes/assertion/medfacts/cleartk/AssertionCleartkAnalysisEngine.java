@@ -396,23 +396,30 @@ public abstract class AssertionCleartkAnalysisEngine extends
           instance.addAll(extractor.extract(identifiedAnnotationView, entityMention));
         }
         */
+      List<Sentence> sents = new ArrayList<>(JCasUtil.selectCovering(jCas, Sentence.class, entityOrEventMention.getBegin(), entityOrEventMention.getEnd()));
+      Sentence coveringSent = null;
+      if(sents.size() > 0){
+        coveringSent = sents.get(0);
+      }
       
       // only use extract this version if not doing domain adaptation 
       if (ffDomainAdaptor==null) {
     	  for (CleartkExtractor<IdentifiedAnnotation, BaseToken> extractor : this.tokenCleartkExtractors) {
-    		  //instance.addAll(extractor.extractWithin(identifiedAnnotationView, entityMention, sentence));
-    		  instance.addAll(extractor.extract(identifiedAnnotationView, entityOrEventMention));
+//    		  instance.addAll(extractor.extractWithin(identifiedAnnotationView, entityMention, sentence));
+    		  if(coveringSent != null){
+    			  instance.addAll(extractor.extractWithin(identifiedAnnotationView, entityOrEventMention, coveringSent));
+    		  }else{
+    			  instance.addAll(extractor.extract(identifiedAnnotationView, entityOrEventMention));
+    		  }
     	  }
       }
       
+      if(coveringSent != null){
 //      List<Feature> cuePhraseFeatures = null;
 //          cuePhraseInWindowExtractor.extract(jCas, entityOrEventMention);
           //cuePhraseInWindowExtractor.extractWithin(jCas, entityMention, firstCoveringSentence);
 //      List<Sentence> sents = new ArrayList<Sentence>(coveringSents.get(entityOrEventMention));
-      List<Sentence> sents = new ArrayList<>(JCasUtil.selectCovering(jCas, Sentence.class, entityOrEventMention.getBegin(), entityOrEventMention.getEnd()));
-      if(sents.size() > 0){
-        Sentence sentence = sents.get(0);
-        List<AssertionCuePhraseAnnotation> cues = JCasUtil.selectCovered(AssertionCuePhraseAnnotation.class, sentence);
+        List<AssertionCuePhraseAnnotation> cues = JCasUtil.selectCovered(AssertionCuePhraseAnnotation.class, coveringSent);
         int closest = Integer.MAX_VALUE;
         AssertionCuePhraseAnnotation closestCue = null;
         for(AssertionCuePhraseAnnotation cue : cues){
