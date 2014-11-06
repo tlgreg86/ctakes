@@ -35,18 +35,12 @@ public class AnnotationTreeUtils {
 	
 	public static TopTreebankNode getAnnotationTree(JCas jcas, Annotation annot){
 		TopTreebankNode tree = null;
-//		FSIterator<Annotation> iter = jcas.getJFSIndexRepository().getAnnotationIndex(TopTreebankNode.type).iterator();
 		Collection<TopTreebankNode> roots = JCasUtil.select(jcas, TopTreebankNode.class);
-//		while(iter.hasNext()){
 		for(TopTreebankNode root : roots){
-//			TopTreebankNode root = (TopTreebankNode) iter.next();
 			if(root.getBegin() <= annot.getBegin() && root.getEnd() >= annot.getEnd()){
 				tree = root;
 				break;
 			}
-		}
-		if(tree == null){
-			System.err.println("Could not find a tree.");
 		}
 		return tree;
 	}
