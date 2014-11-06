@@ -113,6 +113,11 @@
 <delegateAnalysisEngine key="SemanticRoleLabeler">
 <import location="../../../ctakes-dependency-parser/desc/analysis_engine/ClearNLPSemanticRoleLabelerAE.xml"/>
 </delegateAnalysisEngine>    
+
+    <delegateAnalysisEngine key="ConstituencyParser">
+      <import location="../../../ctakes-constituency-parser/desc/ConstituencyParserAnnotator.xml"/>
+    </delegateAnalysisEngine>
+    
   </delegateAnalysisEngineSpecifiers>
   <analysisEngineMetaData>
     <name>AggregatePlaintextUMLSProcessor</name>
@@ -166,6 +171,7 @@ and requires an UMLS license.  Please update DictionaryLookupAnnotatorUMLS.xml f
         <node>DictionaryLookupAnnotatorDB</node>
         <node>DependencyParser</node>
 		<node>SemanticRoleLabeler</node>        
+		<node>ConstituencyParser</node>
         <!-- <node>AssertionAnnotator</node> -->
         <!-- <node>StatusAnnotator</node> -->
        	<!-- <node>NegationAnnotator</node> -->
