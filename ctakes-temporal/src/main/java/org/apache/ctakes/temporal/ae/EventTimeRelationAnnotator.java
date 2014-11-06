@@ -92,7 +92,7 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 				(float) probabilityOfKeepingANegativeExample);
 	}
 
-	public static AnalysisEngineDescription createEngineDescription(String modelPath)
+	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
 			throws ResourceInitializationException {
 		return AnalysisEngineFactory.createEngineDescription(
 				EventTimeRelationAnnotator.class,
@@ -107,7 +107,7 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 	 * This will allow resources to be read within from a jar as well as File.  
 	 */	 
 	@Deprecated
-	public static AnalysisEngineDescription createEngineDescription(File modelDirectory)
+	public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
 			throws ResourceInitializationException {
 		return AnalysisEngineFactory.createEngineDescription(
 				EventTimeRelationAnnotator.class,
