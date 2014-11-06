@@ -102,7 +102,7 @@ public class FullTemporalExtractionPipeline extends
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyPropertiesToTemporalEventAnnotator.class));
     aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription(options.getDoctimerelModelDirectory() + File.separator + "model.jar"));
     aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(options.getTimeModelDirectory() + File.separator + "model.jar"));
-    aggregateBuilder.add(EventTimeRelationAnnotator.createEngineDescription(options.getEventTimeRelationModelDirectory() + File.separator + "model.jar"));
+    aggregateBuilder.add(EventTimeRelationAnnotator.createAnnotatorDescription(options.getEventTimeRelationModelDirectory() + File.separator + "model.jar"));
     if(options.getEventEventRelationModelDirectory()!=null){
       aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(options.getEventEventRelationModelDirectory() + File.separator + "model.jar"));
     }

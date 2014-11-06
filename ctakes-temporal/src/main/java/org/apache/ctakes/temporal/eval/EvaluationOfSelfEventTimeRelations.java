@@ -370,7 +370,7 @@ EvaluationOfTemporalRelations_ImplBase{
 				GOLD_VIEW_NAME);
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
-		aggregateBuilder.add(EventTimeRelationAnnotator.createEngineDescription(new File(directory,"event-time")));
+		aggregateBuilder.add(EventTimeRelationAnnotator.createAnnotatorDescription(new File(directory,"event-time")));
 
 		if(this.i2b2Output != null){
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
