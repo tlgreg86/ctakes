@@ -71,6 +71,7 @@ public class ClinicalPipelineFactory {
     builder.add(getTokenProcessingPipeline());
     builder.add(AnalysisEngineFactory.createEngineDescription(CopyNPChunksToLookupWindowAnnotations.class));
     builder.add(AnalysisEngineFactory.createEngineDescription(RemoveEnclosedLookupWindows.class));
+    builder.add(AnalysisEngineFactory.createEngineDescription(ConstituencyParser.class));
     builder.add(UmlsDictionaryLookupAnnotator.createAnnotatorDescription());
     builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
     builder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());
@@ -175,7 +176,8 @@ public class ClinicalPipelineFactory {
     String note = "History of diabetes and hypertension. Mother had breast cancer. Sister with multiple sclerosis. " +
     			  "The patient is suffering from extreme pain due to shark bite. Recommend continuing use of aspirin, oxycodone, and coumadin. Continue exercise for obesity and hypertension." +
                   "Patient denies smoking and chest pain. Patient has no cancer. There is no sign of multiple sclerosis. " +
-    			  "Mass is suspicious for breast cancer. Discussed surgery and chemotherapy. Will return if pain continues.";
+    			  "Mass is suspicious for breast cancer. Possible breast cancer. Cannot exclude stenosis. Some degree of focal pancreatitis is also possible." +
+    			  "Discussed surgery and chemotherapy. Will return if pain continues. ";
     JCas jcas = JCasFactory.createJCas();
     jcas.setDocumentText(note);
     SimplePipeline.runPipeline(jcas, aed);
