@@ -92,7 +92,7 @@
       <!--<implementationName>org.apache.ctakes.dictionary.lookup2.consumer.PrecisionTermConsumer</implementationName>-->
       <!--<implementationName>org.apache.ctakes.dictionary.lookup2.consumer.SemanticCleanupTermConsumer</implementationName>-->
       <properties>
-         <property key="codingScheme" value="cTakes"/>
+         <property key="codingScheme" value="CTAKES"/>
       </properties>
    </rareWordConsumer>
 
