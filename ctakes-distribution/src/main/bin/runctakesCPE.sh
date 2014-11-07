@@ -23,6 +23,9 @@
 # or add the properties
 # -Dctakes.umlsuser=[username] -Dctakes.umlspw=[password]
 
+# You can also pass in the name of the XML descriptor to auto load as an arugement
+# -desc $CTAKES_HOME/ctakes-clinical-pipeline/desc/AggregatePlaintextUMLSProcessor.xml
+
 PRG="$0"
 while [ -h "$PRG" ]; do
   ls=`ls -ld "$PRG"`
@@ -39,4 +42,4 @@ PRGDIR=`dirname "$PRG"`
 [ -z "$CTAKES_HOME" ] && CTAKES_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
 
 cd $CTAKES_HOME
-java -cp $CTAKES_HOME/desc/:$CTAKES_HOME/resources/:$CTAKES_HOME/lib/* -Dlog4j.configuration=file:$CTAKES_HOME/config/log4j.xml -Xms512M -Xmx3g org.apache.uima.tools.cpm.CpmFrame
+java -cp $CTAKES_HOME/desc/:$CTAKES_HOME/resources/:$CTAKES_HOME/lib/* -Dlog4j.configuration=file:$CTAKES_HOME/config/log4j.xml -Xms512M -Xmx3g org.apache.uima.tools.cpm.CpmFrame "$@"
