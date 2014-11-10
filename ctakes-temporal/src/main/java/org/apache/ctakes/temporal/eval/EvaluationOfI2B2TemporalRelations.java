@@ -38,14 +38,15 @@ import org.apache.ctakes.core.ae.CDASegmentAnnotator;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.ae.ConsecutiveSentencesEventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.ConsecutiveSentencesEventTimeRelationAnnotator;
-import org.apache.ctakes.temporal.ae.EventTimeSelfRelationAnnotator;
 import org.apache.ctakes.temporal.ae.TemporalRelationRuleAnnotator;
 import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAdmissionTimeAnnotator;
 import org.apache.ctakes.temporal.ae.EventDischargeTimeAnnotator;
-import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
-import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
+import org.apache.ctakes.temporal.ae.EventEventI2B2RelationAnnotator;
+import org.apache.ctakes.temporal.ae.EventTimeI2B2RelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventEventThymeRelations.AddEEPotentialRelations;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.AddPotentialRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveNonContainsRelations.RemoveGoldAttributes;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
@@ -66,7 +67,6 @@ import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
@@ -75,7 +75,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.FileUtils;
 import org.cleartk.eval.AnnotationStatistics;
 import org.cleartk.ml.jar.JarClassifierBuilder;
-//import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
+import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
 import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 //import org.cleartk.classifier.tksvmlight.TKSVMlightStringOutcomeDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
@@ -292,13 +292,18 @@ EvaluationOfTemporalRelations_ImplBase{
 		//				CAS.NAME_DEFAULT_SOFA,
 		//				GOLD_VIEW_NAME);
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
-		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
+//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
 
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveEventEventRelations.class));
 		//test rules:
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(TemporalRelationRuleAnnotator.class));
+		
+		//add unlabeled nearby system events as potential event-time links: 
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddPotentialRelations.class));
+		//add unlabeled nearby system events as potential event-event links: 
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddEEPotentialRelations.class));
 
-		aggregateBuilder.add(EventTimeSelfRelationAnnotator.createDataWriterDescription(
+		aggregateBuilder.add(EventTimeI2B2RelationAnnotator.createDataWriterDescription(
 				//				LibSvmStringOutcomeDataWriter.class,
 				LibLinearStringOutcomeDataWriter.class,
 				// TKSVMlightStringOutcomeDataWriter.class,
@@ -306,27 +311,27 @@ EvaluationOfTemporalRelations_ImplBase{
 				//        SVMlightStringOutcomeDataWriter.class,        
 				new File(directory,EVENT_TIME),
 				params.probabilityOfKeepingANegativeExample));
-		aggregateBuilder.add(EventEventRelationAnnotator.createDataWriterDescription(
+		aggregateBuilder.add(EventEventI2B2RelationAnnotator.createDataWriterDescription(
 				LibLinearStringOutcomeDataWriter.class,//TKSVMlightStringOutcomeDataWriter.class,//
 				//				LIBLINEARStringOutcomeDataWriter.class,
 				new File(directory,EVENT_EVENT), 
 				params.probabilityOfKeepingANegativeExample));
 		aggregateBuilder.add(EventDischargeTimeAnnotator.createDataWriterDescription(
-				//				LibSvmStringOutcomeDataWriter.class,
-				LibLinearStringOutcomeDataWriter.class,
+				LibSvmStringOutcomeDataWriter.class,
+//				LibLinearStringOutcomeDataWriter.class,
 				new File(directory,EVENT_DISCHARGE)));
 		aggregateBuilder.add(EventAdmissionTimeAnnotator.createDataWriterDescription(
-				//				LibSvmStringOutcomeDataWriter.class,
-				LibLinearStringOutcomeDataWriter.class,
+				LibSvmStringOutcomeDataWriter.class,
+//				LibLinearStringOutcomeDataWriter.class,
 				new File(directory,EVENT_ADMISSION)));
 		aggregateBuilder.add(ConsecutiveSentencesEventEventRelationAnnotator.createDataWriterDescription(
-				//				LibSvmStringOutcomeDataWriter.class,
-				LibLinearStringOutcomeDataWriter.class,
+				LibSvmStringOutcomeDataWriter.class,
+//				LibLinearStringOutcomeDataWriter.class,
 				new File(directory,TEMP_CROSSSENT), 
 				params.probabilityOfKeepingANegativeExample));
 		aggregateBuilder.add(ConsecutiveSentencesEventTimeRelationAnnotator.createDataWriterDescription(
-				//				LibSvmStringOutcomeDataWriter.class,
-				LibLinearStringOutcomeDataWriter.class,
+				LibSvmStringOutcomeDataWriter.class,
+//				LibLinearStringOutcomeDataWriter.class,
 				new File(directory,TEMPET_CROSSSENT), 
 				params.probabilityOfKeepingANegativeExample));
 		SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
@@ -355,14 +360,14 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		//    HideOutput hider = new HideOutput();
-		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_TIME), "-c", "0.001");//"-h","0","-c", "1000");//optArray);//"-c", "0.05");//
-		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_EVENT), "-c", "0.001");
-		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_DISCHARGE), "-c", "0.001");
-		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_ADMISSION), "-c", "0.001");
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_TIME), "-c", "0.0002", "-w2","0.2","-w3","7","-w4","7","-w5","13");//"-h","0","-c", "1000");//optArray);//"-c", "0.05");//
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_EVENT), "-c", "0.0002","-w1","0.07","-w2","14","-w3","5","-w4","10","-w6","20");
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_DISCHARGE), "-h","0","-c", "1000");
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_ADMISSION), "-h","0","-c", "1000");
 		//		JarClassifierBuilder.trainAndPackage(new File(directory,TIME_ADMISSION), "-h","0","-c", "1000");
 		//		JarClassifierBuilder.trainAndPackage(new File(directory,TIME_DISCHARGE), "-h","0","-c", "1000");
-		JarClassifierBuilder.trainAndPackage(new File(directory,TEMP_CROSSSENT), "-c", "0.001");
-		JarClassifierBuilder.trainAndPackage(new File(directory,TEMPET_CROSSSENT), "-c", "0.001");
+		JarClassifierBuilder.trainAndPackage(new File(directory,TEMP_CROSSSENT), "-h","0","-c", "1000");
+		JarClassifierBuilder.trainAndPackage(new File(directory,TEMPET_CROSSSENT), "-h","0","-c", "1000");
 		//    hider.restoreOutput();
 		//    hider.close();
 	}
@@ -419,8 +424,8 @@ EvaluationOfTemporalRelations_ImplBase{
 		//		aggregateBuilder.add(TimexDischargeTimeAnnotator.createAnnotatorDescription(new File(directory,TIME_DISCHARGE)));
 
 		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
-			EventTimeSelfRelationAnnotator.createEngineDescription(new File(directory,EVENT_TIME)));
-		aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(new File(directory,EVENT_EVENT)));
+			EventTimeI2B2RelationAnnotator.createEngineDescription(new File(directory,EVENT_TIME)));
+		aggregateBuilder.add(EventEventI2B2RelationAnnotator.createAnnotatorDescription(new File(directory,EVENT_EVENT)));
 		aggregateBuilder.add(ConsecutiveSentencesEventEventRelationAnnotator.createAnnotatorDescription(new File(directory,TEMP_CROSSSENT)));
 		aggregateBuilder.add(ConsecutiveSentencesEventTimeRelationAnnotator.createAnnotatorDescription(new File(directory,TEMPET_CROSSSENT)));
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(TemporalRelationRuleAnnotator.class));

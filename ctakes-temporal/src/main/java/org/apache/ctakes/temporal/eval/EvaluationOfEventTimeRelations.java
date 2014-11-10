@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator.IdentifiedAnnotationPair;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.ae.EventTimeSelfRelationAnnotator;
@@ -693,6 +694,9 @@ EvaluationOfTemporalRelations_ImplBase{
 							createRelation(relationView, covEvent, arg2, relation.getCategory());
 						}
 					}
+					for(EventMention covedEvent : JCasUtil.selectCovered(jCas, EventMention.class, event)){//select covered events
+						createRelation(relationView, covedEvent, arg2, relation.getCategory());
+					}
 				}else if(arg2 instanceof EventMention && arg1 instanceof TimeMention){
 					event = (EventMention) arg2;
 					Collection<EventMention> eventList = coveringMap.get(event);
@@ -700,6 +704,9 @@ EvaluationOfTemporalRelations_ImplBase{
 						if(!covEvent.getClass().equals(EventMention.class)){
 							createRelation(relationView, arg1, covEvent, relation.getCategory());
 						}
+					}
+					for(EventMention covedEvent : JCasUtil.selectCovered(jCas, EventMention.class, event)){//select covered events
+						createRelation(relationView, arg1, covedEvent, relation.getCategory());
 					}
 				}
 			}

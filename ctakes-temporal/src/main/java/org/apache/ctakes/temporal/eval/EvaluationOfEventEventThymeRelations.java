@@ -329,7 +329,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		//    HideOutput hider = new HideOutput();
-		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"),"-c", optArray[1]);//"-w1","0.09","-w2","4","-w3","9","-w5","2","-w6","16","-w7","10","-w8","6", "-w9","45","-w10","30","-c", optArray[1]);//"-c", "0.05");//optArray);
+		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"),"-w1","0.08","-w3","3","-w4","17","-w5","20","-w6","16","-w7","10","-w8","6", "-w9","45","-w10","30","-c", optArray[1]);//"-c", "0.05");//optArray);
 		//		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"), "-h","0","-c", "1000");
 		//    hider.restoreOutput();
 		//    hider.close();
@@ -529,6 +529,20 @@ EvaluationOfTemporalRelations_ImplBase{
 						for(EventMention covEventB : coveringMap.get(event2)){
 							createRelation(relationView, covEventA, covEventB, relation.getCategory());
 						}
+						createRelation(relationView, covEventA, event2, relation.getCategory());
+					}
+					for(EventMention covEventB : coveringMap.get(event2)){
+						createRelation(relationView, event1, covEventB, relation.getCategory());
+					}
+					//get covered system events:
+					for(EventMention covedEventA : JCasUtil.selectCovered(jCas, EventMention.class, event1)){//select covered events
+						for(EventMention covedEventB : JCasUtil.selectCovered(jCas, EventMention.class, event2)){
+							createRelation(relationView, covedEventA, covedEventB, relation.getCategory());
+						}
+						createRelation(relationView, covedEventA, event2, relation.getCategory());
+					}
+					for(EventMention covedEventB : JCasUtil.selectCovered(jCas, EventMention.class, event2)){
+						createRelation(relationView, event1, covedEventB, relation.getCategory());
 					}
 				}
 			}
