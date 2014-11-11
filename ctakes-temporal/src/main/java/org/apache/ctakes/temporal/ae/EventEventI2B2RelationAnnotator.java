@@ -35,6 +35,7 @@ import org.apache.ctakes.temporal.ae.feature.ConjunctionRelationFeaturesExtracto
 import org.apache.ctakes.temporal.ae.feature.DependencyPathFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.CoordinateFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.DependingVerbsFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.DependencyParseUtils;
 //import org.apache.ctakes.temporal.ae.feature.EventInBetweenPropertyExtractor;
 //import org.apache.ctakes.temporal.ae.feature.EventOutsidePropertyExtractor;
 import org.apache.ctakes.temporal.ae.feature.SpecialAnnotationRelationExtractor;
@@ -58,6 +59,7 @@ import org.apache.ctakes.temporal.ae.feature.UnexpandedTokenFeaturesExtractor;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
+import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 //import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -139,10 +141,10 @@ public class EventEventI2B2RelationAnnotator extends RelationExtractorAnnotator 
 				, new OverlappedHeadFeaturesExtractor()
 				, new SRLRelationFeaturesExtractor()
 				, new NumberOfEventsInTheSameSentenceExtractor()
-				, new EventPositionRelationFeaturesExtractor() //not helpful
-				, new TimeXRelationFeaturesExtractor() //not helpful
+				//				, new EventPositionRelationFeaturesExtractor() //not helpful
+				//				, new TimeXRelationFeaturesExtractor() //not helpful
 				, new ConjunctionRelationFeaturesExtractor()
-				, new DeterminerRelationFeaturesExtractor()
+				//				, new DeterminerRelationFeaturesExtractor()
 				, new EventTimeRelationFeatureExtractor()
 				, new TokenPropertyFeaturesExtractor()
 				, new DependingVerbsFeatureExtractor()
@@ -179,34 +181,35 @@ public class EventEventI2B2RelationAnnotator extends RelationExtractorAnnotator 
 		int eventNum = events.size();
 
 		for (int i = 0; i < eventNum-1; i++){
+			EventMention eventB = events.get(i);
 			for(int j = i+1; j < eventNum; j++){
 				EventMention eventA = events.get(j);
-				EventMention eventB = events.get(i);
 
-				if(this.isTraining()){
-					//pairing covering system events:
-					for (EventMention event1 : coveringMap.get(eventA)){
+				if(j-i==1 || j-i==eventNum-1||ifDependent(jCas, eventA, eventB)){
+					if(this.isTraining()){
+						//pairing covering system events:
+						for (EventMention event1 : coveringMap.get(eventA)){
+							for(EventMention event2 : coveringMap.get(eventB)){
+								pairs.add(new IdentifiedAnnotationPair(event1, event2));							
+							}
+							pairs.add(new IdentifiedAnnotationPair(event1, eventB));
+						}
 						for(EventMention event2 : coveringMap.get(eventB)){
-							pairs.add(new IdentifiedAnnotationPair(event1, event2));							
+							pairs.add(new IdentifiedAnnotationPair(eventA, event2));							
 						}
-						pairs.add(new IdentifiedAnnotationPair(event1, eventB));
-					}
-					for(EventMention event2 : coveringMap.get(eventB)){
-						pairs.add(new IdentifiedAnnotationPair(eventA, event2));							
-					}
-					//pairing covered system events:
-					for(EventMention event1 : JCasUtil.selectCovered(jCas, EventMention.class, eventA)){
+						//pairing covered system events:
+						for(EventMention event1 : JCasUtil.selectCovered(jCas, EventMention.class, eventA)){
+							for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
+								pairs.add(new IdentifiedAnnotationPair(event1, event2));
+							}
+							pairs.add(new IdentifiedAnnotationPair(event1, eventB));
+						}
 						for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
-							pairs.add(new IdentifiedAnnotationPair(event1, event2));
+							pairs.add(new IdentifiedAnnotationPair(eventA, event2));
 						}
-						pairs.add(new IdentifiedAnnotationPair(event1, eventB));
 					}
-					for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
-						pairs.add(new IdentifiedAnnotationPair(eventA, event2));
-					}
+					pairs.add(new IdentifiedAnnotationPair(eventA, eventB));
 				}
-				pairs.add(new IdentifiedAnnotationPair(eventA, eventB));
-
 			}
 		}
 
@@ -228,6 +231,24 @@ public class EventEventI2B2RelationAnnotator extends RelationExtractorAnnotator 
 		//		}
 
 		return pairs;
+	}
+	
+	private static boolean ifDependent(JCas jCas, EventMention ev1, EventMention ev2) {
+		for (ConllDependencyNode firstNode : JCasUtil.selectCovered(jCas, ConllDependencyNode.class, ev1)) {//get the covered conll nodes within the first event
+			String pos = firstNode.getPostag();
+			if(pos.startsWith("NN")||pos.startsWith("VB")){//get the head node
+				for(ConllDependencyNode nextNode : JCasUtil.selectCovered(jCas, ConllDependencyNode.class, ev2)){//get the covered conll nodes within the next event
+					pos = nextNode.getPostag();
+					if(pos.startsWith("NN")||pos.startsWith("VB")){//get the head node
+						ConllDependencyNode ancestor = DependencyParseUtils.getCommonAncestor(firstNode, nextNode);
+						if(ancestor==firstNode || ancestor==nextNode){
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -262,13 +283,10 @@ public class EventEventI2B2RelationAnnotator extends RelationExtractorAnnotator 
 			if (relation != null && relation instanceof TemporalTextRelation) {
 				if(relation.getCategory().equals("OVERLAP")){
 					category = relation.getCategory();
-					//				}else if (relation.getCategory().equals("BEFORE")){
-					//					category = "AFTER";
-					//				}else if (relation.getCategory().equals("AFTER")){
-					//					category = "BEFORE";
-					//				}
-				}else{
-					category = relation.getCategory() + "-1";
+				}else if (relation.getCategory().equals("BEFORE")){
+					category = "AFTER";
+				}else if (relation.getCategory().equals("AFTER")){
+					category = "BEFORE";
 				}
 			}
 		}

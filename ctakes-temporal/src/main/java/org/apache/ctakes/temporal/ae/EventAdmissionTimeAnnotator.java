@@ -20,6 +20,7 @@ package org.apache.ctakes.temporal.ae;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 //import java.io.IOException;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.Map;
 import org.apache.ctakes.temporal.ae.feature.ClosestVerbExtractor;
 //import org.apache.ctakes.temporal.ae.feature.CoveredTextToValuesExtractor;
 import org.apache.ctakes.temporal.ae.feature.DateAndMeasurementExtractor;
+import org.apache.ctakes.temporal.ae.feature.EventPositionFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventPropertyExtractor;
 import org.apache.ctakes.temporal.ae.feature.NearbyVerbTenseXExtractor;
 import org.apache.ctakes.temporal.ae.feature.SectionHeaderExtractor;
@@ -40,6 +42,8 @@ import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
+import org.apache.ctakes.typesystem.type.textspan.Segment;
+import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -63,6 +67,8 @@ import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
+import com.google.common.collect.Lists;
+
 //import com.google.common.base.Charsets;
 
 public class EventAdmissionTimeAnnotator extends CleartkAnnotator<String> {
@@ -79,7 +85,7 @@ public class EventAdmissionTimeAnnotator extends CleartkAnnotator<String> {
 				DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
 				outputDirectory);
 	}
-	
+
 	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
 			throws ResourceInitializationException {
 		return AnalysisEngineFactory.createEngineDescription(
@@ -90,11 +96,11 @@ public class EventAdmissionTimeAnnotator extends CleartkAnnotator<String> {
 				modelPath);
 	}	
 
-	  /**
-	   * @deprecated use String path instead of File.
-	   * ClearTK will automatically Resolve the String to an InputStream.
-	   * This will allow resources to be read within from a jar as well as File.  
-	   */
+	/**
+	 * @deprecated use String path instead of File.
+	 * ClearTK will automatically Resolve the String to an InputStream.
+	 * This will allow resources to be read within from a jar as well as File.  
+	 */
 	public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
 			throws ResourceInitializationException {
 		return AnalysisEngineFactory.createEngineDescription(
@@ -107,7 +113,8 @@ public class EventAdmissionTimeAnnotator extends CleartkAnnotator<String> {
 
 	private CleartkExtractor<EventMention, BaseToken> contextExtractor;
 	private NearbyVerbTenseXExtractor verbTensePatternExtractor;
-	private SectionHeaderExtractor sectionIDExtractor;
+	//	private SectionHeaderExtractor sectionIDExtractor;
+	private EventPositionFeatureExtractor eventPositionExtractor;
 	private ClosestVerbExtractor closestVerbExtractor;
 	private TimeXExtractor timeXExtractor;
 	private EventPropertyExtractor genericExtractor;
@@ -129,7 +136,8 @@ public class EventAdmissionTimeAnnotator extends CleartkAnnotator<String> {
 				new Covered(),
 				new Following(3));
 		this.verbTensePatternExtractor = new NearbyVerbTenseXExtractor();
-		this.sectionIDExtractor = new SectionHeaderExtractor();
+		//		this.sectionIDExtractor = new SectionHeaderExtractor();
+		this.eventPositionExtractor = new EventPositionFeatureExtractor();
 		this.closestVerbExtractor = new ClosestVerbExtractor();
 		this.timeXExtractor = new TimeXExtractor();
 		this.genericExtractor = new EventPropertyExtractor();
@@ -149,82 +157,97 @@ public class EventAdmissionTimeAnnotator extends CleartkAnnotator<String> {
 				break;
 			}
 		}
+
+		//2. identify the HOPI section:
+		List<Segment> histories = Lists.newArrayList();
+		Collection<Segment> segments = JCasUtil.select(jCas, Segment.class);
+		for(Segment seg: segments){
+			if (seg.getId().equals("history")){//find the right segment
+				if(JCasUtil.selectCovered(jCas,Sentence.class,seg).size()>0){//ignore empty section
+					histories.add(seg);
+				}
+			}
+		}
+
 		if (admissionTime != null){
 			//get event-time1 relations:
 			Map<List<Annotation>, TemporalTextRelation> dischargeTimeRelationLookup;
-		    dischargeTimeRelationLookup = new HashMap<>();
-		    if (this.isTraining()) {
-		      dischargeTimeRelationLookup = new HashMap<>();
-		      for (TemporalTextRelation relation : JCasUtil.select(jCas, TemporalTextRelation.class)) {
-		        Annotation arg1 = relation.getArg1().getArgument();
-		        Annotation arg2 = relation.getArg2().getArgument();
-		        // The key is a list of args so we can do bi-directional lookup
-		        if(arg1 instanceof TimeMention && arg2 instanceof EventMention ){
-		        	if( arg1==admissionTime){
-		        		dischargeTimeRelationLookup.put(Arrays.asList(arg1, arg2), relation);
-		        		continue;
-		        	}
-		        }else if(arg1 instanceof EventMention && arg2 instanceof TimeMention){
-		        	if( arg2==admissionTime ){
-		        		dischargeTimeRelationLookup.put(Arrays.asList(arg1, arg2), relation);
-		        		continue;
-		        	}
-		        }
-		        
-		      }
-		    }
-		    
-			for (EventMention eventMention : JCasUtil.select(jCas, EventMention.class)) {
-				if (eventMention.getEvent() != null) {
-					List<Feature> features = this.contextExtractor.extract(jCas, eventMention);
-					features.addAll(this.verbTensePatternExtractor.extract(jCas, eventMention));//add nearby verb POS pattern feature
-					features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
-					features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
-					features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
-					features.addAll(this.genericExtractor.extract(jCas, eventMention)); //add the closest time expression types
-					features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
-					features.addAll(this.umlsExtractor.extract(jCas, eventMention)); //add umls features
-					//        features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
-					//        features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
-					if (this.isTraining()) {
-						TemporalTextRelation relation = dischargeTimeRelationLookup.get(Arrays.asList(eventMention, admissionTime));
-						String category = null;
-						if (relation != null) {
-							category = relation.getCategory();
-						} else {
-							relation = dischargeTimeRelationLookup.get(Arrays.asList(admissionTime, eventMention));
+			dischargeTimeRelationLookup = new HashMap<>();
+			if (this.isTraining()) {
+				dischargeTimeRelationLookup = new HashMap<>();
+				for (TemporalTextRelation relation : JCasUtil.select(jCas, TemporalTextRelation.class)) {
+					Annotation arg1 = relation.getArg1().getArgument();
+					Annotation arg2 = relation.getArg2().getArgument();
+					// The key is a list of args so we can do bi-directional lookup
+					if(arg1 instanceof TimeMention && arg2 instanceof EventMention ){
+						if( arg1==admissionTime){
+							dischargeTimeRelationLookup.put(Arrays.asList(arg1, arg2), relation);
+							continue;
+						}
+					}else if(arg1 instanceof EventMention && arg2 instanceof TimeMention){
+						if( arg2==admissionTime ){
+							dischargeTimeRelationLookup.put(Arrays.asList(arg1, arg2), relation);
+							continue;
+						}
+					}
+
+				}
+			}
+
+			for (Segment historyOfPresentIll : histories){
+				for (EventMention eventMention : JCasUtil.selectCovered(jCas, EventMention.class, historyOfPresentIll)) {
+					if (eventMention.getClass().equals(EventMention.class)) {//for every gold event
+						List<Feature> features = this.contextExtractor.extract(jCas, eventMention);
+						features.addAll(this.verbTensePatternExtractor.extract(jCas, eventMention));//add nearby verb POS pattern feature
+						//					features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
+						features.addAll(this.eventPositionExtractor.extract(jCas, eventMention));
+						features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
+						features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
+						features.addAll(this.genericExtractor.extract(jCas, eventMention)); //add the closest time expression types
+						features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
+						features.addAll(this.umlsExtractor.extract(jCas, eventMention)); //add umls features
+						//        features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
+						//        features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
+						if (this.isTraining()) {
+							TemporalTextRelation relation = dischargeTimeRelationLookup.get(Arrays.asList(eventMention, admissionTime));
+							String category = null;
 							if (relation != null) {
-								if(relation.getCategory().equals("OVERLAP")){
-									category = relation.getCategory();
-								}else if (relation.getCategory().equals("BEFORE")){
-									category = "AFTER";
-								}else if (relation.getCategory().equals("AFTER")){
-									category = "BEFORE";
+								category = relation.getCategory();
+							} else {
+								relation = dischargeTimeRelationLookup.get(Arrays.asList(admissionTime, eventMention));
+								if (relation != null) {
+									if(relation.getCategory().equals("OVERLAP")){
+										category = relation.getCategory();
+									}else if (relation.getCategory().equals("BEFORE")){
+										category = "AFTER";
+									}else if (relation.getCategory().equals("AFTER")){
+										category = "BEFORE";
+									}
 								}
 							}
-						}
-						if(category!=null){
-							this.dataWriter.write(new Instance<>(category, features));
-						}
-					} else {
-						String outcome = this.classifier.classify(features);
-						if(outcome!=null){
-							// add the relation to the CAS
-						    RelationArgument relArg1 = new RelationArgument(jCas);
-						    relArg1.setArgument(eventMention);
-						    relArg1.setRole("Argument");
-						    relArg1.addToIndexes();
-						    RelationArgument relArg2 = new RelationArgument(jCas);
-						    relArg2.setArgument(admissionTime);
-						    relArg2.setRole("Related_to");
-						    relArg2.addToIndexes();
-						    TemporalTextRelation relation = new TemporalTextRelation(jCas);
-						    relation.setArg1(relArg1);
-						    relation.setArg2(relArg2);
-						    relation.setCategory(outcome);
-						    relation.addToIndexes();
-						}else{
-							System.out.println("cannot classify "+ eventMention.getCoveredText()+" and " + admissionTime.getCoveredText());
+							if(category!=null){
+								this.dataWriter.write(new Instance<>(category, features));
+							}
+						} else {
+							String outcome = this.classifier.classify(features);
+							if(outcome!=null){
+								// add the relation to the CAS
+								RelationArgument relArg1 = new RelationArgument(jCas);
+								relArg1.setArgument(eventMention);
+								relArg1.setRole("Argument");
+								relArg1.addToIndexes();
+								RelationArgument relArg2 = new RelationArgument(jCas);
+								relArg2.setArgument(admissionTime);
+								relArg2.setRole("Related_to");
+								relArg2.addToIndexes();
+								TemporalTextRelation relation = new TemporalTextRelation(jCas);
+								relation.setArg1(relArg1);
+								relation.setArg2(relArg2);
+								relation.setCategory(outcome);
+								relation.addToIndexes();
+							}else{
+								System.out.println("cannot classify "+ eventMention.getCoveredText()+" and " + admissionTime.getCoveredText());
+							}
 						}
 					}
 				}

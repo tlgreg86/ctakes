@@ -225,13 +225,10 @@ public class EventTimeI2B2RelationAnnotator extends RelationExtractorAnnotator {
 			if (relation != null) {
 				if(relation.getCategory().equals("OVERLAP")){
 					category = relation.getCategory();
-					//				}else if (relation.getCategory().equals("BEFORE")){
-					//					category = "AFTER";
-					//				}else if (relation.getCategory().equals("AFTER")){
-					//					category = "BEFORE";
-					//				}
-				}else{
-					category = relation.getCategory() + "-1";
+				}else if (relation.getCategory().equals("BEFORE")){
+					category = "AFTER";
+				}else if (relation.getCategory().equals("AFTER")){
+					category = "BEFORE";
 				}
 			}
 		}

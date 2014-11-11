@@ -20,6 +20,7 @@ package org.apache.ctakes.temporal.ae;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 //import java.io.IOException;
 import java.util.List;
@@ -31,7 +32,8 @@ import org.apache.ctakes.temporal.ae.feature.ClosestVerbExtractor;
 import org.apache.ctakes.temporal.ae.feature.DateAndMeasurementExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventPropertyExtractor;
 import org.apache.ctakes.temporal.ae.feature.NearbyVerbTenseXExtractor;
-import org.apache.ctakes.temporal.ae.feature.SectionHeaderExtractor;
+//import org.apache.ctakes.temporal.ae.feature.SectionHeaderExtractor;
+import org.apache.ctakes.temporal.ae.feature.EventPositionFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.TimeXExtractor;
 import org.apache.ctakes.temporal.ae.feature.UmlsSingleFeatureExtractor;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
@@ -40,6 +42,8 @@ import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
+import org.apache.ctakes.typesystem.type.textspan.Segment;
+import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -62,6 +66,8 @@ import org.cleartk.ml.feature.extractor.TypePathExtractor;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
+
+import com.google.common.collect.Lists;
 
 //import com.google.common.base.Charsets;
 
@@ -89,11 +95,11 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 				modelPath);
 	}	
-	  /**
-	   * @deprecated use String path instead of File.
-	   * ClearTK will automatically Resolve the String to an InputStream.
-	   * This will allow resources to be read within from a jar as well as File.  
-	   */
+	/**
+	 * @deprecated use String path instead of File.
+	 * ClearTK will automatically Resolve the String to an InputStream.
+	 * This will allow resources to be read within from a jar as well as File.  
+	 */
 	public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
 			throws ResourceInitializationException {
 		return AnalysisEngineFactory.createEngineDescription(
@@ -106,7 +112,8 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 
 	private CleartkExtractor<EventMention, BaseToken> contextExtractor;
 	private NearbyVerbTenseXExtractor verbTensePatternExtractor;
-	private SectionHeaderExtractor sectionIDExtractor;
+	//	private SectionHeaderExtractor sectionIDExtractor;
+	private EventPositionFeatureExtractor eventPositionExtractor;
 	private ClosestVerbExtractor closestVerbExtractor;
 	private TimeXExtractor timeXExtractor;
 	private EventPropertyExtractor genericExtractor;
@@ -128,7 +135,8 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 				new Covered(),
 				new Following(3));
 		this.verbTensePatternExtractor = new NearbyVerbTenseXExtractor();
-		this.sectionIDExtractor = new SectionHeaderExtractor();
+		//		this.sectionIDExtractor = new SectionHeaderExtractor();
+		this.eventPositionExtractor = new EventPositionFeatureExtractor();
 		this.closestVerbExtractor = new ClosestVerbExtractor();
 		this.timeXExtractor = new TimeXExtractor();
 		this.genericExtractor = new EventPropertyExtractor();
@@ -142,42 +150,59 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 		TimeMention dischargeTime = null;
 		//TODO
 		//may need better way to identify Discharge Time other than relative span information:
-		for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, 40, 60)) {
-			if(time.getTimeClass().equals("DATE")){
-				dischargeTime = time;
-				break;
+		findDischarge:
+			for (Sentence sent : JCasUtil.selectCovered(jCas, Sentence.class, 40, 60)) {
+				for(TimeMention time: JCasUtil.selectCovered(jCas, TimeMention.class, sent)){
+					if(time.getTimeClass().equals("DATE")){
+						dischargeTime = time;
+						break findDischarge;
+					}
+				}
+			}
+
+		//2. identify the Hospital Course section:
+		List<Segment> courses = Lists.newArrayList();
+		Collection<Segment> segments = JCasUtil.select(jCas, Segment.class);
+		for(Segment seg: segments){
+			if (seg.getId().equals("course")){//find the right segment
+				if(JCasUtil.selectCovered(jCas,Sentence.class,seg).size()>0){//ignore empty section
+					courses.add(seg);
+				}
 			}
 		}
-		if (dischargeTime != null){
-			//get event-time1 relations:
-			Map<List<Annotation>, TemporalTextRelation> dischargeTimeRelationLookup;
-		    dischargeTimeRelationLookup = new HashMap<>();
-		    if (this.isTraining()) {
-		      dischargeTimeRelationLookup = new HashMap<>();
-		      for (TemporalTextRelation relation : JCasUtil.select(jCas, TemporalTextRelation.class)) {
-		        Annotation arg1 = relation.getArg1().getArgument();
-		        Annotation arg2 = relation.getArg2().getArgument();
-		        // The key is a list of args so we can do bi-directional lookup
-		        if(arg1 instanceof TimeMention && arg2 instanceof EventMention ){
-		        	if( arg1==dischargeTime){
-		        		dischargeTimeRelationLookup.put(Arrays.asList(arg1, arg2), relation);
-		        		continue;
-		        	}
-		        }else if(arg1 instanceof EventMention && arg2 instanceof TimeMention){
-		        	if( arg2==dischargeTime ){
-		        		dischargeTimeRelationLookup.put(Arrays.asList(arg1, arg2), relation);
-		        		continue;
-		        	}
-		        }
-		        
-		      }
-		    }
-		    
-			for (EventMention eventMention : JCasUtil.select(jCas, EventMention.class)) {
-				if (eventMention.getEvent() != null) {
+
+
+		//get event-time1 relations:
+		Map<List<Annotation>, TemporalTextRelation> dischargeTimeRelationLookup;
+		dischargeTimeRelationLookup = new HashMap<>();
+		if (this.isTraining()) {
+			dischargeTimeRelationLookup = new HashMap<>();
+			for (TemporalTextRelation relation : JCasUtil.select(jCas, TemporalTextRelation.class)) {
+				Annotation arg1 = relation.getArg1().getArgument();
+				Annotation arg2 = relation.getArg2().getArgument();
+				// The key is a list of args so we can do bi-directional lookup
+				if(arg1 instanceof TimeMention && arg2!=null && arg2 instanceof EventMention ){
+					if( arg1==dischargeTime){
+						dischargeTimeRelationLookup.put(Arrays.asList(arg1, arg2), relation);
+						continue;
+					}
+				}else if(arg1 instanceof EventMention && ( arg2 == null || arg2 instanceof TimeMention)){
+					if( arg2==dischargeTime ){
+						dischargeTimeRelationLookup.put(Arrays.asList(arg1, arg2), relation);
+						continue;
+					}
+				}
+
+			}
+		}
+
+		for(Segment course: courses){
+			for (EventMention eventMention : JCasUtil.selectCovered(jCas, EventMention.class, course)) {
+				if (eventMention.getClass().equals(EventMention.class)) {//for every gold event
 					List<Feature> features = this.contextExtractor.extract(jCas, eventMention);
 					features.addAll(this.verbTensePatternExtractor.extract(jCas, eventMention));//add nearby verb POS pattern feature
-					features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
+					//					features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
+					features.addAll(this.eventPositionExtractor.extract(jCas, eventMention));
 					features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
 					features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
 					features.addAll(this.genericExtractor.extract(jCas, eventMention)); //add the closest time expression types
@@ -209,21 +234,22 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 						String outcome = this.classifier.classify(features);
 						if(outcome!=null){
 							// add the relation to the CAS
-						    RelationArgument relArg1 = new RelationArgument(jCas);
-						    relArg1.setArgument(eventMention);
-						    relArg1.setRole("Argument");
-						    relArg1.addToIndexes();
-						    RelationArgument relArg2 = new RelationArgument(jCas);
-						    relArg2.setArgument(dischargeTime);
-						    relArg2.setRole("Related_to");
-						    relArg2.addToIndexes();
-						    TemporalTextRelation relation = new TemporalTextRelation(jCas);
-						    relation.setArg1(relArg1);
-						    relation.setArg2(relArg2);
-						    relation.setCategory(outcome);
-						    relation.addToIndexes();
+							RelationArgument relArg1 = new RelationArgument(jCas);
+							relArg1.setArgument(eventMention);
+							relArg1.setRole("Argument");
+							relArg1.addToIndexes();
+							RelationArgument relArg2 = new RelationArgument(jCas);
+							relArg2.setArgument(dischargeTime);
+							relArg2.setRole("Related_to");
+							relArg2.addToIndexes();
+							TemporalTextRelation relation = new TemporalTextRelation(jCas);
+							relation.setArg1(relArg1);
+							relation.setArg2(relArg2);
+							relation.setCategory(outcome);
+							relation.addToIndexes();
 						}else{
-							System.out.println("cannot classify "+ eventMention.getCoveredText()+" and " + dischargeTime.getCoveredText());
+							if (dischargeTime!=null)
+								System.out.println("cannot classify "+ eventMention.getCoveredText()+" and " + dischargeTime.getCoveredText());
 						}						
 					}
 				}
