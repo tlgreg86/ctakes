@@ -72,14 +72,11 @@ public class XMIReader extends JCasCollectionReader_ImplBase {
 
 @Override
   public void getNext(JCas jCas) throws IOException, CollectionException {
-    FileInputStream inputStream = new FileInputStream(this.filesIter.next());
-    try {
+	try(FileInputStream inputStream = new FileInputStream(this.filesIter.next())){
       XmiCasDeserializer.deserialize(new BufferedInputStream(inputStream), jCas.getCas());
     } catch (SAXException e) {
-      inputStream.close();
       throw new CollectionException(e);
     }
-    inputStream.close();
     this.completed += 1;
   }
 

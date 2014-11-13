@@ -125,7 +125,7 @@ public class AnnotationStatisticsCompact<OUTCOME_TYPE extends Comparable<? super
    */
   public static <OUTCOME_TYPE extends Comparable<? super OUTCOME_TYPE>> AnnotationStatisticsCompact<OUTCOME_TYPE> addAll(
       Iterable<AnnotationStatisticsCompact<OUTCOME_TYPE>> statistics) {
-    AnnotationStatisticsCompact<OUTCOME_TYPE> result = new AnnotationStatisticsCompact<OUTCOME_TYPE>();
+    AnnotationStatisticsCompact<OUTCOME_TYPE> result = new AnnotationStatisticsCompact<>();
     for (AnnotationStatisticsCompact<OUTCOME_TYPE> item : statistics) {
       result.addAll(item);
     }
@@ -140,7 +140,7 @@ public class AnnotationStatisticsCompact<OUTCOME_TYPE extends Comparable<? super
     this.referenceOutcomes = HashMultiset.create();
     this.predictedOutcomes = HashMultiset.create();
     this.correctOutcomes = HashMultiset.create();
-    this.confusionMatrix = new ConfusionMatrix<OUTCOME_TYPE>();
+    this.confusionMatrix = new ConfusionMatrix<>();
   }
 
   /**
@@ -192,13 +192,13 @@ public class AnnotationStatisticsCompact<OUTCOME_TYPE extends Comparable<? super
       Function<ANNOTATION_TYPE, OUTCOME_TYPE> annotationToOutcome) {
 
     // map gold spans to their outcomes
-    Map<SPAN_TYPE, OUTCOME_TYPE> referenceSpanOutcomes = new HashMap<SPAN_TYPE, OUTCOME_TYPE>();
+    Map<SPAN_TYPE, OUTCOME_TYPE> referenceSpanOutcomes = new HashMap<>();
     for (ANNOTATION_TYPE ann : referenceAnnotations) {
       referenceSpanOutcomes.put(annotationToSpan.apply(ann), annotationToOutcome.apply(ann));
     }
 
     // map system spans to their outcomes
-    Map<SPAN_TYPE, OUTCOME_TYPE> predictedSpanOutcomes = new HashMap<SPAN_TYPE, OUTCOME_TYPE>();
+    Map<SPAN_TYPE, OUTCOME_TYPE> predictedSpanOutcomes = new HashMap<>();
     for (ANNOTATION_TYPE ann : predictedAnnotations) {
       predictedSpanOutcomes.put(annotationToSpan.apply(ann), annotationToOutcome.apply(ann));
     }
@@ -208,7 +208,7 @@ public class AnnotationStatisticsCompact<OUTCOME_TYPE extends Comparable<? super
     this.predictedOutcomes.addAll(predictedSpanOutcomes.values());
 
     // determine the outcomes that were correct
-    Set<SPAN_TYPE> intersection = new HashSet<SPAN_TYPE>();
+    Set<SPAN_TYPE> intersection = new HashSet<>();
     intersection.addAll(referenceSpanOutcomes.keySet());
     intersection.retainAll(predictedSpanOutcomes.keySet());
     for (SPAN_TYPE span : intersection) {
@@ -220,7 +220,7 @@ public class AnnotationStatisticsCompact<OUTCOME_TYPE extends Comparable<? super
     }
 
     // update the confusion matrix
-    Set<SPAN_TYPE> union = new HashSet<SPAN_TYPE>();
+    Set<SPAN_TYPE> union = new HashSet<>();
     union.addAll(referenceSpanOutcomes.keySet());
     union.addAll(predictedSpanOutcomes.keySet());
     for (SPAN_TYPE span : union) {
@@ -412,7 +412,7 @@ public class AnnotationStatisticsCompact<OUTCOME_TYPE extends Comparable<? super
         this.referenceOutcomes.size(),
         this.predictedOutcomes.size(),
         this.correctOutcomes.size()));
-    List<OUTCOME_TYPE> outcomes = new ArrayList<OUTCOME_TYPE>(this.referenceOutcomes.elementSet());
+    List<OUTCOME_TYPE> outcomes = new ArrayList<>(this.referenceOutcomes.elementSet());
     if (outcomes.size() > 1) {
       Collections.sort(outcomes);
       for (OUTCOME_TYPE outcome : outcomes) {
@@ -437,7 +437,7 @@ public class AnnotationStatisticsCompact<OUTCOME_TYPE extends Comparable<? super
 			"All",this.precision(),
 			"All",this.recall(),
 			"All",this.f1()));
-	List<OUTCOME_TYPE> outcomes = new ArrayList<OUTCOME_TYPE>(this.referenceOutcomes.elementSet());
+	List<OUTCOME_TYPE> outcomes = new ArrayList<>(this.referenceOutcomes.elementSet());
 	if (outcomes.size() > 1) {
 		Collections.sort(outcomes);
 		for (OUTCOME_TYPE outcome : outcomes) {

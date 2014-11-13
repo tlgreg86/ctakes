@@ -219,7 +219,7 @@ public class MergeGoldViewFromOneCasIntoInitialViewOfAnotherCas extends JCasAnno
 	}
 
 	private static JCas getJcas(File f) {
-		List<File> list = new ArrayList<File>();
+		List<File> list = new ArrayList<>();
 		list.add(f);
 		CollectionReader cr;
 		AggregateBuilder builder;
@@ -241,7 +241,7 @@ public class MergeGoldViewFromOneCasIntoInitialViewOfAnotherCas extends JCasAnno
 			//SimplePipeline.runPipeline(cr, builder.createEngine());
 			AnalysisEngine engine = builder.createAggregate();
 
-			final List<ResourceMetaData> metaData = new ArrayList<ResourceMetaData>();
+			final List<ResourceMetaData> metaData = new ArrayList<>();
 			metaData.add(cr.getMetaData());
 			metaData.add(engine.getMetaData());
 			
