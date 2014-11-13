@@ -150,15 +150,12 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 		TimeMention dischargeTime = null;
 		//TODO
 		//may need better way to identify Discharge Time other than relative span information:
-		findDischarge:
-			for (Sentence sent : JCasUtil.selectCovered(jCas, Sentence.class, 40, 60)) {
-				for(TimeMention time: JCasUtil.selectCovered(jCas, TimeMention.class, sent)){
-					if(time.getTimeClass().equals("DATE")){
-						dischargeTime = time;
-						break findDischarge;
-					}
-				}
+		for(TimeMention time: JCasUtil.selectCovered(jCas, TimeMention.class, 40, 60)){
+			if(time.getTimeClass().equals("DATE")){
+				dischargeTime = time;
+				break;
 			}
+		}
 
 		//2. identify the Hospital Course section:
 		List<Segment> courses = Lists.newArrayList();
