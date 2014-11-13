@@ -70,7 +70,6 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.Feature;
-import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.component.NoOpAnnotator;
@@ -100,7 +99,6 @@ import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
-//import org.cleartk.ml.libsvm.tk.TKLibSvmStringOutcomeDataWriter;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.BooleanOptionHandler;
@@ -109,11 +107,8 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-//import org.chboston.cnlp.ctakes.relationextractor.ae.RelationExtractorAnnotator;
-//import org.chboston.cnlp.ctakes.relationextractor.eval.RelationExtractorEvaluation;
-//import org.chboston.cnlp.ctakes.relationextractor.ae.ModifierExtractorAnnotator;
 
-public class AssertionEvaluation extends Evaluation_ImplBase<File, Map<String, AnnotationStatisticsCompact>> {
+public class AssertionEvaluation extends Evaluation_ImplBase<File, Map<String, AnnotationStatisticsCompact<String>>> {
   
 private static Logger logger = Logger.getLogger(AssertionEvaluation.class); 
 
@@ -291,15 +286,9 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
   
   protected ArrayList<String> annotationTypes;
 
-  private Class<? extends AssertionCleartkAnalysisEngine> classifierAnnotatorClass;
-
-//  private Class<? extends DataWriterFactory<String>> dataWriterFactoryClass;
-  
   private Class<? extends DataWriter<String>> dataWriterClass;
   
   private File evaluationOutputDirectory;
-
-//  private static Map<String,String> trainFileToCorpusDir = new HashMap<String,String>();
 
   static public String evaluationLogFilePath;
   static private File evaluationLogFile;
@@ -317,29 +306,17 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
 	  
     System.out.println("Started assertion module at " + new Date());
     
-    //Options options = new Options();
 	  resetOptions();
 	  CmdLineParser parser = new CmdLineParser(options);
 	  parser.parseArgument(args);
-//	  options.parseOptions(args);
 
 	  if (useEvaluationLogFile && evaluationLogFileOut == null) {
 		  evaluationLogFile = new File(evaluationLogFilePath);
 		  evaluationLogFileOut = new BufferedWriter(new FileWriter(evaluationLogFile), 32768);
 	  }
 	  
-//    System.err.println("forcing skipping of subject processing!!!");
-//    options.runSubject = false;
-//    System.err.println("forcing skipping of generic processing!!!");
-//    options.runGeneric = false;
-//    System.err.println("forcing skipping of polarity processing!!!");
-//    options.runPolarity = false;
-//    System.err.println("forcing skipping of uncertainty processing!!!");
-//    options.runUncertainty = false;
-//    System.err.println("forcing skipping of conditional processing!!!");
-//    options.runConditional = false;
     printOptionsForDebugging(options);
-    List<File> trainFiles = new ArrayList<File>();
+    List<File> trainFiles = new ArrayList<>();
     if (null != options.trainDirectory) {
     	String[] dirs = options.trainDirectory.split("[;:]");
     	for (String dir : dirs) {
@@ -347,12 +324,10 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     		if (trainDir.listFiles()!=null) {
     			for (File f : trainDir.listFiles()) {
     				trainFiles.add(f);
-//    				trainFileToCorpusDir.put(f.getPath(),domainId);
     			}
     		}
     	}
     }
-    //File modelsDir = new File("models/modifier");
     File modelsDir = options.modelsDirectory;
     if(options.useTmp){
       File tempModelDir = new File(options.modelsDirectory, "temp");
@@ -365,23 +340,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     
     File evaluationOutputDirectory = options.evaluationOutputDirectory;
 
-    // determine the type of classifier to be trained
-//    Class<? extends DataWriterFactory<String>> dataWriterFactoryClass = DefaultMaxentDataWriterFactory.class;
-//    Class<? extends DataWriterFactory<String>> dataWriterFactoryClass = DefaultMultiClassLibSvmDataWriterFactory.class;
-    
-    // TODO Class<? extends DataWriterFactory<String>> dataWriterFactoryClass = DefaultDataWriterFactory.class;
-    //
-    // A DataWriterFactory that creates a data writer from the class given by
-    // PARAM_DATA_WRITER_CLASS_NAME and the directory given by
-    // DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY.
-    //
-    // DefaultMaxentDataWriterFactory is deprecated and says to use DefaultDattaWriterFactory
-    // with MaxentDataWriter.
-    
-    Class<? extends AssertionCleartkAnalysisEngine> annotatorClass = AssertionCleartkAnalysisEngine.class;
-
-    //String [] annotationTypes = { "polarity", "conditional", "uncertainty", "subject", "generic" };
-    ArrayList<String> annotationTypes = new ArrayList<String>();
+    ArrayList<String> annotationTypes = new ArrayList<>();
     if (!options.ignorePolarity) { annotationTypes.add("polarity"); }
     if (!options.ignoreConditional) { annotationTypes.add("conditional"); }
     if (!options.ignoreUncertainty) { annotationTypes.add("uncertainty"); }
@@ -406,10 +365,8 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
         modelsDir,
         evaluationOutputDirectory,
         annotationTypes,
-        annotatorClass,
         dw,
-        "-c",
-        "1"
+        kernelParams
         );
     
     // if preprocessing, don't do anything else
@@ -420,20 +377,20 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     // run cross-validation
     else if(options.crossValidationFolds != null) {
       // run n-fold cross-validation
-      List<Map<String, AnnotationStatisticsCompact>> foldStats = evaluation.crossValidation(trainFiles, options.crossValidationFolds);
+      List<Map<String, AnnotationStatisticsCompact<String>>> foldStats = evaluation.crossValidation(trainFiles, options.crossValidationFolds);
       //AnnotationStatisticsCompact overallStats = AnnotationStatisticsCompact.addAll(foldStats);
-      Map<String, AnnotationStatisticsCompact> overallStats = new TreeMap<String, AnnotationStatisticsCompact>();
+      Map<String, AnnotationStatisticsCompact<String>> overallStats = new TreeMap<>();
       
       for (String currentAnnotationType : annotationTypes)
       {
-    	  AnnotationStatisticsCompact currentAnnotationStatisticsCompact = new AnnotationStatisticsCompact();
+    	  AnnotationStatisticsCompact<String> currentAnnotationStatisticsCompact = new AnnotationStatisticsCompact<>();
     	  overallStats.put(currentAnnotationType, currentAnnotationStatisticsCompact);
       }
-      for (Map<String, AnnotationStatisticsCompact> singleFoldMap : foldStats)
+      for (Map<String, AnnotationStatisticsCompact<String>> singleFoldMap : foldStats)
       {
     	  for (String currentAnnotationType : annotationTypes)
     	  {
-    	    AnnotationStatisticsCompact currentFoldStatistics = singleFoldMap.get(currentAnnotationType);
+    	    AnnotationStatisticsCompact<String> currentFoldStatistics = singleFoldMap.get(currentAnnotationType);
     	    overallStats.get(currentAnnotationType).addAll(currentFoldStatistics);
     	  }
       }
@@ -450,7 +407,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
         overallStats.put(annotationType, 0.0);
       }
       for(int iter = 0; iter < numIters; iter++){
-        Map<String,AnnotationStatisticsCompact> stats = evaluation.trainAndTest(trainFiles, testFiles);
+        Map<String,AnnotationStatisticsCompact<String>> stats = evaluation.trainAndTest(trainFiles, testFiles);
         AssertionEvaluation.printScore(stats, "Sample " + iter + " score:");
         for(String annotationType : stats.keySet()){
           overallStats.put(annotationType, overallStats.get(annotationType) + stats.get(annotationType).f1("-1"));
@@ -470,7 +427,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     	  testFiles = Arrays.asList(options.evaluationOutputDirectory.listFiles());
     	  logger.debug("evalOnly using files in directory " + evaluationOutputDirectory.getName() + " aka " + evaluationOutputDirectory.getCanonicalPath());
       } else if (options.trainOnly){
-    	  testFiles = new ArrayList<File>();
+    	  testFiles = new ArrayList<>();
       } else {
     	  testFiles = Arrays.asList(options.testDirectory.listFiles());
       }
@@ -487,7 +444,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
     	  }
     	  logger.debug("testFiles.size() = " + testFiles.size());
     	  CollectionReader testCollectionReader = evaluation.getCollectionReader(testFiles);
-    	  Map<String, AnnotationStatisticsCompact> stats = evaluation.test(testCollectionReader, modelsDir);
+    	  Map<String, AnnotationStatisticsCompact<String>> stats = evaluation.test(testCollectionReader, modelsDir);
 
     	  AssertionEvaluation.printScore(stats,  modelsDir!=null? modelsDir.getAbsolutePath() : "no_model");
       }
@@ -524,7 +481,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
 	  options.crossValidationFolds = null;
   }
 
-private static void printOptionsForDebugging(Options options)
+private static void printOptionsForDebugging(Options optionsArg)
   {
 	String message;
 	message = String.format(
@@ -547,33 +504,33 @@ private static void printOptionsForDebugging(Options options)
 	    //"crossValidationFolds: %s%n" +
 	    "noCleartk: %b%n" +
 	    "%n%n",
-	    options.trainDirectory, // just a String so no need to check for null because not using getAbsolutePath()
-   	    (options.testDirectory != null) ? options.testDirectory.getAbsolutePath() : "",
-	    (options.modelsDirectory!=null) ? options.modelsDirectory.getAbsolutePath() : "",
-   		(options.preprocessDir!=null) ? options.preprocessDir.getAbsolutePath() : "",
-	    (options.evaluationOutputDirectory!=null) ? options.evaluationOutputDirectory.getAbsolutePath() : "",
-	    options.crossValidationFolds,
-	    options.ignorePolarity,
-	    options.ignoreConditional,
-	    options.ignoreUncertainty,
-	    options.ignoreSubject,
-	    options.ignoreGeneric,
-	    options.ignoreHistory,
-		options.trainOnly,
-		options.testOnly,
-		options.evalOnly,
+	    optionsArg.trainDirectory, // just a String so no need to check for null because not using getAbsolutePath()
+   	    (optionsArg.testDirectory != null) ? optionsArg.testDirectory.getAbsolutePath() : "",
+	    (optionsArg.modelsDirectory!=null) ? optionsArg.modelsDirectory.getAbsolutePath() : "",
+   		(optionsArg.preprocessDir!=null) ? optionsArg.preprocessDir.getAbsolutePath() : "",
+	    (optionsArg.evaluationOutputDirectory!=null) ? optionsArg.evaluationOutputDirectory.getAbsolutePath() : "",
+	    optionsArg.crossValidationFolds,
+	    optionsArg.ignorePolarity,
+	    optionsArg.ignoreConditional,
+	    optionsArg.ignoreUncertainty,
+	    optionsArg.ignoreSubject,
+	    optionsArg.ignoreGeneric,
+	    optionsArg.ignoreHistory,
+		optionsArg.trainOnly,
+		optionsArg.testOnly,
+		optionsArg.evalOnly,
 		//(options.crossValidationFolds != null) ? options.crossValidationFolds.intValue()+"" : "",
-		options.noCleartk
+		optionsArg.noCleartk
 	    );
 	logger.info(message);
   }
 
-public static void printScore(Map<String, AnnotationStatisticsCompact> map, String directory)
+public static void printScore(Map<String, AnnotationStatisticsCompact<String>> map, String directory)
   {
-      for (Map.Entry<String, AnnotationStatisticsCompact> currentEntry : map.entrySet())
+      for (Map.Entry<String, AnnotationStatisticsCompact<String>> currentEntry : map.entrySet())
 	  {
     	  String annotationType = currentEntry.getKey();
-    	  AnnotationStatisticsCompact stats = currentEntry.getValue();
+    	  AnnotationStatisticsCompact<String> stats = currentEntry.getValue();
     	  
     	  System.out.format("directory: \"%s\"; assertion type: %s%n%s%n%s%n%n",
     	    directory,
@@ -594,13 +551,9 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     			  evaluationLogFileOut.flush();
     		  }
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-
 	  }
-
   }
 
   private String[] trainingArguments;
@@ -609,7 +562,6 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
       File modelDirectory,
       File evaluationOutputDirectory,
       ArrayList<String> annotationTypes,
-      Class<? extends AssertionCleartkAnalysisEngine> classifierAnnotatorClass,
       Class<? extends DataWriter<String>> dataWriterClass,
       String... trainingArguments
       ) {
@@ -617,7 +569,6 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     
     this.annotationTypes = annotationTypes;
 
-    this.classifierAnnotatorClass = classifierAnnotatorClass;
     this.dataWriterClass = dataWriterClass;
 
     this.trainingArguments = trainingArguments;
@@ -639,7 +590,6 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
   }
 
   public static void preprocess(File rawDir ) throws ResourceInitializationException, UIMAException, IOException {
-//	  File devDirectory = new File(options.trainDirectory.getParentFile() + File.separator + "dev");
 	  File preprocessedDir = null;
 	  if (options.trainDirectory.split("[;]").length>1) {
 		  throw new IOException("Assertion preprocess wants to write to one train directory, but you've supplied multiple: " + options.trainDirectory);
@@ -668,19 +618,6 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     if(options.noCleartk) return;
     AggregateBuilder builder = new AggregateBuilder();
     
-    //builder.add(AnalysisEngineFactory.createEngineDescription(ReplaceCTakesEntityMentionsAndModifiersWithGold.class));
-
-//    AnalysisEngineDescription assertionDescription = AssertionCleartkAnalysisEngine.getDescription(
-//        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
-//        //MultiClassLibSvmDataWriterFactory.class.getName(),
-//        MaxentStringOutcomeDataWriter.class.getName(),
-//        DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
-//        directory.getPath());
-//    builder.add(assertionDescription);
-    
-//    AnalysisEngineDescription documentIdPrinterAnnotator = AnalysisEngineFactory.createPrimitiveDescription(DocumentIdPrinterAnalysisEngine.class);
-//    builder.add(documentIdPrinterAnnotator);
-    
     AnalysisEngineDescription goldCopierIdentifiedAnnotsAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
     builder.add(goldCopierIdentifiedAnnotsAnnotator);
     
@@ -690,37 +627,9 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     AnalysisEngineDescription assertionAttributeClearerAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceAnnotationsSystemAssertionClearer.class);
     builder.add(assertionAttributeClearerAnnotator);
     
-//    String generalSectionRegexFileUri =
-//        "org/mitre/medfacts/zoner/section_regex.xml";
-//    AnalysisEngineDescription zonerAnnotator =
-//        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
-//            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
-//            generalSectionRegexFileUri
-//            );
-//    builder.add(zonerAnnotator);
-//
-//    String mayoSectionRegexFileUri =
-//        "org/mitre/medfacts/uima/mayo_sections.xml";
-//    AnalysisEngineDescription mayoZonerAnnotator =
-//        AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
-//            ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
-//            mayoSectionRegexFileUri
-//            );
-//    builder.add(mayoZonerAnnotator);
-  
-//    URL assertionCuePhraseLookupAnnotatorDescriptorUrl1 = this.getClass().getClassLoader().getResource("org/apache/ctakes/dictionary/lookup/AssertionCuePhraseDictionaryLookupAnnotator.xml");
-//    logger.info(String.format("assertionCuePhraseLookupAnnotatorDescriptorUrl1 (slashes): %s", assertionCuePhraseLookupAnnotatorDescriptorUrl1));
-//    URL assertionCuePhraseLookupAnnotatorDescriptorUrl2 = this.getClass().getClassLoader().getResource("org.apache.ctakes.dictionary.lookup.AssertionCuePhraseDictionaryLookupAnnotator.xml");
-//    logger.info(String.format("assertionCuePhraseLookupAnnotatorDescriptorUrl2 (periods): %s", assertionCuePhraseLookupAnnotatorDescriptorUrl2));
-//
-//    
-//    AnalysisEngineDescription cuePhraseLookupAnnotator =
-//        AnalysisEngineFactory.createEngineDescription("org/apache/ctakes/dictionary/lookup/AssertionCuePhraseDictionaryLookupAnnotator");
-//    builder.add(cuePhraseLookupAnnotator);
-
     // Set up Feature Selection parameters
     Float featureSelectionThreshold = options.featureSelectionThreshold;
-    Class<? extends DataWriter> dataWriterClassFirstPass = getDataWriterClass(); 
+    Class<? extends DataWriter<String>> dataWriterClassFirstPass = getDataWriterClass(); 
     if (options.featureSelectionThreshold==null) {
     	featureSelectionThreshold = 0f;
     }
@@ -876,21 +785,6 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     	builder.add(historyAnnotator);
     }
 
-/*
-    AnalysisEngineDescription classifierAnnotator = AnalysisEngineFactory.createEngineDescription(
-        this.classifierAnnotatorClass,
-        this.additionalParameters);
-    ConfigurationParameterFactory.addConfigurationParameters(
-        classifierAnnotator,
-        RelationExtractorAnnotator.PARAM_GOLD_VIEW_NAME,
-        RelationExtractorEvaluation.GOLD_VIEW_NAME,
-        CleartkAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
-        this.dataWriterFactoryClass.getName(),
-        DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
-        directory.getPath());
-    builder.add(classifierAnnotator);
-*/    
-    
     SimplePipeline.runPipeline(collectionReader,  builder.createAggregateDescription());
     
     //HideOutput hider = new HideOutput();
@@ -903,15 +797,9 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
   }
 
   @Override
-  protected Map<String, AnnotationStatisticsCompact> test(CollectionReader collectionReader, File directory)
+  protected Map<String, AnnotationStatisticsCompact<String>> test(CollectionReader collectionReader, File directory)
       throws Exception {
-//    AnalysisEngine classifierAnnotator = AnalysisEngineFactory.createEngine(AssertionCleartkAnalysisEngine.getDescription(
-//        GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-//        new File(directory, "model.jar").getPath()));
-
     AggregateBuilder builder = new AggregateBuilder();
-    
-    // directory is such as /cTAKES/workspaces/Apache-cTAKES-trunk/ctakes/ctakes-assertion/sharp_data/model/eval.model
     
     AnalysisEngineDescription goldCopierAnnotator = AnalysisEngineFactory.createEngineDescription(ReferenceIdentifiedAnnotationsSystemToGoldCopier.class);
     builder.add(goldCopierAnnotator);
@@ -946,19 +834,16 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     	builder.add(mergeGold); 	
     }
     
-    //SimplePipeline.runPipeline(collectionReader,  builder.createEngineDescription());
-    //AnalysisEngineDescription aggregateDescription = builder.createEngineDescription();
-    
     AnalysisEngine aggregate = builder.createAggregate();
     
-    AnnotationStatisticsCompact polarityStats = new AnnotationStatisticsCompact();
-    AnnotationStatisticsCompact conditionalStats = new AnnotationStatisticsCompact();
-    AnnotationStatisticsCompact uncertaintyStats = new AnnotationStatisticsCompact();
-    AnnotationStatisticsCompact subjectStats = new AnnotationStatisticsCompact();
-    AnnotationStatisticsCompact genericStats = new AnnotationStatisticsCompact();
-    AnnotationStatisticsCompact historyStats = new AnnotationStatisticsCompact();	// srh 3/6/13
+    AnnotationStatisticsCompact<String> polarityStats = new AnnotationStatisticsCompact<>();
+    AnnotationStatisticsCompact<String> conditionalStats = new AnnotationStatisticsCompact<>();
+    AnnotationStatisticsCompact<String> uncertaintyStats = new AnnotationStatisticsCompact<>();
+    AnnotationStatisticsCompact<String> subjectStats = new AnnotationStatisticsCompact<>();
+    AnnotationStatisticsCompact<String> genericStats = new AnnotationStatisticsCompact<>();
+    AnnotationStatisticsCompact<String> historyStats = new AnnotationStatisticsCompact<>();	// srh 3/6/13
     
-    Map<String, AnnotationStatisticsCompact> map = new TreeMap<String, AnnotationStatisticsCompact>(); 
+    Map<String, AnnotationStatisticsCompact<String>> map = new TreeMap<>(); 
     if (!options.ignorePolarity)
     {
       map.put("polarity",  polarityStats);
@@ -994,8 +879,6 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     for (Iterator<JCas> casIter = new JCasIterator(collectionReader, aggregate); casIter.hasNext();) {
       JCas jCas = casIter.next();
     	
-//    	printViewNames("Views found by JCasIterable:", jCas);
-    	
       JCas goldView;
       try {
         goldView = jCas.getView(GOLD_VIEW_NAME);
@@ -1004,7 +887,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
         throw new AnalysisEngineProcessException(e);
       }
 
-      Collection<IdentifiedAnnotation> goldEntitiesAndEvents = new ArrayList<IdentifiedAnnotation>(); 
+      Collection<IdentifiedAnnotation> goldEntitiesAndEvents = new ArrayList<>(); 
       if ( !ignoreAnatomicalSites ) {
     	  Collection<EntityMention> goldEntities = JCasUtil.select(goldView, EntityMention.class);
     	  goldEntitiesAndEvents.addAll(goldEntities);
@@ -1023,7 +906,7 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
     	  
       }
       
-      Collection<IdentifiedAnnotation> systemEntitiesAndEvents = new ArrayList<IdentifiedAnnotation>();
+      Collection<IdentifiedAnnotation> systemEntitiesAndEvents = new ArrayList<>();
       if ( !ignoreAnatomicalSites ) {
     	  Collection<EntityMention> systemEntities = JCasUtil.select(jCas, EntityMention.class);
     	  systemEntitiesAndEvents.addAll(systemEntities);
@@ -1107,57 +990,51 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 
   protected void trainAndPackage(String currentAssertionAttribute, File directory, String[] arguments) throws Exception {
 	  if (options.featureSelectionThreshold!=null) {
-//		  InstanceDataWriter.INSTANCES_OUTPUT_FILENAME = "training-data.liblinear";
 		  // Extracting features and writing instances
 		  Iterable<Instance<String>> instances = InstanceStream.loadFromDirectory(directory);
 
 		  // Collect MinMax stats for feature normalization
 		  FeatureSelection<String> featureSelection; 
 		  if (currentAssertionAttribute.equals("polarity")) {
-			  // TODO: parameterize the thresholds
 			  featureSelection = PolarityCleartkAnalysisEngine.createFeatureSelection(options.featureSelectionThreshold);
 			  featureSelection.train(instances);
 			  featureSelection.save(PolarityCleartkAnalysisEngine.createFeatureSelectionURI(directory));
 		  }
 		  else if (currentAssertionAttribute.equals("uncertainty")) {
-			  // TODO: parameterize the thresholds
 			  featureSelection = UncertaintyCleartkAnalysisEngine.createFeatureSelection(options.featureSelectionThreshold);
 			  featureSelection.train(instances);
 			  featureSelection.save(UncertaintyCleartkAnalysisEngine.createFeatureSelectionURI(directory));
 		  }
 		  else if (currentAssertionAttribute.equals("conditional")) {
-			  // TODO: parameterize the thresholds
 			  featureSelection = ConditionalCleartkAnalysisEngine.createFeatureSelection(options.featureSelectionThreshold);
 			  featureSelection.train(instances);
 			  featureSelection.save(ConditionalCleartkAnalysisEngine.createFeatureSelectionURI(directory));
 		  }
 		  else if (currentAssertionAttribute.equals("subject")) {
-			  // TODO: parameterize the thresholds
 			  featureSelection = SubjectCleartkAnalysisEngine.createFeatureSelection(options.featureSelectionThreshold);
 			  featureSelection.train(instances);
 			  featureSelection.save(SubjectCleartkAnalysisEngine.createFeatureSelectionURI(directory));
 		  }
 		  else if (currentAssertionAttribute.equals("generic")) {
-			  // TODO: parameterize the thresholds
 			  featureSelection = GenericCleartkAnalysisEngine.createFeatureSelection(options.featureSelectionThreshold);
 			  featureSelection.train(instances);
 			  featureSelection.save(GenericCleartkAnalysisEngine.createFeatureSelectionURI(directory));
 		  }
 		  else if (currentAssertionAttribute.equals("historyOf")) {
-			  // TODO: parameterize the thresholds
 			  featureSelection = HistoryCleartkAnalysisEngine.createFeatureSelection(options.featureSelectionThreshold);
 			  featureSelection.train(instances);
 			  featureSelection.save(HistoryCleartkAnalysisEngine.createFeatureSelectionURI(directory));
 		  }
 		  else {
 			  featureSelection = null;
+			  throw new Exception("Feature selection is still null!");
 		  }
 
 
 	      // now write in the libsvm format
 //	      LibLinearStringOutcomeDataWriter dataWriter = new LibLinearStringOutcomeDataWriter(directory);
-		  Constructor c = this.dataWriterClass.getConstructor(File.class);
-	      DataWriter dataWriter = (DataWriter) c.newInstance(directory);
+		  Constructor<? extends DataWriter<String>> c = this.dataWriterClass.getConstructor(File.class);
+	      DataWriter<String> dataWriter = c.newInstance(directory);
 	      
 	      // try filtering
 	      for (Instance<String> instance : instances) {
@@ -1170,83 +1047,20 @@ public static void printScore(Map<String, AnnotationStatisticsCompact> map, Stri
 	  JarClassifierBuilder.trainAndPackage(directory, arguments);
   }
   
-  protected Class<? extends DataWriter> getDataWriterClass()
-      throws ResourceInitializationException {
+  protected Class<? extends DataWriter<String>> getDataWriterClass() {
     return (options.featureSelectionThreshold!=null)
-        ? InstanceDataWriter.class
+        ? StringInstanceDataWriter.class
         : this.dataWriterClass;
   }
-  
-  private static boolean DEBUG = false;
-  private static void printViewNames(String message, JCas jcas) {
-	
-  	Iterator<JCas> viewIter;
-	try {
-		viewIter = jcas.getViewIterator();
-	} catch (CASException e) {
-		e.printStackTrace();
-		return;
-	}
-  	while (viewIter.hasNext()) {
-  		JCas view = viewIter.next();
-  		String viewName = view.getViewName();
-  		logger.debug(message + " View name " + viewName);
-  		int numIndexedAnnotations = view.getAnnotationIndex().size();
-  		logger.debug(message + "  has " + numIndexedAnnotations + " indexed annotations");
-  		if (viewName.toLowerCase().contains("gold")) {
-  	  	    if (DEBUG) printAnnotations(IdentifiedAnnotation.type, view);
-  		} else {
-  			if (DEBUG) printAnnotations(EventMention.type, view);
-  			if (DEBUG) printAnnotations(EntityMention.type, view);
-  		}
-  	}
 
+  class StringInstanceDataWriter extends InstanceDataWriter<String> {
+
+	public StringInstanceDataWriter(File outputDirectory) throws IOException {
+		super(outputDirectory);
+	}
+	  
   }
-
-private static void printAnnotations(int uimaAnnotationType, JCas view) {
-	
-	AnnotationIndex<Annotation> index = view.getAnnotationIndex(uimaAnnotationType);
-	Iterator<Annotation> iter = index.iterator();
-	output("Printing annotations for view " + view.getViewName());
-	while (iter.hasNext()) {
-		Annotation a = iter.next();
-		printAnnotation(a);
-	}
-	
-	//// Temp debug code
-	//if (view.getViewName().equals("GoldView")) {
-	//	AnnotationIndex<Annotation> indexOfAll = view.getAnnotationIndex();
-	//	Iterator<Annotation> iterOverAll = indexOfAll.iterator();
-	//	output("Printing ALL annotations for view " + view.getViewName());
-	//	while (iterOverAll.hasNext()) {
-	//		Annotation a = iterOverAll.next();
-	//		printAnnotation(a);
-	//	}
-	//	
-	//}
-	
-}
-
-private static void printAnnotation(Annotation a) {
-	
-	String s = String.format(" (%d, %d) ", a.getBegin(), a.getEnd());
-	if (a instanceof IdentifiedAnnotation) {
-		s = s + ((IdentifiedAnnotation) a).getTypeID() + "=typeID, ";
-	}
-	s = s + "|" + a.getCoveredText() + "|";
-	s = s + a.getClass().getCanonicalName();
-	output(s);
-	
-}
-
-
-private static void output(Object o) {
-	if (o==null) {
-		System.out.println(o);
-	} else {
-		System.out.println(o.toString());
-	}
-}
+  
 private static void printErrors(JCas jCas,
 		  Collection<IdentifiedAnnotation> goldEntitiesAndEvents,
 		  Collection<IdentifiedAnnotation> systemEntitiesAndEvents, String classifierType, Object trueCategory, Class<? extends Object> categoryClass) throws ResourceProcessException {
@@ -1295,6 +1109,8 @@ private static void printErrors(JCas jCas,
 		  if (goldLabel==null) {
 			  // skip counting the attribute value since we have no gold label to compare to
 			  logger.debug("Skipping annotation with label " + systemLabel + " because gold label is null");
+		  } else if (systemLabel==null){
+			  logger.debug("Skipping annotation with label " + systemLabel + " because system label is null");
 		  } else  {
 			  if(!goldLabel.equals(systemLabel)){
 				  if(trueCategory == null){
@@ -1327,8 +1143,6 @@ private static void printInstances(JCas jCas,
 				  throws ResourceProcessException, IOException {
 
 	String documentId = DocumentIDAnnotationUtil.getDocumentID(jCas);
-	  BufferedWriter fileOutWriter = new BufferedWriter(new FileWriter(outputfile,true), 32768);
-
 	  Map<HashableAnnotation, IdentifiedAnnotation> goldMap = Maps.newHashMap();
 	  for (IdentifiedAnnotation mention : goldEntitiesAndEvents) {
 		  goldMap.put(new HashableAnnotation(mention), mention);
@@ -1340,78 +1154,83 @@ private static void printInstances(JCas jCas,
 	  Set<HashableAnnotation> all = Sets.union(goldMap.keySet(), systemMap.keySet());
 	  List<HashableAnnotation> sorted = Lists.newArrayList(all);
 	  Collections.sort(sorted);
-	  for (HashableAnnotation key : sorted) {
-		  IdentifiedAnnotation goldAnnotation = goldMap.get(key);
-		  IdentifiedAnnotation systemAnnotation = systemMap.get(key);
-		  Object goldLabel=null;
-		  Object systemLabel=null;
-		  if (goldAnnotation == null) {
-			  logger.debug(key + " not found in gold annotations ");
-		  } else {
-			  Feature feature = goldAnnotation.getType().getFeatureByBaseName(classifierType);
-			  goldLabel = getFeatureValue(feature, categoryClass, goldAnnotation);
-			  //  Integer goldLabel = goldAnnotation.getIntValue(feature);
-		  }
-		  
-		  if (systemAnnotation == null) {
-			  logger.info(key + " not found in system annotations ");
-		  } else {
-			  Feature feature = systemAnnotation.getType().getFeatureByBaseName(classifierType);
-			  systemLabel = getFeatureValue(feature, categoryClass, systemAnnotation);
-			  //  Integer systemLabel = systemAnnotation.getIntValue(feature);
-		  }
-		  
-		  String typeId = "X";
-		  String typeName = "IdentifiedAnnotation";
-		  int polarity, uncertainty, historyOf;
-		  boolean conditional, generic;
-		  String subject = "";
-		  String cui, coveredText = "";
-		  String instanceData = "";
-		  if (systemAnnotation!=null && systemAnnotation.getEnd()>=0) {
-			  typeId      = systemAnnotation.getTypeID()+"";
-			  typeName    = systemAnnotation.getClass().getSimpleName();
-			  polarity    = systemAnnotation.getPolarity();
-			  uncertainty = systemAnnotation.getUncertainty();
-			  conditional = systemAnnotation.getConditional();
-			  generic     = systemAnnotation.getGeneric();
-			  subject     = systemAnnotation.getSubject();
-			  historyOf   = systemAnnotation.getHistoryOf();
-			  coveredText = systemAnnotation.getCoveredText().replaceAll("\\n", " ").replaceAll(",",";");
-			  instanceData = documentId+","+polarity+","+uncertainty+","+conditional+","+generic+","+subject+","+historyOf+","+
-					  typeId+","+typeName+","+coveredText;
-		  }
-		  
-		  if (goldLabel==null) {
-			  // skip counting the attribute value since we have no gold label to compare to
-			  logger.debug("Skipping annotation with label " + systemLabel + " because gold label is null");
-		  } else if (instanceData.equals("")) {
-			  continue;
-		  }
-		  else  {
-			  if(!goldLabel.equals(systemLabel)){
-				  if(trueCategory == null){
-					  // used for multi-class case.  Incorrect_system_label(Correct_label):
-					  fileOutWriter.write(classifierType+",F,"+systemLabel+","+goldLabel+","+instanceData+"\n");
-				  }else if(systemLabel.equals(trueCategory)){
-					  fileOutWriter.write(classifierType+",FP,"+systemLabel+","+goldLabel+","+instanceData+"\n");
-				  }else{
-					  fileOutWriter.write(classifierType+",FN,"+systemLabel+","+goldLabel+","+instanceData+"\n");
-				  }
-			  }else{
-			    if(trueCategory == null){
-			      // multi-class case -- probably don't want to print anything?
-			    	fileOutWriter.write(classifierType+ ",T,"+systemLabel+","+goldLabel+","+instanceData+"\n");
-			    }else if(systemLabel.equals(trueCategory)){
-			    	fileOutWriter.write(classifierType+",TP,"+systemLabel+","+goldLabel+","+instanceData+"\n");
-				  }else{
-					  fileOutWriter.write(classifierType+",TN,"+systemLabel+","+goldLabel+","+instanceData+"\n");
-				  }
+	  try(
+			  BufferedWriter fileOutWriter = new BufferedWriter(new FileWriter(outputfile,true), 32768);
+			  ){
+		  for (HashableAnnotation key : sorted) {
+			  IdentifiedAnnotation goldAnnotation = goldMap.get(key);
+			  IdentifiedAnnotation systemAnnotation = systemMap.get(key);
+			  Object goldLabel=null;
+			  Object systemLabel=null;
+			  if (goldAnnotation == null) {
+				  logger.debug(key + " not found in gold annotations ");
+			  } else {
+				  Feature feature = goldAnnotation.getType().getFeatureByBaseName(classifierType);
+				  goldLabel = getFeatureValue(feature, categoryClass, goldAnnotation);
+				  //  Integer goldLabel = goldAnnotation.getIntValue(feature);
 			  }
-			  fileOutWriter.flush();
+
+			  if (systemAnnotation == null) {
+				  logger.info(key + " not found in system annotations ");
+			  } else {
+				  Feature feature = systemAnnotation.getType().getFeatureByBaseName(classifierType);
+				  systemLabel = getFeatureValue(feature, categoryClass, systemAnnotation);
+				  //  Integer systemLabel = systemAnnotation.getIntValue(feature);
+			  }
+
+			  String typeId = "X";
+			  String typeName = "IdentifiedAnnotation";
+			  int polarity, uncertainty, historyOf;
+			  boolean conditional, generic;
+			  String subject = "";
+			  String coveredText = "";
+			  String instanceData = "";
+			  if (systemAnnotation!=null && systemAnnotation.getEnd()>=0) {
+				  typeId      = systemAnnotation.getTypeID()+"";
+				  typeName    = systemAnnotation.getClass().getSimpleName();
+				  polarity    = systemAnnotation.getPolarity();
+				  uncertainty = systemAnnotation.getUncertainty();
+				  conditional = systemAnnotation.getConditional();
+				  generic     = systemAnnotation.getGeneric();
+				  subject     = systemAnnotation.getSubject();
+				  historyOf   = systemAnnotation.getHistoryOf();
+				  coveredText = systemAnnotation.getCoveredText().replaceAll("\\n", " ").replaceAll(",",";");
+				  instanceData = documentId+","+polarity+","+uncertainty+","+conditional+","+generic+","+subject+","+historyOf+","+
+						  typeId+","+typeName+","+coveredText;
+			  }
+
+			  if (goldLabel==null) {
+				  // skip counting the attribute value since we have no gold label to compare to
+				  logger.debug("Skipping annotation with label " + systemLabel + " because gold label is null");
+			  } else if (systemLabel == null){			  
+				  logger.debug("Skipping annotation with label " + systemLabel + " because system label is null");
+			  } else if (instanceData.equals("")) {
+				  continue;
+			  }
+			  else  {
+				  if(!goldLabel.equals(systemLabel)){
+					  if(trueCategory == null){
+						  // used for multi-class case.  Incorrect_system_label(Correct_label):
+						  fileOutWriter.write(classifierType+",F,"+systemLabel+","+goldLabel+","+instanceData+"\n");
+					  }else if(systemLabel.equals(trueCategory)){
+						  fileOutWriter.write(classifierType+",FP,"+systemLabel+","+goldLabel+","+instanceData+"\n");
+					  }else{
+						  fileOutWriter.write(classifierType+",FN,"+systemLabel+","+goldLabel+","+instanceData+"\n");
+					  }
+				  }else{
+					  if(trueCategory == null){
+						  // multi-class case -- probably don't want to print anything?
+						  fileOutWriter.write(classifierType+ ",T,"+systemLabel+","+goldLabel+","+instanceData+"\n");
+					  }else if(systemLabel.equals(trueCategory)){
+						  fileOutWriter.write(classifierType+",TP,"+systemLabel+","+goldLabel+","+instanceData+"\n");
+					  }else{
+						  fileOutWriter.write(classifierType+",TN,"+systemLabel+","+goldLabel+","+instanceData+"\n");
+					  }
+				  }
+				  fileOutWriter.flush();
+			  }
 		  }
 	  }
-	  fileOutWriter.close();
 	}
   private static Object getFeatureValue(Feature feature,
 		  Class<? extends Object> class1, Annotation annotation) throws ResourceProcessException {
@@ -1498,7 +1317,7 @@ public static class HashableAnnotation implements Comparable<HashableAnnotation>
     }
   }
 
-private void addExternalAttributeAnnotatorsToAggregate(AggregateBuilder builder)
+private static void addExternalAttributeAnnotatorsToAggregate(AggregateBuilder builder)
 		throws UIMAException, IOException {
   builder.add(AnalysisEngineFactory.createEngineDescription(ConceptConverterAnalysisEngine.class));
 	// RUN ALL THE OLD (non-ClearTK) CLASSIFIERS
@@ -1535,31 +1354,10 @@ private void addExternalAttributeAnnotatorsToAggregate(AggregateBuilder builder)
 	builder.add(oldGenericAnnotator);
 }
 
-private void addCleartkAttributeAnnotatorsToAggregate(File directory,
+private static void addCleartkAttributeAnnotatorsToAggregate(File directory,
 		AggregateBuilder builder) throws UIMAException, IOException,
 		ResourceInitializationException {
-//	AnalysisEngineDescription cuePhraseLookupAnnotator =
-//		AnalysisEngineFactory.createEngineDescription("org/apache/ctakes/dictionary/lookup/AssertionCuePhraseDictionaryLookupAnnotator");
-//	builder.add(cuePhraseLookupAnnotator);
     builder.add(AnalysisEngineFactory.createEngineDescription(AlternateCuePhraseAnnotator.class, new Object[]{}));
-
-//	String generalSectionRegexFileUri =
-//		"org/mitre/medfacts/zoner/section_regex.xml";
-//	AnalysisEngineDescription zonerAnnotator =
-//		AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
-//				ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
-//				generalSectionRegexFileUri
-//		);
-////	builder.add(zonerAnnotator);
-//
-//	String mayoSectionRegexFileUri =
-//		"org/mitre/medfacts/uima/mayo_sections.xml";
-//	AnalysisEngineDescription mayoZonerAnnotator =
-//		AnalysisEngineFactory.createEngineDescription(ZoneAnnotator.class,
-//				ZoneAnnotator.PARAM_SECTION_REGEX_FILE_URI,
-//				mayoSectionRegexFileUri
-//		);
-//	builder.add(mayoZonerAnnotator);
 
 	// Add the ClearTk or the ytex negation (polarity) classifier
 	if (!options.ignorePolarity)
@@ -1587,7 +1385,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
     				AssertionEvaluation.GOLD_VIEW_NAME,
     				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
     				new File(new File(directory, "polarity"), "model.jar").getPath(),
-            PolarityCleartkAnalysisEngine.PARAM_FEATURE_CONFIG,
+            AssertionCleartkAnalysisEngine.PARAM_FEATURE_CONFIG,
             options.featConfig
     				);
     		builder.add(polarityAnnotator);
@@ -1718,7 +1516,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
       }
 
       // remove cTAKES EntityMentions and Modifiers from system view
-      List<IdentifiedAnnotation> cTakesMentions = new ArrayList<IdentifiedAnnotation>();
+      List<IdentifiedAnnotation> cTakesMentions = new ArrayList<>();
       cTakesMentions.addAll(JCasUtil.select(systemView, EntityMention.class));
       cTakesMentions.addAll(JCasUtil.select(systemView, Modifier.class));
       for (IdentifiedAnnotation cTakesMention : cTakesMentions)
@@ -1727,7 +1525,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
       }
 
       // copy gold EntityMentions and Modifiers to the system view
-      List<IdentifiedAnnotation> goldMentions = new ArrayList<IdentifiedAnnotation>();
+      List<IdentifiedAnnotation> goldMentions = new ArrayList<>();
       goldMentions.addAll(JCasUtil.select(goldView, EntityMention.class));
       goldMentions.addAll(JCasUtil.select(goldView, Modifier.class));
       CasCopier copier = new CasCopier(goldView.getCas(), systemView.getCas());
@@ -1740,135 +1538,7 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
       }
     }
   }
-  
-//  public static class ReplaceGoldEntityMentionsAndModifiersWithCTakes extends
-//      JCasAnnotator_ImplBase
-//  {
-//
-//    @Override
-//    public void process(JCas jCas) throws AnalysisEngineProcessException
-//    {
-//      JCas goldView, systemView;
-//      try
-//      {
-//        goldView = jCas.getView(GOLD_VIEW_NAME);
-//        systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
-//      } catch (CASException e)
-//      {
-//        throw new AnalysisEngineProcessException(e);
-//      }
-//
-//      // remove manual EntityMentions and Modifiers from gold view
-//      List<IdentifiedAnnotation> goldMentions = new ArrayList<IdentifiedAnnotation>();
-//      goldMentions.addAll(JCasUtil.select(goldView, EntityMention.class));
-//      goldMentions.addAll(JCasUtil.select(goldView, Modifier.class));
-//      for (IdentifiedAnnotation goldMention : goldMentions)
-//      {
-//        goldMention.removeFromIndexes();
-//      }
-//
-//      // copy cTAKES EntityMentions and Modifiers to gold view
-//      List<IdentifiedAnnotation> cTakesMentions = new ArrayList<IdentifiedAnnotation>();
-//      cTakesMentions.addAll(JCasUtil.select(systemView, EntityMention.class));
-//      cTakesMentions.addAll(JCasUtil.select(systemView, Modifier.class));
-//      CasCopier copier = new CasCopier(systemView.getCas(), goldView.getCas());
-//      for (IdentifiedAnnotation cTakesMention : cTakesMentions)
-//      {
-//        Annotation copy = (Annotation) copier.copyFs(cTakesMention);
-//        Feature sofaFeature = copy.getType().getFeatureByBaseName("sofa");
-//        copy.setFeatureValue(sofaFeature, goldView.getSofa());
-//        copy.addToIndexes();
-//      }
-//
-//      // replace gold EntityMentions and Modifiers in relations with cTAKES ones
-//      List<BinaryTextRelation> relations = new ArrayList<BinaryTextRelation>();
-//      relations.addAll(JCasUtil.select(goldView, BinaryTextRelation.class));
-//      for (BinaryTextRelation relation : relations)
-//      {
-//
-//        // attempt to replace the gold RelationArguments with system ones
-//        int replacedArgumentCount = 0;
-//        for (RelationArgument relArg : Arrays.asList(relation.getArg1(),
-//            relation.getArg2()))
-//        {
-//          Annotation goldArg = relArg.getArgument();
-//          Class<? extends Annotation> argClass = goldArg.getClass();
-//
-//          // find all annotations covered by the gold argument and of the same
-//          // class (these should
-//          // be the ones copied over from the cTAKES output earlier)
-//          List<? extends Annotation> systemArgs = JCasUtil.selectCovered(
-//              goldView, argClass, goldArg);
-//
-//          // no ctakes annotation found
-//          if (systemArgs.size() == 0)
-//          {
-//            String word = "no";
-//            String className = argClass.getSimpleName();
-//            String argText = goldArg.getCoveredText();
-//            String message = String.format("%s %s for \"%s\"", word, className,
-//                argText);
-//            this.getContext().getLogger().log(Level.FINE, message);
-//            continue;
-//          }
-//
-//          // if there's exactly one annotation, replace the gold one with that
-//          if (systemArgs.size() == 1)
-//          {
-//            relArg.setArgument(systemArgs.get(0));
-//            replacedArgumentCount += 1;
-//          }
-//
-//          else
-//          {
-//            // multiple ctakes arguments found; look for one that matches
-//            // exactly
-//            // e.g. gold: "right breast", ctakes: "right breast", "breast"
-//            for (Annotation systemArg : systemArgs)
-//            {
-//              String goldArgText = goldArg.getCoveredText();
-//              String systemArgText = systemArg.getCoveredText();
-//              if (systemArgText.equals(goldArgText))
-//              {
-//                relArg.setArgument(systemArg);
-//                replacedArgumentCount += 1;
-//              }
-//            }
-//
-//            if (replacedArgumentCount < 1)
-//            {
-//              // issue a warning message
-//              String word = "multiple";
-//              String className = argClass.getSimpleName();
-//              String argText = goldArg.getCoveredText();
-//              String message = String.format("%s %s for \"%s\"", word,
-//                  className, argText);
-//              this.getContext().getLogger().log(Level.FINE, message);
-//
-//              System.out.println("gold argument: " + goldArg.getCoveredText());
-//              System.out.println("gold type: "
-//                  + ((IdentifiedAnnotation) goldArg).getTypeID());
-//              for (Annotation systemArg : systemArgs)
-//              {
-//                System.out.println("ctakes argument: "
-//                    + systemArg.getCoveredText());
-//                System.out.println("ctakes type: "
-//                    + ((IdentifiedAnnotation) systemArg).getTypeID());
-//              }
-//              System.out.println();
-//            }
-//          }
-//        }
-//
-//        // if replacements were not found for both arguments, remove the
-//        // relation
-//        if (replacedArgumentCount < 2)
-//        {
-//          relation.removeFromIndexes();
-//        }
-//      }
-//    }
-//  }
+ 
   
   /**
    * Class that copies the manual {@link Modifier} annotations to the default CAS.
@@ -1881,17 +1551,10 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
       try {
         goldView = jCas.createView(GOLD_VIEW_NAME);
         goldView.setSofaDataString(jCas.getSofaDataString(), jCas.getSofaMimeType());
-        //goldView.setDocumentText(jCas.getDocumentText());
-        //goldView = jCas.getView(GOLD_VIEW_NAME);
       } catch (CASException e) {
         throw new AnalysisEngineProcessException(e);
       }
 
-//      // remove any automatically generated Modifiers
-//      for (Modifier modifier : JCasUtil.select(jCas, Modifier.class)) {
-//        modifier.removeFromIndexes();
-//      }
-      
       for (EntityMention oldSystemEntityMention : JCasUtil.select(jCas, EntityMention.class))
       {
         EntityMention newGoldEntityMention = new EntityMention(goldView, oldSystemEntityMention.getBegin(), oldSystemEntityMention.getEnd());
@@ -1931,9 +1594,6 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
 
         newGoldEventMention.addToIndexes();
       }
-      
-      // TODO do we need to copy supporting feature structures (particularly ontology concept array)??
-
     } // end of method ReferenceIdentifiedAnnotationsSystemToGoldCopier.process()
   } // end of class ReferenceIdentifiedAnnotationsSystemToGoldCopier
 
@@ -1951,11 +1611,6 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
         throw new AnalysisEngineProcessException(e);
       }
 
-//      // remove any automatically generated Modifiers
-//      for (Modifier modifier : JCasUtil.select(jCas, Modifier.class)) {
-//        modifier.removeFromIndexes();
-//      }
-      
       for (Sentence oldSystemSentence : JCasUtil.select(jCas, Sentence.class))
       {
         Sentence newGoldSentence = new Sentence(goldView, oldSystemSentence.getBegin(), oldSystemSentence.getEnd());
@@ -1967,26 +1622,6 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
       {
         BaseToken newGoldToken = null; //new BaseToken(goldView, oldSystemEventMention.getBegin(), oldSystemEventMention.getEnd());
 
-        // TODO the following commented out block is an alternative to having the hard coded if..then..else-if..else block for constructing new BaseToken objects
-//        Constructor<? extends BaseToken> constructor = null;
-//        try
-//        {
-//          constructor = oldSystemToken.getClass().getConstructor(JCas.class, int.class, int.class);
-//        } catch(NoSuchMethodException| SecurityException e)
-//        {
-//          logger.error("problem getting constructor for copying BaseToken instance (inside AssertionEvalBasedOnModifier.ReferenceSupportingAnnotationsSystemToGoldcopier.process())");
-//          continue;
-//        }
-//        try
-//        {
-//          newGoldToken = constructor.newInstance(goldView, oldSystemToken.getBegin(), oldSystemToken.getEnd());
-//        } catch (InstantiationException | IllegalAccessException
-//            | IllegalArgumentException | InvocationTargetException e)
-//        {
-//          logger.error("problem invoking constructor to copy BaseToken instance (inside AssertionEvalBasedOnModifier.ReferenceSupportingAnnotationsSystemToGoldcopier.process())");
-//          continue;
-//        }
-        
         String oldSystemTokenClass = oldSystemToken.getClass().getName();
         if (oldSystemTokenClass.equals(WordToken.class.getName()))
         {
@@ -2042,9 +1677,5 @@ private void addCleartkAttributeAnnotatorsToAggregate(File directory,
       }
     } // end method ReferenceAnnotationsSystemAssertionClearer.process()
   } // end class ReferenceAnnotationsSystemAssertionClearer
-
-
-
-
   
 } // end of class AssertionEvalBasedOnModifier
