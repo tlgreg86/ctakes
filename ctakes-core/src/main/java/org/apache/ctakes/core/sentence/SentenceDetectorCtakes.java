@@ -29,15 +29,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import opennlp.maxent.GIS;
-import opennlp.maxent.GISModel;
-import opennlp.model.EventStream;
-import opennlp.model.MaxentModel;
 import opennlp.tools.dictionary.Dictionary;
+import opennlp.tools.ml.maxent.GIS;
+import opennlp.tools.ml.maxent.GISModel;
+import opennlp.tools.ml.model.EventStream;
+import opennlp.tools.ml.model.MaxentModel;
 import opennlp.tools.sentdetect.EndOfSentenceScanner;
 import opennlp.tools.sentdetect.SDContextGenerator;
 import opennlp.tools.sentdetect.SDEventStream;
-import opennlp.tools.sentdetect.SentenceDetector;
+import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.sentdetect.SentenceSample;
 import opennlp.tools.sentdetect.SentenceSampleStream;
@@ -45,7 +45,6 @@ import opennlp.tools.sentdetect.lang.Factory;
 import opennlp.tools.util.HashSumEventStream;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
-import opennlp.tools.util.Span;
 import opennlp.tools.util.StringUtil;
 import opennlp.tools.util.model.BaseModel;
 import opennlp.tools.util.model.ModelUtil;
@@ -63,12 +62,12 @@ public class SentenceDetectorCtakes {
 	  /**
 	   * Constant indicates a sentence split.
 	   */
-	  public static final String SPLIT ="s";
+	  public static final String SPLIT = opennlp.tools.sentdetect.SentenceDetectorME.SPLIT;
 
 	  /**
 	   * Constant indicates no sentence split.
 	   */
-	  public static final String NO_SPLIT ="n";
+	  public static final String NO_SPLIT = opennlp.tools.sentdetect.SentenceDetectorME.NO_SPLIT;
 	  
 	  private static final Double ONE = new Double(1);
 
@@ -166,7 +165,7 @@ public class SentenceDetectorCtakes {
 	      int cint = candidate;
 	      // skip over the leading parts of non-token final delimiters
 	      int fws = getFirstWS(s,cint + 1);
-	      if (i + 1 < end && enders.get(i + 1) < fws) {
+	      if (!Character.isWhitespace(s.charAt(cint)) && i + 1 < end && enders.get(i + 1) < fws) {
 	        continue;
 	      }
 
@@ -180,7 +179,7 @@ public class SentenceDetectorCtakes {
 	            positions.add(getFirstNonWS(s, getFirstWS(s,cint + 1)));
 	          }
 	          else {
-	            positions.add(getFirstNonWS(s,cint));
+	            positions.add(cint);
 	          }
 	          sentProbs.add(new Double(probs[model.getIndex(bestOutcome)]));
 	        }
@@ -229,7 +228,7 @@ public class SentenceDetectorCtakes {
 	  protected boolean isAcceptableBreak(String s, int fromIndex, int candidateIndex) {
 	    return true;
 	  }
-	  
+	  /*
 	  public static SentenceModel train(String languageCode, ObjectStream<SentenceSample> samples,
 	      boolean useTokenEnd, Dictionary abbreviations) throws IOException {
 	    return train(languageCode, samples, useTokenEnd, abbreviations,5,100);
@@ -244,7 +243,7 @@ public class SentenceDetectorCtakes {
 	    Factory factory = new Factory();
 
 	    // TODO: Fix the EventStream to throw exceptions when training goes wrong
-	    EventStream eventStream = new SDEventStream(samples,
+	    ObjectStream eventStream = new SDEventStream(samples,
 	        factory.createSentenceContextGenerator(languageCode),
 	        factory.createEndOfSentenceScanner(languageCode));
 	    
@@ -257,7 +256,7 @@ public class SentenceDetectorCtakes {
 	    return new SentenceModel(languageCode, sentModel,
 	        useTokenEnd, abbreviations, manifestInfoEntries);
 	  }
-
+*/
 	  private static void usage() {
 	    System.err.println("Usage: SentenceDetectorME -encoding charset -lang language trainData modelName [cutoff iterations]");
 	    System.err.println("-encoding charset specifies the encoding which should be used ");
@@ -279,6 +278,7 @@ public class SentenceDetectorCtakes {
 	   * @param args
 	   * @throws IOException
 	   */
+	  /*
 	  public static void main(String[] args) throws IOException {
 	    int ai=0;
 	    String encoding = null;
@@ -344,7 +344,7 @@ public class SentenceDetectorCtakes {
 	    }
 	  }
 
-
+*/
 	private static int convertToInt(String s) {
 
 		int i = Integer.parseInt(s); 

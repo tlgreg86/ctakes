@@ -32,6 +32,7 @@ import java.util.Set;
 
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.sentdetect.DefaultSDContextGenerator;
+import opennlp.tools.sentdetect.SentenceDetectorFactory;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.sentdetect.SentenceSample;
@@ -51,12 +52,12 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
 
 /**
  * Wraps the OpenNLP sentence detector in a UIMA annotator
@@ -86,6 +87,15 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 	    description = "Path to sentence detector model file"
 	    )
 	private String sdModelPath;
+	
+	public static final String PARAM_BREAK_ON_NEWLINE = "BreakOnNewline";
+	@ConfigurationParameter(
+	    name = PARAM_BREAK_ON_NEWLINE,
+	    mandatory = false,
+	    description = "Whether the sentence detector should put breaks at every newline"
+	    )
+	private boolean breakOnNewline=false;
+	
 	
 	private opennlp.tools.sentdetect.SentenceModel sdmodel;
 
@@ -216,10 +226,14 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		ArrayList<SentenceSpan> sentenceSpans = new ArrayList<>(0);
 		for (int i = 0; i < potentialSentSpans.length; i++) {
 			if (potentialSentSpans[i] != null) {
-				sentenceSpans.addAll(potentialSentSpans[i]
-						.splitAtLineBreaksAndTrim(NEWLINE)); // TODO Determine
-																// line break
-																// type
+			  if(breakOnNewline){
+			    sentenceSpans.addAll(potentialSentSpans[i]
+			        .splitAtLineBreaksAndTrim(NEWLINE)); // TODO Determine
+			                                             // line break
+			                                             // type
+			  }else{
+			    sentenceSpans.addAll(potentialSentSpans[i].trimOnly());
+			  }
 			}
 		}
 
@@ -315,7 +329,9 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		  Dictionary dict = new Dictionary();
 
 		  try {
-		    mod = SentenceDetectorME.train("en", sampleStream, true, dict, mlParams);
+		    SentenceDetectorFactory sdFactory = new SentenceDetectorFactory(
+		        "en", true, dict, scanner.getEndOfSentenceCharacters());
+		    mod = SentenceDetectorME.train("en", sampleStream, sdFactory, mlParams);
 		  } finally {
 		    sampleStream.close();
 		  }

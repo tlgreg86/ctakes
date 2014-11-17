@@ -186,5 +186,15 @@ public class SentenceSpan {
 		String s =  "(" + start + ", " + end + ") " + text;  
 		return s;
 	}
+
+  public List<SentenceSpan> trimOnly() {
+    List<SentenceSpan> trimmedLists = new ArrayList<>();
+    String trimmed = text.trim();
+    if(trimmed.length() > 0){
+      int offset = text.indexOf(trimmed.charAt(0));
+      trimmedLists.add(new SentenceSpan(start + offset, start + offset + trimmed.length(), trimmed));
+    }
+    return trimmedLists;
+  }
 	
 }
