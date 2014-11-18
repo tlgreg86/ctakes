@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
+import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator.IdentifiedAnnotationPair;
 import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.CheckSpecialWordRelationExtractor;
@@ -45,6 +46,7 @@ import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 public class ConsecutiveSentencesEventEventRelationAnnotator extends RelationExtractorAnnotator {
@@ -192,6 +194,25 @@ public class ConsecutiveSentencesEventEventRelationAnnotator extends RelationExt
 				}
 			}
 		}
+		
+		//add system generated events:
+//		if(this.isTraining()){
+//			List<IdentifiedAnnotationPair> eventPairs = ImmutableList.copyOf(pairs);
+//			for(IdentifiedAnnotationPair epair: eventPairs){
+//				EventMention eventA = (EventMention) epair.getArg1();
+//				EventMention eventB = (EventMention) epair.getArg2();
+//				//pairing covered system events:
+//				for(EventMention event1 : JCasUtil.selectCovered(jCas, EventMention.class, eventA)){
+//					for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
+//						pairs.add(new IdentifiedAnnotationPair(event1, event2));
+//					}
+//					pairs.add(new IdentifiedAnnotationPair(event1, eventB));
+//				}
+//				for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
+//					pairs.add(new IdentifiedAnnotationPair(eventA, event2));
+//				}
+//			}
+//		}
 
 		return pairs;
 	}

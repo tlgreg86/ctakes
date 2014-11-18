@@ -60,6 +60,7 @@ import org.cleartk.ml.feature.extractor.CleartkExtractor;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Covered;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.feature.extractor.CombinedExtractor1;
 import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
 import org.cleartk.ml.feature.extractor.TypePathExtractor;
@@ -158,13 +159,13 @@ public class EventAdmissionTimeAnnotator extends CleartkAnnotator<String> {
 			}
 		}
 
-		//2. identify the HOPI section:
-		List<Segment> histories = Lists.newArrayList();
+		//2. identify the Hospital Course section:
+		List<Segment> courses = Lists.newArrayList();
 		Collection<Segment> segments = JCasUtil.select(jCas, Segment.class);
 		for(Segment seg: segments){
-			if (seg.getId().equals("history")){//find the right segment
+			if (seg.getId().equals("course")){//find the right segment
 				if(JCasUtil.selectCovered(jCas,Sentence.class,seg).size()>0){//ignore empty section
-					histories.add(seg);
+					courses.add(seg);
 				}
 			}
 		}
@@ -194,64 +195,104 @@ public class EventAdmissionTimeAnnotator extends CleartkAnnotator<String> {
 				}
 			}
 
-			for (Segment historyOfPresentIll : histories){
-				for (EventMention eventMention : JCasUtil.selectCovered(jCas, EventMention.class, historyOfPresentIll)) {
-					if (eventMention.getClass().equals(EventMention.class)) {//for every gold event
-						List<Feature> features = this.contextExtractor.extract(jCas, eventMention);
-						features.addAll(this.verbTensePatternExtractor.extract(jCas, eventMention));//add nearby verb POS pattern feature
-						//					features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
-						features.addAll(this.eventPositionExtractor.extract(jCas, eventMention));
-						features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
-						features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
-						features.addAll(this.genericExtractor.extract(jCas, eventMention)); //add the closest time expression types
-						features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
-						features.addAll(this.umlsExtractor.extract(jCas, eventMention)); //add umls features
-						//        features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
-						//        features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
-						if (this.isTraining()) {
-							TemporalTextRelation relation = dischargeTimeRelationLookup.get(Arrays.asList(eventMention, admissionTime));
-							String category = null;
+			Map<EventMention, Collection<EventMention>> coveringMap =
+					JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
+			for (EventMention eventMention : JCasUtil.select(jCas, EventMention.class)) {
+				if (eventMention.getClass().equals(EventMention.class) && !isDischarge(eventMention) && !isAdmission(eventMention) && !inCourseSection(eventMention,courses)) {//for every gold event, not discharge, not admission, not in course section
+					List<Feature> features = extractFeatures(jCas,eventMention);
+					if (this.isTraining()) {
+						TemporalTextRelation relation = dischargeTimeRelationLookup.get(Arrays.asList(eventMention, admissionTime));
+						String category = null;
+						if (relation != null) {
+							category = relation.getCategory();
+						} else {
+							relation = dischargeTimeRelationLookup.get(Arrays.asList(admissionTime, eventMention));
 							if (relation != null) {
-								category = relation.getCategory();
-							} else {
-								relation = dischargeTimeRelationLookup.get(Arrays.asList(admissionTime, eventMention));
-								if (relation != null) {
-									if(relation.getCategory().equals("OVERLAP")){
-										category = relation.getCategory();
-									}else if (relation.getCategory().equals("BEFORE")){
-										category = "AFTER";
-									}else if (relation.getCategory().equals("AFTER")){
-										category = "BEFORE";
-									}
+								if(relation.getCategory().equals("OVERLAP")){
+									category = relation.getCategory();
+								}else if (relation.getCategory().equals("BEFORE")){
+									category = "AFTER";
+								}else if (relation.getCategory().equals("AFTER")){
+									category = "BEFORE";
 								}
 							}
-							if(category!=null){
-								this.dataWriter.write(new Instance<>(category, features));
+						}
+						if(category!=null){
+							this.dataWriter.write(new Instance<>(category, features));
+							//add nearby system-generated events as additional instances
+							Collection<EventMention> eventList = coveringMap.get(eventMention);
+							for(EventMention covEvent : eventList){
+								if(!covEvent.getClass().equals(EventMention.class)){
+									List<Feature> covEvfeatures = extractFeatures(jCas,covEvent);
+									this.dataWriter.write(new Instance<>(category, covEvfeatures));
+								}
 							}
-						} else {
-							String outcome = this.classifier.classify(features);
-							if(outcome!=null){
-								// add the relation to the CAS
-								RelationArgument relArg1 = new RelationArgument(jCas);
-								relArg1.setArgument(eventMention);
-								relArg1.setRole("Argument");
-								relArg1.addToIndexes();
-								RelationArgument relArg2 = new RelationArgument(jCas);
-								relArg2.setArgument(admissionTime);
-								relArg2.setRole("Related_to");
-								relArg2.addToIndexes();
-								TemporalTextRelation relation = new TemporalTextRelation(jCas);
-								relation.setArg1(relArg1);
-								relation.setArg2(relArg2);
-								relation.setCategory(outcome);
-								relation.addToIndexes();
-							}else{
-								System.out.println("cannot classify "+ eventMention.getCoveredText()+" and " + admissionTime.getCoveredText());
+							for(EventMention covedEvent : JCasUtil.selectCovered(jCas, EventMention.class, eventMention)){//select covered events
+								List<Feature> covedEvfeatures = extractFeatures(jCas,covedEvent);
+								this.dataWriter.write(new Instance<>(category, covedEvfeatures));
 							}
+						}
+					} else {
+						String outcome = this.classifier.classify(features);
+						if(outcome!=null){
+							// add the relation to the CAS
+							RelationArgument relArg1 = new RelationArgument(jCas);
+							relArg1.setArgument(eventMention);
+							relArg1.setRole("Argument");
+							relArg1.addToIndexes();
+							RelationArgument relArg2 = new RelationArgument(jCas);
+							relArg2.setArgument(admissionTime);
+							relArg2.setRole("Related_to");
+							relArg2.addToIndexes();
+							TemporalTextRelation relation = new TemporalTextRelation(jCas);
+							relation.setArg1(relArg1);
+							relation.setArg2(relArg2);
+							relation.setCategory(outcome);
+							relation.addToIndexes();
+						}else{
+							System.out.println("cannot classify "+ eventMention.getCoveredText()+" and " + admissionTime.getCoveredText());
 						}
 					}
 				}
 			}
 		}
+
+	}
+
+	private static boolean inCourseSection(EventMention event,
+			List<Segment> courses) {
+		for(Segment course: courses){
+			if(course.getBegin()<= event.getBegin() && course.getEnd()>= event.getEnd()){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean isAdmission(EventMention event) {
+		if(event.getEnd()<=15 && event.getCoveredText().equalsIgnoreCase("admission"))
+			return true;
+		return false;
+	}
+
+	private static boolean isDischarge(EventMention event) {
+		if(event.getEnd()<=40 && event.getCoveredText().equalsIgnoreCase("discharge"))
+			return true;
+		return false;
+	}
+
+	private List<Feature> extractFeatures(JCas jCas, EventMention eventMention) throws CleartkExtractorException {
+		List<Feature> features = this.contextExtractor.extract(jCas, eventMention);
+		features.addAll(this.verbTensePatternExtractor.extract(jCas, eventMention));//add nearby verb POS pattern feature
+		//					features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
+		features.addAll(this.eventPositionExtractor.extract(jCas, eventMention));
+		features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
+		features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
+		features.addAll(this.genericExtractor.extract(jCas, eventMention)); //add the closest time expression types
+		features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
+		features.addAll(this.umlsExtractor.extract(jCas, eventMention)); //add umls features
+		//        features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
+		//        features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
+		return features;
 	}
 }

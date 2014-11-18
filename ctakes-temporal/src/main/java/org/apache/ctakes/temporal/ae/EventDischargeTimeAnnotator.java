@@ -60,6 +60,7 @@ import org.cleartk.ml.feature.extractor.CleartkExtractor;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Covered;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.feature.extractor.CombinedExtractor1;
 import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
 import org.cleartk.ml.feature.extractor.TypePathExtractor;
@@ -193,20 +194,12 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 			}
 		}
 
+		Map<EventMention, Collection<EventMention>> coveringMap =
+				  JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
 		for(Segment course: courses){
 			for (EventMention eventMention : JCasUtil.selectCovered(jCas, EventMention.class, course)) {
 				if (eventMention.getClass().equals(EventMention.class)) {//for every gold event
-					List<Feature> features = this.contextExtractor.extract(jCas, eventMention);
-					features.addAll(this.verbTensePatternExtractor.extract(jCas, eventMention));//add nearby verb POS pattern feature
-					//					features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
-					features.addAll(this.eventPositionExtractor.extract(jCas, eventMention));
-					features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
-					features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
-					features.addAll(this.genericExtractor.extract(jCas, eventMention)); //add the closest time expression types
-					features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
-					features.addAll(this.umlsExtractor.extract(jCas, eventMention)); //add umls features
-					//        features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
-					//        features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
+					List<Feature> features = extractFeatures(jCas,eventMention);
 					if (this.isTraining()) {
 						TemporalTextRelation relation = dischargeTimeRelationLookup.get(Arrays.asList(eventMention, dischargeTime));
 						String category = null;
@@ -226,6 +219,18 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 						}
 						if(category!=null){
 							this.dataWriter.write(new Instance<>(category, features));
+							//add nearby system-generated events as additional instances
+							Collection<EventMention> eventList = coveringMap.get(eventMention);
+							for(EventMention covEvent : eventList){
+								if(!covEvent.getClass().equals(EventMention.class)){
+									List<Feature> covEvfeatures = extractFeatures(jCas,covEvent);
+									this.dataWriter.write(new Instance<>(category, covEvfeatures));
+								}
+							}
+							for(EventMention covedEvent : JCasUtil.selectCovered(jCas, EventMention.class, eventMention)){//select covered events
+								List<Feature> covedEvfeatures = extractFeatures(jCas,covedEvent);
+								this.dataWriter.write(new Instance<>(category, covedEvfeatures));
+							}
 						}
 					} else {
 						String outcome = this.classifier.classify(features);
@@ -252,5 +257,20 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 				}
 			}
 		}
+	}
+
+	private List<Feature> extractFeatures(JCas jCas, EventMention eventMention) throws CleartkExtractorException {
+		List<Feature> features = this.contextExtractor.extract(jCas, eventMention);
+		features.addAll(this.verbTensePatternExtractor.extract(jCas, eventMention));//add nearby verb POS pattern feature
+		//					features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
+		features.addAll(this.eventPositionExtractor.extract(jCas, eventMention));
+		features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
+		features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
+		features.addAll(this.genericExtractor.extract(jCas, eventMention)); //add the closest time expression types
+		features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
+		features.addAll(this.umlsExtractor.extract(jCas, eventMention)); //add umls features
+		//        features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
+		//        features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
+		return features;
 	}
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
+import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator.IdentifiedAnnotationPair;
 import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.DeterminerRelationFeaturesExtractor;
@@ -43,6 +44,7 @@ import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 public class ConsecutiveSentencesEventTimeRelationAnnotator extends RelationExtractorAnnotator {
@@ -78,7 +80,7 @@ public class ConsecutiveSentencesEventTimeRelationAnnotator extends RelationExtr
 	protected List<RelationFeaturesExtractor> getFeatureExtractors() {
 		return Lists.newArrayList(
 				new UnexpandedTokenFeaturesExtractor() //use unexpanded version for i2b2 data
-//				, new OverlappedHeadFeaturesExtractor()
+				//				, new OverlappedHeadFeaturesExtractor()
 				, new EventArgumentPropertyExtractor()
 				, new PartOfSpeechFeaturesExtractor()
 				, new NumberOfEventTimeBetweenCandidatesExtractor()
@@ -87,7 +89,7 @@ public class ConsecutiveSentencesEventTimeRelationAnnotator extends RelationExtr
 				, new SectionHeaderRelationExtractor()
 				, new TimeXRelationFeaturesExtractor()
 				, new EventPositionRelationFeaturesExtractor()
-//				, new DeterminerRelationFeaturesExtractor()
+				//				, new DeterminerRelationFeaturesExtractor()
 				);
 	}
 
@@ -143,10 +145,22 @@ public class ConsecutiveSentencesEventTimeRelationAnnotator extends RelationExtr
 						}
 					}
 				}
-				
+
 			}
 		}
 
+		//add system generated events:
+//		if(this.isTraining()){
+//			List<IdentifiedAnnotationPair> eventPairs = ImmutableList.copyOf(pairs);
+//			for(IdentifiedAnnotationPair epair: eventPairs){
+//				EventMention eventA = (EventMention) epair.getArg1();
+//				TimeMention time = (TimeMention) epair.getArg2();
+//				//pairing covered system events:
+//				for(EventMention event : JCasUtil.selectCovered(jCas, EventMention.class, eventA)){
+//					pairs.add(new IdentifiedAnnotationPair(event, time));
+//				}
+//			}
+//		}
 		return pairs;
 	}
 
