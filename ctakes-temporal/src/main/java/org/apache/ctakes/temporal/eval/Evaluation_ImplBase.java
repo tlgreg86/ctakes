@@ -60,6 +60,9 @@ import org.apache.ctakes.core.resource.LuceneIndexReaderResourceImpl;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
 import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
+import org.apache.ctakes.dictionary.lookup2.ae.AbstractJCasTermAnnotator;
+import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
+import org.apache.ctakes.dictionary.lookup2.ae.JCasTermAnnotator;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.lvg.resource.LvgCmdApiResourceImpl;
 import org.apache.ctakes.postagger.POSTagger;
@@ -151,7 +154,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		@Option(longName = "dev-remainders", defaultValue = "3")
 		public CommandLine.IntegerRanges getDevRemainders();
 
-		@Option(longName = "test-remainders", defaultValue = "4-5")
+		@Option(longName = "test-remainders", defaultValue = "6-7")
 		public CommandLine.IntegerRanges getTestRemainders();
 
 		@Option(longName = "treebank", defaultToNull=true)
@@ -280,7 +283,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 			for (File dir : this.xmlDirectory.listFiles()) {
 				Set<String> ids = new HashSet<>();
 				for (Integer set : patientSets) {
-					ids.add(String.format("ID%03d", set));
+					ids.add(String.format("doc%04d", set));
 				}
 				if (dir.isDirectory()) {
 					if (ids.contains(dir.getName().substring(0, 5))) {
@@ -325,7 +328,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				for (File file : rawTextDirectory.listFiles(new FilenameFilter(){
 					@Override
 					public boolean accept(File dir, String name) {
-						return name.contains(String.format("ID%03d", setNum));
+						return name.contains(String.format("doc%04d", setNum));
 					}})) {
 					// skip hidden files like .svn
 					if (!file.isHidden()) {
@@ -423,11 +426,8 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		}
 
 		// identify segments
-		if(this.xmlFormat == XMLFormat.I2B2){
-			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(SimpleSegmentAnnotator.class));
-		}else{
-			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
-		}
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(SegmentsFromBracketedSectionTagsAnnotator.class));
+
 		// identify sentences
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
 				SentenceDetector.class,
@@ -486,9 +486,17 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				"DeleteAction",
 				new String[] { "selector=B" }));
 		// add UMLS on top of lookup windows
-		aggregateBuilder.add(
-				UmlsDictionaryLookupAnnotator.createAnnotatorDescription()
-				);
+//		aggregateBuilder.add(
+//				UmlsDictionaryLookupAnnotator.createAnnotatorDescription()
+//				);
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotator.class,
+		          AbstractJCasTermAnnotator.PARAM_WINDOW_ANNOT_PRP,
+		          "org.apache.ctakes.typesystem.type.textspan.Sentence",
+		          JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY,
+		          ExternalResourceFactory.createExternalResourceDescription(
+		              FileResourceImpl.class,
+		              FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml"))
+		          ));
 
 		/*
     // add lvg annotator
@@ -658,12 +666,21 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			boolean foundSections = false;
 			Matcher matcher = SECTION_PATTERN.matcher(jCas.getDocumentText());
 			while (matcher.find()) {
 				Segment segment = new Segment(jCas);
 				segment.setBegin(matcher.start() + matcher.group(1).length());
 				segment.setEnd(matcher.end() - matcher.group(3).length());
 				segment.setId(matcher.group(2));
+				segment.addToIndexes();
+				foundSections = true;
+			}
+			if(!foundSections){
+				Segment segment = new Segment(jCas);
+				segment.setBegin(0);
+				segment.setEnd(jCas.getDocumentText().length());
+				segment.setId("SIMPLE_SEGMENT");
 				segment.addToIndexes();
 			}
 		}
