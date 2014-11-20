@@ -220,17 +220,17 @@ public class EventDischargeTimeAnnotator extends CleartkAnnotator<String> {
 						if(category!=null){
 							this.dataWriter.write(new Instance<>(category, features));
 							//add nearby system-generated events as additional instances
-							Collection<EventMention> eventList = coveringMap.get(eventMention);
-							for(EventMention covEvent : eventList){
-								if(!covEvent.getClass().equals(EventMention.class)){
-									List<Feature> covEvfeatures = extractFeatures(jCas,covEvent);
-									this.dataWriter.write(new Instance<>(category, covEvfeatures));
-								}
-							}
-							for(EventMention covedEvent : JCasUtil.selectCovered(jCas, EventMention.class, eventMention)){//select covered events
-								List<Feature> covedEvfeatures = extractFeatures(jCas,covedEvent);
-								this.dataWriter.write(new Instance<>(category, covedEvfeatures));
-							}
+//							Collection<EventMention> eventList = coveringMap.get(eventMention);
+//							for(EventMention covEvent : eventList){
+//								if(!covEvent.getClass().equals(EventMention.class)){
+//									List<Feature> covEvfeatures = extractFeatures(jCas,covEvent);
+//									this.dataWriter.write(new Instance<>(category, covEvfeatures));
+//								}
+//							}
+//							for(EventMention covedEvent : JCasUtil.selectCovered(jCas, EventMention.class, eventMention)){//select covered events
+//								List<Feature> covedEvfeatures = extractFeatures(jCas,covedEvent);
+//								this.dataWriter.write(new Instance<>(category, covedEvfeatures));
+//							}
 						}
 					} else {
 						String outcome = this.classifier.classify(features);

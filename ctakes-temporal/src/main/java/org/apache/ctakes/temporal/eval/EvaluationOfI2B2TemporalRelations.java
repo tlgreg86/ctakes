@@ -304,15 +304,16 @@ EvaluationOfTemporalRelations_ImplBase{
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddEEPotentialRelations.class));
 
 		aggregateBuilder.add(EventTimeI2B2RelationAnnotator.createDataWriterDescription(
-				//				LibSvmStringOutcomeDataWriter.class,
-				LibLinearStringOutcomeDataWriter.class,
+				LibSvmStringOutcomeDataWriter.class,
+//				LibLinearStringOutcomeDataWriter.class,
 				// TKSVMlightStringOutcomeDataWriter.class,
 				//        TKLIBSVMStringOutcomeDataWriter.class,
 				//        SVMlightStringOutcomeDataWriter.class,        
 				new File(directory,EVENT_TIME),
 				params.probabilityOfKeepingANegativeExample));
 		aggregateBuilder.add(EventEventI2B2RelationAnnotator.createDataWriterDescription(
-				LibLinearStringOutcomeDataWriter.class,//TKSVMlightStringOutcomeDataWriter.class,//
+				LibSvmStringOutcomeDataWriter.class,
+//				LibLinearStringOutcomeDataWriter.class,//TKSVMlightStringOutcomeDataWriter.class,//
 				//				LIBLINEARStringOutcomeDataWriter.class,
 				new File(directory,EVENT_EVENT), 
 				params.probabilityOfKeepingANegativeExample));
@@ -360,8 +361,8 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		//    HideOutput hider = new HideOutput();
-		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_TIME), "-c", "0.0002", "-w2","0.5","-w3","5","-w4","8");//"-h","0","-c", "1000");//optArray);//"-c", "0.05");//
-		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_EVENT), "-c", "0.0002","-w2","0.5","-w3","4","-w4","3");
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_TIME), "-h","0","-c", "1000", "-w2","0.5","-w3","5","-w4","8");//"-h","0","-c", "1000");//optArray);//"-c", "0.05");//
+		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_EVENT), "-h","0","-c", "1000","-w2","0.5","-w3","4","-w4","3");
 		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_DISCHARGE), "-h","0","-c", "1000");//,"-w2","23","-w3","24");
 		JarClassifierBuilder.trainAndPackage(new File(directory,EVENT_ADMISSION), "-h","0","-c", "1000");//,"-w2","22","-w3","5");
 		//		JarClassifierBuilder.trainAndPackage(new File(directory,TIME_ADMISSION), "-h","0","-c", "1000");

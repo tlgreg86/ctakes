@@ -142,8 +142,8 @@ public class EventTimeI2B2RelationAnnotator extends RelationExtractorAnnotator {
 				, new ConjunctionRelationFeaturesExtractor()
 				//				, new EventPositionRelationFeaturesExtractor() //tried, but not helpful
 				, new TimeXRelationFeaturesExtractor()
-				, new TemporalPETFlatExtractor()
-				, new TimeXPropertyRelationFeaturesExtractor()
+//				, new TemporalPETFlatExtractor()
+//				, new TimeXPropertyRelationFeaturesExtractor()
 				//				, new TimeWordTypeRelationExtractor() //tried, but not helpful
 				//				, new EventIndexOfSameSentenceRelationFeaturesExtractor() //tried, but not helpful
 				);
@@ -172,14 +172,14 @@ public class EventTimeI2B2RelationAnnotator extends RelationExtractorAnnotator {
 				// ignore subclasses like Procedure and Disease/Disorder
 				if(this.isTraining()){//if training mode, train on both gold event and span-overlapping system events
 					for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, sentence)) {
-						Collection<EventMention> eventList = coveringMap.get(event);
-						for(EventMention covEvent : eventList){
-							pairs.add(new IdentifiedAnnotationPair(covEvent, time));
-						}
+//						Collection<EventMention> eventList = coveringMap.get(event);
+//						for(EventMention covEvent : eventList){
+//							pairs.add(new IdentifiedAnnotationPair(covEvent, time));
+//						}
 						pairs.add(new IdentifiedAnnotationPair(event, time));
-						for(EventMention covedEvent : JCasUtil.selectCovered(jCas, EventMention.class, event)){//select covered events
-							pairs.add(new IdentifiedAnnotationPair(covedEvent, time));
-						}
+//						for(EventMention covedEvent : JCasUtil.selectCovered(jCas, EventMention.class, event)){//select covered events
+//							pairs.add(new IdentifiedAnnotationPair(covedEvent, time));
+//						}
 					}
 				}else{//if testing mode, only test on system generated events
 					for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, sentence)) {

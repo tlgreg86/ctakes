@@ -132,7 +132,7 @@ public class EventEventI2B2RelationAnnotator extends RelationExtractorAnnotator 
 				//	    		, new TemporalPETExtractor()
 				, new EventArgumentPropertyExtractor()
 				, new NumberOfEventTimeBetweenCandidatesExtractor()
-				, new SectionHeaderRelationExtractor()
+//				, new SectionHeaderRelationExtractor()
 				, new NearbyVerbTenseRelationExtractor()
 				, new CheckSpecialWordRelationExtractor()
 				, new UmlsFeatureExtractor()
@@ -146,10 +146,10 @@ public class EventEventI2B2RelationAnnotator extends RelationExtractorAnnotator 
 				, new ConjunctionRelationFeaturesExtractor()
 				//				, new DeterminerRelationFeaturesExtractor()
 				, new EventTimeRelationFeatureExtractor()
-				, new TokenPropertyFeaturesExtractor()
-				, new DependingVerbsFeatureExtractor()
-				, new SpecialAnnotationRelationExtractor() //not helpful
-				, new TemporalPETFlatExtractor()
+//				, new TokenPropertyFeaturesExtractor()
+//				, new DependingVerbsFeatureExtractor()
+//				, new SpecialAnnotationRelationExtractor() //not helpful
+//				, new TemporalPETFlatExtractor()
 				//				, new EventInBetweenPropertyExtractor()
 				//				, new EventOutsidePropertyExtractor()
 				);
@@ -186,28 +186,28 @@ public class EventEventI2B2RelationAnnotator extends RelationExtractorAnnotator 
 				EventMention eventA = events.get(j);
 
 				if(j-i==1 || j-i==eventNum-1||ifDependent(jCas, eventA, eventB)){
-					if(this.isTraining()){
-						//pairing covering system events:
-						for (EventMention event1 : coveringMap.get(eventA)){
-							for(EventMention event2 : coveringMap.get(eventB)){
-								pairs.add(new IdentifiedAnnotationPair(event1, event2));							
-							}
-							pairs.add(new IdentifiedAnnotationPair(event1, eventB));
-						}
-						for(EventMention event2 : coveringMap.get(eventB)){
-							pairs.add(new IdentifiedAnnotationPair(eventA, event2));							
-						}
-						//pairing covered system events:
-						for(EventMention event1 : JCasUtil.selectCovered(jCas, EventMention.class, eventA)){
-							for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
-								pairs.add(new IdentifiedAnnotationPair(event1, event2));
-							}
-							pairs.add(new IdentifiedAnnotationPair(event1, eventB));
-						}
-						for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
-							pairs.add(new IdentifiedAnnotationPair(eventA, event2));
-						}
-					}
+//					if(this.isTraining()){
+//						//pairing covering system events:
+//						for (EventMention event1 : coveringMap.get(eventA)){
+//							for(EventMention event2 : coveringMap.get(eventB)){
+//								pairs.add(new IdentifiedAnnotationPair(event1, event2));							
+//							}
+//							pairs.add(new IdentifiedAnnotationPair(event1, eventB));
+//						}
+//						for(EventMention event2 : coveringMap.get(eventB)){
+//							pairs.add(new IdentifiedAnnotationPair(eventA, event2));							
+//						}
+//						//pairing covered system events:
+//						for(EventMention event1 : JCasUtil.selectCovered(jCas, EventMention.class, eventA)){
+//							for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
+//								pairs.add(new IdentifiedAnnotationPair(event1, event2));
+//							}
+//							pairs.add(new IdentifiedAnnotationPair(event1, eventB));
+//						}
+//						for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
+//							pairs.add(new IdentifiedAnnotationPair(eventA, event2));
+//						}
+//					}
 					pairs.add(new IdentifiedAnnotationPair(eventA, eventB));
 				}
 			}
