@@ -51,20 +51,15 @@ import org.apache.ctakes.constituency.parser.ae.ConstituencyParser;
 import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.OverlapAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
-import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.resource.FileResourceImpl;
-import org.apache.ctakes.core.resource.JdbcConnectionResourceImpl;
-import org.apache.ctakes.core.resource.LuceneIndexReaderResourceImpl;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
-import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.AbstractJCasTermAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.JCasTermAnnotator;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
-import org.apache.ctakes.lvg.resource.LvgCmdApiResourceImpl;
 import org.apache.ctakes.postagger.POSTagger;
 import org.apache.ctakes.temporal.ae.I2B2TemporalXMLReader;
 import org.apache.ctakes.temporal.ae.THYMEAnaforaXMLReader;
@@ -94,15 +89,6 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.impl.XmiCasDeserializer;
 import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.collection.CollectionReader;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.TOP;
-import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.util.CasCopier;
-import org.apache.uima.util.XMLSerializer;
-import org.cleartk.util.ViewUriUtil;
-import org.cleartk.util.ae.UriToDocumentTextAnnotator;
-import org.cleartk.util.cr.UriCollectionReader;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.component.ViewCreatorAnnotator;
 import org.apache.uima.fit.component.ViewTextCopierAnnotator;
@@ -114,6 +100,15 @@ import org.apache.uima.fit.factory.TypePrioritiesFactory;
 import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.TOP;
+import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.CasCopier;
+import org.apache.uima.util.XMLSerializer;
+import org.cleartk.util.ViewUriUtil;
+import org.cleartk.util.ae.UriToDocumentTextAnnotator;
+import org.cleartk.util.cr.UriCollectionReader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.ContentHandler;
@@ -283,7 +278,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 			for (File dir : this.xmlDirectory.listFiles()) {
 				Set<String> ids = new HashSet<>();
 				for (Integer set : patientSets) {
-					ids.add(String.format("doc%04d", set));
+					ids.add(String.format("ID%03d", set));
 				}
 				if (dir.isDirectory()) {
 					if (ids.contains(dir.getName().substring(0, 5))) {
@@ -328,7 +323,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				for (File file : rawTextDirectory.listFiles(new FilenameFilter(){
 					@Override
 					public boolean accept(File dir, String name) {
-						return name.contains(String.format("doc%04d", setNum));
+						return name.contains(String.format("ID%03d", setNum));
 					}})) {
 					// skip hidden files like .svn
 					if (!file.isHidden()) {
@@ -486,9 +481,6 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				"DeleteAction",
 				new String[] { "selector=B" }));
 		// add UMLS on top of lookup windows
-//		aggregateBuilder.add(
-//				UmlsDictionaryLookupAnnotator.createAnnotatorDescription()
-//				);
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotator.class,
 		          AbstractJCasTermAnnotator.PARAM_WINDOW_ANNOT_PRP,
 		          "org.apache.ctakes.typesystem.type.textspan.Sentence",
@@ -498,94 +490,22 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		              FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml"))
 		          ));
 
-		/*
-    // add lvg annotator
-    String[] XeroxTreebankMap = {
-        "adj|JJ",
-        "adv|RB",
-        "aux|AUX",
-        "compl|CS",
-        "conj|CC",
-        "det|DET",
-        "modal|MD",
-        "noun|NN",
-        "prep|IN",
-        "pron|PRP",
-        "verb|VB" };
-    String[] ExclusionSet = {
-        "and",
-        "And",
-        "by",
-        "By",
-        "for",
-        "For",
-        "in",
-        "In",
-        "of",
-        "Of",
-        "on",
-        "On",
-        "the",
-        "The",
-        "to",
-        "To",
-        "with",
-        "With" };
-    AnalysisEngineDescription lvgAnnotator = AnalysisEngineFactory.createEngineDescription(
-        LvgAnnotator.class,
-        "UseSegments",
-        false,
-        "SegmentsToSkip",
-        new String[0],
-        "UseCmdCache",
-        false,
-        "CmdCacheFileLocation",
-        "/org/apache/ctakes/lvg/2005_norm.voc",
-        "CmdCacheFrequencyCutoff",
-        20,
-        "ExclusionSet",
-        ExclusionSet,
-        "XeroxTreebankMap",
-        XeroxTreebankMap,
-        "LemmaCacheFileLocation",
-        "/org/apache/ctakes/lvg/2005_lemma.voc",
-        "UseLemmaCache",
-        false,
-        "LemmaCacheFrequencyCutoff",
-        20,
-        "PostLemmas",
-        false,
-        "LvgCmdApi",
-        ExternalResourceFactory.createExternalResourceDescription(
-            LvgCmdApiResourceImpl.class,
-            new File(LvgCmdApiResourceImpl.class.getResource(
-                "/org/apache/ctakes/lvg/data/config/lvg.properties").toURI())));
-    aggregateBuilder.add(lvgAnnotator);
-		 */
 		aggregateBuilder.add(LvgAnnotator.createAnnotatorDescription());
 
 		// add dependency parser
-		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ClearNLPDependencyParserAE.class));
-
+		aggregateBuilder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
+		
 		// add semantic role labeler
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ClearNLPSemanticRoleLabelerAE.class));
 
 		// add gold standard parses to gold view, and adjust gold view to correct a few annotation mis-steps
 		if(this.treebankDirectory != null){
 			aggregateBuilder.add(THYMETreebankReader.getDescription(this.treebankDirectory));
-			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(TimexAnnotationCorrector.class));
 		}else{
 			// add ctakes constituency parses to system view
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ConstituencyParser.class,
 					ConstituencyParser.PARAM_MODEL_FILENAME,
 					"org/apache/ctakes/constituency/parser/models/thyme.bin"));
-			//          "org/apache/ctakes/constituency/parser/models/sharp-3.1.bin"));
-			//            "org/apache/ctakes/constituency/parser/models/thymeNotempeval.bin"));
-			//      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(BerkeleyParserWrapper.class,
-			//          BerkeleyParserWrapper.PARAM_MODEL_FILENAME,
-			//          
-			//        "org/apache/ctakes/constituency/parser/models/thyme.gcg.4sm.bin"));
-			//          "org/apache/ctakes/constituency/parser/models/thyme.4sm.bin"));
 		}
 		// write out the CAS after all the above annotations
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
