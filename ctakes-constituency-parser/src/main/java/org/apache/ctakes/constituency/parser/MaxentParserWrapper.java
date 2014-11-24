@@ -18,48 +18,35 @@
  */
 package org.apache.ctakes.constituency.parser;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
-import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.parser.AbstractBottomUpParser;
 import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.ParserModel;
 import opennlp.tools.parser.chunking.Parser;
-import opennlp.tools.util.Span;
 
 import org.apache.ctakes.constituency.parser.util.TreeUtils;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
-import org.apache.ctakes.typesystem.type.syntax.TerminalTreebankNode;
 import org.apache.ctakes.typesystem.type.syntax.TopTreebankNode;
-import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
-import org.apache.uima.jcas.cas.StringArray;
 
 public class MaxentParserWrapper implements ParserWrapper {
 
 	Parser parser = null;
 	private String parseStr = "";
 	Logger logger = Logger.getLogger(this.getClass().getName());
-	private boolean usePos;
-	
-	public MaxentParserWrapper(String dataDir) {
-		this(dataDir, false);
-	}
-	
-	public MaxentParserWrapper(String dataDir, boolean usePos){
+
+
+	public MaxentParserWrapper(InputStream is){
 		try {
-			File d = new File(dataDir);
-			this.usePos = usePos;
-			if (!d.isDirectory()) {
-				FileInputStream fis = new FileInputStream(d);
-				ParserModel model = new ParserModel(fis);
+			if (is!=null) {
+				ParserModel model = new ParserModel(is);
 				parser = new Parser(model, AbstractBottomUpParser.defaultBeamSize, AbstractBottomUpParser.defaultAdvancePercentage);
 			}
 		} catch (IOException e) {

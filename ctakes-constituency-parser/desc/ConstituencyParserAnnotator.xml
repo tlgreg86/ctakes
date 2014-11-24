@@ -30,7 +30,7 @@
     <vendor/>
     <configurationParameters>
       <configurationParameter>
-        <name>modelFilename</name>
+        <name>MODEL_FILENAME</name>
         <type>String</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
@@ -38,7 +38,7 @@
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
-        <name>modelFilename</name>
+        <name>MODEL_FILENAME</name>
         <value>
           <string>org/apache/ctakes/constituency/parser/models/sharpacq-3.1.bin</string>
         </value>
