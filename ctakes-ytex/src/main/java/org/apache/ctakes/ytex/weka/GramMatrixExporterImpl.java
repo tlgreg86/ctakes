@@ -82,7 +82,7 @@ public class GramMatrixExporterImpl extends WekaBagOfWordsExporterImpl implement
 		this.jdbcTemplate = new JdbcTemplate(ds);
 	}
 
-	public DataSource getDataSource(DataSource ds) {
+	public DataSource getDataSource() {
 		return this.jdbcTemplate.getDataSource();
 	}
 
