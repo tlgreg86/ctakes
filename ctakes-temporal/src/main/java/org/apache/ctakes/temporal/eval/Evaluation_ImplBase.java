@@ -501,6 +501,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		// add gold standard parses to gold view, and adjust gold view to correct a few annotation mis-steps
 		if(this.treebankDirectory != null){
 			aggregateBuilder.add(THYMETreebankReader.getDescription(this.treebankDirectory));
+			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(TimexAnnotationCorrector.class));
 		}else{
 			// add ctakes constituency parses to system view
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ConstituencyParser.class,
