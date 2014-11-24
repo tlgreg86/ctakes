@@ -66,7 +66,7 @@ public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotat
       File xmiDirectory, File treebankDirectory,
       List<Integer> allTrain, Class<? extends Annotation> annotationClass) {
     super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory,
-        treebankDirectory, null, annotationClass);
+        treebankDirectory, annotationClass);
     this.allTrain = allTrain;
   }
 

@@ -167,7 +167,6 @@ EvaluationOfTemporalRelations_ImplBase{
 					options.getXMLFormat(),
 					options.getXMIDirectory(),
 					options.getTreebankDirectory(),
-					options.getCoreferenceDirectory(),
 					options.getClosure(),
 					options.getPrintErrors(),
 					options.getPrintFormattedRelations(),
@@ -245,7 +244,6 @@ EvaluationOfTemporalRelations_ImplBase{
 			XMLFormat xmlFormat,
 			File xmiDirectory,
 			File treebankDirectory,
-			File coreferenceDirectory,
 			boolean useClosure,
 			boolean printErrors,
 			boolean printRelations,
@@ -260,7 +258,6 @@ EvaluationOfTemporalRelations_ImplBase{
 				xmlFormat,
 				xmiDirectory,
 				treebankDirectory,
-				coreferenceDirectory,
 				printErrors,
 				printRelations,
 				params);

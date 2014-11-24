@@ -56,6 +56,7 @@ import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.resource.FileResourceImpl;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
+import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.AbstractJCasTermAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.JCasTermAnnotator;
@@ -149,14 +150,11 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		@Option(longName = "dev-remainders", defaultValue = "3")
 		public CommandLine.IntegerRanges getDevRemainders();
 
-		@Option(longName = "test-remainders", defaultValue = "6-7")
+		@Option(longName = "test-remainders", defaultValue = "4-5")
 		public CommandLine.IntegerRanges getTestRemainders();
 
 		@Option(longName = "treebank", defaultToNull=true)
 		public File getTreebankDirectory();
-
-		@Option(longName = "coreference", defaultToNull=true)
-		public File getCoreferenceDirectory();
 
 		@Option
 		public boolean getUseGoldTrees();
@@ -212,8 +210,6 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 	protected File treebankDirectory;
 
-	protected File coreferenceDirectory;
-
 	protected boolean printErrors = false;
 
 	protected boolean printOverlapping = false;
@@ -228,8 +224,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 			File xmlDirectory,
 			XMLFormat xmlFormat,
 			File xmiDirectory,
-			File treebankDirectory,
-			File coreferenceDirectory) {
+			File treebankDirectory) {
 		super(baseDirectory);
 		this.rawTextDirectory = rawTextDirectory;
 		this.xmlDirectory = xmlDirectory;
@@ -237,18 +232,6 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		this.xmiDirectory = xmiDirectory;
 		this.xmiExists = this.xmiDirectory.exists() && this.xmiDirectory.listFiles().length > 0;
 		this.treebankDirectory = treebankDirectory;
-		this.coreferenceDirectory = coreferenceDirectory;
-	}
-
-	public Evaluation_ImplBase(
-			File baseDirectory,
-			File rawTextDirectory,
-			File xmlDirectory,
-			XMLFormat xmlFormat,
-			File xmiDirectory,
-			File treebankDirectory) {
-		this(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat,
-				xmiDirectory, treebankDirectory, null);
 	}
 
 	public void setI2B2Output(String outDir){
@@ -273,23 +256,23 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 	private List<File> getFilesFor(List<Integer> patientSets) throws FileNotFoundException {
 		List<File> files = new ArrayList<>();
-		if (this.rawTextDirectory == null
-				&& this.xmlFormat == XMLFormat.Anafora) {
-			for (File dir : this.xmlDirectory.listFiles()) {
-				Set<String> ids = new HashSet<>();
-				for (Integer set : patientSets) {
-					ids.add(String.format("ID%03d", set));
-				}
-				if (dir.isDirectory()) {
-					if (ids.contains(dir.getName().substring(0, 5))) {
-						File file = new File(dir, dir.getName());
-						if (file.exists()) {
-							files.add(file);
-						} else {
-							LOGGER.warn("Missing note: " + file);
+		if (this.xmlFormat == XMLFormat.Anafora) {
+			Set<String> ids = new HashSet<>();
+			for (Integer set : patientSets) {
+				ids.add(String.format("ID%03d", set));
+			}
+			for (String section : THYMEData.SECTIONS){
+				File xmlSubdir = new File(this.xmlDirectory, section);
+				for (File dir : xmlSubdir.listFiles()) {
+					if (dir.isDirectory()) {
+						if (ids.contains(dir.getName().substring(0, 5))) {
+							File file = new File(dir, dir.getName());
+							if (file.exists()) {
+								files.add(file);
+							} else {
+								LOGGER.warn("Missing note: " + file);
+							}
 						}
-					} else {
-						LOGGER.info("Skipping note: " + dir);
 					}
 				}
 			}
@@ -317,7 +300,8 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				}
 				assert !(train.exists() && test.exists());
 			}
-		}	else  {
+		}	else if( xmlFormat == XMLFormat.Knowtator) {
+			LOGGER.warn("This is an old annotation format -- please upgrade to using anafora files.");
 			for (Integer set : patientSets) {
 				final int setNum = set;
 				for (File file : rawTextDirectory.listFiles(new FilenameFilter(){
@@ -327,30 +311,12 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 					}})) {
 					// skip hidden files like .svn
 					if (!file.isHidden()) {
-						if(xmlFormat == XMLFormat.Knowtator){
-							files.add(file);
-						}else{
-							// look for equivalent in xml directory:
-							File xmlFile = new File(xmlDirectory, file.getName());
-							if(xmlFile.exists()){
-								if(coreferenceDirectory != null){
-									// verify that coref version of xml exists
-									File corefFile = new File(coreferenceDirectory, file.getName()+".Coreference.gold.completed.xml");
-									if(corefFile.exists() && xmlFile.exists()){
-										files.add(file);
-									}else{
-										System.err.println("Missing coref patient file : " + corefFile);
-									}
-								}else{
-									files.add(file);
-								}
-							}else{
-								System.err.println("Missing patient file : " + xmlFile);
-							}
-						}
+						files.add(file);
 					} 
 				}
 			}
+		} else {
+			LOGGER.error("Unknown data format -- please specify Anafora, i2b2, or Knowtator format.");
 		}
 		return files;
 	}
@@ -411,13 +377,6 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 					CAS.NAME_DEFAULT_SOFA,
 					GOLD_VIEW_NAME);
 			break;
-		}
-
-		if(this.coreferenceDirectory != null){
-			aggregateBuilder.add(
-					THYMEAnaforaXMLReader.getDescription(this.coreferenceDirectory),
-					CAS.NAME_DEFAULT_SOFA,
-					GOLD_VIEW_NAME);
 		}
 
 		// identify segments

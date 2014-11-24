@@ -44,7 +44,7 @@ public class EvaluationOfNEPredicateEventSpans extends
 			File xmiDirectory, File treebankDirectory,
 			Class<? extends Annotation> annotationClass) {
 		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat,
-				xmiDirectory, treebankDirectory, null, annotationClass);
+				xmiDirectory, treebankDirectory, annotationClass);
 		// TODO Auto-generated constructor stub
 	}
 

@@ -79,15 +79,15 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
       description = "list of suffixes that might be added to a file name to identify the Anafora "
           + "XML annotations file; only the first suffix corresponding to a file will be used")
   private String[] anaforaXMLSuffixes = new String[] {
-      ".Gold_Temporal_Entities.xml",
-      ".Gold_Temporal_Relations.xml",
+      ".Temporal-Relations.gold.completed.xml",
+      ".Temporal-Relation.gold.completed.xml",
+      ".Temporal-Relation-Adjudication.gold.completed.xml",
+      ".Temporal-Entity-Adjudication.gold.completed.xml",
       ".temporal.Temporal-Adjudication.gold.completed.xml",
       ".temporal.Temporal-Entities.gold.completed.xml",
       ".Temporal-Entity.gold.completed.xml",
-      ".Temporal-Relation-Adjudication.gold.completed.xml",
-      ".Temporal-Entity-Adjudication.gold.completed.xml",
-      ".Temporal-Relation.gold.completed.xml",
-      ".Temporal-Relations.gold.completed.xml"};
+      ".Gold_Temporal_Entities.xml",
+      ".Gold_Temporal_Relations.xml"};
 
   public static AnalysisEngineDescription getDescription() throws ResourceInitializationException {
     return AnalysisEngineFactory.createEngineDescription(THYMEAnaforaXMLReader.class);
@@ -108,14 +108,13 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
     LOGGER.info("processing " + textFile);
 
     // determine possible Anafora XML file names
+    File corefFile = new File(textFile.getPath() + ".Coreference.gold.completed.xml");
     List<File> possibleXMLFiles = Lists.newArrayList();
-    possibleXMLFiles.add(new File(this.anaforaDirectory, textFile.getName() + ".Coreference.gold.completed.xml"));
     for (String anaforaXMLSuffix : this.anaforaXMLSuffixes) {
       if (this.anaforaDirectory == null) {
         possibleXMLFiles.add(new File(textFile + anaforaXMLSuffix));
       } else {
-        File subDir = new File(this.anaforaDirectory, textFile.getName());
-        possibleXMLFiles.add(new File(subDir, textFile.getName() + anaforaXMLSuffix));
+        possibleXMLFiles.add(new File(textFile.getPath() + anaforaXMLSuffix));
       }
     }
 
@@ -131,6 +130,13 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
       throw new IllegalArgumentException("no Anafora XML file found from " + possibleXMLFiles);
     }
 
+    processXmlFile(jCas, xmlFile);
+    if(corefFile.exists()){
+    	processXmlFile(jCas, corefFile);
+    }
+  }
+  
+  private static void processXmlFile(JCas jCas, File xmlFile) throws AnalysisEngineProcessException{
     // load the XML
     Element dataElem;
     try {

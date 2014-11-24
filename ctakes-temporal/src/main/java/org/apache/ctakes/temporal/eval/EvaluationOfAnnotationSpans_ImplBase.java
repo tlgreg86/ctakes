@@ -79,9 +79,8 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 			XMLFormat xmlFormat,
 			File xmiDirectory,
 			File treebankDirectory,
-			File coreferenceDirectory,
 			Class<? extends Annotation> annotationClass) {
-		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, treebankDirectory, coreferenceDirectory);
+		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, treebankDirectory);
 		this.annotationClass = annotationClass;
 	}
 
@@ -92,7 +91,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 			XMLFormat xmlFormat,
 			File xmiDirectory,
 			Class<? extends Annotation> annotationClass) {
-		this(baseDirectory,rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null, null, annotationClass);
+		this(baseDirectory,rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null, annotationClass);
 	}
 
 	protected abstract AnalysisEngineDescription getDataWriterDescription(File directory)

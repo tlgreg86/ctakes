@@ -242,7 +242,6 @@ EvaluationOfTemporalRelations_ImplBase{
 				xmlFormat,
 				xmiDirectory,
 				treebankDirectory,
-				null,
 				printErrors,
 				printRelations,
 				params);

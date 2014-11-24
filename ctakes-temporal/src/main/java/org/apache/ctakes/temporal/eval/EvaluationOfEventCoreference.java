@@ -106,7 +106,6 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         options.getXMLFormat(),
         options.getXMIDirectory(),
         options.getTreebankDirectory(),
-        options.getCoreferenceDirectory(),
         options.getPrintErrors(),
         options.getPrintFormattedRelations(),
         params,
@@ -129,10 +128,10 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
   public EvaluationOfEventCoreference(File baseDirectory,
       File rawTextDirectory, File xmlDirectory,
       org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat xmlFormat,
-      File xmiDirectory, File treebankDirectory, File coreferenceDirectory, boolean printErrors,
+      File xmiDirectory, File treebankDirectory, boolean printErrors,
       boolean printRelations, ParameterSettings params, String cmdParams, String outputDirectory) {
     super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory,
-        treebankDirectory, coreferenceDirectory, printErrors, printRelations, params);
+        treebankDirectory, printErrors, printRelations, params);
     this.outputDirectory = outputDirectory;
     this.kernelParams = cmdParams == null ? null : cmdParams.split(" ");
   }

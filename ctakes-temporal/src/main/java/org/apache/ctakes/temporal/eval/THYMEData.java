@@ -34,6 +34,8 @@ public class THYMEData {
 	public static final Set<Integer> DEV_REMAINDERS = Sets.newHashSet(4, 5);
 	public static final Set<Integer> TEST_REMAINDERS = Sets.newHashSet(6, 7); 
 
+	public static final String[] SECTIONS = new String[] {"Train", "Dev", "Test"};
+	
 	public static List<Integer> getPatientSets(List<Integer> patientSets, Collection<Integer> remainders) {
 		List<Integer> items = new ArrayList<>();
 		for (Integer i : patientSets) {
@@ -68,6 +70,7 @@ public class THYMEData {
 	public static List<Integer> getTestPatientSets(List<Integer> patientSets) {
 		return getPatientSets(patientSets, TEST_REMAINDERS);
 	}
+
 
 	public static List<File> getFilesFor(List<Integer> patientSets, File rawTextDirectory) {
 		if ( !rawTextDirectory.exists() ) {

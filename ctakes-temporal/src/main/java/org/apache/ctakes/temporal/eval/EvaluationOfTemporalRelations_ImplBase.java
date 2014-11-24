@@ -81,16 +81,6 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 
 	public EvaluationOfTemporalRelations_ImplBase(File baseDirectory,
 			File rawTextDirectory, File xmlDirectory, XMLFormat xmlFormat,
-			File xmiDirectory, File treebankDirectory, File coreferenceDirectory, boolean printErrors, boolean printRelations, ParameterSettings params) {
-		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory,
-				treebankDirectory, coreferenceDirectory);
-		this.params = params;
-		this.printRelations = printRelations;
-		this.printErrors =  printErrors;
-	}
-
-	public EvaluationOfTemporalRelations_ImplBase(File baseDirectory,
-			File rawTextDirectory, File xmlDirectory, XMLFormat xmlFormat,
 			File xmiDirectory, File treebankDirectory, boolean printErrors, boolean printRelations, ParameterSettings params) {
 		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory,
 				treebankDirectory);
