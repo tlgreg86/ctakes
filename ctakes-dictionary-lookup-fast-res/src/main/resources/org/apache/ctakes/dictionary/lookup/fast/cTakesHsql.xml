@@ -38,7 +38,7 @@
             <property key="jdbcUser" value="sa"/>
             <property key="jdbcPass" value=""/>
             <property key="rareWordTable" value="cui_terms"/>
-            <property key="umlsUrl" value="https://uts-ws.nlm.nih.gov/restful/isValidctakes.umlsuser"/>
+            <property key="umlsUrl" value="https://uts-ws.nlm.nih.gov/restful/isValidUMLSUser"/>
             <property key="umlsVendor" value="NLM-6515182895"/>
             <property key="umlsUser" value="CHANGEME"/>
             <property key="umlsPass" value="CHANGEME"/>
@@ -65,7 +65,7 @@
             <!--<property key="rxNormTable" value="rxnorm"/>-->
             <!--<property key="icd9Table" value="icd9cm"/>-->
             <!--<property key="icd10Table" value="icd10pcs"/>-->
-            <property key="umlsUrl" value="https://uts-ws.nlm.nih.gov/restful/isValidctakes.umlsuser"/>
+            <property key="umlsUrl" value="https://uts-ws.nlm.nih.gov/restful/isValidUMLSUser"/>
             <property key="umlsVendor" value="NLM-6515182895"/>
             <property key="umlsUser" value="CHANGEME"/>
             <property key="umlsPass" value="CHANGEME"/>
