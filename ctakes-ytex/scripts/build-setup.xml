@@ -72,6 +72,19 @@ Call with option -projecthelp for more info.
 		<property name="umls.schema" value="${db.schema}" />
 		<mkdir dir="${config.generated.dir}" />
 	</target>
+	<target name="templateToConfig.extractTemplates" description="extractTemplateFiles" unless="ctakes.dev.mode">
+		<pathconvert property="res.jar" pathsep="${line.separator}">
+            <fileset dir="${ctakes.home}/lib">
+                <include name="ctakes-ytex-res-*.jar"/>
+            </fileset>
+        </pathconvert>
+		<echo>unpacking ytex templates from ${res.jar} to ${config.source.dir}</echo>
+		<unzip src="${res.jar}" dest="${config.source.dir}">
+			<patternset>
+				<include name="org/apache/ctakes/ytex/**/*.template.xml"/>
+			</patternset>
+		</unzip>
+	</target>
 	<target name="templateToConfig.updateConfig" depends="templateToConfig.init" description="update config files">
 		<echo>config.source.dir = ${config.source.dir}</echo>
 		<echo>config.generated.dir = ${config.generated.dir}</echo>
@@ -130,7 +143,7 @@ Call with option -projecthelp for more info.
 	<target name="deleteTestDb" description="delete the test hsql databse">
 		<delete dir="${test.hsqldb.dir}" quiet="true" />
 	</target>
-	<target name="templateToConfig" depends="templateToConfig.init,templateToConfig.updateConfig" description="generate config files from templates using values specified in ytex.properties">
+	<target name="templateToConfig" depends="templateToConfig.init,templateToConfig.extractTemplates,templateToConfig.updateConfig" description="generate config files from templates using values specified in ytex.properties">
 	</target>
 	<target name="test.setup" description="setup properties and database for unit tests" depends="generateTestYtexProperties,templateToConfig,deleteTestDb">
 		<ant dir="data" target="all" inheritAll="true"/>

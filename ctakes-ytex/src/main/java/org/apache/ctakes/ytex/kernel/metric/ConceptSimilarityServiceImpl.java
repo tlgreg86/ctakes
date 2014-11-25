@@ -648,9 +648,15 @@ public class ConceptSimilarityServiceImpl implements ConceptSimilarityService {
 
 	@SuppressWarnings("unchecked")
 	private int getLCSFromCache(ConcRel cr1, ConcRel cr2, Set<String> lcses) {
-		OrderedPair<String> cacheKey = new OrderedPair<String>(
-				cr1.getConceptID(), cr2.getConceptID());
-		Element e = this.lcsCache.get(cacheKey);
+		StringBuilder cacheKeyBuilder = new StringBuilder(this.conceptGraphName);
+		cacheKeyBuilder
+				.append(cr1.getConceptID().compareTo(cr2.getConceptID()) < 0 ? cr1
+						.getConceptID() : cr2.getConceptID());
+		cacheKeyBuilder
+				.append(cr1.getConceptID().compareTo(cr2.getConceptID()) >= 0 ? cr2
+						.getConceptID() : cr1.getConceptID());
+		String cacheKey = cacheKeyBuilder.toString();
+		Element e = this.lcsCache != null ? this.lcsCache.get(cacheKey) : null;
 		if (e != null) {
 			// hit the cache - unpack the lcs
 			if (e.getObjectValue() != null) {
@@ -673,8 +679,10 @@ public class ConceptSimilarityServiceImpl implements ConceptSimilarityService {
 				}
 				val[1] = lcses;
 			}
-			e = new Element(cacheKey, val);
-			this.lcsCache.put(e);
+			if (this.lcsCache != null) {
+				e = new Element(cacheKey, val);
+				this.lcsCache.put(e);
+			}
 			return dist;
 		}
 	}
