@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.ctakes</groupId>
     <artifactId>ctakes</artifactId>
-    <version>3.2.2-SNAPSHOT</version>
+    <version>3.2.1</version>
   </parent>
   <artifactId>ctakes-chunker-res</artifactId>
   <name>Apache cTAKES Resources ctakes-chunker-res</name>
