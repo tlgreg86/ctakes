@@ -29,6 +29,13 @@
   <artifactId>ctakes-lvg-res</artifactId>
   <name>Apache cTAKES Resources lvg</name>
   <description>Resources Project for ctakes-lvg</description>
+  <dependencies>
+		<dependency>
+			<groupId>net.sourceforge.ctakesresources</groupId>
+			<artifactId>ctakes-resources-lvg2008</artifactId>
+			<version>3.2.1.1</version>
+		</dependency>
+</dependencies>			  
 	<build>
 		<plugins>
 			<plugin>
@@ -42,7 +49,7 @@
 							<goal>unpack-dependencies</goal>
 						</goals>
 						<configuration>
-							<includeArtifactId>ctakes-lvg-res</includeArtifactId>
+							<includeArtifactId>ctakes-resources-lvg2008</includeArtifactId>
 							<outputDirectory>${project.build.directory}/classes</outputDirectory>
 						</configuration>
 					</execution>
