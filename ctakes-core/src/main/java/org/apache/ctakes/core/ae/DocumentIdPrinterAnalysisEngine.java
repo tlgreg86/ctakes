@@ -36,7 +36,7 @@ public class DocumentIdPrinterAnalysisEngine extends JCasAnnotator_ImplBase
     String documentId = DocumentIDAnnotationUtil.getDocumentID(jcas);
     String logMessage = String.format("##### current file document id: \"%s\"", documentId);
     logger.info(logMessage);
-    System.out.println(logMessage);
+//    System.out.println(logMessage);
   }
 
 }

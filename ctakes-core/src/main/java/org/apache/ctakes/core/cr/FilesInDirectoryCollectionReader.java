@@ -138,7 +138,7 @@ public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase
 	    	File[] files = directory.listFiles();
 	    	for (int i = 0; i < files.length; i++)
 	    	{
-	    		if (!files[i].isDirectory() && hasValidExtension(files[i]))
+	    		if (!files[i].isDirectory() && hasValidExtension(files[i]) && !files[i].isHidden())
 	    		{
 	    			iv_files.add(files[i]);  
 	    		}

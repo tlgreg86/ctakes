@@ -30,8 +30,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import opennlp.tools.cmdline.sentdetect.SentenceDetectorCrossValidatorTool;
+import opennlp.tools.cmdline.sentdetect.SentenceEvaluationErrorListener;
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.sentdetect.DefaultSDContextGenerator;
+import opennlp.tools.sentdetect.SDCrossValidator;
 import opennlp.tools.sentdetect.SentenceDetectorFactory;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
@@ -42,8 +45,10 @@ import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
 
 import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.core.sentence.SDContextGeneratorCtakes;
 import org.apache.ctakes.core.sentence.EndOfSentenceScannerImpl;
 import org.apache.ctakes.core.sentence.SentenceDetectorCtakes;
+import org.apache.ctakes.core.sentence.SentenceDetectorFactoryCtakes;
 import org.apache.ctakes.core.sentence.SentenceSpan;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -114,7 +119,7 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		  logger.info("Sentence detector model file: " + sdModelPath);
 		  sdmodel = new SentenceModel(is);
 		  EndOfSentenceScannerImpl eoss = new EndOfSentenceScannerImpl();
-		  DefaultSDContextGenerator cg = new DefaultSDContextGenerator(eoss.getEndOfSentenceCharacters());
+		  SDContextGeneratorCtakes cg = new SDContextGeneratorCtakes(eoss.getEndOfSentenceCharacters());
 		  sentenceDetector = new SentenceDetectorCtakes(
 		      sdmodel.getMaxentModel(), cg, eoss);
 
@@ -324,23 +329,17 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		  mlParams.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
 		  mlParams.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cut));
 
-		  // Abbreviations dictionary
-		  // TODO: Actually import a Dictionary of abbreviations
-		  Dictionary dict = new Dictionary();
-
 		  try {
-		    SentenceDetectorFactory sdFactory = new SentenceDetectorFactory(
-		        "en", true, dict, scanner.getEndOfSentenceCharacters());
-		    mod = SentenceDetectorME.train("en", sampleStream, sdFactory, mlParams);
+		    SentenceDetectorFactoryCtakes sdFactory = new SentenceDetectorFactoryCtakes(scanner.getEndOfSentenceCharacters());
+		    mod = SentenceDetectorME.train("en", sampleStream, sdFactory, mlParams);		    
 		  } finally {
 		    sampleStream.close();
 		  }
 		}
-		
-		try(FileOutputStream outStream = new FileOutputStream(outFile)){
-		  logger.info("Saving the model as: " + outFile.getAbsolutePath());
-		  mod.serialize(outStream);
-		}
+    try(FileOutputStream outStream = new FileOutputStream(outFile)){
+      logger.info("Saving the model as: " + outFile.getAbsolutePath());
+      mod.serialize(outStream);
+    }		
 	}
 
 	public static void usage(Logger log) {

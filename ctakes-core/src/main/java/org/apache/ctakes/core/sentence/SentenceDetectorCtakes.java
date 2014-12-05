@@ -29,11 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import opennlp.model.MaxentModel;
 import opennlp.tools.dictionary.Dictionary;
-import opennlp.tools.ml.maxent.GIS;
-import opennlp.tools.ml.maxent.GISModel;
-import opennlp.tools.ml.model.EventStream;
-import opennlp.tools.ml.model.MaxentModel;
 import opennlp.tools.sentdetect.EndOfSentenceScanner;
 import opennlp.tools.sentdetect.SDContextGenerator;
 import opennlp.tools.sentdetect.SDEventStream;
@@ -42,7 +39,6 @@ import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.sentdetect.SentenceSample;
 import opennlp.tools.sentdetect.SentenceSampleStream;
 import opennlp.tools.sentdetect.lang.Factory;
-import opennlp.tools.util.HashSumEventStream;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.StringUtil;
@@ -228,123 +224,12 @@ public class SentenceDetectorCtakes {
 	  protected boolean isAcceptableBreak(String s, int fromIndex, int candidateIndex) {
 	    return true;
 	  }
-	  /*
-	  public static SentenceModel train(String languageCode, ObjectStream<SentenceSample> samples,
-	      boolean useTokenEnd, Dictionary abbreviations) throws IOException {
-	    return train(languageCode, samples, useTokenEnd, abbreviations,5,100);
-	  }
+
+	  // RE: Missing main method for training -- there were two versions -- one in here and one
+	  // in SentenceDetector.java, and the one in here was old so it was removed.
+	  // Please use the org.apache.ctakes.core.ae.SentenceDetector for training
+	  // sentence detector models in cTAKES.
 	  
-	  public static SentenceModel train(String languageCode, ObjectStream<SentenceSample> samples,
-	      boolean useTokenEnd, Dictionary abbreviations, int cutoff, int iterations) throws IOException {
-
-	    Map<String, String> manifestInfoEntries = new HashMap<String, String>();
-	    ModelUtil.addCutoffAndIterations(manifestInfoEntries, cutoff, iterations);
-	    
-	    Factory factory = new Factory();
-
-	    // TODO: Fix the EventStream to throw exceptions when training goes wrong
-	    ObjectStream eventStream = new SDEventStream(samples,
-	        factory.createSentenceContextGenerator(languageCode),
-	        factory.createEndOfSentenceScanner(languageCode));
-	    
-	    HashSumEventStream hses = new HashSumEventStream(eventStream);
-	    GISModel sentModel = GIS.trainModel(hses, iterations, cutoff);
-
-	    manifestInfoEntries.put(BaseModel.TRAINING_EVENTHASH_PROPERTY, 
-	        hses.calculateHashSum().toString(16));
-	    
-	    return new SentenceModel(languageCode, sentModel,
-	        useTokenEnd, abbreviations, manifestInfoEntries);
-	  }
-*/
-	  private static void usage() {
-	    System.err.println("Usage: SentenceDetectorME -encoding charset -lang language trainData modelName [cutoff iterations]");
-	    System.err.println("-encoding charset specifies the encoding which should be used ");
-	    System.err.println("                  for reading and writing text.");
-	    System.err.println("-lang language    specifies the language which ");
-	    System.err.println("                  is being processed.");
-	    System.err.println("trainData         specifies the name of the input training file");
-	    System.err.println("                  to train the resulting model.");
-	    System.err.println("modelName         specifies the resulting saved model after");
-	    System.err.println("                  training.");
-	    System.exit(1);
-	  }
-
-	  /**
-	   * <p>Trains a new sentence detection model.</p>
-	   *
-	   * <p>Usage: opennlp.tools.sentdetect.SentenceDetectorME data_file new_model_name (iterations cutoff)?</p>
-	   *
-	   * @param args
-	   * @throws IOException
-	   */
-	  /*
-	  public static void main(String[] args) throws IOException {
-	    int ai=0;
-	    String encoding = null;
-	    String lang = null;
-	    if (args.length == 0) {
-	      usage();
-	    }
-	    while (args[ai].startsWith("-")) {
-	      if (args[ai].equals("-encoding")) {
-	        ai++;
-	        if (ai < args.length) {
-	          encoding = args[ai];
-	          ai++;
-	        }
-	        else {
-	          usage();
-	        }
-	      }
-	      else if (args[ai].equals("-lang")) {
-	        ai++;
-	        if (ai < args.length) {
-	          lang = args[ai];
-	          ai++;
-	        }
-	        else {
-	          usage();
-	        }
-	      }
-	      else {
-	        usage();
-	      }
-	    }
-
-	    File inFile = new File(args[ai++]);
-	    File outFile = new File(args[ai++]);
-
-	    int numberOfArgs = args.length;
-	    int iters = (ai < numberOfArgs ? convertToInt(args[ai++]) : 100);
-	    int cutoff = (ai < numberOfArgs ? convertToInt(args[ai++]) : 4);
-
-
-	    try {
-	      if ((lang == null) || (encoding == null)) {
-	        usage();
-	      }
-
-	      
-	      SentenceModel model = train(lang, new SentenceSampleStream(new PlainTextByLineStream(
-	          new InputStreamReader(new FileInputStream(inFile), encoding))), true, null, cutoff, iters);
-
-	      // TODO: add support for iterations and cutoff settings
-
-//	      if (args.length > ai)
-//	        mod = train(es, Integer.parseInt(args[ai++]), Integer.parseInt(args[ai++]));
-//	      else
-//	        mod = train(es, 100, 5);
-
-	      System.out.println("Saving the model as: " + outFile);
-	      model.serialize(new FileOutputStream(outFile));
-	    }
-	    catch (Exception e) {
-	      e.printStackTrace();
-	    }
-	  }
-
-*/
 	private static int convertToInt(String s) {
 
 		int i = Integer.parseInt(s); 
