@@ -50,7 +50,7 @@ final public class Concept {
          ctakesSemantics.add( CONST.NE_TYPE_ID_UNKNOWN );
       }
       _ctakesSemantics = Collections.unmodifiableCollection( ctakesSemantics );
-      _hashcode = (cui + "_" + preferredText + "_" + codes.hashCode()).hashCode();
+      _hashcode = cui.hashCode();
    }
 
    public String getCui() {
@@ -85,10 +85,7 @@ final public class Concept {
     */
    @Override
    public boolean equals( final Object value ) {
-      return value instanceof Concept
-             && _cui.equals( ((Concept)value)._cui )
-             && _preferredText.equals( ((Concept)value)._preferredText )
-             && _codes.equals( ((Concept)value)._codes );
+      return value instanceof Concept && _cui.equals( ((Concept)value)._cui );
    }
 
    /**
