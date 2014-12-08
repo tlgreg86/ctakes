@@ -26,7 +26,7 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.Properties;
+import java.util.*;
 
 
 /**
@@ -37,7 +37,13 @@ import java.util.Properties;
  * Affiliation: CHIP-NLP
  * Date: 2/19/14
  */
-final public class UmlsUserApprover {
+public enum UmlsUserApprover {
+
+   INSTANCE;
+
+   static public UmlsUserApprover getInstance() {
+      return INSTANCE;
+   }
 
    // environment, matches old
    private final static String UMLSADDR_PARAM = "ctakes.umlsaddr";
@@ -54,6 +60,9 @@ final public class UmlsUserApprover {
 
    static final private Logger LOGGER = Logger.getLogger( "UmlsUserApprover" );
 
+   // cache of valid users
+   static private final Collection<String> _validUsers = new ArrayList<>();
+
    private UmlsUserApprover() {
    }
 
@@ -64,7 +73,7 @@ final public class UmlsUserApprover {
     * @param properties  -
     * @return true if the server at umlsaddr approves of the vendor, user, password combination
     */
-   public static boolean isValidUMLSUser( final UimaContext uimaContext, final Properties properties ) {
+   public boolean isValidUMLSUser( final UimaContext uimaContext, final Properties properties ) {
       String umlsUrl = EnvironmentVariable.getEnv( UMLSADDR_PARAM, uimaContext );
       if ( umlsUrl == null || umlsUrl.equals( EnvironmentVariable.NOT_PRESENT ) ) {
          umlsUrl = properties.getProperty( URL_PARAM );
@@ -93,8 +102,12 @@ final public class UmlsUserApprover {
     * @param pass    -
     * @return true if the server at umlsaddr approves of the vendor, user, password combination
     */
-   public static boolean isValidUMLSUser( final String umlsUrl, final String vendor,
+   public boolean isValidUMLSUser( final String umlsUrl, final String vendor,
                                           final String user, final String pass ) {
+      final String cacheCode = umlsUrl+vendor+user+pass;
+      if ( _validUsers.contains( cacheCode ) ) {
+         return true;
+      }
       String data;
       try {
          data = URLEncoder.encode( "licenseCode", "UTF-8" ) + "=" + URLEncoder.encode( vendor, "UTF-8" );
@@ -104,7 +117,10 @@ final public class UmlsUserApprover {
          LOGGER.error( "Could not encode URL for " + user + " with vendor license " + vendor );
          return false;
       }
+      final Timer timer = new Timer();
       try {
+         LOGGER.info( "Checking UMLS Account at " + umlsUrl + " for user " + user );
+         timer.scheduleAtFixedRate( new DotPlotter(), 1000, 1000 );
          final URL url = new URL( umlsUrl );
          final URLConnection connection = url.openConnection();
          connection.setDoOutput( true );
@@ -123,17 +139,31 @@ final public class UmlsUserApprover {
          }
          writer.close();
          reader.close();
+         timer.cancel();
          if ( isValidUser ) {
-            LOGGER.info( "UMLS Account at " + umlsUrl + " for user " + user + " has been validated" );
+            LOGGER.info( "  UMLS Account at " + umlsUrl + " for user " + user + " has been validated" );
+            _validUsers.add( cacheCode );
          } else {
-            LOGGER.error( "UMLS Account at " + umlsUrl + " is not valid for user " + user + " with " + pass );
+            LOGGER.error( "  UMLS Account at " + umlsUrl + " is not valid for user " + user + " with " + pass );
          }
          return isValidUser;
       } catch ( IOException ioE ) {
+         timer.cancel();
          LOGGER.error( ioE.getMessage() );
          return false;
       }
    }
 
+   static private class DotPlotter extends TimerTask {
+      private int _count = 0;
+      public void run() {
+         System.out.print( "." );
+         _count++;
+         if ( _count >= 50 ) {
+            _count = 0;
+            System.out.println();
+         }
+      }
+   }
 
 }
