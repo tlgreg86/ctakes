@@ -24,7 +24,7 @@ final public class UmlsJdbcRareWordDictionary implements RareWordDictionary {
 
    public UmlsJdbcRareWordDictionary( final String name, final UimaContext uimaContext, final Properties properties )
          throws SQLException {
-      final boolean isValidUser = UmlsUserApprover.isValidUMLSUser( uimaContext, properties );
+      final boolean isValidUser = UmlsUserApprover.getInstance().isValidUMLSUser( uimaContext, properties );
       if ( !isValidUser ) {
          throw new SQLException( "Invalid User for UMLS dictionary " + name );
       }
