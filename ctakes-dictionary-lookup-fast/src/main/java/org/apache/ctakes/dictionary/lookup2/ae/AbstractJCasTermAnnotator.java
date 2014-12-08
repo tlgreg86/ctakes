@@ -99,8 +99,6 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
          if ( windowClassName == null || windowClassName.isEmpty() ) {
             windowClassName = DEFAULT_LOOKUP_WINDOW;
          }
-   	  LOGGER.info( "Default - Loading dictionary into memory.  Initial run may take few mins to load. Please be patient...");
-   	  
          LOGGER.info( "Using dictionary lookup window type: " + windowClassName );
          _lookupWindowType = JCasUtil.getType( windowClassName );
          // optional exclusion POS tags
@@ -141,7 +139,7 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
     */
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
-      LOGGER.debug( "Starting processing" );
+      LOGGER.info( "Starting processing" );
       final JFSIndexRepository indexes = jcas.getJFSIndexRepository();
       final AnnotationIndex<Annotation> lookupWindows = indexes.getAnnotationIndex( _lookupWindowType );
       if ( lookupWindows == null ) {  // I don't trust AnnotationIndex.size(), so don't check
@@ -183,7 +181,7 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
          }
          _dictionarySpec.getConsumer().consumeHits( jcas, dictionary, textSpanCuis, allConceptsMap );
       }
-      LOGGER.debug( "Finished processing" );
+      LOGGER.info( "Finished processing" );
    }
 
 
