@@ -7,9 +7,7 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Some JDBC Connections can be reused, for instance by a Dictionary and Concept Factory.
@@ -86,17 +84,35 @@ public enum JdbcConnectionFactory {
          LOGGER.error( "Could not create Driver " + jdbcDriver, multE );
          throw new SQLException( multE );
       }
+      LOGGER.info( "Connecting to database ...");
+      final Timer timer = new Timer();
+      timer.scheduleAtFixedRate( new DotPlotter(), 1000, 1000 );
       try {
          // DO NOT use try with resources here.
          // Try with resources uses a closable and closes it when exiting the try block
          // We need the Connection later, and if it is closed then it is useless
          connection = DriverManager.getConnection( trueJdbcUrl, jdbcUser, jdbcPass );
       } catch ( SQLException sqlE ) {
-         LOGGER.error( "Could not create Connection with " + trueJdbcUrl + " as " + jdbcUser, sqlE );
+         timer.cancel();
+         LOGGER.error( "  Could not create Connection with " + trueJdbcUrl + " as " + jdbcUser, sqlE );
          throw sqlE;
       }
+      timer.cancel();
+      LOGGER.info( "  Database connected");
       CONNECTIONS.put( jdbcUrl, connection );
       return connection;
+   }
+
+   static private class DotPlotter extends TimerTask {
+      private int _count = 0;
+      public void run() {
+         System.out.print( "." );
+         _count++;
+         if ( _count >= 50 ) {
+            _count = 0;
+            System.out.println();
+         }
+      }
    }
 
 }
