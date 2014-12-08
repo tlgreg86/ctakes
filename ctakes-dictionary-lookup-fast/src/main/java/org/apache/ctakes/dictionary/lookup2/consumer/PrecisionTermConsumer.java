@@ -52,13 +52,13 @@ final public class PrecisionTermConsumer extends AbstractTermConsumer {
     * {@inheritDoc}
     */
    @Override
-   public void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int cTakesSemantic,
+   public void consumeTypeIdHits( final JCas jcas, final String defaultScheme, final int cTakesSemantic,
                                   final CollectionMap<TextSpan, Long, ? extends Collection<Long>> semanticTerms,
                                   final CollectionMap<Long, Concept, ? extends Collection<Concept>> conceptMap )
          throws AnalysisEngineProcessException {
       final CollectionMap<TextSpan, Long, ? extends Collection<Long>> preciseTerms
             = createPreciseTerms( semanticTerms );
-      _idHitConsumer.consumeTypeIdHits( jcas, codingScheme, cTakesSemantic, preciseTerms, conceptMap );
+      _idHitConsumer.consumeTypeIdHits( jcas, defaultScheme, cTakesSemantic, preciseTerms, conceptMap );
    }
 
 

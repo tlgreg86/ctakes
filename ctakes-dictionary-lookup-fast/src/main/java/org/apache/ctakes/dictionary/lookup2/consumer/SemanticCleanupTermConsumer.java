@@ -120,11 +120,11 @@ public class SemanticCleanupTermConsumer extends AbstractTermConsumer {
     * {@inheritDoc}
     */
    @Override
-   public void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int cTakesSemantic,
+   public void consumeTypeIdHits( final JCas jcas, final String defaultScheme, final int cTakesSemantic,
                                   final CollectionMap<TextSpan, Long, ? extends Collection<Long>> semanticTerms,
                                   final CollectionMap<Long, Concept, ? extends Collection<Concept>> conceptMap )
          throws AnalysisEngineProcessException {
-      _idHitConsumer.consumeTypeIdHits( jcas, codingScheme, cTakesSemantic, semanticTerms, conceptMap );
+      _idHitConsumer.consumeTypeIdHits( jcas, defaultScheme, cTakesSemantic, semanticTerms, conceptMap );
    }
 
 
