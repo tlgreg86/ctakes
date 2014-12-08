@@ -67,7 +67,6 @@ final public class JdbcRareWordDictionary extends AbstractRareWordDictionary {
    static private final String RARE_WORD_TABLE = "rareWordTable";
 
 
-   //   final private Connection _connection;
    private PreparedStatement _selectTermCall;
 
 
