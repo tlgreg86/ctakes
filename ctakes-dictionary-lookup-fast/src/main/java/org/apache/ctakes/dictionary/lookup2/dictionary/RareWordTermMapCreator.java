@@ -23,12 +23,12 @@ import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
 import org.apache.ctakes.dictionary.lookup2.util.collection.ArrayListMap;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Given a collection of {@link org.apache.ctakes.dictionary.lookup2.dictionary.RareWordTermMapCreator.CuiTerm} Objects,
@@ -158,7 +158,7 @@ final public class RareWordTermMapCreator {
          final int wordIndex = getWordIndex( cuiTerm.getTerm(), rareWord );
          final int tokenCount = getTokenCount( cuiTerm.getTerm() );
          if ( wordIndex < 0 ) {
-            LOGGER.warning( "Bad Rare Word Index for " + rareWord + " in " + cuiTerm.getTerm() );
+            LOGGER.warn( "Bad Rare Word Index for " + rareWord + " in " + cuiTerm.getTerm() );
             continue;
          }
          rareWordTermMap.placeValue( rareWord, new RareWordTerm( cuiTerm.getTerm(), cuiTerm.__cui,

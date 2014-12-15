@@ -6,12 +6,12 @@ import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.util.collection.HashSetMap;
 import org.apache.ctakes.typesystem.type.constants.CONST;
+import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Refine a collection of dictionary terms to only contain the most specific variations:
