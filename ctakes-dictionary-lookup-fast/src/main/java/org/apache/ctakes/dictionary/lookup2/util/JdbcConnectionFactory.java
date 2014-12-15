@@ -21,6 +21,8 @@ public enum JdbcConnectionFactory {
    INSTANCE;
 
    static final private Logger LOGGER = Logger.getLogger( "JdbcConnectionFactory" );
+   static final private Logger DOT_LOGGER = Logger.getLogger( "ProgressAppender" );
+   static final private Logger EOL_LOGGER = Logger.getLogger( "ProgressDone" );
 
    static private final String HSQL_FILE_PREFIX = "jdbc:hsqldb:file:";
    static private final String HSQL_DB_EXT = ".script";
@@ -84,9 +86,9 @@ public enum JdbcConnectionFactory {
          LOGGER.error( "Could not create Driver " + jdbcDriver, multE );
          throw new SQLException( multE );
       }
-      LOGGER.info( "Connecting to database ...");
+      LOGGER.info( "Connecting to " + jdbcUrl + ":" );
       final Timer timer = new Timer();
-      timer.scheduleAtFixedRate( new DotPlotter(), 1000, 1000 );
+      timer.scheduleAtFixedRate( new DotPlotter(), 333, 333 );
       try {
          // DO NOT use try with resources here.
          // Try with resources uses a closable and closes it when exiting the try block
@@ -94,23 +96,26 @@ public enum JdbcConnectionFactory {
          connection = DriverManager.getConnection( trueJdbcUrl, jdbcUser, jdbcPass );
       } catch ( SQLException sqlE ) {
          timer.cancel();
+         EOL_LOGGER.error( "" );
          LOGGER.error( "  Could not create Connection with " + trueJdbcUrl + " as " + jdbcUser, sqlE );
          throw sqlE;
       }
       timer.cancel();
-      LOGGER.info( "  Database connected");
+      EOL_LOGGER.info( "" );
+      LOGGER.info( " Database connected" );
       CONNECTIONS.put( jdbcUrl, connection );
       return connection;
    }
 
    static private class DotPlotter extends TimerTask {
       private int _count = 0;
+
+      @Override
       public void run() {
-         System.out.print( "." );
+         DOT_LOGGER.info( "." );
          _count++;
-         if ( _count >= 50 ) {
-            _count = 0;
-            System.out.println();
+         if ( _count % 50 == 0 ) {
+            EOL_LOGGER.info( " " + _count );
          }
       }
    }

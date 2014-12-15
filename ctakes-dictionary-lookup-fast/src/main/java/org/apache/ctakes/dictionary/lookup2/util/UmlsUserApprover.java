@@ -57,8 +57,9 @@ public enum UmlsUserApprover {
    private final static String USER_PARAM = "umlsUser";
    private final static String PASS_PARAM = "umlsPass";
 
-
    static final private Logger LOGGER = Logger.getLogger( "UmlsUserApprover" );
+   static final private Logger DOT_LOGGER = Logger.getLogger( "ProgressAppender" );
+   static final private Logger EOL_LOGGER = Logger.getLogger( "ProgressDone" );
 
    // cache of valid users
    static private final Collection<String> _validUsers = new ArrayList<>();
@@ -119,8 +120,8 @@ public enum UmlsUserApprover {
       }
       final Timer timer = new Timer();
       try {
-         LOGGER.info( "Checking UMLS Account at " + umlsUrl + " for user " + user );
-         timer.scheduleAtFixedRate( new DotPlotter(), 1000, 1000 );
+         LOGGER.info( "Checking UMLS Account at " + umlsUrl + " for user " + user + ":" );
+         timer.scheduleAtFixedRate( new DotPlotter(), 333, 333 );
          final URL url = new URL( umlsUrl );
          final URLConnection connection = url.openConnection();
          connection.setDoOutput( true );
@@ -140,6 +141,7 @@ public enum UmlsUserApprover {
          writer.close();
          reader.close();
          timer.cancel();
+         EOL_LOGGER.error( "" );
          if ( isValidUser ) {
             LOGGER.info( "  UMLS Account at " + umlsUrl + " for user " + user + " has been validated" );
             _validUsers.add( cacheCode );
@@ -149,6 +151,7 @@ public enum UmlsUserApprover {
          return isValidUser;
       } catch ( IOException ioE ) {
          timer.cancel();
+         EOL_LOGGER.error( "" );
          LOGGER.error( ioE.getMessage() );
          return false;
       }
@@ -156,12 +159,13 @@ public enum UmlsUserApprover {
 
    static private class DotPlotter extends TimerTask {
       private int _count = 0;
+
+      @Override
       public void run() {
-         System.out.print( "." );
+         DOT_LOGGER.info( "." );
          _count++;
-         if ( _count >= 50 ) {
-            _count = 0;
-            System.out.println();
+         if ( _count % 50 == 0 ) {
+            EOL_LOGGER.info( " " + _count );
          }
       }
    }
