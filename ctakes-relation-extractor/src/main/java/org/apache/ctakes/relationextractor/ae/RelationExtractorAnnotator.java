@@ -50,6 +50,7 @@ import org.cleartk.ml.CleartkProcessingException;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.Instance;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
+import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.collect.Lists;
 
@@ -147,7 +148,13 @@ public abstract class RelationExtractorAnnotator extends CleartkAnnotator<String
         Annotation arg1 = relation.getArg1().getArgument();
         Annotation arg2 = relation.getArg2().getArgument();
         // The key is a list of args so we can do bi-directional lookup
-        relationLookup.put(Arrays.asList(arg1, arg2), relation);
+        List<Annotation> key = Arrays.asList(arg1, arg2);
+        if(relationLookup.containsKey(key)){
+         String reln = relationLookup.get(key).getCategory();
+         System.err.println("Error in: "+ ViewUriUtil.getURI(jCas).toString());
+         System.err.println("Error! This attempted relation " + relation.getCategory() + " already has a relation " + reln + " at this span: " + arg1.getCoveredText() + " -- " + arg2.getCoveredText());
+        }
+        relationLookup.put(key, relation);
       }
     }
 
@@ -165,7 +172,8 @@ public abstract class RelationExtractorAnnotator extends CleartkAnnotator<String
         // apply all the feature extractors to extract the list of features
         List<Feature> features = new ArrayList<>();
         for (RelationFeaturesExtractor extractor : this.featureExtractors) {
-          features.addAll(extractor.extract(jCas, arg1, arg2));
+        	 List<Feature> feats = extractor.extract(jCas, arg1, arg2);
+        	 if (feats != null)  features.addAll(feats);
         }
 
         // sanity check on feature values
