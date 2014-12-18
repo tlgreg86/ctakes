@@ -85,6 +85,10 @@
     <delegateAnalysisEngine key="LvgAnnotator">
       <import location="../../../ctakes-lvg/desc/analysis_engine/LvgAnnotator.xml"/>
     </delegateAnalysisEngine>
+    
+    <delegateAnalysisEngine key="DrugNER">
+      <import location="../../../ctakes-drug-ner/desc/analysis_engine/DrugMentionAnnotator.xml"/>
+    </delegateAnalysisEngine>    
 <!--     
     <delegateAnalysisEngine key="AssertionAnnotator">
       <import location="../../../ctakes-assertion/desc/AssertionMiniPipelineAnalysisEngine.xml"/>
@@ -171,6 +175,7 @@
         <node>AdjustNounPhraseToIncludeFollowingPPNP</node>
         <!--<node>LookupWindowAnnotator</node>-->
         <node>DictionaryLookupAnnotatorDB</node>
+        <node>DrugNER</node>
         <node>DependencyParser</node>
 		<node>SemanticRoleLabeler</node>        
 		<node>ConstituencyParser</node>
