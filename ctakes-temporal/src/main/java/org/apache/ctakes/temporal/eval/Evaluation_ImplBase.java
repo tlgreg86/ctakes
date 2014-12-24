@@ -440,14 +440,9 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				"DeleteAction",
 				new String[] { "selector=B" }));
 		// add UMLS on top of lookup windows
-		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotator.class,
-		          AbstractJCasTermAnnotator.PARAM_WINDOW_ANNOT_PRP,
-		          "org.apache.ctakes.typesystem.type.textspan.Sentence",
-		          JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY,
-		          ExternalResourceFactory.createExternalResourceDescription(
-		              FileResourceImpl.class,
-		              FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml"))
-		          ));
+		aggregateBuilder.add(
+				UmlsDictionaryLookupAnnotator.createAnnotatorDescription()
+				);
 
 		aggregateBuilder.add(LvgAnnotator.createAnnotatorDescription());
 

@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 //import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -131,20 +132,20 @@ EvaluationOfTemporalRelations_ImplBase{
 
 	public static void main(String[] args) throws Exception {
 		TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
-    List<Integer> trainItems = null;
-    List<Integer> devItems = null;
-    List<Integer> testItems = null;
-    
-    List<Integer> patientSets = options.getPatients().getList();
-    if(options.getXMLFormat() == XMLFormat.I2B2){
-      trainItems = I2B2Data.getTrainPatientSets(options.getXMLDirectory());
-      devItems = I2B2Data.getDevPatientSets(options.getXMLDirectory());
-      testItems = I2B2Data.getTestPatientSets(options.getXMLDirectory());
-    }else{
-      trainItems = THYMEData.getPatientSets(patientSets, options.getTrainRemainders().getList());
-      devItems = THYMEData.getPatientSets(patientSets, options.getDevRemainders().getList());
-      testItems = THYMEData.getPatientSets(patientSets, options.getTestRemainders().getList());
-    }
+		List<Integer> trainItems = null;
+		List<Integer> devItems = null;
+		List<Integer> testItems = null;
+
+		List<Integer> patientSets = options.getPatients().getList();
+		if(options.getXMLFormat() == XMLFormat.I2B2){
+			trainItems = I2B2Data.getTrainPatientSets(options.getXMLDirectory());
+			devItems = I2B2Data.getDevPatientSets(options.getXMLDirectory());
+			testItems = I2B2Data.getTestPatientSets(options.getXMLDirectory());
+		}else{
+			trainItems = THYMEData.getPatientSets(patientSets, options.getTrainRemainders().getList());
+			devItems = THYMEData.getPatientSets(patientSets, options.getDevRemainders().getList());
+			testItems = THYMEData.getPatientSets(patientSets, options.getTestRemainders().getList());
+		}
 		ParameterSettings params = allParams;
 
 		//    possibleParams.add(defaultParams);
@@ -173,7 +174,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					options.getUseGoldAttributes(),
 					options.getKernelParams(),
 					params);
-			
+
 			if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/temporal-relations/event-time");
 			List<Integer> training = trainItems;
 			List<Integer> testing = null;
@@ -190,12 +191,12 @@ EvaluationOfTemporalRelations_ImplBase{
 			}else{
 				evaluation.prepareXMIsFor(patientSets);
 			}
-			
+
 			params.stats = evaluation.trainAndTest(training, testing);//training);//
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
 			System.err.println("No closure on gold::Closure on System::Recall Mode");
 			System.err.println(params.stats);
-			
+
 			//do closure on gold, but not on system, to calculate precision
 			evaluation.skipTrain = true;
 			recallModeEvaluation = false;
@@ -203,7 +204,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
 			System.err.println("No closure on System::Closure on Gold::Precision Mode");
 			System.err.println(params.stats);
-			
+
 			//do closure on train, but not on test, to calculate plain results
 			evaluation.skipTrain = true;
 			evaluation.useClosure = false;
@@ -211,7 +212,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
 			System.err.println("Closure on train::No closure on Test::Plain Mode");
 			System.err.println(params.stats);
-			
+
 			if(options.getUseTmp()){
 				// won't work because it's not empty. should we be concerned with this or is it responsibility of 
 				// person invoking the tmp flag?
@@ -287,13 +288,15 @@ EvaluationOfTemporalRelations_ImplBase{
 			//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveBeforeAndOnRelations.class));
 		}
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
-//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
+		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
+
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveEventEventRelations.class));
-		
+
 		//add unlabeled nearby system events as potential links: 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddPotentialRelations.class));
-		
+
 		aggregateBuilder.add(EventTimeSelfRelationAnnotator.createDataWriterDescription(
 				LibLinearStringOutcomeDataWriter.class,
 				//				LIBSVMStringOutcomeDataWriter.class,
@@ -332,7 +335,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		//    HideOutput hider = new HideOutput();
-		JarClassifierBuilder.trainAndPackage(new File(directory,"event-time"), "-w3","2","-w4","18","-w5","14","-w6","21","-w7","100","-w8","19","-c", optArray[1]);//"0.05");//"-h","0","-c", "1000");//optArray);
+		JarClassifierBuilder.trainAndPackage(new File(directory,"event-time"), "-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", optArray[1]);//"-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", optArray[1]);//"-w4","18","-w5","14","-w6","21","-w7","100","-w8","19","-c", optArray[1]);//"0.05");//"-h","0","-c", "1000");//optArray);
 		//		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"), "-h","0","-c", "1000");
 		//    hider.restoreOutput();
 		//    hider.close();
@@ -362,16 +365,16 @@ EvaluationOfTemporalRelations_ImplBase{
 				AnalysisEngineFactory.createEngineDescription(RemoveEventEventRelations.class),
 				CAS.NAME_DEFAULT_SOFA,
 				GOLD_VIEW_NAME);
-		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEtEvents.class));
+		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEtEvents.class));
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
 		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
 			EventTimeSelfRelationAnnotator.createEngineDescription(new File(directory,"event-time")));
-		
+
 		if(this.i2b2Output != null){
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
 		}
-		
+
 		File outf = null;
 		if (recallModeEvaluation && this.useClosure) {//add closure for system output
 			aggregateBuilder.add(
@@ -392,9 +395,9 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		PrintWriter outDrop =null;
-		
+
 		outDrop = new PrintWriter(new BufferedWriter(new FileWriter(outf, false)));
-		
+
 		Function<BinaryTextRelation, ?> getSpan = new Function<BinaryTextRelation, HashableArguments>() {
 			public HashableArguments apply(BinaryTextRelation relation) {
 				return new HashableArguments(relation);
@@ -418,7 +421,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 			//newly add
 			//			systemRelations = removeNonGoldRelations(systemRelations, goldRelations, getSpan);//for removing non-gold pairs
-//			systemRelations = correctArgOrder(systemRelations, goldRelations);//change the argument order of "OVERLAP" relation, if the order is flipped
+			//			systemRelations = correctArgOrder(systemRelations, goldRelations);//change the argument order of "OVERLAP" relation, if the order is flipped
 			//find duplicates in gold relations:
 			//			Collection<BinaryTextRelation> duplicateGoldRelations = getDuplicateRelations(goldRelations, getSpan);
 			//			if(!duplicateGoldRelations.isEmpty()){
@@ -467,7 +470,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		outDrop.close();
 		return stats;
 	}
-	
+
 	public static class RemoveNonUMLSEtEvents extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 		public static final String PARAM_GOLD_VIEW = "GoldView";
 
@@ -555,31 +558,31 @@ EvaluationOfTemporalRelations_ImplBase{
   }
 	 */
 
-//	private static <SPAN_TYPE> Collection<BinaryTextRelation> removeNonGoldRelations(
-//			Collection<BinaryTextRelation> systemRelations,
-//			Collection<BinaryTextRelation> goldRelations, Function<BinaryTextRelation, ?> getSpan) {
-//		//remove non-gold pairs from system relations:
-//		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
-//		Set<SPAN_TYPE> goldspans = new HashSet<>();
-//
-//		for (BinaryTextRelation relation : goldRelations) {
-//			goldspans.add(((SPAN_TYPE) getSpan.apply(relation)));			
-//		}
-//
-//		for (BinaryTextRelation relation : systemRelations) {
-//			if (goldspans.contains(((SPAN_TYPE) getSpan.apply(relation)))) {
-//				goodSys.add(relation);
-//			}
-//		}
-//
-//		return goodSys;
-//	}
-//
-//	private static boolean matchSpan(Annotation arg1, Annotation arg2) {
-//		boolean result = false;
-//		result = arg1.getBegin() == arg2.getBegin() && arg1.getEnd() == arg2.getEnd();
-//		return result;
-//	}
+	//	private static <SPAN_TYPE> Collection<BinaryTextRelation> removeNonGoldRelations(
+	//			Collection<BinaryTextRelation> systemRelations,
+	//			Collection<BinaryTextRelation> goldRelations, Function<BinaryTextRelation, ?> getSpan) {
+	//		//remove non-gold pairs from system relations:
+	//		Set<BinaryTextRelation> goodSys = Sets.newHashSet();
+	//		Set<SPAN_TYPE> goldspans = new HashSet<>();
+	//
+	//		for (BinaryTextRelation relation : goldRelations) {
+	//			goldspans.add(((SPAN_TYPE) getSpan.apply(relation)));			
+	//		}
+	//
+	//		for (BinaryTextRelation relation : systemRelations) {
+	//			if (goldspans.contains(((SPAN_TYPE) getSpan.apply(relation)))) {
+	//				goodSys.add(relation);
+	//			}
+	//		}
+	//
+	//		return goodSys;
+	//	}
+	//
+	//	private static boolean matchSpan(Annotation arg1, Annotation arg2) {
+	//		boolean result = false;
+	//		result = arg1.getBegin() == arg2.getBegin() && arg1.getEnd() == arg2.getEnd();
+	//		return result;
+	//	}
 
 	//	@SuppressWarnings("unchecked")
 	//	private static <SPAN> Collection<BinaryTextRelation> getDuplicateRelations(
@@ -662,7 +665,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		}
 	}
-	
+
 	public static class AddPotentialRelations extends JCasAnnotator_ImplBase {
 		public static final String PARAM_RELATION_VIEW = "RelationView";
 		@ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
@@ -678,7 +681,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 
 			Map<EventMention, Collection<EventMention>> coveringMap =
-					  JCasUtil.indexCovering(relationView, EventMention.class, EventMention.class);
+					JCasUtil.indexCovering(relationView, EventMention.class, EventMention.class);
 			for(TemporalTextRelation relation : Lists.newArrayList(JCasUtil.select(relationView, TemporalTextRelation.class))){
 				Annotation arg1 = relation.getArg1().getArgument();
 				Annotation arg2 = relation.getArg2().getArgument();
@@ -725,7 +728,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			relation.setArg2(relArg2);
 			relation.setCategory(category);
 			relation.addToIndexes();
-			
+
 		}
 	}
 
@@ -1020,6 +1023,42 @@ EvaluationOfTemporalRelations_ImplBase{
 				}
 
 			}
+		}
+	}
+
+	/**
+	 * For conflicting temporal relations on the same pair of arguments, if some of the relation types are "overlap", and "contains", remove "overlap" and keep "contains" 
+	 * @author CH151862
+	 *
+	 */
+	public static class Overlap2Contains extends JCasAnnotator_ImplBase {
+
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			Map<List<Annotation>, BinaryTextRelation> relationLookup;
+			relationLookup = new HashMap<>();
+			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
+				Annotation arg1 = relation.getArg1().getArgument();
+				Annotation arg2 = relation.getArg2().getArgument();
+				String relationType = relation.getCategory();
+				// The key is a list of args so we can do bi-directional lookup
+				List<Annotation> key = Arrays.asList(arg1, arg2);
+				if(relationLookup.containsKey(key)){
+					BinaryTextRelation storedRel = relationLookup.get(key);
+					String reln = storedRel.getCategory();
+					if(!relationType.equals(reln)){//if there is category conflicts
+						if(relationType.startsWith("OVERLAP") ){
+							//override "OVERLAP"
+							relation.setCategory(reln);
+						}else if( reln.startsWith("OVERLAP") ){
+							//remove duplicate:
+							storedRel.setCategory(relationType);
+						}
+					}
+				}
+				relationLookup.put(key, relation);
+			}
+
 		}
 	}
 

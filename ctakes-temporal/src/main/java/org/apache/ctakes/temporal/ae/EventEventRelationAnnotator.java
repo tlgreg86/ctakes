@@ -35,6 +35,8 @@ import org.apache.ctakes.temporal.ae.feature.ConjunctionRelationFeaturesExtracto
 import org.apache.ctakes.temporal.ae.feature.DependencyPathFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.CoordinateFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.DependingVerbsFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.EmptyFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.MultiTokenFeaturesExtractor;
 //import org.apache.ctakes.temporal.ae.feature.EventInBetweenPropertyExtractor;
 //import org.apache.ctakes.temporal.ae.feature.EventOutsidePropertyExtractor;
 import org.apache.ctakes.temporal.ae.feature.SpecialAnnotationRelationExtractor;
@@ -53,6 +55,7 @@ import org.apache.ctakes.temporal.ae.feature.TimeXRelationFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.SectionHeaderRelationExtractor;
 //import org.apache.ctakes.temporal.ae.feature.TemporalAttributeFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.UmlsFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.UnexpandedTokenFeaturesExtractor;
 //import org.apache.ctakes.temporal.ae.feature.UnexpandedTokenFeaturesExtractor;
 //import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPETExtractor;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
@@ -124,32 +127,34 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 	@Override
 	protected List<RelationFeaturesExtractor> getFeatureExtractors() {
 		return Lists.newArrayList(
-				new TokenFeaturesExtractor()
-				//				new UnexpandedTokenFeaturesExtractor() //use unexpanded version for i2b2 data
+				new TokenFeaturesExtractor()								
 				, new PartOfSpeechFeaturesExtractor()
-				//	    		, new TemporalPETExtractor()
 				, new EventArgumentPropertyExtractor()
 				, new NumberOfEventTimeBetweenCandidatesExtractor()
-				, new SectionHeaderRelationExtractor()
 				, new NearbyVerbTenseRelationExtractor()
 				, new CheckSpecialWordRelationExtractor()
 				, new UmlsFeatureExtractor()
-				, new DependencyPathFeaturesExtractor()
+//				, new DependencyPathFeaturesExtractor()
 				, new CoordinateFeaturesExtractor()
 				, new OverlappedHeadFeaturesExtractor()
 				, new SRLRelationFeaturesExtractor()
 				, new NumberOfEventsInTheSameSentenceExtractor()
-				, new EventPositionRelationFeaturesExtractor() //not helpful
-				, new TimeXRelationFeaturesExtractor() //not helpful
 				, new ConjunctionRelationFeaturesExtractor()
-				, new DeterminerRelationFeaturesExtractor()
 				, new EventTimeRelationFeatureExtractor()
-				, new TokenPropertyFeaturesExtractor()
-				, new DependingVerbsFeatureExtractor()
-				, new SpecialAnnotationRelationExtractor() //not helpful
-				, new TemporalPETFlatExtractor()
-				//				, new EventInBetweenPropertyExtractor()
-				//				, new EventOutsidePropertyExtractor()
+
+//				new MultiTokenFeaturesExtractor()
+//				new UnexpandedTokenFeaturesExtractor() //use unexpanded version for i2b2 data
+//				, new EmptyFeaturesExtractor()
+
+//				, new SectionHeaderRelationExtractor()
+//				, new EventPositionRelationFeaturesExtractor() //not helpful
+//				, new TimeXRelationFeaturesExtractor() //not helpful
+//				, new DeterminerRelationFeaturesExtractor()
+//				, new TokenPropertyFeaturesExtractor()
+//				, new DependingVerbsFeatureExtractor()
+//				, new SpecialAnnotationRelationExtractor() //not helpful
+//				, new TemporalPETFlatExtractor()
+
 				);
 	}
 
@@ -208,16 +213,16 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 						for(EventMention event2 : coveringMap.get(eventB)){
 							pairs.add(new IdentifiedAnnotationPair(eventA, event2));
 						}
-						//pairing covered system events:
-						for(EventMention event1 : JCasUtil.selectCovered(jCas, EventMention.class, eventA)){
-							for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
-								pairs.add(new IdentifiedAnnotationPair(event1, event2));
-							}
-							pairs.add(new IdentifiedAnnotationPair(event1, eventB));
-						}
-						for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
-							pairs.add(new IdentifiedAnnotationPair(eventA, event2));
-						}
+//						//pairing covered system events:
+//						for(EventMention event1 : JCasUtil.selectCovered(jCas, EventMention.class, eventA)){
+//							for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
+//								pairs.add(new IdentifiedAnnotationPair(event1, event2));
+//							}
+//							pairs.add(new IdentifiedAnnotationPair(event1, eventB));
+//						}
+//						for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
+//							pairs.add(new IdentifiedAnnotationPair(eventA, event2));
+//						}
 					}
 					pairs.add(new IdentifiedAnnotationPair(eventA, eventB));
 				}

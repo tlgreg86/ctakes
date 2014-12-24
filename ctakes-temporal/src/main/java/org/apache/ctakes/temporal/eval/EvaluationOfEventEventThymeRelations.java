@@ -39,6 +39,7 @@ import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.Overlap2Contains;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveNonContainsRelations.RemoveGoldAttributes;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
@@ -285,6 +286,8 @@ EvaluationOfTemporalRelations_ImplBase{
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
 
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
+		
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PreserveEventEventRelations.class));
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonUMLSEvents.class));
 		
@@ -329,7 +332,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		//    HideOutput hider = new HideOutput();
-		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"),"-w1","0.08","-w3","3","-w4","17","-w5","20","-w6","16","-w7","10","-w8","6", "-w9","45","-w10","30","-c", optArray[1]);//"-c", "0.05");//optArray);
+		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"),"-w1","0.2","-w3","15","-w4","4","-w5","64","-w6","24","-w7","29","-w9","70","-c", optArray[1]);//"-c", "0.05");//"0.08","-w3","3","-w4","17","-w5","20","-w6","16","-w7","10","-w8","6", "-w9","45","-w10","30","-c", optArray[1]);//"-c", "0.05");//optArray);
 		//		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"), "-h","0","-c", "1000");
 		//    hider.restoreOutput();
 		//    hider.close();
