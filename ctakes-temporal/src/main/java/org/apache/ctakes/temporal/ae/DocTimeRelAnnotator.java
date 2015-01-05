@@ -147,7 +147,7 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
   @Override
   public void process(JCas jCas) throws AnalysisEngineProcessException {
     for (EventMention eventMention : JCasUtil.select(jCas, EventMention.class)) {
-      List<Feature> features = new ArrayList<>();//this.contextExtractor.extract(jCas, eventMention);
+      List<Feature> features = this.contextExtractor.extract(jCas, eventMention);
       features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
       features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
       features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
