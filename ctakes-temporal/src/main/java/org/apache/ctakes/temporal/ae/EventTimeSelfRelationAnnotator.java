@@ -125,18 +125,19 @@ public class EventTimeSelfRelationAnnotator extends RelationExtractorAnnotator {
 	protected List<RelationFeaturesExtractor> getFeatureExtractors() {
 		return Lists.newArrayList(
 				new TokenFeaturesExtractor()							
-				, new PartOfSpeechFeaturesExtractor()
-				, new TemporalAttributeFeatureExtractor()
-				, new NumberOfEventTimeBetweenCandidatesExtractor()
-				, new NearbyVerbTenseRelationExtractor()
-				, new CheckSpecialWordRelationExtractor()
 				, new NearestFlagFeatureExtractor()
 				, new DependencyPathFeaturesExtractor()
-				, new DependencyFeatureExtractor()
 				, new EventArgumentPropertyExtractor()
-				, new OverlappedHeadFeaturesExtractor()
 				, new ConjunctionRelationFeaturesExtractor()
-				, new TimeXRelationFeaturesExtractor()
+				, new CheckSpecialWordRelationExtractor()
+				, new TemporalAttributeFeatureExtractor()
+
+//				, new DependencyFeatureExtractor()
+//				, new NumberOfEventTimeBetweenCandidatesExtractor()
+//				, new PartOfSpeechFeaturesExtractor()
+//				, new NearbyVerbTenseRelationExtractor()
+//				, new OverlappedHeadFeaturesExtractor()
+//				, new TimeXRelationFeaturesExtractor()
 
 //				new MultiTokenFeaturesExtractor()
 //				new UnexpandedTokenFeaturesExtractor() //use unexpanded version for i2b2 data

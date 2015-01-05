@@ -19,9 +19,11 @@
 package org.apache.ctakes.temporal.ae;
 
 import java.io.File;
+import java.util.ArrayList;
 //import java.io.IOException;
 import java.util.List;
 //import java.util.Map;
+
 
 import org.apache.ctakes.temporal.ae.feature.ClosestVerbExtractor;
 //import org.apache.ctakes.temporal.ae.feature.CoveredTextToValuesExtractor;
@@ -100,14 +102,15 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
         new File(modelDirectory, "model.jar"));
   }
 
-  private CleartkExtractor contextExtractor;
-  private NearbyVerbTenseXExtractor verbTensePatternExtractor;
+  private CleartkExtractor contextExtractor;  
   private SectionHeaderExtractor sectionIDExtractor;
   private ClosestVerbExtractor closestVerbExtractor;
   private TimeXExtractor timeXExtractor;
   private EventPropertyExtractor genericExtractor;
-  private DateAndMeasurementExtractor dateExtractor;
   private UmlsSingleFeatureExtractor umlsExtractor;
+  private NearbyVerbTenseXExtractor verbTensePatternExtractor;
+  
+//  private DateAndMeasurementExtractor dateExtractor;  
 //  private CoveredTextToValuesExtractor disSemExtractor;
 //  private DurationExpectationFeatureExtractor durationExtractor;
   
@@ -123,13 +126,15 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
         new Preceding(3),
         new Covered(),
         new Following(3));
-    this.verbTensePatternExtractor = new NearbyVerbTenseXExtractor();
     this.sectionIDExtractor = new SectionHeaderExtractor();
     this.closestVerbExtractor = new ClosestVerbExtractor();
     this.timeXExtractor = new TimeXExtractor();
     this.genericExtractor = new EventPropertyExtractor();
-    this.dateExtractor = new DateAndMeasurementExtractor();
     this.umlsExtractor = new UmlsSingleFeatureExtractor();
+    this.verbTensePatternExtractor = new NearbyVerbTenseXExtractor();
+
+//    this.dateExtractor = new DateAndMeasurementExtractor();
+        
 //    try {
 //    	Map<String, double[]> word_disSem = CoveredTextToValuesExtractor.parseTextDoublesMap(new File("src/main/resources/embeddings.size25.txt"), Charsets.UTF_8);
 //    	this.disSemExtractor = new CoveredTextToValuesExtractor("DisSemFeat", word_disSem);
@@ -142,16 +147,18 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
   @Override
   public void process(JCas jCas) throws AnalysisEngineProcessException {
     for (EventMention eventMention : JCasUtil.select(jCas, EventMention.class)) {
-      List<Feature> features = this.contextExtractor.extract(jCas, eventMention);
-      features.addAll(this.verbTensePatternExtractor.extract(jCas, eventMention));//add nearby verb POS pattern feature
+      List<Feature> features = new ArrayList<>();//this.contextExtractor.extract(jCas, eventMention);
       features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
       features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
       features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
       features.addAll(this.genericExtractor.extract(jCas, eventMention)); //add the closest time expression types
-      features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
       features.addAll(this.umlsExtractor.extract(jCas, eventMention)); //add umls features
-      //        features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
-      //        features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
+      features.addAll(this.verbTensePatternExtractor.extract(jCas, eventMention));//add nearby verb POS pattern feature
+
+      //    
+      //    features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
+      //    features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
+      //    features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
       if (this.isTraining()) {
     	  if(eventMention.getEvent() != null){
     		  String outcome = eventMention.getEvent().getProperties().getDocTimeRel();
