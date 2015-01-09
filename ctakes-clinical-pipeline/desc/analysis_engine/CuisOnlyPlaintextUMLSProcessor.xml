@@ -39,7 +39,10 @@
          <import location="../../../ctakes-pos-tagger/desc/POSTagger.xml"/>
       </delegateAnalysisEngine>
       <delegateAnalysisEngine key="DictionaryLookupAnnotatorDB">
+         <!-- UmlsLookupAnnotator only finds exact span matches -->
          <import location="../../../ctakes-dictionary-lookup-fast/desc/analysis_engine/UmlsLookupAnnotator.xml"/>
+         <!-- UmlsOverlapLookupAnnotator finds exact span matches and overlapping span matches -->
+         <!--<import location="../../../ctakes-dictionary-lookup-fast/desc/analysis_engine/UmlsOverlapLookupAnnotator.xml"/>-->
       </delegateAnalysisEngine>
       <!--<delegateAnalysisEngine key="GenericCleartkAnalysisEngine">-->
       <!--<import location="../../../ctakes-assertion/desc/analysis_engine/GenericCleartkAnalysisEngine.xml"/>-->
