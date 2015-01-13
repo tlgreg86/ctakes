@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.utils.struct.CounterMap;
+
 import opennlp.model.MaxentModel;
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.sentdetect.EndOfSentenceScanner;
@@ -75,7 +77,7 @@ public class SentenceDetectorCtakes {
 	  /**
 	   * The feature context generator.
 	   */
-	  private final SDContextGenerator cgen;
+	  private final SDContextGeneratorCtakes cgen;
 
 	  /**
 	   * The {@link EndOfSentenceScanner} to use when scanning for end of sentence offsets.
@@ -94,7 +96,7 @@ public class SentenceDetectorCtakes {
 	   *
 	   * @param model the {@link SentenceModel}
 	   */
-	  public SentenceDetectorCtakes(MaxentModel model, SDContextGenerator cg, EndOfSentenceScanner eoss) {
+	  public SentenceDetectorCtakes(MaxentModel model, SDContextGeneratorCtakes cg, EndOfSentenceScanner eoss) {
 		  this.model = model;
 		  cgen = cg;
 		  scanner = eoss;
@@ -108,7 +110,7 @@ public class SentenceDetectorCtakes {
 	   * @param s  The string to be processed.
 	   *
 	   * @return   A string array containing individual sentences as elements.
-	   */
+	   *//*
 	  public String[] sentDetect(String s) {
 	    int[] endsOfSentences = sentPosDetect(s);
 	    String sentences[];
@@ -126,7 +128,7 @@ public class SentenceDetectorCtakes {
 	      sentences = new String[] {};
 	    }
 	    return sentences;
-	  }
+	  }*/
 
 	  private int getFirstWS(String s, int pos) {
 	    while (pos < s.length() && !StringUtil.isWhitespace(s.charAt(pos)))
@@ -144,18 +146,20 @@ public class SentenceDetectorCtakes {
 	   * Detect the position of the first words of sentences in a String.
 	   *
 	   * @param s  The string to be processed.
+	   * @param smoothHist 
+	   * @param lenHist 
 	   * @return   A integer array containing the positions of the end index of
 	   *          every sentence
 	   *
 	   * @see SentenceDetectorME#sentPosDetect(String)  
 	   */
-	  public int[] sentPosDetect(String s) { // return int[] to be line OpenNLP 1.4
+	  public int[] sentPosDetect(String s, CounterMap<Integer> lenHist, HashMap<Integer, Double> smoothHist) { // return int[] to be line OpenNLP 1.4
 	    double sentProb = 1;
 	    sentProbs.clear();
 	    StringBuffer sb = new StringBuffer(s);
 	    List<Integer> enders = scanner.getPositions(s);
 	    List<Integer> positions = new ArrayList<Integer>(enders.size());
-
+	    
 	    for (int i = 0, end = enders.size(), index = 0; i < end; i++) {
 	      Integer candidate = enders.get(i);
 	      int cint = candidate;
@@ -165,7 +169,7 @@ public class SentenceDetectorCtakes {
 	        continue;
 	      }
 
-	      double[] probs = model.eval(cgen.getContext(sb, cint));
+	      double[] probs = model.eval(cgen.getContext(sb, cint, lenHist, smoothHist));
 	      String bestOutcome = model.getBestOutcome(probs);
 	      sentProb *= probs[model.getIndex(bestOutcome)];
 

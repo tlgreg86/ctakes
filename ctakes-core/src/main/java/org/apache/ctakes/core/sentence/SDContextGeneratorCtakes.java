@@ -1,6 +1,10 @@
 package org.apache.ctakes.core.sentence;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.logging.Logger;
+
+import org.apache.ctakes.utils.struct.CounterMap;
 
 import opennlp.tools.sentdetect.DefaultSDContextGenerator;
 import opennlp.tools.util.StringUtil;
@@ -9,13 +13,31 @@ public class SDContextGeneratorCtakes extends DefaultSDContextGenerator {
 
   // TODO -- is this threadsafe?? At the very least its not less thread-safe than existing data structures in parent class
   String ws = null;
+//  CounterMap<Integer> lenHist = null;
+//  HashMap<Integer,Double> smoothHist = null;
   
   public SDContextGeneratorCtakes(char[] eosCharacters) {
     super(eosCharacters);
   }
 
   @Override
-  public String[] getContext(CharSequence sb, int position) {
+  public String[] getContext(CharSequence sb, int position){
+    return getContext(sb, position, null, null);
+  }
+  
+  public String[] getContext(CharSequence sb, int position, CounterMap<Integer> lenHist, HashMap<Integer, Double> smoothHist) {
+    int ind = -1;
+    StringBuffer text = new StringBuffer(sb.toString());
+    
+    if(text.charAt(position)== '>' &&
+        text.charAt(position-1) == 'F' &&
+        text.charAt(position-2) == 'L' &&
+        text.charAt(position-3) == '<'){
+      text.replace(position-3, position+1, "\n");
+      position -= 3;
+    }
+    sb = text;
+    
     // add features to addlFeats string array:
     int lastIndex = sb.length() - 1;
     int wsEnd = nextNonspaceIndex(sb, position, lastIndex);
@@ -23,6 +45,38 @@ public class SDContextGeneratorCtakes extends DefaultSDContextGenerator {
       ws = new StringBuilder(sb.subSequence(position + 1, wsEnd)).toString();
     }
 
+    /*
+    int lastBreak = position-1;
+    while(lastBreak > 0 && sb.charAt(lastBreak) != '\n'){
+      lastBreak--;
+    }
+    int lineLen = position - lastBreak;
+    char eosChar = sb.charAt(position);
+    
+    // line length-based features (requires document-level information)
+    if(lenHist != null && smoothHist != null){
+      if(eosChar == '\n'){
+        int nextWordLen = 0;
+        int nextNonWs = 0;
+        while(Character.isWhitespace(sb.charAt(position+nextNonWs))){
+          nextNonWs++;
+        }
+        while(Character.isLetterOrDigit(sb.charAt(position+nextNonWs+nextWordLen))){
+          nextWordLen++;
+        }
+        int potLen = lineLen + nextWordLen;
+        if(potLen >= 0){
+          this.collectFeats.add("othersOfThisLen=" + (lenHist.get(potLen) > 0));
+
+          boolean upSlope = (smoothHist.get(lineLen) > smoothHist.get(lineLen-1));
+          boolean downSlope = (smoothHist.get(potLen) < smoothHist.get(potLen-1));
+
+          this.collectFeats.add("upSlope="+upSlope);
+          this.collectFeats.add("downSlope="+downSlope);
+        }
+      }
+    }
+    */
     return super.getContext(sb, position);    
   }
   
@@ -42,6 +96,12 @@ public class SDContextGeneratorCtakes extends DefaultSDContextGenerator {
   protected void collectFeatures(String prefix, String suffix, String previous, String next, Character eosChar) {
     super.collectFeatures(prefix, suffix, previous, next, eosChar);
 
+    for(int i = 0; i < collectFeats.size(); i++){
+      if(collectFeats.get(i).equals("eos=\n")){
+        collectFeats.set(i, "eos=<LF>");
+        break;
+      }
+    }
     if (!next.equals("")) {
       if(isAllUpper(next)) {
         collectFeats.add("nbold");
@@ -103,7 +163,7 @@ public class SDContextGeneratorCtakes extends DefaultSDContextGenerator {
   }
 
   private static final String getCollapsedShape(String s){
-    return getShape(s).replaceAll("(.)\\1+", "$1+");
+    return getShape(s).replaceAll("(.)\\1+", "$1+").replaceAll("D\\+?", "D+");
   }
 
   private static final int nextNonspaceIndex(CharSequence sb, int seek, int lastIndex) {

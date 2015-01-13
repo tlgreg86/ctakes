@@ -27,8 +27,11 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.swing.JFileChooser;
 
 import opennlp.tools.cmdline.sentdetect.SentenceDetectorCrossValidatorTool;
 import opennlp.tools.cmdline.sentdetect.SentenceEvaluationErrorListener;
@@ -45,13 +48,16 @@ import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
 
 import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.core.sentence.PlainTextByLineStreamCtakes;
 import org.apache.ctakes.core.sentence.SDContextGeneratorCtakes;
 import org.apache.ctakes.core.sentence.EndOfSentenceScannerImpl;
 import org.apache.ctakes.core.sentence.SentenceDetectorCtakes;
 import org.apache.ctakes.core.sentence.SentenceDetectorFactoryCtakes;
+import org.apache.ctakes.core.sentence.SentenceSampleStreamCtakes;
 import org.apache.ctakes.core.sentence.SentenceSpan;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.ctakes.utils.struct.CounterMap;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -63,6 +69,7 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.FileUtils;
 
 /**
  * Wraps the OpenNLP sentence detector in a UIMA annotator
@@ -111,6 +118,9 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
   // LOG4J logger based on class name
   private Logger logger = Logger.getLogger(getClass().getName());
 
+  private final static int WINDOW = 5;
+  private final static double SMOOTH = 1.0;
+
   @Override
   public void initialize(UimaContext aContext)
 			throws ResourceInitializationException {
@@ -142,14 +152,54 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		logger.info("Starting processing.");
 
 		int sentenceCount = 0;
-
+		
 		String text = jcas.getDocumentText();
 
+    CounterMap<Integer> lenHist = new CounterMap<>();
+    HashMap<Integer,Double> smoothHist = new HashMap<>();
+    String[] lines = text.split("\n");
+
+    int maxLen = 0;
+    for(int i = 0; i < lines.length; i++){
+      int len = lines[i].length();
+      if(len == 0) continue;
+      if(len > maxLen){
+        maxLen = len;
+      }
+      lenHist.add(len);
+      for(int j = -WINDOW; j <= WINDOW; j++){
+        int ind = len + j;
+        if(ind < 0) continue;
+        if(!smoothHist.containsKey(ind)){
+          smoothHist.put(ind, SMOOTH);
+        }
+        smoothHist.put(ind, smoothHist.get(ind)+ (1-Math.abs(j)/(WINDOW+1.0)));
+      }
+    }
+
+    for(int i = 0; i <= maxLen+WINDOW; i++){
+      if(!smoothHist.containsKey(i)){
+        smoothHist.put(i, SMOOTH);
+      }
+    }
+
+    double sum = 0.0;
+    for(double val : smoothHist.values()){
+      sum += val;
+    }
+
+    for(int i = 0; i <= maxLen+WINDOW; i++){
+      double smoothed = smoothHist.get(i);
+//      String slope = (i==0 ? "-" : (smoothHist.get(i) > smoothHist.get(i-1) ? "+" : "-"));
+      smoothHist.put(i, smoothed / sum);
+    }
+
+    
 		Collection<Segment> segments = JCasUtil.select(jcas, Segment.class);
 		for(Segment segment : segments){
 			String sectionID = segment.getId();
 			if (!skipSegmentsSet.contains(sectionID)) {
-				sentenceCount = annotateRange(jcas, text, segment, sentenceCount);
+				sentenceCount = annotateRange(jcas, text, segment, sentenceCount, lenHist, smoothHist);
 			}
 		}
 	}
@@ -171,12 +221,14 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 	 * @param sentenceCount
 	 *            the number of sentences added already to the CAS (if
 	 *            processing one section at a time)
+	 * @param smoothHist 
+	 * @param lenHist 
 	 * @return count The sum of <code>sentenceCount</code> and the number of
 	 *         Sentence annotations added to the CAS for this section
 	 * @throws AnnotatorProcessException
 	 */
 	protected int annotateRange(JCas jcas, String text, Segment section,
-			int sentenceCount) {
+			int sentenceCount, CounterMap<Integer> lenHist, HashMap<Integer, Double> smoothHist) {
 
 		int b = section.getBegin();
 		int e = section.getEnd();
@@ -186,7 +238,7 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		// detects
 		// within the string
 		int[] sentenceBreaks = sentenceDetector.sentPosDetect(text.substring(b,
-				e)); // OpenNLP tools 1.5 returns Spans rather than offsets that
+				e), lenHist, smoothHist); // OpenNLP tools 1.5 returns Spans rather than offsets that
 						// 1.4 did
 		int numSentences = sentenceBreaks.length;
 		// There might be text after the last sentence-ending found by detector,
