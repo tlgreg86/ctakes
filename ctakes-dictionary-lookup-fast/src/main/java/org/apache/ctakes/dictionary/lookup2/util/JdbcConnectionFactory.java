@@ -57,9 +57,6 @@ public enum JdbcConnectionFactory {
       if ( jdbcUrl.startsWith( HSQL_FILE_PREFIX ) ) {
          // Hack for hsqldb file needing to be absolute or relative to current working directory
          trueJdbcUrl = getConnectionUrl( jdbcUrl );
-         if ( trueJdbcUrl.endsWith( HSQL_DB_EXT ) ) {
-            trueJdbcUrl = trueJdbcUrl.substring( 0, trueJdbcUrl.length() - HSQL_DB_EXT.length() );
-         }
       }
       try {
          // DO NOT use try with resources here.
@@ -99,29 +96,34 @@ public enum JdbcConnectionFactory {
       final String urlFilePath = urlDbPath + HSQL_DB_EXT;
       File file = new File( urlFilePath );
       if ( file.exists() ) {
-         return file.getPath();
+         return urlDbPath;
       }
       // file url is not absolute, check for relative directly under current working directory
       final String cwd = System.getProperty( "user.dir" );
       file = new File( cwd, urlFilePath );
       if ( file.exists() ) {
-         return file.getPath();
+         return urlDbPath;
       }
       // Users running projects out of an ide may have the module directory as cwd
-      final String cwdParent = new File( cwd ).getParent();
-      file = new File( cwdParent, urlFilePath );
-      if ( file.exists() ) {
-         return file.getPath();
+      String upOne = "../";
+      File cwdDerived = new File( cwd );
+      while ( cwdDerived.getParentFile() != null ) {
+         cwdDerived = cwdDerived.getParentFile();
+         file = new File( cwdDerived, urlFilePath );
+         if ( file.exists() ) {
+            return upOne+urlDbPath;
+         }
+         upOne += "../";
       }
       final String cTakesHome = System.getenv( CTAKES_HOME );
       if ( cTakesHome != null && !cTakesHome.isEmpty() ) {
          file = new File( cTakesHome, urlFilePath );
          if ( file.exists() ) {
-            return file.getPath();
+            return cTakesHome + "/" + urlDbPath;
          }
       }
-      LOGGER.error( "Could not find " + urlFilePath + " as absolute or in \n" + cwd + " or in \n"
-              + cwdParent + " or in \n" + cTakesHome );
+      LOGGER.error( "Could not find " + urlFilePath + " as absolute or in \n" + cwd
+              + " or in any parent thereof or in $CTAKES_HOME \n" + cTakesHome );
       throw new SQLException( "No HsqlDB script file exists at Url" );
    }
 
