@@ -20,6 +20,8 @@ import java.util.*;
 public enum JdbcConnectionFactory {
    INSTANCE;
 
+   static private final String CTAKES_HOME = "CTAKES_HOME";
+
    static final private Logger LOGGER = Logger.getLogger( "JdbcConnectionFactory" );
    static final private Logger DOT_LOGGER = Logger.getLogger( "ProgressAppender" );
    static final private Logger EOL_LOGGER = Logger.getLogger( "ProgressDone" );
@@ -54,25 +56,7 @@ public enum JdbcConnectionFactory {
       String trueJdbcUrl = jdbcUrl;
       if ( jdbcUrl.startsWith( HSQL_FILE_PREFIX ) ) {
          // Hack for hsqldb file needing to be absolute or relative to current working directory
-         final String urlDbPath = jdbcUrl.substring( HSQL_FILE_PREFIX.length() );
-         final String urlFilePath = urlDbPath + HSQL_DB_EXT;
-         File file = new File( urlFilePath );
-         if ( !file.exists() ) {
-            // file url is not absolute, check for relative directly under current working directory
-            final String cwd = System.getProperty( "user.dir" );
-            file = new File( cwd, urlFilePath );
-            if ( !file.exists() ) {
-               // Users running projects out of an ide may have the module directory as cwd
-               final String cwdParent = new File( cwd ).getParent();
-               file = new File( cwdParent, urlFilePath );
-               if ( file.exists() ) {
-                  trueJdbcUrl = HSQL_FILE_PREFIX + "../" + urlDbPath;
-               } else {
-                  LOGGER.error( "Could not find " + urlFilePath + " as absolute or in " + cwd + " or in " + cwdParent );
-                  throw new SQLException( "No HsqlDB script file exists at Url" );
-               }
-            }
-         }
+         trueJdbcUrl = getConnectionUrl( jdbcUrl );
       }
       try {
          // DO NOT use try with resources here.
@@ -105,6 +89,37 @@ public enum JdbcConnectionFactory {
       LOGGER.info( " Database connected" );
       CONNECTIONS.put( jdbcUrl, connection );
       return connection;
+   }
+
+   static private String getConnectionUrl( final String jdbcUrl ) throws SQLException {
+      final String urlDbPath = jdbcUrl.substring( HSQL_FILE_PREFIX.length() );
+      final String urlFilePath = urlDbPath + HSQL_DB_EXT;
+      File file = new File( urlFilePath );
+      if ( file.exists() ) {
+         return file.getPath();
+      }
+      // file url is not absolute, check for relative directly under current working directory
+      final String cwd = System.getProperty( "user.dir" );
+      file = new File( cwd, urlFilePath );
+      if ( file.exists() ) {
+         return file.getPath();
+      }
+      // Users running projects out of an ide may have the module directory as cwd
+      final String cwdParent = new File( cwd ).getParent();
+      file = new File( cwdParent, urlFilePath );
+      if ( file.exists() ) {
+         return file.getPath();
+      }
+      final String cTakesHome = System.getenv( CTAKES_HOME );
+      if ( cTakesHome != null && !cTakesHome.isEmpty() ) {
+         file = new File( cTakesHome, urlFilePath );
+         if ( file.exists() ) {
+            return file.getPath();
+         }
+      }
+      LOGGER.error( "Could not find " + urlFilePath + " as absolute or in \n" + cwd + " or in \n"
+              + cwdParent + " or in \n" + cTakesHome );
+      throw new SQLException( "No HsqlDB script file exists at Url" );
    }
 
    static private class DotPlotter extends TimerTask {
