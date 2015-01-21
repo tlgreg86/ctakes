@@ -56,7 +56,7 @@ public enum JdbcConnectionFactory {
       String trueJdbcUrl = jdbcUrl;
       if ( jdbcUrl.startsWith( HSQL_FILE_PREFIX ) ) {
          // Hack for hsqldb file needing to be absolute or relative to current working directory
-         trueJdbcUrl = getConnectionUrl( jdbcUrl );
+         trueJdbcUrl = HSQL_FILE_PREFIX + getConnectionUrl( jdbcUrl );
       }
       try {
          // DO NOT use try with resources here.
@@ -95,12 +95,14 @@ public enum JdbcConnectionFactory {
       final String urlDbPath = jdbcUrl.substring( HSQL_FILE_PREFIX.length() );
       final String urlFilePath = urlDbPath + HSQL_DB_EXT;
       File file = new File( urlFilePath );
+      LOGGER.info( "absolute url: " + file.getPath() + " , use " + urlDbPath );
       if ( file.exists() ) {
          return urlDbPath;
       }
       // file url is not absolute, check for relative directly under current working directory
       final String cwd = System.getProperty( "user.dir" );
       file = new File( cwd, urlFilePath );
+      LOGGER.info( "cwd relative url: " + file.getPath() + " , use " + urlDbPath );
       if ( file.exists() ) {
          return urlDbPath;
       }
@@ -110,6 +112,7 @@ public enum JdbcConnectionFactory {
       while ( cwdDerived.getParentFile() != null ) {
          cwdDerived = cwdDerived.getParentFile();
          file = new File( cwdDerived, urlFilePath );
+         LOGGER.info( "cwd parent relative url: " + file.getPath() + " , use " + upOne + urlDbPath );
          if ( file.exists() ) {
             return upOne+urlDbPath;
          }
@@ -118,13 +121,14 @@ public enum JdbcConnectionFactory {
       final String cTakesHome = System.getenv( CTAKES_HOME );
       if ( cTakesHome != null && !cTakesHome.isEmpty() ) {
          file = new File( cTakesHome, urlFilePath );
+         LOGGER.info( "$CTAKES_HOME absolute url: " + file.getPath() + " , use " + cTakesHome + "/" + urlDbPath );
          if ( file.exists() ) {
             return cTakesHome + "/" + urlDbPath;
          }
       }
       LOGGER.error( "Could not find " + urlFilePath + " as absolute or in \n" + cwd
               + " or in any parent thereof or in $CTAKES_HOME \n" + cTakesHome );
-      throw new SQLException( "No HsqlDB script file exists at Url" );
+      throw new SQLException( "No Hsql DB exists at Url" );
    }
 
    static private class DotPlotter extends TimerTask {
