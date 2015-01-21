@@ -95,14 +95,14 @@ public enum JdbcConnectionFactory {
       final String urlDbPath = jdbcUrl.substring( HSQL_FILE_PREFIX.length() );
       final String urlFilePath = urlDbPath + HSQL_DB_EXT;
       File file = new File( urlFilePath );
-      LOGGER.info( "absolute url: " + file.getPath() + " , use " + urlDbPath );
+      LOGGER.debug( "absolute url: " + file.getPath() + " , use " + urlDbPath );
       if ( file.exists() ) {
          return urlDbPath;
       }
       // file url is not absolute, check for relative directly under current working directory
       final String cwd = System.getProperty( "user.dir" );
       file = new File( cwd, urlFilePath );
-      LOGGER.info( "cwd relative url: " + file.getPath() + " , use " + urlDbPath );
+      LOGGER.debug( "cwd relative url: " + file.getPath() + " , use " + urlDbPath );
       if ( file.exists() ) {
          return urlDbPath;
       }
@@ -112,16 +112,22 @@ public enum JdbcConnectionFactory {
       while ( cwdDerived.getParentFile() != null ) {
          cwdDerived = cwdDerived.getParentFile();
          file = new File( cwdDerived, urlFilePath );
-         LOGGER.info( "cwd parent relative url: " + file.getPath() + " , use " + upOne + urlDbPath );
+         LOGGER.debug( "cwd parent relative url: " + file.getPath() + " , use " + upOne + urlDbPath );
          if ( file.exists() ) {
             return upOne+urlDbPath;
+         }
+         file = new File( cwdDerived, "ctakes/" + urlFilePath );
+         LOGGER.debug(
+               "cwd parent relative ctakes url: " + file.getPath() + " , use " + upOne + "ctakes/" + urlDbPath );
+         if ( file.exists() ) {
+            return upOne + "ctakes/" + urlDbPath;
          }
          upOne += "../";
       }
       final String cTakesHome = System.getenv( CTAKES_HOME );
       if ( cTakesHome != null && !cTakesHome.isEmpty() ) {
          file = new File( cTakesHome, urlFilePath );
-         LOGGER.info( "$CTAKES_HOME absolute url: " + file.getPath() + " , use " + cTakesHome + "/" + urlDbPath );
+         LOGGER.debug( "$CTAKES_HOME absolute url: " + file.getPath() + " , use " + cTakesHome + "/" + urlDbPath );
          if ( file.exists() ) {
             return cTakesHome + "/" + urlDbPath;
          }
