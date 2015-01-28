@@ -837,4 +837,185 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		}
 
 	}
+	
+	public static class WriteAnaforaXML extends JCasAnnotator_ImplBase {
+		public static final String PARAM_OUTPUT_DIR="PARAM_OUTPUT_DIR";
+		@ConfigurationParameter(mandatory=true,description="Output directory to write xml files to.",name=PARAM_OUTPUT_DIR)
+		protected String outputDir;
+
+		@Override
+		public void process(JCas jcas) throws AnalysisEngineProcessException {
+			try {
+				// get the output file name from the input file name and output directory.
+				
+				File inFile = new File(ViewUriUtil.getURI(jcas));
+				String outFile = inFile.getName().replace(".txt", "");
+				File outDir = new File(outputDir, outFile);
+				if(!outDir.exists()) outDir.mkdirs();
+
+				// build the xml
+				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+				Document doc = docBuilder.newDocument();
+
+				Element rootElement = doc.createElement("data");
+				
+				//info element
+				Element infoElement = doc.createElement("info");
+				Element saveTime = doc.createElement("savetime");
+				saveTime.setTextContent("2015-0123-10:21");
+				Element progress = doc.createElement("progress");
+				progress.setTextContent("completed");
+				infoElement.appendChild(saveTime);
+				infoElement.appendChild(progress);
+				
+				//schema element
+				Element schema = doc.createElement("schema");
+				schema.setAttribute("path", "./");
+				schema.setAttribute("protocol", "file");
+				schema.setTextContent("temporal-schema.xml");
+				
+				Element annoElement = doc.createElement("annotations");
+				Map<IdentifiedAnnotation,String> argToId = new HashMap<>();
+				int id=1;
+				for(EventMention event : JCasUtil.select(jcas, EventMention.class)){
+					if (event.getClass().equals(EventMention.class)) {
+						// this ensures we are only looking at THYME events and not ctakes-dictionary-lookup events
+						Element eventEl = doc.createElement("entity");
+						String eventID = id+"@e@"+outFile+"@system"; id++;
+						argToId.put(event, eventID);
+						Element idE = doc.createElement("id");
+						idE.setTextContent(eventID);
+						Element spanE = doc.createElement("span");
+						spanE.setTextContent(String.valueOf(event.getBegin())+","+String.valueOf(event.getEnd()));
+						Element typeE = doc.createElement("type");
+						typeE.setTextContent("EVENT");
+						Element parentTE = doc.createElement("parentsType");
+						parentTE.setTextContent("TemporalEntities");
+						//add properties
+						Element property = doc.createElement("properties");
+						Element docTimeRE = doc.createElement("DocTimeRel");
+						docTimeRE.setTextContent(event.getEvent().getProperties().getDocTimeRel());
+						Element eventTypeE = doc.createElement("Type");
+						eventTypeE.setTextContent("N/A");
+						Element degreeE = doc.createElement("Degree");
+						degreeE.setTextContent("N/A");
+						Element polarityE = doc.createElement("Polarity");
+						String polarity = event.getPolarity()==0? "POS":"NEG";
+						polarityE.setTextContent(polarity);
+						Element ctexModE = doc.createElement("ContextualModality");
+						ctexModE.setTextContent(event.getEvent().getProperties().getContextualModality());
+						Element ctexAspE = doc.createElement("ContextualAspect");
+						ctexAspE.setTextContent(event.getEvent().getProperties().getContextualAspect());
+						Element permE = doc.createElement("Permanence");
+						permE.setTextContent("UNDETERMINED");
+						property.appendChild(docTimeRE);
+						property.appendChild(polarityE);
+						property.appendChild(degreeE);
+						property.appendChild(eventTypeE);
+						property.appendChild(ctexModE);
+						property.appendChild(ctexAspE);
+						property.appendChild(permE);
+						eventEl.appendChild(idE);
+						eventEl.appendChild(spanE);
+						eventEl.appendChild(typeE);
+						eventEl.appendChild(parentTE);
+						eventEl.appendChild(property);
+						annoElement.appendChild(eventEl);
+					}
+				}
+				for(TimeMention timex : JCasUtil.select(jcas, TimeMention.class)){
+					Element timexElement = doc.createElement("entity");
+					String timexID = id+"@e@"+outFile+"@system"; id++;//18@e@ID006_clinic_016@gold
+					argToId.put(timex, timexID);
+					Element idE = doc.createElement("id");
+					idE.setTextContent(timexID);
+					Element spanE = doc.createElement("span");
+					spanE.setTextContent(String.valueOf(timex.getBegin())+","+String.valueOf(timex.getEnd()));
+					Element typeE = doc.createElement("type");
+					Element parentTE = doc.createElement("parentsType");
+					parentTE.setTextContent("TemporalEntities");
+					//add properties
+					Element property = doc.createElement("properties");
+					String timeClass = timex.getTimeClass();
+					if(timeClass.equals("DOCTIME")||timeClass.equals("SECTIONTIME")){
+						typeE.setTextContent(timeClass);
+						property.setTextContent("");
+					}else{
+						typeE.setTextContent("TIMEX3");
+						Element classE = doc.createElement("Class");
+						classE.setTextContent(timeClass);
+						property.appendChild(classE);
+					}
+					
+					timexElement.appendChild(idE);
+					timexElement.appendChild(spanE);
+					timexElement.appendChild(typeE);
+					timexElement.appendChild(property);
+					annoElement.appendChild(timexElement);
+				}
+
+				
+
+				id = 1;
+				for(TemporalTextRelation rel : JCasUtil.select(jcas, TemporalTextRelation.class)){
+					Element linkEl = doc.createElement("relation");
+					String linkID = id+"@r@"+outFile+"@system";id++;
+					
+					Element idE = doc.createElement("id");
+					idE.setTextContent(linkID);
+					Element typeE = doc.createElement("type");
+					typeE.setTextContent("TLINK");
+					Element parentTE = doc.createElement("parentsType");
+					parentTE.setTextContent("TemporalRelations");
+					//add properties
+					Element property = doc.createElement("properties");
+					
+					Annotation arg1 = rel.getArg1().getArgument();
+					Element sourceE = doc.createElement("Source");
+					sourceE.setTextContent(argToId.get(arg1));
+					Element relTypeE = doc.createElement("Type");
+					relTypeE.setTextContent(rel.getCategory());
+					Annotation arg2 = rel.getArg2().getArgument();
+					Element targetE = doc.createElement("Target");
+					targetE.setTextContent(argToId.get(arg2));
+					
+					property.appendChild(sourceE);
+					property.appendChild(relTypeE);
+					property.appendChild(targetE);
+					
+					linkEl.appendChild(idE);
+					linkEl.appendChild(typeE);
+					linkEl.appendChild(parentTE);
+					linkEl.appendChild(property);
+					annoElement.appendChild(linkEl);
+				}
+				
+				rootElement.appendChild(infoElement);
+				rootElement.appendChild(schema);
+				rootElement.appendChild(annoElement);
+				doc.appendChild(rootElement);
+
+				// boilerplate xml-writing code:
+				TransformerFactory transformerFactory = TransformerFactory.newInstance();
+				Transformer transformer = transformerFactory.newTransformer();
+				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+				transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+				DOMSource source = new DOMSource(doc);
+				StreamResult result = new StreamResult(new File(outDir, outFile+".xml"));
+				transformer.transform(source, result);
+			} catch (ParserConfigurationException e) {
+				e.printStackTrace();
+				throw new AnalysisEngineProcessException(e);
+			} catch (TransformerConfigurationException e) {
+				e.printStackTrace();
+				throw new AnalysisEngineProcessException(e);
+			} catch (TransformerException e) {
+				e.printStackTrace();
+				throw new AnalysisEngineProcessException(e);
+			}
+
+		}
+
+	}
 }
