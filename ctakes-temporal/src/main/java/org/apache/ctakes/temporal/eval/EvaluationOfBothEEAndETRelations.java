@@ -64,7 +64,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.FileUtils;
 import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
-import org.cleartk.ml.libsvm.tk.TkLibSvmStringOutcomeDataWriter;
+//import org.cleartk.ml.libsvm.tk.TkLibSvmStringOutcomeDataWriter;
 //import org.cleartk.ml.libsvm.LIBSVMStringOutcomeDataWriter;
 //import org.cleartk.ml.tksvmlight.TKSVMlightStringOutcomeDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
