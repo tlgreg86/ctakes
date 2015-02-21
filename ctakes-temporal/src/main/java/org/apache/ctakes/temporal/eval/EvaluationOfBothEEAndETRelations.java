@@ -380,7 +380,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
 		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
 			EventEventRelationAnnotator.createAnnotatorDescription(new File(directory,"event-event")));
-		aggregateBuilder.add(EventTimeSelfRelationAnnotator.createEngineDescription(new File(directory,"event-event")));
+		aggregateBuilder.add(EventTimeSelfRelationAnnotator.createEngineDescription(new File(directory,"event-time")));
 
 		if(this.i2b2Output != null){
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteAnaforaXML.class, WriteAnaforaXML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
