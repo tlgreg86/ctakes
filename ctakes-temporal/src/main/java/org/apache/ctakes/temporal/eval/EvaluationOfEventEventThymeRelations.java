@@ -537,16 +537,6 @@ EvaluationOfTemporalRelations_ImplBase{
 					for(EventMention covEventB : coveringMap.get(event2)){
 						createRelation(relationView, event1, covEventB, relation.getCategory());
 					}
-					//get covered system events:
-					for(EventMention covedEventA : JCasUtil.selectCovered(jCas, EventMention.class, event1)){//select covered events
-						for(EventMention covedEventB : JCasUtil.selectCovered(jCas, EventMention.class, event2)){
-							createRelation(relationView, covedEventA, covedEventB, relation.getCategory());
-						}
-						createRelation(relationView, covedEventA, event2, relation.getCategory());
-					}
-					for(EventMention covedEventB : JCasUtil.selectCovered(jCas, EventMention.class, event2)){
-						createRelation(relationView, event1, covedEventB, relation.getCategory());
-					}
 				}
 			}
 

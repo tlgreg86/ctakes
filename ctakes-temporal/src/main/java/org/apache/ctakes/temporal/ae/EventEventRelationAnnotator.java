@@ -127,34 +127,34 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 	@Override
 	protected List<RelationFeaturesExtractor> getFeatureExtractors() {
 		return Lists.newArrayList(
-				new TokenFeaturesExtractor()								
+				new UnexpandedTokenFeaturesExtractor() //new TokenFeaturesExtractor()								
 				, new PartOfSpeechFeaturesExtractor()
 				, new EventArgumentPropertyExtractor()
 				, new UmlsFeatureExtractor()
 				, new DependencyPathFeaturesExtractor()
 				, new OverlappedHeadFeaturesExtractor()
-				
-//				, new NumberOfEventTimeBetweenCandidatesExtractor()
-//				, new NearbyVerbTenseRelationExtractor()
-//				, new CheckSpecialWordRelationExtractor()
-//				, new CoordinateFeaturesExtractor()
-//				, new SRLRelationFeaturesExtractor()
-//				, new NumberOfEventsInTheSameSentenceExtractor()
-//				, new ConjunctionRelationFeaturesExtractor()
-//				, new EventTimeRelationFeatureExtractor()
 
-//				new MultiTokenFeaturesExtractor()
-//				new UnexpandedTokenFeaturesExtractor() //use unexpanded version for i2b2 data
-//				, new EmptyFeaturesExtractor()
+				//				, new NumberOfEventTimeBetweenCandidatesExtractor()
+				//				, new NearbyVerbTenseRelationExtractor()
+				//				, new CheckSpecialWordRelationExtractor()
+				//				, new CoordinateFeaturesExtractor()
+				//				, new SRLRelationFeaturesExtractor()
+				//				, new NumberOfEventsInTheSameSentenceExtractor()
+				//				, new ConjunctionRelationFeaturesExtractor()
+				//				, new EventTimeRelationFeatureExtractor()
 
-//				, new SectionHeaderRelationExtractor()
-//				, new EventPositionRelationFeaturesExtractor() //not helpful
-//				, new TimeXRelationFeaturesExtractor() //not helpful
-//				, new DeterminerRelationFeaturesExtractor()
-//				, new TokenPropertyFeaturesExtractor()
-//				, new DependingVerbsFeatureExtractor()
-//				, new SpecialAnnotationRelationExtractor() //not helpful
-//				, new TemporalPETFlatExtractor()
+				//				new MultiTokenFeaturesExtractor()
+				//				new UnexpandedTokenFeaturesExtractor() //use unexpanded version for i2b2 data
+				//				, new EmptyFeaturesExtractor()
+
+				//				, new SectionHeaderRelationExtractor()
+				//				, new EventPositionRelationFeaturesExtractor() //not helpful
+				//				, new TimeXRelationFeaturesExtractor() //not helpful
+				//				, new DeterminerRelationFeaturesExtractor()
+				//				, new TokenPropertyFeaturesExtractor()
+				//				, new DependingVerbsFeatureExtractor()
+				//				, new SpecialAnnotationRelationExtractor() //not helpful
+				//				, new TemporalPETFlatExtractor()
 
 				);
 	}
@@ -167,10 +167,10 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 	@Override
 	protected List<IdentifiedAnnotationPair> getCandidateRelationArgumentPairs(
 			JCas jCas, Annotation sentence) {
-		
+
 		Map<EventMention, Collection<EventMention>> coveringMap =
 				JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
-		
+
 		List<IdentifiedAnnotationPair> pairs = Lists.newArrayList();
 		List<EventMention> events = new ArrayList<>(JCasUtil.selectCovered(jCas, EventMention.class, sentence));
 		//filter events:
@@ -188,45 +188,21 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 			for(int j = i+1; j < eventNum; j++){
 				EventMention eventA = events.get(j);
 				EventMention eventB = events.get(i);
-				boolean eventAValid = false;
-				boolean eventBValid = false;
-				for (EventMention event : JCasUtil.selectCovered(jCas, EventMention.class, eventA)){
-					if(!event.getClass().equals(EventMention.class)){
-						eventAValid = true;
-						break;
-					}
-				}
-				for (EventMention event : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
-					if(!event.getClass().equals(EventMention.class)){
-						eventBValid = true;
-						break;
-					}
-				}
-				if(eventAValid && eventBValid){
-					if(this.isTraining()){
-						//pairing covering system events:
-						for (EventMention event1 : coveringMap.get(eventA)){
-							for(EventMention event2 : coveringMap.get(eventB)){
-								pairs.add(new IdentifiedAnnotationPair(event1, event2));
-							}
-							pairs.add(new IdentifiedAnnotationPair(event1, eventB));
-						}
+
+				if(this.isTraining()){
+					//pairing covering system events:
+					for (EventMention event1 : coveringMap.get(eventA)){
 						for(EventMention event2 : coveringMap.get(eventB)){
-							pairs.add(new IdentifiedAnnotationPair(eventA, event2));
+							pairs.add(new IdentifiedAnnotationPair(event1, event2));
 						}
-//						//pairing covered system events:
-//						for(EventMention event1 : JCasUtil.selectCovered(jCas, EventMention.class, eventA)){
-//							for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
-//								pairs.add(new IdentifiedAnnotationPair(event1, event2));
-//							}
-//							pairs.add(new IdentifiedAnnotationPair(event1, eventB));
-//						}
-//						for(EventMention event2 : JCasUtil.selectCovered(jCas, EventMention.class, eventB)){
-//							pairs.add(new IdentifiedAnnotationPair(eventA, event2));
-//						}
+						pairs.add(new IdentifiedAnnotationPair(event1, eventB));
 					}
-					pairs.add(new IdentifiedAnnotationPair(eventA, eventB));
+					for(EventMention event2 : coveringMap.get(eventB)){
+						pairs.add(new IdentifiedAnnotationPair(eventA, event2));
+					}
 				}
+				pairs.add(new IdentifiedAnnotationPair(eventA, eventB));
+
 			}
 		}
 

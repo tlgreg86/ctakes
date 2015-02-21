@@ -124,7 +124,7 @@ public class EventTimeSelfRelationAnnotator extends RelationExtractorAnnotator {
 	@Override
 	protected List<RelationFeaturesExtractor> getFeatureExtractors() {
 		return Lists.newArrayList(
-				new TokenFeaturesExtractor()							
+				new UnexpandedTokenFeaturesExtractor()//new TokenFeaturesExtractor()							
 				, new NearestFlagFeatureExtractor()
 				, new DependencyPathFeaturesExtractor()
 				, new EventArgumentPropertyExtractor()
@@ -180,9 +180,6 @@ public class EventTimeSelfRelationAnnotator extends RelationExtractorAnnotator {
 							pairs.add(new IdentifiedAnnotationPair(covEvent, time));
 						}
 						pairs.add(new IdentifiedAnnotationPair(event, time));
-//						for(EventMention covedEvent : JCasUtil.selectCovered(jCas, EventMention.class, event)){//select covered events
-//							pairs.add(new IdentifiedAnnotationPair(covedEvent, time));
-//						}
 					}
 				}else{//if testing mode, only test on system generated events
 					for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, sentence)) {
