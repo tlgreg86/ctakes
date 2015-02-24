@@ -193,12 +193,18 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 					//pairing covering system events:
 					for (EventMention event1 : coveringMap.get(eventA)){
 						for(EventMention event2 : coveringMap.get(eventB)){
-							pairs.add(new IdentifiedAnnotationPair(event1, event2));
+							if(!hasOverlap(event1,event2)){//don't generate overlapping arguments
+								pairs.add(new IdentifiedAnnotationPair(event1, event2));
+							}
 						}
-						pairs.add(new IdentifiedAnnotationPair(event1, eventB));
+						if(!hasOverlap(event1,eventB)){//don't generate overlapping arguments
+							pairs.add(new IdentifiedAnnotationPair(event1, eventB));
+						}
 					}
 					for(EventMention event2 : coveringMap.get(eventB)){
-						pairs.add(new IdentifiedAnnotationPair(eventA, event2));
+						if(!hasOverlap(eventA,event2)){//don't generate overlapping arguments
+							pairs.add(new IdentifiedAnnotationPair(eventA, event2));
+						}
 					}
 				}
 				pairs.add(new IdentifiedAnnotationPair(eventA, eventB));
@@ -224,6 +230,16 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 		//		}
 
 		return pairs;
+	}
+
+	private static boolean hasOverlap(Annotation event1, Annotation event2) {
+		if(event1.getEnd()>=event2.getBegin()&&event1.getEnd()<=event2.getEnd()){
+			return true;
+		}
+		if(event2.getEnd()>=event1.getBegin()&&event2.getEnd()<=event2.getEnd()){
+			return true;
+		}
+		return false;
 	}
 
 	@Override
