@@ -109,7 +109,6 @@ public class GoldRelationViewer {
             }
             BinaryTextRelation relation = relationLookup.get(Arrays.asList(annot1, annot2));
             if(relation != null) {
-              System.out.println(relation.getCategory());
               String text = String.format("%s(%s, %s)", relation.getCategory(), annot1.getCoveredText(), annot2.getCoveredText());
               formattedRelationsInSentence.add(text);
             }
