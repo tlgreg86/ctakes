@@ -123,16 +123,16 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
     BEST_PARAMETERS.put(DegreeOfTextRelation.class, new ParameterSettings(
         LibLinearStringOutcomeDataWriter.class,
         new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-            0.5f },
-        new String[] { "-s", "1", "-c", "0.5" }));
+            1.0f },
+        new String[] { "-s", "1", "-c", "0.1" }));
 
     RELATION_CLASSES.put("location_of", LocationOfTextRelation.class);
     ANNOTATOR_CLASSES.put(LocationOfTextRelation.class, LocationOfRelationExtractorAnnotator.class);
     BEST_PARAMETERS.put(LocationOfTextRelation.class, new ParameterSettings(
         LibLinearStringOutcomeDataWriter.class,
         new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-            0.5f },
-        new String[] { "-s", "0", "-c", "1.0" }));
+            1.0f },
+        new String[] { "-s", "0", "-c", "50.0" }));
   }
 
   public static void main(String[] args) throws Exception {
