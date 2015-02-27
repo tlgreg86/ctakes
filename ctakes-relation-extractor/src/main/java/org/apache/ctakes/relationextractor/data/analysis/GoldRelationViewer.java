@@ -32,6 +32,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
@@ -44,6 +45,10 @@ import com.lexicalscope.jewel.cli.Option;
 
 /**
  * Print gold standard relations and their context.
+ * Full set of relations annotated in SHARP is the following:
+ * 
+ * affects, causes/brings_about, complicates/disrupts, contraindicates, degree_of, diagnoses,
+ * indicates, is_indicated_for, location_of, manages/treats, manifestation_of, result_of
  * 
  * @author dmitriy dligach
  */
@@ -51,15 +56,26 @@ public class GoldRelationViewer {
   
   static interface Options {
 
-    @Option(longName = "xmi-dir")
+    @Option(
+        longName = "xmi-dir",
+        description = "path to xmi files containing gold annotations")
     public File getInputDirectory();
+    
+    @Option(
+        longName = "relation-type",
+        description = "determines which relation to view (e.g. location_of)",
+        defaultValue = "all")
+    public String getRelation();
   }
   
 	public static void main(String[] args) throws Exception {
 		
 		Options options = CliFactory.parseArguments(Options.class, args);
     CollectionReader collectionReader = Utils.getCollectionReader(options.getInputDirectory());
-    AnalysisEngine annotationConsumer = AnalysisEngineFactory.createEngine(RelationContextPrinter.class);
+    AnalysisEngine annotationConsumer = AnalysisEngineFactory.createEngine(
+        RelationContextPrinter.class,
+        "RelationType",
+        options.getRelation());
 		SimplePipeline.runPipeline(collectionReader, annotationConsumer);
 	}
 
@@ -69,6 +85,12 @@ public class GoldRelationViewer {
    * @author dmitriy dligach
    */
   public static class RelationContextPrinter extends JCasAnnotator_ImplBase {
+    
+    @ConfigurationParameter(
+        name = "RelationType",
+        mandatory = true,
+        description = "relation type whose instances will be displayed (e.g. location_of)")
+    private String relationType;
     
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -86,7 +108,7 @@ public class GoldRelationViewer {
       } catch (CASException e) {
         throw new AnalysisEngineProcessException(e);
       }
-
+      
       // can't iterate over binary text relations in a sentence, so need
       // a lookup from pair of annotations to binary text relation
       Map<List<Annotation>, BinaryTextRelation> relationLookup = new HashMap<>();
@@ -109,8 +131,10 @@ public class GoldRelationViewer {
             }
             BinaryTextRelation relation = relationLookup.get(Arrays.asList(annot1, annot2));
             if(relation != null) {
-              String text = String.format("%s(%s, %s)", relation.getCategory(), annot1.getCoveredText(), annot2.getCoveredText());
-              formattedRelationsInSentence.add(text);
+              if(relationType.equals("all") || relation.getCategory().equals(relationType)) {
+                String text = String.format("%s(%s, %s)", relation.getCategory(), annot1.getCoveredText(), annot2.getCoveredText());
+                formattedRelationsInSentence.add(text);
+              }
             }
           }
         }
