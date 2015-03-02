@@ -23,8 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ctakes.core.cr.XMIReader;
+import org.apache.ctakes.typesystem.type.syntax.WordToken;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 
 /**
  * Various useful classes and methods.
@@ -50,5 +54,19 @@ public class Utils {
         XMIReader.class,
         XMIReader.PARAM_FILES,
         paths);
+  }
+  
+  /**
+   * Given an annotation, retrieve its last word.
+   */
+  public static String getLastWord(JCas systemView, Annotation annotation) {
+    
+    List<WordToken> tokens = JCasUtil.selectCovered(systemView, WordToken.class, annotation);
+    if(tokens.size() == 0) {
+          return annotation.getCoveredText();
+    }
+    
+    WordToken lastToken = tokens.get(tokens.size() - 1);
+    return lastToken.getCoveredText();
   }
 }
