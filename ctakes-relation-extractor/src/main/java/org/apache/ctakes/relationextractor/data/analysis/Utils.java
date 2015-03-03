@@ -19,8 +19,11 @@
 package org.apache.ctakes.relationextractor.data.analysis;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ctakes.core.cr.XMIReader;
 import org.apache.ctakes.typesystem.type.syntax.WordToken;
@@ -30,10 +33,16 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+import com.google.common.io.LineProcessor;
+
 /**
  * Various useful classes and methods.
  */
 public class Utils {
+  
+  public static final String embeddingPath = "/Users/dima/Boston/Vectors/Python/sharp-arg-head-word-vectors.txt";
   
   /**
    * Instantiate an XMI collection reader.
@@ -68,5 +77,43 @@ public class Utils {
     
     WordToken lastToken = tokens.get(tokens.size() - 1);
     return lastToken.getCoveredText();
+  }
+  
+  /**
+   * Read word embeddings from file.
+   */
+  public static class Callback implements LineProcessor <Map<String, List<Float>>> {
+    
+    private Map<String, List<Float>> wordToVector;
+    
+    public Callback() {
+      wordToVector = new HashMap<>();
+    }
+    
+    public boolean processLine(String line) throws IOException {
+      
+      String[] elements = line.split(" "); // e.g. skin -0.024690 0.108761 0.038441 -0.088759 ...
+      List<Float> vector = new ArrayList<>();
+      
+      for(int dimension = 1; dimension < elements.length; dimension++) {
+        vector.add(Float.parseFloat(elements[dimension]));
+      }
+      
+      wordToVector.put(elements[0], vector);
+      return true;
+    }
+    
+    public Map<String, List<Float>> getResult() {
+      
+      return wordToVector;
+    }
+  }
+  
+  public static void main(String[] args) throws IOException {
+    
+    File word2vec = new File(embeddingPath);
+    Map<String, List<Float>> data = Files.readLines(word2vec, Charsets.UTF_8, new Callback());
+    System.out.println(data.get("skin"));
+    System.out.println(data.get("oov"));
   }
 }
