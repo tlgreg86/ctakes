@@ -29,7 +29,7 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 
-public class PhraseChunkingExtractor implements RelationFeaturesExtractor {
+public class PhraseChunkingExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 	  
 	  List<TerminalTreebankNode> extractPhraseHeadByTreenode(JCas jCas, List<TreebankNode> treenodesList) {
 		  List<TerminalTreebankNode> rTNodeList = new ArrayList<TerminalTreebankNode>();

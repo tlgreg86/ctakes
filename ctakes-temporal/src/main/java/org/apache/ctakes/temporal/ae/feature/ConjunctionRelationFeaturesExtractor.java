@@ -13,7 +13,7 @@ import org.cleartk.ml.Feature;
 import org.apache.uima.fit.util.JCasUtil;
 
 public class ConjunctionRelationFeaturesExtractor implements
-RelationFeaturesExtractor {
+RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 	
 	private String name = "ConjunctionFeature";
 	@Override

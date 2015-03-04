@@ -28,7 +28,7 @@ import org.cleartk.ml.Feature;
 /**
  * Define an interface for people to implement feature extractors.
  */
-public interface RelationFeaturesExtractor {
+public interface RelationFeaturesExtractor<T1,T2> {
 
   /**
    * Extract features for the pair of named entity mentions.
@@ -41,6 +41,6 @@ public interface RelationFeaturesExtractor {
    *          The second identified annotation in the text.
    * @return A list of features indicative of the relation between the named entities
    */
-  public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2)
+  public List<Feature> extract(JCas jCas, T1 arg1, T2 arg2)
       throws AnalysisEngineProcessException;
 }

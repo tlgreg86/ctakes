@@ -32,7 +32,7 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 
-public class FlatTreeFeatureExtractor implements RelationFeaturesExtractor {
+public class FlatTreeFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	// Returns flat POS-trees a la Hovy et al 2012 (EACL)
 	@Override

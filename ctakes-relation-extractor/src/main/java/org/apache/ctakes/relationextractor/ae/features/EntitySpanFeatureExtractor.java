@@ -38,7 +38,7 @@ import org.cleartk.ml.Feature;
  * arg2: "valgus deformity"
  *
  */
-public class EntitySpanFeatureExtractor implements RelationFeaturesExtractor {
+public class EntitySpanFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2) throws AnalysisEngineProcessException {

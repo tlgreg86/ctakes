@@ -27,7 +27,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 
-public class DependencyTreeFeaturesExtractor implements RelationFeaturesExtractor{
+public class DependencyTreeFeaturesExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>{
 
 	@Override
 	public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1,

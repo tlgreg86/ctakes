@@ -44,7 +44,7 @@ import org.cleartk.ml.Feature;
  * Model location is hardcoded as of right now.
  * TODO: Parameterize & unstaticize this so that, e.g., multiple projects could use this feature if necessary.
  */
-public class TreeFragmentFeatureExtractor implements RelationFeaturesExtractor {
+public class TreeFragmentFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	static HashSet<SimpleTree> frags = null;
 

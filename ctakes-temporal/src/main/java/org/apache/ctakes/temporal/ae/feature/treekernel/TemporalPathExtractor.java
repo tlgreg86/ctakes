@@ -35,7 +35,7 @@ import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.TreeFeature;
 
-public class TemporalPathExtractor implements RelationFeaturesExtractor {
+public class TemporalPathExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	@Override
 	public List<Feature> extract(JCas jcas, IdentifiedAnnotation arg1,

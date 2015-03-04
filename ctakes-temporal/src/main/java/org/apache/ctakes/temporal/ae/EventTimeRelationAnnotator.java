@@ -118,7 +118,7 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 	}
 
 	@Override
-	protected List<RelationFeaturesExtractor> getFeatureExtractors() {
+	protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {
 		return Lists.newArrayList(
 				new TokenFeaturesExtractor()
 				//				new UnexpandedTokenFeaturesExtractor() //use unexpanded version for i2b2 data

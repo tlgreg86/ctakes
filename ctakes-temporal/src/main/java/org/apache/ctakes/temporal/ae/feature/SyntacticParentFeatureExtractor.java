@@ -30,7 +30,7 @@ import org.cleartk.ml.Feature;
 
 import com.google.common.collect.Lists;
 
-public class SyntacticParentFeatureExtractor implements RelationFeaturesExtractor {
+public class SyntacticParentFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   /*
    * (non-Javadoc)

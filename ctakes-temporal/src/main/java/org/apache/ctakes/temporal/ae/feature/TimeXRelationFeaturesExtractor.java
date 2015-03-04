@@ -42,7 +42,7 @@ import com.google.common.collect.Lists;
  * @author CH151862
  *
  */
-public class TimeXRelationFeaturesExtractor implements RelationFeaturesExtractor {
+public class TimeXRelationFeaturesExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	private String name="TimeXRelatioinFeature";
 

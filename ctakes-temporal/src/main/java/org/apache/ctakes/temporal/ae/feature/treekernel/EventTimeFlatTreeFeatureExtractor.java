@@ -36,7 +36,7 @@ import org.apache.uima.fit.util.JCasUtil;
 import com.google.common.base.Function;
 
 
-public class EventTimeFlatTreeFeatureExtractor implements RelationFeaturesExtractor{
+public class EventTimeFlatTreeFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>{
 
 	@Override
 	public List<Feature> extract(JCas jcas, IdentifiedAnnotation arg1,

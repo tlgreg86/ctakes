@@ -35,7 +35,7 @@ import org.cleartk.ml.Feature;
  * Uses a predifined list of prepositions rather than POS tags.
  * 
  */
-public class PrepositionFeatureExtractor implements RelationFeaturesExtractor {
+public class PrepositionFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2) throws AnalysisEngineProcessException {

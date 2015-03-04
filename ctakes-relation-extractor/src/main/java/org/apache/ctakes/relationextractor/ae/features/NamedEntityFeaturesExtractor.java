@@ -33,7 +33,7 @@ import org.cleartk.ml.feature.extractor.DistanceExtractor;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.cleartk.ml.feature.extractor.NamingExtractor1;
 
-public class NamedEntityFeaturesExtractor implements RelationFeaturesExtractor {
+public class NamedEntityFeaturesExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   private FeatureExtractor1 namedEntityType = new FeatureExtractor1() {
     @Override

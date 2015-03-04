@@ -12,7 +12,7 @@ import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 import org.apache.uima.fit.util.JCasUtil;
 
-public class DependingVerbsFeatureExtractor implements RelationFeaturesExtractor {
+public class DependingVerbsFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	private static final String FEAT_NAME = "Depending_Verb"; 
 

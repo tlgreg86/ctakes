@@ -40,7 +40,7 @@ import com.google.common.collect.Lists;
  * @author CH151862
  *
  */
-public class EventPositionRelationFeaturesExtractor implements RelationFeaturesExtractor {
+public class EventPositionRelationFeaturesExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	private String name="EventRelaionPosition";
 

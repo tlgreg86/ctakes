@@ -57,7 +57,7 @@ import com.google.common.collect.Multimap;
  * @author CH151862
  *
  */
-public class MultiTokenFeaturesExtractor implements RelationFeaturesExtractor {
+public class MultiTokenFeaturesExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	private FeatureExtractor1 coveredText = new CoveredTextExtractor();
 

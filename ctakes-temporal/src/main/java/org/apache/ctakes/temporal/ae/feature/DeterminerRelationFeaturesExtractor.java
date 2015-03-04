@@ -34,7 +34,7 @@ import com.google.common.collect.Lists;
  * @author CH151862
  *
  */
-public class DeterminerRelationFeaturesExtractor implements RelationFeaturesExtractor {
+public class DeterminerRelationFeaturesExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	private String name="Determiner";
 

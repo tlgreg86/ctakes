@@ -39,7 +39,7 @@ import com.google.common.collect.Lists;
  *
  */
 public class NumberOfEventsInTheSameSentenceExtractor implements
-RelationFeaturesExtractor {
+RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	@SuppressWarnings("null")
 	@Override

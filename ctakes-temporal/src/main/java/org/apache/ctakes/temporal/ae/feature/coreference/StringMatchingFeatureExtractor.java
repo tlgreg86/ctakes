@@ -9,13 +9,13 @@ import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
-import org.apache.uima.fit.util.JCasUtil;
 
 public class StringMatchingFeatureExtractor implements
-		RelationFeaturesExtractor {
+		RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	@Override
 	public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1,

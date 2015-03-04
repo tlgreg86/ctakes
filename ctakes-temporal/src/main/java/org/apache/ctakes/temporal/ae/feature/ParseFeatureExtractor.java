@@ -29,7 +29,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 
-public class ParseFeatureExtractor implements RelationFeaturesExtractor {
+public class ParseFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   /*
    * (non-Javadoc)

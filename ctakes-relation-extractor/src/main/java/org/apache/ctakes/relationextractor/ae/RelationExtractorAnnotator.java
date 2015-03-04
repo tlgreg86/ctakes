@@ -69,7 +69,7 @@ public abstract class RelationExtractorAnnotator extends CleartkAnnotator<String
 
   protected Random coin = new Random(0);
 
-  private List<RelationFeaturesExtractor> featureExtractors = this.getFeatureExtractors();
+  private List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> featureExtractors = this.getFeatureExtractors();
 
   private Class<? extends Annotation> coveringClass = getCoveringClass();
 
@@ -79,7 +79,7 @@ public abstract class RelationExtractorAnnotator extends CleartkAnnotator<String
    * 
    * @return The list of feature extractors to use.
    */
-  protected List<RelationFeaturesExtractor> getFeatureExtractors() {
+  protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {
     return Lists.newArrayList(
         new TokenFeaturesExtractor(),
         new PartOfSpeechFeaturesExtractor(),
@@ -171,7 +171,7 @@ public abstract class RelationExtractorAnnotator extends CleartkAnnotator<String
         IdentifiedAnnotation arg2 = pair.getArg2();
         // apply all the feature extractors to extract the list of features
         List<Feature> features = new ArrayList<>();
-        for (RelationFeaturesExtractor extractor : this.featureExtractors) {
+        for (RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> extractor : this.featureExtractors) {
         	 List<Feature> feats = extractor.extract(jCas, arg1, arg2);
         	 if (feats != null)  features.addAll(feats);
         }

@@ -38,7 +38,7 @@ import com.google.common.io.Files;
 /**
  * Calculate probability that CONTAINS relation can exist between two arguments.
  */
-public class DurationEventTimeFeatureExtractor implements RelationFeaturesExtractor {
+public class DurationEventTimeFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2)

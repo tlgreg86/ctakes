@@ -31,7 +31,7 @@ import org.cleartk.ml.Feature;
 /**
  * Features that capture punctuation marks between the two arguments.
  */
-public class PunctuationFeatureExtractor implements RelationFeaturesExtractor {
+public class PunctuationFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2) throws AnalysisEngineProcessException {

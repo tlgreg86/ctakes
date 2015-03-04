@@ -35,7 +35,7 @@ import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.collect.Lists;
 
-public class UmlsFeatureExtractor implements RelationFeaturesExtractor {
+public class UmlsFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2)

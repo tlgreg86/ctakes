@@ -21,7 +21,7 @@ import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 import org.apache.uima.fit.util.JCasUtil;
 
-public class DistSemFeatureExtractor implements RelationFeaturesExtractor {
+public class DistSemFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   // default value is 0.5 (rather than 0.0) because we don't want to assume OOV words are dissimilar
   public static final double DEFAULT_SIM = 0.5;  

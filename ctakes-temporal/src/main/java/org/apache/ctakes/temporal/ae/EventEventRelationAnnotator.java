@@ -125,7 +125,7 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 	}
 
 	@Override
-	protected List<RelationFeaturesExtractor> getFeatureExtractors() {
+	protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {
 		return Lists.newArrayList(
 				new UnexpandedTokenFeaturesExtractor() //new TokenFeaturesExtractor()								
 				, new PartOfSpeechFeaturesExtractor()

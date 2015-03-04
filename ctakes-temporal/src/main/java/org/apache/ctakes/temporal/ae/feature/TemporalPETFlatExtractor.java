@@ -17,7 +17,7 @@ import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 import org.apache.uima.fit.util.JCasUtil;
 
-public class TemporalPETFlatExtractor implements RelationFeaturesExtractor {
+public class TemporalPETFlatExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	private static final String FEAT_NAME = "Flat_DPK"; 
 

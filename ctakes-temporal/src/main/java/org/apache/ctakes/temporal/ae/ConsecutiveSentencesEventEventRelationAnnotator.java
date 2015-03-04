@@ -79,7 +79,7 @@ public class ConsecutiveSentencesEventEventRelationAnnotator extends RelationExt
 	}
 
 	@Override
-	protected List<RelationFeaturesExtractor> getFeatureExtractors() {
+	protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {
 		return Lists.newArrayList(
 				new UnexpandedTokenFeaturesExtractor() //use unexpanded version for i2b2 data
 				, new OverlappedHeadFeaturesExtractor()

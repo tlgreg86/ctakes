@@ -40,7 +40,7 @@ import org.apache.uima.fit.util.JCasUtil;
  *
  */
 public class NumberOfEventTimeBetweenCandidatesExtractor implements
-RelationFeaturesExtractor {
+RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	@SuppressWarnings("null")
 	@Override

@@ -16,7 +16,7 @@ import org.apache.uima.jcas.cas.FSArray;
 import org.cleartk.ml.Feature;
 import org.apache.uima.fit.util.JCasUtil;
 
-public class UMLSFeatureExtractor implements RelationFeaturesExtractor {
+public class UMLSFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	@Override
 	public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1,

@@ -34,7 +34,7 @@ import org.cleartk.ml.Feature;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-public class DurationEventEventFeatureExtractor implements RelationFeaturesExtractor {
+public class DurationEventEventFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2)

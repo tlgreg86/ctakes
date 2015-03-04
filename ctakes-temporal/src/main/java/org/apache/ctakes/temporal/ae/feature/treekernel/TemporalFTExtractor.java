@@ -35,7 +35,7 @@ import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.TreeFeature;
 
-public class TemporalFTExtractor implements RelationFeaturesExtractor {
+public class TemporalFTExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	public static final String FEAT_NAME = "TK_FT";
 	

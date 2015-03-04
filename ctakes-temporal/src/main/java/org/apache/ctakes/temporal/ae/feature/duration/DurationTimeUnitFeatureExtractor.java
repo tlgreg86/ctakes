@@ -35,7 +35,7 @@ import scala.collection.immutable.Set;
 /**
  * Assumes all relations whose argument have no duration data have been deleted.
  */
-public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtractor {
+public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2)

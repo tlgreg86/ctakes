@@ -33,7 +33,7 @@ import org.apache.uima.fit.util.JCasUtil;
 import com.google.common.collect.Lists;
 
 public class EventTimeRelationsFeaturesExtractor implements
-    RelationFeaturesExtractor {
+    RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   /*
    * (non-Javadoc)

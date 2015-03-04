@@ -34,7 +34,7 @@ import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.collect.Lists;
 
-public class SectionHeaderRelationExtractor implements RelationFeaturesExtractor{
+public class SectionHeaderRelationExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>{
 
 	@Override
 	public List<Feature> extract(JCas jcas, IdentifiedAnnotation arg1,

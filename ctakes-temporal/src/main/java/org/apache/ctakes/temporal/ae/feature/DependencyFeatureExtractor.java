@@ -34,7 +34,7 @@ import org.cleartk.ml.Feature;
 import org.apache.uima.fit.util.JCasUtil;
 
 public class DependencyFeatureExtractor implements
-RelationFeaturesExtractor {
+RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	@Override
 	public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1,

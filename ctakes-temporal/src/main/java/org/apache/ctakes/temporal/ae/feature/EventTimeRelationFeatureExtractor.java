@@ -44,7 +44,7 @@ import com.google.common.collect.Multimap;
  *
  */
 public class EventTimeRelationFeatureExtractor implements
-RelationFeaturesExtractor {
+RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	private String cachedDocID = null;
 	private Multimap<EventMention, String> eventSectionTimeRelationLookup;

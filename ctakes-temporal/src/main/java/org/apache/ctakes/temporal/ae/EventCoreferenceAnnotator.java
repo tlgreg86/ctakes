@@ -77,8 +77,8 @@ public class EventCoreferenceAnnotator extends RelationExtractorAnnotator {
   }
   
   @Override
-  protected List<RelationFeaturesExtractor> getFeatureExtractors() {
-    List<RelationFeaturesExtractor> featureList = new ArrayList<>();
+  protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {
+    List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> featureList = new ArrayList<>();
     
     featureList.addAll(super.getFeatureExtractors());
         

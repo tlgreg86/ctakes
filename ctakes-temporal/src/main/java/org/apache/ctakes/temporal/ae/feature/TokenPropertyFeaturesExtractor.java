@@ -17,7 +17,7 @@ import org.cleartk.ml.Feature;
 import org.apache.uima.fit.util.JCasUtil;
 
 public class TokenPropertyFeaturesExtractor implements
-RelationFeaturesExtractor {
+RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	@SuppressWarnings("null")
 	@Override

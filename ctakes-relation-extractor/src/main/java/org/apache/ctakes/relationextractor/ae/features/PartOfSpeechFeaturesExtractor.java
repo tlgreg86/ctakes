@@ -33,7 +33,7 @@ import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.cleartk.ml.feature.extractor.NamingExtractor1;
 import org.cleartk.ml.feature.extractor.TypePathExtractor;
 
-public class PartOfSpeechFeaturesExtractor implements RelationFeaturesExtractor {
+public class PartOfSpeechFeaturesExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   private FeatureExtractor1 pos = new TypePathExtractor(BaseToken.class, "partOfSpeech");
 

@@ -36,7 +36,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Resources;
 
-public class CheckSpecialWordRelationExtractor implements RelationFeaturesExtractor{
+public class CheckSpecialWordRelationExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>{
 
 	//final static List<String> specialWd = Arrays.asList("before","prior","previous","previously","ago","soon","earlier","early","after","later","subsequent","follow","following","followed","post","since","back","start","started","by","past","starting");
 	private static final String LOOKUP_PATH = "/org/apache/ctakes/temporal/TimeLexicon.csv";

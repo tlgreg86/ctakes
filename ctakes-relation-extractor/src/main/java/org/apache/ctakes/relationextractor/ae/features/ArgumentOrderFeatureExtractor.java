@@ -29,7 +29,7 @@ import org.cleartk.ml.Feature;
 /**
  * Features that indicate the order of the arguments (e.g. before or after).
  */
-public class ArgumentOrderFeatureExtractor implements RelationFeaturesExtractor {
+public class ArgumentOrderFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2) throws AnalysisEngineProcessException {

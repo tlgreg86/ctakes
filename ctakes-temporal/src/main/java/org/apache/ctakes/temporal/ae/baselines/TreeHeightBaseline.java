@@ -27,16 +27,17 @@ import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.CleartkAnnotator;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.util.JCasUtil;
 
 public class TreeHeightBaseline extends RelationExtractorAnnotator {
 
@@ -61,20 +62,20 @@ public class TreeHeightBaseline extends RelationExtractorAnnotator {
 	}
 	
 	@Override
-	protected List<RelationFeaturesExtractor> getFeatureExtractors() {
-		return new ArrayList<RelationFeaturesExtractor>();
+	protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {
+		return new ArrayList<>();
 	}
 
 	@Override
 	protected List<IdentifiedAnnotationPair> getCandidateRelationArgumentPairs(
 			JCas jCas, Annotation sentence) {
-	    List<IdentifiedAnnotationPair> results = new ArrayList<IdentifiedAnnotationPair>();
+	    List<IdentifiedAnnotationPair> results = new ArrayList<>();
 
 	    // get all event mentions in the sentence
 	    List<EventMention> events = JCasUtil.selectCovered(jCas, EventMention.class, sentence);
 	    
 	    // filter out all the ctakes-generated events with more specific types
-	    List<EventMention> realEvents = new ArrayList<EventMention>();
+	    List<EventMention> realEvents = new ArrayList<>();
 	    for(EventMention event : events){
 	    	if(event.getClass().equals(EventMention.class)){
 	    		realEvents.add(event);

@@ -8,7 +8,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 
-public class EmptyFeaturesExtractor implements RelationFeaturesExtractor {
+public class EmptyFeaturesExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 	public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1,
 			IdentifiedAnnotation arg2) throws AnalysisEngineProcessException {

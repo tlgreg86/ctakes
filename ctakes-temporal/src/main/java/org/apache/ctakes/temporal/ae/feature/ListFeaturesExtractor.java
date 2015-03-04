@@ -35,7 +35,7 @@ import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.collect.Lists;
 
-public class ListFeaturesExtractor implements RelationFeaturesExtractor {
+public class ListFeaturesExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   /*
    * (non-Javadoc)

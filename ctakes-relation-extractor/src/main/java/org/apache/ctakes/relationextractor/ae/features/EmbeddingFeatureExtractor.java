@@ -37,7 +37,7 @@ import com.google.common.io.Files;
 /**
  * 
  */
-public class EmbeddingFeatureExtractor implements RelationFeaturesExtractor {
+public class EmbeddingFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
   @Override
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2) throws AnalysisEngineProcessException {
