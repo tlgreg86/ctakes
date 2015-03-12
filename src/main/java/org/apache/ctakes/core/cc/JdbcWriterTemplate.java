@@ -207,6 +207,7 @@ public class JdbcWriterTemplate extends AbstractJdbcWriter {
          batchCount = writeTableRow( preparedStatement, batchCount, fieldInfoValues );
          instanceNum++;
       }
+      _tableSqlInfoMap.get( _tableName ).setBatchCount( batchCount );
    }
 
 
