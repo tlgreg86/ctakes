@@ -45,7 +45,7 @@
    <dictionaryConceptPairs>
       <dictionaryConceptPair>
          <name>CustomPair</name>
-         <dictionaryName>CustomRareWord</dictionaryName>
+         <dictionaryName>CustomCuiRareWord</dictionaryName>
          <conceptFactoryName>CustomCuiConcept</conceptFactoryName>
       </dictionaryConceptPair>
    </dictionaryConceptPairs>
