@@ -19,14 +19,11 @@
 package org.apache.ctakes.temporal.pipelines;
 
 import java.io.File;
-import java.util.List;
 
 import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
-import org.apache.ctakes.temporal.ae.CoreferenceChainAnnotator;
 import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
-import org.apache.ctakes.temporal.ae.EventCoreferenceAnnotator;
 import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
