@@ -1,8 +1,9 @@
 package org.apache.ctakes.dictionary.lookup2.util;
 
+import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.log4j.Logger;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -91,50 +92,22 @@ public enum JdbcConnectionFactory {
       return connection;
    }
 
+   /**
+    * Uses {@link org.apache.ctakes.core.resource.FileLocator} to get the canonical path to the database file
+    *
+    * @param jdbcUrl -
+    * @return -
+    * @throws SQLException
+    */
    static private String getConnectionUrl( final String jdbcUrl ) throws SQLException {
       final String urlDbPath = jdbcUrl.substring( HSQL_FILE_PREFIX.length() );
       final String urlFilePath = urlDbPath + HSQL_DB_EXT;
-      File file = new File( urlFilePath );
-      LOGGER.debug( "absolute url: " + file.getPath() + " , use " + urlDbPath );
-      if ( file.exists() ) {
-         return urlDbPath;
+      try {
+         final String fullPath = FileLocator.getFullPath( urlFilePath );
+         return fullPath.substring( 0, fullPath.length() - HSQL_DB_EXT.length() );
+      } catch ( FileNotFoundException fnfE ) {
+         throw new SQLException( "No Hsql DB exists at Url", fnfE );
       }
-      // file url is not absolute, check for relative directly under current working directory
-      final String cwd = System.getProperty( "user.dir" );
-      file = new File( cwd, urlFilePath );
-      LOGGER.debug( "cwd relative url: " + file.getPath() + " , use " + urlDbPath );
-      if ( file.exists() ) {
-         return urlDbPath;
-      }
-      // Users running projects out of an ide may have the module directory as cwd
-      String upOne = "../";
-      File cwdDerived = new File( cwd );
-      while ( cwdDerived.getParentFile() != null ) {
-         cwdDerived = cwdDerived.getParentFile();
-         file = new File( cwdDerived, urlFilePath );
-         LOGGER.debug( "cwd parent relative url: " + file.getPath() + " , use " + upOne + urlDbPath );
-         if ( file.exists() ) {
-            return upOne+urlDbPath;
-         }
-         file = new File( cwdDerived, "ctakes/" + urlFilePath );
-         LOGGER.debug(
-               "cwd parent relative ctakes url: " + file.getPath() + " , use " + upOne + "ctakes/" + urlDbPath );
-         if ( file.exists() ) {
-            return upOne + "ctakes/" + urlDbPath;
-         }
-         upOne += "../";
-      }
-      final String cTakesHome = System.getenv( CTAKES_HOME );
-      if ( cTakesHome != null && !cTakesHome.isEmpty() ) {
-         file = new File( cTakesHome, urlFilePath );
-         LOGGER.debug( "$CTAKES_HOME absolute url: " + file.getPath() + " , use " + cTakesHome + "/" + urlDbPath );
-         if ( file.exists() ) {
-            return cTakesHome + "/" + urlDbPath;
-         }
-      }
-      LOGGER.error( "Could not find " + urlFilePath + " as absolute or in \n" + cwd
-              + " or in any parent thereof or in $CTAKES_HOME \n" + cTakesHome );
-      throw new SQLException( "No Hsql DB exists at Url" );
    }
 
    static private class DotPlotter extends TimerTask {
