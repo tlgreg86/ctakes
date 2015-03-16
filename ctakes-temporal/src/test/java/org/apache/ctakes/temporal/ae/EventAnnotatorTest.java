@@ -18,33 +18,27 @@
  */
 package org.apache.ctakes.temporal.ae;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.CopyNPChunksToLookupWindowAnnotations;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.RemoveEnclosedLookupWindows;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
-import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
-import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
-import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
-import org.apache.uima.jcas.JCas;
-import org.cleartk.ml.CleartkAnnotator;
-import org.cleartk.ml.jar.GenericJarClassifierFactory;
-import org.junit.Test;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class EventAnnotatorTest {
 
@@ -86,9 +80,11 @@ public class EventAnnotatorTest {
 			LOGGER.info("Event: " + mention.getCoveredText() );
 			temp.add(mention.getCoveredText());
 		}
-		assertEquals(3, temp.size());
-		assertTrue(temp.contains("old"));
+      assertEquals( 5, temp.size() );
+      assertTrue(temp.contains("old"));
 		assertTrue(temp.contains("referred"));
-		assertTrue(temp.contains("blood"));
-	}
+      assertTrue( temp.contains( "diagnosed" ) );
+      assertTrue( temp.contains( "cancer" ) );
+      assertTrue( temp.contains( "blood" ) );
+   }
 }
