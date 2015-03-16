@@ -63,15 +63,16 @@ final public class FileLocator {
     }
 	
     /**
-     *  @deprecated As of release 3.1, replaced by {@link #getAsStream(String)} and {@link #getFullPath(String)}
+     * Where a Stream is usable, use {@link #getAsStream(String)} .
+     * Where a path String is usable, use {@link #getFullPath(String)} .
      */
-    @Deprecated
     public static File locateFile( final String location ) throws FileNotFoundException {
-       try {
-          return locateOnClasspath( location );
-       } catch ( Exception e ) {
-          return locateExplicitly( location );
-        }
+       final String fullPath = getFullPath( location );
+       final File file = new File( fullPath );
+       if ( !file.exists() ) {
+          throw new FileNotFoundException( "No File at " + location );
+       }
+       return file;
     }
 
    /**
@@ -181,14 +182,4 @@ final public class FileLocator {
       return new File( indexUri );
     }
 
-    private static File locateExplicitly(String explicitLocation)
-            throws FileNotFoundException
-    {
-        File f = new File(explicitLocation);
-        if (!f.exists())
-        {
-            throw new FileNotFoundException(explicitLocation);
-        }
-        return f;
-    }
 }
