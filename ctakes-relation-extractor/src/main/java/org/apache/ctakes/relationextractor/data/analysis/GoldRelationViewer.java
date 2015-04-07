@@ -66,16 +66,23 @@ public class GoldRelationViewer {
         description = "determines which relation to view (e.g. location_of)",
         defaultValue = "all")
     public String getRelation();
+    
+    @Option(
+        longName = "print-context",
+        description = "output relation context")
+    public boolean getPrintContext();
   }
   
 	public static void main(String[] args) throws Exception {
-		
+		  
 		Options options = CliFactory.parseArguments(Options.class, args);
     CollectionReader collectionReader = Utils.getCollectionReader(options.getInputDirectory());
     AnalysisEngine annotationConsumer = AnalysisEngineFactory.createEngine(
         RelationContextPrinter.class,
         "RelationType",
-        options.getRelation());
+        options.getRelation(),
+        "PrintContext",
+        options.getPrintContext());
 		SimplePipeline.runPipeline(collectionReader, annotationConsumer);
 	}
 
@@ -91,6 +98,13 @@ public class GoldRelationViewer {
         mandatory = true,
         description = "relation type whose instances will be displayed (e.g. location_of)")
     private String relationType;
+    
+    @ConfigurationParameter(
+        name = "PrintContext",
+        mandatory = true,
+        description = "print relation context")
+    private boolean printContext;
+    
     
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -132,7 +146,12 @@ public class GoldRelationViewer {
             BinaryTextRelation relation = relationLookup.get(Arrays.asList(annot1, annot2));
             if(relation != null) {
               if(relationType.equals("all") || relation.getCategory().equals(relationType)) {
-                String text = String.format("%s(%s, %s)", relation.getCategory(), annot1.getCoveredText(), annot2.getCoveredText());
+                String text;
+                if(printContext) {
+                  text = String.format("%s(%s, %s)", relation.getCategory(), annot1.getCoveredText(), annot2.getCoveredText());
+                } else {
+                  text = String.format("%s|%s|%s|%s", fileName, relation.getCategory(), annot1.getCoveredText(), annot2.getCoveredText());
+                }                
                 formattedRelationsInSentence.add(text);
               }
             }
@@ -140,11 +159,13 @@ public class GoldRelationViewer {
         }
         
         if(formattedRelationsInSentence.size() > 0) {
-          System.out.println(fileName + ": " + sentence.getCoveredText());
+          if(printContext) {
+            System.out.println();
+            System.out.println(fileName + ": " + sentence.getCoveredText());
+          }
           for(String text : formattedRelationsInSentence) {
             System.out.println(text);
           }
-          System.out.println();
         }
       }
     }
