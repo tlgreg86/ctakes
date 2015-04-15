@@ -150,7 +150,11 @@ public class GoldRelationViewer {
                 if(printContext) {
                   text = String.format("%s(%s, %s)", relation.getCategory(), annot1.getCoveredText(), annot2.getCoveredText());
                 } else {
-                  text = String.format("%s|%s|%s|%s", fileName, relation.getCategory(), annot1.getCoveredText(), annot2.getCoveredText());
+                  String type1 = annot1.getClass().getSimpleName();
+                  String type2 = annot2.getClass().getSimpleName();
+                  String text1 = annot1.getCoveredText();
+                  String text2 = annot2.getCoveredText();
+                  text = String.format("%s|%s|%s|%s|%s|%s", fileName, relation.getCategory(), text1, type1, text2, type2);
                 }                
                 formattedRelationsInSentence.add(text);
               }
