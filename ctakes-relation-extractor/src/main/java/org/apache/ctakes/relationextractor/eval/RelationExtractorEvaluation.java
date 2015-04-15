@@ -29,11 +29,13 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import org.apache.ctakes.relationextractor.ae.CausesBringsAboutRelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.DegreeOfRelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.LocationOfRelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.ManagesTreatsRelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
+import org.apache.ctakes.typesystem.type.relation.CausesBringsAboutTextRelation;
 import org.apache.ctakes.typesystem.type.relation.DegreeOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManagesTreatsTextRelation;
@@ -143,6 +145,15 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
         new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
             0.5f },
         new String[] { "-s", "0", "-c", "5.0" }));
+    
+    RELATION_CLASSES.put("causes/brings_about", CausesBringsAboutTextRelation.class);
+    ANNOTATOR_CLASSES.put(CausesBringsAboutTextRelation.class, CausesBringsAboutRelationExtractorAnnotator.class);
+    BEST_PARAMETERS.put(CausesBringsAboutTextRelation.class, new ParameterSettings(
+        LibLinearStringOutcomeDataWriter.class,
+        new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
+            1.0f },
+        new String[] { "-s", "0", "-c", "1.0" }));
+
   }
 
   public static void main(String[] args) throws Exception {
