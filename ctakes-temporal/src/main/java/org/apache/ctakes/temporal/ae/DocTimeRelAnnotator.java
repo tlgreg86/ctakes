@@ -25,6 +25,7 @@ import java.util.List;
 //import java.util.Map;
 
 
+
 import org.apache.ctakes.temporal.ae.feature.ClosestVerbExtractor;
 //import org.apache.ctakes.temporal.ae.feature.CoveredTextToValuesExtractor;
 import org.apache.ctakes.temporal.ae.feature.DateAndMeasurementExtractor;
@@ -38,6 +39,7 @@ import org.apache.ctakes.typesystem.type.refsem.EventProperties;
 //import org.apache.ctakes.temporal.ae.feature.duration.DurationExpectationFeatureExtractor;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
+import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -102,7 +104,7 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
         new File(modelDirectory, "model.jar"));
   }
 
-  private CleartkExtractor contextExtractor;  
+  private CleartkExtractor<EventMention, BaseToken> contextExtractor;  
   private SectionHeaderExtractor sectionIDExtractor;
   private ClosestVerbExtractor closestVerbExtractor;
   private TimeXExtractor timeXExtractor;
@@ -117,10 +119,10 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
   @Override
   public void initialize(UimaContext context) throws ResourceInitializationException {
     super.initialize(context);
-    CombinedExtractor1 baseExtractor = new CombinedExtractor1(
-        new CoveredTextExtractor(),
-        new TypePathExtractor(BaseToken.class, "partOfSpeech"));
-    this.contextExtractor = new CleartkExtractor(
+    CombinedExtractor1<BaseToken> baseExtractor = new CombinedExtractor1<BaseToken>(
+        new CoveredTextExtractor<BaseToken>(),
+        new TypePathExtractor<BaseToken>(BaseToken.class, "partOfSpeech"));
+    this.contextExtractor = new CleartkExtractor<EventMention, BaseToken>(
         BaseToken.class,
         baseExtractor,
         new Preceding(3),
@@ -147,7 +149,14 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
   @Override
   public void process(JCas jCas) throws AnalysisEngineProcessException {
     for (EventMention eventMention : JCasUtil.select(jCas, EventMention.class)) {
-      List<Feature> features = this.contextExtractor.extract(jCas, eventMention);
+      List<Sentence> sents = JCasUtil.selectCovering(jCas, Sentence.class, eventMention);
+      List<Feature> features = new ArrayList<>();
+      if(sents!=null && sents.size()>0){
+    	  features.addAll(this.contextExtractor.extractWithin(jCas, eventMention, sents.get(0)));
+      }else{
+    	  features.addAll(this.contextExtractor.extract(jCas, eventMention));
+      }
+       
       features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
       features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
       features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
