@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +75,7 @@ import org.cleartk.ml.DataWriter;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
+import org.cleartk.util.ViewUriUtil;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
 
@@ -127,7 +129,8 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 	@Override
 	protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {
 		return Lists.newArrayList(
-				new UnexpandedTokenFeaturesExtractor() //new TokenFeaturesExtractor()								
+				new UnexpandedTokenFeaturesExtractor() //new TokenFeaturesExtractor()		
+//				, new EmptyFeaturesExtractor()
 				, new PartOfSpeechFeaturesExtractor()
 				, new EventArgumentPropertyExtractor()
 				, new UmlsFeatureExtractor()
@@ -168,6 +171,20 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 	protected List<IdentifiedAnnotationPair> getCandidateRelationArgumentPairs(
 			JCas jCas, Annotation sentence) {
 
+		//		Map<List<EventMention>, TemporalTextRelation> relationLookup = new HashMap<>();
+		//	    if (this.isTraining()) {
+		//	      relationLookup = new HashMap<>();
+		//	      for (TemporalTextRelation relation : JCasUtil.select(jCas, TemporalTextRelation.class)) {
+		//	        Annotation arg1 = relation.getArg1().getArgument();
+		//	        Annotation arg2 = relation.getArg2().getArgument();
+		//	        // The key is a list of args so we can do bi-directional lookup
+		//	        if(arg1 instanceof EventMention && arg2 instanceof EventMention){
+		//	        	List<EventMention> key = Arrays.asList((EventMention)arg1, (EventMention)arg2);
+		//	        	relationLookup.put(key, relation);
+		//	        }
+		//	      }
+		//	    }
+
 		Map<EventMention, Collection<EventMention>> coveringMap =
 				JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
 
@@ -186,24 +203,47 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 
 		for (int i = 0; i < eventNum-1; i++){
 			for(int j = i+1; j < eventNum; j++){
-				EventMention eventA = events.get(j);
-				EventMention eventB = events.get(i);
+				EventMention eventA = events.get(i);
+				EventMention eventB = events.get(j);
 
+				boolean eventAMedical = false;
+				for( EventMention aEve : JCasUtil.selectCovering(jCas, EventMention.class, eventA)){
+					if(!aEve.getClass().equals(EventMention.class)){//this event cover a UMLS semantic type
+						eventAMedical = true;
+						break;
+					}
+				}
+
+				boolean eventBMedical = false;
+				for( EventMention bEve : JCasUtil.selectCovering(jCas, EventMention.class, eventB)){
+					if(!bEve.getClass().equals(EventMention.class)){//this event cover a UMLS semantic type
+						eventBMedical = true;
+						break;
+					}
+				}
+
+				//				List<EventMention> key = Arrays.asList(eventA, eventB);
+				
 				if(this.isTraining()){
 					//pairing covering system events:
-					for (EventMention event1 : coveringMap.get(eventA)){
-						for(EventMention event2 : coveringMap.get(eventB)){
-							if(!hasOverlap(event1,event2)){//don't generate overlapping arguments
-								pairs.add(new IdentifiedAnnotationPair(event1, event2));
+					if(eventAMedical || eventBMedical){
+						for (EventMention event1 : coveringMap.get(eventA)){
+							if(!hasOverlap(event1,eventB)){//don't generate overlapping arguments
+								pairs.add(new IdentifiedAnnotationPair(event1, eventB));
+							}
+
+							for(EventMention event2 : coveringMap.get(eventB)){
+								if(!hasOverlap(event1,event2)){//don't generate overlapping arguments
+									pairs.add(new IdentifiedAnnotationPair(event1, event2));
+								}
 							}
 						}
-						if(!hasOverlap(event1,eventB)){//don't generate overlapping arguments
-							pairs.add(new IdentifiedAnnotationPair(event1, eventB));
-						}
-					}
-					for(EventMention event2 : coveringMap.get(eventB)){
-						if(!hasOverlap(eventA,event2)){//don't generate overlapping arguments
-							pairs.add(new IdentifiedAnnotationPair(eventA, event2));
+						//					}
+						//					if(eventBMedical && !eventAMedical){
+						for(EventMention event2 : coveringMap.get(eventB)){
+							if(!hasOverlap(eventA,event2)){//don't generate overlapping arguments
+								pairs.add(new IdentifiedAnnotationPair(eventA, event2));
+							}
 						}
 					}
 				}
@@ -232,11 +272,29 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 		return pairs;
 	}
 
+	private static boolean noAdditionalEventsInBetween(JCas jCas, EventMention eventA,
+			EventMention eventB) {
+
+		List<EventMention> events = new ArrayList<>(JCasUtil.selectBetween(jCas, EventMention.class, eventA, eventB));
+		//filter events:
+		List<EventMention> realEvents = Lists.newArrayList();
+		for( EventMention event : events){
+			if(event.getClass().equals(EventMention.class)){
+				realEvents.add(event);
+			}
+		}
+		events = realEvents;
+		if(events==null ||events.size()==0){
+			return true;
+		}
+		return false;
+	}
+
 	private static boolean hasOverlap(Annotation event1, Annotation event2) {
 		if(event1.getEnd()>=event2.getBegin()&&event1.getEnd()<=event2.getEnd()){
 			return true;
 		}
-		if(event2.getEnd()>=event1.getBegin()&&event2.getEnd()<=event2.getEnd()){
+		if(event2.getEnd()>=event1.getBegin()&&event2.getEnd()<=event1.getEnd()){
 			return true;
 		}
 		return false;
