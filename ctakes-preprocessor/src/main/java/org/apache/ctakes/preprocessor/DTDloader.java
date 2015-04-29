@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -36,9 +37,9 @@ public class DTDloader implements EntityResolver
 {
     private InputSource iv_inSrc;
 
-    public DTDloader(File dtdFile) throws FileNotFoundException
+    public DTDloader(InputStream dtdFile)
     {
-        iv_inSrc = new InputSource(new FileInputStream(dtdFile));
+        iv_inSrc = new InputSource(dtdFile);
     }
 
     /**

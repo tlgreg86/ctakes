@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.preprocessor.ClinicalNotePreProcessor;
 import org.apache.ctakes.preprocessor.DocumentMetaData;
 import org.apache.ctakes.preprocessor.PreProcessor;
@@ -62,12 +63,7 @@ public class TestDriver
             Set sectionNames;
             Iterator snItr;
 
-            File dtdFile = new File(dtdFilename);
-            if (!exists(dtdFile)) {
-            	System.exit(-1);
-            }
-            
-            PreProcessor pp = new ClinicalNotePreProcessor(dtdFile, false);
+            PreProcessor pp = new ClinicalNotePreProcessor(FileLocator.getAsStream(dtdFilename), false);
 
             timestamp = System.currentTimeMillis();
             DocumentMetaData dmd = pp.process(hl7Text);

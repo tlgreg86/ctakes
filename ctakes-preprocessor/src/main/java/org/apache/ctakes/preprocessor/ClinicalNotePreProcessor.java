@@ -20,6 +20,7 @@ package org.apache.ctakes.preprocessor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -153,7 +154,7 @@ public class ClinicalNotePreProcessor extends DefaultHandler
      *            as part of the section.
      * @throws SAXException
      */
-    public ClinicalNotePreProcessor(File dtdFile, boolean includeSectionMarkers)
+    public ClinicalNotePreProcessor(InputStream dtdFile, boolean includeSectionMarkers)
             throws SAXException, FileNotFoundException
     {
         iv_includeSectionMarkers = includeSectionMarkers;

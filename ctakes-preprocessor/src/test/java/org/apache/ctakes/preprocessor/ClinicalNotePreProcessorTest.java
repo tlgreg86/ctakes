@@ -29,6 +29,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Map;
 
+import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.preprocessor.ClinicalNotePreProcessor;
 import org.apache.ctakes.preprocessor.DocumentMetaData;
 
@@ -63,8 +64,7 @@ public class ClinicalNotePreProcessorTest extends TestCase
         super.setUp();
 
         String dtdLocation = "src/test/resources/NotesIIST_RTF.DTD";
-        File dtd = new File(dtdLocation);
-        iv_cnotePreProcessor = new ClinicalNotePreProcessor(dtd, false);
+        iv_cnotePreProcessor = new ClinicalNotePreProcessor(FileLocator.getAsStream(dtdLocation), false);
 
         String cnoteLocationOnCp = "src/test/resources/testpatient_cn_1.xml";
         String cnoteLocation = new File(cnoteLocationOnCp).getPath();

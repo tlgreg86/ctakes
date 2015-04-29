@@ -25,9 +25,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FSIterator;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.cas.FSArray;
@@ -38,6 +38,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.ctakes.core.ci.HyphenTextModifierImpl;
 import org.apache.ctakes.core.ci.TextModification;
 import org.apache.ctakes.core.ci.TextModifier;
+import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.resource.FileResource;
 import org.apache.ctakes.preprocessor.ClinicalNotePreProcessor;
 import org.apache.ctakes.preprocessor.DocumentMetaData;
@@ -47,7 +48,8 @@ import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.util.Pair;
 import org.apache.ctakes.typesystem.type.util.Pairs;
-
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 
 /**
  * Bootstraps the CAS by:
@@ -63,21 +65,33 @@ import org.apache.ctakes.typesystem.type.util.Pairs;
  */
 public class CdaCasInitializer extends JCasAnnotator_ImplBase
 {
+	protected static final String DEFAULT_HYPHEN_FILE = "org/apache/ctakes/preprocessor/tokenizer/hyphenated.txt";
+	protected static final String DEFAULT_DTD_FILE = "org/apache/ctakes/preprocessor/cda/NotesIIST_RTF.DTD";	
+	
     // LOG4J logger based on class name
     private Logger logger = Logger.getLogger(getClass().getName());
 
-    private File dtdFile;
     private Boolean includeSectionMarkers;
-
     private TextModifier tm;
+    private UimaContext uimaContext;
     
-    
-    private UimaContext uimaContext; 
+    public static final String PARAM_DTD_FILE = "DtdFile";
+  	@ConfigurationParameter(name = PARAM_DTD_FILE, 
+  	    description = "Path to File that contains the DTD file", 
+  	    defaultValue=DEFAULT_DTD_FILE,
+  	    mandatory=false)
+  	protected String dtdfilepath;
+  	
+    public static final String PARAM_HYPHEN_FILE = "HyphenFile";
+  	@ConfigurationParameter(name = PARAM_HYPHEN_FILE, 
+  	    description = "Path to File that contains the hypenated file", 
+  	    defaultValue=DEFAULT_HYPHEN_FILE,
+  	    mandatory=false)
+  	protected String hyphenfilepath;  	
     
 	public void initialize(UimaContext aCtx) throws ResourceInitializationException {
 		
 		super.initialize(aCtx);
-		
 		uimaContext = aCtx;
 		initialize();
 
@@ -95,17 +109,13 @@ public class CdaCasInitializer extends JCasAnnotator_ImplBase
         int hyphWindow = 3;
 
         try {
-            FileResource hyphResrc = (FileResource) uimaContext.getResourceObject("HyphenDictionary");
-            File hyphFile = hyphResrc.getFile();
-        	logger.info("Hyphen dictionary: " + hyphFile.getAbsolutePath());
+        	logger.info("Hyphen dictionary: " + hyphenfilepath);
 
             tm = new HyphenTextModifierImpl(
-                    hyphFile.getAbsolutePath(),
+            		hyphenfilepath,
                     hyphWindow);
 
-            FileResource dtdResrc = (FileResource) uimaContext.getResourceObject("DTD");
-            dtdFile = dtdResrc.getFile();
-        	logger.info("DTD: " + dtdFile.getAbsolutePath());
+        	logger.info("DTD: " + dtdfilepath);
         }
         catch (Exception e) {
             throw new ResourceInitializationException(e);
@@ -152,8 +162,9 @@ public class CdaCasInitializer extends JCasAnnotator_ImplBase
         	JCas originalView = jcas.getView("_InitialView");
         	originalText = originalView.getSofaDataString();
 
+        	//TODO: A bit over engineered? Is this config really parsed very time???
             PreProcessor pp = new ClinicalNotePreProcessor(
-                    dtdFile,
+            		FileLocator.getAsStream(dtdfilepath),
                     includeSectionMarkers.booleanValue());
             dmd = pp.process(originalText);
 

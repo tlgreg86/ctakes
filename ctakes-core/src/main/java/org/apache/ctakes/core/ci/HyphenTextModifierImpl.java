@@ -39,6 +39,7 @@ import java.util.Map;
 
 import org.apache.ctakes.core.nlp.tokenizer.Token;
 import org.apache.ctakes.core.nlp.tokenizer.Tokenizer;
+import org.apache.ctakes.core.resource.FileLocator;
 
 
 /**
@@ -59,8 +60,8 @@ public class HyphenTextModifierImpl implements TextModifier {
 		iv_tokenizer = new Tokenizer();
 		BufferedReader br;
 		try {
-			br = new BufferedReader(new FileReader(new File(hyphenfilename)));
-
+			br = new BufferedReader(new InputStreamReader(
+				      FileLocator.getAsStream(hyphenfilename)));
 			String line = "";
 
 			iv_shouldbeHyphenMap = new HashMap<String, Integer>();
