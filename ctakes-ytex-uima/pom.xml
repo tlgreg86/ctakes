@@ -108,13 +108,23 @@
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.cleartk</groupId>
-				<artifactId>jcasgen-maven-plugin</artifactId>
-				<configuration>
-					<typeSystem>src/main/resources/org/apache/ctakes/ytex/types/TypeSystem.xml</typeSystem>
-				</configuration>
-			</plugin>
+				<plugin>
+				  <groupId>org.apache.uima</groupId>
+				  <artifactId>jcasgen-maven-plugin</artifactId>
+				  <version>2.5.0</version>				  
+				  <executions>
+				    <execution>
+				      <goals><goal>generate</goal></goals>
+				      <configuration>
+				        <typeSystemIncludes>
+				          <typeSystemInclude>src/main/resources/org/apache/ctakes/**/types/TypeSystem.xml</typeSystemInclude>				          
+				        </typeSystemIncludes>
+				        <limitToProject>false</limitToProject>
+				      </configuration>
+				    </execution>
+				    </executions>
+				</plugin>
+	
 			<!-- ant scripts need project dependencies in the target/lib directory -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
