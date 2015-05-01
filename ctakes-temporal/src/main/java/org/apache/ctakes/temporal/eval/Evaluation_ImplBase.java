@@ -24,6 +24,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,7 +59,6 @@ import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.resource.FileResourceImpl;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
-import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.AbstractJCasTermAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.JCasTermAnnotator;
@@ -116,6 +118,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.CharStreams;
 import com.lexicalscope.jewel.cli.Option;
 
 public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
@@ -125,9 +128,11 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 	public static final String GOLD_VIEW_NAME = "GoldView";
 
-	enum XMLFormat { Knowtator, Anafora, I2B2 }
+	public enum XMLFormat { Knowtator, Anafora, I2B2 }
 
-	static interface Options {
+	public enum Subcorpus { Colon, Brain}
+	
+  public static interface Options {
 
 		@Option(longName = "text", defaultToNull = true)
 		public File getRawTextDirectory();
@@ -137,6 +142,9 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 		@Option(longName = "format", defaultValue="Anafora")
 		public XMLFormat getXMLFormat();
+
+		@Option(longName = "subcorpus", defaultValue="Colon")
+		public Subcorpus getSubcorpus();
 
 		@Option(longName = "xmi")
 		public File getXMIDirectory();
@@ -204,6 +212,8 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 	protected XMLFormat xmlFormat;
 
+	protected Subcorpus subcorpus;
+	
 	protected File xmiDirectory;
 
 	private boolean xmiExists;
@@ -223,12 +233,14 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 			File rawTextDirectory,
 			File xmlDirectory,
 			XMLFormat xmlFormat,
+			Subcorpus subcorpus,
 			File xmiDirectory,
 			File treebankDirectory) {
 		super(baseDirectory);
 		this.rawTextDirectory = rawTextDirectory;
 		this.xmlDirectory = xmlDirectory;
 		this.xmlFormat = xmlFormat;
+		this.subcorpus = subcorpus;
 		this.xmiDirectory = xmiDirectory;
 		this.xmiExists = this.xmiDirectory.exists() && this.xmiDirectory.listFiles().length > 0;
 		this.treebankDirectory = treebankDirectory;
@@ -259,13 +271,21 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		if (this.xmlFormat == XMLFormat.Anafora) {
 			Set<String> ids = new HashSet<>();
 			for (Integer set : patientSets) {
-				ids.add(String.format("ID%03d", set));
+			  if(this.subcorpus == Subcorpus.Colon){
+			    ids.add(String.format("ID%03d", set));
+			  }else{
+			    ids.add(String.format("doc%04d", set));
+			  }
+			}
+			int filePrefixLen = 5; // Colon: "ID\d{3}"
+			if(this.subcorpus == Subcorpus.Brain){
+			  filePrefixLen = 7; // Brain: "doc\d{4}"
 			}
 			for (String section : THYMEData.SECTIONS){
 				File xmlSubdir = new File(this.xmlDirectory, section);
 				for (File dir : xmlSubdir.listFiles()) {
 					if (dir.isDirectory()) {
-						if (ids.contains(dir.getName().substring(0, 5))) {
+						if (ids.contains(dir.getName().substring(0, filePrefixLen))) {
 							File file = new File(dir, dir.getName());
 							if (file.exists()) {
 								files.add(file);
@@ -345,7 +365,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 	protected AggregateBuilder getXMIWritingPreprocessorAggregateBuilder()
 			throws Exception {
 		AggregateBuilder aggregateBuilder = new AggregateBuilder();
-		aggregateBuilder.add(UriToDocumentTextAnnotator.getDescription());
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(UriToDocumentTextAnnotatorCtakes.class));
 
 		// read manual annotations into gold view
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
@@ -440,9 +460,19 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				"DeleteAction",
 				new String[] { "selector=B" }));
 		// add UMLS on top of lookup windows
-		aggregateBuilder.add(
-				UmlsDictionaryLookupAnnotator.createAnnotatorDescription()
-				);
+    try {
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotator.class,
+          AbstractJCasTermAnnotator.PARAM_WINDOW_ANNOT_PRP,
+          "org.apache.ctakes.typesystem.type.textspan.Sentence",
+          JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY,
+          ExternalResourceFactory.createExternalResourceDescription(
+              FileResourceImpl.class,
+              FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml"))
+          ));
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+      throw new ResourceInitializationException(e);
+    }
 
 		aggregateBuilder.add(LvgAnnotator.createAnnotatorDescription());
 
@@ -734,6 +764,31 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 			}
 		}
 	}
+	
+  /* 
+   * The following class overrides a ClearTK utility annotator class for reading
+   * a text file into a JCas. The code is copy/pasted so that one tiny modification
+   * can be made for this corpus -- replace a single odd character (0xc) with a 
+   * space since it trips up xml output.  
+   */
+  public static class UriToDocumentTextAnnotatorCtakes extends UriToDocumentTextAnnotator {
+
+    @Override
+    public void process(JCas jCas) throws AnalysisEngineProcessException {
+      URI uri = ViewUriUtil.getURI(jCas);
+      String content;
+
+      try {
+        content = CharStreams.toString(new InputStreamReader(uri.toURL().openStream()));
+        content = content.replace((char) 0xc, ' ');
+        jCas.setSofaDataString(content, "text/plain");
+      } catch (MalformedURLException e) {
+        throw new AnalysisEngineProcessException(e);
+      } catch (IOException e) {
+        throw new AnalysisEngineProcessException(e);
+      }
+    }  
+  }
 
 	public static class WriteI2B2XML extends JCasAnnotator_ImplBase {
 		public static final String PARAM_OUTPUT_DIR="PARAM_OUTPUT_DIR";

@@ -58,18 +58,6 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.util.FileUtils;
-import org.cleartk.ml.jar.JarClassifierBuilder;
-import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
-//import org.cleartk.ml.libsvm.tk.TkLibSvmStringOutcomeDataWriter;
-//import org.cleartk.ml.libsvm.LIBSVMStringOutcomeDataWriter;
-//import org.cleartk.ml.tksvmlight.TKSVMlightStringOutcomeDataWriter;
-import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
-import org.cleartk.eval.AnnotationStatistics;
-import org.cleartk.util.ViewUriUtil;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AggregateBuilder;
@@ -77,6 +65,18 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.FileUtils;
+import org.cleartk.eval.AnnotationStatistics;
+import org.cleartk.ml.jar.JarClassifierBuilder;
+import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
+//import org.cleartk.ml.libsvm.tk.TkLibSvmStringOutcomeDataWriter;
+//import org.cleartk.ml.libsvm.LIBSVMStringOutcomeDataWriter;
+//import org.cleartk.ml.tksvmlight.TKSVMlightStringOutcomeDataWriter;
+import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
+import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
@@ -163,6 +163,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					options.getRawTextDirectory(),
 					options.getXMLDirectory(),
 					options.getXMLFormat(),
+					options.getSubcorpus(),
 					options.getXMIDirectory(),
 					options.getTreebankDirectory(),
 					options.getClosure(),
@@ -234,6 +235,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			File rawTextDirectory,
 			File xmlDirectory,
 			XMLFormat xmlFormat,
+			Subcorpus subcorpus,
 			File xmiDirectory,
 			File treebankDirectory,
 			boolean useClosure,
@@ -248,6 +250,7 @@ EvaluationOfTemporalRelations_ImplBase{
 				rawTextDirectory,
 				xmlDirectory,
 				xmlFormat,
+				subcorpus,
 				xmiDirectory,
 				treebankDirectory,
 				printErrors,

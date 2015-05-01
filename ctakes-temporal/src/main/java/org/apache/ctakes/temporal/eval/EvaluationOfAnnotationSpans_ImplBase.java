@@ -77,10 +77,11 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 			File rawTextDirectory,
 			File xmlDirectory,
 			XMLFormat xmlFormat,
+			Subcorpus subcorpus,
 			File xmiDirectory,
 			File treebankDirectory,
 			Class<? extends Annotation> annotationClass) {
-		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, treebankDirectory);
+		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, subcorpus, xmiDirectory, treebankDirectory);
 		this.annotationClass = annotationClass;
 	}
 
@@ -89,9 +90,10 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 			File rawTextDirectory, 
 			File xmlDirectory,
 			XMLFormat xmlFormat,
+			Subcorpus subcorpus,
 			File xmiDirectory,
 			Class<? extends Annotation> annotationClass) {
-		this(baseDirectory,rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null, annotationClass);
+		this(baseDirectory,rawTextDirectory, xmlDirectory, xmlFormat, subcorpus, xmiDirectory, null, annotationClass);
 	}
 
 	protected abstract AnalysisEngineDescription getDataWriterDescription(File directory)
@@ -123,7 +125,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 		if(this.i2b2Output != null){
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
 		}
-		AnnotationStatistics<String> stats = new AnnotationStatistics<String>();
+		AnnotationStatistics<String> stats = new AnnotationStatistics<>();
 		Ordering<Annotation> bySpans = Ordering.<Integer> natural().lexicographical().onResultOf(
 				new Function<Annotation, List<Integer>>() {
 					@Override
@@ -142,7 +144,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 					Collection<? extends Annotation> systemAnnotations = this.getSystemAnnotations(systemView, segment);
 					stats.add(goldAnnotations, systemAnnotations);
 
-					Set<Annotation> goldSet = new TreeSet<Annotation>(bySpans);
+					Set<Annotation> goldSet = new TreeSet<>(bySpans);
 					for (Annotation goldAnnotation : goldAnnotations) {
 						// TODO: fix data so that this is not necessary
 						if (goldAnnotation.getBegin() == Integer.MAX_VALUE || goldAnnotation.getEnd() == Integer.MIN_VALUE) {
@@ -152,21 +154,21 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 						goldSet.add(goldAnnotation);
 					}
 					//goldSet.addAll(goldAnnotations);
-					Set<Annotation> systemSet = new TreeSet<Annotation>(bySpans);
+					Set<Annotation> systemSet = new TreeSet<>(bySpans);
 					systemSet.addAll(systemAnnotations);
 
-					Set<Annotation> goldOnly = new TreeSet<Annotation>(bySpans);
+					Set<Annotation> goldOnly = new TreeSet<>(bySpans);
 					goldOnly.addAll(goldSet);
 					goldOnly.removeAll(systemSet);
 
-					Set<Annotation> systemOnly = new TreeSet<Annotation>(bySpans);
+					Set<Annotation> systemOnly = new TreeSet<>(bySpans);
 					systemOnly.addAll(systemSet);
 					systemOnly.removeAll(goldSet);
 
 					String text = jCas.getDocumentText().replaceAll("[\r\n]", " ");
 					if (!goldOnly.isEmpty() || !systemOnly.isEmpty()) {
 						this.logger.fine("Errors in : " + ViewUriUtil.getURI(jCas).toString());
-						Set<Annotation> errors = new TreeSet<Annotation>(bySpans);
+						Set<Annotation> errors = new TreeSet<>(bySpans);
 						errors.addAll(goldOnly);
 						errors.addAll(systemOnly);
 						for (Annotation annotation : errors) {
@@ -203,8 +205,8 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 							}
 						}
 					}
-					Set<Annotation> partialGold = new HashSet<Annotation>();
-					Set<Annotation> partialSystem = new HashSet<Annotation>();
+					Set<Annotation> partialGold = new HashSet<>();
+					Set<Annotation> partialSystem = new HashSet<>();
 
 					// get overlapping spans
 					if(this.printOverlapping){

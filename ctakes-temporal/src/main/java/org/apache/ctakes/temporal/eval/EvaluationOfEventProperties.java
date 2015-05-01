@@ -20,7 +20,6 @@ package org.apache.ctakes.temporal.eval;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,7 +41,6 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.collection.CollectionReader;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.pipeline.JCasIterator;
@@ -109,6 +107,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 					options.getRawTextDirectory(),
 					options.getXMLDirectory(),
 					options.getXMLFormat(),
+					options.getSubcorpus(),
 					options.getXMIDirectory());
 			evaluation.skipTrain = options.getSkipTrain();
 			if(evaluation.skipTrain && options.getTest()){
@@ -144,8 +143,9 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 			File rawTextDirectory,
 			File xmlDirectory,
 			XMLFormat xmlFormat,
+			Subcorpus subcorpus,
 			File xmiDirectory) {
-		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null);
+		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, subcorpus, xmiDirectory, null);
 		for (String name : PROPERTY_NAMES) {
 			this.loggers.put(name, Logger.getLogger(String.format("%s.%s", this.getClass().getName(), name)));
 		}

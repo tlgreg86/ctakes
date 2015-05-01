@@ -63,9 +63,9 @@ public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotat
   public EvaluationOfMetaTimeExpressionExtractor(File baseDirectory,
       File rawTextDirectory, File xmlDirectory,
       org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat xmlFormat,
-      File xmiDirectory, File treebankDirectory,
+      Subcorpus subcorpus, File xmiDirectory, File treebankDirectory,
       List<Integer> allTrain, Class<? extends Annotation> annotationClass) {
-    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory,
+    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, subcorpus, xmiDirectory,
         treebankDirectory, annotationClass);
     this.allTrain = allTrain;
   }
@@ -101,6 +101,7 @@ public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotat
             options.getRawTextDirectory(), 
             options.getXMLDirectory(), 
             options.getXMLFormat(),
+            options.getSubcorpus(),
             options.getXMIDirectory(), 
             options.getTreebankDirectory(),
             allTrain,
@@ -142,6 +143,7 @@ public class EvaluationOfMetaTimeExpressionExtractor extends EvaluationOfAnnotat
               this.rawTextDirectory,
               this.xmlDirectory,
               this.xmlFormat,
+              this.subcorpus,
               this.xmiDirectory,
               this.treebankDirectory,
               1,

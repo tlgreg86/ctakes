@@ -64,13 +64,14 @@ EvaluationOfTemporalRelations_ImplBase {
       File rawTextDirectory,
       File xmlDirectory,
       XMLFormat xmlFormat,
+      Subcorpus subcorpus,
       File xmiDirectory,
       File treebankDirectory,
       boolean printErrors,
       boolean printRelations,
       boolean baseline,
       ParameterSettings params){
-    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory,
+    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, subcorpus, xmiDirectory,
         treebankDirectory, printErrors, printRelations, params);
     this.baseline = baseline;
   }
@@ -206,6 +207,7 @@ EvaluationOfTemporalRelations_ImplBase {
         options.getRawTextDirectory(),
         options.getXMLDirectory(),
         options.getXMLFormat(),
+        options.getSubcorpus(),
         options.getXMIDirectory(),
         options.getTreebankDirectory(),
         options.getPrintErrors(),

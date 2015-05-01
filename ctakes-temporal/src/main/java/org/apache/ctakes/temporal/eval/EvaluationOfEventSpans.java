@@ -73,19 +73,20 @@ public class EvaluationOfEventSpans extends EvaluationOfAnnotationSpans_ImplBase
       testItems = THYMEData.getPatientSets(patientSets, options.getTestRemainders().getList());
     }
     
-    List<Integer> allTraining = new ArrayList<Integer>(trainItems);
+    List<Integer> allTraining = new ArrayList<>(trainItems);
     List<Integer> allTest = null;
     if (options.getTest()) {
       allTraining.addAll(devItems);
-      allTest = new ArrayList<Integer>(testItems);
+      allTest = new ArrayList<>(testItems);
     } else {
-      allTest = new ArrayList<Integer>(devItems);
+      allTest = new ArrayList<>(devItems);
     }
     EvaluationOfEventSpans evaluation = new EvaluationOfEventSpans(
         new File("target/eval/event-spans"),
         options.getRawTextDirectory(),
         options.getXMLDirectory(),
         options.getXMLFormat(),
+        options.getSubcorpus(),
         options.getXMIDirectory(),
         options.getProbabilityOfKeepingANegativeExample(),
         options.getFeatureSelectionThreshold(),
@@ -108,11 +109,12 @@ public class EvaluationOfEventSpans extends EvaluationOfAnnotationSpans_ImplBase
       File rawTextDirectory,
       File xmlDirectory,
       XMLFormat xmlFormat,
+      Subcorpus subcorpus,
       File xmiDirectory,
       float probabilityOfKeepingANegativeExample,
       float featureSelectionThreshold,
       float numOfSmoteNeighbors) {
-    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, EventMention.class);
+    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, subcorpus, xmiDirectory, EventMention.class);
     this.probabilityOfKeepingANegativeExample = probabilityOfKeepingANegativeExample;
     this.featureSelectionThreshold = featureSelectionThreshold;
     this.smoteNeighborNumber = numOfSmoteNeighbors;

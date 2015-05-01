@@ -19,7 +19,6 @@
 package org.apache.ctakes.temporal.eval;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -90,6 +89,7 @@ public class EvaluationOfClearTKRelations extends
         options.getRawTextDirectory(),
         options.getXMLDirectory(),
         options.getXMLFormat(),
+        options.getSubcorpus(),
         options.getXMIDirectory());
     evaluation.setExtractEventEvent(!options.getIgnoreEventEvent());
     evaluation.setExtractEventTime(!options.getIgnoreEventTime());
@@ -104,8 +104,9 @@ public class EvaluationOfClearTKRelations extends
   public EvaluationOfClearTKRelations(File baseDirectory, File rawTextDirectory,
       File xmlDirectory,
       org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat xmlFormat,
+      Subcorpus subcorpus,
       File xmiDirectory) {
-    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null, false, false, defaultParams);
+    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, subcorpus, xmiDirectory, null, false, false, defaultParams);
   }
   
   private void setExtractEventTime(boolean eventTime) {
@@ -177,7 +178,7 @@ public class EvaluationOfClearTKRelations extends
       }
     };
     Function<BinaryTextRelation, String> getOutcome = AnnotationStatistics.annotationToFeatureValue("category");
-    AnnotationStatistics<String> stats = new AnnotationStatistics<String>();
+    AnnotationStatistics<String> stats = new AnnotationStatistics<>();
     for (Iterator<JCas> casIter = new JCasIterator(collectionReader, aggregateBuilder.createAggregate()); casIter.hasNext();) {
       JCas jCas = casIter.next();
       JCas goldView = jCas.getView(GOLD_VIEW_NAME);

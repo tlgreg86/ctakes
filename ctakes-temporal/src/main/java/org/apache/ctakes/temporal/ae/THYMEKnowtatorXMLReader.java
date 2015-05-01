@@ -58,8 +58,13 @@ public class THYMEKnowtatorXMLReader extends SHARPKnowtatorXMLReader {
   }
   
   @Override
-  protected URI getTextURI(JCas jCas) throws AnalysisEngineProcessException {
-    return ViewUriUtil.getURI(jCas);
+  protected URI getTextURI(JCas jCas) {
+    try {
+        return ViewUriUtil.getURI(jCas);
+    } catch (AnalysisEngineProcessException e){
+    	e.printStackTrace();
+    }
+    return null;
   }
 
   @Override
@@ -98,7 +103,7 @@ public class THYMEKnowtatorXMLReader extends SHARPKnowtatorXMLReader {
    */
   public static void main(String[] args) throws Exception {
     Options options = CliFactory.parseArguments(Options.class, args);
-    List<File> files = new ArrayList<File>();
+    List<File> files = new ArrayList<>();
     for (Integer set : options.getPatients().getList()) {
       File setTextDirectory = new File(options.getRawTextDirectory(), "doc" + set);
       for (File file : setTextDirectory.listFiles()) {

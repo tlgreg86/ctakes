@@ -47,7 +47,7 @@ import com.lexicalscope.jewel.cli.Option;
 public abstract class EvaluationOfTemporalRelations_ImplBase extends
 Evaluation_ImplBase<AnnotationStatistics<String>> {
 
-	static interface TempRelOptions extends Evaluation_ImplBase.Options{
+	public static interface TempRelOptions extends Evaluation_ImplBase.Options{
 		@Option
 		public boolean getTest();
 
@@ -80,9 +80,9 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 	protected boolean printRelations = false;
 
 	public EvaluationOfTemporalRelations_ImplBase(File baseDirectory,
-			File rawTextDirectory, File xmlDirectory, XMLFormat xmlFormat,
+			File rawTextDirectory, File xmlDirectory, XMLFormat xmlFormat, Subcorpus subcorpus,
 			File xmiDirectory, File treebankDirectory, boolean printErrors, boolean printRelations, ParameterSettings params) {
-		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory,
+		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, subcorpus, xmiDirectory,
 				treebankDirectory);
 		this.params = params;
 		this.printRelations = printRelations;

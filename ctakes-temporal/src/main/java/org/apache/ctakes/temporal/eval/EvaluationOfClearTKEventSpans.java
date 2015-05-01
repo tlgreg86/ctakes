@@ -19,7 +19,6 @@
 package org.apache.ctakes.temporal.eval;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -58,6 +57,7 @@ public class EvaluationOfClearTKEventSpans extends EvaluationOfAnnotationSpans_I
         options.getRawTextDirectory(),
         options.getXMLDirectory(),
         options.getXMLFormat(),
+        options.getSubcorpus(),
         options.getXMIDirectory());
     evaluation.prepareXMIsFor(patientSets);
     evaluation.setLogging(Level.FINE, new File("target/eval/cleartk-event-errors.log"));
@@ -70,8 +70,9 @@ public class EvaluationOfClearTKEventSpans extends EvaluationOfAnnotationSpans_I
       File rawTextDirectory,
       File xmlDirectory,
       XMLFormat xmlFormat,
+      Subcorpus subcorpus,
       File xmiDirectory) {
-    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, EventMention.class);
+    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, subcorpus, xmiDirectory, EventMention.class);
   }
 
   @Override

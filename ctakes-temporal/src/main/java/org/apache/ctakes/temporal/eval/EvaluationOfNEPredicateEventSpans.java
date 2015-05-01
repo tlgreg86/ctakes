@@ -41,18 +41,18 @@ public class EvaluationOfNEPredicateEventSpans extends
 
 	public EvaluationOfNEPredicateEventSpans(File baseDirectory,
 			File rawTextDirectory, File xmlDirectory, XMLFormat xmlFormat,
-			File xmiDirectory, File treebankDirectory,
+			Subcorpus subcorpus, File xmiDirectory, File treebankDirectory,
 			Class<? extends Annotation> annotationClass) {
 		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat,
-				xmiDirectory, treebankDirectory, annotationClass);
+				subcorpus, xmiDirectory, treebankDirectory, annotationClass);
 		// TODO Auto-generated constructor stub
 	}
 
 	public EvaluationOfNEPredicateEventSpans(File baseDirectory,
 			File rawTextDirectory, File xmlDirectory, XMLFormat xmlFormat,
-			File xmiDirectory) {
+			Subcorpus subcorpus, File xmiDirectory) {
 		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat,
-				xmiDirectory, EventMention.class);
+				subcorpus, xmiDirectory, EventMention.class);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -100,6 +100,7 @@ public class EvaluationOfNEPredicateEventSpans extends
 	        options.getRawTextDirectory(),
 	        options.getXMLDirectory(),
 	        options.getXMLFormat(),
+	        options.getSubcorpus(),
 	        options.getXMIDirectory());
 	    evaluation.prepareXMIsFor(patientSets);
 	    evaluation.setLogging(Level.FINE, new File("target/eval/ctakes-event-errors.log"));

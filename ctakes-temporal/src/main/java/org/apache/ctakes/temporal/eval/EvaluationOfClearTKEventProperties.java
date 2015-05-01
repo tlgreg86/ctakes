@@ -20,7 +20,6 @@ package org.apache.ctakes.temporal.eval;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -84,6 +83,7 @@ public class EvaluationOfClearTKEventProperties extends
         options.getRawTextDirectory(),
         options.getXMLDirectory(),
         options.getXMLFormat(),
+        options.getSubcorpus(),
         options.getXMIDirectory());
     evaluation.prepareXMIsFor(patientSets);
     evaluation.logClassificationErrors(new File("target/eval"), "ctakes-event-property-errors");
@@ -103,8 +103,9 @@ public class EvaluationOfClearTKEventProperties extends
       File rawTextDirectory,
       File xmlDirectory,
       XMLFormat xmlFormat,
+      Subcorpus subcorpus,
       File xmiDirectory) {
-    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, null);
+    super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, subcorpus, xmiDirectory, null);
     for (String name : PROPERTY_NAMES) {
       this.loggers.put(name, Logger.getLogger(String.format("%s.%s", this.getClass().getName(), name)));
     }
@@ -142,12 +143,12 @@ public class EvaluationOfClearTKEventProperties extends
 
     Function<EventMention, ?> eventMentionToSpan = AnnotationStatistics.annotationToSpan();
     Map<String, Function<EventMention, String>> propertyGetters;
-    propertyGetters = new HashMap<String, Function<EventMention, String>>();
+    propertyGetters = new HashMap<>();
     for (String name : PROPERTY_NAMES) {
       propertyGetters.put(name, getPropertyGetter(name));
     }
 
-    Map<String, AnnotationStatistics<String>> statsMap = new HashMap<String, AnnotationStatistics<String>>();
+    Map<String, AnnotationStatistics<String>> statsMap = new HashMap<>();
     statsMap.put(DOC_TIME_REL, new AnnotationStatistics<String>());
     for (Iterator<JCas> casIter = new JCasIterator(collectionReader, aggregateBuilder.createAggregate()); casIter.hasNext();) {
       JCas jCas = casIter.next();

@@ -24,12 +24,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,12 +36,12 @@ import org.apache.ctakes.core.ae.CDASegmentAnnotator;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.ae.ConsecutiveSentencesEventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.ConsecutiveSentencesEventTimeRelationAnnotator;
-import org.apache.ctakes.temporal.ae.TemporalRelationRuleAnnotator;
 import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAdmissionTimeAnnotator;
 import org.apache.ctakes.temporal.ae.EventDischargeTimeAnnotator;
 import org.apache.ctakes.temporal.ae.EventEventI2B2RelationAnnotator;
 import org.apache.ctakes.temporal.ae.EventTimeI2B2RelationAnnotator;
+import org.apache.ctakes.temporal.ae.TemporalRelationRuleAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventEventThymeRelations.AddEEPotentialRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.AddPotentialRelations;
@@ -55,18 +53,16 @@ import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
@@ -76,16 +72,9 @@ import org.apache.uima.util.FileUtils;
 import org.cleartk.eval.AnnotationStatistics;
 import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
-import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 //import org.cleartk.classifier.tksvmlight.TKSVMlightStringOutcomeDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
 import org.cleartk.util.ViewUriUtil;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.factory.AggregateBuilder;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.pipeline.SimplePipeline;
-import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
@@ -180,6 +169,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					options.getRawTextDirectory(),
 					options.getXMLDirectory(),
 					options.getXMLFormat(),
+					options.getSubcorpus(),
 					options.getXMIDirectory(),
 					options.getTreebankDirectory(),
 					options.getClosure(),
@@ -226,6 +216,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			File rawTextDirectory,
 			File xmlDirectory,
 			XMLFormat xmlFormat,
+			Subcorpus subcorpus,
 			File xmiDirectory,
 			File treebankDirectory,
 			boolean useClosure,
@@ -240,6 +231,7 @@ EvaluationOfTemporalRelations_ImplBase{
 				rawTextDirectory,
 				xmlDirectory,
 				xmlFormat,
+				subcorpus,
 				xmiDirectory,
 				treebankDirectory,
 				printErrors,

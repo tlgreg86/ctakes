@@ -104,14 +104,14 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
       testItems = THYMEData.getPatientSets(patientSets, options.getTestRemainders().getList());
     }
 		
-		List<Integer> allTrain = new ArrayList<Integer>(trainItems);
+		List<Integer> allTrain = new ArrayList<>(trainItems);
 		List<Integer> allTest = null;
 		
 		if(options.getTest()){
 		  allTrain.addAll(devItems);
-		  allTest = new ArrayList<Integer>(testItems);
+		  allTest = new ArrayList<>(testItems);
 		}else{
-		  allTest = new ArrayList<Integer>(devItems);
+		  allTest = new ArrayList<>(devItems);
 		}
 		
 		// specify the annotator classes to use
@@ -131,7 +131,7 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 		
 		// THYME best params: Backwards: 0.1, CRF 0.3, Time 0.1, Constituency 0.3
 		// i2b2 best params: Backwards 0.1, CRF 3.0, Time 0.1, Constituency 0.3
-		String gridParam = "0.01";
+//		String gridParam = "0.01";
 		annotatorTrainingArguments.put(BackwardsTimeAnnotator.class, new String[]{"-c", "0.1"});
 		annotatorTrainingArguments.put(TimeAnnotator.class, new String[]{"-c", "0.1"});
 		annotatorTrainingArguments.put(ConstituencyBasedTimeAnnotator.class, new String[]{"-c", "0.3"});
@@ -145,6 +145,7 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 					options.getRawTextDirectory(),
 					options.getXMLDirectory(),
 					options.getXMLFormat(),
+					options.getSubcorpus(),
 					options.getXMIDirectory(),
 					options.getTreebankDirectory(),
 					options.getFeatureSelectionThreshold(),
@@ -194,6 +195,7 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 			File rawTextDirectory,
 			File xmlDirectory,
 			XMLFormat xmlFormat,
+			Subcorpus subcorpus,
 			File xmiDirectory,
 			File treebankDirectory,
 			float featureSelectionThreshold,
@@ -201,7 +203,7 @@ public class EvaluationOfTimeSpans extends EvaluationOfAnnotationSpans_ImplBase 
 			Class<? extends JCasAnnotator_ImplBase> annotatorClass,
 					boolean printOverlapping,
 					String[] trainingArguments) {
-		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, xmiDirectory, treebankDirectory, TimeMention.class);
+		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, subcorpus, xmiDirectory, treebankDirectory, TimeMention.class);
 		this.annotatorClass = annotatorClass;
 		this.featureSelectionThreshold = featureSelectionThreshold;
 		this.trainingArguments = trainingArguments;
