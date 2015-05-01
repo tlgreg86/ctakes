@@ -175,6 +175,7 @@ public class EventTimeSelfRelationAnnotator extends RelationExtractorAnnotator {
 				// ignore subclasses like Procedure and Disease/Disorder
 				if(this.isTraining()){//if training mode, train on both gold event and span-overlapping system events
 					for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, sentence)) {
+						
 						Collection<EventMention> eventList = coveringMap.get(event);
 						for(EventMention covEvent : eventList){
 							pairs.add(new IdentifiedAnnotationPair(covEvent, time));
