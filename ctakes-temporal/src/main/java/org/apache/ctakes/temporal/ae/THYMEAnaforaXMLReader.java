@@ -243,6 +243,9 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           markable.addToIndexes();
           annotation = markable;
 
+        } else if (type.equals("DUPLICATE")) {
+          LOGGER.warn("Ignoring duplicate sections in annotations.");
+          continue;
         } else {
           throw new UnsupportedOperationException("unsupported entity type: " + type);
         }
