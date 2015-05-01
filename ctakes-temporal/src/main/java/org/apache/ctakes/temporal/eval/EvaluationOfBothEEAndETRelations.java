@@ -40,9 +40,12 @@ import org.apache.ctakes.temporal.ae.EventTimeSelfRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventEventThymeRelations.AddEEPotentialRelations;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.AddPotentialRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.Overlap2Contains;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
-import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveNonContainsRelations.RemoveGoldAttributes;
+import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveGoldAttributes;
+import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveNonContainsRelations;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
@@ -174,7 +177,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					options.getKernelParams(),
 					params);
 			//			evaluation.prepareXMIsFor(patientSets);
-			if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/temporal-relations/event-event");
+			if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/temporal-relations/both");
 			List<Integer> training = trainItems;
 			List<Integer> testing = null;
 			if(options.getTest()){
@@ -192,25 +195,25 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 			params.stats = evaluation.trainAndTest(training, testing);//training);//
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-			System.err.println("No closure on gold::Closure on System::Recall Mode");
+//			System.err.println("No closure on gold::Closure on System::Recall Mode");
 			System.err.println(params.stats);
 
 			//do closure on gold, but not on system, to calculate precision
-			evaluation.skipTrain = true;
-			recallModeEvaluation = false;
-			params.stats = evaluation.trainAndTest(training, testing);//training);//
-			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-			System.err.println("No closure on System::Closure on Gold::Precision Mode");
-			System.err.println(params.stats);
-
-			//do closure on train, but not on test, to calculate plain results
-			evaluation.skipTrain = true;
-			evaluation.useClosure = false;
-			//			evaluation.printErrors = false;
-			params.stats = evaluation.trainAndTest(training, testing);//training);//
-			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-			System.err.println("Closure on train::No closure on Test::Plain Mode");
-			System.err.println(params.stats);
+//			evaluation.skipTrain = true;
+//			recallModeEvaluation = false;
+//			params.stats = evaluation.trainAndTest(training, testing);//training);//
+//			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
+//			System.err.println("No closure on System::Closure on Gold::Precision Mode");
+//			System.err.println(params.stats);
+//
+//			//do closure on train, but not on test, to calculate plain results
+//			evaluation.skipTrain = true;
+//			evaluation.useClosure = false;
+//			//			evaluation.printErrors = false;
+//			params.stats = evaluation.trainAndTest(training, testing);//training);//
+//			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
+//			System.err.println("Closure on train::No closure on Test::Plain Mode");
+//			System.err.println(params.stats);
 
 			if(options.getUseTmp()){
 				// won't work because it's not empty. should we be concerned with this or is it responsibility of 
@@ -288,7 +291,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddContain2Overlap.class));
 			//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveBeforeAndOnRelations.class));
 		}
-		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class));
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
 
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonTLINKRelations.class));//remove non tlink relations, such as alinks
@@ -299,8 +302,8 @@ EvaluationOfTemporalRelations_ImplBase{
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonUMLSEvents.class));
 
 		//add unlabeled nearby system events as potential links: 
-		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddEEPotentialRelations.class));
-		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddPotentialRelations.class));	
+//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddEEPotentialRelations.class));
+//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddPotentialRelations.class));	
 
 		aggregateBuilder.add(EventEventRelationAnnotator.createDataWriterDescription(
 				LibLinearStringOutcomeDataWriter.class,
@@ -338,8 +341,8 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		//    HideOutput hider = new HideOutput();
-		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"),"-w1","0.2","-w3","15","-w4","4","-w5","64","-w6","24","-w7","29","-w9","70","-c", optArray[1]);//"-c", "0.05");//"0.08","-w3","3","-w4","17","-w5","20","-w6","16","-w7","10","-w8","6", "-w9","45","-w10","30","-c", optArray[1]);//"-c", "0.05");//optArray);
-		JarClassifierBuilder.trainAndPackage(new File(directory,"event-time"), "-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", optArray[1]); //"-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", optArray[1]);//"-w4","18","-w5","14","-w6","21","-w7","100","-w8","19","-c", optArray[1]);//"0.05");//"-h","0","-c", "1000");//optArray);
+		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"),"-w2","10","-w3","86","-c", "0.003");//"-c", "0.05");//"0.08","-w3","3","-w4","17","-w5","20","-w6","16","-w7","10","-w8","6", "-w9","45","-w10","30","-c", optArray[1]);//"-c", "0.05");//optArray);
+		JarClassifierBuilder.trainAndPackage(new File(directory,"event-time"), "-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", "0.0007"); //"-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", optArray[1]);//"-w4","18","-w5","14","-w6","21","-w7","100","-w8","19","-c", optArray[1]);//"0.05");//"-h","0","-c", "1000");//optArray);
 
 		//		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"), "-h","0","-c", "1000");
 		//    hider.restoreOutput();
@@ -349,6 +352,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	@Override
 	protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
 			throws Exception {
+		this.useClosure=false;
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
 
@@ -379,6 +383,10 @@ EvaluationOfTemporalRelations_ImplBase{
 					CAS.NAME_DEFAULT_SOFA,
 					GOLD_VIEW_NAME);
 		}
+		
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class),
+				CAS.NAME_DEFAULT_SOFA,
+				GOLD_VIEW_NAME);
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
 		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
@@ -523,100 +531,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}   
 	}
 
-	public static class AddPotentialRelations extends JCasAnnotator_ImplBase {
-		public static final String PARAM_RELATION_VIEW = "RelationView";
-		@ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
-		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
-
-		@Override
-		public void process(JCas jCas) throws AnalysisEngineProcessException {
-			JCas relationView;
-			try {
-				relationView = jCas.getView(this.relationViewName);
-			} catch (CASException e) {
-				throw new AnalysisEngineProcessException(e);
-			}
-
-			Map<EventMention, Collection<EventMention>> coveringMap =
-					JCasUtil.indexCovering(relationView, EventMention.class, EventMention.class);
-			for(TemporalTextRelation relation : Lists.newArrayList(JCasUtil.select(relationView, TemporalTextRelation.class))){
-				Annotation arg1 = relation.getArg1().getArgument();
-				Annotation arg2 = relation.getArg2().getArgument();
-				EventMention event = null;
-				if(arg1 instanceof EventMention && arg2 instanceof TimeMention){
-					event = (EventMention) arg1;
-					Collection<EventMention> eventList = coveringMap.get(event);
-					for(EventMention covEvent : eventList){
-						if(!covEvent.getClass().equals(EventMention.class)){
-							createRelation(relationView, covEvent, arg2, relation.getCategory());
-						}
-					}
-					for(EventMention covedEvent : JCasUtil.selectCovered(jCas, EventMention.class, event)){//select covered events
-						createRelation(relationView, covedEvent, arg2, relation.getCategory());
-					}
-				}else if(arg2 instanceof EventMention && arg1 instanceof TimeMention){
-					event = (EventMention) arg2;
-					Collection<EventMention> eventList = coveringMap.get(event);
-					for(EventMention covEvent : eventList){
-						if(!covEvent.getClass().equals(EventMention.class)){
-							createRelation(relationView, arg1, covEvent, relation.getCategory());
-						}
-					}
-					for(EventMention covedEvent : JCasUtil.selectCovered(jCas, EventMention.class, event)){//select covered events
-						createRelation(relationView, arg1, covedEvent, relation.getCategory());
-					}
-				}
-			}
-
-		}
-	}
-	public static class AddEEPotentialRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
-		public static final String PARAM_RELATION_VIEW = "RelationView";
-		@ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
-		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
-
-		@Override
-		public void process(JCas jCas) throws AnalysisEngineProcessException {
-			JCas relationView;
-			try {
-				relationView = jCas.getView(this.relationViewName);
-			} catch (CASException e) {
-				throw new AnalysisEngineProcessException(e);
-			}
-
-			Map<EventMention, Collection<EventMention>> coveringMap =
-					JCasUtil.indexCovering(relationView, EventMention.class, EventMention.class);
-			for(TemporalTextRelation relation : Lists.newArrayList(JCasUtil.select(relationView, TemporalTextRelation.class))){
-				Annotation arg1 = relation.getArg1().getArgument();
-				Annotation arg2 = relation.getArg2().getArgument();
-				if(arg1 instanceof EventMention && arg2 instanceof EventMention){
-					EventMention event1 = (EventMention) arg1;
-					EventMention event2 = (EventMention) arg2;
-					for(EventMention covEventA : coveringMap.get(event1)){
-						for(EventMention covEventB : coveringMap.get(event2)){
-							createRelation(relationView, covEventA, covEventB, relation.getCategory());
-						}
-						createRelation(relationView, covEventA, event2, relation.getCategory());
-					}
-					for(EventMention covEventB : coveringMap.get(event2)){
-						createRelation(relationView, event1, covEventB, relation.getCategory());
-					}
-					//get covered system events:
-					for(EventMention covedEventA : JCasUtil.selectCovered(jCas, EventMention.class, event1)){//select covered events
-						for(EventMention covedEventB : JCasUtil.selectCovered(jCas, EventMention.class, event2)){
-							createRelation(relationView, covedEventA, covedEventB, relation.getCategory());
-						}
-						createRelation(relationView, covedEventA, event2, relation.getCategory());
-					}
-					for(EventMention covedEventB : JCasUtil.selectCovered(jCas, EventMention.class, event2)){
-						createRelation(relationView, event1, covedEventB, relation.getCategory());
-					}
-				}
-			}
-
-		}
-	}
-
+	
 	static void createRelation(JCas jCas, Annotation arg1,
 			Annotation arg2, String category) {
 		RelationArgument relArg1 = new RelationArgument(jCas);

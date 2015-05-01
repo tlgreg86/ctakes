@@ -218,8 +218,8 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 							EventMention event = goldEvents.get(i);
 							int begin = event.getBegin();
 							int end = event.getEnd();
-							int windowBegin = Math.max(0, begin - 50);
-							int windowEnd = Math.min(text.length(), end + 50);
+							int windowBegin = Math.max(0, begin - 100);
+							int windowEnd = Math.min(text.length(), end + 100);
 							if (!goldOutcome.equals(systemOutcome)) {
 								this.loggers.get(name).fine(String.format(
 										"%s was %s but should be %s, in  ...%s[!%s!:%d-%d]%s...",

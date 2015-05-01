@@ -41,7 +41,7 @@ import org.apache.ctakes.temporal.ae.EventTimeSelfRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
-import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveNonContainsRelations.RemoveGoldAttributes;
+import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveGoldAttributes;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
@@ -49,6 +49,7 @@ import org.apache.ctakes.temporal.utils.TLinkTypeArray2;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
+import org.apache.ctakes.typesystem.type.syntax.WordToken;
 //import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -127,8 +128,18 @@ EvaluationOfTemporalRelations_ImplBase{
 	protected static ParameterSettings ftParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk", 
 			1.0, 0.1, "radial basis function", ComboOperator.SUM, 0.5, 0.5);
 	private static Boolean recallModeEvaluation = true;
+	
+	static int sysRelationCount;
+	static int closeRelationCount;
+	static int goldRelationCount;
+	static int closeGoldRelationCount;
 
 	public static void main(String[] args) throws Exception {
+		sysRelationCount = 0;
+		closeRelationCount = 0;
+		goldRelationCount = 0;
+		closeGoldRelationCount = 0;
+		
 		TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
 		List<Integer> trainItems = null;
 		List<Integer> devItems = null;
@@ -191,26 +202,31 @@ EvaluationOfTemporalRelations_ImplBase{
 				evaluation.prepareXMIsFor(patientSets);
 			}
 
+			evaluation.printErrors = true;
 			params.stats = evaluation.trainAndTest(training, testing);//training);//
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-			System.err.println("No closure on gold::Closure on System::Recall Mode");
+//			System.err.println("No closure on gold::Closure on System::Recall Mode");
 			System.err.println(params.stats);
 
+			System.err.println("System predict relations #: "+ sysRelationCount);
+			System.err.println("# of system relations whose arguments are close: "+ closeRelationCount);
+			System.err.println("Gold relations #: "+ goldRelationCount);
+			System.err.println("# of gold relations whose arguments are close: "+ closeGoldRelationCount);
 			//do closure on gold, but not on system, to calculate precision
-			evaluation.skipTrain = true;
-			recallModeEvaluation = false;
-			params.stats = evaluation.trainAndTest(training, testing);//training);//
-			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-			System.err.println("No closure on System::Closure on Gold::Precision Mode");
-			System.err.println(params.stats);
-
-			//do closure on train, but not on test, to calculate plain results
-			evaluation.skipTrain = true;
-			evaluation.useClosure = false;
-			params.stats = evaluation.trainAndTest(training, testing);//training);//
-			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-			System.err.println("Closure on train::No closure on Test::Plain Mode");
-			System.err.println(params.stats);
+//			evaluation.skipTrain = true;
+//			recallModeEvaluation = false;
+//			params.stats = evaluation.trainAndTest(training, testing);//training);//
+//			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
+//			System.err.println("No closure on System::Closure on Gold::Precision Mode");
+//			System.err.println(params.stats);
+//
+//			//do closure on train, but not on test, to calculate plain results
+//			evaluation.skipTrain = true;
+//			evaluation.useClosure = false;
+//			params.stats = evaluation.trainAndTest(training, testing);//training);//
+//			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
+//			System.err.println("Closure on train::No closure on Test::Plain Mode");
+//			System.err.println(params.stats);
 
 			if(options.getUseTmp()){
 				// won't work because it's not empty. should we be concerned with this or is it responsibility of 
@@ -294,6 +310,9 @@ EvaluationOfTemporalRelations_ImplBase{
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveEventEventRelations.class));
+		
+		//count how many sentences have timex, and how many sentences have only one timex
+		//aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CountSentenceContainsTimes.class));
 
 		//add unlabeled nearby system events as potential links: 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddPotentialRelations.class));
@@ -345,6 +364,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	@Override
 	protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
 			throws Exception {
+		this.useClosure=false;//don't do closure for test
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
 
@@ -367,10 +387,13 @@ EvaluationOfTemporalRelations_ImplBase{
 				CAS.NAME_DEFAULT_SOFA,
 				GOLD_VIEW_NAME);
 		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEtEvents.class));
-
+		
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
 		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
 			EventTimeSelfRelationAnnotator.createEngineDescription(new File(directory,"event-time")));
+		
+		//count how many system predicted relations, their arguments are close to each other, without any other event in between
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CountCloseRelation.class));
 
 		if(this.i2b2Output != null){
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
@@ -791,7 +814,102 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 		}
 	}
+	/**
+	public static class CountSentenceContainsTimes extends JCasAnnotator_ImplBase {
 
+		public static final String PARAM_SENTENCE_VIEW = "SentenceView";
+
+		@ConfigurationParameter(name = PARAM_SENTENCE_VIEW,mandatory=false)
+		private String sentenceViewName = CAS.NAME_DEFAULT_SOFA;
+
+		public static final String PARAM_RELATION_VIEW = "RelationView";
+
+		@ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
+		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
+
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			JCas sentenceView, relationView;
+			try {
+				sentenceView = jCas.getView(this.sentenceViewName);
+				relationView = jCas.getView(this.relationViewName);
+			} catch (CASException e) {
+				throw new AnalysisEngineProcessException(e);
+			}
+
+			//count how many sentences have timex, and how many sentences have only one timex
+			for (Sentence sentence : JCasUtil.select(sentenceView, Sentence.class)) {
+				List<TimeMention> tmentions = JCasUtil.selectCovered(relationView, TimeMention.class, sentence);
+				int timeCount = tmentions==null? 0: tmentions.size();
+				if(timeCount > 0){
+					sentHasTimeCount ++;
+					if(timeCount == 1){
+						sentHasOneTimeCount ++;
+					}
+				}
+			}
+		}
+	}*/
+	
+	public static class CountCloseRelation extends JCasAnnotator_ImplBase {
+
+		private String systemViewName = CAS.NAME_DEFAULT_SOFA;
+		
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			JCas systemView, goldView;
+			int sizeLimit = 6;
+			try {
+				systemView = jCas.getView(this.systemViewName);
+				goldView = jCas.getView(GOLD_VIEW_NAME);
+			} catch (CASException e) {
+				throw new AnalysisEngineProcessException(e);
+			}
+
+			//count how many sentences have timex, and how many sentences have only one timex
+			for (TemporalTextRelation relation : JCasUtil.select(systemView, TemporalTextRelation.class)) {
+				sysRelationCount ++;
+				Annotation arg1 = relation.getArg1().getArgument();
+				Annotation arg2 = relation.getArg2().getArgument();
+				if( arg1.getBegin()> arg2.getBegin()){
+					Annotation temp = arg1;
+					arg1 = arg2;
+					arg2 = temp;
+				}
+				List<WordToken> words = JCasUtil.selectBetween(systemView, WordToken.class, arg1, arg2);
+				if(words.size()<sizeLimit){
+					closeRelationCount++;
+				}
+			}
+			
+			Map<List<Annotation>, TemporalTextRelation> relationLookup = new HashMap<>();
+			for (TemporalTextRelation relation : Lists.newArrayList(JCasUtil.select(goldView, TemporalTextRelation.class))) {
+				Annotation arg1 = relation.getArg1().getArgument();
+				Annotation arg2 = relation.getArg2().getArgument();
+				// The key is a list of args so we can do bi-directional lookup
+				List<Annotation> key = Arrays.asList(arg1, arg2);
+				if(!relationLookup.containsKey(key)){
+					relationLookup.put(key, relation);
+				}
+			}
+
+			//count how many sentences have timex, and how many sentences have only one timex
+			for (TemporalTextRelation relation : relationLookup.values()) {
+				goldRelationCount ++;
+				Annotation arg1 = relation.getArg1().getArgument();
+				Annotation arg2 = relation.getArg2().getArgument();
+				if( arg1.getBegin()> arg2.getBegin()){
+					Annotation temp = arg1;
+					arg1 = arg2;
+					arg2 = temp;
+				}
+				List<WordToken> words = JCasUtil.selectBetween(systemView, WordToken.class, arg1, arg2);
+				if(words.size()<sizeLimit){
+					closeGoldRelationCount++;
+				}
+			}
+		}
+	}
 
 	public static class RemoveRelations extends JCasAnnotator_ImplBase {
 		@Override
@@ -1027,12 +1145,23 @@ EvaluationOfTemporalRelations_ImplBase{
 	 *
 	 */
 	public static class Overlap2Contains extends JCasAnnotator_ImplBase {
+		
+		public static final String PARAM_RELATION_VIEW = "RelationView";
+
+		@ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
+		private String relationViewName = CAS.NAME_DEFAULT_SOFA;
 
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			JCas relationView;
+			try {
+				relationView = jCas.getView(this.relationViewName);
+			} catch (CASException e) {
+				throw new AnalysisEngineProcessException(e);
+			}
 			Map<List<Annotation>, BinaryTextRelation> relationLookup;
 			relationLookup = new HashMap<>();
-			for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
+			for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(relationView, BinaryTextRelation.class))) {
 				Annotation arg1 = relation.getArg1().getArgument();
 				Annotation arg2 = relation.getArg2().getArgument();
 				String relationType = relation.getCategory();
@@ -1042,16 +1171,39 @@ EvaluationOfTemporalRelations_ImplBase{
 					BinaryTextRelation storedRel = relationLookup.get(key);
 					String reln = storedRel.getCategory();
 					if(!relationType.equals(reln)){//if there is category conflicts
-						if(relationType.startsWith("OVERLAP") ){
-							//override "OVERLAP"
-							relation.setCategory(reln);
-						}else if( reln.startsWith("OVERLAP") ){
+						if(relationType.startsWith("OVERLAP") ){//current relation is too general, remove it
+							relation.getArg1().removeFromIndexes();
+							relation.getArg2().removeFromIndexes();
+							relation.removeFromIndexes();
+						}else if( reln.startsWith("OVERLAP") ){//stored relation is too general, remove it
 							//remove duplicate:
-							storedRel.setCategory(relationType);
+							storedRel.getArg1().removeFromIndexes();
+							storedRel.getArg2().removeFromIndexes();
+							storedRel.removeFromIndexes();
+							relationLookup.put(key, relation);
+						}else if(relationType.startsWith("CONTAINS")){//contain is dominant
+							storedRel.getArg1().removeFromIndexes();
+							storedRel.getArg2().removeFromIndexes();
+							storedRel.removeFromIndexes(jCas);
+							relationLookup.put(key, relation);
+						}else if(reln.startsWith("CONTAINS")){
+							relation.getArg1().removeFromIndexes();
+							relation.getArg2().removeFromIndexes();
+							relation.removeFromIndexes(jCas);
+						}else{
+							relation.getArg1().removeFromIndexes();
+							relation.getArg2().removeFromIndexes();
+							relation.removeFromIndexes();
 						}
+					}else{//if there is no conflicting, remove duplicating relations
+						relation.getArg1().removeFromIndexes();
+						relation.getArg2().removeFromIndexes();
+						relation.removeFromIndexes(jCas);
 					}
+				}else{//if the relation is new, then added it to lookup
+					relationLookup.put(key, relation);
 				}
-				relationLookup.put(key, relation);
+				
 			}
 
 		}

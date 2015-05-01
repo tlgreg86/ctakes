@@ -46,7 +46,7 @@ import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAn
 import org.apache.ctakes.temporal.eval.EvaluationOfEventEventThymeRelations.AddEEPotentialRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.AddPotentialRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
-import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveNonContainsRelations.RemoveGoldAttributes;
+import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveGoldAttributes;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
 import org.apache.ctakes.temporal.utils.TLinkTypeArray2;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;

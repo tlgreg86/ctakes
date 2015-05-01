@@ -43,7 +43,7 @@ import org.apache.ctakes.temporal.ae.EventTimeSelfRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
-import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveNonContainsRelations.RemoveGoldAttributes;
+import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveGoldAttributes;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;

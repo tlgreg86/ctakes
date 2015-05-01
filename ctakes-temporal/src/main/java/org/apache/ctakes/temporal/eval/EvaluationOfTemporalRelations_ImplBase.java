@@ -128,29 +128,31 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 			for (BinaryTextRelation relation : Lists.newArrayList(JCasUtil.select(
 					relationView,
 					BinaryTextRelation.class))) {
-				if (!relation.getCategory().startsWith("CONTAINS")) {
+				RelationArgument arg1 = relation.getArg1();
+				RelationArgument arg2 = relation.getArg2();
+				if (arg1.getArgument()instanceof EventMention && arg2.getArgument()instanceof EventMention && !relation.getCategory().startsWith("CONTAINS")) {
 					relation.getArg1().removeFromIndexes();
 					relation.getArg2().removeFromIndexes();
 					relation.removeFromIndexes();
 				}
 			}
 		}
-
-		public static class RemoveGoldAttributes extends JCasAnnotator_ImplBase {
-			@Override
-			public void process(JCas jCas) throws AnalysisEngineProcessException {
-				for(EventMention event : JCasUtil.select(jCas, EventMention.class)){
-					if(event.getEvent() != null && event.getEvent().getProperties() != null){
-						event.getEvent().getProperties().setContextualAspect("UNK");
-						event.getEvent().getProperties().setContextualModality("UNK");
-					}
+	}
+	public static class RemoveGoldAttributes extends JCasAnnotator_ImplBase {
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			for(EventMention event : JCasUtil.select(jCas, EventMention.class)){
+				if(event.getEvent() != null && event.getEvent().getProperties() != null){
+					event.getEvent().getProperties().setContextualAspect("UNK");
+					event.getEvent().getProperties().setContextualModality("UNK");
 				}
-				for(TimeMention timex : JCasUtil.select(jCas, TimeMention.class)){
-					timex.setTimeClass("UNK");
-				}
+			}
+			for(TimeMention timex : JCasUtil.select(jCas, TimeMention.class)){
+				timex.setTimeClass("UNK");
 			}
 		}
 	}
+
 
 	protected static Collection<BinaryTextRelation> correctArgOrder(
 			Collection<BinaryTextRelation> systemRelations,
