@@ -1,5 +1,6 @@
 package org.apache.ctakes.dictionary.lookup2.concept;
 
+import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
 import org.apache.ctakes.dictionary.lookup2.util.TuiCodeUtil;
@@ -34,11 +35,12 @@ final public class BsvConceptFactory implements ConceptFactory {
    }
 
    public BsvConceptFactory( final String name, final String bsvFilePath ) {
-      this( name, new File( bsvFilePath ) );
-   }
-
-   public BsvConceptFactory( final String name, final File bsvFile ) {
-      final Collection<CuiTuiTerm> cuiTuiTerms = parseBsvFile( bsvFile );
+//      this( name, new File( bsvFilePath ) );
+//   }
+//
+//   public BsvConceptFactory( final String name, final File bsvFile ) {
+//      final Collection<CuiTuiTerm> cuiTuiTerms = parseBsvFile( bsvFile );
+      final Collection<CuiTuiTerm> cuiTuiTerms = parseBsvFile( bsvFilePath );
       final Map<Long, Concept> conceptMap = new HashMap<>( cuiTuiTerms.size() );
       for ( CuiTuiTerm cuiTuiTerm : cuiTuiTerms ) {
          final CollectionMap<ConceptCode, String, ? extends Collection<String>> codes
@@ -90,11 +92,21 @@ final public class BsvConceptFactory implements ConceptFactory {
     * CUI|TUI|Text|PreferredTerm
     * </p>
     * If the TUI column is omitted then the entityId for the dictionary is used as the TUI
+    * <p/>
+    * //    * @param bsvFile file containing term rows and bsv columns
     *
-    * @param bsvFile file containing term rows and bsv columns
+    * @param bsvFilePath file containing term rows and bsv columns
     * @return collection of all valid terms read from the bsv file
     */
-   static private Collection<CuiTuiTerm> parseBsvFile( final File bsvFile ) {
+//   static private Collection<CuiTuiTerm> parseBsvFile( final File bsvFile ) {
+   static private Collection<CuiTuiTerm> parseBsvFile( final String bsvFilePath ) {
+      File bsvFile = null;
+      try {
+         bsvFile = FileLocator.locateFile( bsvFilePath );
+      } catch ( IOException ioE ) {
+         ioE.getMessage();
+         return Collections.emptyList();
+      }
       final Collection<CuiTuiTerm> cuiTuiTerms = new ArrayList<>();
       try ( final BufferedReader reader = new BufferedReader( new FileReader( bsvFile ) ) ) {
          String line = reader.readLine();

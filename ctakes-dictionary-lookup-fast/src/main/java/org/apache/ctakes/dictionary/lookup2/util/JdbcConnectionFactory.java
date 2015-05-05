@@ -21,8 +21,6 @@ import java.util.*;
 public enum JdbcConnectionFactory {
    INSTANCE;
 
-   static private final String CTAKES_HOME = "CTAKES_HOME";
-
    static final private Logger LOGGER = Logger.getLogger( "JdbcConnectionFactory" );
    static final private Logger DOT_LOGGER = Logger.getLogger( "ProgressAppender" );
    static final private Logger EOL_LOGGER = Logger.getLogger( "ProgressDone" );
