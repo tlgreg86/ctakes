@@ -32,7 +32,6 @@ import java.util.Set;
 
 import org.apache.ctakes.core.knowtator.KnowtatorAnnotation;
 import org.apache.ctakes.core.knowtator.KnowtatorXMLParser;
-import org.apache.ctakes.core.util.CtakesFileNamer;
 import org.apache.ctakes.core.util.SHARPKnowtatorXMLDefaults;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.refsem.BodyLaterality;
@@ -58,8 +57,10 @@ import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.relation.AffectsTextRelation;
 import org.apache.ctakes.typesystem.type.relation.AspectualTextRelation;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
+import org.apache.ctakes.typesystem.type.relation.CausesBringsAboutTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ComplicatesDisruptsTextRelation;
 import org.apache.ctakes.typesystem.type.relation.DegreeOfTextRelation;
+import org.apache.ctakes.typesystem.type.relation.IndicatesTextRelation;
 import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManagesTreatsTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManifestationOfTextRelation;
@@ -1291,6 +1292,12 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
       } else if ("complicates/disrupts".equals(this.annotation.type)) {
         this.assertTypes(sourceMention, EventMention.class, targetMention, EventMention.class);
         relation = new ComplicatesDisruptsTextRelation(jCas);
+      } else if ("causes/brings_about".equals(this.annotation.type)) {
+        this.assertTypes(sourceMention, EventMention.class, targetMention, EventMention.class);
+        relation = new CausesBringsAboutTextRelation(jCas);
+      } else if ("indicates".equals(this.annotation.type)) {
+        this.assertTypes(sourceMention, EventMention.class, targetMention, EventMention.class);
+        relation = new IndicatesTextRelation(jCas);
       } else if ("degree_of".equals(this.annotation.type)) {
         this.assertTypes(sourceMention, EventMention.class, targetMention, Modifier.class);
         relation = new DegreeOfTextRelation(jCas);
