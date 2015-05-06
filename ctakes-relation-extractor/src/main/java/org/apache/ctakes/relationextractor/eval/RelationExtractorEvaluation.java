@@ -151,7 +151,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
     BEST_PARAMETERS.put(CausesBringsAboutTextRelation.class, new ParameterSettings(
         LibLinearStringOutcomeDataWriter.class,
         new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-            1.0f },
+            0.5f },
         new String[] { "-s", "0", "-c", "1.0" }));
 
   }
