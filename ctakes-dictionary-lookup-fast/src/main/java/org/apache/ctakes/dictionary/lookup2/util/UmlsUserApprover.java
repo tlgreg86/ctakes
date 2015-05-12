@@ -104,8 +104,8 @@ public enum UmlsUserApprover {
     * @return true if the server at umlsaddr approves of the vendor, user, password combination
     */
    public boolean isValidUMLSUser( final String umlsUrl, final String vendor,
-                                          final String user, final String pass ) {
-      final String cacheCode = umlsUrl+vendor+user+pass;
+                                   final String user, final String pass ) {
+      final String cacheCode = umlsUrl + vendor + user + pass;
       if ( _validUsers.contains( cacheCode ) ) {
          return true;
       }
@@ -136,7 +136,8 @@ public enum UmlsUserApprover {
             if ( trimline.isEmpty() ) {
                break;
             }
-            isValidUser = trimline.equalsIgnoreCase( "<Result>true</Result>" );
+            isValidUser = trimline.equalsIgnoreCase( "<Result>true</Result>" )
+                          || trimline.equalsIgnoreCase( "<?xml version='1.0' encoding='UTF-8'?><Result>true</Result>" );
          }
          writer.close();
          reader.close();

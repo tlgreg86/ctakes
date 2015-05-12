@@ -47,7 +47,7 @@ public class ThreadedUmlsDictionaryLookupAnnotator extends ThreadedDictionaryLoo
 
 
    @Override
-  public void initialize( final UimaContext aContext ) throws ResourceInitializationException {
+   public void initialize( final UimaContext aContext ) throws ResourceInitializationException {
       super.initialize( aContext );
       final String umlsAddress = EnvironmentVariable.getEnv( UMLSADDR_PARAM, aContext );
       final String umlsVendor = EnvironmentVariable.getEnv( UMLSVENDOR_PARAM, aContext );
@@ -79,22 +79,24 @@ public class ThreadedUmlsDictionaryLookupAnnotator extends ThreadedDictionaryLoo
          final URL url = new URL( umlsaddr );
          final URLConnection connection = url.openConnection();
          connection.setDoOutput( true );
-         try(final OutputStreamWriter writer = new OutputStreamWriter( connection.getOutputStream() );
-             final BufferedReader reader = new BufferedReader( new InputStreamReader( connection.getInputStream() ) )){
-         
-           writer.write( data );
-           writer.flush();
-           boolean result = false;
+         try ( final OutputStreamWriter writer = new OutputStreamWriter( connection.getOutputStream() );
+               final BufferedReader reader = new BufferedReader( new InputStreamReader( connection
+                     .getInputStream() ) ) ) {
 
-           String line;
-           while ( (line = reader.readLine()) != null ) {
-             final String trimline = line.trim();
-             if ( trimline.isEmpty() ) {
-               break;
-             }
-             result = trimline.equalsIgnoreCase( "<Result>true</Result>" );
-           }
-           return result;
+            writer.write( data );
+            writer.flush();
+            boolean result = false;
+
+            String line;
+            while ( (line = reader.readLine()) != null ) {
+               final String trimline = line.trim();
+               if ( trimline.isEmpty() ) {
+                  break;
+               }
+               result = trimline.equalsIgnoreCase( "<Result>true</Result>" )
+                        || trimline.equalsIgnoreCase( "<?xml version='1.0' encoding='UTF-8'?><Result>true</Result>" );
+            }
+            return result;
          }
       } catch ( IOException ioE ) {
          LOGGER.error( ioE.getMessage() );
