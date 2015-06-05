@@ -33,12 +33,14 @@ import org.apache.ctakes.relationextractor.ae.CausesBringsAboutRelationExtractor
 import org.apache.ctakes.relationextractor.ae.DegreeOfRelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.LocationOfRelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.ManagesTreatsRelationExtractorAnnotator;
+import org.apache.ctakes.relationextractor.ae.ManifestationOfRelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.CausesBringsAboutTextRelation;
 import org.apache.ctakes.typesystem.type.relation.DegreeOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManagesTreatsTextRelation;
+import org.apache.ctakes.typesystem.type.relation.ManifestationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -154,6 +156,13 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
             0.5f },
         new String[] { "-s", "0", "-c", "1.0" }));
 
+    RELATION_CLASSES.put("manifestation_of", ManifestationOfTextRelation.class);
+    ANNOTATOR_CLASSES.put(ManifestationOfTextRelation.class, ManifestationOfRelationExtractorAnnotator.class);
+    BEST_PARAMETERS.put(ManifestationOfTextRelation.class, new ParameterSettings(
+        LibLinearStringOutcomeDataWriter.class,
+        new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
+            0.5f },
+        new String[] { "-s", "0", "-c", "1.0" }));
   }
 
   public static void main(String[] args) throws Exception {
