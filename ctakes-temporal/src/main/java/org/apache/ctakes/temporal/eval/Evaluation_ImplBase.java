@@ -18,16 +18,20 @@
  */
 package org.apache.ctakes.temporal.eval;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -55,6 +59,7 @@ import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.OverlapAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
+import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.resource.FileResourceImpl;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
@@ -106,9 +111,11 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceConfigurationException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.CasCopier;
 import org.apache.uima.util.XMLSerializer;
+import org.cleartk.timeml.util.TimeWordsExtractor;
 import org.cleartk.util.ViewUriUtil;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
 import org.cleartk.util.cr.UriCollectionReader;
@@ -117,6 +124,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.lexicalscope.jewel.cli.Option;
@@ -126,13 +134,19 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 	private static Logger LOGGER = Logger.getLogger(Evaluation_ImplBase.class);
 
+	private static final String LOOKUP_PATH = "/org/apache/ctakes/temporal/badEEContainNotes.txt";
+	
+	private static boolean isTraining;
+
+	public static HashSet<String> badNotes;
+
 	public static final String GOLD_VIEW_NAME = "GoldView";
 
 	public enum XMLFormat { Knowtator, Anafora, I2B2 }
 
 	public enum Subcorpus { Colon, Brain}
-	
-  public static interface Options {
+
+	public static interface Options {
 
 		@Option(longName = "text", defaultToNull = true)
 		public File getRawTextDirectory();
@@ -186,34 +200,34 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		public String getI2B2Output();
 	}
 
-    public static List<Integer> getTrainItems(Options options) {
-        List<Integer> patientSets = options.getPatients().getList();
-        List<Integer> trainItems = THYMEData.getPatientSets(patientSets, options.getTrainRemainders().getList());
-        if (options.getTest()) {
-            trainItems.addAll(THYMEData.getPatientSets(patientSets, options.getDevRemainders().getList()));
-        }
-        return trainItems;
-    }
+	public static List<Integer> getTrainItems(Options options) {
+		List<Integer> patientSets = options.getPatients().getList();
+		List<Integer> trainItems = THYMEData.getPatientSets(patientSets, options.getTrainRemainders().getList());
+		if (options.getTest()) {
+			trainItems.addAll(THYMEData.getPatientSets(patientSets, options.getDevRemainders().getList()));
+		}
+		return trainItems;
+	}
 
-    public static List<Integer> getTestItems(Options options) {
-        List<Integer> patientSets = options.getPatients().getList();
-        List<Integer> testItems;
-        if (options.getTest()) {
-            testItems = THYMEData.getPatientSets(patientSets, options.getTestRemainders().getList());
-        } else {
-            testItems = THYMEData.getPatientSets(patientSets, options.getDevRemainders().getList());
-        }
-        return testItems;
-    }
+	public static List<Integer> getTestItems(Options options) {
+		List<Integer> patientSets = options.getPatients().getList();
+		List<Integer> testItems;
+		if (options.getTest()) {
+			testItems = THYMEData.getPatientSets(patientSets, options.getTestRemainders().getList());
+		} else {
+			testItems = THYMEData.getPatientSets(patientSets, options.getDevRemainders().getList());
+		}
+		return testItems;
+	}
 
-    protected File rawTextDirectory;
+	protected File rawTextDirectory;
 
 	protected File xmlDirectory;
 
 	protected XMLFormat xmlFormat;
 
 	protected Subcorpus subcorpus;
-	
+
 	protected File xmiDirectory;
 
 	private boolean xmiExists;
@@ -244,6 +258,22 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		this.xmiDirectory = xmiDirectory;
 		this.xmiExists = this.xmiDirectory.exists() && this.xmiDirectory.listFiles().length > 0;
 		this.treebankDirectory = treebankDirectory;
+
+		this.isTraining = true;
+		this.badNotes = new HashSet<>();
+		URL url = TimeWordsExtractor.class.getResource(LOOKUP_PATH);
+		try (BufferedReader br = new BufferedReader(new FileReader(url.getFile()))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				badNotes.add(line.trim());
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void setI2B2Output(String outDir){
@@ -271,15 +301,15 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		if (this.xmlFormat == XMLFormat.Anafora) {
 			Set<String> ids = new HashSet<>();
 			for (Integer set : patientSets) {
-			  if(this.subcorpus == Subcorpus.Colon){
-			    ids.add(String.format("ID%03d", set));
-			  }else{
-			    ids.add(String.format("doc%04d", set));
-			  }
+				if(this.subcorpus == Subcorpus.Colon){
+					ids.add(String.format("ID%03d", set));
+				}else{
+					ids.add(String.format("doc%04d", set));
+				}
 			}
 			int filePrefixLen = 5; // Colon: "ID\d{3}"
 			if(this.subcorpus == Subcorpus.Brain){
-			  filePrefixLen = 7; // Brain: "doc\d{4}"
+				filePrefixLen = 7; // Brain: "doc\d{4}"
 			}
 			for (String section : THYMEData.SECTIONS){
 				File xmlSubdir = new File(this.xmlDirectory, section);
@@ -343,7 +373,22 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 	@Override
 	protected CollectionReader getCollectionReader(List<Integer> patientSets) throws Exception {
-		return UriCollectionReader.getCollectionReaderFromFiles(this.getFilesFor(patientSets));
+		List<File> collectedFiles = this.getFilesFor(patientSets);
+		/**
+		if(isTraining){
+			final Collection<File> filesToRemove = new HashSet<>();
+			for ( File xmiFile : collectedFiles ) {
+				String fname =  xmiFile.getName();
+				if(this.badNotes.contains(fname)){
+					LOGGER.error("Find Bad XMI file: "+fname);
+					filesToRemove.add( xmiFile );
+				}
+			}
+			collectedFiles.removeAll( filesToRemove );
+		}
+		isTraining = false;
+		*/
+		return UriCollectionReader.getCollectionReaderFromFiles(collectedFiles);
 	}
 
 	protected AggregateBuilder getPreprocessorAggregateBuilder() throws Exception {
@@ -460,25 +505,25 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				"DeleteAction",
 				new String[] { "selector=B" }));
 		// add UMLS on top of lookup windows
-    try {
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotator.class,
-          AbstractJCasTermAnnotator.PARAM_WINDOW_ANNOT_PRP,
-          "org.apache.ctakes.typesystem.type.textspan.Sentence",
-          JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY,
-          ExternalResourceFactory.createExternalResourceDescription(
-              FileResourceImpl.class,
-              FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml"))
-          ));
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-      throw new ResourceInitializationException(e);
-    }
+		try {
+			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotator.class,
+					AbstractJCasTermAnnotator.PARAM_WINDOW_ANNOT_PRP,
+					"org.apache.ctakes.typesystem.type.textspan.Sentence",
+					JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY,
+					ExternalResourceFactory.createExternalResourceDescription(
+							FileResourceImpl.class,
+							FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml"))
+					));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			throw new ResourceInitializationException(e);
+		}
 
 		aggregateBuilder.add(LvgAnnotator.createAnnotatorDescription());
 
 		// add dependency parser
 		aggregateBuilder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
-		
+
 		// add semantic role labeler
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ClearNLPSemanticRoleLabelerAE.class));
 
@@ -765,30 +810,75 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		}
 	}
 	
-  /* 
-   * The following class overrides a ClearTK utility annotator class for reading
-   * a text file into a JCas. The code is copy/pasted so that one tiny modification
-   * can be made for this corpus -- replace a single odd character (0xc) with a 
-   * space since it trips up xml output.  
-   */
-  public static class UriToDocumentTextAnnotatorCtakes extends UriToDocumentTextAnnotator {
+	public static class CopyFromSystem extends JCasAnnotator_ImplBase {
 
-    @Override
-    public void process(JCas jCas) throws AnalysisEngineProcessException {
-      URI uri = ViewUriUtil.getURI(jCas);
-      String content;
+		public static AnalysisEngineDescription getDescription(Class<?>... classes)
+				throws ResourceInitializationException {
+			return AnalysisEngineFactory.createEngineDescription(
+					CopyFromSystem.class,
+					CopyFromSystem.PARAM_ANNOTATION_CLASSES,
+					classes);
+		}
 
-      try {
-        content = CharStreams.toString(new InputStreamReader(uri.toURL().openStream()));
-        content = content.replace((char) 0xc, ' ');
-        jCas.setSofaDataString(content, "text/plain");
-      } catch (MalformedURLException e) {
-        throw new AnalysisEngineProcessException(e);
-      } catch (IOException e) {
-        throw new AnalysisEngineProcessException(e);
-      }
-    }  
-  }
+		public static final String PARAM_ANNOTATION_CLASSES = "AnnotationClasses";
+
+		@ConfigurationParameter(name = PARAM_ANNOTATION_CLASSES, mandatory = true)
+		private Class<? extends TOP>[] annotationClasses;
+
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			JCas goldView, systemView;
+			try {
+				goldView = jCas.getView(GOLD_VIEW_NAME);
+				systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
+			} catch (CASException e) {
+				throw new AnalysisEngineProcessException(e);
+			}
+			for (Class<? extends TOP> annotationClass : this.annotationClasses) {
+				for (TOP annotation : Lists.newArrayList(JCasUtil.select(goldView, annotationClass))) {
+					if (annotation.getClass().equals(annotationClass)) {
+						annotation.removeFromIndexes();
+					}
+				}
+			}
+			CasCopier copier = new CasCopier(systemView.getCas(), goldView.getCas());
+			Feature sofaFeature = jCas.getTypeSystem().getFeatureByFullName(CAS.FEATURE_FULL_NAME_SOFA);
+			for (Class<? extends TOP> annotationClass : this.annotationClasses) {
+				for (TOP annotation : JCasUtil.select(systemView, annotationClass)) {
+					TOP copy = (TOP) copier.copyFs(annotation);
+					if (copy instanceof Annotation) {
+						copy.setFeatureValue(sofaFeature, goldView.getSofa());
+					}
+					copy.addToIndexes(goldView);
+				}
+			}
+		}
+	}
+
+	/* 
+	 * The following class overrides a ClearTK utility annotator class for reading
+	 * a text file into a JCas. The code is copy/pasted so that one tiny modification
+	 * can be made for this corpus -- replace a single odd character (0xc) with a 
+	 * space since it trips up xml output.  
+	 */
+	public static class UriToDocumentTextAnnotatorCtakes extends UriToDocumentTextAnnotator {
+
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			URI uri = ViewUriUtil.getURI(jCas);
+			String content;
+
+			try {
+				content = CharStreams.toString(new InputStreamReader(uri.toURL().openStream()));
+				content = content.replace((char) 0xc, ' ');
+				jCas.setSofaDataString(content, "text/plain");
+			} catch (MalformedURLException e) {
+				throw new AnalysisEngineProcessException(e);
+			} catch (IOException e) {
+				throw new AnalysisEngineProcessException(e);
+			}
+		}  
+	}
 
 	public static class WriteI2B2XML extends JCasAnnotator_ImplBase {
 		public static final String PARAM_OUTPUT_DIR="PARAM_OUTPUT_DIR";
@@ -892,7 +982,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		}
 
 	}
-	
+
 	public static class WriteAnaforaXML extends JCasAnnotator_ImplBase {
 		public static final String PARAM_OUTPUT_DIR="PARAM_OUTPUT_DIR";
 		@ConfigurationParameter(mandatory=true,description="Output directory to write xml files to.",name=PARAM_OUTPUT_DIR)
@@ -902,7 +992,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		public void process(JCas jcas) throws AnalysisEngineProcessException {
 			try {
 				// get the output file name from the input file name and output directory.
-				
+
 				File inFile = new File(ViewUriUtil.getURI(jcas));
 				String outFile = inFile.getName().replace(".txt", "");
 				File outDir = new File(outputDir, outFile);
@@ -914,7 +1004,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				Document doc = docBuilder.newDocument();
 
 				Element rootElement = doc.createElement("data");
-				
+
 				//info element
 				Element infoElement = doc.createElement("info");
 				Element saveTime = doc.createElement("savetime");
@@ -923,13 +1013,13 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				progress.setTextContent("completed");
 				infoElement.appendChild(saveTime);
 				infoElement.appendChild(progress);
-				
+
 				//schema element
 				Element schema = doc.createElement("schema");
 				schema.setAttribute("path", "./");
 				schema.setAttribute("protocol", "file");
 				schema.setTextContent("temporal-schema.xml");
-				
+
 				Element annoElement = doc.createElement("annotations");
 				Map<IdentifiedAnnotation,String> argToId = new HashMap<>();
 				int id=1;
@@ -1002,7 +1092,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 						classE.setTextContent(timeClass);
 						property.appendChild(classE);
 					}
-					
+
 					timexElement.appendChild(idE);
 					timexElement.appendChild(spanE);
 					timexElement.appendChild(typeE);
@@ -1010,13 +1100,13 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 					annoElement.appendChild(timexElement);
 				}
 
-				
+
 
 				id = 1;
 				for(TemporalTextRelation rel : JCasUtil.select(jcas, TemporalTextRelation.class)){
 					Element linkEl = doc.createElement("relation");
 					String linkID = id+"@r@"+outFile+"@system";id++;
-					
+
 					Element idE = doc.createElement("id");
 					idE.setTextContent(linkID);
 					Element typeE = doc.createElement("type");
@@ -1025,7 +1115,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 					parentTE.setTextContent("TemporalRelations");
 					//add properties
 					Element property = doc.createElement("properties");
-					
+
 					Annotation arg1 = rel.getArg1().getArgument();
 					Element sourceE = doc.createElement("Source");
 					sourceE.setTextContent(argToId.get(arg1));
@@ -1034,18 +1124,18 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 					Annotation arg2 = rel.getArg2().getArgument();
 					Element targetE = doc.createElement("Target");
 					targetE.setTextContent(argToId.get(arg2));
-					
+
 					property.appendChild(sourceE);
 					property.appendChild(relTypeE);
 					property.appendChild(targetE);
-					
+
 					linkEl.appendChild(idE);
 					linkEl.appendChild(typeE);
 					linkEl.appendChild(parentTE);
 					linkEl.appendChild(property);
 					annoElement.appendChild(linkEl);
 				}
-				
+
 				rootElement.appendChild(infoElement);
 				rootElement.appendChild(schema);
 				rootElement.appendChild(annoElement);
