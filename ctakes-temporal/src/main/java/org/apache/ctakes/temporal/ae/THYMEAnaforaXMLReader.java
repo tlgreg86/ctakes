@@ -81,6 +81,7 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
   private String[] anaforaXMLSuffixes = new String[] {
       ".Temporal-Relations.gold.completed.xml",
       ".Temporal-Relation.gold.completed.xml",
+          ".Temporal.dave.completed.xml",
       ".Temporal-Relation-Adjudication.gold.completed.xml",
       ".Temporal-Entity-Adjudication.gold.completed.xml",
       ".temporal.Temporal-Adjudication.gold.completed.xml",
