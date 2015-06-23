@@ -144,7 +144,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 	public enum XMLFormat { Knowtator, Anafora, I2B2 }
 
-	public enum Subcorpus { Colon, Brain}
+	public enum Subcorpus { Colon, Brain, DeepPhe}
 
 	public static interface Options {
 
@@ -303,6 +303,8 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 			for (Integer set : patientSets) {
 				if(this.subcorpus == Subcorpus.Colon){
 					ids.add(String.format("ID%03d", set));
+				}else if(this.subcorpus == Subcorpus.DeepPhe){
+					ids.add(String.format("patient%02d", set));
 				}else{
 					ids.add(String.format("doc%04d", set));
 				}
@@ -310,10 +312,11 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 			int filePrefixLen = 5; // Colon: "ID\d{3}"
 			if(this.subcorpus == Subcorpus.Brain){
 				filePrefixLen = 7; // Brain: "doc\d{4}"
+			}else if(this.subcorpus == Subcorpus.DeepPhe){
+				filePrefixLen = 9; // deepPhe: "patient\d{2}"
 			}
-			for (String section : THYMEData.SECTIONS){
-				File xmlSubdir = new File(this.xmlDirectory, section);
-				for (File dir : xmlSubdir.listFiles()) {
+			if(this.subcorpus == Subcorpus.DeepPhe){
+				for (File dir : this.xmlDirectory.listFiles()) {
 					if (dir.isDirectory()) {
 						if (ids.contains(dir.getName().substring(0, filePrefixLen))) {
 							File file = new File(dir, dir.getName());
@@ -321,6 +324,22 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 								files.add(file);
 							} else {
 								LOGGER.warn("Missing note: " + file);
+							}
+						}
+					}
+				}
+			}else{
+				for (String section : THYMEData.SECTIONS){
+					File xmlSubdir = new File(this.xmlDirectory, section);
+					for (File dir : xmlSubdir.listFiles()) {
+						if (dir.isDirectory()) {
+							if (ids.contains(dir.getName().substring(0, filePrefixLen))) {
+								File file = new File(dir, dir.getName());
+								if (file.exists()) {
+									files.add(file);
+								} else {
+									LOGGER.warn("Missing note: " + file);
+								}
 							}
 						}
 					}
