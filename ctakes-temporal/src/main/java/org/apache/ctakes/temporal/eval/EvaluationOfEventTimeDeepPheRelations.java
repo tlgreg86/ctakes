@@ -37,13 +37,21 @@ import java.util.Set;
 
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
+import org.apache.ctakes.temporal.ae.EventTimeSelfRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeSyntacticAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.AddClosure;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.CountCloseRelation;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.Overlap2Contains;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.RemoveCrossSentenceRelations;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.RemoveEventEventRelations;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.RemoveRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveGoldAttributes;
+import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.CopyFromGold;
+import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
@@ -89,7 +97,7 @@ import com.google.common.collect.Sets;
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 
-public class EvaluationOfEventEventDeepPheRelations extends
+public class EvaluationOfEventTimeDeepPheRelations extends
 EvaluationOfTemporalRelations_ImplBase{
 	static interface TempRelOptions extends Evaluation_ImplBase.Options{
 		@Option
@@ -161,7 +169,7 @@ EvaluationOfTemporalRelations_ImplBase{
 				tempModelDir.mkdir();
 				workingDir = tempModelDir;
 			}
-			EvaluationOfEventEventDeepPheRelations evaluation = new EvaluationOfEventEventDeepPheRelations(
+			EvaluationOfEventTimeDeepPheRelations evaluation = new EvaluationOfEventTimeDeepPheRelations(
 					workingDir,
 					options.getRawTextDirectory(),
 					options.getXMLDirectory(),
@@ -231,7 +239,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	protected boolean skipTrain=false;
 	//  protected boolean printRelations = false;
 
-	public EvaluationOfEventEventDeepPheRelations(
+	public EvaluationOfEventTimeDeepPheRelations(
 			File baseDirectory,
 			File rawTextDirectory,
 			File xmlDirectory,
@@ -283,7 +291,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	@Override
 	protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
 			throws Exception {
-		this.useClosure=false;
+		this.useClosure=false;//don't do closure for test
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
 
@@ -293,11 +301,6 @@ EvaluationOfTemporalRelations_ImplBase{
 				CAS.NAME_DEFAULT_SOFA,
 				RemoveCrossSentenceRelations.PARAM_RELATION_VIEW,
 				GOLD_VIEW_NAME));
-		
-		aggregateBuilder.add(
-				AnalysisEngineFactory.createEngineDescription(PreserveEventEventRelations.class),
-				CAS.NAME_DEFAULT_SOFA,
-				GOLD_VIEW_NAME);
 
 		if (!recallModeEvaluation && this.useClosure) { //closure for gold
 			aggregateBuilder.add(
@@ -305,19 +308,22 @@ EvaluationOfTemporalRelations_ImplBase{
 					CAS.NAME_DEFAULT_SOFA,
 					GOLD_VIEW_NAME);
 		}
-		
-		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class),
+
+		aggregateBuilder.add(
+				AnalysisEngineFactory.createEngineDescription(RemoveEventEventRelations.class),
 				CAS.NAME_DEFAULT_SOFA,
 				GOLD_VIEW_NAME);
+		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEtEvents.class));
 		
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
-		aggregateBuilder.add(EventEventRelationAnnotator.createAnnotatorDescription(new File(directory,"event-event")));
+		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
+			EventTimeSelfRelationAnnotator.createEngineDescription(new File(directory,"event-time")));
 		
 		//count how many system predicted relations, their arguments are close to each other, without any other event in between
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CountCloseRelation.class));
 
 		if(this.i2b2Output != null){
-			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteAnaforaXML.class, WriteAnaforaXML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
+			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
 		}
 
 		File outf = null;
@@ -327,14 +333,20 @@ EvaluationOfTemporalRelations_ImplBase{
 					GOLD_VIEW_NAME,
 					CAS.NAME_DEFAULT_SOFA
 					);
-			outf =  new File("target/eval/thyme/SystemError_eventEvent_recall_test.txt");
+			aggregateBuilder.add(
+					AnalysisEngineFactory.createEngineDescription(RemoveEventEventRelations.class),
+					GOLD_VIEW_NAME,
+					CAS.NAME_DEFAULT_SOFA
+					);
+			outf =  new File("target/eval/thyme/SystemError_eventTime_recall_test.txt");
 		}else if (!recallModeEvaluation && this.useClosure){
-			outf =  new File("target/eval/thyme/SystemError_eventEvent_precision_test.txt");
+			outf =  new File("target/eval/thyme/SystemError_eventTime_precision_test.txt");
 		}else{
-			outf =  new File("target/eval/thyme/SystemError_eventEvent_plain_test.txt");
+			outf =  new File("target/eval/thyme/SystemError_eventTime_plain_test.txt");
 		}
 
 		PrintWriter outDrop =null;
+
 		outDrop = new PrintWriter(new BufferedWriter(new FileWriter(outf, false)));
 
 		Function<BinaryTextRelation, ?> getSpan = new Function<BinaryTextRelation, HashableArguments>() {
