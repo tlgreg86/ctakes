@@ -948,7 +948,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		public AnnotationStatistics<String> stats;
 
-		static List<String> SVM_KERNELS = Arrays.asList(
+		public static List<String> SVM_KERNELS = Arrays.asList(
 				"linear",
 				"polynomial",
 				"radial basis function",
