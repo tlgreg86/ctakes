@@ -1689,8 +1689,7 @@ This instantiates a manages/treats relation which should be marked as conditiona
         <featureDescription>
           <name>originalText</name>
           <description>The covered text of the span or the disjoint spans that resulted in the creation of this
-              IdentifiedAnnotation. If the covered text is from disjoint spans, they are separated by a delimeter.
-          </description>
+              IdentifiedAnnotation. If the covered text is from disjoint spans, they are separated by a delimeter.</description>
           <rangeTypeName>uima.cas.FSArray</rangeTypeName>
         </featureDescription>
       </features>
@@ -2667,6 +2666,23 @@ More qualifying information on how the procedure was done.</description>
       <name>org.apache.ctakes.typesystem.type.textsem.Markable</name>
       <description>A type for representing text spans that can potentially be linked together via coreference.</description>
       <supertypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</supertypeName>
+    </typeDescription>
+  <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.relation.CollectionTextRelationIdentifiedAnnotationRelation</name>
+      <description>A relation between a chain relation and an identified annotation mention. Useful for relating a new mention to a collection of previous mentions, e.g., in coreference resolution.</description>
+      <supertypeName>org.apache.ctakes.typesystem.type.relation.Relation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>cluster</name>
+          <description/>
+          <rangeTypeName>org.apache.ctakes.typesystem.type.relation.CollectionTextRelation</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>mention</name>
+          <description/>
+          <rangeTypeName>org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation</rangeTypeName>
+        </featureDescription>
+      </features>
     </typeDescription>
   </types>
 </typeSystemDescription>
