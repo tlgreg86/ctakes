@@ -189,7 +189,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			List<Integer> training = trainItems;
 			List<Integer> testing = testItems;
 			
-			evaluation.printErrors = false;
+			evaluation.printErrors = true;
 			
 			//do closure on system, but not on gold, to calculate recall
 			evaluation.skipTrain = true;
