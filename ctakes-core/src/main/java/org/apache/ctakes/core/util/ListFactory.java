@@ -65,4 +65,19 @@ public class ListFactory {
 		
 		return firstList;
 	}
+	
+	public static void append(JCas jcas, FSList list, TOP element){
+	  if(list instanceof EmptyFSList) return;
+	  	  
+	  NonEmptyFSList cur = (NonEmptyFSList) list;
+	  while(cur.getTail() instanceof NonEmptyFSList){
+	    cur = (NonEmptyFSList) cur.getTail();
+	  }
+    NonEmptyFSList newElList = new NonEmptyFSList(jcas);
+    newElList.setHead(element);
+    newElList.setTail(new EmptyFSList(jcas));
+    cur.setTail(newElList);
+    newElList.addToIndexes();
+    newElList.getTail().addToIndexes();
+	}
 }
