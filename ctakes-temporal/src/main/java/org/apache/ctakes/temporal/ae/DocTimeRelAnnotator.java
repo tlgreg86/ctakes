@@ -26,6 +26,8 @@ import java.util.List;
 
 
 
+import java.util.Map;
+
 import org.apache.ctakes.temporal.ae.feature.ClosestVerbExtractor;
 //import org.apache.ctakes.temporal.ae.feature.CoveredTextToValuesExtractor;
 import org.apache.ctakes.temporal.ae.feature.DateAndMeasurementExtractor;
@@ -171,17 +173,28 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
       if (this.isTraining()) {
     	  if(eventMention.getEvent() != null){
     		  String outcome = eventMention.getEvent().getProperties().getDocTimeRel();
-    		  this.dataWriter.write(new Instance<String>(outcome, features));
+    		  this.dataWriter.write(new Instance<>(outcome, features));
     	  }
       } else {
-        String outcome = this.classifier.classify(features);
+//        String outcome = this.classifier.classify(features);
+        Map.Entry<String, Double> maxEntry = null;
+        for( Map.Entry<String, Double> entry: this.classifier.score(features).entrySet() ){
+        	if(maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0){
+        		maxEntry = entry;
+        	}
+        }
+        
         if (eventMention.getEvent() == null) {
           Event event = new Event(jCas);
           eventMention.setEvent(event);
           EventProperties props = new EventProperties(jCas);
           event.setProperties(props);
         }
-        eventMention.getEvent().getProperties().setDocTimeRel(outcome);
+        if( maxEntry != null){
+        	eventMention.getEvent().getProperties().setDocTimeRel(maxEntry.getKey());
+        	eventMention.getEvent().setConfidence(maxEntry.getValue().floatValue());
+        	System.out.println("event confidence:"+maxEntry.getValue().floatValue());
+        }
       }
     }
   }

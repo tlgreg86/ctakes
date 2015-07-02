@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.ctakes.temporal.ae.feature.ChunkingExtractor;
@@ -252,6 +253,7 @@ public class EventAnnotator extends TemporalEntityAnnotator_ImplBase {
 
       // during training, the list of all outcomes for the tokens
       List<String> outcomes;
+      List<Double> confidenceScores= new ArrayList<>();
       if (this.isTraining()) {
         List<EventMention> events = Lists.newArrayList();
         for (EventMention event : JCasUtil.selectCovered(jCas, EventMention.class, sentence)) {
@@ -354,14 +356,27 @@ public class EventAnnotator extends TemporalEntityAnnotator_ImplBase {
 
         // if predicting, add prediction to outcomes
         else {
-          outcomes.add(this.classifier.classify(features));
+//          outcomes.add(this.classifier.classify(features));
+          
+          Map.Entry<String, Double> maxEntry = null;
+          for( Map.Entry<String, Double> entry: this.classifier.score(features).entrySet() ){
+          	if(maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0){
+          		maxEntry = entry;
+          	}
+          }
+          
+          outcomes.add(maxEntry.getKey());
+          confidenceScores.add(maxEntry.getValue());
         }
       }
 
       // during prediction, convert chunk labels to events and add them to the CAS
       if (!this.isTraining()) {
         List<EventMention> createdEvents = this.eventChunking.createChunks(jCas, tokens, outcomes);
+        int mentionidx =0;
         for(EventMention mention : createdEvents){
+          mention.setConfidence(confidenceScores.get(mentionidx).floatValue());
+          mentionidx++;
           if(mention.getEvent() == null){
             Event event = new Event(jCas);
             EventProperties props = new EventProperties(jCas);

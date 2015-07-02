@@ -81,7 +81,7 @@ import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.collect.Lists;
 
-public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
+public class EventEventRelationAnnotator extends TemporalRelationExtractorAnnotator {
 
 	public static AnalysisEngineDescription createDataWriterDescription(
 			Class<? extends DataWriter<String>> dataWriterClass,
@@ -302,7 +302,7 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 
 	@Override
 	protected void createRelation(JCas jCas, IdentifiedAnnotation arg1,
-			IdentifiedAnnotation arg2, String predictedCategory) {
+			IdentifiedAnnotation arg2, String predictedCategory, double confidence) {
 		RelationArgument relArg1 = new RelationArgument(jCas);
 		relArg1.setArgument(arg1);
 		relArg1.setRole("Arg1");
@@ -315,6 +315,7 @@ public class EventEventRelationAnnotator extends RelationExtractorAnnotator {
 		relation.setArg1(relArg1);
 		relation.setArg2(relArg2);
 		relation.setCategory(predictedCategory);
+		relation.setConfidence(confidence);
 		relation.addToIndexes();
 	}
 
