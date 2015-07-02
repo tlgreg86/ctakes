@@ -193,7 +193,7 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
         if( maxEntry != null){
         	eventMention.getEvent().getProperties().setDocTimeRel(maxEntry.getKey());
         	eventMention.getEvent().setConfidence(maxEntry.getValue().floatValue());
-        	System.out.println("event confidence:"+maxEntry.getValue().floatValue());
+//        	System.out.println("event DocTimeRel confidence:"+maxEntry.getValue().floatValue());
         }
       }
     }
