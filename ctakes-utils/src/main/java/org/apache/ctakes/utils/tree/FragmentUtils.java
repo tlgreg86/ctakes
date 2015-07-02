@@ -23,6 +23,11 @@ public class FragmentUtils {
 	public static SimpleTree frag2tree(String frag){
 		char[] chars = frag.toCharArray();
 		int ind = frag.indexOf('(', 1);
+		if(ind < 0){
+		  ind = frag.indexOf(')', 1);
+		  // fragment is just a single token:
+		  return new SimpleTree(frag.substring(1,ind));
+		}
 		String type = frag.substring(1, ind);
 		SimpleTree root = new SimpleTree(type);
 		SimpleTree cur = root;
