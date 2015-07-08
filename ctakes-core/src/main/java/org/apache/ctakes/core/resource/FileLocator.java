@@ -24,6 +24,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * Utility class that attempts to locate files.
@@ -157,11 +158,19 @@ final public class FileLocator {
             return createDiscoveredPath( relativePath, file, "above Working Directory /ctakes" );
          }
       }
-      LOGGER.error( "Could not find " + relativePath + " as absolute or in \n" + cwd
-                    + " or in any parent thereof or in $CTAKES_HOME \n" + cTakesHome );
+      final StringBuilder sb = new StringBuilder();
+      sb.append( "Could not find " ).append( relativePath ).append( "\nas absolute or in $CLASSPATH :\n" );
+      final ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+      final URL[] classpathUrls = ((URLClassLoader)classLoader).getURLs();
+      for ( URL url : classpathUrls ) {
+         sb.append( url.getFile() ).append( "\n" );
+      }
+      sb.append( "or in working directory : " ).append( cwd ).append( "\n" );
+      sb.append( "or in any parent thereof (with or without /ctakes/)\n" );
+      sb.append( "or in $CTAKES_HOME : " ).append( cTakesHome );
+      LOGGER.error( sb.toString() );
       throw new FileNotFoundException( "No File exists at " + relativePath );
    }
-
 
    /**
     * Check the java classpath for the presence of a file pointed to by relativePath
@@ -180,6 +189,6 @@ final public class FileLocator {
       }
       final URI indexUri = new URI( indexUrl.toExternalForm() );
       return new File( indexUri );
-    }
+   }
 
 }
