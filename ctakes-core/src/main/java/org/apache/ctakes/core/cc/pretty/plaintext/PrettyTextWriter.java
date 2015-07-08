@@ -103,7 +103,7 @@ final public class PrettyTextWriter {
     * @param writer   writer to which pretty text for the sentence should be written
     * @throws IOException if the writer has issues
     */
-   static private void writeSentence( final JCas jcas,
+   static public void writeSentence( final JCas jcas,
                                       final AnnotationFS sentence,
                                       final BufferedWriter writer ) throws IOException {
       // Create the base row
