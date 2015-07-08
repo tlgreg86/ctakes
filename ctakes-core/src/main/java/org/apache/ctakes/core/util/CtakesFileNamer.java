@@ -22,7 +22,6 @@ package org.apache.ctakes.core.util;
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.component.initialize.ConfigurationParameterInitializer;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.factory.ConfigurationParameterFactory;
 import org.apache.uima.fit.factory.initializable.Initializable;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -30,54 +29,55 @@ import org.apache.uima.resource.ResourceInitializationException;
 /**
  * This is a very simple implementation of XWriterFileNamer that generates file names based on a
  * prefix string and a incrementing counter.
- * 
+ *
  * @author Philip Ogren
  */
 
 public class CtakesFileNamer implements Initializable {
 
-        /**
-         * The parameter name for the configuration parameter that specifies a fixed prefix for all
-         * returned file names.
-         */
-        public static final String PARAM_PREFIX = "prefix";
-        @ConfigurationParameter(name = PARAM_PREFIX, description = "specify a prefix that is prepended to all returned file names", defaultValue="")
-        private String prefix;
+   /**
+    * The parameter name for the configuration parameter that specifies a fixed prefix for all
+    * returned file names.
+    */
+   public static final String PARAM_PREFIX = "prefix";
+   @ConfigurationParameter(name = PARAM_PREFIX, description = "specify a prefix that is prepended to all returned file names", defaultValue = "")
+   private String prefix;
 
-        /**
-         * The parameter name for the configuration parameter that specifies a fixed suffix for all
-         * returned file names.
-         */
-        public static final String PARAM_SUFFIX = "suffix";
-        @ConfigurationParameter(name = PARAM_SUFFIX, description = "specify a suffix that is appended to all returned file names", defaultValue="")
-        private String suffix;
+   /**
+    * The parameter name for the configuration parameter that specifies a fixed suffix for all
+    * returned file names.
+    */
+   public static final String PARAM_SUFFIX = "suffix";
+   @ConfigurationParameter(name = PARAM_SUFFIX, description = "specify a suffix that is appended to all returned file names", defaultValue = "")
+   private String suffix;
 
-        int i = 1;
+   int i = 1;
 
-        public String nameFile(JCas jcas)
-        {
-          String sourceFileName = DocumentIDAnnotationUtil.getDocumentID(jcas);
-          StringBuilder b = new StringBuilder();
-          if (prefix != null && !prefix.isEmpty())
-          { b.append(prefix); }
-          
-          if (sourceFileName != null && !sourceFileName.isEmpty())
-          {
-        	  b.append(sourceFileName);
-          } else
-          {
-        	  b.append(i++);
-          }
-          
-          if (suffix != null && !suffix.isEmpty())
-          { b.append(suffix); }
-          
-          String calculatedFilename = b.toString();
-          
-          return calculatedFilename;
-        }
+   public String nameFile( JCas jcas ) {
+      String sourceFileName = DocumentIDAnnotationUtil.getDocumentID( jcas );
+      StringBuilder b = new StringBuilder();
+      if ( prefix != null && !prefix.isEmpty() ) {
+         b.append( prefix );
+      }
 
-        public void initialize(UimaContext context) throws ResourceInitializationException {
-                ConfigurationParameterInitializer.initialize(this, context);
-        }
+      if ( sourceFileName != null
+           && !sourceFileName.isEmpty()
+           && !sourceFileName.equals( DocumentIDAnnotationUtil.NO_DOCUMENT_ID ) ) {
+         b.append( sourceFileName );
+      } else {
+         b.append( i++ );
+      }
+
+      if ( suffix != null && !suffix.isEmpty() ) {
+         b.append( suffix );
+      }
+
+      String calculatedFilename = b.toString();
+
+      return calculatedFilename;
+   }
+
+   public void initialize( UimaContext context ) throws ResourceInitializationException {
+      ConfigurationParameterInitializer.initialize( this, context );
+   }
 }
