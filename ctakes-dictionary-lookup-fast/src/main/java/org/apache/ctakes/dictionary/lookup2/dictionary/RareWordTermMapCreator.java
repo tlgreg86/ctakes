@@ -363,7 +363,7 @@ final public class RareWordTermMapCreator {
 
       public CuiTerm( final String cui, final String term ) {
          __term = getTokenizedTerm( term );
-         __cui = CuiCodeUtil.getCuiCode( cui );
+         __cui = CuiCodeUtil.getInstance().getCuiCode( cui );
          __hashcode = (__cui + "_" + __term).hashCode();
       }
 

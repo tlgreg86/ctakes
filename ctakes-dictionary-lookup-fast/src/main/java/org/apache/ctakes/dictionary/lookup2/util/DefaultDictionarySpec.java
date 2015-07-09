@@ -56,7 +56,7 @@ final public class DefaultDictionarySpec implements DictionarySpec {
       }
 
       public Concept createConcept( final Long cuiCode ) {
-         return new Concept( CuiCodeUtil.getAsCui( cuiCode ) );
+         return new Concept( CuiCodeUtil.getInstance().getAsCui( cuiCode ) );
       }
 
       public Map<Long, Concept> createConcepts( final Collection<Long> cuiCodes ) {

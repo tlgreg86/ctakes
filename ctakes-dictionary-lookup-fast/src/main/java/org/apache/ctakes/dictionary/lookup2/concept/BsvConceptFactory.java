@@ -35,18 +35,13 @@ final public class BsvConceptFactory implements ConceptFactory {
    }
 
    public BsvConceptFactory( final String name, final String bsvFilePath ) {
-//      this( name, new File( bsvFilePath ) );
-//   }
-//
-//   public BsvConceptFactory( final String name, final File bsvFile ) {
-//      final Collection<CuiTuiTerm> cuiTuiTerms = parseBsvFile( bsvFile );
       final Collection<CuiTuiTerm> cuiTuiTerms = parseBsvFile( bsvFilePath );
       final Map<Long, Concept> conceptMap = new HashMap<>( cuiTuiTerms.size() );
       for ( CuiTuiTerm cuiTuiTerm : cuiTuiTerms ) {
          final CollectionMap<ConceptCode, String, ? extends Collection<String>> codes
                = new EnumSetMap<>( ConceptCode.class );
          codes.placeValue( ConceptCode.TUI, TuiCodeUtil.getAsTui( cuiTuiTerm.getTui() ) );
-         conceptMap.put( CuiCodeUtil.getCuiCode( cuiTuiTerm.getCui() ),
+         conceptMap.put( CuiCodeUtil.getInstance().getCuiCode( cuiTuiTerm.getCui() ),
                new Concept( cuiTuiTerm.getCui(), cuiTuiTerm.getPrefTerm(), codes ) );
       }
       _delegateFactory = new MemConceptFactory( name, conceptMap );
@@ -98,7 +93,6 @@ final public class BsvConceptFactory implements ConceptFactory {
     * @param bsvFilePath file containing term rows and bsv columns
     * @return collection of all valid terms read from the bsv file
     */
-//   static private Collection<CuiTuiTerm> parseBsvFile( final File bsvFile ) {
    static private Collection<CuiTuiTerm> parseBsvFile( final String bsvFilePath ) {
       File bsvFile = null;
       try {

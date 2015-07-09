@@ -27,7 +27,7 @@ final public class MemConceptFactory extends AbstractConceptFactory {
    public Concept createConcept( final Long cuiCode ) {
       Concept concept = _conceptMap.get( cuiCode );
       if ( concept == null ) {
-         concept = new Concept( CuiCodeUtil.getAsCui( cuiCode ) );
+         concept = new Concept( CuiCodeUtil.getInstance().getAsCui( cuiCode ) );
          _conceptMap.put( cuiCode, concept );
       }
       return concept;

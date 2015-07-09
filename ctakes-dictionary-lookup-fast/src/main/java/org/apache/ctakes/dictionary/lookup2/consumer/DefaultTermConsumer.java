@@ -29,6 +29,7 @@ import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.textsem.*;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.CASRuntimeException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 
@@ -64,7 +65,8 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
          for ( Map.Entry<TextSpan, ? extends Collection<Long>> spanCuis : textSpanCuis ) {
             umlsConceptList.clear();
             for ( Long cuiCode : spanCuis.getValue() ) {
-               umlsConceptList.addAll( createUmlsConcepts( jcas, defaultScheme, cTakesSemantic, cuiCode, cuiConcepts ) );
+               umlsConceptList
+                     .addAll( createUmlsConcepts( jcas, defaultScheme, cTakesSemantic, cuiCode, cuiConcepts ) );
             }
             final FSArray conceptArr = new FSArray( jcas, umlsConceptList.size() );
             int arrIdx = 0;
@@ -80,10 +82,9 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
             annotation.setOntologyConceptArr( conceptArr );
             annotation.addToIndexes();
          }
-      } catch ( Exception e ) {
-         // TODO Poor form - refactor
+      } catch ( CASRuntimeException crtE ) {
          // What is really thrown?  The jcas "throwFeatMissing" is not a great help
-         throw new AnalysisEngineProcessException( e );
+         throw new AnalysisEngineProcessException( crtE );
       }
    }
 
@@ -119,7 +120,7 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
       final Collection<Concept> concepts = conceptMap.getCollection( cuiCode );
       if ( concepts == null || concepts.isEmpty() ) {
          return Arrays.asList( createUmlsConcept( jcas, defaultScheme,
-               CuiCodeUtil.getAsCui( cuiCode ), null, null, null ) );
+               CuiCodeUtil.getInstance().getAsCui( cuiCode ), null, null, null ) );
       }
       final Collection<UmlsConcept> umlsConcepts = new HashSet<>();
       for ( Concept concept : concepts ) {
@@ -155,7 +156,8 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
          }
       }
       if ( concepts.isEmpty() ) {
-         concepts.add( createUmlsConcept( jcas, defaultScheme, concept.getCui(), tui, concept.getPreferredText(), null ) );
+         concepts.add( createUmlsConcept( jcas, defaultScheme, concept.getCui(), tui, concept
+               .getPreferredText(), null ) );
       }
       return concepts;
    }

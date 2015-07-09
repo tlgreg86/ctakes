@@ -43,7 +43,6 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
    static private final String ICD10_TABLE = "icd10Table";
 
 
-   //   final private Connection _connection;
    private PreparedStatement _selectTuiCall;
    private PreparedStatement _selectPrefTermCall;
    private PreparedStatement _selectSnomedCall;
@@ -117,7 +116,7 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
       if ( _selectIcd10Call != null ) {
          codes.addAllValues( ICD10PCS, getStringCodes( _selectIcd10Call, cuiCode ) );
       }
-      return new Concept( CuiCodeUtil.getAsCui( cuiCode ), prefTerm, codes );
+      return new Concept( CuiCodeUtil.getInstance().getAsCui( cuiCode ), prefTerm, codes );
    }
 
 
