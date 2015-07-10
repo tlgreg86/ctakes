@@ -120,4 +120,19 @@ public final class DefaultUmlsItemCell extends AbstractItemCell implements UmlsI
       return "";
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public boolean equals( final Object other ) {
+      return other instanceof DefaultUmlsItemCell
+             && getTextSpan().equals( ((DefaultUmlsItemCell)other).getTextSpan() )
+             && isNegated() == ((DefaultUmlsItemCell)other).isNegated()
+             && _semanticTextLines.equals( ((DefaultUmlsItemCell)other)._semanticTextLines );
+   }
+
+   public int hashCode() {
+      return 2 * getTextSpan().hashCode() + 2 * _semanticTextLines.hashCode() + (isNegated() ? 1 : 0);
+   }
+
 }

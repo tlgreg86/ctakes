@@ -1,9 +1,7 @@
 package org.apache.ctakes.core.cc.pretty.plaintext;
 
 import org.apache.ctakes.core.cc.pretty.SemanticGroup;
-import org.apache.ctakes.core.cc.pretty.cell.DefaultBaseItemCell;
-import org.apache.ctakes.core.cc.pretty.cell.DefaultUmlsItemCell;
-import org.apache.ctakes.core.cc.pretty.cell.ItemCell;
+import org.apache.ctakes.core.cc.pretty.cell.*;
 import org.apache.ctakes.core.cc.pretty.row.DefaultItemRow;
 import org.apache.ctakes.core.cc.pretty.row.ItemRow;
 import org.apache.ctakes.core.cc.pretty.textspan.DefaultTextSpan;
@@ -11,15 +9,19 @@ import org.apache.ctakes.core.cc.pretty.textspan.TextSpan;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.IdentifiedAnnotationUtil;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
+import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.syntax.WordToken;
+import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -119,16 +121,13 @@ final public class PrettyTextWriter {
       }
       itemRows.add( baseItemRow );
       itemRows.addAll( createItemRows( coveringItemMap ) );
-      // Create list of all text span offsets
-      final Collection<Integer> offsets = new HashSet<>();
-      for ( TextSpan textSpan : baseItemMap.keySet() ) {
-         offsets.add( textSpan.getBegin() );
-         offsets.add( textSpan.getEnd() );
-      }
       // Create map of all text span offsets to adjusted offsets
-      final Map<Integer, Integer> offsetAdjustedMap = createOffsetAdjustedMap( offsets, itemRows );
+      final Map<Integer, Integer> offsetAdjustedMap = createOffsetAdjustedMap( itemRows );
       // print all of the item rows
       printItemRows( offsetAdjustedMap, itemRows, writer );
+
+      printTLinks( jcas, sentence, writer );
+      writer.newLine();
    }
 
    /**
@@ -159,33 +158,56 @@ final public class PrettyTextWriter {
       return baseItemMap;
    }
 
+
    /**
-    * @param jcas        ye olde ...
-    * @param sentence    annotation containing the sentence
+    *
+    * @param jcas ye olde ...
+    * @param sentence annotation containing the sentence
     * @param baseItemMap map of text spans and item cells that represent those spans
-    * @return map of covering annotations (item cells that cover more than one base cell)
+    * @return map of number of spanned base items and collections of item cells spanning that number of base item cells
     */
    static private Map<Integer, Collection<ItemCell>> createCoveringItemMap( final JCas jcas,
                                                                             final AnnotationFS sentence,
                                                                             final Map<TextSpan, ItemCell> baseItemMap ) {
+      final Collection<TextSpan> usedTextSpans = new HashSet<>();
+      final Collection<ItemCell> requiredCells = new HashSet<>();
+      final Collection<ItemCell> eventCells = new HashSet<>();
+
       final int sentenceBegin = sentence.getBegin();
       final Collection<IdentifiedAnnotation> identifiedAnnotations
             = JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, sentence );
-      final Map<Integer, Collection<ItemCell>> coveringAnnotationMap = new HashMap<>();
-      for ( IdentifiedAnnotation identifiedAnnotation : identifiedAnnotations ) {
-         final Map<String, Collection<String>> semanticCuis = getSemanticCuis( identifiedAnnotation );
-         if ( semanticCuis.isEmpty() ) {
-            continue;
-         }
-         final TextSpan textSpan = new DefaultTextSpan( identifiedAnnotation, sentenceBegin );
+      for ( IdentifiedAnnotation annotation : identifiedAnnotations ) {
+         final TextSpan textSpan = new DefaultTextSpan( annotation, sentenceBegin );
          if ( textSpan.getWidth() == 0 ) {
             continue;
          }
-         final ItemCell itemCell = new DefaultUmlsItemCell( textSpan, identifiedAnnotation
-               .getPolarity(), semanticCuis );
-         final Collection<ItemCell> coveredBaseItems = getCoveredBaseItems( textSpan, baseItemMap );
-         Collection<ItemCell> coveringAnnotations
-               = coveringAnnotationMap.get( coveredBaseItems.size() );
+         final Map<String, Collection<String>> semanticCuis = getSemanticCuis( annotation );
+         if ( !semanticCuis.isEmpty() ) {
+            final ItemCell itemCell = new DefaultUmlsItemCell( textSpan, annotation.getPolarity(), semanticCuis );
+            requiredCells.add( itemCell );
+            usedTextSpans.add( textSpan );
+         } else if ( annotation instanceof TimeMention ) {
+            requiredCells.add( new TimexCell( textSpan ) );
+         } else if ( annotation instanceof EventMention ) {
+            eventCells.add( new EventCell( textSpan, annotation.getPolarity() ) );
+         }
+      }
+      final Map<Integer, Collection<ItemCell>> coveringAnnotationMap = new HashMap<>();
+      for ( ItemCell itemCell : requiredCells ) {
+         final Collection<ItemCell> coveredBaseItems = getCoveredBaseItems( itemCell.getTextSpan(), baseItemMap );
+         Collection<ItemCell> coveringAnnotations = coveringAnnotationMap.get( coveredBaseItems.size() );
+         if ( coveringAnnotations == null ) {
+            coveringAnnotations = new HashSet<>();
+            coveringAnnotationMap.put( coveredBaseItems.size(), coveringAnnotations );
+         }
+         coveringAnnotations.add( itemCell );
+      }
+      for ( ItemCell itemCell : eventCells ) {
+         if ( usedTextSpans.contains( itemCell.getTextSpan() ) ) {
+            continue;
+         }
+         final Collection<ItemCell> coveredBaseItems = getCoveredBaseItems( itemCell.getTextSpan(), baseItemMap );
+         Collection<ItemCell> coveringAnnotations = coveringAnnotationMap.get( coveredBaseItems.size() );
          if ( coveringAnnotations == null ) {
             coveringAnnotations = new HashSet<>();
             coveringAnnotationMap.put( coveredBaseItems.size(), coveringAnnotations );
@@ -195,13 +217,21 @@ final public class PrettyTextWriter {
       return coveringAnnotationMap;
    }
 
+
    /**
-    * @param offsets  original document offsets
     * @param itemRows item rows
     * @return map of original document offsets to adjusted printable offsets
     */
-   static private Map<Integer, Integer> createOffsetAdjustedMap( final Collection<Integer> offsets,
-                                                                 final Iterable<ItemRow> itemRows ) {
+   static private Map<Integer, Integer> createOffsetAdjustedMap( final Iterable<ItemRow> itemRows ) {
+      // Create list of all text span offsets.  Had to be here because BaseTokens did not contain all offsets.
+      final Collection<Integer> offsets = new HashSet<>();
+      for ( ItemRow itemRow : itemRows ) {
+         final Collection<ItemCell> rowItemCells = itemRow.getItemCells();
+         for ( ItemCell itemCell : rowItemCells ) {
+            offsets.add( itemCell.getTextSpan().getBegin() );
+            offsets.add( itemCell.getTextSpan().getEnd() );
+         }
+      }
       // Create map of all text span offsets to adjusted offsets
       final List<Integer> offsetList = new ArrayList<>( offsets );
       Collections.sort( offsetList );
@@ -251,16 +281,54 @@ final public class PrettyTextWriter {
             final String lineText = itemRow.getTextLine( i, rowWidth, offsetAdjustedMap );
             if ( !lineText.isEmpty() ) {
                if ( firstLine ) {
-                  writer.write( "TEXT:  " + lineText );
+                  writer.write( "SENTENCE:  " + lineText );
                   firstLine = false;
                } else {
-                  writer.write( "       " + lineText );
+                  writer.write( "           " + lineText );
 
                }
                writer.newLine();
             }
          }
       }
+   }
+
+
+   /**
+    * Print TLinks as "arg1 relationType arg2"
+    * @param jcas ye olde ...
+    * @param sentence annotation containing the sentence
+    * @param writer writer to which pretty text for the sentence should be written
+    * @throws IOException if the writer has issues
+    */
+   static private void printTLinks( final JCas jcas,
+                                    final AnnotationFS sentence,
+                                    final BufferedWriter writer ) throws IOException {
+      final Collection<TemporalTextRelation> tlinks = JCasUtil.select( jcas, TemporalTextRelation.class );
+      if ( tlinks == null || tlinks.isEmpty() ) {
+         return;
+      }
+      final Collection<TemporalTextRelation> sentenceTlinks = new ArrayList<>();
+      final TextSpan sentenceTextSpan = new DefaultTextSpan( sentence.getBegin(), sentence.getEnd() );
+      for ( TemporalTextRelation tlink : tlinks ) {
+         final Annotation argument1 = tlink.getArg1().getArgument();
+         final TextSpan argument1Span = new DefaultTextSpan( argument1, 0 );
+         if ( sentenceTextSpan.overlaps( argument1Span ) ) {
+            sentenceTlinks.add( tlink );
+         }
+      }
+      if ( sentenceTlinks.isEmpty() ) {
+         return;
+      }
+      final StringBuilder sb = new StringBuilder();
+      sb.append( "TLINKS:    " );
+      for ( TemporalTextRelation tlink : sentenceTlinks ) {
+         sb.append( tlink.getArg1().getArgument().getCoveredText() ).append( " " );
+         sb.append( tlink.getCategory() ).append( " " );
+         sb.append( tlink.getArg2().getArgument().getCoveredText() ).append( " , " );
+      }
+      sb.setLength( sb.length() - 3 );
+      writer.write( sb.toString() );
       writer.newLine();
    }
 
