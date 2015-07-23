@@ -25,10 +25,7 @@ import org.apache.ctakes.dictionary.lookup2.util.collection.ArrayListMap;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Given a collection of {@link org.apache.ctakes.dictionary.lookup2.dictionary.RareWordTermMapCreator.CuiTerm} Objects,
@@ -47,7 +44,7 @@ final public class RareWordTermMapCreator {
    private RareWordTermMapCreator() {
    }
 
-   static private final String[] PREFIXES = {
+   static private final Collection<String> PREFIXES = new HashSet<>( Arrays.asList(
          "e-",
          "a-",
          "u-",
@@ -101,10 +98,23 @@ final public class RareWordTermMapCreator {
          "homo-",
          "hetero-",
          "ortho-",
-         "phospho-",
-   };
-   static private final String[] SUFFIXES = { "-esque", "-ette", "-fest", "-fold", "-gate", "-itis", "-less", "-most",
-                                              "-o-torium", "-rama", "-wise" };
+         "phospho-" ) );
+//   static private final String[] SUFFIXES = { "-esque", "-ette", "-fest", "-fold", "-gate", "-itis", "-less", "-most",
+//                                              "-o-torium", "-rama", "-wise" };
+
+   static private final Collection<String> SUFFIXES = new HashSet<>( Arrays.asList(
+         "-esque",
+         "-ette",
+         "-fest",
+         "-fold",
+         "-gate",
+         "-itis",
+         "-less",
+         "-most",
+         "-o-torium",
+         "-rama",
+         "-wise" ) );
+
 
    // LookupDesc for the standard excluded pos tags are
    //   VB,VBD,VBG,VBN,VBP,VBZ,CC,CD,DT,EX,LS,MD,PDT,POS,PP,PP$,PRP,PRP$,RP,TO,WDT,WP,WPS,WRB
@@ -113,7 +123,7 @@ final public class RareWordTermMapCreator {
    // CD, CC, DT, EX, MD, PDT, PP, PP$, PRP, PRP$, RP, TO, WDT, WP, WPS, WRB
    // why not WP$ (possessive wh- pronoun "whose")
    // PP$ is a Brown POS tag, not Penn Treebank (as are the rest)
-   static private final String[] BAD_POS_TERMS = {
+   static private final Collection<String> BAD_POS_TERMS = new HashSet<>( Arrays.asList(
          // CD  cardinal number
          "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
          // CC  coordinating conjunction
@@ -146,23 +156,23 @@ final public class RareWordTermMapCreator {
          // WP, WPS  wh- pronoun, nominative wh- pronoun
          "who", "whom", "which", "that", "whoever", "whomever",
          // WRB
-         "how", "where", "when", "however", "wherever", "whenever",
-   };
+         "how", "where", "when", "however", "wherever", "whenever" ) );
 
    static public CollectionMap<String, RareWordTerm, List<RareWordTerm>> createRareWordTermMap(
          final Iterable<CuiTerm> cuiTerms ) {
       final CollectionMap<String, RareWordTerm, List<RareWordTerm>> rareWordTermMap = new ArrayListMap<>();
       final Map<String, Integer> tokenCountMap = createTokenCountMap( cuiTerms );
       for ( CuiTerm cuiTerm : cuiTerms ) {
-         final String rareWord = getRareWord( cuiTerm.getTerm(), tokenCountMap );
-         final int wordIndex = getWordIndex( cuiTerm.getTerm(), rareWord );
-         final int tokenCount = getTokenCount( cuiTerm.getTerm() );
+         final String term = cuiTerm.getTerm();
+         final String rareWord = getRareWord( term, tokenCountMap );
+         final int wordIndex = getWordIndex( term, rareWord );
+         final int tokenCount = getTokenCount( term );
          if ( wordIndex < 0 ) {
-            LOGGER.warn( "Bad Rare Word Index for " + rareWord + " in " + cuiTerm.getTerm() );
+            LOGGER.warn( "Bad Rare Word Index for " + rareWord + " in " + term );
             continue;
          }
-         rareWordTermMap.placeValue( rareWord, new RareWordTerm( cuiTerm.getTerm(), cuiTerm.__cui,
-               rareWord, wordIndex, tokenCount ) );
+         final RareWordTerm rareWordTerm = new RareWordTerm( term, cuiTerm.__cui, rareWord, wordIndex, tokenCount );
+         rareWordTermMap.placeValue( rareWord, rareWordTerm );
       }
       return rareWordTermMap;
    }
@@ -218,12 +228,7 @@ final public class RareWordTermMapCreator {
       if ( !hasLetter ) {
          return false;
       }
-      for ( String badPosTerm : BAD_POS_TERMS ) {
-         if ( token.equals( badPosTerm ) ) {
-            return false;
-         }
-      }
-      return true;
+      return !BAD_POS_TERMS.contains( token );
    }
 
    static private int getWordIndex( final String tokenizedTerm, final String word ) {
@@ -282,26 +287,22 @@ final public class RareWordTermMapCreator {
             sb.append( c );
             continue;
          }
-         if ( c != '-' ) {
+         if ( c == '-' && (isPrefix( sb.toString() ) || isSuffix( word, i + 1 )) ) {
+            // what precedes is a prefix or what follows is a suffix so append the dash to the current word and move on
+            sb.append( c );
+            continue;
+         }
+         if ( (c == '\'' && isOwnerApostrophe( word, i + 1 ))
+              || (c == '.' && isNumberDecimal( word, i + 1 )) ) {
+            // what follows is an 's or .# so add the preceding and move on
             if ( sb.length() != 0 ) {
                tokens.add( sb.toString() );
                sb.setLength( 0 );
             }
-            tokens.add( "" + c );
+            sb.append( c );
             continue;
          }
-         final boolean isPrefix = isPrefix( sb.toString() );
-         if ( isPrefix ) {
-            // what precedes is a prefix, so append the dash and move on
-            sb.append( '-' );
-            continue;
-         }
-         final boolean isSuffix = isSuffix( word, i + 1 );
-         if ( isSuffix ) {
-            // what follows is a suffix, so append the dash and move on
-            sb.append( '-' );
-            continue;
-         }
+         // Wasn't a special symbol for consideration, so add the previous and symbol separately
          if ( sb.length() != 0 ) {
             tokens.add( sb.toString() );
             sb.setLength( 0 );
@@ -315,30 +316,27 @@ final public class RareWordTermMapCreator {
    }
 
    static private boolean isPrefix( final String word ) {
-      final String prefixQ = word + "-";
-      for ( String prefix : PREFIXES ) {
-         if ( prefix.equals( prefixQ ) ) {
-            return true;
-         }
-      }
-      return false;
+      return PREFIXES.contains( word + "-" );
    }
 
    static private boolean isSuffix( final String word, final int startIndex ) {
-      if ( word.length() >= startIndex ) {
+      if ( word.length() <= startIndex ) {
          return false;
       }
       final String nextCharTerm = getNextCharTerm( word.substring( startIndex ) );
       if ( nextCharTerm.isEmpty() ) {
          return false;
       }
-      final String suffixQ = "-" + nextCharTerm;
-      for ( String suffix : SUFFIXES ) {
-         if ( suffix.equals( suffixQ ) ) {
-            return true;
-         }
-      }
-      return false;
+      return SUFFIXES.contains( "-" + nextCharTerm );
+   }
+
+   static private boolean isOwnerApostrophe( final CharSequence word, final int startIndex ) {
+      return word.length() == startIndex + 1 && word.charAt( startIndex ) == 's';
+   }
+
+   static private boolean isNumberDecimal( final CharSequence word, final int startIndex ) {
+      // Bizarre scenario in which ctakes tokenizes ".2" as a fraction, but not ".22"
+      return word.length() == startIndex + 1 && Character.isDigit( word.charAt( startIndex ) );
    }
 
    static private String getNextCharTerm( final String word ) {
