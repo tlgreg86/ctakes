@@ -18,14 +18,10 @@
  */
 package org.apache.ctakes.constituency.parser;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import opennlp.tools.parser.AbstractBottomUpParser;
 import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.ParserModel;
 import opennlp.tools.parser.chunking.Parser;
-
 import org.apache.ctakes.constituency.parser.util.TreeUtils;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.syntax.TopTreebankNode;
@@ -35,6 +31,10 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
 
 public class MaxentParserWrapper implements ParserWrapper {
 
@@ -67,31 +67,48 @@ public class MaxentParserWrapper implements ParserWrapper {
 	 * For some reason the built-in tokenizer does not like that.
 	 */
 	@Override
-	public void createAnnotations(JCas jcas) throws AnalysisEngineProcessException {
-		String docId = DocumentIDAnnotationUtil.getDocumentID(jcas);
-		logger.info("Started processing: " + docId);
-		// iterate over sentences
-		FSIterator iterator = jcas.getAnnotationIndex(Sentence.type).iterator();
+   public void createAnnotations( final JCas jcas ) throws AnalysisEngineProcessException {
+      final String docId = DocumentIDAnnotationUtil.getDocumentID( jcas );
+      logger.info( "Started processing: " + docId );
+      // iterate over sentences
 		Parse parse = null;
-		
-		while(iterator.hasNext()){
-			Sentence sentAnnot = (Sentence) iterator.next();
-			if(sentAnnot.getCoveredText().length() == 0){
-				continue;
-			}
-			FSArray termArray = TreeUtils.getTerminals(jcas, sentAnnot);
-			Parse inputTokens = TreeUtils.ctakesTokensToOpennlpTokens(sentAnnot, termArray);
-			String sentStr = TreeUtils.getSentence(termArray);
-			if(sentStr.length() == 0){
-				parse = null;
-			}else{
-				parse = parser.parse(inputTokens);
-			}
-			TopTreebankNode top = TreeUtils.buildAlignedTree(jcas, parse, sentAnnot);
-			top.addToIndexes();
+      final Collection<Sentence> allSentences = org.apache.uima.fit.util.JCasUtil.select( jcas, Sentence.class );
+      for ( Sentence sentence : allSentences ) {
+         final String text = sentence.getCoveredText();
+         if ( text.isEmpty() || isBorderOnly( text ) ) {
+            continue;
+         }
+         final FSArray terminalArray = TreeUtils.getTerminals( jcas, sentence );
+         final String tokenString = TreeUtils.getSplitSentence( terminalArray );
+         if ( tokenString.isEmpty() ) {
+            parse = null;
+         } else {
+            final Parse inputTokens = TreeUtils.ctakesTokensToOpennlpTokens( sentence.getBegin(), text, terminalArray );
+            parse = parser.parse( inputTokens );
+         }
+         final TopTreebankNode top = TreeUtils.buildAlignedTree( jcas, parse, terminalArray, sentence );
+         top.addToIndexes();
 		}
-		logger.info("Done parsing: " + docId);
-	}
+      logger.info( "Done parsing: " + docId );
+   }
+
+   /**
+    * The parser has a really tough time dealing with text lines that act as borders
+    *
+    * @param text text for a sentence (or other annotation)
+    * @return true if the text is a candidate for a line border, e.g. "===================="
+    */
+   static private boolean isBorderOnly( final String text ) {
+      final char[] chars = text.toCharArray();
+      for ( char c : chars ) {
+         // assume that a letter or digit indicates actual text of some sort
+         if ( Character.isLetterOrDigit( c ) ) {
+            return false;
+         }
+      }
+      return true;
+   }
+
 
 
 }

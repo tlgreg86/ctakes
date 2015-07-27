@@ -18,30 +18,45 @@
  */
 package org.apache.ctakes.constituency.parser.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import opennlp.tools.parser.AbstractBottomUpParser;
 import opennlp.tools.parser.Parse;
 import opennlp.tools.util.Span;
-
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
-import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
-import org.apache.ctakes.typesystem.type.syntax.PunctuationToken;
-import org.apache.ctakes.typesystem.type.syntax.TerminalTreebankNode;
-import org.apache.ctakes.typesystem.type.syntax.TopTreebankNode;
-import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
+import org.apache.ctakes.typesystem.type.syntax.*;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.ctakes.utils.tree.SimpleTree;
 import org.apache.uima.UIMA_UnsupportedOperationException;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.FSIterator;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.StringArray;
-import org.apache.uima.jcas.tcas.Annotation;
 
-public class TreeUtils {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+final public class TreeUtils {
+
+   static private final Pattern WHITESPACE_PATTERN = Pattern.compile( "\\s++" );
+
+   static private final Map<String, String> BRACKET_MAP = new HashMap<>( 6 );
+
+   static {
+      BRACKET_MAP.put( "(", "-LRB-" );
+      BRACKET_MAP.put( "[", "-LRB-" );
+      BRACKET_MAP.put( ")", "-RRB-" );
+      BRACKET_MAP.put( "]", "-RRB-" );
+      BRACKET_MAP.put( "{", "-LCB-" );
+      BRACKET_MAP.put( "}", "-RCB-" );
+   }
+
+
+   private TreeUtils() {
+   }
+
+
+
 
 	public static List<TreebankNode> getNodeList(TopTreebankNode tree){
 		ArrayList<TreebankNode> list = new ArrayList<TreebankNode>();
@@ -224,80 +239,97 @@ public class TreeUtils {
 		return top;
 	}
 
-	public static TopTreebankNode buildAlignedTree(JCas jcas, Parse parse, Sentence sent) throws AnalysisEngineProcessException {
-		FSArray termArray = TreeUtils.getTerminals(jcas, sent);
-		
-		StringBuffer parseBuff = new StringBuffer();
-		if(parse != null) parse.show(parseBuff);
-		
-		TopTreebankNode top = new TopTreebankNode(jcas, sent.getBegin(), sent.getEnd());
-		top.setTreebankParse(parseBuff.toString());
-		top.setTerminals(termArray);
-		top.setParent(null);
-		if(parse != null) recursivelyCreateStructure(jcas, top, parse, top);
-	
-		return top;
-	}
-	
-	public static FSArray getTerminals(JCas jcas, Sentence sent){
-		ArrayList<BaseToken> wordList = new ArrayList<BaseToken>();
-		FSIterator<Annotation> iterator = jcas.getAnnotationIndex(BaseToken.type).subiterator(sent);
-		while(iterator.hasNext()){
-			BaseToken w = (BaseToken)iterator.next();
-			if(w instanceof NewlineToken) continue;
-			wordList.add(w);
-		}
-		
-		FSArray terms = new FSArray(jcas, wordList.size());
-		for(int i = 0; i < wordList.size(); i++){
-			BaseToken w = wordList.get(i);
-			TerminalTreebankNode ttn = new TerminalTreebankNode(jcas, w.getBegin(), w.getEnd());
-			ttn.setChildren(null);
-			ttn.setIndex(i);
-			ttn.setTokenIndex(i);
-			ttn.setLeaf(true);
-			ttn.setNodeTags(null);
-			if(w instanceof PunctuationToken){
-				String tokStr = w.getCoveredText();
-				if(tokStr.equals("(") || tokStr.equals("[")){
-					ttn.setNodeValue("-LRB-");
-				}else if(tokStr.equals(")") || tokStr.equals("]")){
-					ttn.setNodeValue("-RRB-");
-				}else if(tokStr.equals("{")){
-					ttn.setNodeValue("-LCB-");
-				}else if(tokStr.equals("}")){
-					ttn.setNodeValue("-RCB-");
-				}else{
-					ttn.setNodeValue(w.getCoveredText());
-				}
-			}else{
-				ttn.setNodeValue(w.getCoveredText());
-			}
-//			ttn.addToIndexes();
-			terms.set(i, ttn);
-		}
-		
-		return terms;
-	}
-	
-	public static String getSentence(FSArray termArray){
-		StringBuffer sent = new StringBuffer();
-//		int offset = 0;
-		
-		for(int i = 0; i < termArray.size(); i++){
-			TerminalTreebankNode ttn = (TerminalTreebankNode) termArray.get(i);
-			String word = ttn.getNodeValue();
-			word = word.replaceAll("\\s", "");
-//			if(i == 0) offset = ttn.getBegin();
-			/*else*/
-			if(word.length() == 0) continue;
-			//else
-			sent.append(" ");
 
-			sent.append(word);
-		}		
-		return sent.toString();
-	}
+   /**
+    * @param jcas     ye olde ...
+    * @param parse    opennlp parse
+    * @param sentence -
+    * @return a top treebank node for the sentence
+    * @throws AnalysisEngineProcessException thrown by {@link #recursivelyCreateStructure}
+    */
+   public static TopTreebankNode buildAlignedTree( final JCas jcas, final Parse parse, final Sentence sentence )
+         throws AnalysisEngineProcessException {
+      final FSArray terminalArray = TreeUtils.getTerminals( jcas, sentence );
+      return buildAlignedTree( jcas, parse, terminalArray, sentence );
+   }
+
+   /**
+    * @param jcas          ye olde ...
+    * @param parse         opennlp parse
+    * @param terminalArray [token] terminals in the sentence
+    * @param sentence      -
+    * @return a top treebank node for the sentence
+    * @throws AnalysisEngineProcessException thrown by {@link #recursivelyCreateStructure}
+    */
+   public static TopTreebankNode buildAlignedTree( final JCas jcas, final Parse parse,
+                                                   final FSArray terminalArray, final Sentence sentence )
+         throws AnalysisEngineProcessException {
+      final StringBuffer parseBuffer = new StringBuffer();
+      if ( parse != null ) {
+         parse.show( parseBuffer );
+      }
+      final TopTreebankNode top = new TopTreebankNode( jcas, sentence.getBegin(), sentence.getEnd() );
+      top.setTreebankParse( parseBuffer.toString() );
+      top.setTerminals( terminalArray );
+      top.setParent( null );
+      if ( parse != null ) {
+         recursivelyCreateStructure( jcas, top, parse, top );
+      }
+      return top;
+   }
+
+
+   /**
+    * @param jcas     ye olde ...
+    * @param sentence sentence annotation
+    * @return terminals for the sentence
+    */
+   public static FSArray getTerminals( final JCas jcas, final Sentence sentence ) {
+      final List<BaseToken> baseTokens = org.apache.uima.fit.util.JCasUtil
+            .selectCovered( jcas, BaseToken.class, sentence );
+      final List<BaseToken> wordList = new ArrayList<>();
+      for ( BaseToken baseToken : baseTokens ) {
+         if ( !(baseToken instanceof NewlineToken) ) {
+            wordList.add( baseToken );
+         }
+      }
+      final FSArray terminals = new FSArray( jcas, wordList.size() );
+      int termIndex = 0;
+      for ( BaseToken word : wordList ) {
+         final TerminalTreebankNode ttn = new TerminalTreebankNode( jcas, word.getBegin(), word.getEnd() );
+         ttn.setChildren( null );
+         ttn.setIndex( termIndex );
+         ttn.setTokenIndex( termIndex );
+         ttn.setLeaf( true );
+         ttn.setNodeTags( null );
+         final String wordText = word.getCoveredText();
+         if ( word instanceof PunctuationToken && BRACKET_MAP.containsKey( wordText ) ) {
+            ttn.setNodeValue( BRACKET_MAP.get( wordText ) );
+         } else {
+            ttn.setNodeValue( wordText );
+         }
+//			ttn.addToIndexes();
+         terminals.set( termIndex, ttn );
+         termIndex++;
+      }
+      return terminals;
+   }
+
+
+   public static String getSplitSentence( final FSArray terminalArray ) {
+//		int offset = 0;  // what was this for?
+      final StringBuilder sb = new StringBuilder();
+      for ( int i = 0; i < terminalArray.size(); i++ ) {
+         final TerminalTreebankNode ttn = (TerminalTreebankNode)terminalArray.get( i );
+         final String word = WHITESPACE_PATTERN.matcher( ttn.getNodeValue() ).replaceAll( "" );
+         //			if(i == 0) offset = ttn.getBegin();
+         if ( !word.isEmpty() ) {
+            sb.append( " " ).append( word );
+         }
+      }
+      // Do we want to trim the first whitespace?
+      return sb.toString();
+   }
 	
 	private static void recursivelyCreateStructure(JCas jcas, TreebankNode parent, Parse parse, TopTreebankNode root) throws AnalysisEngineProcessException{
 		String[] typeParts;
@@ -356,22 +388,31 @@ public class TreeUtils {
 			for(int i = 0; i < parent.getChildren().size(); i++){
 				if(parent.getChildren(i) == oldTree){
 					parent.setChildren(i, newTree);
-				}
-			}
-		}
-	}
+            }
+         }
+      }
+   }
 
-	public static Parse ctakesTokensToOpennlpTokens(Sentence sent, FSArray termArray) {
-		// based on the first part of parseLine in the opennlp libraries
-		String text = sent.getCoveredText();
-		Parse p = new Parse(sent.getCoveredText(), new Span(0, text.length()), AbstractBottomUpParser.INC_NODE, 0, 0);
-		
-		for(int i = 0; i < termArray.size(); i++){
-			TerminalTreebankNode token = (TerminalTreebankNode) termArray.get(i);
-			p.insert(new Parse(text, new Span(token.getBegin()-sent.getBegin(), token.getEnd()-sent.getBegin()), AbstractBottomUpParser.TOK_NODE, 0, i));
-		}
-		
-		return p;
-	}
+   /**
+    * @param sentenceOffset begin offest character index for sentence
+    * @param text           text of the sentence
+    * @param terminalArray  [token] terminals in the sentence
+    * @return open nlp Parse
+    */
+   public static Parse ctakesTokensToOpennlpTokens( final int sentenceOffset, final String text,
+                                                    final FSArray terminalArray ) {
+      // based on the first part of parseLine in the opennlp libraries
+      final Parse sentenceParse = new Parse( text, new Span( 0, text
+            .length() ), AbstractBottomUpParser.INC_NODE, 0, 0 );
+      for ( int i = 0; i < terminalArray.size(); i++ ) {
+         final TerminalTreebankNode token = (TerminalTreebankNode)terminalArray.get( i );
+         final Span span = new Span( token.getBegin() - sentenceOffset, token.getEnd() - sentenceOffset );
+         sentenceParse.insert( new Parse( text, span, AbstractBottomUpParser.TOK_NODE, 0, i ) );
+      }
+      return sentenceParse;
+   }
+
+
+
 }
 
