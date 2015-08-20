@@ -68,6 +68,13 @@
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
          </configurationParameter>
+         <configurationParameter>
+            <name>DictionaryDescriptor</name>
+            <description>Path to Dictionary spec xml</description>
+            <type>String</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+         </configurationParameter>            
       </configurationParameters>
 
       <configurationParameterSettings>
@@ -104,6 +111,12 @@
                <string>2</string>
             </value>
          </nameValuePair>
+         <nameValuePair>
+            <name>DictionaryDescriptor</name>
+            <value>
+               <string>org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml</string>
+            </value>
+         </nameValuePair>              
       </configurationParameterSettings>
 
       <typeSystemDescription>
@@ -131,36 +144,4 @@
          <outputsNewCASes>false</outputsNewCASes>
       </operationalProperties>
    </analysisEngineMetaData>
-
-   <externalResourceDependencies>
-      <!-- DictionaryDescriptor is a relatively poorly-named xml that contains parms for dictionary files, dbs, etc. -->
-      <!-- why aren't such things just defined here?  The obvious answer is -->
-      <externalResourceDependency>
-         <key>DictionaryDescriptor</key>
-         <description/>
-         <interfaceName>org.apache.ctakes.core.resource.FileResource</interfaceName>
-         <optional>false</optional>
-      </externalResourceDependency>
-   </externalResourceDependencies>
-
-   <resourceManagerConfiguration>
-      <externalResources>
-         <externalResource>
-            <!-- The Binding is below, for DictionaryDescriptor = DictionaryDescriptorFile -->
-            <name>DictionaryDescriptorFile</name>
-            <description/>
-            <fileResourceSpecifier>
-               <fileUrl>file:org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml</fileUrl>
-            </fileResourceSpecifier>
-            <implementationName>org.apache.ctakes.core.resource.FileResourceImpl</implementationName>
-         </externalResource>
-      </externalResources>
-
-      <externalResourceBindings>
-         <externalResourceBinding>
-            <key>DictionaryDescriptor</key>
-            <resourceName>DictionaryDescriptorFile</resourceName>
-         </externalResourceBinding>
-      </externalResourceBindings>
-   </resourceManagerConfiguration>
 </taeDescription>

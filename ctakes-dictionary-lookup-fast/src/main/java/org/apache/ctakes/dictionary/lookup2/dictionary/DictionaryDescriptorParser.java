@@ -32,6 +32,7 @@ import org.jdom.input.SAXBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -112,21 +113,16 @@ final public class DictionaryDescriptorParser {
     * {@code descriptorFile}
     * @throws AnnotatorContextException if the File could not be found/read or the xml could not be parsed
     */
-   static public DictionarySpec parseDescriptor( final File descriptorFile, final UimaContext uimaContext )
+   static public DictionarySpec parseDescriptor( final InputStream descriptorFile, final UimaContext uimaContext )
          throws AnnotatorContextException {
-      LOGGER.info( "Parsing dictionary specifications: " + descriptorFile.getPath() );
-      if ( !descriptorFile.canRead() ) {
-         LOGGER.error( "Missing Dictionary specifications file " + descriptorFile.getPath() );
-         throw new AnnotatorContextException( "Missing Dictionary specifications file " + descriptorFile.getPath(),
-               EMPTY_OBJECT_ARRAY );
-      }
+      LOGGER.info( "Parsing dictionary specifications: ");
       final SAXBuilder saxBuilder = new SAXBuilder();
       Document doc;
       try {
          doc = saxBuilder.build( descriptorFile );
       } catch ( JDOMException | IOException jdomioE ) {
          throw new AnnotatorContextException(
-               "Could not parse " + descriptorFile.getPath(), EMPTY_OBJECT_ARRAY, jdomioE );
+               "Could not parse ", EMPTY_OBJECT_ARRAY, jdomioE );
       }
       final Map<String, RareWordDictionary> dictionaries
             = parseDictionaries( uimaContext, doc.getRootElement().getChild( DICTIONARIES_KEY ) );

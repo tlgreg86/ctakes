@@ -30,6 +30,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -120,15 +122,15 @@ final public class BsvRareWordDictionary implements RareWordDictionary {
     */
 //   static private Collection<CuiTerm> parseBsvFile( final File bsvFile ) {
    static private Collection<CuiTerm> parseBsvFile( final String bsvFilePath ) {
-      File bsvFile = null;
+      InputStream bsvFile = null;
       try {
-         bsvFile = FileLocator.locateFile( bsvFilePath );
+         bsvFile = FileLocator.getAsStream( bsvFilePath );
       } catch ( IOException ioE ) {
          ioE.getMessage();
          return Collections.emptyList();
       }
       final Collection<CuiTerm> cuiTerms = new ArrayList<>();
-      try ( final BufferedReader reader = new BufferedReader( new FileReader( bsvFile ) ) ) {
+      try ( final BufferedReader reader = new BufferedReader( new InputStreamReader( bsvFile ) ) ) {
          String line = reader.readLine();
          while ( line != null ) {
             if ( line.startsWith( "//" ) || line.startsWith( "#" ) ) {
@@ -140,7 +142,7 @@ final public class BsvRareWordDictionary implements RareWordDictionary {
                // Add to the dictionary
                cuiTerms.add( cuiTerm );
             } else {
-               LOGGER.warn( "Bad BSV line " + line + " in " + bsvFile.getPath() );
+               LOGGER.warn( "Bad BSV line " + line + " in " + bsvFilePath );
             }
             line = reader.readLine();
          }

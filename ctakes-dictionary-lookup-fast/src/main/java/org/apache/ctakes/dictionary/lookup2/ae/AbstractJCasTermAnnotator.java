@@ -19,6 +19,7 @@
 package org.apache.ctakes.dictionary.lookup2.ae;
 
 import org.apache.ctakes.core.fsm.token.NumberToken;
+import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.resource.FileResource;
 import org.apache.ctakes.core.util.JCasUtil;
 import org.apache.ctakes.dictionary.lookup2.concept.Concept;
@@ -38,6 +39,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorContextException;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.cas.text.AnnotationIndex;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -45,6 +47,8 @@ import org.apache.uima.resource.ResourceAccessException;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -55,7 +59,7 @@ import java.util.*;
  * Affiliation: CHIP-NLP
  * Date: 12/6/13
  */
-abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
+abstract public class AbstractJCasTermAnnotator extends org.apache.uima.fit.component.JCasAnnotator_ImplBase
       implements JCasTermAnnotator, WindowProcessor {
 
    // LOG4J logger based on interface name
@@ -80,6 +84,9 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
          = "VB,VBD,VBG,VBN,VBP,VBZ,CC,CD,DT,EX,IN,LS,MD,PDT,POS,PP,PP$,PRP,PRP$,RP,TO,WDT,WP,WPS,WRB";
 
    private DictionarySpec _dictionarySpec;
+   
+   @ConfigurationParameter(name = JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY, mandatory = false, description = "Path to Dictionary spec xml")
+   protected String descriptorFilePath;
 
    // type of lookup window to use, typically "LookupWindowAnnotation" or "Sentence"
    private int _lookupWindowType;
@@ -125,10 +132,9 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
             _minimumLookupSpan = parseInt( minimumSpan, PARAM_MIN_SPAN_PRP, _minimumLookupSpan );
          }
          LOGGER.info( "Using minimum term text span: " + _minimumLookupSpan );
-         final FileResource fileResource = (FileResource)uimaContext.getResourceObject( DICTIONARY_DESCRIPTOR_KEY );
-         final File descriptorFile = fileResource.getFile();
-         _dictionarySpec = DictionaryDescriptorParser.parseDescriptor( descriptorFile, uimaContext );
-      } catch ( ResourceAccessException | AnnotatorContextException multE ) {
+         InputStream descriptor = FileLocator.getAsStream(descriptorFilePath);
+         _dictionarySpec = DictionaryDescriptorParser.parseDescriptor( descriptor, uimaContext );
+      } catch ( FileNotFoundException | AnnotatorContextException multE ) {
          throw new ResourceInitializationException( multE );
       }	   
    }

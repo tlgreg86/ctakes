@@ -529,11 +529,8 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotator.class,
 					AbstractJCasTermAnnotator.PARAM_WINDOW_ANNOT_PRP,
 					"org.apache.ctakes.typesystem.type.textspan.Sentence",
-					JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY,
-					ExternalResourceFactory.createExternalResourceDescription(
-							FileResourceImpl.class,
-							FileLocator.locateFile("org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml"))
-					));
+					 JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY, "org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml")
+					);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			throw new ResourceInitializationException(e);

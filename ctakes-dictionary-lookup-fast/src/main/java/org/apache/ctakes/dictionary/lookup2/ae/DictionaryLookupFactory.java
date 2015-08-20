@@ -1,5 +1,6 @@
 package org.apache.ctakes.dictionary.lookup2.ae;
 
+import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -26,8 +27,8 @@ final public class DictionaryLookupFactory {
    }
 
    public static AnalysisEngineDescription createCustomDictionaryLookupDescription( final String dictionaryDescriptor )
-         throws ResourceInitializationException {
-      if ( !(new File( dictionaryDescriptor )).exists() ) {
+         throws ResourceInitializationException, FileNotFoundException {
+      if ( FileLocator.getAsStream(dictionaryDescriptor) == null ) {
          throw new ResourceInitializationException( new FileNotFoundException( dictionaryDescriptor ) );
       }
       return AnalysisEngineFactory.createEngineDescription( DefaultJCasTermAnnotator.class,
