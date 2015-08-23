@@ -26,13 +26,9 @@ import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
-import org.apache.ctakes.core.resource.FileLocator;
-import org.apache.ctakes.core.resource.FileResourceImpl;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
-import org.apache.ctakes.dictionary.lookup2.ae.AbstractJCasTermAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
-import org.apache.ctakes.dictionary.lookup2.ae.JCasTermAnnotator;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.postagger.POSTagger;
 import org.apache.ctakes.typesystem.type.constants.CONST;
@@ -47,7 +43,6 @@ import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.factory.ExternalResourceFactory;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
@@ -56,7 +51,6 @@ import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.xml.sax.SAXException;
 
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -86,11 +80,7 @@ final public class ClinicalPipelineFactory {
    public static AnalysisEngineDescription getFastPipeline() throws ResourceInitializationException {
       AggregateBuilder builder = new AggregateBuilder();
       builder.add( getTokenProcessingPipeline() );
-      builder.add( AnalysisEngineFactory.createEngineDescription( DefaultJCasTermAnnotator.class,
-	       AbstractJCasTermAnnotator.PARAM_WINDOW_ANNOT_PRP,
-	       "org.apache.ctakes.typesystem.type.textspan.Sentence",
-	       JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY,"org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml" )
-	 );
+      builder.add( DefaultJCasTermAnnotator.createAnnotatorDescription() );
       builder.add( ClearNLPDependencyParserAE.createAnnotatorDescription() );
       builder.add( PolarityCleartkAnalysisEngine.createAnnotatorDescription() );
       builder.add( UncertaintyCleartkAnalysisEngine.createAnnotatorDescription() );
@@ -160,7 +150,7 @@ final public class ClinicalPipelineFactory {
       final JCas jcas = JCasFactory.createJCas();
       jcas.setDocumentText( note );
       final AnalysisEngineDescription aed = getDefaultPipeline();
-//      final AnalysisEngineDescription aed = getFastPipeline();  // Outputs from default and fast pipelines are identical
+//      final AnalysisEngineDescription aed = getFastPipeline();  // Outputs from default and fast pipeline are identical
       SimplePipeline.runPipeline( jcas, aed );
 
       final boolean printCuis = Arrays.asList( args ).contains( "cuis" );
