@@ -25,6 +25,9 @@ import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
 import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
 import org.apache.ctakes.dictionary.lookup2.util.TokenMatchUtil;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.resource.ResourceInitializationException;
 
 import java.util.Collection;
 import java.util.List;
@@ -74,6 +77,16 @@ final public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
             }
          }
       }
+   }
+
+   static public AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
+      return AnalysisEngineFactory.createEngineDescription( DefaultJCasTermAnnotator.class );
+   }
+
+   static public AnalysisEngineDescription createAnnotatorDescription( final String descriptorPath )
+         throws ResourceInitializationException {
+      return AnalysisEngineFactory.createEngineDescription( DefaultJCasTermAnnotator.class,
+            DICTIONARY_DESCRIPTOR_KEY, descriptorPath );
    }
 
 }

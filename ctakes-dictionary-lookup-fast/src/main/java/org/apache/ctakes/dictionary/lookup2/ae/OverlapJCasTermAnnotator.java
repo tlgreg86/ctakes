@@ -27,6 +27,9 @@ import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import java.util.ArrayList;
@@ -45,9 +48,6 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
    // LOG4J logger based on interface name
    final private Logger _logger = Logger.getLogger( "OverlapJCasTermAnnotator" );
 
-   private int _consecutiveSkipMax = 2;
-   private int _totalSkipMax = 4;
-
    /**
     * specifies the number of consecutive non-comma tokens that can be skipped
     */
@@ -58,6 +58,15 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
    static private final String TOTAL_SKIP_PRP_KEY = "totalTokenSkips";
 
 
+   @ConfigurationParameter( name = CONS_SKIP_PRP_KEY, mandatory = false,
+         description = "Number of consecutive non-comma tokens that can be skipped" )
+   private int _consecutiveSkipMax = 2;
+
+   @ConfigurationParameter( name = TOTAL_SKIP_PRP_KEY, mandatory = false,
+         description = "Number of total tokens that can be skipped" )
+   private int _totalSkipMax = 4;
+
+
    /**
     * Set the number of consecutive and total tokens that can be skipped (optional).  Defaults are 2 and 4.
     * {@inheritDoc}
@@ -65,14 +74,6 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
    @Override
    public void initialize( final UimaContext uimaContext ) throws ResourceInitializationException {
       super.initialize( uimaContext );
-      final Object consecutiveSkipText = uimaContext.getConfigParameterValue( CONS_SKIP_PRP_KEY );
-      if ( consecutiveSkipText != null ) {
-         _consecutiveSkipMax = parseInt( consecutiveSkipText, CONS_SKIP_PRP_KEY, _consecutiveSkipMax );
-      }
-      final Object totalSkipText = uimaContext.getConfigParameterValue( TOTAL_SKIP_PRP_KEY );
-      if ( totalSkipText != null ) {
-         _totalSkipMax = parseInt( totalSkipText, TOTAL_SKIP_PRP_KEY, _consecutiveSkipMax );
-      }
       _logger.info( "Maximum consecutive tokens that can be skipped: " + _consecutiveSkipMax );
       _logger.info( "Maximum tokens that can be skipped: " + _totalSkipMax );
    }
@@ -220,6 +221,26 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
          tokens[ tokenCount - 1 ] = line.substring( previousSpaceIndex + 1 );
       }
       return tokens;
+   }
+
+   static public AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
+      return AnalysisEngineFactory.createEngineDescription( OverlapJCasTermAnnotator.class );
+   }
+
+   static public AnalysisEngineDescription createAnnotatorDescription( final String descriptorPath )
+         throws ResourceInitializationException {
+      return AnalysisEngineFactory.createEngineDescription( OverlapJCasTermAnnotator.class,
+            DICTIONARY_DESCRIPTOR_KEY, descriptorPath );
+   }
+
+   static public AnalysisEngineDescription createAnnotatorDescription( final String descriptorPath,
+                                                                       final int consecutiveSkipMax,
+                                                                       final int totalSkipMax )
+         throws ResourceInitializationException {
+      return AnalysisEngineFactory.createEngineDescription( OverlapJCasTermAnnotator.class,
+            DICTIONARY_DESCRIPTOR_KEY, descriptorPath,
+            CONS_SKIP_PRP_KEY, consecutiveSkipMax,
+            TOTAL_SKIP_PRP_KEY, totalSkipMax );
    }
 
 }

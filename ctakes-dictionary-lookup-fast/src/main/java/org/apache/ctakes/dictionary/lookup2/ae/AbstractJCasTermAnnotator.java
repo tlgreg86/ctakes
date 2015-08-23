@@ -20,7 +20,6 @@ package org.apache.ctakes.dictionary.lookup2.ae;
 
 import org.apache.ctakes.core.fsm.token.NumberToken;
 import org.apache.ctakes.core.resource.FileLocator;
-import org.apache.ctakes.core.resource.FileResource;
 import org.apache.ctakes.core.util.JCasUtil;
 import org.apache.ctakes.dictionary.lookup2.concept.Concept;
 import org.apache.ctakes.dictionary.lookup2.concept.ConceptFactory;
@@ -34,7 +33,6 @@ import org.apache.ctakes.dictionary.lookup2.util.collection.HashSetMap;
 import org.apache.ctakes.typesystem.type.syntax.*;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorContextException;
 import org.apache.uima.cas.text.AnnotationFS;
@@ -43,11 +41,9 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.resource.ResourceAccessException;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -65,35 +61,28 @@ abstract public class AbstractJCasTermAnnotator extends org.apache.uima.fit.comp
    // LOG4J logger based on interface name
    final static private Logger LOGGER = Logger.getLogger( "AbstractJCasTermAnnotator" );
 
-   /**
-    * specifies the type of window to use for lookup
-    */
-   public static final String PARAM_WINDOW_ANNOT_PRP = "windowAnnotations";
-   /**
-    * optional part of speech tags for tokens that should not be used for lookup
-    */
-   public static final String PARAM_EXC_TAGS_PRP = "exclusionTags";
-   /**
-    * optional minimum span for tokens that should not be used for lookup
-    */
-   public static final String PARAM_MIN_SPAN_PRP = "minimumSpan";
-
-
-   static private final String DEFAULT_LOOKUP_WINDOW = "org.apache.ctakes.typesystem.type.textspan.Sentence";
-   static private final String DEFAULT_EXCLUSION_TAGS
-         = "VB,VBD,VBG,VBN,VBP,VBZ,CC,CD,DT,EX,IN,LS,MD,PDT,POS,PP,PP$,PRP,PRP$,RP,TO,WDT,WP,WPS,WRB";
-
+   private int _lookupWindowType;
    private DictionarySpec _dictionarySpec;
-   
-   @ConfigurationParameter(name = JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY, mandatory = false, description = "Path to Dictionary spec xml")
-   protected String descriptorFilePath;
+   private final Set<String> _exclusionPartsOfSpeech = new HashSet<>();
+
+   @ConfigurationParameter( name = JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY, mandatory = false,
+         description = "Path to Dictionary spec xml", defaultValue = DEFAULT_DICT_DESC_PATH )
+   private String _descriptorFilePath;
 
    // type of lookup window to use, typically "LookupWindowAnnotation" or "Sentence"
-   private int _lookupWindowType;
+   @ConfigurationParameter( name = JCasTermAnnotator.PARAM_WINDOW_ANNOT_KEY, mandatory = false,
+         description = "Type of Lookup window to use", defaultValue = DEFAULT_LOOKUP_WINDOW )
+   private String _windowClassName;
+
    // set of exclusion POS tags (lower cased), may be null
-   private final Set<String> _exclusionPartsOfSpeech = new HashSet<>();
-   // minimum span required to use token for lookup
-   protected int _minimumLookupSpan = 3;
+   @ConfigurationParameter( name = JCasTermAnnotator.PARAM_EXC_TAGS_KEY, mandatory = false,
+         description = "Set of exclusion POS tags", defaultValue = DEFAULT_EXCLUSION_TAGS )
+   private String _exclusionPosTags;
+
+   // minimum span required to accept a term
+   @ConfigurationParameter( name = JCasTermAnnotator.PARAM_MIN_SPAN_KEY, mandatory = false,
+         description = "Minimum number of characters for a term" )
+   protected int _minimumLookupSpan = DEFAULT_MINIMUM_SPAN;
 
    /**
     * {@inheritDoc}
@@ -101,42 +90,32 @@ abstract public class AbstractJCasTermAnnotator extends org.apache.uima.fit.comp
    @Override
    public void initialize( final UimaContext uimaContext ) throws ResourceInitializationException {
       super.initialize( uimaContext );
-      try {
-         String windowClassName = (String)uimaContext.getConfigParameterValue( PARAM_WINDOW_ANNOT_PRP );
-         if ( windowClassName == null || windowClassName.isEmpty() ) {
-            windowClassName = DEFAULT_LOOKUP_WINDOW;
-         }
-         LOGGER.info( "Using dictionary lookup window type: " + windowClassName );
-         _lookupWindowType = JCasUtil.getType( windowClassName );
-         // optional exclusion POS tags
-         String exclusionTags = (String)uimaContext.getConfigParameterValue( PARAM_EXC_TAGS_PRP );
-         if ( exclusionTags == null ) {
-            // Notice that exclusion tags can be set to empty on purpose
-            exclusionTags = DEFAULT_EXCLUSION_TAGS;
-         }
-         final String[] tagArr = exclusionTags.split( "," );
-         for ( String tag : tagArr ) {
-            _exclusionPartsOfSpeech.add( tag.toUpperCase() );
-         }
-         final List<String> posList = new ArrayList<>( _exclusionPartsOfSpeech );
-         Collections.sort( posList );
-         final StringBuilder sb = new StringBuilder();
-         for ( String pos : posList ) {
-            sb.append( pos ).append( " " );
-         }
-         LOGGER.info( "Exclusion tagset loaded: " + sb.toString() );
+      LOGGER.info( "Using dictionary lookup window type: " + _windowClassName );
+      _lookupWindowType = JCasUtil.getType( _windowClassName );
+      final String[] tagArr = _exclusionPosTags.split( "," );
+      for ( String tag : tagArr ) {
+         _exclusionPartsOfSpeech.add( tag.toUpperCase() );
+      }
+      final List<String> posList = new ArrayList<>( _exclusionPartsOfSpeech );
+      Collections.sort( posList );
+      final StringBuilder sb = new StringBuilder();
+      for ( String pos : posList ) {
+         sb.append( pos ).append( " " );
+      }
+      LOGGER.info( "Exclusion tagset loaded: " + sb.toString() );
 
-         // optional minimum span, default is 3
-         final Object minimumSpan = uimaContext.getConfigParameterValue( PARAM_MIN_SPAN_PRP );
-         if ( minimumSpan != null ) {
-            _minimumLookupSpan = parseInt( minimumSpan, PARAM_MIN_SPAN_PRP, _minimumLookupSpan );
-         }
-         LOGGER.info( "Using minimum term text span: " + _minimumLookupSpan );
-         InputStream descriptor = FileLocator.getAsStream(descriptorFilePath);
-         _dictionarySpec = DictionaryDescriptorParser.parseDescriptor( descriptor, uimaContext );
-      } catch ( FileNotFoundException | AnnotatorContextException multE ) {
+      // optional minimum span, default is 3
+      final Object minimumSpan = uimaContext.getConfigParameterValue( PARAM_MIN_SPAN_KEY );
+      if ( minimumSpan != null ) {
+         _minimumLookupSpan = parseInt( minimumSpan, PARAM_MIN_SPAN_KEY, _minimumLookupSpan );
+      }
+      LOGGER.info( "Using minimum term text span: " + _minimumLookupSpan );
+      LOGGER.info( "Using Dictionary Descriptor: " + _descriptorFilePath );
+      try ( InputStream descriptorStream = FileLocator.getAsStream( _descriptorFilePath ) ) {
+         _dictionarySpec = DictionaryDescriptorParser.parseDescriptor( descriptorStream, uimaContext );
+      } catch ( IOException | AnnotatorContextException multE ) {
          throw new ResourceInitializationException( multE );
-      }	   
+      }
    }
 
 
@@ -201,6 +180,7 @@ abstract public class AbstractJCasTermAnnotator extends org.apache.uima.fit.comp
 
    /**
     * Skip windows that are section headers/footers.  Kludge, but worth doing
+    * todo read these string values as parameters from uimaContext
     * {@inheritDoc}
     */
    @Override

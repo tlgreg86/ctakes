@@ -37,7 +37,26 @@ import java.util.List;
  */
 public interface JCasTermAnnotator extends AnalysisComponent {
 
-   static public final String DICTIONARY_DESCRIPTOR_KEY = "DictionaryDescriptor";
+   static final String DICTIONARY_DESCRIPTOR_KEY = "DictionaryDescriptor";
+   /**
+    * specifies the type of window to use for lookup
+    */
+   static final String PARAM_WINDOW_ANNOT_KEY = "windowAnnotations";
+   /**
+    * optional part of speech tags for tokens that should not be used for lookup
+    */
+   static final String PARAM_EXC_TAGS_KEY = "exclusionTags";
+   /**
+    * optional minimum span for tokens that should not be used for lookup
+    */
+   static final String PARAM_MIN_SPAN_KEY = "minimumSpan";
+
+
+   static final String DEFAULT_LOOKUP_WINDOW = "org.apache.ctakes.typesystem.type.textspan.Sentence";
+   static final String DEFAULT_EXCLUSION_TAGS
+         = "VB,VBD,VBG,VBN,VBP,VBZ,CC,CD,DT,EX,IN,LS,MD,PDT,POS,PP,PP$,PRP,PRP$,RP,TO,WDT,WP,WPS,WRB";
+   static final int DEFAULT_MINIMUM_SPAN = 3;
+   static final String DEFAULT_DICT_DESC_PATH = "org/apache/ctakes/dictionary/lookup/fast/cTakesHsql.xml";
 
    /**
     * @return Dictionaries that are used by this WindowProcessor
