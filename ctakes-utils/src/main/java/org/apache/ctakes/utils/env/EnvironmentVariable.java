@@ -40,7 +40,7 @@ public class EnvironmentVariable {
       }
       //Attempt to get it from system properites, env variables
 		String value = getEnv(name);
-      if (value == null) {
+      if ( value == null && context != null ) {
          // Attempt to get it from UIMA Context
          value = (String) context.getConfigParameterValue(name);
       }
