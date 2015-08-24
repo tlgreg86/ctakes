@@ -48,8 +48,8 @@ public enum UmlsUserApprover {
    // environment, matches old
    private final static String UMLSADDR_PARAM = "ctakes.umlsaddr";
    private final static String UMLSVENDOR_PARAM = "ctakes.umlsvendor";
-   private final static String UMLSUSER_PARAM = "ctakes.umlsuser";
-   private final static String UMLSPW_PARAM = "ctakes.umlspw";
+   final static String UMLSUSER_PARAM = "ctakes.umlsuser";
+   final static String UMLSPW_PARAM = "ctakes.umlspw";
 
    // properties, matches new
    private final static String URL_PARAM = "umlsUrl";

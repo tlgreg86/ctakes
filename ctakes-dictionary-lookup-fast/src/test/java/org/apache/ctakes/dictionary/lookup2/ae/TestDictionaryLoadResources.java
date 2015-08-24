@@ -1,5 +1,7 @@
 package org.apache.ctakes.dictionary.lookup2.ae;
 
+import org.apache.ctakes.dictionary.lookup2.util.UmlsUserTester;
+import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -15,14 +17,23 @@ import static org.junit.Assert.fail;
 
 public class TestDictionaryLoadResources {
 
+   static private final Logger LOGGER = Logger.getLogger( "TestDictionaryLoadResources" );
+
 
    static private final String TEST_TEXT
          = "The quick red fox jumped over cTAKES.  Allie had a little lamb; little lamb.";
 
    static private final String TEST_CUSTOM_DESC = "org/apache/ctakes/dictionary/lookup/fast/TestcTakesHsql.xml";
 
+   /**
+    *
+    */
    @Test
    public void testDefaultLookupDescription() {
+      if ( !UmlsUserTester.canTestUmlsUser() ) {
+         LOGGER.warn( "No UMLS User or Pass specified, cannot test Default Lookup Description" );
+         return;
+      }
       final JCas jcas = createTestJCas();
       try {
          //Test had to use custom test config otherwise we'll have to save our umls credentials.
@@ -50,6 +61,10 @@ public class TestDictionaryLoadResources {
 
    @Test
    public void testOverlapLookupDescription() {
+      if ( !UmlsUserTester.canTestUmlsUser() ) {
+         LOGGER.warn( "No UMLS User or Pass specified, cannot test Overlap Lookup Description" );
+         return;
+      }
       final JCas jcas = createTestJCas();
       try {
          //Test had to use custom test config otherwise we'll have to save our umls credentials.
