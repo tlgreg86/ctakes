@@ -183,7 +183,7 @@ public class SHARPXMI {
             JCas jCas = casIter.next();
             JCas goldView = jCas.getView( GOLD_VIEW_NAME );
             String documentID = DocumentIDAnnotationUtil.getDocumentID( goldView );
-            if ( documentID == null || documentID.equals( DocumentIDAnnotationUtil.NO_DOCUMENT_ID ) ) {
+            if ( documentID == null ){//|| documentID.equals( DocumentIDAnnotationUtil.NO_DOCUMENT_ID ) ) {
                throw new IllegalArgumentException( "No documentID for CAS:\n" + jCas );
             }
             File outFile = toXMIFile( options, new File( documentID ) );
