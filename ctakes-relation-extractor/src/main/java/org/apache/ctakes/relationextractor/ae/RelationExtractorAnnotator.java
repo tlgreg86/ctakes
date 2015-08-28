@@ -103,7 +103,7 @@ public abstract class RelationExtractorAnnotator extends CleartkAnnotator<String
    * Selects the relevant mentions/annotations within a covering annotation for
    * relation identification/extraction.
    */
-  protected abstract List<IdentifiedAnnotationPair> getCandidateRelationArgumentPairs(
+  protected abstract Iterable<IdentifiedAnnotationPair> getCandidateRelationArgumentPairs(
       JCas identifiedAnnotationView,
       Annotation coveringAnnotation);
 
@@ -161,12 +161,8 @@ public abstract class RelationExtractorAnnotator extends CleartkAnnotator<String
     // walk through each sentence in the text
     for (Annotation coveringAnnotation : JCasUtil.select(jCas, coveringClass)) {
 
-      // collect all relevant relation arguments from the sentence
-      List<IdentifiedAnnotationPair> candidatePairs =
-          this.getCandidateRelationArgumentPairs(jCas, coveringAnnotation);
-
       // walk through the pairs of annotations
-      for (IdentifiedAnnotationPair pair : candidatePairs) {
+      for (IdentifiedAnnotationPair pair : this.getCandidateRelationArgumentPairs(jCas, coveringAnnotation)) {
         IdentifiedAnnotation arg1 = pair.getArg1();
         IdentifiedAnnotation arg2 = pair.getArg2();
         // apply all the feature extractors to extract the list of features
