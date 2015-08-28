@@ -172,6 +172,12 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 
       @Option( defaultToNull = true )
       public String getI2B2Output();
+
+      @Option
+      public boolean getSkipTrain();
+      
+      @Option(longName = "skipWrite")
+      public boolean getSkipDataWriting();
    }
 
    public static List<Integer> getTrainItems( Options options ) {
