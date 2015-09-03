@@ -18,10 +18,16 @@
  */
 package org.apache.ctakes.relationextractor.eval;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +48,6 @@ import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManagesTreatsTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManifestationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
-import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
-import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -112,14 +116,9 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		public boolean getIgnoreImpossibleGoldRelations();
 
 		@Option(
-				longName = "--print-errors",
+				longName = "print-errors",
 				description = "print relations that were incorrectly predicted")
 		public boolean getPrintErrors();
-
-		@Option(
-				longName = "expand-events",
-				description = "expand events to their covering or covered events")
-		public boolean getExpandEvents();
 
 	}
 
@@ -144,8 +143,8 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		BEST_PARAMETERS.put(LocationOfTextRelation.class, new ParameterSettings(
 				LibLinearStringOutcomeDataWriter.class,
 				new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-					0.5f },//1.0f },
-					new String[] { "-s", "0", "-c", "50.0" }));
+					1.0f },//0.5f },//
+					new String[] { "-w1","4","-s", "1", "-c", "0.01" }));//
 
 		RELATION_CLASSES.put("manages/treats", ManagesTreatsTextRelation.class);
 		ANNOTATOR_CLASSES.put(ManagesTreatsTextRelation.class, ManagesTreatsRelationExtractorAnnotator.class);
@@ -182,7 +181,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		// for the full set of LibLinear parameters, see:
 		// https://github.com/bwaldvogel/liblinear-java/blob/master/src/main/java/de/bwaldvogel/liblinear/Train.java
 		List<ParameterSettings> gridOfSettings = Lists.newArrayList();
-		for (float probabilityOfKeepingANegativeExample : new float[] { 0.5f, 1.0f }) {
+		for (float probabilityOfKeepingANegativeExample : new float[] { 1.0f }) {//0.5f, 
 			for (int solver : new int[] { 0 /* logistic regression */, 1 /* SVM */}) {
 				for (double svmCost : new double[] { 0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100 }) {
 					gridOfSettings.add(new ParameterSettings(
@@ -190,7 +189,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 							new Object[] {
 								RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
 								probabilityOfKeepingANegativeExample },
-								new String[] { "-s", String.valueOf(solver), "-c", String.valueOf(svmCost) }));
+								new String[] { "-w1","4","-s", String.valueOf(solver), "-c", String.valueOf(svmCost) }));
 				}
 			}
 		}
@@ -219,8 +218,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 									options.getTestOnCTakes(),
 									options.getAllowSmallerSystemArguments(),
 									options.getIgnoreImpossibleGoldRelations(),
-									options.getPrintErrors(),
-									options.getExpandEvents());
+									options.getPrintErrors());
 						}
 					});
 		}
@@ -240,7 +238,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 
 	private boolean printErrors;
 
-	public static boolean expandEvent = false;
+	private static PrintWriter outPrint;
 
 	/**
 	 * An evaluation of a relation extractor.
@@ -272,7 +270,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 			boolean testOnCTakes,
 			boolean allowSmallerSystemArguments,
 			boolean ignoreImpossibleGoldRelations,
-			boolean printErrors, boolean expandEventParameter) {
+			boolean printErrors) {
 		super(baseDirectory);
 		this.relationClass = relationClass;
 		this.classifierAnnotatorClass = classifierAnnotatorClass;
@@ -281,7 +279,6 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		this.allowSmallerSystemArguments = allowSmallerSystemArguments;
 		this.ignoreImpossibleGoldRelations = ignoreImpossibleGoldRelations;
 		this.printErrors = printErrors;
-		expandEvent = expandEventParameter;
 	}
 
 	public RelationExtractorEvaluation(
@@ -294,7 +291,6 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 				relationClass,
 				classifierAnnotatorClass,
 				parameterSettings,
-				false,
 				false,
 				false,
 				false,
@@ -314,10 +310,6 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		// remove cTAKES entity mentions and modifiers in the system view and copy
 		// in the gold relations
 		builder.add(AnalysisEngineFactory.createEngineDescription(RemoveCTakesMentionsAndCopyGoldRelations.class));
-
-		//add potential events for training:
-		if (expandEvent && this.relationClass.getSimpleName().equals("LocationOfTextRelation") )
-			builder.add(AnalysisEngineFactory.createEngineDescription(AddPotentialRelations.class));
 
 		// add the relation extractor, configured for training mode
 		AnalysisEngineDescription classifierAnnotator =
@@ -339,94 +331,6 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		JarClassifierBuilder.trainAndPackage(directory, this.parameterSettings.trainingArguments);
 	}
 
-	public static class AddPotentialRelations extends JCasAnnotator_ImplBase {
-		@Override
-		public void process(JCas jCas) throws AnalysisEngineProcessException {
-			JCas relationView = jCas;
-
-			Map<EventMention, Collection<EventMention>> coveredMap =
-					JCasUtil.indexCovered(relationView, EventMention.class, EventMention.class);
-			Map<EventMention, Collection<EventMention>> coveringMap =
-					JCasUtil.indexCovering(relationView, EventMention.class, EventMention.class);
-			Map<AnatomicalSiteMention, Collection<EventMention>> siteEventMap =
-					JCasUtil.indexCovered(relationView, AnatomicalSiteMention.class, EventMention.class);
-			Map<AnatomicalSiteMention, Collection<EntityMention>> siteEntityMap =
-					JCasUtil.indexCovering(relationView, AnatomicalSiteMention.class, EntityMention.class);
-			final List<IdentifiedAnnotation> eventList = new ArrayList<>();
-			for(LocationOfTextRelation relation : Lists.newArrayList(JCasUtil.select(relationView, LocationOfTextRelation.class))){
-				Annotation arg1 = relation.getArg1().getArgument();
-				Annotation arg2 = relation.getArg2().getArgument();
-				EventMention event = null;
-				if(arg1 instanceof EventMention && arg2 instanceof AnatomicalSiteMention){
-					event = (EventMention) arg1;
-
-					eventList.addAll(coveringMap.get(event));
-					eventList.addAll(coveredMap.get(event));
-					for(IdentifiedAnnotation covEvent : eventList){
-						if(!covEvent.getClass().equals(EventMention.class) && !hasOverlap(covEvent, arg2)){
-							createRelation(relationView, covEvent, arg2, relation.getCategory());
-						}
-					}
-					eventList.clear();
-					eventList.addAll(siteEventMap.get(arg2));
-					eventList.addAll(siteEntityMap.get(arg2));
-					for(IdentifiedAnnotation covSite : eventList){
-						if(!covSite.getClass().equals(EventMention.class) && !hasOverlap(arg1, covSite)){
-							createRelation(relationView, event, covSite, relation.getCategory());
-						}
-					}
-					eventList.clear();
-				}else if(arg2 instanceof EventMention && arg1 instanceof AnatomicalSiteMention){
-					event = (EventMention) arg2;
-					eventList.addAll(coveringMap.get(event));
-					eventList.addAll(coveredMap.get(event));
-					for(IdentifiedAnnotation covEvent : eventList){
-						if(!covEvent.getClass().equals(EventMention.class)&& !hasOverlap(arg1, covEvent)){
-							createRelation(relationView, arg1, covEvent, relation.getCategory());
-						}
-					}
-					eventList.clear();
-					eventList.addAll(siteEventMap.get(arg1));
-					eventList.addAll(siteEntityMap.get(arg1));
-					for(IdentifiedAnnotation covSite : eventList){
-						if(!covSite.getClass().equals(EventMention.class) && !hasOverlap(covSite, arg2)){
-							createRelation(relationView, covSite, event, relation.getCategory());
-						}
-					}
-					eventList.clear();
-				}
-			}
-
-		}
-
-		private static boolean hasOverlap(Annotation event1, Annotation event2) {
-			if(event1.getEnd()>=event2.getBegin()&&event1.getEnd()<=event2.getEnd()){
-				return true;
-			}
-			if(event2.getEnd()>=event1.getBegin()&&event2.getEnd()<=event1.getEnd()){
-				return true;
-			}
-			return false;
-		}
-
-		private static void createRelation(JCas jCas, Annotation arg1,
-				Annotation arg2, String category) {
-			RelationArgument relArg1 = new RelationArgument(jCas);
-			relArg1.setArgument(arg1);
-			relArg1.setRole("Arg1");
-			relArg1.addToIndexes();
-			RelationArgument relArg2 = new RelationArgument(jCas);
-			relArg2.setArgument(arg2);
-			relArg2.setRole("Arg2");
-			relArg2.addToIndexes();
-			TemporalTextRelation relation = new TemporalTextRelation(jCas);
-			relation.setArg1(relArg1);
-			relation.setArg2(relArg2);
-			relation.setCategory(category);
-			relation.addToIndexes();
-
-		}
-	}
 
 	@Override
 	protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
@@ -606,6 +510,8 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 
 			// print errors if requested
 			if (this.printErrors) {
+				printInstanceOutput(goldBinaryTextRelations, systemBinaryTextRelations, getSpan, getOutcome);
+
 				Map<HashableArguments, BinaryTextRelation> goldMap = Maps.newHashMap();
 				for (BinaryTextRelation relation : goldBinaryTextRelations) {
 					goldMap.put(new HashableArguments(relation), relation);
@@ -635,6 +541,54 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		System.err.print(stats);
 		System.err.println();
 		return stats;
+	}
+
+	private static void printInstanceOutput(
+			Collection<? extends BinaryTextRelation> referenceAnnotations,
+			Collection<? extends BinaryTextRelation> predictedAnnotations,
+			Function<BinaryTextRelation, HashableArguments> annotationToSpan,
+			Function<BinaryTextRelation, String> annotationToOutcome) {
+		// map gold spans to their outcomes
+		Map<HashableArguments, String> referenceSpanOutcomes = new HashMap<>();
+		for (BinaryTextRelation ann : referenceAnnotations) {
+			referenceSpanOutcomes.put(annotationToSpan.apply(ann), annotationToOutcome.apply(ann));
+		}
+
+		// map system spans to their outcomes
+		Map<HashableArguments, String> predictedSpanOutcomes = new HashMap<>();
+		for (BinaryTextRelation ann : predictedAnnotations) {
+			predictedSpanOutcomes.put(annotationToSpan.apply(ann), annotationToOutcome.apply(ann));
+		}
+
+		// print instance level classification types:
+		Set<HashableArguments> union = new HashSet<>();
+		union.addAll(referenceSpanOutcomes.keySet());
+		union.addAll(predictedSpanOutcomes.keySet());
+
+		File outf =  new File("target/locationOf_Instance_output_test.txt");
+		try {
+			outPrint = new PrintWriter(new BufferedWriter(new FileWriter(outf, true)));
+			for (HashableArguments span : union) {
+				String goldCategory = referenceSpanOutcomes.get(span);
+				String predictedCategory = predictedSpanOutcomes.get(span);
+
+				if(goldCategory==null){
+					System.out.println("false positive: "+ predictedCategory);
+					outPrint.println("fp");
+				}else{
+					if(predictedCategory==null){
+						outPrint.println("fn");
+					}else{
+						outPrint.println("tp");
+					}
+				}
+
+			}
+			outPrint.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	private static String formatRelation(BinaryTextRelation relation) {
