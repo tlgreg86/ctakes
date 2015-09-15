@@ -42,7 +42,7 @@ import com.google.common.io.LineProcessor;
  */
 public class Utils {
   
-  public static final String embeddingPath = "/Users/dima/Boston/Vectors/Python/sharp-arg-head-word-vectors.txt";
+  public static final String embeddingPath = "/Users/dima/Boston/Vectors/Models/ties-plus-oov.txt";
   
   /**
    * Instantiate an XMI collection reader.
@@ -82,9 +82,9 @@ public class Utils {
   /**
    * Read word embeddings from file.
    */
-  public static class Callback implements LineProcessor <Map<String, List<Float>>> {
+  public static class Callback implements LineProcessor <Map<String, List<Double>>> {
     
-    private Map<String, List<Float>> wordToVector;
+    private Map<String, List<Double>> wordToVector;
     
     public Callback() {
       wordToVector = new HashMap<>();
@@ -93,17 +93,17 @@ public class Utils {
     public boolean processLine(String line) throws IOException {
       
       String[] elements = line.split(" "); // e.g. skin -0.024690 0.108761 0.038441 -0.088759 ...
-      List<Float> vector = new ArrayList<>();
+      List<Double> vector = new ArrayList<>();
       
       for(int dimension = 1; dimension < elements.length; dimension++) {
-        vector.add(Float.parseFloat(elements[dimension]));
+        vector.add(Double.parseDouble(elements[dimension]));
       }
       
       wordToVector.put(elements[0], vector);
       return true;
     }
     
-    public Map<String, List<Float>> getResult() {
+    public Map<String, List<Double>> getResult() {
       
       return wordToVector;
     }
@@ -112,7 +112,7 @@ public class Utils {
   public static void main(String[] args) throws IOException {
     
     File word2vec = new File(embeddingPath);
-    Map<String, List<Float>> data = Files.readLines(word2vec, Charsets.UTF_8, new Callback());
+    Map<String, List<Double>> data = Files.readLines(word2vec, Charsets.UTF_8, new Callback());
     System.out.println(data.get("skin"));
     System.out.println(data.get("oov"));
   }
