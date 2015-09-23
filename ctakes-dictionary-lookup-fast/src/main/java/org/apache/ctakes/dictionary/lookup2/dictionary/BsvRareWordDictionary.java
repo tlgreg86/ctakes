@@ -27,8 +27,6 @@ import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -54,7 +52,7 @@ final public class BsvRareWordDictionary implements RareWordDictionary {
 
    static private final String BSV_FILE_PATH = "bsvPath";
 
-   private RareWordDictionary _delegateDictionary;
+   final private RareWordDictionary _delegateDictionary;
 
 
    public BsvRareWordDictionary( final String name, final UimaContext uimaContext, final Properties properties ) {
@@ -63,11 +61,6 @@ final public class BsvRareWordDictionary implements RareWordDictionary {
 
 
    public BsvRareWordDictionary( final String name, final String bsvFilePath ) {
-//      this( name, new File( bsvFilePath ) );
-//   }
-//
-//   public BsvRareWordDictionary( final String name, final File bsvFile ) {
-//      final Collection<CuiTerm> cuiTerms = parseBsvFile( bsvFile );
       final Collection<CuiTerm> cuiTerms = parseBsvFile( bsvFilePath );
       final CollectionMap<String, RareWordTerm, ? extends Collection<RareWordTerm>> rareWordTermMap
             = RareWordTermMapCreator.createRareWordTermMap( cuiTerms );
@@ -115,12 +108,10 @@ final public class BsvRareWordDictionary implements RareWordDictionary {
     * </p>
     * If the TUI column is omitted then the entityId for the dictionary is used as the TUI
     * <p/>
-    * //    * @param bsvFile file containing term rows and bsv columns
     *
     * @param bsvFilePath path to file containing term rows and bsv columns
     * @return collection of all valid terms read from the bsv file
     */
-//   static private Collection<CuiTerm> parseBsvFile( final File bsvFile ) {
    static private Collection<CuiTerm> parseBsvFile( final String bsvFilePath ) {
       InputStream bsvFile = null;
       try {

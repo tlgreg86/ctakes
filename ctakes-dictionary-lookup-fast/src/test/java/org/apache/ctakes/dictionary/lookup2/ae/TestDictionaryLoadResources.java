@@ -15,7 +15,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 
-public class TestDictionaryLoadResources {
+final public class TestDictionaryLoadResources {
 
    static private final Logger LOGGER = Logger.getLogger( "TestDictionaryLoadResources" );
 

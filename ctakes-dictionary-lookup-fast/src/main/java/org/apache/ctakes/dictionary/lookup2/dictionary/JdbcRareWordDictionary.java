@@ -32,6 +32,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import static org.apache.ctakes.dictionary.lookup2.util.JdbcConnectionFactory.*;
+
 /**
  * Preferred dictionary to use for large collections of terms.
  * Column indices within the database are constant and not configurable: CUI TUI RINDEX TCOUNT TEXT RWORD
@@ -59,12 +61,7 @@ final public class JdbcRareWordDictionary extends AbstractRareWordDictionary {
    static final private Logger LOGGER = Logger.getLogger( "JdbcRareWordDictionary" );
 
 
-   // TODO move to Constants class
-   static private final String JDBC_DRIVER = "jdbcDriver";
-   static private final String JDBC_URL = "jdbcUrl";
-   static private final String JDBC_USER = "jdbcUser";
-   static private final String JDBC_PASS = "jdbcPass";
-   static private final String RARE_WORD_TABLE = "rareWordTable";
+   static public final String RARE_WORD_TABLE = "rareWordTable";
 
 
    private PreparedStatement _selectTermCall;
@@ -102,6 +99,7 @@ final public class JdbcRareWordDictionary extends AbstractRareWordDictionary {
          }
          throw sqlE;
       }
+      LOGGER.info( "Connected to cui and term table " + tableName.toUpperCase() );
    }
 
 

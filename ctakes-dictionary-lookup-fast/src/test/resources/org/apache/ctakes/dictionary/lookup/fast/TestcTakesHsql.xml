@@ -61,7 +61,7 @@
             <!-- Optional tables for optional term info.
             Uncommenting these lines alone may not persist term information;
             persistence depends upon the TermConsumer.  -->
-            <property key="snomedTable" value="snomedct"/>
+            <property key="snomedctTable" value="long"/>
             <property key="rxnormTable" value="rxnorm"/>
             <!--<property key="icd9Table" value="icd9cm"/>-->
             <!--<property key="icd10Table" value="icd10pcs"/>-->
@@ -92,8 +92,8 @@
       <!--<implementationName>org.apache.ctakes.dictionary.lookup2.consumer.PrecisionTermConsumer</implementationName>-->
       <!--<implementationName>org.apache.ctakes.dictionary.lookup2.consumer.SemanticCleanupTermConsumer</implementationName>-->
       <properties>
-          <!-- Depending upon the consumer, the value of codingScheme may or may not be used.  With the packaged consumers,
-          codingScheme is a default value used only for cuis that do not have secondary codes (snomed, rxnorm, etc.)  -->
+         <!-- Depending upon the consumer, the value of codingScheme may or may not be used.  With the packaged consumers,
+         codingScheme is a default value used only for cuis that do not have secondary codes (snomed, rxnorm, etc.)  -->
          <property key="codingScheme" value="CTAKES"/>
       </properties>
    </rareWordConsumer>

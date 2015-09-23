@@ -21,6 +21,11 @@ import java.util.*;
 public enum JdbcConnectionFactory {
    INSTANCE;
 
+   static public final String JDBC_DRIVER = "jdbcDriver";
+   static public final String JDBC_URL = "jdbcUrl";
+   static public final String JDBC_USER = "jdbcUser";
+   static public final String JDBC_PASS = "jdbcPass";
+
    static final private Logger LOGGER = Logger.getLogger( "JdbcConnectionFactory" );
    static final private Logger DOT_LOGGER = Logger.getLogger( "ProgressAppender" );
    static final private Logger EOL_LOGGER = Logger.getLogger( "ProgressDone" );

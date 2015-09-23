@@ -5,13 +5,11 @@ import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
 import org.apache.ctakes.dictionary.lookup2.util.TuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
-import org.apache.ctakes.dictionary.lookup2.util.collection.EnumSetMap;
+import org.apache.ctakes.dictionary.lookup2.util.collection.HashSetMap;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,11 +38,11 @@ final public class BsvConceptFactory implements ConceptFactory {
       final Collection<CuiTuiTerm> cuiTuiTerms = parseBsvFile( bsvFilePath );
       final Map<Long, Concept> conceptMap = new HashMap<>( cuiTuiTerms.size() );
       for ( CuiTuiTerm cuiTuiTerm : cuiTuiTerms ) {
-         final CollectionMap<ConceptCode, String, ? extends Collection<String>> codes
-               = new EnumSetMap<>( ConceptCode.class );
-         codes.placeValue( ConceptCode.TUI, TuiCodeUtil.getAsTui( cuiTuiTerm.getTui() ) );
+         final CollectionMap<String, String, ? extends Collection<String>> codes
+               = new HashSetMap<>();
+         codes.placeValue( Concept.TUI, TuiCodeUtil.getAsTui( cuiTuiTerm.getTui() ) );
          conceptMap.put( CuiCodeUtil.getInstance().getCuiCode( cuiTuiTerm.getCui() ),
-               new Concept( cuiTuiTerm.getCui(), cuiTuiTerm.getPrefTerm(), codes ) );
+               new DefaultConcept( cuiTuiTerm.getCui(), cuiTuiTerm.getPrefTerm(), codes ) );
       }
       _delegateFactory = new MemConceptFactory( name, conceptMap );
    }
@@ -116,7 +114,7 @@ final public class BsvConceptFactory implements ConceptFactory {
                // Add to the dictionary
                cuiTuiTerms.add( cuiTuiTerm );
             } else {
-               LOGGER.warn( "Bad BSV line " + line + " in " + bsvFilePath);
+               LOGGER.warn( "Bad BSV line " + line + " in " + bsvFilePath );
             }
             line = reader.readLine();
          }
@@ -148,8 +146,9 @@ final public class BsvConceptFactory implements ConceptFactory {
       final String cui = columns[ cuiIndex ];
       // default for an empty tui column is tui 0 = unknown
       final String tui = (columns[ tuiIndex ].trim().isEmpty()) ? "T000" : columns[ tuiIndex ].trim();
-      final String term = (termIndex < 0 || columns[ termIndex ].trim().isEmpty()) ? "" : columns[ termIndex ].trim();
-      return new CuiTuiTerm( cui, tui, term );
+      final String preferredTerm = (termIndex < 0 || columns[ termIndex ].trim().isEmpty()) ? "" : columns[ termIndex ]
+            .trim();
+      return new CuiTuiTerm( cui, tui, preferredTerm );
    }
 
    static public class CuiTuiTerm {

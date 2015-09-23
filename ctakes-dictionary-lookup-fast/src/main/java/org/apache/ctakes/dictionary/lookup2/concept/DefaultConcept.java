@@ -2,7 +2,7 @@ package org.apache.ctakes.dictionary.lookup2.concept;
 
 import org.apache.ctakes.dictionary.lookup2.util.SemanticUtil;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
-import org.apache.ctakes.dictionary.lookup2.util.collection.EnumSetMap;
+import org.apache.ctakes.dictionary.lookup2.util.collection.HashSetMap;
 import org.apache.ctakes.dictionary.lookup2.util.collection.ImmutableCollectionMap;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 
@@ -17,32 +17,42 @@ import java.util.HashSet;
  * Date: 11/20/13
  */
 @Immutable
-final public class Concept {
-
-   static public final String PREFERRED_TERM_UNKNOWN = "Unknown Preferred Term";
+final public class DefaultConcept implements Concept {
 
    final private String _cui;
    final private String _preferredText;
-   final private CollectionMap<ConceptCode, String, ? extends Collection<String>> _codes;
+   final private CollectionMap<String, String, ? extends Collection<String>> _codes;
    final private Collection<Integer> _ctakesSemantics;
 
    final private int _hashcode;
 
-   public Concept( final String cui ) {
+   /**
+    * @param cui -
+    */
+   public DefaultConcept( final String cui ) {
       this( cui, "" );
    }
 
-   public Concept( final String cui, final String preferredText ) {
-      this( cui, preferredText, new EnumSetMap<ConceptCode, String>( ConceptCode.class ) );
+   /**
+    * @param cui           -
+    * @param preferredText -
+    */
+   public DefaultConcept( final String cui, final String preferredText ) {
+      this( cui, preferredText, new HashSetMap<String, String>() );
    }
 
-   public Concept( final String cui, final String preferredText,
-                   final CollectionMap<ConceptCode, String, ? extends Collection<String>> codes ) {
+   /**
+    * @param cui           -
+    * @param preferredText -
+    * @param codes         collection of coding scheme names and this concept's codes for those schemes
+    */
+   public DefaultConcept( final String cui, final String preferredText,
+                          final CollectionMap<String, String, ? extends Collection<String>> codes ) {
       _cui = cui;
       _preferredText = preferredText;
       _codes = new ImmutableCollectionMap<>( codes );
       final Collection<Integer> ctakesSemantics = new HashSet<>();
-      for ( String tui : getCodes( ConceptCode.TUI ) ) {
+      for ( String tui : getCodes( TUI ) ) {
          // Attempt to obtain one or more valid type ids from the tuis of the term
          ctakesSemantics.add( SemanticUtil.getTuiSemanticGroupId( tui ) );
       }
@@ -53,10 +63,18 @@ final public class Concept {
       _hashcode = cui.hashCode();
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public String getCui() {
       return _cui;
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public String getPreferredText() {
       if ( _preferredText != null ) {
          return _preferredText;
@@ -64,17 +82,34 @@ final public class Concept {
       return PREFERRED_TERM_UNKNOWN;
    }
 
-   public Collection<String> getCodes( final ConceptCode codeType ) {
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public Collection<String> getCodeNames() {
+      return _codes.keySet();
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public Collection<String> getCodes( final String codeType ) {
       return _codes.getCollection( codeType );
    }
 
    /**
-    * @return the type of term that exists in the dictionary: Anatomical Site, Disease/Disorder, Drug, etc.
+    * {@inheritDoc}
     */
+   @Override
    public Collection<Integer> getCtakesSemantics() {
       return _ctakesSemantics;
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public boolean isEmpty() {
       return (_preferredText == null || _preferredText.isEmpty()) && _codes.isEmpty();
    }
@@ -85,7 +120,7 @@ final public class Concept {
     */
    @Override
    public boolean equals( final Object value ) {
-      return value instanceof Concept && _cui.equals( ((Concept)value)._cui );
+      return value instanceof Concept && _cui.equals( ((DefaultConcept)value)._cui );
    }
 
    /**

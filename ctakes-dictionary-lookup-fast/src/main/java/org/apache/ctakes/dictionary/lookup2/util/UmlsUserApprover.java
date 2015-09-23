@@ -45,17 +45,17 @@ public enum UmlsUserApprover {
       return INSTANCE;
    }
 
+   // properties, matches new
+   public final static String URL_PARAM = "umlsUrl";
+   public final static String VENDOR_PARAM = "umlsVendor";
+   public final static String USER_PARAM = "umlsUser";
+   public final static String PASS_PARAM = "umlsPass";
+
    // environment, matches old
    private final static String UMLSADDR_PARAM = "ctakes.umlsaddr";
    private final static String UMLSVENDOR_PARAM = "ctakes.umlsvendor";
    final static String UMLSUSER_PARAM = "ctakes.umlsuser";
    final static String UMLSPW_PARAM = "ctakes.umlspw";
-
-   // properties, matches new
-   private final static String URL_PARAM = "umlsUrl";
-   private final static String VENDOR_PARAM = "umlsVendor";
-   private final static String USER_PARAM = "umlsUser";
-   private final static String PASS_PARAM = "umlsPass";
 
    static final private Logger LOGGER = Logger.getLogger( "UmlsUserApprover" );
    static final private Logger DOT_LOGGER = Logger.getLogger( "ProgressAppender" );

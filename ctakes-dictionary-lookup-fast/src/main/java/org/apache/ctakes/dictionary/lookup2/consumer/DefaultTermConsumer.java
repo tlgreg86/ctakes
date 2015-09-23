@@ -19,7 +19,6 @@
 package org.apache.ctakes.dictionary.lookup2.consumer;
 
 import org.apache.ctakes.dictionary.lookup2.concept.Concept;
-import org.apache.ctakes.dictionary.lookup2.concept.ConceptCode;
 import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
 import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.SemanticUtil;
@@ -65,8 +64,8 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
          for ( Map.Entry<TextSpan, ? extends Collection<Long>> spanCuis : textSpanCuis ) {
             umlsConceptList.clear();
             for ( Long cuiCode : spanCuis.getValue() ) {
-               umlsConceptList
-                     .addAll( createUmlsConcepts( jcas, defaultScheme, cTakesSemantic, cuiCode, cuiConcepts ) );
+               umlsConceptList.addAll(
+                     createUmlsConcepts( jcas, defaultScheme, cTakesSemantic, cuiCode, cuiConcepts ) );
             }
             final FSArray conceptArr = new FSArray( jcas, umlsConceptList.size() );
             int arrIdx = 0;
@@ -124,7 +123,7 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
       }
       final Collection<UmlsConcept> umlsConcepts = new HashSet<>();
       for ( Concept concept : concepts ) {
-         final Collection<String> tuis = concept.getCodes( ConceptCode.TUI );
+         final Collection<String> tuis = concept.getCodes( Concept.TUI );
          if ( !tuis.isEmpty() ) {
             for ( String tui : tuis ) {
                // the concept could have tuis outside this cTakes semantic group
@@ -142,22 +141,22 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
    static private Collection<UmlsConcept> createUmlsConcepts( final JCas jcas, final String defaultScheme,
                                                               final String tui, final Concept concept ) {
       final Collection<UmlsConcept> concepts = new ArrayList<>();
-      for ( ConceptCode secondaryScheme : ConceptCode.values() ) {
-         if ( secondaryScheme == ConceptCode.TUI ) {
+      for ( String codeName : concept.getCodeNames() ) {
+         if ( codeName.equals( Concept.TUI ) ) {
             continue;
          }
-         final Collection<String> codes = concept.getCodes( secondaryScheme );
+         final Collection<String> codes = concept.getCodes( codeName );
          if ( codes == null || codes.isEmpty() ) {
             continue;
          }
          for ( String code : codes ) {
-            concepts.add( createUmlsConcept( jcas, secondaryScheme.name(), concept.getCui(), tui,
+            concepts.add( createUmlsConcept( jcas, codeName, concept.getCui(), tui,
                   concept.getPreferredText(), code ) );
          }
       }
       if ( concepts.isEmpty() ) {
-         concepts.add( createUmlsConcept( jcas, defaultScheme, concept.getCui(), tui, concept
-               .getPreferredText(), null ) );
+         concepts.add( createUmlsConcept( jcas, defaultScheme, concept.getCui(), tui,
+               concept.getPreferredText(), null ) );
       }
       return concepts;
    }

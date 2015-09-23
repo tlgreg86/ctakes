@@ -4,19 +4,14 @@ import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.JdbcConnectionFactory;
 import org.apache.ctakes.dictionary.lookup2.util.TuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
-import org.apache.ctakes.dictionary.lookup2.util.collection.EnumSetMap;
+import org.apache.ctakes.dictionary.lookup2.util.collection.HashSetMap;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Properties;
+import java.sql.*;
+import java.util.*;
 
-import static org.apache.ctakes.dictionary.lookup2.concept.ConceptCode.*;
+import static org.apache.ctakes.dictionary.lookup2.util.JdbcConnectionFactory.*;
 
 /**
  * Author: SPF
@@ -25,30 +20,89 @@ import static org.apache.ctakes.dictionary.lookup2.concept.ConceptCode.*;
  */
 public class JdbcConceptFactory extends AbstractConceptFactory {
 
-
    // LOG4J logger based on class name
    static final private Logger LOGGER = Logger.getLogger( "JdbcConceptFactory" );
 
-
-   // TODO move to Constants class
-   static private final String JDBC_DRIVER = "jdbcDriver";
-   static private final String JDBC_URL = "jdbcUrl";
-   static private final String JDBC_USER = "jdbcUser";
-   static private final String JDBC_PASS = "jdbcPass";
-   static private final String TUI_TABLE = "tuiTable";
-   static private final String PREF_TERM_TABLE = "prefTermTable";
-   static private final String SNOMED_TABLE = "snomedTable";
-   static private final String RXNORM_TABLE = "rxnormTable";
-   static private final String ICD9_TABLE = "icd9Table";
-   static private final String ICD10_TABLE = "icd10Table";
+   static private final String TABLE_KEY_SUFFIX = "TABLE";
+   static private final String INT_CLASS = "INT";
+   static private final String LONG_CLASS = "LONG";
+   static private final String TEXT_CLASS = "TEXT";
+   static private final String TUI_CLASS = Concept.TUI;
+   static private final String PREFTERM_CLASS = Concept.PREFTERM;
 
 
-   private PreparedStatement _selectTuiCall;
-   private PreparedStatement _selectPrefTermCall;
-   private PreparedStatement _selectSnomedCall;
-   private PreparedStatement _selectRxNormCall;
-   private PreparedStatement _selectIcd9Call;
-   private PreparedStatement _selectIcd10Call;
+   private final Collection<ConceptTableInfo> _conceptTableInfos;
+
+
+   static private class ConceptTableInfo {
+      //      private final String __tableName;
+      private final String __conceptName;
+      private final String __classType;
+      private final PreparedStatement __preparedStatement;
+
+      private ConceptTableInfo( final String tableName, final String conceptName, final String classType,
+                                final PreparedStatement preparedStatement ) {
+//         __tableName = tableName;
+         __conceptName = conceptName;
+         __classType = classType;
+         __preparedStatement = preparedStatement;
+      }
+   }
+
+
+   // TODO  In a future release (2 from now = 3.2.5) these -correction- methods should be removed
+
+   /**
+    * Older tables were declared by type and name.  Now they are declared by table name and value class type.
+    *
+    * @param tableName older values, actually table type declaration (snomedtable, icd9table, icd10table)
+    * @return snomedcttable for snomedtable, icd9cmtable and icd10pcstable, otherwise the provided table name
+    */
+   static private String adjustOldTableName( final String tableName ) {
+      if ( tableName.equalsIgnoreCase( "SNOMEDTABLE" ) ) {
+         return "SNOMEDCTTABLE";
+      } else if ( tableName.equalsIgnoreCase( "ICD9TABLE" ) ) {
+         return "ICD9CMTABLE";
+      } else if ( tableName.equalsIgnoreCase( "ICD10TABLE" ) ) {
+         return "ICD10PCSTABLE";
+      }
+      return tableName;
+   }
+
+   /**
+    * Older tables were declared by type and name.  Now they are declared by table name and value class type.
+    *
+    * @param typeOrOldName older values, actually table names (snomedct, rxnorm, icd9cm, icd10pcs)
+    * @return long for snomedct, text for rxnorm, icd9cm and icd10pcs, otherwise the provided value class type
+    */
+   static private String adjustOldTableClass( final String typeOrOldName ) {
+      if ( typeOrOldName.equalsIgnoreCase( "SNOMEDCT" ) ) {
+         return LONG_CLASS;
+      } else if ( typeOrOldName.equalsIgnoreCase( "RXNORM" )
+                  || typeOrOldName.equalsIgnoreCase( "ICD9CM" )
+                  || typeOrOldName.equalsIgnoreCase( "ICD10PCS" ) ) {
+         return TEXT_CLASS;
+      }
+      return typeOrOldName;
+   }
+
+
+   /**
+    * @param properties properties that may or may not contain "*Table" key
+    * @return map of table names and table value types
+    */
+   static private Map<String, String> getConceptTables( final Properties properties ) {
+      final Collection<String> keys = properties.stringPropertyNames();
+      final Map<String, String> conceptTables = new HashMap<>();
+      for ( String key : keys ) {
+         final String keyName = key.trim().toUpperCase();
+         if ( !keyName.endsWith( TABLE_KEY_SUFFIX ) ) {
+            continue;
+         }
+         conceptTables.put( adjustOldTableName( keyName ), adjustOldTableClass( properties.getProperty( key ) ) );
+      }
+      return conceptTables;
+   }
 
 
    public JdbcConceptFactory( final String name, final UimaContext uimaContext, final Properties properties )
@@ -56,32 +110,23 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
       this( name,
             properties.getProperty( JDBC_DRIVER ), properties.getProperty( JDBC_URL ),
             properties.getProperty( JDBC_USER ), properties.getProperty( JDBC_PASS ),
-            properties.getProperty( TUI_TABLE ), properties.getProperty( PREF_TERM_TABLE ),
-            properties.getProperty( SNOMED_TABLE ), properties.getProperty( RXNORM_TABLE ),
-            properties.getProperty( ICD9_TABLE ), properties.getProperty( ICD10_TABLE ) );
+            getConceptTables( properties ) );
    }
 
    public JdbcConceptFactory( final String name,
                               final String jdbcDriver, final String jdbcUrl,
                               final String jdbcUser, final String jdbcPass,
-                              final String tuiName, final String prefTermName,
-                              final String snomedName, final String rxnormName,
-                              final String icd9Name, final String icd10Name )
+                              final Map<String, String> conceptTables )
          throws SQLException {
       super( name );
       boolean connected = false;
       try {
          // DO NOT use try with resources here.
          // Try with resources uses a closable and closes it when exiting the try block
-         final Connection connection = JdbcConnectionFactory.getInstance()
-               .getConnection( jdbcDriver, jdbcUrl, jdbcUser, jdbcPass );
+         final Connection connection
+               = JdbcConnectionFactory.getInstance().getConnection( jdbcDriver, jdbcUrl, jdbcUser, jdbcPass );
          connected = connection != null;
-         _selectTuiCall = createSelectCall( connection, tuiName );
-         _selectPrefTermCall = createSelectCall( connection, prefTermName );
-         _selectSnomedCall = createSelectCall( connection, snomedName );
-         _selectRxNormCall = createSelectCall( connection, rxnormName );
-         _selectIcd9Call = createSelectCall( connection, icd9Name );
-         _selectIcd10Call = createSelectCall( connection, icd10Name );
+         _conceptTableInfos = createTableInfos( connection, conceptTables );
       } catch ( SQLException sqlE ) {
          if ( !connected ) {
             LOGGER.error( "Could not Connect to Concept Factory " + name );
@@ -92,41 +137,56 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
       }
    }
 
-
    /**
     * {@inheritDoc}
     */
    @Override
    public Concept createConcept( final Long cuiCode ) {
-      final String prefTerm = (_selectPrefTermCall == null) ? null : getPreferredTerm( cuiCode );
-      final CollectionMap<ConceptCode, String, ? extends Collection<String>> codes
-            = new EnumSetMap<>( ConceptCode.class );
-      if ( _selectTuiCall != null ) {
-         codes.addAllValues( TUI, getTuis( cuiCode ) );
+      final CollectionMap<String, String, ? extends Collection<String>> codes = new HashSetMap<>();
+      String prefTerm = null;
+      for ( ConceptTableInfo conceptTableInfo : _conceptTableInfos ) {
+         switch ( conceptTableInfo.__classType ) {
+            case TUI_CLASS: {
+               codes.addAllValues( conceptTableInfo.__conceptName,
+                     getTuiCodes( conceptTableInfo.__preparedStatement, cuiCode ) );
+               break;
+            }
+            case PREFTERM_CLASS: {
+               prefTerm = getPreferredTerm( conceptTableInfo.__preparedStatement, cuiCode );
+               break;
+            }
+            case INT_CLASS: {
+               codes.addAllValues( conceptTableInfo.__conceptName,
+                     getIntegerCodes( conceptTableInfo.__preparedStatement, cuiCode ) );
+               break;
+            }
+            case LONG_CLASS: {
+               codes.addAllValues( conceptTableInfo.__conceptName,
+                     getLongCodes( conceptTableInfo.__preparedStatement, cuiCode ) );
+               break;
+            }
+            case TEXT_CLASS: {
+               codes.addAllValues( conceptTableInfo.__conceptName,
+                     getStringCodes( conceptTableInfo.__preparedStatement, cuiCode ) );
+               break;
+            }
+         }
       }
-      if ( _selectSnomedCall != null ) {
-         codes.addAllValues( SNOMEDCT, getLongCodes( _selectSnomedCall, cuiCode ) );
-      }
-      if ( _selectRxNormCall != null ) {
-         codes.addAllValues( RXNORM, getLongCodes( _selectRxNormCall, cuiCode ) );
-      }
-      if ( _selectIcd9Call != null ) {
-         codes.addAllValues( ICD9CM, getStringCodes( _selectIcd9Call, cuiCode ) );
-      }
-      if ( _selectIcd10Call != null ) {
-         codes.addAllValues( ICD10PCS, getStringCodes( _selectIcd10Call, cuiCode ) );
-      }
-      return new Concept( CuiCodeUtil.getInstance().getAsCui( cuiCode ), prefTerm, codes );
+      return new DefaultConcept( CuiCodeUtil.getInstance().getAsCui( cuiCode ), prefTerm, codes );
    }
 
-
-   private Collection<String> getTuis( final Long cuiCode ) {
-      final Collection<String> tuis = new HashSet<>();
+   /**
+    * @param selectCall jdbc selection call
+    * @param cuiCode    cui of interest
+    * @return collection of tuis that are related to cui as obtained with the selectCall
+    */
+   static private Collection<String> getTuiCodes( PreparedStatement selectCall, final Long cuiCode ) {
+      final Collection<String> codes = new HashSet<>();
       try {
-         fillSelectCall( _selectTuiCall, cuiCode );
-         final ResultSet resultSet = _selectTuiCall.executeQuery();
+         fillSelectCall( selectCall, cuiCode );
+         final ResultSet resultSet = selectCall.executeQuery();
          while ( resultSet.next() ) {
-            tuis.add( TuiCodeUtil.getAsTui( resultSet.getInt( 2 ) ) );
+            codes.add( TuiCodeUtil.getAsTui( resultSet.getInt( 2 ) ) );
          }
          // Though the ResultSet interface documentation states that there are automatic closures,
          // it is up to the driver to implement this behavior ...  historically some drivers have not done so
@@ -134,14 +194,19 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
       } catch ( SQLException e ) {
          LOGGER.error( e.getMessage() );
       }
-      return tuis;
+      return codes;
    }
 
-   private String getPreferredTerm( final Long cuiCode ) {
+   /**
+    * @param selectCall jdbc selection call
+    * @param cuiCode    cui of interest
+    * @return preferred term for the cui as obtained with the selectCall
+    */
+   static private String getPreferredTerm( PreparedStatement selectCall, final Long cuiCode ) {
       String preferredName = "";
       try {
-         fillSelectCall( _selectPrefTermCall, cuiCode );
-         final ResultSet resultSet = _selectPrefTermCall.executeQuery();
+         fillSelectCall( selectCall, cuiCode );
+         final ResultSet resultSet = selectCall.executeQuery();
          if ( resultSet.next() ) {
             preferredName = resultSet.getString( 2 );
          }
@@ -154,8 +219,34 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
       return preferredName;
    }
 
+   /**
+    * @param selectCall jdbc selection call
+    * @param cuiCode    cui of interest
+    * @return collection of ints (as strings) that are related to cui as obtained with the selectCall
+    */
+   static private Collection<String> getIntegerCodes( PreparedStatement selectCall, final Long cuiCode ) {
+      final Collection<String> codes = new HashSet<>();
+      try {
+         fillSelectCall( selectCall, cuiCode );
+         final ResultSet resultSet = selectCall.executeQuery();
+         while ( resultSet.next() ) {
+            codes.add( Integer.toString( resultSet.getInt( 2 ) ) );
+         }
+         // Though the ResultSet interface documentation states that there are automatic closures,
+         // it is up to the driver to implement this behavior ...  historically some drivers have not done so
+         resultSet.close();
+      } catch ( SQLException e ) {
+         LOGGER.error( e.getMessage() );
+      }
+      return codes;
+   }
 
-   private Collection<String> getLongCodes( PreparedStatement selectCall, final Long cuiCode ) {
+   /**
+    * @param selectCall jdbc selection call
+    * @param cuiCode    cui of interest
+    * @return collection of longs (as strings) that are related to cui as obtained with the selectCall
+    */
+   static private Collection<String> getLongCodes( PreparedStatement selectCall, final Long cuiCode ) {
       final Collection<String> codes = new HashSet<>();
       try {
          fillSelectCall( selectCall, cuiCode );
@@ -172,8 +263,12 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
       return codes;
    }
 
-
-   private Collection<String> getStringCodes( PreparedStatement selectCall, final Long cuiCode ) {
+   /**
+    * @param selectCall jdbc selection call
+    * @param cuiCode    cui of interest
+    * @return collection of strings that are related to cui as obtained with the selectCall
+    */
+   static private Collection<String> getStringCodes( PreparedStatement selectCall, final Long cuiCode ) {
       final Collection<String> codes = new HashSet<>();
       try {
          fillSelectCall( selectCall, cuiCode );
@@ -191,17 +286,68 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
    }
 
    /**
-    * @param tableName -
-    * @throws SQLException if the {@code PreparedStatement} could not be created or changed
+    * Creates table information objects with table name, concept name, jdbc prepared statement call
+    * @param connection -
+    * @param conceptTables map of table names to table value types
+    * @return table information objects with table name, concept name, jdbc prepared statement call
+    * @throws SQLException
     */
-   private PreparedStatement createSelectCall( final Connection connection, final String tableName )
+   static private Collection<ConceptTableInfo> createTableInfos( final Connection connection,
+                                                                 final Map<String,String> conceptTables )
          throws SQLException {
-      if ( tableName == null || tableName.isEmpty() || tableName.equalsIgnoreCase( "null" ) ) {
-         return null;
+      if ( conceptTables == null || conceptTables.isEmpty() ) {
+         return Collections.emptyList();
       }
-      final String lookupSql = "SELECT * FROM " + tableName + " WHERE CUI = ?";
-      return connection.prepareStatement( lookupSql );
+      final Collection<String> dbTablesNames = getDbTableNames( connection );
+      final Collection<ConceptTableInfo> tableInfos = new ArrayList<>();
+      for ( Map.Entry<String, String> conceptTable : conceptTables.entrySet() ) {
+         String tableName = conceptTable.getKey().trim().toUpperCase();
+         if ( !tableName.endsWith( TABLE_KEY_SUFFIX ) || tableName.length() < 6 ) {
+            LOGGER.error( "Cannot have a concept table named " + tableName );
+            continue;
+         }
+         if ( !dbTablesNames.contains( tableName ) ) {
+            tableName = tableName.substring( 0, tableName.length() - 5 );
+            if ( !dbTablesNames.contains( tableName ) ) {
+               LOGGER.error( "Table " + tableName + TABLE_KEY_SUFFIX
+                             + " and/or " + tableName + " not found in Database" );
+               continue;
+            }
+         }
+         final String tableClass = conceptTable.getValue().trim().toUpperCase();
+         if ( tableClass.isEmpty()
+              || (!tableClass.equals( TUI_CLASS ) && !tableClass.equals( PREFTERM_CLASS )
+                  && !tableClass.equals( INT_CLASS ) && !tableClass.equals( LONG_CLASS )
+                  && !tableClass.equals( TEXT_CLASS )) ) {
+            LOGGER.error( "Cannot have a concept table with class " + tableClass );
+            continue;
+         }
+         String conceptName = conceptTable.getKey().trim();
+         conceptName = conceptName.substring( 0, conceptName.length() - 5 );
+         final String lookupSql = "SELECT * FROM " + tableName + " WHERE CUI = ?";
+         final PreparedStatement statement = connection.prepareStatement( lookupSql );
+         tableInfos.add( new ConceptTableInfo( tableName, conceptName, tableClass, statement ) );
+         LOGGER.info( "Connected to concept table " + tableName + " with class " + tableClass );
+      }
+      return tableInfos;
    }
+
+   /**
+    * @param connection -
+    * @return all table names in the database
+    * @throws SQLException if something goes wrong
+    */
+   static private Collection<String> getDbTableNames( final Connection connection ) throws SQLException {
+      final DatabaseMetaData metadata = connection.getMetaData();
+      final ResultSet resultSet = metadata.getTables( null, null, "%", null );
+      final Collection<String> tableNames = new ArrayList<>();
+      while ( resultSet.next() ) {
+         tableNames.add( resultSet.getString( "TABLE_NAME" ).toUpperCase() );
+      }
+      resultSet.close();
+      return tableNames;
+   }
+
 
 
    /**
