@@ -1092,7 +1092,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
                //add properties
                Element property = doc.createElement( "properties" );
                String timeClass = timex.getTimeClass();
-               if ( timeClass.equals( "DOCTIME" ) || timeClass.equals( "SECTIONTIME" ) ) {
+               if ( timeClass!=null && (timeClass.equals( "DOCTIME" ) || timeClass.equals( "SECTIONTIME" ) ) ) {
                   typeE.setTextContent( timeClass );
                   property.setTextContent( "" );
                } else {
