@@ -19,12 +19,15 @@
 package org.apache.ctakes.relationextractor.ae.features;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.relationextractor.data.analysis.Utils;
+import org.apache.ctakes.typesystem.type.syntax.WordToken;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 
@@ -48,7 +51,6 @@ public class EmbeddingFeatureExtractor implements RelationFeaturesExtractor<Iden
 
     List<Feature> features = new ArrayList<>();
 
-    // get head words
     String arg1LastWord = Utils.getLastWord(jCas, arg1).toLowerCase();
     String arg2LastWord = Utils.getLastWord(jCas, arg2).toLowerCase();
 
@@ -64,10 +66,8 @@ public class EmbeddingFeatureExtractor implements RelationFeaturesExtractor<Iden
     } else {
       arg2Vector = wordVectors.get("oov");
     }
-
-    double similarity = computeCosineSimilarity(arg1Vector, arg2Vector); 
-    features.add(new Feature("arg_cos_sim", similarity));
-
+    
+    // head word feataures
     for(int dim = 0; dim < numberOfDimensions; dim++) {
       String featureName = String.format("arg1_dim_%d", dim);
       features.add(new Feature(featureName, arg1Vector.get(dim)));
@@ -76,6 +76,32 @@ public class EmbeddingFeatureExtractor implements RelationFeaturesExtractor<Iden
       String featureName = String.format("arg2_dim_%d", dim);
       features.add(new Feature(featureName, arg2Vector.get(dim)));
     }    
+
+    // head word similarity features
+    double similarity = computeCosineSimilarity(arg1Vector, arg2Vector); 
+    features.add(new Feature("arg_cos_sim", similarity));
+    
+    // words between argument features
+    List<WordToken> wordsBetweenArgs = JCasUtil.selectBetween(jCas, WordToken.class, arg1, arg2);
+    if(wordsBetweenArgs.size() < 1) {
+      return features;  
+    }
+    
+    List<Double> sum = new ArrayList<>(Collections.nCopies(numberOfDimensions, 0.0));
+    for(WordToken wordToken : wordsBetweenArgs) {
+      List<Double> wordVector;
+      if(wordVectors.containsKey(wordToken.getCoveredText().toLowerCase())) {
+        wordVector = wordVectors.get(wordToken.getCoveredText().toLowerCase());
+      } else {
+        wordVector = wordVectors.get("oov");
+      }
+      sum = addVectors(sum, wordVector);      
+    }
+
+    for(int dim = 0; dim < numberOfDimensions; dim++) {
+      String featureName = String.format("average_dim_%d", dim);
+      features.add(new Feature(featureName, sum.get(dim) / wordsBetweenArgs.size()));
+    }
 
     return features;
   }
@@ -96,5 +122,18 @@ public class EmbeddingFeatureExtractor implements RelationFeaturesExtractor<Iden
     }
 
     return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
+  }
+  
+  /**
+   * Add two vectors. Return the sum vector.
+   */
+  public List<Double> addVectors(List<Double> vector1, List<Double> vector2) {
+    
+    List<Double> sum = new ArrayList<>();
+    for(int dim = 0; dim < numberOfDimensions; dim++) {
+      sum.add(vector1.get(dim) + vector2.get(dim));
+    }
+    
+    return sum;
   }
 }
