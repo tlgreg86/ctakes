@@ -46,6 +46,12 @@ final public class PrecisionTermConsumer extends AbstractTermConsumer {
       _idHitConsumer = new DefaultTermConsumer( uimaContext, properties );
    }
 
+   public PrecisionTermConsumer( final UimaContext uimaContext, final Properties properties,
+                                 final UmlsConceptCreator umlsConceptCreator ) {
+      super( uimaContext, properties );
+      _idHitConsumer = new DefaultTermConsumer( uimaContext, properties, umlsConceptCreator );
+   }
+
 
    /**
     * Only uses the largest spans for the type

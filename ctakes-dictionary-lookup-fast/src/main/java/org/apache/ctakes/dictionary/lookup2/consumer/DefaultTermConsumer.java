@@ -44,9 +44,16 @@ import static org.apache.ctakes.typesystem.type.constants.CONST.*;
  */
 final public class DefaultTermConsumer extends AbstractTermConsumer {
 
+   final private UmlsConceptCreator _umlsConceptCreator;
 
    public DefaultTermConsumer( final UimaContext uimaContext, final Properties properties ) {
+      this( uimaContext, properties, new DefaultUmlsConceptCreator() );
+   }
+
+   public DefaultTermConsumer( final UimaContext uimaContext, final Properties properties,
+                               final UmlsConceptCreator umlsConceptCreator ) {
       super( uimaContext, properties );
+      _umlsConceptCreator = umlsConceptCreator;
    }
 
 
@@ -54,7 +61,7 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
     * {@inheritDoc}
     */
    @Override
-   public void consumeTypeIdHits( final JCas jcas, final String defaultScheme, final int cTakesSemantic,
+   public void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int cTakesSemantic,
                                   final CollectionMap<TextSpan, Long, ? extends Collection<Long>> textSpanCuis,
                                   final CollectionMap<Long, Concept, ? extends Collection<Concept>> cuiConcepts )
          throws AnalysisEngineProcessException {
@@ -65,7 +72,7 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
             umlsConceptList.clear();
             for ( Long cuiCode : spanCuis.getValue() ) {
                umlsConceptList.addAll(
-                     createUmlsConcepts( jcas, defaultScheme, cTakesSemantic, cuiCode, cuiConcepts ) );
+                     createUmlsConcepts( jcas, codingScheme, cTakesSemantic, cuiCode, cuiConcepts ) );
             }
             final FSArray conceptArr = new FSArray( jcas, umlsConceptList.size() );
             int arrIdx = 0;
@@ -111,15 +118,15 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
       return new EntityMention( jcas );
    }
 
-   static private Collection<UmlsConcept> createUmlsConcepts( final JCas jcas,
-                                                              final String defaultScheme,
-                                                              final int cTakesSemantic,
-                                                              final Long cuiCode,
-                                                              final CollectionMap<Long, Concept, ? extends Collection<Concept>> conceptMap ) {
+   private Collection<UmlsConcept> createUmlsConcepts( final JCas jcas,
+                                                       final String codingScheme,
+                                                       final int cTakesSemantic,
+                                                       final Long cuiCode,
+                                                       final CollectionMap<Long, Concept, ? extends Collection<Concept>> conceptMap ) {
       final Collection<Concept> concepts = conceptMap.getCollection( cuiCode );
       if ( concepts == null || concepts.isEmpty() ) {
-         return Arrays.asList( createUmlsConcept( jcas, defaultScheme,
-               CuiCodeUtil.getInstance().getAsCui( cuiCode ), null, null, null ) );
+         return Collections.singletonList( createSimpleUmlsConcept( jcas, codingScheme,
+               CuiCodeUtil.getInstance().getAsCui( cuiCode ) ) );
       }
       final Collection<UmlsConcept> umlsConcepts = new HashSet<>();
       for ( Concept concept : concepts ) {
@@ -128,54 +135,62 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
             for ( String tui : tuis ) {
                // the concept could have tuis outside this cTakes semantic group
                if ( SemanticUtil.getTuiSemanticGroupId( tui ) == cTakesSemantic ) {
-                  umlsConcepts.addAll( createUmlsConcepts( jcas, defaultScheme, tui, concept ) );
+                  umlsConcepts.addAll( _umlsConceptCreator.createUmlsConcepts( jcas, codingScheme, tui, concept ) );
                }
             }
          } else {
-            umlsConcepts.addAll( createUmlsConcepts( jcas, defaultScheme, null, concept ) );
+            umlsConcepts.addAll( _umlsConceptCreator.createUmlsConcepts( jcas, codingScheme, null, concept ) );
          }
       }
       return umlsConcepts;
    }
 
-   static private Collection<UmlsConcept> createUmlsConcepts( final JCas jcas, final String defaultScheme,
-                                                              final String tui, final Concept concept ) {
-      final Collection<UmlsConcept> concepts = new ArrayList<>();
-      for ( String codeName : concept.getCodeNames() ) {
-         if ( codeName.equals( Concept.TUI ) ) {
-            continue;
-         }
-         final Collection<String> codes = concept.getCodes( codeName );
-         if ( codes == null || codes.isEmpty() ) {
-            continue;
-         }
-         for ( String code : codes ) {
-            concepts.add( createUmlsConcept( jcas, codeName, concept.getCui(), tui,
-                  concept.getPreferredText(), code ) );
-         }
-      }
-      if ( concepts.isEmpty() ) {
-         concepts.add( createUmlsConcept( jcas, defaultScheme, concept.getCui(), tui,
-               concept.getPreferredText(), null ) );
-      }
-      return concepts;
-   }
+//   static private Collection<UmlsConcept> createUmlsConcepts( final JCas jcas, final String defaultScheme,
+//                                                              final String tui, final Concept concept ) {
+//      final Collection<UmlsConcept> concepts = new ArrayList<>();
+//      for ( String codeName : concept.getCodeNames() ) {
+//         if ( codeName.equals( Concept.TUI ) ) {
+//            continue;
+//         }
+//         final Collection<String> codes = concept.getCodes( codeName );
+//         if ( codes == null || codes.isEmpty() ) {
+//            continue;
+//         }
+//         for ( String code : codes ) {
+//            concepts.add( createUmlsConcept( jcas, codeName, concept.getCui(), tui,
+//                  concept.getPreferredText(), code ) );
+//         }
+//      }
+//      if ( concepts.isEmpty() ) {
+//         concepts.add( createUmlsConcept( jcas, defaultScheme, concept.getCui(), tui,
+//               concept.getPreferredText(), null ) );
+//      }
+//      return concepts;
+//   }
 
-   static private UmlsConcept createUmlsConcept( final JCas jcas, final String codingScheme,
-                                                 final String cui, final String tui,
-                                                 final String preferredText, final String code ) {
+//   static private UmlsConcept createUmlsConcept( final JCas jcas, final String codingScheme,
+//                                                 final String cui, final String tui,
+//                                                 final String preferredText, final String code ) {
+//      final UmlsConcept umlsConcept = new UmlsConcept( jcas );
+//      umlsConcept.setCodingScheme( codingScheme );
+//      umlsConcept.setCui( cui );
+//      if ( tui != null ) {
+//         umlsConcept.setTui( tui );
+//      }
+//      if ( preferredText != null && !preferredText.isEmpty() ) {
+//         umlsConcept.setPreferredText( preferredText );
+//      }
+//      if ( code != null ) {
+//         umlsConcept.setCode( code );
+//      }
+//      return umlsConcept;
+//   }
+
+
+   static private UmlsConcept createSimpleUmlsConcept( final JCas jcas, final String codingScheme, final String cui ) {
       final UmlsConcept umlsConcept = new UmlsConcept( jcas );
       umlsConcept.setCodingScheme( codingScheme );
       umlsConcept.setCui( cui );
-      if ( tui != null ) {
-         umlsConcept.setTui( tui );
-      }
-      if ( preferredText != null && !preferredText.isEmpty() ) {
-         umlsConcept.setPreferredText( preferredText );
-      }
-      if ( code != null ) {
-         umlsConcept.setCode( code );
-      }
       return umlsConcept;
    }
 

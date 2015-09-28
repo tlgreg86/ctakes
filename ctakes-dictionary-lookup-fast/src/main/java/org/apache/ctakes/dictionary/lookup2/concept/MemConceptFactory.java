@@ -2,6 +2,7 @@ package org.apache.ctakes.dictionary.lookup2.concept;
 
 import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,7 +18,7 @@ final public class MemConceptFactory extends AbstractConceptFactory {
 
    public MemConceptFactory( final String name, final Map<Long, Concept> conceptMap ) {
       super( name );
-      _conceptMap = conceptMap;
+      _conceptMap = new HashMap<>( conceptMap );
    }
 
    /**

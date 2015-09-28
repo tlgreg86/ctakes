@@ -51,11 +51,11 @@ public interface TermConsumer {
 
    /**
     * @param jcas           -
-    * @param defaultScheme  - name of the coding scheme to use if no secondary (snomed, rxnorm) schemes exist
+    * @param codingScheme   - name of the coding scheme to use if no secondary (snomed, rxnorm) schemes exist
     * @param cTakesSemantic cTakes IdentifiedAnnotation only accepts an integer as a cTakesSemantic
     * @throws org.apache.uima.analysis_engine.AnalysisEngineProcessException
     */
-   void consumeTypeIdHits( final JCas jcas, final String defaultScheme, final int cTakesSemantic,
+   void consumeTypeIdHits( final JCas jcas, final String codingScheme, final int cTakesSemantic,
                            final CollectionMap<TextSpan, Long, ? extends Collection<Long>> textSpanCuis,
                            final CollectionMap<Long, Concept, ? extends Collection<Concept>> cuiConcepts )
          throws AnalysisEngineProcessException;

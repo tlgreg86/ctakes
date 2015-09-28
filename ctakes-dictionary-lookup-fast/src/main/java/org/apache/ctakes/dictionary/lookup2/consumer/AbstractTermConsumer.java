@@ -43,9 +43,11 @@ abstract public class AbstractTermConsumer implements TermConsumer {
 
    final private String _codingScheme;
 
+
    public AbstractTermConsumer( final UimaContext uimaContext, final Properties properties ) {
       _codingScheme = properties.getProperty( CODING_SCHEME_PRP_KEY );
    }
+
 
    /**
     * {@inheritDoc}
