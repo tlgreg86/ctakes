@@ -65,7 +65,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-dictionary-lookup</artifactId>
+			<artifactId>ctakes-dictionary-lookup-fast</artifactId>
 		</dependency>
 			<dependency>
 			<groupId>org.apache.ctakes</groupId>
@@ -132,6 +132,11 @@
 			<groupId>com.googlecode.java-diff-utils</groupId>
 			<artifactId>diffutils</artifactId>
 			<version>1.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.cleartk</groupId>
+			<artifactId>cleartk-ml-mallet</artifactId>
+			<version>2.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<!-- The below is all necessary to unpack the UMLS resources since they 
