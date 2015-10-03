@@ -96,7 +96,7 @@ public class DeepPheAnaforaXMLReader extends JCasAnnotator_ImplBase {
     for (Element annotationsElem : dataElem.getChildren("annotations")) {
 
       Map<String, IdentifiedAnnotation> idToAnnotation = Maps.newHashMap();
-      Map<String, String> diseaseDisorderToBodyLocation = Maps.newHashMap();
+      Map<String, List<String>> diseaseDisorderToAnatomicalSites = Maps.newHashMap();
       
       for (Element entityElem : annotationsElem.getChildren("entity")) {
         
@@ -127,8 +127,12 @@ public class DeepPheAnaforaXMLReader extends JCasAnnotator_ImplBase {
           DiseaseDisorderMention diseaseDisorderMention = new DiseaseDisorderMention(jCas, begin, end);
           diseaseDisorderMention.addToIndexes();
           idToAnnotation.put(id, diseaseDisorderMention);
-          String bodyLocationId = removeSingleChildText(propertiesElem, "body_location", id);
-          diseaseDisorderToBodyLocation.put(id, bodyLocationId);
+          List<String> anatomicalSiteIds = Lists.newArrayList();
+          for(Element child : propertiesElem.getChildren("body_location")) {
+            String bodyLocationId = child.getText();
+            anatomicalSiteIds.add(bodyLocationId);
+          }
+          diseaseDisorderToAnatomicalSites.put(id, anatomicalSiteIds);
         } else if(type.equals("Anatomical_site")) {
           AnatomicalSiteMention anatomicalSiteMention = new AnatomicalSiteMention(jCas, begin, end);
           anatomicalSiteMention.addToIndexes();
@@ -138,11 +142,12 @@ public class DeepPheAnaforaXMLReader extends JCasAnnotator_ImplBase {
         }
       }
       
-      for(String diseaseDisorderId : diseaseDisorderToBodyLocation.keySet()) {
+      for(String diseaseDisorderId : diseaseDisorderToAnatomicalSites.keySet()) {
         IdentifiedAnnotation diseaseDisorderMention = idToAnnotation.get(diseaseDisorderId);
-        String anatomicalSiteId = diseaseDisorderToBodyLocation.get(diseaseDisorderId);
-        IdentifiedAnnotation anatomicalSiteMention = idToAnnotation.get(anatomicalSiteId);
-        createLocationOfRelation(jCas, diseaseDisorderMention, anatomicalSiteMention);
+        for(String anatomicalSiteId : diseaseDisorderToAnatomicalSites.get(diseaseDisorderId)) {
+          IdentifiedAnnotation anatomicalSiteMention = idToAnnotation.get(anatomicalSiteId);
+          createLocationOfRelation(jCas, diseaseDisorderMention, anatomicalSiteMention);
+        }
       }
     }
   }
