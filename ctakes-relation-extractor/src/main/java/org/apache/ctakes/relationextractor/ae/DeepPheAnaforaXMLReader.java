@@ -24,34 +24,20 @@ import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ctakes.typesystem.type.refsem.Event;
-import org.apache.ctakes.typesystem.type.refsem.EventProperties;
-import org.apache.ctakes.typesystem.type.relation.AspectualTextRelation;
-import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
-import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
-import org.apache.ctakes.typesystem.type.relation.CoreferenceRelation;
+import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
-import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
 import org.apache.ctakes.typesystem.type.textsem.DiseaseDisorderMention;
-import org.apache.ctakes.typesystem.type.textsem.EventMention;
-import org.apache.ctakes.typesystem.type.textsem.Markable;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.log4j.Logger;
-import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.EmptyFSList;
-import org.apache.uima.jcas.cas.NonEmptyFSList;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.util.ViewUriUtil;
-import org.cleartk.util.cr.UriCollectionReader;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
@@ -70,25 +56,6 @@ public class DeepPheAnaforaXMLReader extends JCasAnnotator_ImplBase {
       description = "root directory of the Anafora-annotated files, with one subdirectory for "
           + "each annotated file")
   private File anaforaDirectory;
-
-  public static final String PARAM_ANAFORA_XML_SUFFIXES = "anaforaSuffixes";
-
-  @ConfigurationParameter(
-      name = PARAM_ANAFORA_XML_SUFFIXES,
-      mandatory = false,
-      description = "list of suffixes that might be added to a file name to identify the Anafora "
-          + "XML annotations file; only the first suffix corresponding to a file will be used")
-  private String[] anaforaXMLSuffixes = new String[] {
-      ".Temporal-Relations.gold.completed.xml",
-      ".Temporal-Relation.gold.completed.xml",
-          ".Temporal.dave.completed.xml",
-      ".Temporal-Relation-Adjudication.gold.completed.xml",
-      ".Temporal-Entity-Adjudication.gold.completed.xml",
-      ".temporal.Temporal-Adjudication.gold.completed.xml",
-      ".temporal.Temporal-Entities.gold.completed.xml",
-      ".Temporal-Entity.gold.completed.xml",
-      ".Gold_Temporal_Entities.xml",
-      ".Gold_Temporal_Relations.xml"};
 
   public static AnalysisEngineDescription getDescription() throws ResourceInitializationException {
     return AnalysisEngineFactory.createEngineDescription(DeepPheAnaforaXMLReader.class);
@@ -128,8 +95,9 @@ public class DeepPheAnaforaXMLReader extends JCasAnnotator_ImplBase {
 
     for (Element annotationsElem : dataElem.getChildren("annotations")) {
 
-      Map<String, Annotation> idToAnnotation = Maps.newHashMap();
-
+      Map<String, IdentifiedAnnotation> idToAnnotation = Maps.newHashMap();
+      Map<String, String> diseaseDisorderToBodyLocation = Maps.newHashMap();
+      
       for (Element entityElem : annotationsElem.getChildren("entity")) {
         
         String id = removeSingleChildText(entityElem, "id", null);
@@ -155,41 +123,26 @@ public class DeepPheAnaforaXMLReader extends JCasAnnotator_ImplBase {
           }
         }
 
-        Annotation annotation = null;
-        if(type.equals("Disease_Disorder")) {
-          EventMention eventMention = new EventMention(jCas, begin, end);
-          Event event = new Event(jCas);
-          EventProperties eventProperties = new EventProperties(jCas);
-          eventProperties.addToIndexes();
-          event.addToIndexes();
-          eventMention.setEvent(event);
-          eventMention.addToIndexes();
-          annotation = eventMention;
+        if(type.equals("Disease_Disorder") || type.equals("Metastasis")) {
+          DiseaseDisorderMention diseaseDisorderMention = new DiseaseDisorderMention(jCas, begin, end);
+          diseaseDisorderMention.addToIndexes();
+          idToAnnotation.put(id, diseaseDisorderMention);
+          String bodyLocationId = removeSingleChildText(propertiesElem, "body_location", id);
+          diseaseDisorderToBodyLocation.put(id, bodyLocationId);
         } else if(type.equals("Anatomical_site")) {
           AnatomicalSiteMention anatomicalSiteMention = new AnatomicalSiteMention(jCas, begin, end);
           anatomicalSiteMention.addToIndexes();
-        } else if (type.equals("Metastasis")) {
-          DiseaseDisorderMention diseaseDisorderMention = new DiseaseDisorderMention(jCas, begin, end);
-          diseaseDisorderMention.addToIndexes();
+          idToAnnotation.put(id, anatomicalSiteMention);
         } else {
           continue; // not going to worry about other types for the moment
         }
-
-        // match the annotation to its ID for later use
-        idToAnnotation.put(id, annotation);
-
-        // make sure all XML has been consumed
-        removeSingleChild(entityElem, "parentsType", id);
-        if (!propertiesElem.getChildren().isEmpty() || !entityElem.getChildren().isEmpty()) {
-          List<String> children = Lists.newArrayList();
-          for (Element child : propertiesElem.getChildren()) {
-            children.add(child.getName());
-          }
-          for (Element child : entityElem.getChildren()) {
-            children.add(child.getName());
-          }
-          error("unprocessed children " + children, id);
-        }
+      }
+      
+      for(String diseaseDisorderId : diseaseDisorderToBodyLocation.keySet()) {
+        IdentifiedAnnotation diseaseDisorderMention = idToAnnotation.get(diseaseDisorderId);
+        String anatomicalSiteId = diseaseDisorderToBodyLocation.get(diseaseDisorderId);
+        IdentifiedAnnotation anatomicalSiteMention = idToAnnotation.get(anatomicalSiteId);
+        createLocationOfRelation(jCas, diseaseDisorderMention, anatomicalSiteMention);
       }
     }
   }
@@ -221,5 +174,25 @@ public class DeepPheAnaforaXMLReader extends JCasAnnotator_ImplBase {
 
   private static void error(String found, String id) {
     LOGGER.error(String.format("found %s in annotation with ID %s", found, id));
+  }
+  
+  private static void createLocationOfRelation(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2) {
+    
+    // disease/disorder
+    RelationArgument relArg1 = new RelationArgument(jCas);
+    relArg1.setArgument(arg1);
+    relArg1.setRole("Argument");
+    relArg1.addToIndexes();
+    
+    // anatomical site
+    RelationArgument relArg2 = new RelationArgument(jCas);
+    relArg2.setArgument(arg2);
+    relArg2.setRole("Related_to");
+    relArg2.addToIndexes();
+    LocationOfTextRelation relation = new LocationOfTextRelation(jCas);
+    relation.setArg1(relArg1);
+    relation.setArg2(relArg2);
+    relation.setCategory("location_of");
+    relation.addToIndexes();
   }
 }

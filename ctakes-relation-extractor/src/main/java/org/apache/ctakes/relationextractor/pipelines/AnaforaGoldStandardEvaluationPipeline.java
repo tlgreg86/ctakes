@@ -68,8 +68,11 @@ public class AnaforaGoldStandardEvaluationPipeline {
         ViewCreatorAnnotator.class,
         ViewCreatorAnnotator.PARAM_VIEW_NAME,
         GOLD_VIEW_NAME));
+
     builder.add(AnalysisEngineFactory.createEngineDescription(CopyDocumentTextToGoldView.class));
-    builder.add(AnalysisEngineFactory.createEngineDescription(DocumentIDAnnotator.class),
+    
+    builder.add(
+        AnalysisEngineFactory.createEngineDescription(DocumentIDAnnotator.class),
         CAS.NAME_DEFAULT_SOFA,
         GOLD_VIEW_NAME);
     
