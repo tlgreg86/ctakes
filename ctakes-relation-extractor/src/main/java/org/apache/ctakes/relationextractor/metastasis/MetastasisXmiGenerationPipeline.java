@@ -1,4 +1,4 @@
-package org.apache.ctakes.relationextractor.pipelines;
+package org.apache.ctakes.relationextractor.metastasis;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,7 +9,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.ctakes.relationextractor.ae.DeepPheAnaforaXMLReader;
 import org.apache.ctakes.relationextractor.eval.SHARPXMI.CopyDocumentTextToGoldView;
 import org.apache.ctakes.relationextractor.eval.SHARPXMI.DocumentIDAnnotator;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
@@ -38,7 +37,7 @@ import org.xml.sax.SAXException;
 
 import com.google.common.io.CharStreams;
 
-public class AnaforaGoldStandardEvaluationPipeline {
+public class MetastasisXmiGenerationPipeline {
 
   public static final File INPUT_DIR = new File("/Users/dima/Boston/Data/DeepPhe/Metastasis/patient93_report028_NOTE/");
   public static final String OUTPUT_DIR = "/Users/Dima/Boston/Out/";
@@ -77,7 +76,7 @@ public class AnaforaGoldStandardEvaluationPipeline {
         GOLD_VIEW_NAME);
     
     builder.add(
-        DeepPheAnaforaXMLReader.getDescription(INPUT_DIR),
+        MetastasisAnaforaXMLReader.getDescription(INPUT_DIR),
         CAS.NAME_DEFAULT_SOFA,
         GOLD_VIEW_NAME);
 

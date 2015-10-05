@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ctakes.relationextractor.ae;
+package org.apache.ctakes.relationextractor.metastasis;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,9 +45,9 @@ import org.jdom2.input.SAXBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class DeepPheAnaforaXMLReader extends JCasAnnotator_ImplBase {
+public class MetastasisAnaforaXMLReader extends JCasAnnotator_ImplBase {
   
-  private static Logger LOGGER = Logger.getLogger(DeepPheAnaforaXMLReader.class);
+  private static Logger LOGGER = Logger.getLogger(MetastasisAnaforaXMLReader.class);
 
   public static final String PARAM_ANAFORA_DIRECTORY = "anaforaDirectory";
 
@@ -58,14 +58,14 @@ public class DeepPheAnaforaXMLReader extends JCasAnnotator_ImplBase {
   private File anaforaDirectory;
 
   public static AnalysisEngineDescription getDescription() throws ResourceInitializationException {
-    return AnalysisEngineFactory.createEngineDescription(DeepPheAnaforaXMLReader.class);
+    return AnalysisEngineFactory.createEngineDescription(MetastasisAnaforaXMLReader.class);
   }
 
   public static AnalysisEngineDescription getDescription(File anaforaDirectory)
       throws ResourceInitializationException {
     return AnalysisEngineFactory.createEngineDescription(
-        DeepPheAnaforaXMLReader.class,
-        DeepPheAnaforaXMLReader.PARAM_ANAFORA_DIRECTORY,
+        MetastasisAnaforaXMLReader.class,
+        MetastasisAnaforaXMLReader.PARAM_ANAFORA_DIRECTORY,
         anaforaDirectory);
   }
 
