@@ -196,7 +196,7 @@ public class SHARPXMI {
    }
 
    public enum EvaluateOn {
-      TRAIN, DEV, TEST
+      TRAIN, DEV, TEST, OTHER
    }
 
    public static interface EvaluationOptions extends Options {
@@ -211,6 +211,12 @@ public class SHARPXMI {
             longName = "grid-search",
             description = "run a grid search to select the best parameters")
       public boolean getGridSearch();
+      
+      @Option(
+          longName = "path-to-xmi-files-for-evaluation",
+          description = "evaluate on XMI files which contain the necessary preprocessing " 
+              + "in system view and gold annotation in gold view")
+      public File getPathToXmifilesForEvaluation();
    }
 
    public static abstract class Evaluation_ImplBase
@@ -228,7 +234,6 @@ public class SHARPXMI {
                XMIReader.PARAM_FILES,
                items );
       }
-
    }
 
    public static void validate( EvaluationOptions options ) throws Exception {
@@ -252,7 +257,7 @@ public class SHARPXMI {
       }
 
       // run an evaluation for each set of parameters
-      Map<ParameterSettings, Double> scoredParams = new HashMap<ParameterSettings, Double>();
+      Map<ParameterSettings, Double> scoredParams = new HashMap<>();
       for ( ParameterSettings params : possibleParams ) {
          Evaluation_ImplBase evaluation = getEvaluation.apply( params );
 
@@ -275,13 +280,26 @@ public class SHARPXMI {
                break;
             case TEST:
                // train on the training set + dev set and evaluate on the test set
-               List<File> allTrainFiles = new ArrayList<File>();
+               List<File> allTrainFiles = new ArrayList<>();
                allTrainFiles.addAll( getTrainTextFiles( options.getBatchesDirectory() ) );
                allTrainFiles.addAll( getDevTextFiles( options.getBatchesDirectory() ) );
                allTrainFiles = toXMIFiles( options, allTrainFiles );
                testFiles = getTestTextFiles( options.getBatchesDirectory() );
                testFiles = toXMIFiles( options, testFiles );
                params.stats = evaluation.trainAndTest( allTrainFiles, testFiles );
+               break;
+            case OTHER:
+               // train on the training set and evaluate on specified xmi files
+               // these files should have the necessary preprocessing in the initial view
+               // and gold standard relation annotations in the gold view
+               // the path to the xmi files must be specified from command line 
+               trainFiles = getTrainTextFiles( options.getBatchesDirectory() );
+               trainFiles = toXMIFiles( options, trainFiles );
+               List<File> xmiFiles = new ArrayList<>();
+               for(File xmiFile : options.getPathToXmifilesForEvaluation().listFiles()) {
+                 xmiFiles.add( xmiFile );
+               }
+               params.stats = evaluation.trainAndTest( trainFiles, xmiFiles );
                break;
             default:
                throw new IllegalArgumentException( "Invalid EvaluateOn: " + options.getEvaluteOn() );
@@ -290,7 +308,7 @@ public class SHARPXMI {
       }
 
       // print parameters sorted by F1
-      List<ParameterSettings> list = new ArrayList<ParameterSettings>( scoredParams.keySet() );
+      List<ParameterSettings> list = new ArrayList<>( scoredParams.keySet() );
       Function<ParameterSettings, Double> getCount = Functions.forMap( scoredParams );
       Collections.sort( list, Ordering.natural().onResultOf( getCount ) );
 
