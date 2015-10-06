@@ -33,7 +33,6 @@ import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -89,15 +88,17 @@ public class MetastasisAnaforaXMLReader extends JCasAnnotator_ImplBase {
 
     for (Element annotationsElem : dataElem.getChildren("annotations")) {
 
+      // map annotation id to annotation object
       Map<String, IdentifiedAnnotation> idToAnnotation = Maps.newHashMap();
+      // map disease/disorder id to body site ids 
       Map<String, List<String>> diseaseDisorderToAnatomicalSites = Maps.newHashMap();
       
       for (Element entityElem : annotationsElem.getChildren("entity")) {
         
-        String id = removeSingleChildText(entityElem, "id", null);
-        Element spanElem = removeSingleChild(entityElem, "span", id);
-        String type = removeSingleChildText(entityElem, "type", id);
-        Element propertiesElem = removeSingleChild(entityElem, "properties", id);
+        String annotationId = removeSingleChildText(entityElem, "id", null);
+        Element spanElem = removeSingleChild(entityElem, "span", annotationId);
+        String type = removeSingleChildText(entityElem, "type", annotationId);
+        Element propertiesElem = removeSingleChild(entityElem, "properties", annotationId);
 
         // UIMA doesn't support disjoint spans, so take the span enclosing everything
         int begin = Integer.MAX_VALUE;
@@ -105,7 +106,7 @@ public class MetastasisAnaforaXMLReader extends JCasAnnotator_ImplBase {
         for(String spanString : spanElem.getText().split(";")) {
           String[] beginEndStrings = spanString.split(",");
           if (beginEndStrings.length != 2) {
-            error("span not of the format 'number,number'", id);
+            error("span not of the format 'number,number'", annotationId);
           }
           int spanBegin = Integer.parseInt(beginEndStrings[0]);
           int spanEnd = Integer.parseInt(beginEndStrings[1]);
@@ -117,25 +118,30 @@ public class MetastasisAnaforaXMLReader extends JCasAnnotator_ImplBase {
           }
         }
 
+        // disease/disorder and metastasis are both represented as disease disorder mentions
         if(type.equals("Disease_Disorder") || type.equals("Metastasis")) {
           DiseaseDisorderMention diseaseDisorderMention = new DiseaseDisorderMention(jCas, begin, end);
           diseaseDisorderMention.addToIndexes();
-          idToAnnotation.put(id, diseaseDisorderMention);
+          idToAnnotation.put(annotationId, diseaseDisorderMention);
           List<String> anatomicalSiteIds = Lists.newArrayList();
           for(Element child : propertiesElem.getChildren("body_location")) {
             String bodyLocationId = child.getText();
-            anatomicalSiteIds.add(bodyLocationId);
-          }
-          diseaseDisorderToAnatomicalSites.put(id, anatomicalSiteIds);
+            if(! bodyLocationId.equals("")) {
+              anatomicalSiteIds.add(bodyLocationId);
+            }
+          } 
+          diseaseDisorderToAnatomicalSites.put(annotationId, anatomicalSiteIds);
         } else if(type.equals("Anatomical_site")) {
           AnatomicalSiteMention anatomicalSiteMention = new AnatomicalSiteMention(jCas, begin, end);
           anatomicalSiteMention.addToIndexes();
-          idToAnnotation.put(id, anatomicalSiteMention);
+          idToAnnotation.put(annotationId, anatomicalSiteMention);
         } else {
           continue; // not going to worry about other types for the moment
         }
       }
       
+      // now create a location_of relation in the cas 
+      // whenever we see a body site linked to a disease/disorder or a metastasis
       for(String diseaseDisorderId : diseaseDisorderToAnatomicalSites.keySet()) {
         IdentifiedAnnotation diseaseDisorderMention = idToAnnotation.get(diseaseDisorderId);
         for(String anatomicalSiteId : diseaseDisorderToAnatomicalSites.get(diseaseDisorderId)) {

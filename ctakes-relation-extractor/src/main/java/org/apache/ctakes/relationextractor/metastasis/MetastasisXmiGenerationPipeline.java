@@ -13,6 +13,7 @@ import org.apache.ctakes.relationextractor.eval.SHARPXMI.CopyDocumentTextToGoldV
 import org.apache.ctakes.relationextractor.eval.SHARPXMI.DocumentIDAnnotator;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
 import org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation;
+import org.apache.uima.UIMAFramework;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -28,6 +29,8 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.XMLInputSource;
+import org.apache.uima.util.XMLParser;
 import org.apache.uima.util.XMLSerializer;
 import org.cleartk.util.ViewUriUtil;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
@@ -63,10 +66,10 @@ public class MetastasisXmiGenerationPipeline {
     AggregateBuilder builder = new AggregateBuilder();
     builder.add(UriToDocumentTextAnnotator.getDescription());
     
-//    File preprocessDescFile = new File("desc/analysis_engine/RelationExtractorPreprocessor.xml");
-//    XMLParser parser = UIMAFramework.getXMLParser();
-//    XMLInputSource source = new XMLInputSource(preprocessDescFile);
-//    builder.add(parser.parseAnalysisEngineDescription(source));
+    File preprocessDescFile = new File("desc/analysis_engine/RelationExtractorPreprocessor.xml");
+    XMLParser parser = UIMAFramework.getXMLParser();
+    XMLInputSource source = new XMLInputSource(preprocessDescFile);
+    builder.add(parser.parseAnalysisEngineDescription(source));
     
     builder.add(AnalysisEngineFactory.createEngineDescription(
         ViewCreatorAnnotator.class,
@@ -80,7 +83,10 @@ public class MetastasisXmiGenerationPipeline {
         CAS.NAME_DEFAULT_SOFA,
         GOLD_VIEW_NAME);
     
-    builder.add(MetastasisAnaforaXMLReader.getDescription());
+    builder.add(
+        MetastasisAnaforaXMLReader.getDescription(), 
+        CAS.NAME_DEFAULT_SOFA,
+        GOLD_VIEW_NAME); // this tells it to create all annotation in gold view!
 
     // write out the CAS after all the above annotations
     builder.add(AnalysisEngineFactory.createEngineDescription(
