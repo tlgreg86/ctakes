@@ -152,7 +152,11 @@ final String language = AbstractReader.LANG_EN;
   @Override
   public void process(JCas jCas) throws AnalysisEngineProcessException {
     for (Sentence sentence : JCasUtil.select(jCas, Sentence.class)) {
-      List<BaseToken> tokens = JCasUtil.selectCovered(jCas, BaseToken.class, sentence);
+      List<BaseToken> printableTokens = new ArrayList<>();
+      for(BaseToken token : JCasUtil.selectCovered(jCas, BaseToken.class, sentence)){
+        if(token instanceof NewlineToken) continue;
+        printableTokens.add(token);
+      }
       DEPTree tree = new DEPTree();
 
       // Build map between CAS dependency node and id for later creation of
@@ -170,15 +174,15 @@ final String language = AbstractReader.LANG_EN;
         }
       }
       
-      int[] headIDs = new int[tokens.size()];
-      String[] deprels = new String[tokens.size()];
+      int[] headIDs = new int[printableTokens.size()];
+      String[] deprels = new String[printableTokens.size()];
 
       // Initialize Token / Sentence info for the ClearNLP Semantic Role Labeler
       // we are filtering out newline tokens
       // use idIter as the non-newline token index counter 
       int idIter = 0;
-      for (int i = 0; i < tokens.size(); i++) {
-        BaseToken token = tokens.get(i);
+      for (int i = 0; i < printableTokens.size(); i++) {
+        BaseToken token = printableTokens.get(i);
         // ignore newline tokens within a sentence - newline = whitespace = non-token
         if(!(token instanceof NewlineToken)) {
 	        // Determine HeadId
@@ -222,7 +226,7 @@ final String language = AbstractReader.LANG_EN;
 
 
       // Convert ClearNLP SRL output to CAS types
-      extractSRLInfo(jCas, tokens, tree);
+      extractSRLInfo(jCas, printableTokens, tree);
       
       
     }

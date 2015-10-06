@@ -25,20 +25,22 @@ import java.util.List;
 
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.dependency.parser.util.ClearDependencyUtility;
+import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
+import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
 
 import com.googlecode.clearnlp.component.AbstractComponent;
 import com.googlecode.clearnlp.dependency.DEPFeat;
@@ -144,12 +146,17 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 		for (Sentence sentence : JCasUtil.select(jCas, Sentence.class)) {
-			List<BaseToken> tokens = JCasUtil.selectCovered(jCas, BaseToken.class, sentence);
+			List<BaseToken> printableTokens = new ArrayList<>();
+			for(BaseToken token : JCasUtil.selectCovered(jCas, BaseToken.class, sentence)){
+			  if(token instanceof NewlineToken) continue;
+			  printableTokens.add(token);
+			}
+			
 			DEPTree tree = new DEPTree();
 
 			// Convert CAS data into structures usable by ClearNLP
-			for (int i = 0; i < tokens.size(); i++) {
-				BaseToken token = tokens.get(i);
+			for (int i = 0; i < printableTokens.size(); i++) {
+				BaseToken token = printableTokens.get(i);
 				String lemma = useLemmatizer ? lemmatizer.getLemma(token.getCoveredText(), token.getPartOfSpeech()) : token.getNormalizedForm();
 				DEPNode node = new DEPNode(i+1, token.getCoveredText(), lemma, token.getPartOfSpeech(), new DEPFeat());
 				tree.add(node);
@@ -157,8 +164,8 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 
 			// Run parser and convert output back to CAS friendly data types
 			parser.process(tree);
-			ArrayList<ConllDependencyNode> nodes = ClearDependencyUtility.convert(jCas, tree, sentence, tokens);
-			ClearDependencyUtility.addToIndexes(jCas, nodes);
+			ArrayList<ConllDependencyNode> nodes = ClearDependencyUtility.convert(jCas, tree, sentence, printableTokens);
+			DependencyUtility.addToIndexes(jCas, nodes);
 		}
 		
 		
