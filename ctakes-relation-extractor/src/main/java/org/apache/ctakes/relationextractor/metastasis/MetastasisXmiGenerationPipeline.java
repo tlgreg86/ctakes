@@ -39,14 +39,19 @@ import com.google.common.io.CharStreams;
 
 public class MetastasisXmiGenerationPipeline {
 
-  public static final File INPUT_DIR = new File("/Users/dima/Boston/Data/DeepPhe/Metastasis/patient93_report028_NOTE/");
-  public static final String OUTPUT_DIR = "/Users/Dima/Boston/Out/";
+  public static final File ANAFORA_ANNOTATIONS_DIR = new File("/Users/dima/Boston/Data/DeepPhe/Metastasis/");
+  public static final String XMI_OUTPUT_DIR = "/Users/Dima/Boston/Out/";
   public static final String GOLD_VIEW_NAME = "GoldView";
 
   public static void main(String[] args) throws Exception {
-
+    
     List<File> files = new ArrayList<>();
-    files.add(new File("/Users/dima/Boston/Data/DeepPhe/Metastasis/patient93_report028_NOTE/patient93_report028_NOTE"));
+    // notes have the same names as the directories in which they exist
+    for(File anaforaNoteDir : ANAFORA_ANNOTATIONS_DIR.listFiles()) {
+      String noteFileName = anaforaNoteDir.getName(); 
+      String noteFullPath = anaforaNoteDir.getAbsolutePath() + "/" + noteFileName;
+      files.add(new File(noteFullPath));
+    }
     
     CollectionReader reader = UriCollectionReader.getCollectionReaderFromFiles(files);
     AnalysisEngine engine = getXMIWritingPreprocessorAggregateBuilder().createAggregate();
@@ -75,16 +80,13 @@ public class MetastasisXmiGenerationPipeline {
         CAS.NAME_DEFAULT_SOFA,
         GOLD_VIEW_NAME);
     
-    builder.add(
-        MetastasisAnaforaXMLReader.getDescription(INPUT_DIR),
-        CAS.NAME_DEFAULT_SOFA,
-        GOLD_VIEW_NAME);
+    builder.add(MetastasisAnaforaXMLReader.getDescription());
 
     // write out the CAS after all the above annotations
     builder.add(AnalysisEngineFactory.createEngineDescription(
         XMIWriter.class,
         XMIWriter.PARAM_XMI_DIRECTORY,
-        OUTPUT_DIR));
+        XMI_OUTPUT_DIR));
 
     return builder;
   }

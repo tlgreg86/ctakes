@@ -49,35 +49,29 @@ public class MetastasisAnaforaXMLReader extends JCasAnnotator_ImplBase {
   
   private static Logger LOGGER = Logger.getLogger(MetastasisAnaforaXMLReader.class);
 
-  public static final String PARAM_ANAFORA_DIRECTORY = "anaforaDirectory";
-
-  @ConfigurationParameter(
-      name = PARAM_ANAFORA_DIRECTORY,
-      description = "root directory of the Anafora-annotated files, with one subdirectory for "
-          + "each annotated file")
-  private File anaforaDirectory;
-
   public static AnalysisEngineDescription getDescription() throws ResourceInitializationException {
     return AnalysisEngineFactory.createEngineDescription(MetastasisAnaforaXMLReader.class);
-  }
-
-  public static AnalysisEngineDescription getDescription(File anaforaDirectory)
-      throws ResourceInitializationException {
-    return AnalysisEngineFactory.createEngineDescription(
-        MetastasisAnaforaXMLReader.class,
-        MetastasisAnaforaXMLReader.PARAM_ANAFORA_DIRECTORY,
-        anaforaDirectory);
   }
 
   @Override
   public void process(JCas jCas) throws AnalysisEngineProcessException {
     
-    // determine source text file
+    // locate the Anafora xml file, whose suffix is either
+    // 'UmlsDeepPhe.dave.completed.xml' or 'UmlsDeepPhe.dave.inprogress.xml'
     String textFileName = ViewUriUtil.getURI(jCas).getPath();
-    String xmlFileName = textFileName + ".UmlsDeepPhe.dave.inprogress.xml";
-    LOGGER.info("processing xml file: " + xmlFileName);
-
-    processXmlFile(jCas, new File(xmlFileName));
+    String xmlFileNameAlternative1 = textFileName + ".UmlsDeepPhe.dave.completed.xml";
+    String xmlFileNameAlternative2 = textFileName + ".UmlsDeepPhe.dave.inprogress.xml";
+    File xmlFileAlternative1 = new File(xmlFileNameAlternative1);
+    File xmlFileAlternative2 = new File(xmlFileNameAlternative2);
+    if(xmlFileAlternative1.exists()) {
+      LOGGER.info("processing xml file: " + xmlFileNameAlternative1);
+      processXmlFile(jCas, xmlFileAlternative1);
+    } else if(xmlFileAlternative2.exists()){
+      LOGGER.info("processing xml file: " + xmlFileNameAlternative2);
+      processXmlFile(jCas, xmlFileAlternative2);      
+    } else {
+      throw new IllegalArgumentException("no Anafora XML file found for " + textFileName);
+    }
   }
   
   private static void processXmlFile(JCas jCas, File xmlFile) throws AnalysisEngineProcessException{
