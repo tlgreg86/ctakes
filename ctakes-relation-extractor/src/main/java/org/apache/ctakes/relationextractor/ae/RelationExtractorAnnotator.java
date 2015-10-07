@@ -176,7 +176,7 @@ public abstract class RelationExtractorAnnotator extends CleartkAnnotator<String
         for (Feature feature : features) {
           if (feature.getValue() == null) {
         	feature.setValue("NULL");
-            String message = String.format("Null value found in %s from %s", feature, features);
+            String message = String.format("Null value found in %s", feature);
             System.err.println(message);
 //            throw new IllegalArgumentException(String.format(message, feature, features));
           }
