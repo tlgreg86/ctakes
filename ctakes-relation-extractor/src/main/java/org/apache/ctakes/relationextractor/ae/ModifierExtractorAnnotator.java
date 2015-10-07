@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.textsem.Modifier;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.UimaContext;
@@ -63,7 +64,11 @@ public class ModifierExtractorAnnotator extends CleartkAnnotator<String> {
   @Override
   public void process(JCas jCas) throws AnalysisEngineProcessException {
     for (Sentence sentence : JCasUtil.select(jCas, Sentence.class)) {
-      List<BaseToken> tokens = JCasUtil.selectCovered(jCas, BaseToken.class, sentence);
+      List<BaseToken> tokens = new ArrayList<>();
+      for(BaseToken token : JCasUtil.selectCovered(jCas, BaseToken.class, sentence)){
+        if(token instanceof NewlineToken) continue;
+        tokens.add(token);
+      }
 
       // during training, the list of all outcomes for the tokens
       List<String> outcomes;
