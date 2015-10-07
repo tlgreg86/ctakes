@@ -412,7 +412,12 @@ final public class TreeUtils {
       return sentenceParse;
    }
 
-
+   public static String escapePunct(String in){
+     if(BRACKET_MAP.containsKey(in)){
+       return BRACKET_MAP.get(in);
+     }
+     return in;
+   }
 
 }
 
