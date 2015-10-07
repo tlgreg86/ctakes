@@ -48,6 +48,7 @@ RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 		if(eventsInBetween.size() ==0 ){
 			for (BaseToken token: betweenTokens){
 				String pos = token.getPartOfSpeech();
+				if(pos == null) continue;
 				if(pos.startsWith("CC")||pos.equals(",")||pos.startsWith("IN")){
 					feats.add(new Feature(this.name, "Contain_Conjunction_inBetween"));
 					feats.add(new Feature(this.name, pos));
