@@ -51,27 +51,29 @@
 package org.apache.ctakes.postagger;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import opennlp.tools.postag.POSModel;
-
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.TypePrioritiesFactory;
 import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+
+import opennlp.tools.postag.POSModel;
 
 public class POSTagger extends JCasAnnotator_ImplBase {
 
@@ -114,19 +116,24 @@ public class POSTagger extends JCasAnnotator_ImplBase {
 		Collection<Sentence> sentences = JCasUtil.select(jCas, Sentence.class);
 		for (Sentence sentence : sentences) {
 
-			List<BaseToken> tokens = JCasUtil.selectCovered(BaseToken.class,
-					sentence);
-			String[] words = new String[tokens.size()];
+			List<BaseToken> printableTokens = new ArrayList<>();
+			
+			for(BaseToken token : JCasUtil.selectCovered(BaseToken.class,	sentence)){
+			  if(token instanceof NewlineToken) continue;
+			  printableTokens.add(token);
+			}
+			
+			String[] words = new String[printableTokens.size()];
 			for (int i = 0; i < words.length; i++) {
-				words[i] = tokens.get(i).getCoveredText();
+				words[i] = printableTokens.get(i).getCoveredText();
 			}
 
 			if (words.length > 0) {
 				String[] wordTagList = tagger.tag(words);
 
 				try {
-					for (int i = 0; i < tokens.size(); i++) {
-						BaseToken token = tokens.get(i);
+					for (int i = 0; i < printableTokens.size(); i++) {
+						BaseToken token = printableTokens.get(i);
 						String posTag = wordTagList[i];
 						token.setPartOfSpeech(posTag);
 					}
