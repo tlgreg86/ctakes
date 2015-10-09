@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
@@ -121,6 +122,7 @@ public class MetastasisAnaforaXMLReader extends JCasAnnotator_ImplBase {
         // disease/disorder and metastasis are both represented as disease disorder mentions
         if(type.equals("Disease_Disorder") || type.equals("Metastasis")) {
           DiseaseDisorderMention diseaseDisorderMention = new DiseaseDisorderMention(jCas, begin, end);
+          diseaseDisorderMention.setTypeID(CONST.NE_TYPE_ID_DISORDER);
           diseaseDisorderMention.addToIndexes();
           idToAnnotation.put(annotationId, diseaseDisorderMention);
           List<String> anatomicalSiteIds = Lists.newArrayList();
@@ -133,6 +135,7 @@ public class MetastasisAnaforaXMLReader extends JCasAnnotator_ImplBase {
           diseaseDisorderToAnatomicalSites.put(annotationId, anatomicalSiteIds);
         } else if(type.equals("Anatomical_site")) {
           AnatomicalSiteMention anatomicalSiteMention = new AnatomicalSiteMention(jCas, begin, end);
+          anatomicalSiteMention.setTypeID(CONST.NE_TYPE_ID_ANATOMICAL_SITE);
           anatomicalSiteMention.addToIndexes();
           idToAnnotation.put(annotationId, anatomicalSiteMention);
         } else {
