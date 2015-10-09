@@ -289,17 +289,20 @@ public class SHARPXMI {
                params.stats = evaluation.trainAndTest( allTrainFiles, testFiles );
                break;
             case OTHER:
-               // train on the training set and evaluate on specified xmi files
+               // train on the training set + dev set and evaluate on specified xmi files
                // these files should have the necessary preprocessing in the initial view
                // and gold standard relation annotations in the gold view
                // the path to the xmi files must be specified from command line 
-               trainFiles = getTrainTextFiles( options.getBatchesDirectory() );
-               trainFiles = toXMIFiles( options, trainFiles );
+               
+               List<File> trainAndDevFiles = new ArrayList<>();
+               trainAndDevFiles.addAll( getTrainTextFiles( options.getBatchesDirectory() ) );
+               trainAndDevFiles.addAll( getDevTextFiles( options.getBatchesDirectory() ) );
+               trainAndDevFiles = toXMIFiles( options, trainAndDevFiles );
                List<File> xmiFiles = new ArrayList<>();
                for(File xmiFile : options.getPathToXmifilesForEvaluation().listFiles()) {
                  xmiFiles.add( xmiFile );
                }
-               params.stats = evaluation.trainAndTest( trainFiles, xmiFiles );
+               params.stats = evaluation.trainAndTest( trainAndDevFiles, xmiFiles );
                break;
             default:
                throw new IllegalArgumentException( "Invalid EvaluateOn: " + options.getEvaluteOn() );
