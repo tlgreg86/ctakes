@@ -11,8 +11,6 @@ import java.util.List;
 
 import org.apache.ctakes.relationextractor.eval.SHARPXMI.CopyDocumentTextToGoldView;
 import org.apache.ctakes.relationextractor.eval.SHARPXMI.DocumentIDAnnotator;
-import org.apache.ctakes.typesystem.type.syntax.Chunk;
-import org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -26,7 +24,6 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.XMLInputSource;
@@ -42,8 +39,8 @@ import com.google.common.io.CharStreams;
 
 public class MetastasisXmiGenerationPipeline {
 
-  public static final File ANAFORA_ANNOTATIONS_DIR = new File("/Users/dima/Boston/Data/DeepPhe/Metastasis/");
-  public static final String XMI_OUTPUT_DIR = "/Users/Dima/Boston/Out/";
+  public static final File ANAFORA_ANNOTATIONS_DIR = new File("/Users/dima/Boston/Data/DeepPhe/Metastasis/Anafora/Train/");
+  public static final String XMI_OUTPUT_DIR = "/Users/dima/Boston/Data/DeepPhe/Metastasis/Xmi/Train/";
   public static final String GOLD_VIEW_NAME = "GoldView";
 
   public static void main(String[] args) throws Exception {
@@ -120,18 +117,6 @@ public class MetastasisXmiGenerationPipeline {
         throw new AnalysisEngineProcessException(e);
       }
     }  
-  }
-
-  public static class CopyNPChunksToLookupWindowAnnotations extends JCasAnnotator_ImplBase {
-
-    @Override
-    public void process(JCas jCas) throws AnalysisEngineProcessException {
-      for (Chunk chunk : JCasUtil.select(jCas, Chunk.class)) {
-        if (chunk.getChunkType().equals("NP")) {
-          new LookupWindowAnnotation(jCas, chunk.getBegin(), chunk.getEnd()).addToIndexes();
-        }
-      }
-    }
   }
 
   public static class XMIWriter extends JCasAnnotator_ImplBase {
