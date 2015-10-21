@@ -213,10 +213,18 @@ public class SHARPXMI {
       public boolean getGridSearch();
       
       @Option(
-          longName = "path-to-xmi-files-for-evaluation",
-          description = "evaluate on XMI files which contain the necessary preprocessing " 
+          defaultToNull=true,
+          longName = "train-xmi-dir",
+          description = "use these XMI files for training; they must contain the necessary preprocessing " 
               + "in system view and gold annotation in gold view")
-      public File getPathToXmifilesForEvaluation();
+      public File getTrainXmiDir();
+      
+      @Option(
+          longName = "test-xmi-dir",
+          defaultValue = "",
+          description = "evaluate on these XMI files; they must contain the necessary preprocessing " 
+              + "in system view and gold annotation in gold view")
+      public File getTestXmiDir();
    }
 
    public static abstract class Evaluation_ImplBase
@@ -289,20 +297,28 @@ public class SHARPXMI {
                params.stats = evaluation.trainAndTest( allTrainFiles, testFiles );
                break;
             case OTHER:
-               // train on the training set + dev set and evaluate on specified xmi files
+               // train on train + dev + specified train xmis and test on specified test xmi files
                // these files should have the necessary preprocessing in the initial view
                // and gold standard relation annotations in the gold view
                // the path to the xmi files must be specified from command line 
-               
                List<File> trainAndDevFiles = new ArrayList<>();
                trainAndDevFiles.addAll( getTrainTextFiles( options.getBatchesDirectory() ) );
                trainAndDevFiles.addAll( getDevTextFiles( options.getBatchesDirectory() ) );
                trainAndDevFiles = toXMIFiles( options, trainAndDevFiles );
-               List<File> xmiFiles = new ArrayList<>();
-               for(File xmiFile : options.getPathToXmifilesForEvaluation().listFiles()) {
-                 xmiFiles.add( xmiFile );
+               
+               // if path to additional train xmis is specified, add them to the training set
+               if(options.getTrainXmiDir() != null) { 
+                 for(File trainXmiFile : options.getTrainXmiDir().listFiles()) {
+                   trainAndDevFiles.add( trainXmiFile );
+                 }
                }
-               params.stats = evaluation.trainAndTest( trainAndDevFiles, xmiFiles );
+               
+               // now read the xmis we will use for evaluation
+               List<File> testXmiFiles = new ArrayList<>();
+               for(File testXmiFile : options.getTestXmiDir().listFiles()) {
+                 testXmiFiles.add( testXmiFile );
+               }
+               params.stats = evaluation.trainAndTest( trainAndDevFiles, testXmiFiles );
                break;
             default:
                throw new IllegalArgumentException( "Invalid EvaluateOn: " + options.getEvaluteOn() );
