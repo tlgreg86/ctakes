@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.ctakes.relationextractor.data.analysis.Utils;
+import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -37,6 +38,7 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
+import com.google.common.collect.Lists;
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 
@@ -56,7 +58,6 @@ public class ListAndConjunctionAnnotatorPipeline {
   
 	public static void main(String[] args) throws Exception {
 		  
-	  System.out.println("beginning...");
 		Options options = CliFactory.parseArguments(Options.class, args);
     CollectionReader collectionReader = Utils.getCollectionReader(options.getInputDirectory());
     AnalysisEngine listAndConjunctionAnnotator = AnalysisEngineFactory.createEngine(ListAndConjunctionAe.class);
@@ -83,42 +84,61 @@ public class ListAndConjunctionAnnotatorPipeline {
       
       for(Sentence sentence : JCasUtil.select(systemView, Sentence.class)) {
         
-        String state = "start";
+        String currentState = "start";
         String list = "";
+        
         for(BaseToken token : JCasUtil.selectCovered(systemView, BaseToken.class, sentence)) {
-          state = getNextState(systemView, state, token);   
-          if(state == "a/s" || state == "punct" || state == "done") {
-            list = list + " " + token.getCoveredText();
+          String nextState = getNextState(systemView, currentState, token); 
+          if(nextState == "accept") {
+            System.out.println("found list in: " + sentence.getCoveredText());
+            break;
+          } else if(nextState != "reject") {
+            currentState = nextState;
+          } else {
+            currentState = "start";
           }
-        } 
+        }
+        
         if(list != "") {
           System.out.println(sentence.getCoveredText() + "/" + list);
         }
       }
     }
-    
+
     public String getNextState(JCas systemView, String currentState, BaseToken nextToken) {
       
-      Set<String> listConnectors = new HashSet();
-      listConnectors.add("and");
-      listConnectors.add(",");
+      Set<String> listConnectors = new HashSet<>(Lists.newArrayList("and", ","));
       
-      String nextState = "";
-      int tokenSemType = getSemanticType(systemView, nextToken);
-      if(currentState == "start" && tokenSemType == 6) {
-        nextState = "a/s";
-      } else if(currentState == "start" && tokenSemType != 6)  {
-        nextState = "start";
-      } else if(currentState == "a/s" && listConnectors.contains(nextToken.getCoveredText().toLowerCase())) {
-        nextState = "punct";
-      } else if(currentState == "a/s" && ! listConnectors.contains(nextToken.getCoveredText().toLowerCase())) {
-        nextState = "done";
-      } else if(currentState == "punct" && tokenSemType == 6) {
-        nextState = "a/s";
-      } else if(currentState == "punct" && tokenSemType != 6) {
-        nextState = "reject";
+      String nextState = "reject";
+      int nextTokenSemType = getSemanticType(systemView, nextToken);
+      String nextTokenText = nextToken.getCoveredText().toLowerCase();
+      
+      if(currentState == "start") {
+        if(nextTokenSemType == CONST.NE_TYPE_ID_ANATOMICAL_SITE) {
+          nextState = "as1";
+        } else {
+          nextState = "reject";
+        }
+      } else if(currentState == "as1") {
+        if(listConnectors.contains(nextTokenText)) {
+          nextState = "punct";
+        } else {
+          nextState = "reject";
+        }
+      } else if(currentState == "punct") {
+        if(nextTokenSemType == CONST.NE_TYPE_ID_ANATOMICAL_SITE) {
+          nextState = "as2";
+        } else {
+          nextState = "reject";
+        } 
+      } else if(currentState == "as2") {
+        if(listConnectors.contains(nextTokenText)) {
+          nextState = "punct";
+        } else {
+          nextState = "accept";
+        }
       }
-
+        
       return nextState;
     }
     
