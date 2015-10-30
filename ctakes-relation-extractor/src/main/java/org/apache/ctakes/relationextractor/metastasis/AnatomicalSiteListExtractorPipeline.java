@@ -44,6 +44,7 @@ import com.lexicalscope.jewel.cli.Option;
 
 /**
  * Pipeline for detecting very simple lists of anatomical sites.
+ * 
  * @author dmitriy dligach
  */
 public class AnatomicalSiteListExtractorPipeline {
@@ -67,14 +68,24 @@ public class AnatomicalSiteListExtractorPipeline {
   /**
    * Implements a finate state machine for detecting 
    * extremely simple lists and conjunctions of anatomical sites.
+   * 
    * E.g. CT chest, abdomen and pelvis.
-   *  
-   * @author dmitriy dligach
+   * 
+   * FSA:
+   * 
+   * start -{anatomical site}-> anatsite1
+   * start -{any other input}-> start
+   * annatsite1 -{list connector}-> listconn
+   * annatsite1 -{any other input}-> start 
+   * listconn -{anatomical site}-> anatsite2
+   * listconn -{any other input}-> start
+   * anatsite2 -{list connector}-> listconn
+   * anatsite2 -{any other input}-> accept
    */
   public static class ListAndConjunctionAe extends JCasAnnotator_ImplBase {
 
     public enum State {
-      START, ANATSITE1, PUNCTUATION, ANATSITE2, ACCEPT
+      START, ANATSITE1, LISTCONN, ANATSITE2, ACCEPT
     }
 
     @Override
@@ -88,12 +99,23 @@ public class AnatomicalSiteListExtractorPipeline {
       }
       
       for(Sentence sentence : JCasUtil.select(systemView, Sentence.class)) {
+        int beginOffset = -1;
+        int endOffset = -1;
         State state = State.START;
         for(BaseToken input : JCasUtil.selectCovered(systemView, BaseToken.class, sentence)) {
-          state = getNextState(systemView, state, input); 
-          if(state == State.ACCEPT) {
-            System.out.println("found a list in: " + sentence.getCoveredText());
+          state = getNextState(systemView, state, input);
+          if(state == State.ANATSITE1) {
+            beginOffset = input.getBegin();
+          } else if(state == State.ANATSITE2) {
+            endOffset = input.getEnd();
+          } else if(state == State.ACCEPT) {
             state = State.START;
+
+            int begin = beginOffset - sentence.getBegin();
+            int end = endOffset - sentence.getBegin();
+            System.out.println(sentence.getCoveredText());
+            System.out.println(sentence.getCoveredText().substring(begin, end));
+            System.out.println();
           } 
         }
       }
@@ -119,11 +141,11 @@ public class AnatomicalSiteListExtractorPipeline {
         }
       } else if(currentState == State.ANATSITE1) {
         if(listConnectors.contains(tokenText)) {
-          nextState = State.PUNCTUATION;
+          nextState = State.LISTCONN;
         } else {
           nextState = State.START;
         }
-      } else if(currentState == State.PUNCTUATION) {
+      } else if(currentState == State.LISTCONN) {
         if(tokenSemType == CONST.NE_TYPE_ID_ANATOMICAL_SITE) {
           nextState = State.ANATSITE2;
         } else {
@@ -131,7 +153,7 @@ public class AnatomicalSiteListExtractorPipeline {
         } 
       } else if(currentState == State.ANATSITE2) {
         if(listConnectors.contains(tokenText)) {
-          nextState = State.PUNCTUATION;
+          nextState = State.LISTCONN;
         } else {
           nextState = State.ACCEPT;
         }
