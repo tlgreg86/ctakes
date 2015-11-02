@@ -78,6 +78,7 @@ import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
+import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
@@ -523,17 +524,23 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 				Set<HashableArguments> all = Sets.union(goldMap.keySet(), systemMap.keySet());
 				List<HashableArguments> sorted = Lists.newArrayList(all);
 				Collections.sort(sorted);
+				
+	      File noteFile = new File(ViewUriUtil.getURI(jCas).toString());
+	      String fileName = noteFile.getName();
+				
 				for (HashableArguments key : sorted) {
 					BinaryTextRelation goldRelation = goldMap.get(key);
 					BinaryTextRelation systemRelation = systemMap.get(key);
 					if (goldRelation == null) {
-						System.out.println("System added: " + formatRelation(systemRelation));
+						System.out.printf("[%s] System added: %s\n", fileName, formatRelation(systemRelation));
 					} else if (systemRelation == null) {
-						System.out.println("System dropped: " + formatRelation(goldRelation));
+						System.out.printf("[%s] System dropped: %s\n", fileName, formatRelation(goldRelation));
 					} else if (!systemRelation.getCategory().equals(goldRelation.getCategory())) {
 						String label = systemRelation.getCategory();
-						System.out.printf("System labeled %s for %s\n", label, formatRelation(systemRelation));
-					}
+						System.out.printf("[%s] System labeled %s for %s\n", fileName, label, formatRelation(systemRelation));
+					} else if (systemRelation.getCategory().equals(goldRelation.getCategory())) {
+					  System.out.printf("[%s] System nailed it: %s\n", fileName, formatRelation(systemRelation));
+					} 
 				}
 			}
 		}
@@ -573,7 +580,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 				String predictedCategory = predictedSpanOutcomes.get(span);
 
 				if(goldCategory==null){
-					System.out.println("false positive: "+ predictedCategory);
+//					System.out.println("false positive: "+ predictedCategory);
 					outPrint.println("fp");
 				}else{
 					if(predictedCategory==null){
