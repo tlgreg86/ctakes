@@ -29,7 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.lvg.resource.LvgCmdApiResource;
 import org.apache.ctakes.lvg.resource.LvgCmdApiResourceImpl;
@@ -560,30 +561,31 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 		}
 	}
 
-	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
-	  try {
-      return AnalysisEngineFactory.createEngineDescription(LvgAnnotator.class,
-          LvgAnnotator.PARAM_USE_CMD_CACHE,
-          false,
-          LvgAnnotator.PARAM_USE_LEMMA_CACHE,
-          false,
-          LvgAnnotator.PARAM_USE_SEGMENTS,
-          false,
-          LvgAnnotator.PARAM_LEMMA_CACHE_FREQUENCY_CUTOFF,
-          20,
-          LvgAnnotator.PARAM_LEMMA_FREQ_CUTOFF,
-          20,
-          LvgAnnotator.PARAM_POST_LEMMAS,
-          false,
-          LvgAnnotator.PARAM_LVGCMDAPI_RESRC_KEY,
-          ExternalResourceFactory.createExternalResourceDescription(
-              LvgCmdApiResourceImpl.class,
-              new File(LvgCmdApiResourceImpl.class.getResource(
-                  "/org/apache/ctakes/lvg/data/config/lvg.properties").toURI()))
-          );
-    } catch (URISyntaxException e) {
-      throw new ResourceInitializationException(e);
+	@SuppressWarnings("resource")
+  public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException, MalformedURLException {
+    InputStream lvgStream = LvgAnnotator.class.getClassLoader().getResourceAsStream("org/apache/ctakes/lvg/data/config/lvg.properties");
+    File lvgFile = new File("/tmp/lvg.properties");
+    try {
+      FileUtils.copyInputStreamToFile(lvgStream, lvgFile);
+    } catch (IOException e) {
+      throw new RuntimeException("Error copying temporary InpuStream org/apache/ctakes/lvg/data/config/lvg.properties to /tmp/lvg.properties.", e);
     }
+    return AnalysisEngineFactory.createEngineDescription(LvgAnnotator.class,
+        LvgAnnotator.PARAM_USE_CMD_CACHE,
+        false,
+        LvgAnnotator.PARAM_USE_LEMMA_CACHE,
+        false,
+        LvgAnnotator.PARAM_USE_SEGMENTS,
+        false,
+        LvgAnnotator.PARAM_LEMMA_CACHE_FREQUENCY_CUTOFF,
+        20,
+        LvgAnnotator.PARAM_LEMMA_FREQ_CUTOFF,
+        20,
+        LvgAnnotator.PARAM_POST_LEMMAS,
+        false,
+        LvgAnnotator.PARAM_LVGCMDAPI_RESRC_KEY,
+        ExternalResourceFactory.createExternalResourceDescription(
+            LvgCmdApiResourceImpl.class, lvgFile.toURI().toURL()));
 	}
 	
 	/**
