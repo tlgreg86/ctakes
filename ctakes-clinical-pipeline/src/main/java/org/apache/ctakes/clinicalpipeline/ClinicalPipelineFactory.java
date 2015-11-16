@@ -53,6 +53,7 @@ import org.xml.sax.SAXException;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.*;
 
 final public class ClinicalPipelineFactory {
@@ -60,7 +61,7 @@ final public class ClinicalPipelineFactory {
    private ClinicalPipelineFactory() {
    }
 
-   public static AnalysisEngineDescription getDefaultPipeline() throws ResourceInitializationException {
+   public static AnalysisEngineDescription getDefaultPipeline() throws ResourceInitializationException, MalformedURLException{
       AggregateBuilder builder = new AggregateBuilder();
       builder.add( getTokenProcessingPipeline() );
       builder.add( getNpChunkerPipeline() );
@@ -77,7 +78,7 @@ final public class ClinicalPipelineFactory {
       return builder.createAggregateDescription();
    }
 
-   public static AnalysisEngineDescription getFastPipeline() throws ResourceInitializationException {
+   public static AnalysisEngineDescription getFastPipeline() throws ResourceInitializationException, MalformedURLException {
       AggregateBuilder builder = new AggregateBuilder();
       builder.add( getTokenProcessingPipeline() );
       builder.add( DefaultJCasTermAnnotator.createAnnotatorDescription() );
@@ -91,7 +92,7 @@ final public class ClinicalPipelineFactory {
       return builder.createAggregateDescription();
    }
 
-   public static AnalysisEngineDescription getParsingPipeline() throws ResourceInitializationException {
+   public static AnalysisEngineDescription getParsingPipeline() throws ResourceInitializationException, MalformedURLException {
       AggregateBuilder builder = new AggregateBuilder();
       builder.add( getTokenProcessingPipeline() );
       builder.add( ClearNLPDependencyParserAE.createAnnotatorDescription() );
@@ -99,7 +100,7 @@ final public class ClinicalPipelineFactory {
       return builder.createAggregateDescription();
    }
 
-   public static AnalysisEngineDescription getTokenProcessingPipeline() throws ResourceInitializationException {
+   public static AnalysisEngineDescription getTokenProcessingPipeline() throws ResourceInitializationException, MalformedURLException {
       AggregateBuilder builder = new AggregateBuilder();
       builder.add( SimpleSegmentAnnotator.createAnnotatorDescription() );
       builder.add( SentenceDetector.createAnnotatorDescription() );
