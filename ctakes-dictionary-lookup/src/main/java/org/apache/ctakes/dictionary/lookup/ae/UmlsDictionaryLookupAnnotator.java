@@ -18,7 +18,7 @@
  */
 package org.apache.ctakes.dictionary.lookup.ae;
 
-import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.commons.io.FileUtils;
 import org.apache.ctakes.core.resource.FileResourceImpl;
 import org.apache.ctakes.core.resource.JdbcConnectionResourceImpl;
 import org.apache.ctakes.utils.env.EnvironmentVariable;
@@ -30,9 +30,12 @@ import org.apache.uima.fit.factory.ExternalResourceFactory;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -113,48 +116,51 @@ public class UmlsDictionaryLookupAnnotator extends DictionaryLookupAnnotator {
       }
    }
 
-   public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
+  @SuppressWarnings("resource")
+  public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException, MalformedURLException {
+      InputStream lookUpStream = UmlsDictionaryLookupAnnotator.class.getClassLoader().getResourceAsStream("org/apache/ctakes/dictionary/lookup/LookupDesc_Db.xml");
+      File lookupFile = new File("/tmp/LookupDesc_Db.xml");
       try {
-         return AnalysisEngineFactory.createEngineDescription( UmlsDictionaryLookupAnnotator.class,
-               UMLSADDR_PARAM,
-               "https://uts-ws.nlm.nih.gov/restful/isValidUMLSUser",
-               UMLSVENDOR_PARAM,
-               "NLM-6515182895",
-               "LookupDescriptor",
-               ExternalResourceFactory.createExternalResourceDescription(
-                     FileResourceImpl.class,
-                     FileLocator.locateFile( "org/apache/ctakes/dictionary/lookup/LookupDesc_Db.xml" ) ),
-               "DbConnection",
-               ExternalResourceFactory.createExternalResourceDescription(
-                     JdbcConnectionResourceImpl.class,
-                     "",
-                     JdbcConnectionResourceImpl.PARAM_DRIVER_CLASS,
-                     "org.hsqldb.jdbcDriver",
-                     JdbcConnectionResourceImpl.PARAM_URL,
-                     // Should be the following but it's WAY too slow
-                     "jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/umls2011ab/umls" ),
-               //"jdbc:hsqldb:file:target/unpacked/org/apache/ctakes/dictionary/lookup/umls2011ab/umls"),
-               "RxnormIndexReader",
-               ExternalResourceFactory.createExternalResourceDescription(
-                     JdbcConnectionResourceImpl.class,
-                     "",
-                     JdbcConnectionResourceImpl.PARAM_DRIVER_CLASS,
-                     "org.hsqldb.jdbcDriver",
-                     JdbcConnectionResourceImpl.PARAM_URL,
-                     "jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/rxnorm-hsqldb/umls" ),
-               "OrangeBookIndexReader",
-               ExternalResourceFactory.createExternalResourceDescription(
-                     JdbcConnectionResourceImpl.class,
-                     "",
-                     JdbcConnectionResourceImpl.PARAM_DRIVER_CLASS,
-                     "org.hsqldb.jdbcDriver",
-                     JdbcConnectionResourceImpl.PARAM_URL,
-                     "jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/orange_book_hsqldb/umls" )
-         );
-      } catch ( FileNotFoundException e ) {
-         e.printStackTrace();
-         throw new ResourceInitializationException( e );
+          FileUtils.copyInputStreamToFile(lookUpStream, lookupFile);
+      } catch (IOException e) {
+          throw new RuntimeException("Error copying temporary InpuStream org/apache/ctakes/dictionary/lookup/LookupDesc_Db.xml to /tmp/LookupDesc_Db.xml.", e);
       }
+      return AnalysisEngineFactory.createEngineDescription( UmlsDictionaryLookupAnnotator.class,
+             UMLSADDR_PARAM,
+             "https://uts-ws.nlm.nih.gov/restful/isValidUMLSUser",
+             UMLSVENDOR_PARAM,
+             "NLM-6515182895",
+             "LookupDescriptor",
+             ExternalResourceFactory.createExternalResourceDescription(
+                   FileResourceImpl.class,
+                   lookupFile.toURI().toURL() ),
+             "DbConnection",
+             ExternalResourceFactory.createExternalResourceDescription(
+                   JdbcConnectionResourceImpl.class,
+                   "",
+                   JdbcConnectionResourceImpl.PARAM_DRIVER_CLASS,
+                   "org.hsqldb.jdbcDriver",
+                   JdbcConnectionResourceImpl.PARAM_URL,
+                   // Should be the following but it's WAY too slow
+                   "jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/umls2011ab/umls" ),
+             //"jdbc:hsqldb:file:target/unpacked/org/apache/ctakes/dictionary/lookup/umls2011ab/umls"),
+             "RxnormIndexReader",
+             ExternalResourceFactory.createExternalResourceDescription(
+                   JdbcConnectionResourceImpl.class,
+                   "",
+                   JdbcConnectionResourceImpl.PARAM_DRIVER_CLASS,
+                   "org.hsqldb.jdbcDriver",
+                   JdbcConnectionResourceImpl.PARAM_URL,
+                   "jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/rxnorm-hsqldb/umls" ),
+             "OrangeBookIndexReader",
+             ExternalResourceFactory.createExternalResourceDescription(
+                   JdbcConnectionResourceImpl.class,
+                   "",
+                   JdbcConnectionResourceImpl.PARAM_DRIVER_CLASS,
+                   "org.hsqldb.jdbcDriver",
+                   JdbcConnectionResourceImpl.PARAM_URL,
+                   "jdbc:hsqldb:res:/org/apache/ctakes/dictionary/lookup/orange_book_hsqldb/umls" )
+       );
 
    }
 }
