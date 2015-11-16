@@ -129,7 +129,7 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
    static private TextSpan getOverlapTerm( final List<FastLookupToken> allTokens, final int lookupTokenIndex,
                                            final RareWordTerm rareWordHit,
                                            final int consecutiveSkipMax, final int totalSkipMax ) {
-      final String[] rareWordTokens = fastSplit( rareWordHit.getText(), rareWordHit.getTokenCount() );
+      final String[] hitTokens = rareWordHit.getTokens();
       final List<TextSpan> missingSpanKeys = new ArrayList<>();
       int consecutiveSkips = 0;
       int totalSkips = 0;
@@ -139,8 +139,8 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
       } else {
          int nextRareWordIndex = rareWordHit.getRareWordIndex() - 1;
          for ( int allTokensIndex = lookupTokenIndex - 1; allTokensIndex >= 0; allTokensIndex-- ) {
-            if ( rareWordTokens[ nextRareWordIndex ].equals( allTokens.get( allTokensIndex ).getText() )
-                 || rareWordTokens[ nextRareWordIndex ].equals( allTokens.get( allTokensIndex ).getVariant() ) ) {
+            if ( hitTokens[ nextRareWordIndex ].equals( allTokens.get( allTokensIndex ).getText() )
+                 || hitTokens[ nextRareWordIndex ].equals( allTokens.get( allTokensIndex ).getVariant() ) ) {
                nextRareWordIndex--;
                if ( nextRareWordIndex < 0 ) {
                   firstWordIndex = allTokensIndex;
@@ -173,8 +173,8 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
          consecutiveSkips = 0;
          int nextRareWordIndex = rareWordHit.getRareWordIndex() + 1;
          for ( int allTokensIndex = lookupTokenIndex + 1; allTokensIndex < allTokens.size(); allTokensIndex++ ) {
-            if ( rareWordTokens[ nextRareWordIndex ].equals( allTokens.get( allTokensIndex ).getText() )
-                 || rareWordTokens[ nextRareWordIndex ].equals( allTokens.get( allTokensIndex ).getVariant() ) ) {
+            if ( hitTokens[ nextRareWordIndex ].equals( allTokens.get( allTokensIndex ).getText() )
+                 || hitTokens[ nextRareWordIndex ].equals( allTokens.get( allTokensIndex ).getVariant() ) ) {
                nextRareWordIndex++;
                if ( nextRareWordIndex >= rareWordHit.getTokenCount() ) {
                   lastWordIndex = allTokensIndex;
@@ -205,23 +205,6 @@ final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
             allTokens.get( lastWordIndex ).getEnd(), missingSpanKeys );
    }
 
-
-   static private String[] fastSplit( final String line, final int tokenCount ) {
-      final String[] tokens = new String[ tokenCount ];
-      int tokenIndex = 0;
-      int previousSpaceIndex = -1;
-      int spaceIndex = line.indexOf( ' ' );
-      while ( spaceIndex > 0 && tokenIndex < tokenCount ) {
-         tokens[ tokenIndex ] = line.substring( previousSpaceIndex + 1, spaceIndex );
-         tokenIndex++;
-         previousSpaceIndex = spaceIndex;
-         spaceIndex = line.indexOf( ' ', previousSpaceIndex + 1 );
-      }
-      if ( previousSpaceIndex + 1 < line.length() ) {
-         tokens[ tokenCount - 1 ] = line.substring( previousSpaceIndex + 1 );
-      }
-      return tokens;
-   }
 
    static public AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
       return AnalysisEngineFactory.createEngineDescription( OverlapJCasTermAnnotator.class );

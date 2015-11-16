@@ -23,7 +23,6 @@ import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
 import org.apache.ctakes.dictionary.lookup2.textspan.DefaultTextSpan;
 import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
 import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
-import org.apache.ctakes.dictionary.lookup2.util.TokenMatchUtil;
 import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
@@ -70,7 +69,7 @@ final public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
                continue;
             }
             final int termEndIndex = termStartIndex + rareWordHit.getTokenCount() - 1;
-            if ( TokenMatchUtil.isTermMatch( rareWordHit, allTokens, termStartIndex, termEndIndex ) ) {
+            if ( isTermMatch( rareWordHit, allTokens, termStartIndex, termEndIndex ) ) {
                final int spanStart = allTokens.get( termStartIndex ).getStart();
                final int spanEnd = allTokens.get( termEndIndex ).getEnd();
                termsFromDictionary.placeValue( new DefaultTextSpan( spanStart, spanEnd ), rareWordHit.getCuiCode() );
@@ -78,6 +77,34 @@ final public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
          }
       }
    }
+
+   /**
+    * Hopefully the jit will inline this method
+    *
+    * @param rareWordHit    rare word term to check for match
+    * @param allTokens      all tokens in a window
+    * @param termStartIndex index of first token in allTokens to check
+    * @param termEndIndex   index of last token in allTokens to check
+    * @return true if the rare word term exists in allTokens within the given indices
+    */
+   public static boolean isTermMatch( final RareWordTerm rareWordHit, final List<FastLookupToken> allTokens,
+                                      final int termStartIndex, final int termEndIndex ) {
+      final String[] hitTokens = rareWordHit.getTokens();
+      int hit = 0;
+      for ( int i = termStartIndex; i < termEndIndex + 1; i++ ) {
+         if ( hitTokens[ hit ].equals( allTokens.get( i ).getText() )
+              || hitTokens[ hit ].equals( allTokens.get( i ).getVariant() ) ) {
+            // the normal token or variant matched, move to the next token
+            hit++;
+            continue;
+         }
+         // the token normal didn't match and there is no matching variant
+         return false;
+      }
+      // some combination of token and variant matched
+      return true;
+   }
+
 
    static public AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
       return AnalysisEngineFactory.createEngineDescription( DefaultJCasTermAnnotator.class );

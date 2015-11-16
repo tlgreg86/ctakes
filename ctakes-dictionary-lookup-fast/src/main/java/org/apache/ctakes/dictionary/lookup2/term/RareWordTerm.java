@@ -90,6 +90,26 @@ final public class RareWordTerm {
    }
 
    /**
+    * @return each token in the term as a separate String
+    */
+   public String[] getTokens() {
+      final String[] tokens = new String[ _tokenCount ];
+      int tokenIndex = 0;
+      int previousSpaceIndex = -1;
+      int spaceIndex = _text.indexOf( ' ' );
+      while ( spaceIndex > 0 && tokenIndex < _tokenCount ) {
+         tokens[ tokenIndex ] = _text.substring( previousSpaceIndex + 1, spaceIndex );
+         tokenIndex++;
+         previousSpaceIndex = spaceIndex;
+         spaceIndex = _text.indexOf( ' ', previousSpaceIndex + 1 );
+      }
+      if ( previousSpaceIndex + 1 < _text.length() ) {
+         tokens[ _tokenCount - 1 ] = _text.substring( previousSpaceIndex + 1 );
+      }
+      return tokens;
+   }
+
+   /**
     * {@inheritDoc}
     */
    @Override
