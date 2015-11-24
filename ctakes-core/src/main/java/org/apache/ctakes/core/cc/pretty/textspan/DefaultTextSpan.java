@@ -2,9 +2,12 @@ package org.apache.ctakes.core.cc.pretty.textspan;
 
 import org.apache.uima.cas.text.AnnotationFS;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Holder for begin and end text span offsets within a containing sentence
  */
+@Immutable
 public final class DefaultTextSpan implements TextSpan {
 
    final private int _begin;
@@ -61,6 +64,14 @@ public final class DefaultTextSpan implements TextSpan {
    @Override
    public boolean overlaps( final TextSpan textSpan ) {
       return !(textSpan.getEnd() - 1 < _begin) && !(textSpan.getBegin() > _end - 1);
+   }
+
+   /**
+    * @return a representation of the text span offsets as: begin,end
+    */
+   @Override
+   public String toString() {
+      return getBegin() + "," + getEnd();
    }
 
    /**
