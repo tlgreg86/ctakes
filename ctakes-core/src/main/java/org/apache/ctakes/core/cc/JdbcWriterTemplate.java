@@ -18,7 +18,7 @@
  */
 package org.apache.ctakes.core.cc;
 
-import org.apache.ctakes.core.util.IdentifiedAnnotationUtil;
+import org.apache.ctakes.core.util.OntologyConceptUtil;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.log4j.Logger;
@@ -46,8 +46,8 @@ public class JdbcWriterTemplate extends AbstractJdbcWriter {
    // Parameter names for the desc file
    static public final String PARAM_VECTOR_TABLE = "VectorTable";
 
-   static private final String SPAN_START_LABEL = "START";
-   static private final String SPAN_END_LABEL = "END";
+   static protected final String SPAN_START_LABEL = "START";
+   static protected final String SPAN_END_LABEL = "END";
 
    public enum I2b2FieldInfo implements AbstractJdbcWriter.FieldInfo {
       ENCOUNTER_NUM( 1, "encounter_num", Integer.class ),
@@ -59,10 +59,6 @@ public class JdbcWriterTemplate extends AbstractJdbcWriter {
       INSTANCE_NUM( 7, "instance_num", Long.class ),
       VALTYPE_CD( 8, "valtype_cd", String.class ),
       TVAL_CHAR( 9, "tval_char", String.class ),
-      //      END_DATE(10,"end_date",Timestamp.class),
-//      LOCATION_CD(11,"location_cd",String.class),
-//      CONFIDENCE_NUM(12,"confidence_num",Integer.class),
-//      OBSERVATION_BLOB(13,"observation_blob",String.class),
       I2B2_OBERVATION_BLOB( 10, "observation_blob", String.class );
       final private String __name;
       final private int __index;
@@ -152,7 +148,7 @@ public class JdbcWriterTemplate extends AbstractJdbcWriter {
       for ( Annotation annotation : identifiedsIndex ) {
          if ( annotation instanceof IdentifiedAnnotation ) {
             final Collection<UmlsConcept> umlsConcepts
-                  = IdentifiedAnnotationUtil.getUmlsConcepts( (IdentifiedAnnotation)annotation );
+                  = OntologyConceptUtil.getConcepts( (IdentifiedAnnotation)annotation );
             final Collection<I2b2Concept> i2b2Concepts = createI2b2Concepts( umlsConcepts );
             for ( I2b2Concept i2b2Concept : i2b2Concepts ) {
                Collection<IdentifiedAnnotation> annotationList = cuiAnnotationListMap.get( i2b2Concept );
@@ -166,11 +162,11 @@ public class JdbcWriterTemplate extends AbstractJdbcWriter {
       }
       for ( Map.Entry<I2b2Concept, Collection<IdentifiedAnnotation>> i2b2ConceptAnnotations : cuiAnnotationListMap
             .entrySet() ) {
-         saveI2b2Concept( fieldInfoValues, i2b2ConceptAnnotations.getKey(), i2b2ConceptAnnotations.getValue() );
+         saveI2b2Concept( jcas, fieldInfoValues, i2b2ConceptAnnotations.getKey(), i2b2ConceptAnnotations.getValue() );
       }
    }
 
-   private void saveI2b2Concept( final Map<I2b2FieldInfo, Object> fieldInfoValues,
+   private void saveI2b2Concept( final JCas jcas, final Map<I2b2FieldInfo, Object> fieldInfoValues,
                                  final I2b2Concept i2b2Concept,
                                  final Iterable<IdentifiedAnnotation> annotations ) throws SQLException {
       final String cui = i2b2Concept.getCui();
@@ -179,21 +175,32 @@ public class JdbcWriterTemplate extends AbstractJdbcWriter {
          preferredText = "";
       }
       // save Affirmed
-      saveAnnotations( fieldInfoValues, cui, preferredText, annotations, true );
+      saveAnnotations( jcas, fieldInfoValues, cui, preferredText, annotations, true );
       // save negated
-      saveAnnotations( fieldInfoValues, cui, preferredText, annotations, false );
+      saveAnnotations( jcas, fieldInfoValues, cui, preferredText, annotations, false );
    }
 
-   private void saveAnnotations( final Map<I2b2FieldInfo, Object> fieldInfoValues,
+   /**
+    * @param jcas            -
+    * @param fieldInfoValues -
+    * @param cui             -
+    * @param preferredText   -
+    * @param annotations     -
+    * @param saveAffirmed    -
+    * @throws SQLException
+    */
+   protected void saveAnnotations( final JCas jcas,
+                                   final Map<I2b2FieldInfo, Object> fieldInfoValues,
                                  final String cui,
                                  final String preferredText,
                                  final Iterable<IdentifiedAnnotation> annotations,
                                  final boolean saveAffirmed ) throws SQLException {
-      int instanceNum = 1;
+      long instanceNum = 1;
       final String conceptCode = (saveAffirmed ? "" : "-") + cui;
       fieldInfoValues.put( I2b2FieldInfo.CONCEPT_CD, conceptCode );
       final String tvalChar = preferredText + (saveAffirmed ? "" : " Negated");
       fieldInfoValues.put( I2b2FieldInfo.TVAL_CHAR, tvalChar );
+      // Do not use try with resource as it will close the prepared statement, which we do not yet want
       final PreparedStatement preparedStatement = _tableSqlInfoMap.get( _tableName ).getPreparedStatement();
       int batchCount = _tableSqlInfoMap.get( _tableName ).getBatchCount();
       for ( IdentifiedAnnotation annotation : annotations ) {
@@ -202,7 +209,7 @@ public class JdbcWriterTemplate extends AbstractJdbcWriter {
             continue;
          }
          fieldInfoValues.put( I2b2FieldInfo.INSTANCE_NUM, instanceNum );
-         final String observationBlob = createBlob( annotation );
+         final String observationBlob = createBlob( jcas, annotation );
          fieldInfoValues.put( I2b2FieldInfo.I2B2_OBERVATION_BLOB, observationBlob );
          batchCount = writeTableRow( preparedStatement, batchCount, fieldInfoValues );
          instanceNum++;
@@ -212,15 +219,19 @@ public class JdbcWriterTemplate extends AbstractJdbcWriter {
 
 
    /**
+    * I2b2 wants annotation begin and end offsets plus the covered text
+    * @param jcas in case the blob needs to obtain annotation information from the jcas
     * @param annotation -
     * @return a blob with encoded text span and covered text of the annotation
     */
-   static private String createBlob( final IdentifiedAnnotation annotation ) {
+   protected String createBlob( final JCas jcas, final IdentifiedAnnotation annotation ) {
       final StringBuilder sb = new StringBuilder();
       sb.append( '<' ).append( SPAN_START_LABEL ).append( '>' );
-      sb.append( annotation.getBegin() ).append( "</" ).append( SPAN_START_LABEL ).append( '>' );
+      sb.append( annotation.getBegin() );
+      sb.append( "</" ).append( SPAN_START_LABEL ).append( '>' );
       sb.append( '<' ).append( SPAN_END_LABEL ).append( '>' );
-      sb.append( annotation.getEnd() ).append( "</" ).append( SPAN_END_LABEL ).append( '>' );
+      sb.append( annotation.getEnd() );
+      sb.append( "</" ).append( SPAN_END_LABEL ).append( '>' );
       sb.append( annotation.getCoveredText() );
       return sb.toString();
    }
@@ -249,7 +260,7 @@ public class JdbcWriterTemplate extends AbstractJdbcWriter {
     */
    static private class I2b2Concept {
 
-      static public final String PREFERRED_TEXT_UNKNOWN = "Unknown Preferred Teex";
+      static public final String PREFERRED_TEXT_UNKNOWN = "Unknown Preferred Text";
 
       final private String _cui;
       final private String _preferredText;

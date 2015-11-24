@@ -8,6 +8,7 @@ import org.apache.uima.collection.CasConsumer_ImplBase;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
+import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPUTDIR;
 
 /**
  * Writes Document text, pos, semantic types and cuis.  Each Sentence starts a new series of pretty text lines.
@@ -21,7 +22,6 @@ import org.apache.uima.resource.ResourceInitializationException;
  */
 final public class PrettyTextWriterUima extends CasConsumer_ImplBase {
 
-   static private final String PARAM_OUTPUTDIR = PrettyTextWriter.PARAM_OUTPUTDIR;
 
    static private final Logger LOGGER = Logger.getLogger( "PrettyTextWriterUima" );
 

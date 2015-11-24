@@ -13,6 +13,9 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
+import static org.apache.ctakes.core.config.ConfigParameterConstants.DESC_OUTPUTDIR;
+import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPUTDIR;
+
 
 /**
  * Writes Document text, pos, semantic types and cuis.  Each Sentence starts a new series of pretty text lines.
@@ -29,11 +32,10 @@ import org.apache.uima.resource.ResourceInitializationException;
 public class PrettyTextWriterFit extends CasConsumer_ImplBase {
 
    // UimaFit magically sets the value of the first instance variable to the parameter value - desired or otherwise
-   static private final String PARAM_OUTPUTDIR = PrettyTextWriter.PARAM_OUTPUTDIR;
    @ConfigurationParameter(
          name = PARAM_OUTPUTDIR,
          mandatory = false,
-         description = "Directory to which files should be saved",
+         description = DESC_OUTPUTDIR,
          defaultValue = ""
    )
    private String fitOutputDirectoryPath;
@@ -97,7 +99,7 @@ public class PrettyTextWriterFit extends CasConsumer_ImplBase {
    static public AnalysisEngineDescription createAnnotatorDescription( final String outputDirectoryPath )
          throws ResourceInitializationException {
       return AnalysisEngineFactory.createEngineDescription( PrettyTextWriterFit.class,
-            PrettyTextWriterFit.PARAM_OUTPUTDIR, outputDirectoryPath );
+            PARAM_OUTPUTDIR, outputDirectoryPath );
    }
 
 }

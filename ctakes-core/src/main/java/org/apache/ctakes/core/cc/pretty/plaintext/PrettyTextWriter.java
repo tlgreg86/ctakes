@@ -7,7 +7,7 @@ import org.apache.ctakes.core.cc.pretty.row.ItemRow;
 import org.apache.ctakes.core.cc.pretty.textspan.DefaultTextSpan;
 import org.apache.ctakes.core.cc.pretty.textspan.TextSpan;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
-import org.apache.ctakes.core.util.IdentifiedAnnotationUtil;
+import org.apache.ctakes.core.util.OntologyConceptUtil;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -39,7 +39,6 @@ import java.util.*;
  */
 final public class PrettyTextWriter {
 
-   static final String PARAM_OUTPUTDIR = "OutputDirectory";
 
    static private final Logger LOGGER = Logger.getLogger( "PrettyTextWriter" );
    static private final String FILE_EXTENSION = ".pretty.txt";
@@ -403,7 +402,7 @@ final public class PrettyTextWriter {
     * @return map of semantic type names and cuis within those types as they apply to the annotation
     */
    static private Map<String, Collection<String>> getSemanticCuis( final IdentifiedAnnotation identifiedAnnotation ) {
-      final Collection<UmlsConcept> umlsConcepts = IdentifiedAnnotationUtil.getUmlsConcepts( identifiedAnnotation );
+      final Collection<UmlsConcept> umlsConcepts = OntologyConceptUtil.getConcepts( identifiedAnnotation );
       if ( umlsConcepts == null || umlsConcepts.isEmpty() ) {
          return Collections.emptyMap();
       }
