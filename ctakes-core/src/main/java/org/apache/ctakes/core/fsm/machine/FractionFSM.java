@@ -186,7 +186,12 @@ public class FractionFSM {
 					FractionToken fractionToken = new FractionToken(startToken
 							.getStartOffset(), endToken.getEndOffset());
 					fractionSet.add(fractionToken);
+					
+					//reset to START state
 					fsm.reset();
+					
+					//set current startIndex
+					tokenStartMap.put(fsm, tokenStartIndex);
 				}
 			}
 		}
