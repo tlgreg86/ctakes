@@ -8,6 +8,7 @@ import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
+import org.apache.uima.jcas.tcas.Annotation;
 
 import java.util.*;
 import java.util.function.BinaryOperator;
@@ -167,10 +168,7 @@ final public class OntologyConceptUtil {
     * @return set of all cuis in jcas
     */
    static public Collection<String> getCuis( final JCas jcas ) {
-      return JCasUtil.select( jcas, IdentifiedAnnotation.class )
-            .stream()
-            .flatMap( flattenCuis )
-            .collect( Collectors.toSet() );
+      return getCuis( JCasUtil.select( jcas, IdentifiedAnnotation.class ) );
    }
 
    /**
@@ -178,10 +176,7 @@ final public class OntologyConceptUtil {
     * @return set of all tuis in jcas
     */
    static public Collection<String> getTuis( final JCas jcas ) {
-      return JCasUtil.select( jcas, IdentifiedAnnotation.class )
-            .stream()
-            .flatMap( flattenTuis )
-            .collect( Collectors.toSet() );
+      return getTuis( JCasUtil.select( jcas, IdentifiedAnnotation.class ) );
    }
 
    /**
@@ -189,11 +184,7 @@ final public class OntologyConceptUtil {
     * @return set of all tuis in jcas
     */
    static public Map<String, Collection<String>> getSchemeCodes( final JCas jcas ) {
-      return JCasUtil.select( jcas, IdentifiedAnnotation.class )
-            .stream()
-            .map( OntologyConceptUtil::getSchemeCodes )
-            .flatMap( flattenSchemeCodes )
-            .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue, mergeSets ) );
+      return getSchemeCodes( JCasUtil.select( jcas, IdentifiedAnnotation.class ) );
    }
 
    /**
@@ -201,11 +192,7 @@ final public class OntologyConceptUtil {
     * @return set of all tuis in jcas
     */
    static public Collection<String> getCodes( final JCas jcas ) {
-      return JCasUtil.select( jcas, IdentifiedAnnotation.class )
-            .stream()
-            .map( OntologyConceptUtil::getCodes )
-            .flatMap( Collection::stream )
-            .collect( Collectors.toSet() );
+      return getCodes( JCasUtil.select( jcas, IdentifiedAnnotation.class ) );
    }
 
    /**
@@ -215,8 +202,118 @@ final public class OntologyConceptUtil {
     */
    static public Collection<String> getCodes( final JCas jcas,
                                               final String schemeName ) {
-      return JCasUtil.select( jcas, IdentifiedAnnotation.class )
-            .stream()
+      return getCodes( JCasUtil.select( jcas, IdentifiedAnnotation.class ), schemeName );
+   }
+
+
+   //
+   //   Get cuis, tuis, or codes for all IdentifiedAnnotations in a lookup window
+   //
+
+   /**
+    * @param jcas         -
+    * @param lookupWindow
+    * @return set of all cuis in jcas
+    */
+   static public <T extends Annotation> Collection<String> getCuis( final JCas jcas, final T lookupWindow ) {
+      return getCuis( JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, lookupWindow ) );
+   }
+
+   /**
+    * @param jcas         -
+    * @param lookupWindow
+    * @return set of all tuis in jcas
+    */
+   static public <T extends Annotation> Collection<String> getTuis( final JCas jcas, final T lookupWindow ) {
+      return getTuis( JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, lookupWindow ) );
+   }
+
+   /**
+    * @param jcas         -
+    * @param lookupWindow
+    * @return set of all tuis in jcas
+    */
+   static public <T extends Annotation> Map<String, Collection<String>> getSchemeCodes( final JCas jcas,
+                                                                                        final T lookupWindow ) {
+      return getSchemeCodes( JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, lookupWindow ) );
+   }
+
+   /**
+    * @param jcas         -
+    * @param lookupWindow
+    * @return set of all tuis in jcas
+    */
+   static public <T extends Annotation> Collection<String> getCodes( final JCas jcas, final T lookupWindow ) {
+      return getCodes( JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, lookupWindow ) );
+   }
+
+   /**
+    * @param jcas         -
+    * @param lookupWindow
+    * @param schemeName   name of the scheme of interest
+    * @return set of ontology codes associated the named scheme
+    */
+   static public <T extends Annotation> Collection<String> getCodes( final JCas jcas, final T lookupWindow,
+                                                                     final String schemeName ) {
+      return getCodes( JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, lookupWindow ), schemeName );
+   }
+
+
+   //
+   //   Get cuis, tuis, or codes for a collections of IdentifiedAnnotations
+   //
+
+   /**
+    * @param annotations -
+    * @return set of all Umls cuis associated with the annotations
+    */
+   static public Collection<String> getCuis( final Collection<IdentifiedAnnotation> annotations ) {
+      return annotations.stream()
+            .flatMap( flattenCuis )
+            .collect( Collectors.toSet() );
+   }
+
+   /**
+    * @param annotations -
+    * @return set of all Umls tuis associated with the annotation
+    */
+   static public Collection<String> getTuis( final Collection<IdentifiedAnnotation> annotations ) {
+      return annotations.stream()
+            .flatMap( flattenTuis )
+            .collect( Collectors.toSet() );
+
+   }
+
+   /**
+    * @param annotations -
+    * @return map of ontology scheme names to a set of ontology codes associated each scheme
+    */
+   static public Map<String, Collection<String>> getSchemeCodes( final Collection<IdentifiedAnnotation> annotations ) {
+      return annotations.stream()
+            .map( OntologyConceptUtil::getSchemeCodes )
+            .flatMap( flattenSchemeCodes )
+            .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue, mergeSets ) );
+   }
+
+   /**
+    * @param annotations -
+    * @return set of ontology codes associated with all schemes
+    */
+   static public Collection<String> getCodes( final Collection<IdentifiedAnnotation> annotations ) {
+      return annotations.stream()
+            .map( OntologyConceptUtil::getCodes )
+            .flatMap( Collection::stream )
+            .collect( Collectors.toSet() );
+   }
+
+   /**
+    * @param annotations -
+    * @param schemeName  name of the scheme of interest
+    * @return set of ontology codes associated the named scheme
+    */
+   static public Collection<String> getCodes( final Collection<IdentifiedAnnotation> annotations,
+                                              final String schemeName ) {
+      return annotations.stream()
             .map( annotation -> getCodes( annotation, schemeName ) )
             .flatMap( Collection::stream )
             .collect( Collectors.toSet() );
@@ -234,10 +331,7 @@ final public class OntologyConceptUtil {
     */
    static public Collection<IdentifiedAnnotation> getAnnotationsByCui( final JCas jcas,
                                                                        final String cui ) {
-      return JCasUtil.select( jcas, IdentifiedAnnotation.class )
-            .stream()
-            .filter( annotation -> getCuis( annotation ).contains( cui ) )
-            .collect( Collectors.toSet() );
+      return getAnnotationsByCui( JCasUtil.select( jcas, IdentifiedAnnotation.class ), cui );
    }
 
    /**
@@ -247,10 +341,7 @@ final public class OntologyConceptUtil {
     */
    static public Collection<IdentifiedAnnotation> getAnnotationsByTui( final JCas jcas,
                                                                        final String tui ) {
-      return JCasUtil.select( jcas, IdentifiedAnnotation.class )
-            .stream()
-            .filter( annotation -> getTuis( annotation ).contains( tui ) )
-            .collect( Collectors.toSet() );
+      return getAnnotationsByTui( JCasUtil.select( jcas, IdentifiedAnnotation.class ), tui );
    }
 
    /**
@@ -260,11 +351,94 @@ final public class OntologyConceptUtil {
     */
    static public Collection<IdentifiedAnnotation> getAnnotationsByCode( final JCas jcas,
                                                                         final String code ) {
-      return JCasUtil.select( jcas, IdentifiedAnnotation.class )
-            .stream()
-            .filter( annotation -> getCodes( annotation ).contains( code ) )
+      return getAnnotationsByCode( JCasUtil.select( jcas, IdentifiedAnnotation.class ), code );
+   }
+
+
+   //
+   //   Get all IdentifiedAnnotations in lookup window with given cui, tui, or code
+   //
+
+   /**
+    * @param jcas         -
+    * @param lookupWindow
+    * @param cui          cui of interest
+    * @return all IdentifiedAnnotations that have the given cui
+    */
+   static public <T extends Annotation> Collection<IdentifiedAnnotation> getAnnotationsByCui( final JCas jcas,
+                                                                                              final T lookupWindow,
+                                                                                              final String cui ) {
+      return getAnnotationsByCui( JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, lookupWindow ), cui );
+   }
+
+   /**
+    * @param jcas         -
+    * @param lookupWindow
+    * @param tui          tui of interest
+    * @return all IdentifiedAnnotations that have the given tui
+    */
+   static public <T extends Annotation> Collection<IdentifiedAnnotation> getAnnotationsByTui( final JCas jcas,
+                                                                                              final T lookupWindow,
+                                                                                              final String tui ) {
+      return getAnnotationsByTui( JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, lookupWindow ), tui );
+   }
+
+   /**
+    * @param jcas         -
+    * @param lookupWindow
+    * @param code         code of interest
+    * @return all IdentifiedAnnotations that have the given code
+    */
+   static public <T extends Annotation> Collection<IdentifiedAnnotation> getAnnotationsByCode( final JCas jcas,
+                                                                                               final T lookupWindow,
+                                                                                               final String code ) {
+      return getAnnotationsByCode( JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, lookupWindow ), code );
+   }
+
+
+   //
+   //   Get all IdentifiedAnnotations in a collection of annotations with given cui, tui, or code
+   //
+
+   /**
+    * @param annotations annotations for which codes should be found
+    * @param cui         cui of interest
+    * @return all IdentifiedAnnotations that have the given cui
+    */
+   static public Collection<IdentifiedAnnotation> getAnnotationsByCui(
+         final Collection<IdentifiedAnnotation> annotations,
+         final String cui ) {
+      return annotations.stream()
+            .filter( annotation -> getCuis( annotation ).contains( cui ) )
             .collect( Collectors.toSet() );
    }
 
+
+   /**
+    * @param annotations annotations for which codes should be found
+    * @param tui         tui of interest
+    * @return all IdentifiedAnnotations that have the given tui
+    */
+   static public Collection<IdentifiedAnnotation> getAnnotationsByTui(
+         final Collection<IdentifiedAnnotation> annotations,
+         final String tui ) {
+      return annotations.stream()
+            .filter( annotation -> getTuis( annotation ).contains( tui ) )
+            .collect( Collectors.toSet() );
+   }
+
+
+   /**
+    * @param annotations annotations for which codes should be found
+    * @param code        code of interest
+    * @return all IdentifiedAnnotations that have the given code
+    */
+   static public Collection<IdentifiedAnnotation> getAnnotationsByCode(
+         final Collection<IdentifiedAnnotation> annotations,
+         final String code ) {
+      return annotations.stream()
+            .filter( annotation -> getCodes( annotation ).contains( code ) )
+            .collect( Collectors.toSet() );
+   }
 
 }
