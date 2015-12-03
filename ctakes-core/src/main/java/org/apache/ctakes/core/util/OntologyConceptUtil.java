@@ -76,6 +76,20 @@ final public class OntologyConceptUtil {
 
    /**
     * @param annotation -
+    * @return steram of OntologyConcept
+    */
+   static private Stream<OntologyConcept> getOntologyConceptStream( final IdentifiedAnnotation annotation ) {
+      return Arrays.stream( getOntologyConcepts( annotation ) )
+            .filter( OntologyConcept.class::isInstance )
+//            .filter( isUmlsConcept.negate() )
+            .map( fs -> (OntologyConcept)fs )
+            .filter( isSchemeOk )
+            .filter( isCodeOk );
+   }
+
+
+   /**
+    * @param annotation -
     * @return set of all Umls Concepts associated with the annotation
     */
    static public Collection<UmlsConcept> getConcepts( final IdentifiedAnnotation annotation ) {
@@ -117,12 +131,7 @@ final public class OntologyConceptUtil {
     * @return map of ontology scheme names to a set of ontology codes associated each scheme
     */
    static public Map<String, Collection<String>> getSchemeCodes( final IdentifiedAnnotation annotation ) {
-      return Arrays.stream( getOntologyConcepts( annotation ) )
-            .filter( OntologyConcept.class::isInstance )
-//            .filter( isUmlsConcept.negate() )
-            .map( fs -> (OntologyConcept)fs )
-            .filter( isSchemeOk )
-            .filter( isCodeOk )
+      return getOntologyConceptStream( annotation )
             .collect( Collectors.toMap( OntologyConcept::getCodingScheme, getCodeAsSet, mergeSets ) );
    }
 
@@ -131,12 +140,7 @@ final public class OntologyConceptUtil {
     * @return set of ontology codes associated with all schemes
     */
    static public Collection<String> getCodes( final IdentifiedAnnotation annotation ) {
-      return Arrays.stream( getOntologyConcepts( annotation ) )
-            .filter( OntologyConcept.class::isInstance )
-//            .filter( isUmlsConcept.negate() )
-            .map( fs -> (OntologyConcept)fs )
-            .filter( isSchemeOk )
-            .filter( isCodeOk )
+      return getOntologyConceptStream( annotation )
             .map( OntologyConcept::getCode )
             .collect( Collectors.toSet() );
    }
@@ -148,12 +152,8 @@ final public class OntologyConceptUtil {
     */
    static public Collection<String> getCodes( final IdentifiedAnnotation annotation,
                                               final String schemeName ) {
-      return Arrays.stream( getOntologyConcepts( annotation ) )
-            .filter( OntologyConcept.class::isInstance )
-//            .filter( isUmlsConcept.negate() )
-            .map( fs -> (OntologyConcept)fs )
+      return getOntologyConceptStream( annotation )
             .filter( concept -> schemeName.equalsIgnoreCase( concept.getCodingScheme() ) )
-            .filter( isCodeOk )
             .map( OntologyConcept::getCode )
             .collect( Collectors.toSet() );
    }
@@ -212,7 +212,7 @@ final public class OntologyConceptUtil {
 
    /**
     * @param jcas         -
-    * @param lookupWindow
+    * @param lookupWindow -
     * @return set of all cuis in jcas
     */
    static public <T extends Annotation> Collection<String> getCuis( final JCas jcas, final T lookupWindow ) {
@@ -221,7 +221,7 @@ final public class OntologyConceptUtil {
 
    /**
     * @param jcas         -
-    * @param lookupWindow
+    * @param lookupWindow -
     * @return set of all tuis in jcas
     */
    static public <T extends Annotation> Collection<String> getTuis( final JCas jcas, final T lookupWindow ) {
@@ -230,7 +230,7 @@ final public class OntologyConceptUtil {
 
    /**
     * @param jcas         -
-    * @param lookupWindow
+    * @param lookupWindow -
     * @return set of all tuis in jcas
     */
    static public <T extends Annotation> Map<String, Collection<String>> getSchemeCodes( final JCas jcas,
@@ -240,7 +240,7 @@ final public class OntologyConceptUtil {
 
    /**
     * @param jcas         -
-    * @param lookupWindow
+    * @param lookupWindow -
     * @return set of all tuis in jcas
     */
    static public <T extends Annotation> Collection<String> getCodes( final JCas jcas, final T lookupWindow ) {
@@ -249,7 +249,7 @@ final public class OntologyConceptUtil {
 
    /**
     * @param jcas         -
-    * @param lookupWindow
+    * @param lookupWindow -
     * @param schemeName   name of the scheme of interest
     * @return set of ontology codes associated the named scheme
     */
