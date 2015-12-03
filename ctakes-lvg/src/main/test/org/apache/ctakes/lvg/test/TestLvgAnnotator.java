@@ -18,10 +18,11 @@
  */
 package org.apache.ctakes.lvg.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,13 +33,13 @@ import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.typesystem.type.syntax.WordToken;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.junit.Test;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.junit.Test;
 
 public class TestLvgAnnotator {
   public static final String note = "" +
@@ -50,7 +51,7 @@ public class TestLvgAnnotator {
       "Patient should quit smoking and taunting sharks.";
 
   @Test
-  public void testLvgAnnotator() throws UIMAException, IOException, URISyntaxException{
+  public void testLvgAnnotator() throws UIMAException, IOException {
     JCas jcas = JCasFactory.createJCas();
     jcas.setDocumentText(note);
     
@@ -70,7 +71,7 @@ public class TestLvgAnnotator {
     return builder.createAggregateDescription();
   }
   
-  public static AnalysisEngineDescription getDefaultPipeline() throws ResourceInitializationException, URISyntaxException{
+  public static AnalysisEngineDescription getDefaultPipeline() throws ResourceInitializationException, MalformedURLException{
     AggregateBuilder builder = new AggregateBuilder();
     builder.add(getPrerequisitePipeline());
     builder.add(LvgAnnotator.createAnnotatorDescription());
