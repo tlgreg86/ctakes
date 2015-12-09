@@ -31,8 +31,6 @@ final public class OntologyConceptUtil {
    private OntologyConceptUtil() {
    }
 
-   // placed in a predicate so that we can use negate()
-//   static private final Predicate<FeatureStructure> isUmlsConcept = UmlsConcept.class::isInstance;
 
    static private final Predicate<OntologyConcept> isSchemeOk
          = concept -> concept.getCodingScheme() != null && !concept.getCodingScheme().isEmpty();
@@ -49,15 +47,6 @@ final public class OntologyConceptUtil {
       return set1;
    };
 
-   static private final Function<IdentifiedAnnotation, Stream<String>> flattenCuis
-         = annotation -> getCuis( annotation ).stream();
-
-   static private final Function<IdentifiedAnnotation, Stream<String>> flattenTuis
-         = annotation -> getTuis( annotation ).stream();
-
-   static private final Function<Map<String, Collection<String>>, Stream<Map.Entry<String, Collection<String>>>>
-         flattenSchemeCodes
-         = map -> map.entrySet().stream();
 
    /**
     * @param annotation -
@@ -81,7 +70,6 @@ final public class OntologyConceptUtil {
    static private Stream<OntologyConcept> getOntologyConceptStream( final IdentifiedAnnotation annotation ) {
       return Arrays.stream( getOntologyConcepts( annotation ) )
             .filter( OntologyConcept.class::isInstance )
-//            .filter( isUmlsConcept.negate() )
             .map( fs -> (OntologyConcept)fs )
             .filter( isSchemeOk )
             .filter( isCodeOk );
@@ -269,7 +257,8 @@ final public class OntologyConceptUtil {
     */
    static public Collection<String> getCuis( final Collection<IdentifiedAnnotation> annotations ) {
       return annotations.stream()
-            .flatMap( flattenCuis )
+            .map( OntologyConceptUtil::getCuis )
+            .flatMap( Collection::stream )
             .collect( Collectors.toSet() );
    }
 
@@ -279,7 +268,8 @@ final public class OntologyConceptUtil {
     */
    static public Collection<String> getTuis( final Collection<IdentifiedAnnotation> annotations ) {
       return annotations.stream()
-            .flatMap( flattenTuis )
+            .map( OntologyConceptUtil::getTuis )
+            .flatMap( Collection::stream )
             .collect( Collectors.toSet() );
 
    }
@@ -291,7 +281,8 @@ final public class OntologyConceptUtil {
    static public Map<String, Collection<String>> getSchemeCodes( final Collection<IdentifiedAnnotation> annotations ) {
       return annotations.stream()
             .map( OntologyConceptUtil::getSchemeCodes )
-            .flatMap( flattenSchemeCodes )
+            .map( Map::entrySet )
+            .flatMap( Collection::stream )
             .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue, mergeSets ) );
    }
 
