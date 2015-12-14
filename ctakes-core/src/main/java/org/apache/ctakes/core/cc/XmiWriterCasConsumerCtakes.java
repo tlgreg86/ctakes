@@ -54,6 +54,7 @@ import org.apache.uima.util.InvalidXMLException;
 import org.apache.uima.util.UriUtils;
 import org.apache.uima.util.XMLInputSource;
 import org.apache.uima.util.XMLSerializer;
+import org.cleartk.util.ViewUriUtil;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -112,7 +113,7 @@ public class XmiWriterCasConsumerCtakes extends CasConsumer_ImplBase {
          throw new AnalysisEngineProcessException( e1 );
       }
 
-      String originalFileName = DocumentIDAnnotationUtil.getDocumentID( jcas );
+      String originalFileName = ViewUriUtil.getURI(jcas).toString();//DocumentIDAnnotationUtil.getDocumentID( jcas );
       File outFile = null;
       if ( originalFileName != null
            && !originalFileName.isEmpty()
