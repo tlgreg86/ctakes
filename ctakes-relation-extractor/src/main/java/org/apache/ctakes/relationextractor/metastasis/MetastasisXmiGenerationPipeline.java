@@ -39,8 +39,8 @@ import com.google.common.io.CharStreams;
 
 public class MetastasisXmiGenerationPipeline {
 
-  public static final File ANAFORA_ANNOTATIONS_DIR = new File("/Users/dima/Boston/Data/DeepPhe/Metastasis/Anafora/Train/");
-  public static final String XMI_OUTPUT_DIR = "/Users/dima/Boston/Data/DeepPhe/Metastasis/Xmi/Train/";
+  public static final File ANAFORA_ANNOTATIONS_DIR = new File("DeepPhe/Metastasis/Anafora/All/");
+  public static final String XMI_OUTPUT_DIR = "DeepPhe/Metastasis/Xmi/All/";
   public static final String GOLD_VIEW_NAME = "GoldView";
 
   public static void main(String[] args) throws Exception {
