@@ -627,7 +627,11 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
    }
 
    static File getXMIFile( File xmiDirectory, File textFile ) {
-      return new File( xmiDirectory, textFile.getName() + ".xmi" );
+	   String fileName = textFile.getName();
+	   if(!fileName.contains(".xmi")){
+		   fileName += ".xmi";
+	   }
+      return new File( xmiDirectory, fileName);// + ".xmi" 
    }
 
    static File getXMIFile( File xmiDirectory, JCas jCas ) throws AnalysisEngineProcessException {
