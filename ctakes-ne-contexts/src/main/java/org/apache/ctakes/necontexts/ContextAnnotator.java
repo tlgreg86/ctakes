@@ -26,12 +26,14 @@ import java.util.List;
 import org.apache.ctakes.core.util.JCasUtil;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorConfigurationException;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.jcas.tcas.DocumentAnnotation;
@@ -50,7 +52,8 @@ import org.apache.uima.resource.ResourceInitializationException;
  * are then passed to a context hit consumer which will perform an action on the
  * hit such as updating an existing annotation or creating a new one.
  */
-public class ContextAnnotator extends JCasAnnotator_ImplBase {
+//public class ContextAnnotator extends JCasAnnotator_ImplBase {
+public class ContextAnnotator extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 	// LOG4J logger based on class name
 	private Logger iv_logger = Logger.getLogger(getClass().getName());
 
@@ -87,8 +90,8 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	 * </ul>
 	 * 
 	 * @see DocumentAnnotation
-	 * @see edu.mayo.bmi.common.type.Sentence
-	 * @see edu.mayo.bmi.common.type.Segment
+//	 * @see edu.mayo.bmi.common.type.Sentence
+//	 * @see edu.mayo.bmi.common.type.Segment
 	 * 
 	 */
 	public static final String WINDOW_ANNOTATION_CLASS_PARAM = "WindowAnnotationClass";
@@ -102,8 +105,8 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	 * <li>...</li>
 	 * </ul>
 	 * 
-	 * @see edu.mayo.bmi.common.type.NamedEntity
-	 * @see edu.mayo.bmi.common.type.BaseToken
+//	 * @see edu.mayo.bmi.common.type.NamedEntity
+//	 * @see edu.mayo.bmi.common.type.BaseToken
 	 */
 
 	public static final String FOCUS_ANNOTATION_CLASS_PARAM = "FocusAnnotationClass";
@@ -119,9 +122,9 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	 * <li>NamedEntity</li>
 	 * </ul>
 	 * 
-	 * @see edu.mayo.bmi.common.type.BaseToken
-	 * @see edu.mayo.bmi.common.type.WordToken
-	 * @see edu.mayo.bmi.common.type.NamedEntity
+//	 * @see edu.mayo.bmi.common.type.BaseToken
+//	 * @see edu.mayo.bmi.common.type.WordToken
+//	 * @see edu.mayo.bmi.common.type.NamedEntity
 	 * 
 	 */
 
@@ -158,8 +161,39 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	 */
 	public static final int ALL_SCOPE = 4;
 
+	@ConfigurationParameter( name = MAX_LEFT_SCOPE_SIZE_PARAM, mandatory = false,
+			description = "", defaultValue = "15" )
 	protected int leftScopeSize;
+
+	@ConfigurationParameter( name = MAX_RIGHT_SCOPE_SIZE_PARAM, mandatory = false,
+			description = "", defaultValue = "7" )
 	protected int rightScopeSize;
+
+	@ConfigurationParameter( name = SCOPE_ORDER_PARAM, mandatory = false,
+			description = "", defaultValue = "LEFT,RIGHT" )
+	private String _scopeOrder;
+
+	@ConfigurationParameter( name = WINDOW_ANNOTATION_CLASS_PARAM, mandatory = false,
+			description = "Type of Lookup window to use",
+			defaultValue = "org.apache.ctakes.typesystem.type.textspan.Sentence" )
+	private String windowClassName;
+
+	@ConfigurationParameter( name = FOCUS_ANNOTATION_CLASS_PARAM, mandatory = false,
+			description = "", defaultValue = "org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation" )
+	private String focusClassName;
+
+	@ConfigurationParameter( name = CONTEXT_ANNOTATION_CLASS_PARAM, mandatory = false,
+			description = "", defaultValue = "org.apache.ctakes.typesystem.type.syntax.BaseToken" )
+	private String contextClassName;
+
+	@ConfigurationParameter( name = CONTEXT_ANALYZER_CLASS_PARAM, mandatory = false,
+			description = "", defaultValue = "org.apache.ctakes.necontexts.negation.NegationContextAnalyzer" )
+	private String contextAnalyzerClassName;
+
+	@ConfigurationParameter( name = CONTEXT_HIT_CONSUMER_CLASS_PARAM, mandatory = false,
+			description = "", defaultValue = "org.apache.ctakes.necontexts.negation.NegationContextHitConsumer" )
+	private String contextConsumerClassName;
+
 
 	protected List<Integer> scopes = new ArrayList<Integer>();
 
@@ -174,27 +208,39 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 		super.initialize(uimaContext);
 
 		try {
-			leftScopeSize = ((Integer) uimaContext.getConfigParameterValue(MAX_LEFT_SCOPE_SIZE_PARAM)).intValue();
-			rightScopeSize = ((Integer) uimaContext.getConfigParameterValue(MAX_RIGHT_SCOPE_SIZE_PARAM)).intValue();
+//			leftScopeSize = ((Integer) uimaContext.getConfigParameterValue(MAX_LEFT_SCOPE_SIZE_PARAM)).intValue();
+//			rightScopeSize = ((Integer) uimaContext.getConfigParameterValue(MAX_RIGHT_SCOPE_SIZE_PARAM)).intValue();
+			iv_logger.info( "Using left , right scope sizes: " + leftScopeSize + " , " + rightScopeSize );
 
-			String[] scopeOrderArr = (String[]) uimaContext.getConfigParameterValue(SCOPE_ORDER_PARAM);
+//			String[] scopeOrderArr = (String[]) uimaContext.getConfigParameterValue(SCOPE_ORDER_PARAM);
+//			parseScopeOrder(scopeOrderArr);
+			iv_logger.info( "Using scope order: " + _scopeOrder );
+			parseScopeOrder( _scopeOrder );
 
-			parseScopeOrder(scopeOrderArr);
-
-			String contextAnalyzerClassName = (String) uimaContext.getConfigParameterValue(CONTEXT_ANALYZER_CLASS_PARAM);
-			String contextConsumerClassName = (String) uimaContext.getConfigParameterValue(CONTEXT_HIT_CONSUMER_CLASS_PARAM);
-
+//			String contextAnalyzerClassName = (String) uimaContext.getConfigParameterValue(CONTEXT_ANALYZER_CLASS_PARAM);
+//			String contextConsumerClassName = (String) uimaContext.getConfigParameterValue(CONTEXT_HIT_CONSUMER_CLASS_PARAM);
+			iv_logger.info( "Using context analyzer: " + contextAnalyzerClassName );
 			contextAnalyzer = (ContextAnalyzer) Class.forName(contextAnalyzerClassName).newInstance();
 			contextAnalyzer.initialize(uimaContext);
+			iv_logger.info( "Using context consumer: " + contextConsumerClassName );
 			contextConsumer = (ContextHitConsumer) Class.forName(contextConsumerClassName).newInstance();
 
-			windowType = JCasUtil.getType((String) uimaContext.getConfigParameterValue(WINDOW_ANNOTATION_CLASS_PARAM));
-			focusType = JCasUtil.getType((String) uimaContext.getConfigParameterValue(FOCUS_ANNOTATION_CLASS_PARAM));
-			contextType = JCasUtil.getType((String) uimaContext.getConfigParameterValue(CONTEXT_ANNOTATION_CLASS_PARAM));
-
+//			windowType = JCasUtil.getType((String) uimaContext.getConfigParameterValue(WINDOW_ANNOTATION_CLASS_PARAM));
+			iv_logger.info( "Using lookup window type: " + windowClassName );
+			windowType = JCasUtil.getType( windowClassName );
+//			focusType = JCasUtil.getType((String) uimaContext.getConfigParameterValue(FOCUS_ANNOTATION_CLASS_PARAM));
+			iv_logger.info( "Using focus type: " + focusClassName );
+			focusType = JCasUtil.getType( focusClassName );
+//			contextType = JCasUtil.getType((String) uimaContext.getConfigParameterValue(CONTEXT_ANNOTATION_CLASS_PARAM));
+			iv_logger.info( "Using context type: " + contextClassName );
+			contextType = JCasUtil.getType( contextClassName );
 		} catch (Exception e) {
 			throw new ResourceInitializationException(e);
 		}
+	}
+
+	private void parseScopeOrder( final String scopeString ) throws AnnotatorConfigurationException {
+		parseScopeOrder( scopeString.split( "," ) );
 	}
 
 	void parseScopeOrder(String[] scopeStrings) throws AnnotatorConfigurationException {
@@ -364,9 +410,9 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	/**
 	 * Gets a list of annotations within the specified window annotation.
 	 * 
-	 * @param annotItr
+//	 * @param annotItr
+	 * @param jCas
 	 * @param window
-	 * @param jcas
 	 * @return
 	 * @throws Exception
 	 */
@@ -382,5 +428,11 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 		}
 		return list;
 	}
+
+
+	static public AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
+		return AnalysisEngineFactory.createEngineDescription( ContextAnnotator.class );
+	}
+
 
 }
