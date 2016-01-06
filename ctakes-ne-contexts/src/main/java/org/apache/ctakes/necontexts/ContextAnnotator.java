@@ -162,7 +162,7 @@ public class ContextAnnotator extends org.apache.uima.fit.component.JCasAnnotato
 	public static final int ALL_SCOPE = 4;
 
 	@ConfigurationParameter( name = MAX_LEFT_SCOPE_SIZE_PARAM, mandatory = false,
-			description = "", defaultValue = "15" )
+			description = "", defaultValue = "7" )
 	protected int leftScopeSize;
 
 	@ConfigurationParameter( name = MAX_RIGHT_SCOPE_SIZE_PARAM, mandatory = false,
