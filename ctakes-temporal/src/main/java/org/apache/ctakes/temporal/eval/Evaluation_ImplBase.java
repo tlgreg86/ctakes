@@ -1074,7 +1074,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
                       buff.append(probMention.getConfidence());
                       buff.append("::");
                     }
-                    dtrContent = buff.substring(0, buff.length()-3);
+                    dtrContent = buff.substring(0, buff.length()-2);
                   }
                   docTimeRE.setTextContent( dtrContent );
                   Element eventTypeE = doc.createElement( "Type" );
@@ -1176,7 +1176,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
                    buff.append(probRel.getConfidence());
                    buff.append("::");
                  }
-                 relContent = buff.substring(0, buff.length()-3);
+                 relContent = buff.substring(0, buff.length()-2);
                }
                
                relTypeE.setTextContent( relContent );
