@@ -33,12 +33,14 @@ import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtra
 import org.apache.ctakes.relationextractor.ae.features.PhraseChunkingExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.TokenFeaturesExtractor;
+import org.apache.ctakes.temporal.utils.SoftMaxUtil;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
 import org.apache.uima.UimaContextAdmin;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.CASException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
@@ -57,6 +59,10 @@ import com.google.common.collect.Lists;
 public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotator<String> {
 
   public static final String NO_RELATION_CATEGORY = "-NONE-";
+
+  public static final String PARAM_PROB_VIEW = "ProbView";
+  @ConfigurationParameter(name=PARAM_PROB_VIEW, mandatory=false)
+  private String probViewname = null;
 
   public static final String PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE =
       "ProbabilityOfKeepingANegativeExample";
@@ -201,9 +207,10 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
         // annotations
         else {
 //          String predictedCategory = this.classify(features);
+          Map<String,Double> scores = this.classifier.score(features);
           
           Map.Entry<String, Double> maxEntry = null;
-          for( Map.Entry<String, Double> entry: this.classifier.score(features).entrySet() ){
+          for( Map.Entry<String, Double> entry: scores.entrySet() ){
           	if(maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0){
           		maxEntry = entry;
           	}
@@ -217,7 +224,7 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
           }
           
           // add a relation annotation if a true relation was predicted
-          if (!predictedCategory.equals(NO_RELATION_CATEGORY)) {
+          if (predictedCategory != null && !predictedCategory.equals(NO_RELATION_CATEGORY)) {
 
             // if we predict an inverted relation, reverse the order of the
             // arguments
@@ -229,6 +236,19 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
             }
 
             createRelation(jCas, arg1, arg2, predictedCategory, confidence);
+          }
+          if(probViewname != null){
+            try {
+              JCas probView = jCas.getView(probViewname);
+              Map<String,Double> probs = SoftMaxUtil.getDistributionFromScores(scores);
+              
+              for(String label : probs.keySet()){
+                createRelation(probView, arg1, arg2, label, probs.get(label));
+              }
+            } catch (CASException e) {
+              e.printStackTrace();
+              throw new AnalysisEngineProcessException(e);
+            }
           }
         }
       } // end pair in pairs

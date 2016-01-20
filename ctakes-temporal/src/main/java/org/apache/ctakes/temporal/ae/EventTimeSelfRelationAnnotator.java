@@ -238,13 +238,13 @@ public class EventTimeSelfRelationAnnotator extends TemporalRelationExtractorAnn
 			}
 		}
 
-		if(category!=null){
-			if(!((EventMention)arg1).getClass().equals(EventMention.class)){
-				System.out.println("find system-event relations: "+ arg1.getCoveredText() + " -"+category+"- " + arg2.getCoveredText());
-			}else{
-				System.out.println("find gold-event relations: "+ arg1.getCoveredText() + " -"+category+"- " + arg2.getCoveredText());
-			}
-		}
+//		if(category!=null){
+//			if(!((EventMention)arg1).getClass().equals(EventMention.class)){
+//				System.out.println("find system-event relations: "+ arg1.getCoveredText() + " -"+category+"- " + arg2.getCoveredText());
+//			}else{
+//				System.out.println("find gold-event relations: "+ arg1.getCoveredText() + " -"+category+"- " + arg2.getCoveredText());
+//			}
+//		}
 
 		if (category == null && coin.nextDouble() <= this.probabilityOfKeepingANegativeExample) {
 			category = NO_RELATION_CATEGORY;

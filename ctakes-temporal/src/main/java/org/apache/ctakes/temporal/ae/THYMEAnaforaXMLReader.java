@@ -150,6 +150,10 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
       throw new AnalysisEngineProcessException(e);
     }
 
+    int curEventId = 1;
+    int curTimexId = 1;
+    int curRelId = 1;
+    
     for (Element annotationsElem : dataElem.getChildren("annotations")) {
 
       Map<String, Annotation> idToAnnotation = Maps.newHashMap();
@@ -214,6 +218,7 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           event.setMentions(new FSArray(jCas, 1));
           event.setMentions(0, eventMention);
           event.addToIndexes();
+          eventMention.setId(curEventId++);
           eventMention.setConfidence(1.0f);
           eventMention.setDiscoveryTechnique(CONST.NE_DISCOVERY_TECH_GOLD_ANNOTATION);
           eventMention.setEvent(event);
@@ -223,18 +228,21 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
         } else if (type.equals("TIMEX3")) {
           String timeClass = removeSingleChildText(propertiesElem, "Class", id);
           TimeMention timeMention = new TimeMention(jCas, begin, end);
+          timeMention.setId(curTimexId++);
           timeMention.setTimeClass(timeClass);
           timeMention.addToIndexes();
           annotation = timeMention;
 
         } else if (type.equals("DOCTIME")) {
           TimeMention timeMention = new TimeMention(jCas, begin, end);
+          timeMention.setId(curTimexId++);
           timeMention.setTimeClass(type);
           timeMention.addToIndexes();
           annotation = timeMention;
 
         } else if (type.equals("SECTIONTIME")) {
           TimeMention timeMention = new TimeMention(jCas, begin, end);
+          timeMention.setId(curTimexId++);
           timeMention.setTimeClass(type);
           timeMention.addToIndexes();
           annotation = timeMention;
@@ -278,6 +286,7 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           String targetID = removeSingleChildText(propertiesElem, "Target", id);
           String tlinkType = removeSingleChildText(propertiesElem, "Type", id);
           TemporalTextRelation relation = new TemporalTextRelation(jCas);
+          relation.setId(curRelId++);
           addRelation(jCas, relation, sourceID, targetID, tlinkType, idToAnnotation, id);
 
         } else if (type.equals("ALINK")) {

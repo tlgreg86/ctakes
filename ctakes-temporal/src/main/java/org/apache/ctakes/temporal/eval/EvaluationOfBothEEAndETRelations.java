@@ -34,18 +34,16 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
+import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.EventTimeSelfRelationAnnotator;
+import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeSyntacticAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
-import org.apache.ctakes.temporal.eval.EvaluationOfEventEventThymeRelations.AddEEPotentialRelations;
-import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.AddPotentialRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.Overlap2Contains;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
-import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveGoldAttributes;
-import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveNonContainsRelations;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
@@ -57,14 +55,17 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.component.ViewCreatorAnnotator;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ConfigurationParameterFactory;
 import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
@@ -110,6 +111,9 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		@Option
 		public boolean getSkipTrain();
+		
+		@Option
+		public boolean getWriteProbabilities();
 	}
 
 	//  protected static boolean DEFAULT_BOTH_DIRECTIONS = false;
@@ -178,6 +182,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					params);
 			//			evaluation.prepareXMIsFor(patientSets);
 			if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/temporal-relations/both");
+			if(options.getAnaforaOutput()!=null) evaluation.anaforaOutput = options.getAnaforaOutput();
 			List<Integer> training = trainItems;
 			List<Integer> testing = null;
 			if(options.getTest()){
@@ -193,6 +198,8 @@ EvaluationOfTemporalRelations_ImplBase{
 			}else{
 				evaluation.prepareXMIsFor(patientSets);
 			}
+			evaluation.writeProbabilities = options.getWriteProbabilities();
+			
 			params.stats = evaluation.trainAndTest(training, testing);//training);//
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
 //			System.err.println("No closure on gold::Closure on System::Recall Mode");
@@ -232,6 +239,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	protected boolean useGoldAttributes;
 	protected boolean skipTrain=false;
 	//  protected boolean printRelations = false;
+  private boolean writeProbabilities = false;
 
 	public EvaluationOfBothEEAndETRelations(
 			File baseDirectory,
@@ -354,6 +362,11 @@ EvaluationOfTemporalRelations_ImplBase{
 			throws Exception {
 		this.useClosure=false;
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
+        ViewCreatorAnnotator.class,
+        ViewCreatorAnnotator.PARAM_VIEW_NAME,
+        PROB_VIEW_NAME ) );
+
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
@@ -389,12 +402,33 @@ EvaluationOfTemporalRelations_ImplBase{
 				GOLD_VIEW_NAME);
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
-		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
-			EventEventRelationAnnotator.createAnnotatorDescription(new File(directory,"event-event")));
-		aggregateBuilder.add(EventTimeSelfRelationAnnotator.createEngineDescription(new File(directory,"event-time")));
+		AnalysisEngineDescription aed = this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
+      EventEventRelationAnnotator.createAnnotatorDescription((new File(directory,"event-event/model.jar")).getAbsolutePath());
+    if(this.writeProbabilities){
+      ConfigurationParameterFactory.addConfigurationParameter(aed, 
+          TemporalRelationExtractorAnnotator.PARAM_PROB_VIEW, 
+          PROB_VIEW_NAME);
+    }
+		aggregateBuilder.add(aed);
+		aed = EventTimeSelfRelationAnnotator.createEngineDescription(new File(directory,"event-time/model.jar").getAbsolutePath());
+		if(this.writeProbabilities){
+		  ConfigurationParameterFactory.addConfigurationParameter(aed, 
+		      TemporalRelationExtractorAnnotator.PARAM_PROB_VIEW, 
+		      PROB_VIEW_NAME);
+		}
+		aggregateBuilder.add(aed);
+		
+		aed = DocTimeRelAnnotator.createAnnotatorDescription(new File("target/eval/event-properties/train_and_test/docTimeRel/model.jar").getAbsolutePath());
+		if(this.writeProbabilities){
+		  ConfigurationParameterFactory.addConfigurationParameters(
+		      aed,    
+		      DocTimeRelAnnotator.PARAM_PROB_VIEW, 
+		      PROB_VIEW_NAME);
+		}
+		aggregateBuilder.add(aed);
 
-		if(this.i2b2Output != null){
-			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteAnaforaXML.class, WriteAnaforaXML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
+		if(this.anaforaOutput != null){
+			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteAnaforaXML.class, WriteAnaforaXML.PARAM_OUTPUT_DIR, this.anaforaOutput, WriteAnaforaXML.PARAM_PROB_VIEW, PROB_VIEW_NAME), "TimexView", CAS.NAME_DEFAULT_SOFA);
 		}
 
 		File outf = null;

@@ -116,6 +116,8 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 
    public static final String GOLD_VIEW_NAME = "GoldView";
 
+   public static final String PROB_VIEW_NAME = "ProbView";
+   
    public enum XMLFormat {Knowtator, Anafora, I2B2}
 
    public enum Subcorpus {Colon, Brain, DeepPhe}
@@ -172,6 +174,9 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 
       @Option( defaultToNull = true )
       public String getI2B2Output();
+      
+      @Option( defaultToNull = true )
+      public String getAnaforaOutput();
 
       @Option
       public boolean getSkipTrain();
@@ -220,6 +225,8 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 
    protected String i2b2Output = null;
 
+   protected String anaforaOutput = null; 
+   
    protected String[] kernelParams;
 
    public Evaluation_ImplBase(
@@ -990,6 +997,10 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
       public static final String PARAM_OUTPUT_DIR = "PARAM_OUTPUT_DIR";
       @ConfigurationParameter( mandatory = true, description = "Output directory to write xml files to.", name = PARAM_OUTPUT_DIR )
       protected String outputDir;
+      
+      public static final String PARAM_PROB_VIEW = "ProbView";
+      @ConfigurationParameter(name=PARAM_PROB_VIEW, mandatory=false)
+      public String probViewname = null;
 
       @Override
       public void process( JCas jcas ) throws AnalysisEngineProcessException {
@@ -1003,6 +1014,12 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
                outDir.mkdirs();
             }
 
+            
+            // get maps from ids to entities and relations:
+            JCas probView = jcas.getView(probViewname);
+            Map<Integer, List<EventMention>> mentions = probViewname == null? null : getMentionIdMap(jcas, probView);
+            Map<String, List<TemporalTextRelation>> rels = probViewname == null ? null : getRelationIdMap(jcas, probView);
+            
             // build the xml
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -1046,7 +1063,20 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
                   //add properties
                   Element property = doc.createElement( "properties" );
                   Element docTimeRE = doc.createElement( "DocTimeRel" );
-                  docTimeRE.setTextContent( event.getEvent().getProperties().getDocTimeRel() );
+                  String dtrContent = null;
+                  if(probViewname == null){
+                    dtrContent = event.getEvent().getProperties().getDocTimeRel();
+                  }else{
+                    StringBuffer buff = new StringBuffer();
+                    for(EventMention probMention : mentions.get(event.getId())){
+                      buff.append(probMention.getEvent().getProperties().getDocTimeRel());
+                      buff.append(':');
+                      buff.append(probMention.getConfidence());
+                      buff.append("::");
+                    }
+                    dtrContent = buff.substring(0, buff.length()-3);
+                  }
+                  docTimeRE.setTextContent( dtrContent );
                   Element eventTypeE = doc.createElement( "Type" );
                   eventTypeE.setTextContent( "N/A" );
                   Element degreeE = doc.createElement( "Degree" );
@@ -1130,11 +1160,26 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
                Element property = doc.createElement( "properties" );
 
                Annotation arg1 = rel.getArg1().getArgument();
+               Annotation arg2 = rel.getArg2().getArgument();
                Element sourceE = doc.createElement( "Source" );
                sourceE.setTextContent( argToId.get( arg1 ) );
                Element relTypeE = doc.createElement( "Type" );
-               relTypeE.setTextContent( rel.getCategory() );
-               Annotation arg2 = rel.getArg2().getArgument();
+               String relContent = null;
+               if(probViewname == null){
+                 relContent = rel.getCategory();
+               }else{
+                 String key = getRelationId(rel);
+                 StringBuffer buff = new StringBuffer();
+                 for(TemporalTextRelation probRel : rels.get(key)){
+                   buff.append(probRel.getCategory());
+                   buff.append(':');
+                   buff.append(probRel.getConfidence());
+                   buff.append("::");
+                 }
+                 relContent = buff.substring(0, buff.length()-3);
+               }
+               
+               relTypeE.setTextContent( relContent );
                Element targetE = doc.createElement( "Target" );
                targetE.setTextContent( argToId.get( arg2 ) );
 
@@ -1163,17 +1208,70 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
             StreamResult result = new StreamResult( new File( outDir, outFile + ".xml" ) );
             transformer.transform( source, result );
          } catch ( ParserConfigurationException e ) {
-            e.printStackTrace();
-            throw new AnalysisEngineProcessException( e );
+           e.printStackTrace();
+           throw new AnalysisEngineProcessException( e );
          } catch ( TransformerConfigurationException e ) {
-            e.printStackTrace();
-            throw new AnalysisEngineProcessException( e );
+           e.printStackTrace();
+           throw new AnalysisEngineProcessException( e );
          } catch ( TransformerException e ) {
-            e.printStackTrace();
-            throw new AnalysisEngineProcessException( e );
-         }
+           e.printStackTrace();
+           throw new AnalysisEngineProcessException( e );
+         } catch (CASException e) {
+           e.printStackTrace();
+           throw new AnalysisEngineProcessException( e );
+        }
 
       }
-
+      
+      private static Map<Integer, List<EventMention>> getMentionIdMap(JCas jcas, JCas probView){
+        HashMap<Integer, List<EventMention>> map = new HashMap<>();
+        
+        for(EventMention mention : JCasUtil.select(jcas, EventMention.class)){
+          List<EventMention> variations = new ArrayList<>();
+          for(EventMention probMention : JCasUtil.select(probView, EventMention.class)){
+            if(mention.getId() == probMention.getId()){
+              variations.add(probMention);
+            }
+          }
+          map.put(mention.getId(), variations);
+        }
+        return map;
+      }
+      
+      private static Map<String, List<TemporalTextRelation>> getRelationIdMap(JCas jcas, JCas probView){
+        HashMap<String, List<TemporalTextRelation>> map = new HashMap<>();
+        
+        for(TemporalTextRelation rel : JCasUtil.select(jcas, TemporalTextRelation.class)){
+          List<TemporalTextRelation> variations = new ArrayList<>();
+          String idStr = getRelationId(rel);
+          for(TemporalTextRelation probRel : JCasUtil.select(probView, TemporalTextRelation.class)){
+            String probStr = getRelationId(probRel);            
+            if(idStr.equals(probStr)){
+              variations.add(probRel);
+            }
+          }
+          map.put(idStr, variations);
+        }
+        
+        return map;
+      }
+   }
+   public static String getRelationId(TemporalTextRelation rel){
+     StringBuffer buffer = new StringBuffer();
+     if(rel.getArg1().getArgument().getClass().getSimpleName().equals("EventMention")){
+       buffer.append('e');
+     }else{
+       buffer.append('t');
+     }
+     buffer.append(((IdentifiedAnnotation)rel.getArg1().getArgument()).getId());
+     buffer.append(':');
+     if(rel.getArg2().getArgument().getClass().getSimpleName().equals("EventMention")){
+       buffer.append('e');
+     }else{
+       buffer.append('t');
+     }
+     buffer.append(((IdentifiedAnnotation)rel.getArg2().getArgument()).getId());
+     return buffer.toString();     
    }
 }
+                                                           

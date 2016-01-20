@@ -23,19 +23,15 @@ import java.util.ArrayList;
 //import java.io.IOException;
 import java.util.List;
 //import java.util.Map;
-
-
-
 import java.util.Map;
 
 import org.apache.ctakes.temporal.ae.feature.ClosestVerbExtractor;
-//import org.apache.ctakes.temporal.ae.feature.CoveredTextToValuesExtractor;
-import org.apache.ctakes.temporal.ae.feature.DateAndMeasurementExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventPropertyExtractor;
 import org.apache.ctakes.temporal.ae.feature.NearbyVerbTenseXExtractor;
 import org.apache.ctakes.temporal.ae.feature.SectionHeaderExtractor;
 import org.apache.ctakes.temporal.ae.feature.TimeXExtractor;
 import org.apache.ctakes.temporal.ae.feature.UmlsSingleFeatureExtractor;
+import org.apache.ctakes.temporal.utils.SoftMaxUtil;
 import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
 //import org.apache.ctakes.temporal.ae.feature.duration.DurationExpectationFeatureExtractor;
@@ -45,6 +41,8 @@ import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.CASException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
@@ -118,6 +116,10 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
 //  private CoveredTextToValuesExtractor disSemExtractor;
 //  private DurationExpectationFeatureExtractor durationExtractor;
   
+  public static final String PARAM_PROB_VIEW = "ProbView";
+  @ConfigurationParameter(name=PARAM_PROB_VIEW, mandatory=false)
+  private String probViewname = null;
+  
   @Override
   public void initialize(UimaContext context) throws ResourceInitializationException {
     super.initialize(context);
@@ -177,11 +179,34 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
     	  }
       } else {
 //        String outcome = this.classifier.classify(features);
+        Map<String,Double> scores = this.classifier.score(features);
         Map.Entry<String, Double> maxEntry = null;
-        for( Map.Entry<String, Double> entry: this.classifier.score(features).entrySet() ){
+        for( Map.Entry<String, Double> entry: scores.entrySet() ){
         	if(maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0){
         		maxEntry = entry;
         	}
+        }
+        
+        if (probViewname != null){
+          Map<String,Double> probs = SoftMaxUtil.getDistributionFromScores(scores);
+          try {
+            JCas probView = jCas.getView(probViewname);
+            for(String label : probs.keySet()){
+              EventMention mention = new EventMention(probView);
+              mention.setId(eventMention.getId());
+              mention.setConfidence(probs.get(label).floatValue());
+              Event event = new Event(probView);
+              EventProperties props = new EventProperties(probView);
+              props.setDocTimeRel(label);
+              event.setProperties(props);
+              mention.setEvent(event);
+              mention.addToIndexes();
+            }
+          } catch (CASException e) {
+            e.printStackTrace();
+            throw new AnalysisEngineProcessException(e);
+          }
+          
         }
         
         if (eventMention.getEvent() == null) {
