@@ -1016,7 +1016,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 
             
             // get maps from ids to entities and relations:
-            JCas probView = jcas.getView(probViewname);
+            JCas probView = (probViewname == null ? null : jcas.getView(probViewname));
             Map<Integer, List<EventMention>> mentions = probViewname == null? null : getMentionIdMap(jcas, probView);
             Map<String, List<TemporalTextRelation>> rels = probViewname == null ? null : getRelationIdMap(jcas, probView);
             
