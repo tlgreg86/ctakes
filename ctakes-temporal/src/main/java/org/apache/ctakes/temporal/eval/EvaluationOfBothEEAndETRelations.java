@@ -428,7 +428,14 @@ EvaluationOfTemporalRelations_ImplBase{
 		aggregateBuilder.add(aed);
 
 		if(this.anaforaOutput != null){
-			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteAnaforaXML.class, WriteAnaforaXML.PARAM_OUTPUT_DIR, this.anaforaOutput, WriteAnaforaXML.PARAM_PROB_VIEW, PROB_VIEW_NAME), "TimexView", CAS.NAME_DEFAULT_SOFA);
+                        aed = AnalysisEngineFactory.createEngineDescription(WriteAnaforaXML.class, WriteAnaforaXML.PARAM_OUTPUT_DIR, this.anaforaOutput);
+                        if(this.writeProbabilities){
+		          ConfigurationParameterFactory.addConfigurationParameters(
+		          aed,    
+		          WriteAnaforaXML.PARAM_PROB_VIEW, 
+		          PROB_VIEW_NAME);
+                        }
+                        aggregateBuilder.add(aed, "TimexView", CAS.NAME_DEFAULT_SOFA);
 		}
 
 		File outf = null;
