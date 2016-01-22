@@ -1018,7 +1018,7 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
             // get maps from ids to entities and relations:
             JCas probView = (probViewname == null ? null : jcas.getView(probViewname));
             Map<Integer, List<EventMention>> mentions = probViewname == null? null : getMentionIdMap(jcas, probView);
-            Map<String, List<TemporalTextRelation>> rels = probViewname == null ? null : getRelationIdMap(jcas, probView);
+            Map<String, List<TemporalTextRelation>> rels = probViewname == null ? null : getRelationIdMap(probView);
             
             // build the xml
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -1145,55 +1145,38 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 
 
             id = 1;
-            for ( TemporalTextRelation rel : JCasUtil.select( jcas, TemporalTextRelation.class ) ) {
-               Element linkEl = doc.createElement( "relation" );
-               String linkID = id + "@r@" + outFile + "@system";
-               id++;
-
-               Element idE = doc.createElement( "id" );
-               idE.setTextContent( linkID );
-               Element typeE = doc.createElement( "type" );
-               typeE.setTextContent( "TLINK" );
-               Element parentTE = doc.createElement( "parentsType" );
-               parentTE.setTextContent( "TemporalRelations" );
-               //add properties
-               Element property = doc.createElement( "properties" );
-
-               Annotation arg1 = rel.getArg1().getArgument();
-               Annotation arg2 = rel.getArg2().getArgument();
-               Element sourceE = doc.createElement( "Source" );
-               sourceE.setTextContent( argToId.get( arg1 ) );
-               Element relTypeE = doc.createElement( "Type" );
-               String relContent = null;
-               if(probViewname == null){
-                 relContent = rel.getCategory();
-               }else{
-                 String key = getRelationId(rel);
-                 StringBuffer buff = new StringBuffer();
-                 for(TemporalTextRelation probRel : rels.get(key)){
-                   buff.append(probRel.getCategory());
-                   buff.append(':');
-                   buff.append(probRel.getConfidence());
-                   buff.append("::");
-                 }
-                 relContent = buff.substring(0, buff.length()-2);
-               }
-               
-               relTypeE.setTextContent( relContent );
-               Element targetE = doc.createElement( "Target" );
-               targetE.setTextContent( argToId.get( arg2 ) );
-
-               property.appendChild( sourceE );
-               property.appendChild( relTypeE );
-               property.appendChild( targetE );
-
-               linkEl.appendChild( idE );
-               linkEl.appendChild( typeE );
-               linkEl.appendChild( parentTE );
-               linkEl.appendChild( property );
-               annoElement.appendChild( linkEl );
+            if(probViewname == null){
+              for ( TemporalTextRelation rel : JCasUtil.select( jcas, TemporalTextRelation.class ) ) {
+                Annotation arg1 = rel.getArg1().getArgument();
+                Annotation arg2 = rel.getArg2().getArgument();
+                String arg1Content = argToId.get( arg1 );
+                String arg2Content = argToId.get( arg2 );
+                String relContent = rel.getCategory();
+                annoElement.appendChild(addRelationElement(doc, id, relContent, arg1Content, arg2Content, outFile));
+                id++;
+              }
+            }else{
+              // need to keep track of which relations we've printed since they don't get grouped in the CAS
+              for(String key : rels.keySet()){
+                String arg1Content = null;
+                String arg2Content = null;
+                StringBuffer buff = new StringBuffer();
+                for(TemporalTextRelation probRel : rels.get(key)){
+                  buff.append(probRel.getCategory());
+                  buff.append(':');
+                  buff.append(probRel.getConfidence());
+                  buff.append("::");
+                  if(arg1Content == null){
+                    arg1Content = argToId.get(probRel.getArg1().getArgument());
+                    arg2Content = argToId.get(probRel.getArg2().getArgument());
+                  }
+                }
+                String relContent =  buff.substring(0, buff.length()-2);
+                annoElement.appendChild(addRelationElement(doc, id, relContent, arg1Content, arg2Content, outFile));
+                id++;
+              }
             }
-
+            
             rootElement.appendChild( infoElement );
             rootElement.appendChild( schema );
             rootElement.appendChild( annoElement );
@@ -1223,6 +1206,38 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 
       }
       
+      private static Element addRelationElement(Document doc, int id,  String relContent, String arg1Content, String arg2Content, String outFile){
+        Element linkEl = doc.createElement( "relation" );
+        String linkID = id + "@r@" + outFile + "@system";
+
+        Element idE = doc.createElement( "id" );
+        idE.setTextContent( linkID );
+        Element typeE = doc.createElement( "type" );
+        typeE.setTextContent( "TLINK" );
+        Element parentTE = doc.createElement( "parentsType" );
+        parentTE.setTextContent( "TemporalRelations" );
+        //add properties
+        Element property = doc.createElement( "properties" );
+
+        Element sourceE = doc.createElement( "Source" );
+        sourceE.setTextContent( arg1Content );
+        Element relTypeE = doc.createElement( "Type" );
+
+        relTypeE.setTextContent( relContent );
+        Element targetE = doc.createElement( "Target" );
+        targetE.setTextContent( arg2Content );
+
+        property.appendChild( sourceE );
+        property.appendChild( relTypeE );
+        property.appendChild( targetE );
+
+        linkEl.appendChild( idE );
+        linkEl.appendChild( typeE );
+        linkEl.appendChild( parentTE );
+        linkEl.appendChild( property );
+        return linkEl;        
+      }
+      
       private static Map<Integer, List<EventMention>> getMentionIdMap(JCas jcas, JCas probView){
         HashMap<Integer, List<EventMention>> map = new HashMap<>();
         
@@ -1238,19 +1253,16 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
         return map;
       }
       
-      private static Map<String, List<TemporalTextRelation>> getRelationIdMap(JCas jcas, JCas probView){
+      private static Map<String, List<TemporalTextRelation>> getRelationIdMap(JCas probView){
         HashMap<String, List<TemporalTextRelation>> map = new HashMap<>();
         
-        for(TemporalTextRelation rel : JCasUtil.select(jcas, TemporalTextRelation.class)){
-          List<TemporalTextRelation> variations = new ArrayList<>();
-          String idStr = getRelationId(rel);
-          for(TemporalTextRelation probRel : JCasUtil.select(probView, TemporalTextRelation.class)){
-            String probStr = getRelationId(probRel);            
-            if(idStr.equals(probStr)){
-              variations.add(probRel);
-            }
+        for(TemporalTextRelation probRel : JCasUtil.select(probView, TemporalTextRelation.class)){
+          String idStr = getRelationId(probRel);
+          if(!map.containsKey(idStr)){
+            map.put(idStr, new ArrayList<TemporalTextRelation>());
           }
-          map.put(idStr, variations);
+          List<TemporalTextRelation> variations = map.get(idStr);
+          variations.add(probRel);          
         }
         
         return map;

@@ -223,6 +223,22 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
         	  confidence = maxEntry.getValue().doubleValue();
           }
           
+          // before creating the final relation (and possibly flipping the order of arguments) 
+          // create the probabilistic copies in the other cas if that flag is set:
+          if(probViewname != null){
+            try {
+              JCas probView = jCas.getView(probViewname);
+              Map<String,Double> probs = SoftMaxUtil.getDistributionFromScores(scores);
+              
+              for(String label : probs.keySet()){
+                createRelation(probView, arg1, arg2, label, probs.get(label));
+              }
+            } catch (CASException e) {
+              e.printStackTrace();
+              throw new AnalysisEngineProcessException(e);
+            }
+          }
+
           // add a relation annotation if a true relation was predicted
           if (predictedCategory != null && !predictedCategory.equals(NO_RELATION_CATEGORY)) {
 
@@ -236,19 +252,6 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
             }
 
             createRelation(jCas, arg1, arg2, predictedCategory, confidence);
-          }
-          if(probViewname != null){
-            try {
-              JCas probView = jCas.getView(probViewname);
-              Map<String,Double> probs = SoftMaxUtil.getDistributionFromScores(scores);
-              
-              for(String label : probs.keySet()){
-                createRelation(probView, arg1, arg2, label, probs.get(label));
-              }
-            } catch (CASException e) {
-              e.printStackTrace();
-              throw new AnalysisEngineProcessException(e);
-            }
           }
         }
       } // end pair in pairs
