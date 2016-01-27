@@ -68,7 +68,7 @@ public class THYMEKnowtatorXMLReader extends SHARPKnowtatorXMLReader {
   }
 
   @Override
-  protected URI getKnowtatorURI(JCas jCas) throws AnalysisEngineProcessException {
+  protected URI getKnowtatorURI(JCas jCas) {
     URI uri = this.getTextURI(jCas);
     File file = new File(uri.getPath());
     String subDir = file.getName().substring(3, 5);
