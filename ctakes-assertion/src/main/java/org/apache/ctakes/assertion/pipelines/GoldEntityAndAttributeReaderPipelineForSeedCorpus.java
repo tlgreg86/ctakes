@@ -211,10 +211,9 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 	
 	public static void readSharpStratifiedUmls(File releaseDirectory, File trainDirectory, File testDirectory, File devDirectory) throws UIMAException, IOException{
 	  File mayoStrat = new File(releaseDirectory, "SHARP/MayoStrat/by-batch/umls");
-	  // sghStrat not annotated yet...
-	  File sghStrat = new File(releaseDirectory, "SHARP/SGHStrat1/by-batch/umls");
+	  // sghStrat not annotated yet... on the off chance it ever is, add it to the array below.
 	  
-	  readSharpUmls(new File[] {mayoStrat, sghStrat}, trainDirectory, testDirectory, devDirectory, 
+	  readSharpUmls(new File[] {mayoStrat}, trainDirectory, testDirectory, devDirectory, 
 	      new Function<File,Subcorpus>(){
 	    public Subcorpus apply(File f){
 	      return SharpCorpusSplit.splitStratified(f);
@@ -262,9 +261,11 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 	      AnalysisEngineDescription goldAnnotator = AnalysisEngineFactory.createEngineDescription(
 	          SHARPKnowtatorXMLReader.class,
 	          typeSystemDescription,
-	          "TextDirectory", // 3/13/13 halgrim changed from "TextURI" trying to work with new SHARPKnowtatorXMLReader.java
+	          SHARPKnowtatorXMLReader.PARAM_TEXT_DIRECTORY, // 3/13/13 halgrim changed from "TextURI" trying to work with new SHARPKnowtatorXMLReader.java
 	          //"/work/medfacts/sharp/data/2012-10-16_full_data_set_updated/Seed_Corpus/sandbox/batch02_mayo/knowtator/"
-	          textDirectory.toString() + "/"
+	          textDirectory.toString() + "/",
+	          SHARPKnowtatorXMLReader.PARAM_SET_DEFAULTS,
+	          true
 	      );
 	      aggregate.add(goldAnnotator);
 
@@ -384,7 +385,7 @@ public class GoldEntityAndAttributeReaderPipelineForSeedCorpus {
 		TypeSystemDescription typeSystemDescription = 
 			TypeSystemDescriptionFactory.createTypeSystemDescription();
 
-		HashMap<File,File> splitMipacq = new HashMap<File,File>();
+		HashMap<File,File> splitMipacq = new HashMap<>();
 		splitMipacq.put(new File(inputDirectory+"/text/train"), preprocessedDirectory);
 		splitMipacq.put(new File(inputDirectory+"/text/test"),  testDirectory);
 		splitMipacq.put(new File(inputDirectory+"/text/dev"),   devDirectory);

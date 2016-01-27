@@ -40,6 +40,7 @@ import org.apache.ctakes.typesystem.type.refsem.Course;
 import org.apache.ctakes.typesystem.type.refsem.Date;
 import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
+import org.apache.ctakes.typesystem.type.refsem.LabDeltaFlag;
 import org.apache.ctakes.typesystem.type.refsem.LabReferenceRange;
 import org.apache.ctakes.typesystem.type.refsem.LabValue;
 import org.apache.ctakes.typesystem.type.refsem.MedicationDosage;
@@ -64,6 +65,7 @@ import org.apache.ctakes.typesystem.type.relation.IndicatesTextRelation;
 import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManagesTreatsTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManifestationOfTextRelation;
+import org.apache.ctakes.typesystem.type.relation.PreventsTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.ResultOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
@@ -79,6 +81,7 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.GenericModifier;
 import org.apache.ctakes.typesystem.type.textsem.HistoryOfModifier;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.apache.ctakes.typesystem.type.textsem.LabDeltaFlagModifier;
 import org.apache.ctakes.typesystem.type.textsem.LabEstimatedModifier;
 import org.apache.ctakes.typesystem.type.textsem.LabInterpretationModifier;
 import org.apache.ctakes.typesystem.type.textsem.LabMention;
@@ -106,6 +109,7 @@ import org.apache.ctakes.typesystem.type.textsem.UncertaintyModifier;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.CASRuntimeException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -155,28 +159,22 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
   /**
    * Get the URI that the text in this class was loaded from
    */
-  protected URI getTextURI(JCas jCas) throws AnalysisEngineProcessException {
+  protected URI getTextURI(JCas jCas) {
     String textPath = JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID();
     if (this.textDirectory != null) {
       textPath = this.textDirectory + File.separator + textPath;
     }
 
-    // srh changing to try to get to work on Windows
-//    try {
     File tmpFile = new File(textPath);
     URI answer = tmpFile.toURI();
     return answer;
-      // return new URI(textPath);
-//    } catch (URISyntaxException e) {
-//      throw new AnalysisEngineProcessException(e);
-//    }
   }
   
   /**
    * Get the URI for the Knowtator XML file that should be loaded
    * @throws URISyntaxException 
    */
-  protected URI getKnowtatorURI(JCas jCas) throws AnalysisEngineProcessException {
+  protected URI getKnowtatorURI(JCas jCas) {
     File textURI = new File(this.getTextURI(jCas));
     String filename = textURI.getName().replace(".txt", "");
     File xmlPath = new File(textURI.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "by-document/" + filename + "/" + filename + ".umls.knowtator.xml");
@@ -227,6 +225,7 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
     entityRelationTypes.add("location_of");
     entityRelationTypes.add("manages/treats");
     entityRelationTypes.add("manifestation_of"); // note the misspelling
+    entityRelationTypes.add("prevents");
     entityRelationTypes.add("result_of");
     Set<String> eventRelationTypes = new HashSet<String>();
     eventRelationTypes.add("TLINK");
@@ -398,7 +397,8 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
             labValue,
             ResultOfTextRelation.class,
             LabValueModifier.class));
-
+        KnowtatorAnnotation deltaFlag = annotationSlots.remove("delta_flag");
+        delayedFeatures.add(new DelayedFeature(mention, "deltaFlag", deltaFlag));
       } else if ("Medications/Drugs".equals(annotation.type)) {
         MedicationMention mention = new MedicationMention(jCas, coveringSpan.begin, coveringSpan.end);
         addIdentifiedAnnotationFeatures(
@@ -427,6 +427,8 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
         delayedFeatures.add(new DelayedFeature(mention, "medicationRoute", route));
         KnowtatorAnnotation startDate = annotationSlots.remove("start_date");
         delayedFeatures.add(new DelayedFeature(mention, "startDate", startDate));
+        KnowtatorAnnotation endDate = annotationSlots.remove("end_date");
+        delayedFeatures.add(new DelayedFeature(mention, "endDate", endDate));
         KnowtatorAnnotation strength = annotationSlots.remove("strength_model");
         delayedFeatures.add(new DelayedFeature(mention, "medicationStrength", strength));
 
@@ -843,7 +845,15 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
         modifier.setNormalizedForm(attribute);
         modifier.addToIndexes();
         idAnnotationMap.put(annotation.id, modifier);
-
+      } else if ("delta_flag_indicator".equals(annotation.type)) {
+        String value = stringSlots.remove("delta_flag_normalization");
+        LabDeltaFlagModifier modifier = new LabDeltaFlagModifier(jCas, coveringSpan.begin, coveringSpan.end);
+        LabDeltaFlag attribute = new LabDeltaFlag(jCas);
+        attribute.setValue(value);
+        attribute.addToIndexes();
+        modifier.setNormalizedForm(attribute);
+        modifier.addToIndexes();
+        idAnnotationMap.put(annotation.id, modifier);
       } else if ("Value".equals(annotation.type)) {
         KnowtatorAnnotation unit = annotationSlots.remove("value_unit");
         KnowtatorAnnotation number = annotationSlots.remove("value_number");
@@ -968,18 +978,23 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
         KnowtatorAnnotation unit = annotationSlots.remove("strength_unit");
         KnowtatorAnnotation number = annotationSlots.remove("strength_number");
         MedicationStrength attribute = new MedicationStrength(jCas);
+        int spanStart=text.length()-1,spanEnd=0;  // the strength annotation is spanless so we get the modifier span by its components
         if (unit != null) {
           KnowtatorAnnotation.Span unitSpan = unit.getCoveringSpan();
           String unitString = text.substring(unitSpan.begin, unitSpan.end);
           attribute.setUnit(unitString);
+          if(unitSpan.begin < spanStart) spanStart = unitSpan.begin;
+          if(unitSpan.end > spanEnd) spanEnd = unitSpan.end;
         }
         if (number != null) {
           KnowtatorAnnotation.Span numberSpan = number.getCoveringSpan();
           String numberString = text.substring(numberSpan.begin, numberSpan.end);
           attribute.setNumber(numberString);
+          if(numberSpan.begin < spanStart) spanStart = numberSpan.begin;
+          if(numberSpan.end > spanEnd) spanEnd = numberSpan.end;
         }
         attribute.addToIndexes();
-        MedicationStrengthModifier modifier = new MedicationStrengthModifier(jCas, coveringSpan.begin, coveringSpan.end);
+        MedicationStrengthModifier modifier = new MedicationStrengthModifier(jCas, spanStart, spanEnd);
         modifier.setNormalizedForm(attribute);
         modifier.addToIndexes();
         idAnnotationMap.put(annotation.id, modifier);
@@ -1021,9 +1036,11 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
       } else if ("Date".equals(annotation.type)) {
         String month = stringSlots.remove("month");
         String day = stringSlots.remove("day");
+        String year = stringSlots.remove("year");
         Date date = new Date(jCas);
         date.setMonth(month);
         date.setDay(day);
+        date.setYear(year);
         date.addToIndexes();
         TimeMention mention = new TimeMention(jCas, coveringSpan.begin, coveringSpan.end);
         mention.setDate(date);
@@ -1084,7 +1101,11 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
 
     // all mentions should be added, so add features that required other annotations
     for (DelayedFeature delayedFeature : delayedFeatures) {
-      delayedFeature.setValueFrom(idAnnotationMap);
+      try{
+        delayedFeature.setValueFrom(idAnnotationMap);
+      }catch(CASRuntimeException e){
+        LOGGER.error(String.format("Unable to set delayed feature value with message %s", e.getMessage()));
+      }
     }
   }
   
@@ -1318,6 +1339,9 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
         this.assertTypes(sourceMention, EventMention.class, targetMention, EventMention.class);
         relation = new ManifestationOfTextRelation(jCas);
         relation.setCategory("manifestation_of"); // fix typo in Knowtator type system
+      } else if ("prevents".equals(this.annotation.type)) {
+        this.assertTypes(sourceMention, EventMention.class, targetMention, EventMention.class);
+        relation = new PreventsTextRelation(jCas);
       } else if ("result_of".equals(this.annotation.type)) {
         this.assertTypes(sourceMention, EventMention.class, targetMention, IdentifiedAnnotation.class);
         relation = new ResultOfTextRelation(jCas);
