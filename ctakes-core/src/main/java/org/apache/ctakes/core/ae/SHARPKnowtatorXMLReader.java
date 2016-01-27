@@ -177,13 +177,10 @@ public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
    * @throws URISyntaxException 
    */
   protected URI getKnowtatorURI(JCas jCas) throws AnalysisEngineProcessException {
-    String textURI = this.getTextURI(jCas).toString();
-    String xmlURI = textURI.replaceAll("Knowtator[/\\\\]text", "Knowtator_XML") + ".knowtator.xml";
-    File fileTest = new File(URI.create(xmlURI));
-    if(!fileTest.exists()){
-      xmlURI = xmlURI.replace("_XML", " XML");
-    }
-    return UriUtils.create(xmlURI);
+    File textURI = new File(this.getTextURI(jCas));
+    String filename = textURI.getName().replace(".txt", "");
+    File xmlPath = new File(textURI.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "by-document/" + filename + "/" + filename + ".umls.knowtator.xml");
+    return UriUtils.create("file:" + xmlPath.getAbsolutePath());
   }
 
   /**
