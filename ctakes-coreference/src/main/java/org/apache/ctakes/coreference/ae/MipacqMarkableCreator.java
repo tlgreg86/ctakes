@@ -18,30 +18,45 @@
  */
 package org.apache.ctakes.coreference.ae;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Scanner;
+import java.util.Set;
 
+import org.apache.ctakes.coreference.type.DemMarkable;
+import org.apache.ctakes.coreference.type.NEMarkable;
+import org.apache.ctakes.coreference.type.PronounMarkable;
+import org.apache.ctakes.coreference.util.AnnotationSelector;
+import org.apache.ctakes.typesystem.type.syntax.Chunk;
+import org.apache.ctakes.typesystem.type.syntax.WordToken;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import org.apache.ctakes.coreference.util.AnnotationSelector;
-import org.apache.ctakes.typesystem.type.syntax.Chunk;
-import org.apache.ctakes.typesystem.type.syntax.WordToken;
-import org.apache.ctakes.coreference.type.DemMarkable;
-import org.apache.ctakes.coreference.type.NEMarkable;
-import org.apache.ctakes.coreference.type.PronounMarkable;
-
 public class MipacqMarkableCreator extends JCasAnnotator_ImplBase {
 
 	public static int nextID = 0;
-	HashSet<String> modalAdj;
-	HashSet<String> cogved;
-	HashSet<String> otherVerb;
+	public static final String PARAM_MODAL_ADJ = "modalAdj";
+	@ConfigurationParameter(name = PARAM_MODAL_ADJ, mandatory=false, defaultValue="org/apache/ctakes/coreference/modalAdjs.txt")
+	File modalAdjFile = null;	
+	Set<String> modalAdj;
+	
+	public static final String PARAM_COGVED = "cogVeds";
+	@ConfigurationParameter(name = PARAM_COGVED, mandatory=false, defaultValue="org/apache/ctakes/coreference/cogVeds.txt")
+	File cogvedFile = null;
+	Set<String> cogved;
+	
+	public static final String PARAM_OTHER_VERB = "otherVerbs";
+	@ConfigurationParameter(name = PARAM_OTHER_VERB, mandatory=false, defaultValue="org/apache/ctakes/coreference/otherVerbs.txt")
+	File otherVerbFile=null;
+	Set<String> otherVerb;
 
 	// LOG4J logger based on class name
 	private Logger logger = Logger.getLogger(getClass().getName());
@@ -51,17 +66,26 @@ public class MipacqMarkableCreator extends JCasAnnotator_ImplBase {
 		super.initialize(uc);
 
 		// Load modal adjectives and cognitive verbs for pleonastic patterns
-		String[] ma = (String[]) uc.getConfigParameterValue("modalAdj");
-		modalAdj = new HashSet<String>();
-		for (String s : ma) modalAdj.add(s);
-		String[] cv = (String[]) uc.getConfigParameterValue("cogved");
-		cogved = new HashSet<String>();
-		for (String s : cv) cogved.add(s);
-		String[] ov = (String[]) uc.getConfigParameterValue("otherVerb");
-		otherVerb = new HashSet<String>();
-		for (String s : ov) otherVerb.add(s);
+		try{
+		  modalAdj = readWordlistFile(modalAdjFile);
+		  cogved = readWordlistFile(cogvedFile);
+		  otherVerb = readWordlistFile(otherVerbFile);
+		}catch(FileNotFoundException e){
+		  throw new ResourceInitializationException(e);
+		}
 	}
 
+	private static final Set<String> readWordlistFile(File inputFile) throws FileNotFoundException{
+	  HashSet<String> words = new HashSet<>();
+	  try(Scanner scanner = new Scanner(inputFile)){
+	    while(scanner.hasNextLine()){
+	      String line = scanner.nextLine().trim();
+	      words.add(line);
+	    }
+	  }
+	  return words;
+	}
+	
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 

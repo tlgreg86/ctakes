@@ -22,62 +22,39 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.LinkedList;
-import java.util.Vector;
 
-import org.apache.log4j.Logger;
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.EmptyFSList;
-import org.apache.uima.jcas.cas.FSList;
-import org.apache.uima.jcas.cas.NonEmptyFSList;
-import org.apache.uima.jcas.cas.NonEmptyFloatList;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.ctakes.coreference.type.BooleanLabeledFS;
-
-
-import org.apache.ctakes.core.resource.FileResource;
-import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
-import org.apache.ctakes.coreference.eval.helpers.Span;
-import org.apache.ctakes.coreference.eval.helpers.SpanAlignment;
-import org.apache.ctakes.coreference.eval.helpers.SpanOffsetComparator;
-import org.apache.ctakes.coreference.util.CorefConsts;
-import org.apache.ctakes.coreference.util.FSIteratorToList;
-import org.apache.ctakes.coreference.util.MarkableTreeUtils;
-import org.apache.ctakes.coreference.util.PairAttributeCalculator;
-import org.apache.ctakes.coreference.util.ParentPtrTree;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
-import org.apache.ctakes.typesystem.type.syntax.Chunk;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.coreference.type.DemMarkable;
 import org.apache.ctakes.coreference.type.Markable;
-import org.apache.ctakes.coreference.type.MarkablePair;
 import org.apache.ctakes.coreference.type.MarkablePairSet;
 import org.apache.ctakes.coreference.type.NEMarkable;
 import org.apache.ctakes.coreference.type.PronounMarkable;
+import org.apache.ctakes.coreference.util.CorefConsts;
+import org.apache.ctakes.coreference.util.FSIteratorToList;
+import org.apache.ctakes.coreference.util.PairAttributeCalculator;
+import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.syntax.Chunk;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.apache.log4j.Logger;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.EmptyFSList;
+import org.apache.uima.jcas.cas.NonEmptyFSList;
+import org.apache.uima.jcas.tcas.Annotation;
 
 public class MipacqMarkablePairGenerator extends JCasAnnotator_ImplBase {
 
+  public static final String PARAM_STOPWORDS_FILE = "StopFile";
+  @ConfigurationParameter(name=PARAM_STOPWORDS_FILE, mandatory=false, defaultValue="org/apache/ctakes/coreference/models/stop.txt")
+  File stopwordFile = null;
+  HashSet<String> stopwords;
+  
 	// LOG4J logger based on class name
 	private Logger logger = Logger.getLogger(getClass().getName());
-	private int maxSpanID = 0;
-	HashSet<String> stopwords;
-//	ParentPtrTree ppt;
-//	
-//	Vector<Span> goldSpans = null;
-//	Hashtable<String,Integer> goldSpan2id = null;
-//	Vector<int[]> goldPairs = null;
-//	
-//	Vector<Span> sysSpans = null;
-//	Hashtable<String,Integer> sysSpan2id = null;
-//	Vector<int[]> sysPairs = null;
-//	Hashtable<Integer, Integer> sysId2AlignId = null;
-//	Hashtable<Integer, Integer> goldId2AlignId = null;
-//	Hashtable<Integer, Integer> alignId2GoldId = null;
-//	int[] goldEqvCls;
 	int numVecs = 0;
 	
 	@Override
@@ -86,20 +63,20 @@ public class MipacqMarkablePairGenerator extends JCasAnnotator_ImplBase {
 		
 		// Load stop words list
 		try {
-			stopwords = new HashSet<String>();
-			FileResource r = (FileResource) uc.getResourceObject("stopWords");
-			BufferedReader br = new BufferedReader(new FileReader(r.getFile()));
-			String l;
-			while ((l = br.readLine())!=null) {
-				l = l.trim();
-				if (l.length()==0) continue;
-				int i = l.indexOf('|');
-				if (i > 0)
-					stopwords.add(l.substring(0,i).trim());
-				else if (i < 0)
-					stopwords.add(l.trim());
+			stopwords = new HashSet<>();
+			try(BufferedReader br = new BufferedReader(new FileReader(stopwordFile))){
+			  String l;
+			  while ((l = br.readLine())!=null) {
+			    l = l.trim();
+			    if (l.length()==0) continue;
+			    int i = l.indexOf('|');
+			    if (i > 0)
+			      stopwords.add(l.substring(0,i).trim());
+			    else if (i < 0)
+			      stopwords.add(l.trim());
+			  }
 			}
-			logger.info("Stop words list loaded: " + r.getFile().getAbsolutePath());
+			logger.info("Stop words list loaded: " + stopwordFile.getAbsolutePath());
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("Error loading stop words list");
@@ -111,33 +88,12 @@ public class MipacqMarkablePairGenerator extends JCasAnnotator_ImplBase {
 	public void process(JCas jcas) throws AnalysisEngineProcessException {
 		// read the gold standard
 		numVecs = 0;
-//		sysId2AlignId = new Hashtable<Integer, Integer>();
-//		goldId2AlignId = new Hashtable<Integer, Integer>();
-//		alignId2GoldId = new Hashtable<Integer, Integer>();
-		String docName = DocumentIDAnnotationUtil.getDocumentID(jcas);
-//		if (docName==null) docName = "141471681_1";
-//		System.out.print("creating vectors for "+docName);
-//		loadGoldStandard(docName);
-//		else loadGoldStandard();
+//		String docName = DocumentIDAnnotationUtil.getDocumentID(jcas);
 
 		// Convert the orderless FSIterator to List, sort by char offsets
 		LinkedList<Annotation> lm = FSIteratorToList.convert(
 				jcas.getJFSIndexRepository().getAnnotationIndex(Markable.type).iterator());
 		
-//		loadSystemPairs(lm);
-//		// align the spans
-//		SpanAlignment sa = new SpanAlignment(goldSpans.toArray(new Span[goldSpans.size()]),
-//				sysSpans.toArray(new Span[sysSpans.size()]));
-//
-//		int[] id = sa.get1();
-//		for (int i = 0; i < id.length; i++){
-//			alignId2GoldId.put(id[i]+maxSpanID, goldSpan2id.get(goldSpans.get(i).toString()));
-//			goldId2AlignId.put(goldSpan2id.get(goldSpans.get(i).toString()), id[i] + maxSpanID);
-//		}
-//		id = sa.get2();
-//		for (int i = 0; i < id.length; i++){
-//			sysId2AlignId.put(sysSpan2id.get(sysSpans.get(i).toString()), id[i]+maxSpanID);
-//		}
 		// now iterate over system markables and add the ones that match gold standard as
 		// true, otherwise false
 		for (int p = 1; p < lm.size(); ++p) {
@@ -218,13 +174,6 @@ public class MipacqMarkablePairGenerator extends JCasAnnotator_ImplBase {
 				tail = (NonEmptyFSList) tail.getTail();
 			}
 			tail.setHead(labeledAntecedent);
-//			if (isGoldPair(a, m)){
-//				labeledAntecedent.setLabel(true);
-//				// FIXME this cannot be done, it's implicitly looking at the label and changing the possible outcomes...
-//				break; // stop if a gold pair is found
-//			}else{
-//				labeledAntecedent.setLabel(false);
-//			}
 		}
 		if(tail == null) pairList.setAntecedentList(new EmptyFSList(jcas));
 		else tail.setTail(new EmptyFSList(jcas));
@@ -254,13 +203,6 @@ public class MipacqMarkablePairGenerator extends JCasAnnotator_ImplBase {
 				tail = (NonEmptyFSList) tail.getTail();
 			}
 			tail.setHead(labeledAntecedent);
-//			if (isGoldPair(a, m)){
-//				// FIXME
-//				labeledAntecedent.setLabel(true);
-//				break; // stop if a gold pair is found
-//			}else{
-//				labeledAntecedent.setLabel(false);
-//			}
 		}
 		if(tail == null) pairList.setAntecedentList(new EmptyFSList(jcas));
 		else tail.setTail(new EmptyFSList(jcas));
@@ -294,13 +236,6 @@ public class MipacqMarkablePairGenerator extends JCasAnnotator_ImplBase {
 				tail = (NonEmptyFSList) tail.getTail();
 			}
 			tail.setHead(labeledAntecedent);
-//			if (isGoldPair(a, m)){
-//				// FIXME
-//				labeledAntecedent.setLabel(true);
-//				break; // stop if a gold pair is found
-//			}else{
-//				labeledAntecedent.setLabel(false);
-//			}
 		}
 		if(tail == null) pairList.setAntecedentList(new EmptyFSList(jcas));
 		else tail.setTail(new EmptyFSList(jcas));

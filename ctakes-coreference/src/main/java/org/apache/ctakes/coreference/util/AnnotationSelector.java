@@ -22,12 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 //import java.util.Iterator;
-
-import org.apache.log4j.Logger;
-import org.apache.uima.cas.FSIterator;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.FSArray;
-import org.apache.uima.jcas.tcas.Annotation;
+import java.util.Set;
 
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
@@ -38,6 +33,11 @@ import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.log4j.Logger;
+import org.apache.uima.cas.FSIterator;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.FSArray;
+import org.apache.uima.jcas.tcas.Annotation;
 
 // TODO: This class hardcoded all the criteria,
 // which should be replaced by a parser of
@@ -83,7 +83,7 @@ public class AnnotationSelector {
 	}
 
 	public static ArrayList<WordToken> selectPronoun (JCas jcas,
-			HashSet<String> modalAdj, HashSet<String> cogved, HashSet<String> othervb,
+			Set<String> modalAdj, Set<String> cogved, Set<String> othervb,
 			Logger logger) {
 		Hashtable<String, WordToken> offset2token = new Hashtable<String, WordToken>();
 		ArrayList<WordToken> ret = new ArrayList<WordToken>();
@@ -118,7 +118,7 @@ public class AnnotationSelector {
 	}
 
 	private static boolean isPleonastic (TerminalTreebankNode ttn,
-			HashSet<String> modalAdj, HashSet<String> cogved, HashSet<String> othervb) {
+			Set<String> modalAdj, Set<String> cogved, Set<String> othervb) {
 		if (!ttn.getCoveredText().equalsIgnoreCase("it")) return false;
 
 		if (ttn.getNodeType().equals("PRP")) {

@@ -36,18 +36,13 @@ public class AbstractClassifier {
 	private svm_model svmCls = null;
 	private int clsIndex = -1;
 
-	public AbstractClassifier(UimaContext uc, String key, int len) {
+	public AbstractClassifier(File fn, int len) {
 		try{
-			File file = ((FileResource)uc.getResourceObject(key)).getFile();
-			String fn = file.getAbsolutePath();
-			svmCls = svm.svm_load_model(fn);
+			svmCls = svm.svm_load_model(fn.getAbsolutePath());
 			int[] labels = new int[2];
 			svm.svm_get_labels(svmCls, labels);
 			clsIndex = labels[0]==1 ? 0 : 1;
 		}catch(IOException e){
-			e.printStackTrace();
-		} catch (ResourceAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

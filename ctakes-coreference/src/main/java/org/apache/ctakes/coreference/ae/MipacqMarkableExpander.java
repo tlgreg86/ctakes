@@ -24,20 +24,17 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.FSIterator;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
-
-import org.apache.ctakes.coreference.eval.helpers.Span;
-import org.apache.ctakes.coreference.util.FSIteratorToList;
-import org.apache.ctakes.coreference.util.MarkableTreeUtils;
-import org.apache.ctakes.typesystem.type.syntax.Chunk;
-import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
 import org.apache.ctakes.coreference.type.DemMarkable;
 import org.apache.ctakes.coreference.type.Markable;
 import org.apache.ctakes.coreference.type.NEMarkable;
+import org.apache.ctakes.coreference.util.FSIteratorToList;
+import org.apache.ctakes.coreference.util.MarkableTreeUtils;
+import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.FSIterator;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 
 public class MipacqMarkableExpander extends JCasAnnotator_ImplBase {
 
@@ -50,12 +47,13 @@ public class MipacqMarkableExpander extends JCasAnnotator_ImplBase {
 		mergeNP(aJCas);
 		elevateAdjectives(aJCas);
 		iter = aJCas.getJFSIndexRepository().getAnnotationIndex(Markable.type).iterator();
-		rmDup(aJCas, FSIteratorToList.convert(iter));
+		rmDup(FSIteratorToList.convert(iter));
 	}
 
-	private void removeDoctors(JCas jCas) {
+	/*
+	private static void removeDoctors(JCas jCas) {
 		FSIterator<Annotation> iter = jCas.getAnnotationIndex(NEMarkable.type).iterator();
-		ArrayList<Annotation> rm = new ArrayList<Annotation>();
+		ArrayList<Annotation> rm = new ArrayList<>();
 		while(iter.hasNext()){
 			NEMarkable m = (NEMarkable) iter.next();
 			if(m.getCoveredText().equalsIgnoreCase("dr")){
@@ -65,11 +63,11 @@ public class MipacqMarkableExpander extends JCasAnnotator_ImplBase {
 		for(Annotation a: rm){
 			a.removeFromIndexes();
 		}
-	}
+	}*/
 
-	private void removeHistoryOf(JCas jCas) {
+	private static void removeHistoryOf(JCas jCas) {
 		FSIterator<Annotation> iter = jCas.getAnnotationIndex(NEMarkable.type).iterator();
-		ArrayList<Annotation> rm = new ArrayList<Annotation>();
+		ArrayList<Annotation> rm = new ArrayList<>();
 		while(iter.hasNext()){
 			NEMarkable m = (NEMarkable) iter.next();
 			if(m.getCoveredText().equalsIgnoreCase("history of")){
@@ -81,10 +79,10 @@ public class MipacqMarkableExpander extends JCasAnnotator_ImplBase {
 		}
 	}
 
-	private void expandToNP (JCas aJCas, LinkedList<Annotation> markables) {
+	private static void expandToNP (JCas aJCas, LinkedList<Annotation> markables) {
 //		FSIterator<Annotation> iter = aJCas.getJFSIndexRepository().getAnnotationIndex(LookupWindowAnnotation.type).iterator();
-		FSIterator<Annotation> iter = aJCas.getAnnotationIndex(TreebankNode.type).iterator();
-		LinkedList<Annotation> l = FSIteratorToList.convert(iter);
+//		FSIterator<Annotation> iter = aJCas.getAnnotationIndex(TreebankNode.type).iterator();
+//		LinkedList<Annotation> l = FSIteratorToList.convert(iter);
 
 		for (Annotation m : markables){
 			TreebankNode node = MarkableTreeUtils.markableNode(aJCas, m.getBegin(), m.getEnd());
@@ -116,7 +114,8 @@ public class MipacqMarkableExpander extends JCasAnnotator_ImplBase {
 
 	// are any of the named entities contained within this chunk?
 	// if so return the first that is.
-	private Annotation containsAny (Chunk c, LinkedList<Annotation> l) {
+	/*
+	private static Annotation containsAny (Chunk c, LinkedList<Annotation> l) {
 		int a = c.getBegin();
 		int b = c.getEnd();
 		for (Annotation ne : l)
@@ -126,19 +125,20 @@ public class MipacqMarkableExpander extends JCasAnnotator_ImplBase {
 				return null;
 		return null;
 	}
+	*/
 
 	// merge NP# -> NP' PP, where NP' is marked as a Markable, by making NP# a markable  
-	private void mergeNP (JCas jcas) {
+	private static void mergeNP (JCas jcas) {
 		Map<Integer,TreebankNode> innerMap = null;
 		// mark the boundaries of every NP:
 		FSIterator<Annotation> nodeIter = jcas.getAnnotationIndex(TreebankNode.type).iterator();
-		HashMap<Integer,Map<Integer,TreebankNode>> npMap = new HashMap<Integer,Map<Integer,TreebankNode>>();
+		HashMap<Integer,Map<Integer,TreebankNode>> npMap = new HashMap<>();
 		while(nodeIter.hasNext()){
 			TreebankNode node = (TreebankNode) nodeIter.next();
 			if(node.getNodeType().equals("NP")){
 				innerMap = npMap.get(node.getBegin());
 				if(innerMap == null){
-					innerMap = new HashMap<Integer,TreebankNode>();
+					innerMap = new HashMap<>();
 				}
 				innerMap.put(node.getEnd(), node);
 				npMap.put(node.getBegin(), innerMap);
@@ -168,7 +168,7 @@ public class MipacqMarkableExpander extends JCasAnnotator_ImplBase {
 	 * 	surgical procedures
 	 */
 
-	private void elevateAdjectives(JCas jcas){
+	private static void elevateAdjectives(JCas jcas){
 		FSIterator<Annotation> markables = jcas.getAnnotationIndex(NEMarkable.type).iterator();
 		while(markables.hasNext()){
 			NEMarkable mark = (NEMarkable) markables.next();
@@ -187,9 +187,9 @@ public class MipacqMarkableExpander extends JCasAnnotator_ImplBase {
 			
 	}
 
-	private void rmDup(JCas aJCas, LinkedList<Annotation> markables) {
-		HashSet<Annotation> rm = new HashSet<Annotation>();
-		HashMap<String,Annotation> keep = new HashMap<String,Annotation>();
+	private static void rmDup(LinkedList<Annotation> markables) {
+		HashSet<Annotation> rm = new HashSet<>();
+		HashMap<String,Annotation> keep = new HashMap<>();
 		
 		for (int i = 0; i < markables.size(); i++) {
 			Annotation m1 = markables.get(i);

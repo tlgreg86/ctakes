@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.coreference.ae;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,11 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import libsvm.svm;
-import libsvm.svm_model;
-import libsvm.svm_node;
-
-import org.apache.ctakes.core.resource.FileResource;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.coreference.type.BooleanLabeledFS;
 import org.apache.ctakes.coreference.type.DemMarkable;
@@ -49,12 +45,12 @@ import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.relation.CoreferenceRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FSIterator;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.EmptyFSList;
 import org.apache.uima.jcas.cas.FSList;
@@ -62,13 +58,26 @@ import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 
+import libsvm.svm_node;
+
 public class MipacqSvmChainCreator extends JCasAnnotator_ImplBase {
 
+  public static final String PARAM_STOPWORDS_FILENAME = "StopWords";
+  @ConfigurationParameter(name = PARAM_STOPWORDS_FILENAME, mandatory=false, defaultValue="org/apache/ctakes/coreference/models/stop.txt")
+  File stopwordFile = null;
+  HashSet<String> stopwords;
+
+  public static final String PARAM_FRAGS_FILENAME = "FragsFile";
+  @ConfigurationParameter(name = PARAM_FRAGS_FILENAME, mandatory=false, defaultValue="org/apache/ctakes/coreference/models/frags.txt")
+  File treefragFile = null;
+  private ArrayList<String> treeFrags;
+  
+  public static final String PARAM_COREF_MODEL = "ModelFile";
+  @ConfigurationParameter(name = PARAM_COREF_MODEL, mandatory=false, defaultValue="org/apache/ctakes/coreference/models/ne.mayo.rbf.model")
+  File modelFile = null;
+  
 	// LOG4J logger based on class name
 	private Logger logger = Logger.getLogger(getClass().getName());
-
-	// debug
-	private boolean debug = false;
 
 	// svm models
 //	private AbstractClassifier mod_pron, mod_dem, mod_coref;
@@ -80,24 +89,6 @@ public class MipacqSvmChainCreator extends JCasAnnotator_ImplBase {
 //	private int coref_idx;
 	private SvmVectorCreator vecCreator = null;
 	
-//	ParentPtrTree ppt;
-
-	HashSet<String> stopwords;
-	private ArrayList<String> treeFrags;
-
-/*	private svm_model loadModel (UimaContext uc, String m) {
-		svm_model ret = null;
-		try {
-			String r = ((FileResource) uc.getResourceObject(m)).getFile().getAbsolutePath();
-			ret = svm.svm_load_model(r);
-			logger.info(m+" loaded: "+r);
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error("Error loading "+m);
-		}
-		return ret;
-	}
-*/
 	@Override
 	public void initialize(UimaContext uc) throws ResourceInitializationException {
 		super.initialize(uc);
@@ -107,43 +98,35 @@ public class MipacqSvmChainCreator extends JCasAnnotator_ImplBase {
 		// FIXME why is there a minus one here?
 //		mod_pron = new AbstractClassifier(uc, "svmPronModel", FeatureVector.getPronCorefFeatures().length + SyntaxAttributeCalculator.getNumPronFeats() - 1);
 //		mod_dem = new AbstractClassifier(uc, "svmDemModel", FeatureVector.getDemCorefFeatures().length + SyntaxAttributeCalculator.getNumDemFeats() - 1);
-		mod_coref = new AbstractClassifier(uc, "svmCorefModel", FeatureVector.getNECorefFeatures().length + SyntaxAttributeCalculator.getNumNEFeats() - 1);
-
-//		int[] labels = new int[2];
-//		svm.svm_get_labels(mod_anaphoricity, labels);
-//		anaphoricity_idx = labels[0]==1 ? 0 : 1;
-		//		svm.svm_get_labels(mod_coref, labels);
-		//		coref_idx = labels[0]==1 ? 0 : 1;
+		mod_coref = new AbstractClassifier(modelFile, FeatureVector.getNECorefFeatures().length + SyntaxAttributeCalculator.getNumNEFeats() - 1);
 
 		// Load stop words list
 		try {
-			stopwords = new HashSet<String>();
-			FileResource r = (FileResource) uc.getResourceObject("stopWords");
-			Scanner scanner = new Scanner(r.getFile());
-			String l;
-			while (scanner.hasNextLine()) {
-				l = scanner.nextLine().trim();
-				if (l.length()==0) continue;
-				int i = l.indexOf('|');
-				if (i > 0)
-					stopwords.add(l.substring(0,i).trim());
-				else if (i < 0)
-					stopwords.add(l.trim());
+			stopwords = new HashSet<>();
+			try(Scanner scanner = new Scanner(stopwordFile)){
+			  String l;
+			  while (scanner.hasNextLine()) {
+			    l = scanner.nextLine().trim();
+			    if (l.length()==0) continue;
+			    int i = l.indexOf('|');
+			    if (i > 0)
+			      stopwords.add(l.substring(0,i).trim());
+			    else if (i < 0)
+			      stopwords.add(l.trim());
+			  }
+			  logger.info("Stop words list loaded: " + stopwordFile.getAbsolutePath());
+			  vecCreator = new SvmVectorCreator(stopwords);
 			}
-			logger.info("Stop words list loaded: " + r.getFile().getAbsolutePath());
-			vecCreator = new SvmVectorCreator(stopwords);
+      treeFrags = new ArrayList<>();
+			try(Scanner scanner = new Scanner(treefragFile)){
 
-			treeFrags = new ArrayList<String>();
-			r = (FileResource) uc.getResourceObject("frags");
-			if(r != null){
-				scanner = new Scanner(r.getFile());
-				while(scanner.hasNextLine()){
-					String line = scanner.nextLine();
-					treeFrags.add(line.split(" ")[1]);
-				}
-				vecCreator.setFrags(treeFrags);
+			  while(scanner.hasNextLine()){
+			    String line = scanner.nextLine();
+			    treeFrags.add(line.split(" ")[1]);
+			  }
+			  vecCreator.setFrags(treeFrags);
+			  logger.info("Tree fragment features loaded: " + treefragFile.getAbsolutePath());
 			}
-			logger.info("Tree fragment features loaded: " + r.getFile().getAbsolutePath());
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("Error loading stop words list");
@@ -155,7 +138,7 @@ public class MipacqSvmChainCreator extends JCasAnnotator_ImplBase {
 		// Convert the orderless FSIterator to List, sort by char offsets
 		LinkedList<Annotation> lm = FSIteratorToList.convert(
 				jcas.getJFSIndexRepository().getAnnotationIndex(Markable.type).iterator());
-		Map<Markable, NonEmptyFSList> collectionRas = new HashMap<Markable, NonEmptyFSList>();
+		Map<Markable, NonEmptyFSList> collectionRas = new HashMap<>();
 		String docName = DocumentIDAnnotationUtil.getDocumentID(jcas);
 		logger.info("Classifying coreference in document: " + docName);
 //		ArrayList<CollectionTextRelation> chains = new ArrayList<CollectionTextRelation>();
@@ -166,7 +149,7 @@ public class MipacqSvmChainCreator extends JCasAnnotator_ImplBase {
 //		ppt = new ParentPtrTree(lm.size());
 
 		// Make a data structure mapping markables to indexes so we don't lose the order if we re-arrange
-		Map<Markable, Integer> m2q = new HashMap<Markable,Integer>();
+		Map<Markable, Integer> m2q = new HashMap<>();
 		
 		for(int p = 0; p < lm.size(); p++){
 			m2q.put((Markable)lm.get(p), p);
@@ -176,7 +159,7 @@ public class MipacqSvmChainCreator extends JCasAnnotator_ImplBase {
 		while(iter.hasNext()){
 			MarkablePairSet set = (MarkablePairSet) iter.next();
 			Markable anaphor = set.getAnaphor();
-			FSList fs = (FSList) set.getAntecedentList();
+			FSList fs = set.getAntecedentList();
 			MarkableProb bestAnte = null;
 			LinkedList<Markable> ll = fs2ll(fs);
 			if(anaphor instanceof PronounMarkable){
@@ -243,17 +226,7 @@ public class MipacqSvmChainCreator extends JCasAnnotator_ImplBase {
 					chain.setMembers(anteNode);
 					chain.addToIndexes();
 				}
-				anteNode.setTail(node);
-				
-				
-//				ppt.union(m2q.get(anaphor), m2q.get(bestAnte.m));
-				if(anaphor instanceof PronounMarkable){
-					// if the anaphor is a pronoun then it won't be in the cas as an identifiedannotation so we need to add it.
-					IdentifiedAnnotation ia = new IdentifiedAnnotation(jcas);
-					// TODO
-				}
-			}else{
-//				indexNegativeExample(jcas, bestAnte.m, anaphor, bestAnte.prob);
+				anteNode.setTail(node);				
 			}
 		}
 		logger.info("Done classifying document: " + docName);
@@ -300,8 +273,8 @@ public class MipacqSvmChainCreator extends JCasAnnotator_ImplBase {
 	}
 
 
-	private LinkedList<Markable> fs2ll(FSList fs) {
-		LinkedList<Markable> ll = new LinkedList<Markable>();
+	private static LinkedList<Markable> fs2ll(FSList fs) {
+		LinkedList<Markable> ll = new LinkedList<>();
 		while(fs instanceof NonEmptyFSList){
 			NonEmptyFSList node = (NonEmptyFSList) fs;
 			BooleanLabeledFS feat = (BooleanLabeledFS) node.getHead();
@@ -311,7 +284,8 @@ public class MipacqSvmChainCreator extends JCasAnnotator_ImplBase {
 		}
 		return ll;
 	}
-	
+
+	/*
 	private MarkableProb processPronoun(Markable anaphor, LinkedList<Markable> anteList, JCas jcas){
 		Markable ante = null;
 		double bestProb = 0.0;
@@ -334,7 +308,7 @@ public class MipacqSvmChainCreator extends JCasAnnotator_ImplBase {
 		}
 		return new MarkableProb(ante, bestProb);
 	}
-
+*/
 	private MarkableProb processNE(Markable anaphor, List<Markable> anteList, JCas jcas){
 		Markable ante = null;
 		double bestProb = 0.0;
@@ -353,12 +327,15 @@ public class MipacqSvmChainCreator extends JCasAnnotator_ImplBase {
 		return new MarkableProb(ante, bestProb);
 	}
 	
-	private MarkableProb processNELazily(Markable anaphor, List<Markable> anteList, JCas jcas){
+	/*
+	private static MarkableProb processNELazily(Markable anaphor, List<Markable> anteList, JCas jcas){
 		if(anteList.size() > 0) return new MarkableProb(anteList.get(0), 1.0);
-		else return new MarkableProb(null,0.0);
+		
+		return new MarkableProb(null,0.0);
 	}
+	*/
 	
-	private MarkableProb processDem(Markable anaphor, List<Markable> anteList, JCas jcas){
+	private static MarkableProb processDem(Markable anaphor, List<Markable> anteList, JCas jcas){
 		double bestProb = 0.0;
 		TreebankNode n = MarkableTreeUtils.markableNode(jcas, anaphor.getBegin(), anaphor.getEnd());
 		TreebankNode parent = (n != null ? n.getParent() : null);
