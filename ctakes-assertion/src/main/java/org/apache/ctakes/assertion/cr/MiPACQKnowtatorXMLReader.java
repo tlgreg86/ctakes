@@ -34,7 +34,6 @@ import org.apache.ctakes.assertion.util.AssertionConst;
 import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
 import org.apache.ctakes.core.knowtator.KnowtatorAnnotation;
 import org.apache.ctakes.core.knowtator.KnowtatorXMLParser;
-import org.apache.ctakes.core.util.CtakesFileNamer;
 import org.apache.ctakes.core.util.SHARPKnowtatorXMLDefaults;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.refsem.BodyLaterality;
@@ -136,8 +135,9 @@ public class MiPACQKnowtatorXMLReader extends JCasAnnotator_ImplBase {
   public static final String PARAM_SET_DEFAULTS = "SetDefaults";
   @ConfigurationParameter(
       name = PARAM_SET_DEFAULTS,
-      description = "whether or not to set default attribute values if no annotation is present")
-  private boolean setDefaults;
+      description = "whether or not to set default attribute values if no annotation is present",
+      mandatory=false)
+  private boolean setDefaults=true;
 
   private static final Map<String, String> SUBJECT_KNOWTATOR_TO_UIMA_MAP;
   static {
@@ -283,7 +283,7 @@ public class MiPACQKnowtatorXMLReader extends JCasAnnotator_ImplBase {
     }
 
     // parse the Knowtator XML file into annotation objects
-    KnowtatorXMLParser parser = new KnowtatorXMLParser(this.getAnnotatorNames());
+    KnowtatorXMLParser parser = new KnowtatorXMLParser(getAnnotatorNames());
     Collection<KnowtatorAnnotation> annotations;
     try {
       annotations = parser.parse(knowtatorURI);
@@ -297,15 +297,15 @@ public class MiPACQKnowtatorXMLReader extends JCasAnnotator_ImplBase {
     Set<String> nonAnnotationTypes = Sets.newHashSet(); // those expected not to have spans
 
     // create a CAS object for each annotation
-    Map<String, TOP> idAnnotationMap = new HashMap<String, TOP>();
-    List<DelayedFeature> delayedFeatures = new ArrayList<DelayedFeature>();
+    Map<String, TOP> idAnnotationMap = new HashMap<>();
+    List<DelayedFeature> delayedFeatures = new ArrayList<>();
     LOGGER.info("Processing " + annotations.size() + " annotations for " + knowtatorURI);
     for (final KnowtatorAnnotation annotation : annotations) {
 
       // copy the slots so we can remove them as we use them
-      Map<String, String> stringSlots = new HashMap<String, String>(annotation.stringSlots);
-      Map<String, Boolean> booleanSlots = new HashMap<String, Boolean>(annotation.booleanSlots);
-      Map<String, KnowtatorAnnotation> annotationSlots = new HashMap<String, KnowtatorAnnotation>(
+      Map<String, String> stringSlots = new HashMap<>(annotation.stringSlots);
+      Map<String, Boolean> booleanSlots = new HashMap<>(annotation.booleanSlots);
+      Map<String, KnowtatorAnnotation> annotationSlots = new HashMap<>(
           annotation.annotationSlots);
       KnowtatorAnnotation.Span coveringSpan = annotation.getCoveringSpan();
       
@@ -1098,7 +1098,7 @@ public class MiPACQKnowtatorXMLReader extends JCasAnnotator_ImplBase {
       }
 
       // make sure all slots have been consumed
-      Map<String, Set<String>> slotGroups = new HashMap<String, Set<String>>();
+      Map<String, Set<String>> slotGroups = new HashMap<>();
       slotGroups.put("stringSlots", stringSlots.keySet());
       slotGroups.put("booleanSlots", booleanSlots.keySet());
       slotGroups.put("annotationSlots", annotationSlots.keySet());
