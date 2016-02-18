@@ -24,8 +24,6 @@ import java.util.Map.Entry;
 
 import org.apache.ctakes.assertion.eval.AssertionEvaluation;
 import org.apache.ctakes.assertion.util.AssertionConst;
-
-import scala.actors.threadpool.Arrays;
 /**
  * For each assertion attribute (polarity, conditional, etc), train a model using the data
  * in the training directories for that attribute, and store the model under the models-dir

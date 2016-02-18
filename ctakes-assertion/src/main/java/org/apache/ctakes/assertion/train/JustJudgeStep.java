@@ -18,16 +18,10 @@
  */
 package org.apache.ctakes.assertion.train;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import org.apache.ctakes.assertion.eval.AssertionEvaluation;
 import org.apache.ctakes.assertion.pipelines.RunJudgeAttributeInstances;
 import org.apache.ctakes.assertion.util.AssertionConst;
-import org.kohsuke.args4j.Option;
-
-import scala.actors.threadpool.Arrays;
 
 public class JustJudgeStep {
 

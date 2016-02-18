@@ -20,13 +20,12 @@ package org.apache.ctakes.assertion.train;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.ctakes.assertion.eval.AssertionEvaluation;
 import org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.util.AssertionConst;
-
-import scala.actors.threadpool.Arrays;
 
 
 /**
