@@ -23,7 +23,8 @@ import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.jcas.JCas;
-import org.threeten.bp.temporal.TemporalUnit;
+//import org.threeten.bp.temporal.TemporalUnit;
+import java.time.temporal.TemporalUnit;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.util.JCasUtil;
 
@@ -59,7 +60,7 @@ public class PrintNormalizedTemporalExpressions extends JCasAnnotator_ImplBase {
         scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
         while(iterator.hasNext()) {
           TemporalUnit unit = iterator.next();
-          System.out.println(timex + "|" + unit.getName());
+          System.out.println(timex + "|" + unit.toString());
         } 
       }
     }

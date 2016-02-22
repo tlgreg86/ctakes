@@ -38,7 +38,8 @@ import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.threeten.bp.temporal.TemporalUnit;
+//import org.threeten.bp.temporal.TemporalUnit;
+import java.time.temporal.TemporalUnit;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
@@ -166,7 +167,7 @@ public class ExtractDurationsUsingContainsRelation {
         scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
         while(iterator.hasNext()) {
           TemporalUnit unit = iterator.next();
-          String coarseUnit = Utils.putInBin(unit.getName());
+          String coarseUnit = Utils.putInBin(unit.toString());
           if(coarseUnit != null) {
             if(eventTimeUnitCount.containsKey(eventText)) {
               eventTimeUnitCount.get(eventText).add(coarseUnit);

@@ -28,7 +28,8 @@ import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
-import org.threeten.bp.temporal.TemporalUnit;
+//import org.threeten.bp.temporal.TemporalUnit;
+import java.time.temporal.TemporalUnit;
 
 import scala.collection.immutable.Set;
 
@@ -41,7 +42,7 @@ public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtract
   public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1, IdentifiedAnnotation arg2)
       throws AnalysisEngineProcessException {
     
-    List<Feature> features = new ArrayList<Feature>();
+    List<Feature> features = new ArrayList<>();
     String timeText = arg2.getCoveredText().toLowerCase();  // arg2 is a time mention
 
     Set<TemporalUnit> units = Utils.runTimexParser(timeText);
@@ -53,7 +54,7 @@ public class DurationTimeUnitFeatureExtractor implements RelationFeaturesExtract
     scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
     while(iterator.hasNext()) {
       TemporalUnit unit = iterator.next();
-      String coarseTimeUnit = Utils.putInBin(unit.getName());
+      String coarseTimeUnit = Utils.putInBin(unit.toString());
       
       if(coarseTimeUnit == null) {
         features.add(new Feature("failed_normalization", true));

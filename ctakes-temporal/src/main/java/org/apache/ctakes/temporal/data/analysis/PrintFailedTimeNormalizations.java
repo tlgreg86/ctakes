@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.temporal.data.analysis;
 
+import info.bethard.timenorm.DefaultTokenizer$;
 import info.bethard.timenorm.Temporal;
 import info.bethard.timenorm.TemporalExpressionParser;
 import info.bethard.timenorm.TimeSpan;
@@ -78,7 +79,7 @@ public class PrintFailedTimeNormalizations {
 
     String grammarPath = "/org/apache/ctakes/temporal/timenorm.en.grammar";
     URL grammarURL = PrintFailedTimeNormalizations.class.getResource(grammarPath);
-    TemporalExpressionParser parser = new TemporalExpressionParser(grammarURL);
+    TemporalExpressionParser parser = new TemporalExpressionParser(grammarURL, DefaultTokenizer$.MODULE$);
     for (Iterator<JCas> casIter = new JCasIterator(reader, aggregateBuilder.createAggregate()); casIter.hasNext();) {
       JCas jCas = casIter.next();
       JCas goldView = jCas.getView("GoldView");
