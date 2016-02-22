@@ -18,18 +18,13 @@
  */
 package org.apache.ctakes.temporal.duration;
 
-import info.bethard.timenorm.Period;
-import info.bethard.timenorm.PeriodSet;
-import info.bethard.timenorm.Temporal;
-import info.bethard.timenorm.TemporalExpressionParser;
-import info.bethard.timenorm.TimeSpan;
-import info.bethard.timenorm.TimeSpanSet;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.temporal.TemporalField;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,16 +41,11 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
-import org.threeten.bp.temporal.TemporalField;
-import org.threeten.bp.temporal.TemporalUnit;
-import org.apache.uima.fit.factory.CollectionReaderFactory;
-import org.apache.uima.fit.util.JCasUtil;
-
-import scala.collection.immutable.Set;
-import scala.util.Try;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -67,6 +57,15 @@ import com.googlecode.clearnlp.engine.EngineGetter;
 import com.googlecode.clearnlp.morphology.AbstractMPAnalyzer;
 import com.googlecode.clearnlp.reader.AbstractReader;
 
+import info.bethard.timenorm.Period;
+import info.bethard.timenorm.PeriodSet;
+import info.bethard.timenorm.Temporal;
+import info.bethard.timenorm.TemporalExpressionParser;
+import info.bethard.timenorm.TimeSpan;
+import info.bethard.timenorm.TimeSpanSet;
+import scala.collection.immutable.Set;
+import scala.util.Try;
+import info.bethard.timenorm.DefaultTokenizer$;
 /**
  * Various useful classes and methods for evaluating event duration data.
  */
@@ -95,7 +94,7 @@ public class Utils {
     scala.collection.Iterator<TemporalUnit> iterator = units.iterator();
     while(iterator.hasNext()) {
       TemporalUnit unit = iterator.next();
-      String bin = putInBin(unit.getName());
+      String bin = putInBin(unit.toString());
       if(bin != null) {
         timeUnits.add(bin);    
       }
@@ -110,7 +109,7 @@ public class Utils {
   public static Set<TemporalUnit> runTimexParser(String timex) {
 
     URL grammarURL = DurationEventTimeFeatureExtractor.class.getResource("/info/bethard/timenorm/en.grammar");
-    TemporalExpressionParser parser = new TemporalExpressionParser(grammarURL);
+    TemporalExpressionParser parser = new TemporalExpressionParser(grammarURL, DefaultTokenizer$.MODULE$);
     TimeSpan anchor = TimeSpan.of(2013, 12, 16);
     Try<Temporal> result = parser.parse(timex, anchor);
 
