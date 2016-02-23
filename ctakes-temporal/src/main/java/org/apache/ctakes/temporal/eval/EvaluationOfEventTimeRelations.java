@@ -319,7 +319,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		aggregateBuilder.add(EventTimeSelfRelationAnnotator.createDataWriterDescription(
 				LibLinearStringOutcomeDataWriter.class,
-				//				LIBSVMStringOutcomeDataWriter.class,
+//								LibSvmStringOutcomeDataWriter.class,
 				//				TKSVMlightStringOutcomeDataWriter.class,
 				//        TKLIBSVMStringOutcomeDataWriter.class,
 				//        SVMlightStringOutcomeDataWriter.class,        
