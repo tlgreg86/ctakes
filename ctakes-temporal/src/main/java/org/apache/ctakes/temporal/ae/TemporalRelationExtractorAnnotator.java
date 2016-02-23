@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -66,6 +67,8 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
 
   public static final String PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE =
       "ProbabilityOfKeepingANegativeExample";
+  
+  public static Map<String, Integer> category_frequency = new LinkedHashMap<>();
 
   @ConfigurationParameter(
       name = PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
@@ -199,6 +202,12 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
             continue;
           }
 
+          //populate category_frequency count:
+          if(category_frequency.containsKey(category)){
+        	  category_frequency.put(category, category_frequency.get(category)+1);
+          }else{
+        	  category_frequency.put(category, 1);
+          }
           // create a classification instance and write it to the training data
           this.dataWriter.write(new Instance<>(category, features));
         }

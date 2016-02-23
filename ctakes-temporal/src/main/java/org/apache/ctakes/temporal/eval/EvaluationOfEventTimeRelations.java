@@ -37,6 +37,7 @@ import java.util.Set;
 
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.ae.EventTimeSelfRelationAnnotator;
+import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeSyntacticAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
@@ -353,9 +354,23 @@ EvaluationOfTemporalRelations_ImplBase{
 				optArray[i] = "-" + optArray[i];
 			}
 		}
+		
+		//calculate class-wise weights:
+		String[] weightArray=new String[TemporalRelationExtractorAnnotator.category_frequency.size()*2+2];
+		int weight_idx = 0;
+		float baseFreq = TemporalRelationExtractorAnnotator.category_frequency.get(TemporalRelationExtractorAnnotator.NO_RELATION_CATEGORY);
+		for( Map.Entry<String, Integer> entry: TemporalRelationExtractorAnnotator.category_frequency.entrySet()){
+			weightArray[weight_idx*2] = "-w"+Integer.toString(weight_idx + 1);
+			float weight = baseFreq/entry.getValue();
+			weightArray[weight_idx*2+1] = Float.toString(weight);
+			weight_idx ++;
+			System.err.println("Category:"+entry.getKey()+"  freq:"+entry.getValue() + "   weight:"+weight);
+		}
 
+		weightArray[weight_idx*2] = "-c";
+		weightArray[weight_idx*2+1] = optArray[1];
 		//    HideOutput hider = new HideOutput();
-		JarClassifierBuilder.trainAndPackage(new File(directory,"event-time"), "-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", optArray[1]);//"-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", optArray[1]);//"-w4","18","-w5","14","-w6","21","-w7","100","-w8","19","-c", optArray[1]);//"0.05");//"-h","0","-c", "1000");//optArray);
+		JarClassifierBuilder.trainAndPackage(new File(directory,"event-time"), weightArray);//"-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18"//"-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", optArray[1]);//"-w4","18","-w5","14","-w6","21","-w7","100","-w8","19","-c", optArray[1]);//"0.05");//"-h","0","-c", "1000");//optArray);
 		//		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"), "-h","0","-c", "1000");
 		//    hider.restoreOutput();
 		//    hider.close();
