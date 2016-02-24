@@ -37,6 +37,7 @@ import java.util.Set;
 
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
+import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeSyntacticAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
@@ -66,7 +67,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.FileUtils;
 import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
-//import org.cleartk.ml.libsvm.LIBSVMStringOutcomeDataWriter;
+import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
 //import org.cleartk.ml.tksvmlight.TKSVMlightStringOutcomeDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
 import org.cleartk.eval.AnnotationStatistics;
@@ -128,7 +129,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	protected static ParameterSettings ftParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk", 
 			1.0, 0.1, "radial basis function", ComboOperator.SUM, 0.5, 0.5);
 	private static Boolean recallModeEvaluation = true;
-	
+
 	static int sysRelationCount;
 	static int closeRelationCount;
 	static int goldRelationCount;
@@ -139,7 +140,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		closeRelationCount = 0;
 		goldRelationCount = 0;
 		closeGoldRelationCount = 0;
-		
+
 		TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
 		List<Integer> trainItems = null;
 		List<Integer> devItems = null;
@@ -184,7 +185,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					options.getUseGoldAttributes(),
 					options.getKernelParams(),
 					params);
-//			evaluation.prepareXMIsFor(patientSets);
+			//			evaluation.prepareXMIsFor(patientSets);
 			if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/temporal-relations/event-event");
 			List<Integer> training = trainItems;
 			List<Integer> testing = null;
@@ -194,9 +195,9 @@ EvaluationOfTemporalRelations_ImplBase{
 			}else{
 				testing = devItems;
 			}
-			
+
 			evaluation.printErrors = false;
-			
+
 			//do closure on system, but not on gold, to calculate recall
 			evaluation.skipTrain = options.getSkipTrain();
 			if(evaluation.skipTrain && options.getTest()){
@@ -207,29 +208,29 @@ EvaluationOfTemporalRelations_ImplBase{
 			evaluation.printErrors=true;
 			params.stats = evaluation.trainAndTest(training, testing);//training);//
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-//			System.err.println("No closure on gold::Closure on System::Recall Mode");
+			//			System.err.println("No closure on gold::Closure on System::Recall Mode");
 			System.err.println(params.stats);
-			
+
 			System.err.println("System predict relations #: "+ sysRelationCount);
 			System.err.println("# of system relations whose arguments are close: "+ closeRelationCount);
 			System.err.println("Gold relations #: "+ goldRelationCount);
 			System.err.println("# of gold relations whose arguments are close: "+ closeGoldRelationCount);
 
 			//do closure on gold, but not on system, to calculate precision
-//			evaluation.skipTrain = true;
-//			recallModeEvaluation = false;
-//			params.stats = evaluation.trainAndTest(training, testing);//training);//
-//			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-//			System.err.println("No closure on System::Closure on Gold::Precision Mode");
-//			System.err.println(params.stats);
-//
-//			//do closure on train, but not on test, to calculate plain results
-//			evaluation.skipTrain = true;
-//			evaluation.useClosure = false;
-//			params.stats = evaluation.trainAndTest(training, testing);//training);//
-//			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-//			System.err.println("Closure on train::No closure on Test::Plain Mode");
-//			System.err.println(params.stats);
+			//			evaluation.skipTrain = true;
+			//			recallModeEvaluation = false;
+			//			params.stats = evaluation.trainAndTest(training, testing);//training);//
+			//			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
+			//			System.err.println("No closure on System::Closure on Gold::Precision Mode");
+			//			System.err.println(params.stats);
+			//
+			//			//do closure on train, but not on test, to calculate plain results
+			//			evaluation.skipTrain = true;
+			//			evaluation.useClosure = false;
+			//			params.stats = evaluation.trainAndTest(training, testing);//training);//
+			//			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
+			//			System.err.println("Closure on train::No closure on Test::Plain Mode");
+			//			System.err.println(params.stats);
 
 			if(options.getUseTmp()){
 				// won't work because it's not empty. should we be concerned with this or is it responsibility of 
@@ -302,9 +303,9 @@ EvaluationOfTemporalRelations_ImplBase{
 		if(!this.useGoldAttributes){
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveGoldAttributes.class));
 		}
-		
+
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PreserveEventEventRelations.class));
-		
+
 		if (this.useClosure) {
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddClosure.class));//aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class));
 			//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddContain2Overlap.class));
@@ -314,16 +315,16 @@ EvaluationOfTemporalRelations_ImplBase{
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
-		
-		
+
+
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonUMLSEvents.class));
-		
+
 		//add unlabeled nearby system events as potential links: 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddEEPotentialRelations.class));
-				
+
 		aggregateBuilder.add(EventEventRelationAnnotator.createDataWriterDescription(
 				LibLinearStringOutcomeDataWriter.class,
-				//				LIBSVMStringOutcomeDataWriter.class,
+				//				LibSvmStringOutcomeDataWriter.class,
 				//				TKSVMlightStringOutcomeDataWriter.class,
 				//        TKLIBSVMStringOutcomeDataWriter.class,
 				//        SVMlightStringOutcomeDataWriter.class,        
@@ -358,8 +359,22 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 		}
 
-		//    HideOutput hider = new HideOutput();
-		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"),"-w2","13","-w3","86","-c", optArray[1]);//"-w2","12","-w3","102",//"-w1","29","-w3","12","-w4","80","-w5","228","-w6","79","-w7","49","-w8","157","-w9","553","-w10","384",//"-w1","29","-w3","12","-w4","79","-w5","255","-w6","75","-w7","50","-w8","144","-w9","544","-w10","384",//"-w1","25","-w3","9","-w4","79","-w5","267","-w6","89","-w7","60","-w8","152","-w9","615","-w10","404",//"-w1","0.2","-w3","15","-w4","4","-w5","64","-w6","24","-w7","29","-w9","70","-c", optArray[1]);"-c", "0.05");//"0.08","-w3","3","-w4","17","-w5","20","-w6","16","-w7","10","-w8","6", "-w9","45","-w10","30","-c", optArray[1]);//"-c", "0.05");//optArray);
+		//calculate class-wise weights:
+		String[] weightArray=new String[TemporalRelationExtractorAnnotator.category_frequency.size()*2+2];
+		int weight_idx = 0;
+		float baseFreq = TemporalRelationExtractorAnnotator.category_frequency.get(TemporalRelationExtractorAnnotator.NO_RELATION_CATEGORY);
+		for( Map.Entry<String, Integer> entry: TemporalRelationExtractorAnnotator.category_frequency.entrySet()){
+			weightArray[weight_idx*2] = "-w"+Integer.toString(weight_idx + 1);
+			float weight = baseFreq/entry.getValue();
+			weightArray[weight_idx*2+1] = Float.toString(weight);
+			weight_idx ++;
+			System.err.println("Category:"+entry.getKey()+"  freq:"+entry.getValue() + "   weight:"+weight);
+		}
+
+		weightArray[weight_idx*2] = "-c";
+		weightArray[weight_idx*2+1] = optArray[1];
+		
+		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"), weightArray);//"-w2","12","-w3","102",//"-w1","29","-w3","12","-w4","80","-w5","228","-w6","79","-w7","49","-w8","157","-w9","553","-w10","384",//"-w1","29","-w3","12","-w4","79","-w5","255","-w6","75","-w7","50","-w8","144","-w9","544","-w10","384",//"-w1","25","-w3","9","-w4","79","-w5","267","-w6","89","-w7","60","-w8","152","-w9","615","-w10","404",//"-w1","0.2","-w3","15","-w4","4","-w5","64","-w6","24","-w7","29","-w9","70","-c", optArray[1]);"-c", "0.05");//"0.08","-w3","3","-w4","17","-w5","20","-w6","16","-w7","10","-w8","6", "-w9","45","-w10","30","-c", optArray[1]);//"-c", "0.05");//optArray);
 		//		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"), "-h","0","-c", "1000");
 		//    hider.restoreOutput();
 		//    hider.close();
@@ -378,7 +393,7 @@ EvaluationOfTemporalRelations_ImplBase{
 				CAS.NAME_DEFAULT_SOFA,
 				RemoveCrossSentenceRelations.PARAM_RELATION_VIEW,
 				GOLD_VIEW_NAME));
-		
+
 		aggregateBuilder.add(
 				AnalysisEngineFactory.createEngineDescription(PreserveEventEventRelations.class),
 				CAS.NAME_DEFAULT_SOFA,
@@ -390,17 +405,17 @@ EvaluationOfTemporalRelations_ImplBase{
 					CAS.NAME_DEFAULT_SOFA,
 					GOLD_VIEW_NAME);
 		}
-		
+
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class),
 				CAS.NAME_DEFAULT_SOFA,
 				GOLD_VIEW_NAME);
-		
-//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEvents.class));
+
+		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEvents.class));
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
 		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
 			EventEventRelationAnnotator.createAnnotatorDescription(new File(directory,"event-event")));
-		
+
 		//count how many system predicted relations, their arguments are close to each other, without any other event in between
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CountCloseRelation.class));
 
@@ -497,11 +512,11 @@ EvaluationOfTemporalRelations_ImplBase{
 		outDrop.close();
 		return stats;
 	}
-	
+
 	public static class CountCloseRelation extends JCasAnnotator_ImplBase {
 
 		private String systemViewName = CAS.NAME_DEFAULT_SOFA;
-		
+
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
 			JCas systemView, goldView;
@@ -528,7 +543,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					closeRelationCount++;
 				}
 			}
-			
+
 			Map<List<Annotation>, TemporalTextRelation> relationLookup = new HashMap<>();
 			for (TemporalTextRelation relation : Lists.newArrayList(JCasUtil.select(goldView, TemporalTextRelation.class))) {
 				Annotation arg1 = relation.getArg1().getArgument();
@@ -601,7 +616,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 		}   
 	}
-	
+
 	public static class AddEEPotentialRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 		public static final String PARAM_RELATION_VIEW = "RelationView";
 		@ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
@@ -617,9 +632,9 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 
 			Set<List<EventMention>> relationLookup = new HashSet<>();
-			
+
 			Map<EventMention, Collection<EventMention>> coveringMap =
-					  JCasUtil.indexCovering(relationView, EventMention.class, EventMention.class);
+					JCasUtil.indexCovering(relationView, EventMention.class, EventMention.class);
 			for(TemporalTextRelation relation : Lists.newArrayList(JCasUtil.select(relationView, TemporalTextRelation.class))){
 				Annotation arg1 = relation.getArg1().getArgument();
 				Annotation arg2 = relation.getArg2().getArgument();
@@ -678,7 +693,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			relation.setArg2(relArg2);
 			relation.setCategory(category);
 			relation.addToIndexes();
-			
+
 		}
 	}
 
@@ -724,7 +739,7 @@ EvaluationOfTemporalRelations_ImplBase{
   }
 	 */
 
-	
+
 
 	//	@SuppressWarnings("unchecked")
 	//	private static <SPAN> Collection<BinaryTextRelation> getDuplicateRelations(
