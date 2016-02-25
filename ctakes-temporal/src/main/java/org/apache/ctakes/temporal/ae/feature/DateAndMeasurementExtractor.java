@@ -35,7 +35,7 @@ import org.cleartk.ml.Feature;
 import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
-public class DateAndMeasurementExtractor implements FeatureExtractor1 {
+public class DateAndMeasurementExtractor implements FeatureExtractor1<Annotation> {
 
   private String name;
 
