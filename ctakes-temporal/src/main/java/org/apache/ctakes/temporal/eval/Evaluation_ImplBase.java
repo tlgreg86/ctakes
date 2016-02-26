@@ -21,6 +21,7 @@ package org.apache.ctakes.temporal.eval;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.lexicalscope.jewel.cli.Option;
+
 import org.apache.ctakes.chunker.ae.Chunker;
 import org.apache.ctakes.chunker.ae.DefaultChunkCreator;
 import org.apache.ctakes.chunker.ae.adjuster.ChunkAdjuster;
@@ -39,6 +40,7 @@ import org.apache.ctakes.temporal.ae.I2B2TemporalXMLReader;
 import org.apache.ctakes.temporal.ae.THYMEAnaforaXMLReader;
 import org.apache.ctakes.temporal.ae.THYMEKnowtatorXMLReader;
 import org.apache.ctakes.temporal.ae.THYMETreebankReader;
+import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -84,6 +86,7 @@ import org.cleartk.timeml.util.TimeWordsExtractor;
 import org.cleartk.util.ViewUriUtil;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
 import org.cleartk.util.cr.UriCollectionReader;
+//import org.threeten.bp.temporal.TemporalUnit;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.ContentHandler;
@@ -99,6 +102,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1126,6 +1130,13 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
                //add properties
                Element property = doc.createElement( "properties" );
                String timeClass = timex.getTimeClass();
+               
+               //add normalized timex
+               scala.collection.immutable.Set<TemporalUnit> units = Utils.runTimexParser(timex.getCoveredText());
+               if(units != null){
+            	   property.setTextContent( units.mkString() );
+               }
+               
                if ( timeClass!=null && (timeClass.equals( "DOCTIME" ) || timeClass.equals( "SECTIONTIME" ) ) ) {
                   typeE.setTextContent( timeClass );
                   property.setTextContent( "" );
