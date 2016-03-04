@@ -74,7 +74,7 @@ import org.apache.uima.util.FileUtils;
 import org.cleartk.eval.AnnotationStatistics;
 import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
-//import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
+import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
 //import org.cleartk.ml.tksvmlight.TkSvmLightStringOutcomeDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
@@ -109,6 +109,9 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		@Option
 		public boolean getSkipTrain();
+		
+		@Option
+		public boolean getTestOnTrain();
 	}
 
 	//  protected static boolean DEFAULT_BOTH_DIRECTIONS = false;
@@ -204,7 +207,18 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 
 			evaluation.printErrors = true;
-			params.stats = evaluation.trainAndTest(training, testing);//training);//
+			
+			//sort list:
+			Collections.sort(training);
+			Collections.sort(testing);
+			
+			//test or train or test
+			evaluation.testOnTrain = options.getTestOnTrain();
+			if(evaluation.testOnTrain){
+				params.stats = evaluation.trainAndTest(training, training);
+			}else{//test on testing set
+				params.stats = evaluation.trainAndTest(training, testing);//training
+			}
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
 //			System.err.println("No closure on gold::Closure on System::Recall Mode");
 			System.err.println(params.stats);
@@ -245,6 +259,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	protected boolean useClosure;
 	protected boolean useGoldAttributes;
 	protected boolean skipTrain=false;
+	protected boolean testOnTrain=false;
 	//  protected boolean printRelations = false;
 
 	public EvaluationOfEventTimeRelations(
