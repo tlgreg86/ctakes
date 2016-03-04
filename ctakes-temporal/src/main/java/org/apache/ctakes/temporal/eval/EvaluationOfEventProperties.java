@@ -21,6 +21,7 @@ package org.apache.ctakes.temporal.eval;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -80,6 +81,9 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 
 		@Option
 		public boolean getSkipTrain();
+		
+		@Option
+		public boolean getTestOnTrain();
 	}
 	private static final String DOC_TIME_REL = "docTimeRel";
 	private static final String CONTEXTUAL_MODALITY = "contextualModality";
@@ -117,7 +121,20 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 			}
 			evaluation.logClassificationErrors(workingDir, "ctakes-event-property-errors");
 
-			Map<String, AnnotationStatistics<String>> stats = evaluation.trainAndTest(trainItems, testItems);
+			Map<String, AnnotationStatistics<String>> stats = null;
+			
+			//sort list:
+			Collections.sort(trainItems);
+			Collections.sort(testItems);
+			
+			//test or train or test
+			evaluation.testOnTrain = options.getTestOnTrain();
+			if(evaluation.testOnTrain){
+				stats = evaluation.trainAndTest(trainItems, trainItems);
+			}else{//test on testing set
+				stats = evaluation.trainAndTest(trainItems, testItems);//training
+			}
+			
 			for (String name : PROPERTY_NAMES) {
 				System.err.println("====================");
 				System.err.println(name);
@@ -137,6 +154,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 
 	private Map<String, Logger> loggers = Maps.newHashMap();
 	protected boolean skipTrain=false;
+	protected boolean testOnTrain=false;
 
 	public EvaluationOfEventProperties(
 			File baseDirectory,
