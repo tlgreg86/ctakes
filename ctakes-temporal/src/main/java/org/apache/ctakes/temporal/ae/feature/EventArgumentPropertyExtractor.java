@@ -103,7 +103,7 @@ RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
 
 		Integer typeId = mention.getEvent().getProperties().getTypeIndexID();
 		if(typeId != null)
-			feats.add(new Feature(name + "_typeId", typeId));
+			feats.add(new Feature(name + "_typeId"));
 
 		return feats;
 	}

@@ -385,6 +385,10 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
    @Override
    protected CollectionReader getCollectionReader( List<Integer> patientSets ) throws Exception {
       List<File> collectedFiles = this.getFilesFor( patientSets );
+      Collections.sort(collectedFiles);
+//      for(File file : collectedFiles){
+//    	  System.err.println(file.getName());
+//      }
       /**
        if(isTraining){
        final Collection<File> filesToRemove = new HashSet<>();

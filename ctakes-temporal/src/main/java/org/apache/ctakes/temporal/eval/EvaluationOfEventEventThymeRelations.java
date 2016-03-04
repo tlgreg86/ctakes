@@ -109,6 +109,9 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		@Option
 		public boolean getSkipTrain();
+		
+		@Option
+		public boolean getTestOnTrain();
 	}
 
 	//  protected static boolean DEFAULT_BOTH_DIRECTIONS = false;
@@ -206,7 +209,18 @@ EvaluationOfTemporalRelations_ImplBase{
 				evaluation.prepareXMIsFor(patientSets);
 			}
 			evaluation.printErrors=true;
-			params.stats = evaluation.trainAndTest(training, testing);//training);//
+			
+			//sort list:
+			Collections.sort(training);
+			Collections.sort(testing);
+			
+			//test or train or test
+			evaluation.testOnTrain = options.getTestOnTrain();
+			if(evaluation.testOnTrain){
+				params.stats = evaluation.trainAndTest(training, training);
+			}else{//test on testing set
+				params.stats = evaluation.trainAndTest(training, testing);//training
+			}
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
 			//			System.err.println("No closure on gold::Closure on System::Recall Mode");
 			System.err.println(params.stats);
@@ -248,6 +262,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	protected boolean useClosure;
 	protected boolean useGoldAttributes;
 	protected boolean skipTrain=false;
+	protected boolean testOnTrain=false;
 	//  protected boolean printRelations = false;
 
 	public EvaluationOfEventEventThymeRelations(
@@ -314,7 +329,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class));
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
 
-		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
+//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
 
 
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonUMLSEvents.class));
@@ -324,7 +339,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		aggregateBuilder.add(EventEventRelationAnnotator.createDataWriterDescription(
 				LibLinearStringOutcomeDataWriter.class,
-				//				LibSvmStringOutcomeDataWriter.class,
+//								LibSvmStringOutcomeDataWriter.class,
 				//				TKSVMlightStringOutcomeDataWriter.class,
 				//        TKLIBSVMStringOutcomeDataWriter.class,
 				//        SVMlightStringOutcomeDataWriter.class,        
