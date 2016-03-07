@@ -20,6 +20,7 @@ package org.apache.ctakes.temporal.eval;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import java.util.logging.Logger;
 
 import org.apache.ctakes.temporal.ae.ContextualModalityAnnotator;
 import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
@@ -53,7 +55,9 @@ import org.apache.uima.util.FileUtils;
 //import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 import org.cleartk.eval.AnnotationStatistics;
 import org.cleartk.ml.jar.JarClassifierBuilder;
-import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
+import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
+import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
+//import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
 import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.base.Function;
@@ -89,12 +93,19 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 	private static final String CONTEXTUAL_MODALITY = "contextualModality";
 
 	private static final List<String> PROPERTY_NAMES = Arrays.asList(DOC_TIME_REL, CONTEXTUAL_MODALITY);
+	
+	protected static boolean DEFAULT_BOTH_DIRECTIONS = false;
+	protected static float DEFAULT_DOWNSAMPLE = 1.0f;
+	protected static ParameterSettings allParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk",
+			10.0, 1.0, "polynomial", ComboOperator.SUM, 0.1, 0.5);  // (0.3, 0.4 for tklibsvm)
 
 	public static void main(String[] args) throws Exception {
 		TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
 		List<Integer> patientSets = options.getPatients().getList();
 		List<Integer> trainItems = getTrainItems(options);
 		List<Integer> testItems = getTestItems(options);
+		
+		ParameterSettings params = allParams;
 
 		try{
 			File workingDir = new File("target/eval/event-properties");
@@ -112,7 +123,9 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 					options.getXMLDirectory(),
 					options.getXMLFormat(),
 					options.getSubcorpus(),
-					options.getXMIDirectory());
+					options.getXMIDirectory(),
+					options.getKernelParams(),
+					params);
 			evaluation.skipTrain = options.getSkipTrain();
 			if(evaluation.skipTrain && options.getTest()){
 				evaluation.prepareXMIsFor(testItems);
@@ -155,6 +168,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 	private Map<String, Logger> loggers = Maps.newHashMap();
 	protected boolean skipTrain=false;
 	protected boolean testOnTrain=false;
+	protected ParameterSettings params = null;
 
 	public EvaluationOfEventProperties(
 			File baseDirectory,
@@ -162,11 +176,15 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 			File xmlDirectory,
 			XMLFormat xmlFormat,
 			Subcorpus subcorpus,
-			File xmiDirectory) {
+			File xmiDirectory,
+			String kernelParams,
+			ParameterSettings params) {
 		super(baseDirectory, rawTextDirectory, xmlDirectory, xmlFormat, subcorpus, xmiDirectory, null);
+		this.params = params;
 		for (String name : PROPERTY_NAMES) {
 			this.loggers.put(name, Logger.getLogger(String.format("%s.%s", this.getClass().getName(), name)));
 		}
+		this.kernelParams = kernelParams == null ? null : kernelParams.split(" ");
 	}
 
 	@Override
@@ -177,14 +195,44 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class));
 		aggregateBuilder.add(CopyFromGold.getDescription(TimeMention.class));
 		aggregateBuilder.add(DocTimeRelAnnotator.createDataWriterDescription(
-				LibSvmStringOutcomeDataWriter.class,
+//				LibSvmStringOutcomeDataWriter.class,
+				LibLinearStringOutcomeDataWriter.class,
 				new File(directory, DOC_TIME_REL)));
 		aggregateBuilder.add(ContextualModalityAnnotator.createDataWriterDescription(
-				LibSvmStringOutcomeDataWriter.class, 
+//				LibSvmStringOutcomeDataWriter.class, 
+				LibLinearStringOutcomeDataWriter.class,
 				new File(directory, CONTEXTUAL_MODALITY)));
 		SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
+		String[] optArray;
+
+		if(this.kernelParams == null){
+			ArrayList<String> svmOptions = new ArrayList<>();
+			svmOptions.add("-c"); svmOptions.add(""+params.svmCost);        // svm cost
+			svmOptions.add("-t"); svmOptions.add(""+params.svmKernelIndex); // kernel index 
+			svmOptions.add("-d"); svmOptions.add("3");                      // degree parameter for polynomial
+			svmOptions.add("-g"); svmOptions.add(""+params.svmGamma);
+			if(params.svmKernelIndex==ParameterSettings.SVM_KERNELS.indexOf("tk")){
+				svmOptions.add("-S"); svmOptions.add(""+params.secondKernelIndex);   // second kernel index (similar to -t) for composite kernel
+				String comboFlag = (params.comboOperator == ComboOperator.SUM ? "+" : params.comboOperator == ComboOperator.PRODUCT ? "*" : params.comboOperator == ComboOperator.TREE_ONLY ? "T" : "V");
+				svmOptions.add("-C"); svmOptions.add(comboFlag);
+				svmOptions.add("-L"); svmOptions.add(""+params.lambda);
+				svmOptions.add("-T"); svmOptions.add(""+params.tkWeight);
+				svmOptions.add("-N"); svmOptions.add("3");   // normalize trees and features
+			}
+			optArray = svmOptions.toArray(new String[]{});
+		}else{
+			optArray = this.kernelParams;
+			for(int i = 0; i < optArray.length; i+=2){
+				optArray[i] = "-" + optArray[i];
+			}
+		}
+
+		//calculate class-wise weights:
+		String[] weightArray=new String[2];
+		weightArray[0] = "-c";
+		weightArray[1] = optArray[1];
 		for(String propertyName : PROPERTY_NAMES){
-			JarClassifierBuilder.trainAndPackage(new File(directory, propertyName), "-h","0","-c", "1000");
+			JarClassifierBuilder.trainAndPackage(new File(directory, propertyName),weightArray);
 		}
 	}
 
