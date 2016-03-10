@@ -142,7 +142,7 @@ public class SentenceAdjuster extends JCasAnnotator_ImplBase {
 		String text = jcas.getDocumentText();
 		try {
 			// just one sentence
-			System.out.println(" jcas "+ jcas.getViewName());
+			iv_logger.info(" jcas "+ jcas.getViewName());
 			if (!useSegments) {
 				// annotate over full doc text
 				annotateRange(jcas, text, 0, text.length());
