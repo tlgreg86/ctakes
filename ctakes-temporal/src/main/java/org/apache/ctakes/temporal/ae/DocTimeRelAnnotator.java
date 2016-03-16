@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.temporal.ae.feature.ClosestVerbExtractor;
+import org.apache.ctakes.temporal.ae.feature.ContinuousTextExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventPropertyExtractor;
 import org.apache.ctakes.temporal.ae.feature.NearbyVerbTenseXExtractor;
 import org.apache.ctakes.temporal.ae.feature.SectionHeaderExtractor;
@@ -55,6 +56,7 @@ import org.cleartk.ml.feature.extractor.CleartkExtractor;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Covered;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.feature.extractor.CombinedExtractor1;
 import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
 import org.cleartk.ml.feature.extractor.TypePathExtractor;
@@ -66,161 +68,179 @@ import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
 
-  public static AnalysisEngineDescription createDataWriterDescription(
-      Class<? extends DataWriter<String>> dataWriterClass,
-      File outputDirectory) throws ResourceInitializationException {
-    return AnalysisEngineFactory.createEngineDescription(
-        DocTimeRelAnnotator.class,
-        CleartkAnnotator.PARAM_IS_TRAINING,
-        true,
-        DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
-        dataWriterClass,
-        DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
-        outputDirectory);
-  }
+	public static AnalysisEngineDescription createDataWriterDescription(
+			Class<? extends DataWriter<String>> dataWriterClass,
+					File outputDirectory) throws ResourceInitializationException {
+		return AnalysisEngineFactory.createEngineDescription(
+				DocTimeRelAnnotator.class,
+				CleartkAnnotator.PARAM_IS_TRAINING,
+				true,
+				DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
+				dataWriterClass,
+				DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
+				outputDirectory);
+	}
 
-  public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
-	      throws ResourceInitializationException {
-	    return AnalysisEngineFactory.createEngineDescription(
-	        DocTimeRelAnnotator.class,
-	        CleartkAnnotator.PARAM_IS_TRAINING,
-	        false,
-	        GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-	        modelPath);
-	  }
-  
-  /**
-   * @deprecated use String path instead of File.
-   * ClearTK will automatically Resolve the String to an InputStream.
-   * This will allow resources to be read within from a jar as well as File.  
-   */
-  public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
-      throws ResourceInitializationException {
-    return AnalysisEngineFactory.createEngineDescription(
-        DocTimeRelAnnotator.class,
-        CleartkAnnotator.PARAM_IS_TRAINING,
-        false,
-        GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-        new File(modelDirectory, "model.jar"));
-  }
+	public static AnalysisEngineDescription createAnnotatorDescription(String modelPath)
+			throws ResourceInitializationException {
+		return AnalysisEngineFactory.createEngineDescription(
+				DocTimeRelAnnotator.class,
+				CleartkAnnotator.PARAM_IS_TRAINING,
+				false,
+				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+				modelPath);
+	}
 
-  private CleartkExtractor<EventMention, BaseToken> contextExtractor;  
-  private SectionHeaderExtractor sectionIDExtractor;
-  private ClosestVerbExtractor closestVerbExtractor;
-  private TimeXExtractor timeXExtractor;
-  private EventPropertyExtractor genericExtractor;
-  private UmlsSingleFeatureExtractor umlsExtractor;
-  private NearbyVerbTenseXExtractor verbTensePatternExtractor;
-  
-//  private DateAndMeasurementExtractor dateExtractor;  
-//  private CoveredTextToValuesExtractor disSemExtractor;
-//  private DurationExpectationFeatureExtractor durationExtractor;
-  
-  public static final String PARAM_PROB_VIEW = "ProbView";
-  @ConfigurationParameter(name=PARAM_PROB_VIEW, mandatory=false)
-  private String probViewname = null;
-  
-  @Override
-  public void initialize(UimaContext context) throws ResourceInitializationException {
-    super.initialize(context);
-    CombinedExtractor1<BaseToken> baseExtractor = new CombinedExtractor1<BaseToken>(
-        new CoveredTextExtractor<BaseToken>(),
-        new TypePathExtractor<BaseToken>(BaseToken.class, "partOfSpeech"));
-    this.contextExtractor = new CleartkExtractor<EventMention, BaseToken>(
-        BaseToken.class,
-        baseExtractor,
-        new Preceding(3),
-        new Covered(),
-        new Following(3));
-    this.sectionIDExtractor = new SectionHeaderExtractor();
-    this.closestVerbExtractor = new ClosestVerbExtractor();
-    this.timeXExtractor = new TimeXExtractor();
-    this.genericExtractor = new EventPropertyExtractor();
-    this.umlsExtractor = new UmlsSingleFeatureExtractor();
-    this.verbTensePatternExtractor = new NearbyVerbTenseXExtractor();
+	/**
+	 * @deprecated use String path instead of File.
+	 * ClearTK will automatically Resolve the String to an InputStream.
+	 * This will allow resources to be read within from a jar as well as File.  
+	 */
+	@Deprecated
+	public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
+			throws ResourceInitializationException {
+		return AnalysisEngineFactory.createEngineDescription(
+				DocTimeRelAnnotator.class,
+				CleartkAnnotator.PARAM_IS_TRAINING,
+				false,
+				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+				new File(modelDirectory, "model.jar"));
+	}
 
-//    this.dateExtractor = new DateAndMeasurementExtractor();
-        
-//    try {
-//    	Map<String, double[]> word_disSem = CoveredTextToValuesExtractor.parseTextDoublesMap(new File("src/main/resources/embeddings.size25.txt"), Charsets.UTF_8);
-//    	this.disSemExtractor = new CoveredTextToValuesExtractor("DisSemFeat", word_disSem);
-//	} catch (IOException e) {
-//		e.printStackTrace();
-//	}
-//    this.durationExtractor = new DurationExpectationFeatureExtractor();
-  }
+	private CleartkExtractor<EventMention, BaseToken> contextExtractor;  
+	private CleartkExtractor<EventMention, BaseToken> tokenVectorContext;
+	private ContinuousTextExtractor continuousText;
+	private SectionHeaderExtractor sectionIDExtractor;
+	private ClosestVerbExtractor closestVerbExtractor;
+	private TimeXExtractor timeXExtractor;
+	private EventPropertyExtractor genericExtractor;
+	private UmlsSingleFeatureExtractor umlsExtractor;
+	private NearbyVerbTenseXExtractor verbTensePatternExtractor;
 
-  @Override
-  public void process(JCas jCas) throws AnalysisEngineProcessException {
-    for (EventMention eventMention : JCasUtil.select(jCas, EventMention.class)) {
-      List<Sentence> sents = JCasUtil.selectCovering(jCas, Sentence.class, eventMention);
-      List<Feature> features = new ArrayList<>();
-      if(sents!=null && sents.size()>0){
-    	  features.addAll(this.contextExtractor.extractWithin(jCas, eventMention, sents.get(0)));
-      }else{
-    	  features.addAll(this.contextExtractor.extract(jCas, eventMention));
-      }
-       
-      features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
-      features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
-      features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
-      features.addAll(this.genericExtractor.extract(jCas, eventMention)); //add the closest time expression types
-      features.addAll(this.umlsExtractor.extract(jCas, eventMention)); //add umls features
-      features.addAll(this.verbTensePatternExtractor.extract(jCas, eventMention));//add nearby verb POS pattern feature
+	//  private DateAndMeasurementExtractor dateExtractor;  
+	//  private CoveredTextToValuesExtractor disSemExtractor;
+	//  private DurationExpectationFeatureExtractor durationExtractor;
 
-      //    
-      //    features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
-      //    features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
-      //    features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
-      if (this.isTraining()) {
-    	  if(eventMention.getEvent() != null){
-    		  String outcome = eventMention.getEvent().getProperties().getDocTimeRel();
-    		  this.dataWriter.write(new Instance<>(outcome, features));
-    	  }
-      } else {
-//        String outcome = this.classifier.classify(features);
-        Map<String,Double> scores = this.classifier.score(features);
-        Map.Entry<String, Double> maxEntry = null;
-        for( Map.Entry<String, Double> entry: scores.entrySet() ){
-        	if(maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0){
-        		maxEntry = entry;
-        	}
-        }
-        
-        if (probViewname != null){
-          Map<String,Double> probs = SoftMaxUtil.getDistributionFromScores(scores);
-          try {
-            JCas probView = jCas.getView(probViewname);
-            for(String label : probs.keySet()){
-              EventMention mention = new EventMention(probView);
-              mention.setId(eventMention.getId());
-              mention.setConfidence(probs.get(label).floatValue());
-              Event event = new Event(probView);
-              EventProperties props = new EventProperties(probView);
-              props.setDocTimeRel(label);
-              event.setProperties(props);
-              mention.setEvent(event);
-              mention.addToIndexes();
-            }
-          } catch (CASException e) {
-            e.printStackTrace();
-            throw new AnalysisEngineProcessException(e);
-          }
-          
-        }
-        
-        if (eventMention.getEvent() == null) {
-          Event event = new Event(jCas);
-          eventMention.setEvent(event);
-          EventProperties props = new EventProperties(jCas);
-          event.setProperties(props);
-        }
-        if( maxEntry != null){
-        	eventMention.getEvent().getProperties().setDocTimeRel(maxEntry.getKey());
-        	eventMention.getEvent().setConfidence(maxEntry.getValue().floatValue());
-//        	System.out.println("event DocTimeRel confidence:"+maxEntry.getValue().floatValue());
-        }
-      }
-    }
-  }
+	public static final String PARAM_PROB_VIEW = "ProbView";
+	@ConfigurationParameter(name=PARAM_PROB_VIEW, mandatory=false)
+	private String probViewname = null;
+
+	@Override
+	public void initialize(UimaContext context) throws ResourceInitializationException {
+		super.initialize(context);
+		CombinedExtractor1<BaseToken> baseExtractor = new CombinedExtractor1<>(
+				new CoveredTextExtractor<BaseToken>(),
+				new TypePathExtractor<>(BaseToken.class, "partOfSpeech"));
+		this.contextExtractor = new CleartkExtractor<>(
+				BaseToken.class,
+				baseExtractor,
+				new Preceding(3),
+				new Covered(),
+				new Following(3));
+		final String vectorFile = "org/apache/ctakes/temporal/mimic_vectors.txt";
+		try {
+			this.continuousText = new ContinuousTextExtractor(vectorFile);
+		} catch (CleartkExtractorException e) {
+			System.err.println("cannot find file: "+ vectorFile);
+			e.printStackTrace();
+		}
+		this.tokenVectorContext = new CleartkExtractor<>(
+				BaseToken.class,
+				continuousText,      
+				//new Preceding(5),
+				new Covered());
+		//new Following(5));
+		this.sectionIDExtractor = new SectionHeaderExtractor();
+		this.closestVerbExtractor = new ClosestVerbExtractor();
+		this.timeXExtractor = new TimeXExtractor();
+		this.genericExtractor = new EventPropertyExtractor();
+		this.umlsExtractor = new UmlsSingleFeatureExtractor();
+		this.verbTensePatternExtractor = new NearbyVerbTenseXExtractor();
+
+		//    this.dateExtractor = new DateAndMeasurementExtractor();
+
+		//    try {
+		//    	Map<String, double[]> word_disSem = CoveredTextToValuesExtractor.parseTextDoublesMap(new File("src/main/resources/embeddings.size25.txt"), Charsets.UTF_8);
+		//    	this.disSemExtractor = new CoveredTextToValuesExtractor("DisSemFeat", word_disSem);
+		//	} catch (IOException e) {
+		//		e.printStackTrace();
+		//	}
+		//    this.durationExtractor = new DurationExpectationFeatureExtractor();
+	}
+
+	@Override
+	public void process(JCas jCas) throws AnalysisEngineProcessException {
+		for (EventMention eventMention : JCasUtil.select(jCas, EventMention.class)) {
+			List<Sentence> sents = JCasUtil.selectCovering(jCas, Sentence.class, eventMention);
+			List<Feature> features = new ArrayList<>();
+			if(sents!=null && sents.size()>0){
+				features.addAll(this.contextExtractor.extractWithin(jCas, eventMention, sents.get(0)));
+				features.addAll(this.tokenVectorContext.extractWithin(jCas, eventMention, sents.get(0)));
+			}else{
+				features.addAll(this.contextExtractor.extract(jCas, eventMention));
+				features.addAll(this.tokenVectorContext.extract(jCas, eventMention));
+			}
+
+			features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
+			features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
+			features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
+			features.addAll(this.genericExtractor.extract(jCas, eventMention)); //add the closest time expression types
+			features.addAll(this.umlsExtractor.extract(jCas, eventMention)); //add umls features
+			features.addAll(this.verbTensePatternExtractor.extract(jCas, eventMention));//add nearby verb POS pattern feature
+
+			//    
+			//    features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
+			//    features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
+			//    features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
+			if (this.isTraining()) {
+				if(eventMention.getEvent() != null){
+					String outcome = eventMention.getEvent().getProperties().getDocTimeRel();
+					this.dataWriter.write(new Instance<>(outcome, features));
+				}
+			} else {
+				//        String outcome = this.classifier.classify(features);
+				Map<String,Double> scores = this.classifier.score(features);
+				Map.Entry<String, Double> maxEntry = null;
+				for( Map.Entry<String, Double> entry: scores.entrySet() ){
+					if(maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0){
+						maxEntry = entry;
+					}
+				}
+
+				if (probViewname != null){
+					Map<String,Double> probs = SoftMaxUtil.getDistributionFromScores(scores);
+					try {
+						JCas probView = jCas.getView(probViewname);
+						for(String label : probs.keySet()){
+							EventMention mention = new EventMention(probView);
+							mention.setId(eventMention.getId());
+							mention.setConfidence(probs.get(label).floatValue());
+							Event event = new Event(probView);
+							EventProperties props = new EventProperties(probView);
+							props.setDocTimeRel(label);
+							event.setProperties(props);
+							mention.setEvent(event);
+							mention.addToIndexes();
+						}
+					} catch (CASException e) {
+						e.printStackTrace();
+						throw new AnalysisEngineProcessException(e);
+					}
+
+				}
+
+				if (eventMention.getEvent() == null) {
+					Event event = new Event(jCas);
+					eventMention.setEvent(event);
+					EventProperties props = new EventProperties(jCas);
+					event.setProperties(props);
+				}
+				if( maxEntry != null){
+					eventMention.getEvent().getProperties().setDocTimeRel(maxEntry.getKey());
+					eventMention.getEvent().setConfidence(maxEntry.getValue().floatValue());
+					//        	System.out.println("event DocTimeRel confidence:"+maxEntry.getValue().floatValue());
+				}
+			}
+		}
+	}
 }

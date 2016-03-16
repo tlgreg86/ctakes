@@ -30,7 +30,7 @@ import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.OverlapAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
-import org.apache.ctakes.core.cleartk.ae.SentenceDetectorAnnotator;
+//import org.apache.ctakes.core.cleartk.ae.SentenceDetectorAnnotator;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
@@ -474,11 +474,11 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
             .add( AnalysisEngineFactory.createEngineDescription( SegmentsFromBracketedSectionTagsAnnotator.class ) );
 
       // identify sentences
-//      aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
-//            SentenceDetector.class,
-//            SentenceDetector.SD_MODEL_FILE_PARAM,
-//            "org/apache/ctakes/core/sentdetect/sd-med-model.zip" ) );
-      aggregateBuilder.add(SentenceDetectorAnnotator.getDescription(FileLocator.locateFile("org/apache/ctakes/core/sentdetect/model.jar").getPath()));
+      aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
+            SentenceDetector.class,
+            SentenceDetector.SD_MODEL_FILE_PARAM,
+            "org/apache/ctakes/core/sentdetect/sd-med-model.zip" ) );
+//      aggregateBuilder.add(SentenceDetectorAnnotator.getDescription(FileLocator.locateFile("org/apache/ctakes/core/sentdetect/model.jar").getPath()));
       
       // identify tokens
       aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( TokenizerAnnotatorPTB.class ) );

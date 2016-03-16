@@ -133,6 +133,47 @@ public class Utils {
   }
   
   /**
+   * Use Bethard normalizer to get TimeML value.
+   */
+  public static String getTimexMLValue(String timex) {
+
+    URL grammarURL = DurationEventTimeFeatureExtractor.class.getResource("/info/bethard/timenorm/en.grammar");
+    TemporalExpressionParser parser = new TemporalExpressionParser(grammarURL, DefaultTokenizer$.MODULE$);
+    TimeSpan anchor = TimeSpan.of(2013, 12, 16);
+    Try<Temporal> result = parser.parse(timex, anchor);
+
+    String value = null;
+    if (result.isSuccess()) {
+      Temporal temporal = result.get();
+
+      value = temporal.timeMLValue();
+    }
+    
+    return value;
+  }
+  
+  /**
+   * Use Bethard normalizer to get TimeML value.
+   */
+  public static String getTimexMLValue(String timex, String anchorStr) {
+
+	String anchstr = getTimexMLValue(anchorStr);
+    URL grammarURL = DurationEventTimeFeatureExtractor.class.getResource("/info/bethard/timenorm/en.grammar");
+    TemporalExpressionParser parser = new TemporalExpressionParser(grammarURL, DefaultTokenizer$.MODULE$);
+    TimeSpan anchor = TimeSpan.fromTimeMLValue(anchstr);//.of(2013, 12, 16);
+    Try<Temporal> result = parser.parse(timex, anchor);
+
+    String value = null;
+    if (result.isSuccess()) {
+      Temporal temporal = result.get();
+
+      value = temporal.timeMLValue();
+    }
+    
+    return value;
+  }
+  
+  /**
    * Take the time unit from Bethard noramlizer
    * and return a coarser time unit, i.e. one of the eight bins.
    * Return null, if this cannot be done. 

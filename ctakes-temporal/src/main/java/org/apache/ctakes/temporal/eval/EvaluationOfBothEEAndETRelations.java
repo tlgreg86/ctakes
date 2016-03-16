@@ -34,14 +34,18 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
+import org.apache.ctakes.temporal.ae.CrossSentenceTemporalRelationAnnotator;
 import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.EventTimeSelfRelationAnnotator;
 import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator;
+import org.apache.ctakes.temporal.ae.WithinSentenceBeforeRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeSyntacticAnnotator;
 //import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventEventThymeRelations.AddEEPotentialRelations;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.AddPotentialRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.Overlap2Contains;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
@@ -111,7 +115,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		@Option
 		public boolean getSkipTrain();
-		
+
 		@Option
 		public boolean getWriteProbabilities();
 	}
@@ -199,28 +203,28 @@ EvaluationOfTemporalRelations_ImplBase{
 				evaluation.prepareXMIsFor(patientSets);
 			}
 			evaluation.writeProbabilities = options.getWriteProbabilities();
-			
+
 			params.stats = evaluation.trainAndTest(training, testing);//training);//
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-//			System.err.println("No closure on gold::Closure on System::Recall Mode");
+			//			System.err.println("No closure on gold::Closure on System::Recall Mode");
 			System.err.println(params.stats);
 
 			//do closure on gold, but not on system, to calculate precision
-//			evaluation.skipTrain = true;
-//			recallModeEvaluation = false;
-//			params.stats = evaluation.trainAndTest(training, testing);//training);//
-//			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-//			System.err.println("No closure on System::Closure on Gold::Precision Mode");
-//			System.err.println(params.stats);
-//
-//			//do closure on train, but not on test, to calculate plain results
-//			evaluation.skipTrain = true;
-//			evaluation.useClosure = false;
-//			//			evaluation.printErrors = false;
-//			params.stats = evaluation.trainAndTest(training, testing);//training);//
-//			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-//			System.err.println("Closure on train::No closure on Test::Plain Mode");
-//			System.err.println(params.stats);
+			//			evaluation.skipTrain = true;
+			//			recallModeEvaluation = false;
+			//			params.stats = evaluation.trainAndTest(training, testing);//training);//
+			//			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
+			//			System.err.println("No closure on System::Closure on Gold::Precision Mode");
+			//			System.err.println(params.stats);
+			//
+			//			//do closure on train, but not on test, to calculate plain results
+			//			evaluation.skipTrain = true;
+			//			evaluation.useClosure = false;
+			//			//			evaluation.printErrors = false;
+			//			params.stats = evaluation.trainAndTest(training, testing);//training);//
+			//			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
+			//			System.err.println("Closure on train::No closure on Test::Plain Mode");
+			//			System.err.println(params.stats);
 
 			if(options.getUseTmp()){
 				// won't work because it's not empty. should we be concerned with this or is it responsibility of 
@@ -239,7 +243,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	protected boolean useGoldAttributes;
 	protected boolean skipTrain=false;
 	//  protected boolean printRelations = false;
-  private boolean writeProbabilities = false;
+	private boolean writeProbabilities = false;
 
 	public EvaluationOfBothEEAndETRelations(
 			File baseDirectory,
@@ -303,15 +307,15 @@ EvaluationOfTemporalRelations_ImplBase{
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
 
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonTLINKRelations.class));//remove non tlink relations, such as alinks
-		
+
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
 
 		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PreserveEventEventRelations.class));
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonUMLSEvents.class));
 
 		//add unlabeled nearby system events as potential links: 
-//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddEEPotentialRelations.class));
-//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddPotentialRelations.class));	
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddEEPotentialRelations.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddPotentialRelations.class));	
 
 		aggregateBuilder.add(EventEventRelationAnnotator.createDataWriterDescription(
 				LibLinearStringOutcomeDataWriter.class,
@@ -349,8 +353,8 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		//    HideOutput hider = new HideOutput();
-		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"),"-w2","10","-w3","86","-c", "0.003");//"-c", "0.05");//"0.08","-w3","3","-w4","17","-w5","20","-w6","16","-w7","10","-w8","6", "-w9","45","-w10","30","-c", optArray[1]);//"-c", "0.05");//optArray);
-		JarClassifierBuilder.trainAndPackage(new File(directory,"event-time"), "-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", "0.0007"); //"-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", optArray[1]);//"-w4","18","-w5","14","-w6","21","-w7","100","-w8","19","-c", optArray[1]);//"0.05");//"-h","0","-c", "1000");//optArray);
+		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"),"-w2","10","-w3","86","-c", optArray[1]);//"-c", "0.05");//"0.08","-w3","3","-w4","17","-w5","20","-w6","16","-w7","10","-w8","6", "-w9","45","-w10","30","-c", optArray[1]);//"-c", "0.05");//optArray);
+		JarClassifierBuilder.trainAndPackage(new File(directory,"event-time"), "-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", optArray[1]); //"-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", optArray[1]);//"-w4","18","-w5","14","-w6","21","-w7","100","-w8","19","-c", optArray[1]);//"0.05");//"-h","0","-c", "1000");//optArray);
 
 		//		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"), "-h","0","-c", "1000");
 		//    hider.restoreOutput();
@@ -362,10 +366,10 @@ EvaluationOfTemporalRelations_ImplBase{
 			throws Exception {
 		this.useClosure=false;
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
-        ViewCreatorAnnotator.class,
-        ViewCreatorAnnotator.PARAM_VIEW_NAME,
-        PROB_VIEW_NAME ) );
+		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
+				ViewCreatorAnnotator.class,
+				ViewCreatorAnnotator.PARAM_VIEW_NAME,
+				PROB_VIEW_NAME ) );
 
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
 
@@ -381,13 +385,13 @@ EvaluationOfTemporalRelations_ImplBase{
 		//				AnalysisEngineFactory.createEngineDescription(PreserveEventEventRelations.class),
 		//				CAS.NAME_DEFAULT_SOFA,
 		//				GOLD_VIEW_NAME);
-		
+
 		//remove non-tlink relations, such as alinks
 		aggregateBuilder.add(
 				AnalysisEngineFactory.createEngineDescription(RemoveNonTLINKRelations.class),
 				CAS.NAME_DEFAULT_SOFA,
 				GOLD_VIEW_NAME);
-		
+
 		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEvents.class));
 
 		if (!recallModeEvaluation && this.useClosure) { //closure for gold
@@ -396,46 +400,49 @@ EvaluationOfTemporalRelations_ImplBase{
 					CAS.NAME_DEFAULT_SOFA,
 					GOLD_VIEW_NAME);
 		}
-		
+
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class),
 				CAS.NAME_DEFAULT_SOFA,
 				GOLD_VIEW_NAME);
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
 		AnalysisEngineDescription aed = this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
-      EventEventRelationAnnotator.createAnnotatorDescription((new File(directory,"event-event/model.jar")).getAbsolutePath());
-    if(this.writeProbabilities){
-      ConfigurationParameterFactory.addConfigurationParameter(aed, 
-          TemporalRelationExtractorAnnotator.PARAM_PROB_VIEW, 
-          PROB_VIEW_NAME);
-    }
+			EventEventRelationAnnotator.createAnnotatorDescription((new File(directory,"event-event/model.jar")).getAbsolutePath());
+		if(this.writeProbabilities){
+			ConfigurationParameterFactory.addConfigurationParameter(aed, 
+					TemporalRelationExtractorAnnotator.PARAM_PROB_VIEW, 
+					PROB_VIEW_NAME);
+		}
 		aggregateBuilder.add(aed);
 		aed = EventTimeSelfRelationAnnotator.createEngineDescription(new File(directory,"event-time/model.jar").getAbsolutePath());
 		if(this.writeProbabilities){
-		  ConfigurationParameterFactory.addConfigurationParameter(aed, 
-		      TemporalRelationExtractorAnnotator.PARAM_PROB_VIEW, 
-		      PROB_VIEW_NAME);
-		}
-		aggregateBuilder.add(aed);
-		
-		aed = DocTimeRelAnnotator.createAnnotatorDescription(new File("target/eval/event-properties/train_and_test/docTimeRel/model.jar").getAbsolutePath());
-		if(this.writeProbabilities){
-		  ConfigurationParameterFactory.addConfigurationParameters(
-		      aed,    
-		      DocTimeRelAnnotator.PARAM_PROB_VIEW, 
-		      PROB_VIEW_NAME);
+			ConfigurationParameterFactory.addConfigurationParameter(aed, 
+					TemporalRelationExtractorAnnotator.PARAM_PROB_VIEW, 
+					PROB_VIEW_NAME);
 		}
 		aggregateBuilder.add(aed);
 
+		aed = DocTimeRelAnnotator.createAnnotatorDescription(new File("target/eval/event-properties/train_and_test/docTimeRel/model.jar").getAbsolutePath());
+		if(this.writeProbabilities){
+			ConfigurationParameterFactory.addConfigurationParameters(
+					aed,    
+					DocTimeRelAnnotator.PARAM_PROB_VIEW, 
+					PROB_VIEW_NAME);
+		}
+		aggregateBuilder.add(aed);
+		
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CrossSentenceTemporalRelationAnnotator.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WithinSentenceBeforeRelationAnnotator.class));
+
 		if(this.anaforaOutput != null){
-                        aed = AnalysisEngineFactory.createEngineDescription(WriteAnaforaXML.class, WriteAnaforaXML.PARAM_OUTPUT_DIR, this.anaforaOutput);
-                        if(this.writeProbabilities){
-		          ConfigurationParameterFactory.addConfigurationParameters(
-		          aed,    
-		          WriteAnaforaXML.PARAM_PROB_VIEW, 
-		          PROB_VIEW_NAME);
-                        }
-                        aggregateBuilder.add(aed, "TimexView", CAS.NAME_DEFAULT_SOFA);
+			aed = AnalysisEngineFactory.createEngineDescription(WriteAnaforaXML.class, WriteAnaforaXML.PARAM_OUTPUT_DIR, this.anaforaOutput);
+			if(this.writeProbabilities){
+				ConfigurationParameterFactory.addConfigurationParameters(
+						aed,    
+						WriteAnaforaXML.PARAM_PROB_VIEW, 
+						PROB_VIEW_NAME);
+			}
+			aggregateBuilder.add(aed, "TimexView", CAS.NAME_DEFAULT_SOFA);
 		}
 
 		File outf = null;
@@ -572,7 +579,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}   
 	}
 
-	
+
 	static void createRelation(JCas jCas, Annotation arg1,
 			Annotation arg2, String category) {
 		RelationArgument relArg1 = new RelationArgument(jCas);
