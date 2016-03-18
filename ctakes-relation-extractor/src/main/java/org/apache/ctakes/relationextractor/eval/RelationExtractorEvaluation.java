@@ -767,21 +767,67 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 
 		@Override
 		public boolean equals(Object otherObject) {
+			int preArgBegin;
+			int preArgEnd;
+			int ltrArgBegin;
+			int ltrArgEnd;
+			if(this.arg1begin< this.arg2begin){
+				preArgBegin = this.arg1begin;
+				preArgEnd   = this.arg1end;
+				ltrArgBegin = this.arg2begin;
+				ltrArgEnd   = this.arg2end;
+			}else{
+				preArgBegin = this.arg2begin;
+				preArgEnd 	= this.arg2end;
+				ltrArgBegin = this.arg1begin;
+				ltrArgEnd 	= this.arg1end;
+			}
 			boolean result = false;
 			if (otherObject instanceof HashableArguments) {
 				HashableArguments other = (HashableArguments) otherObject;
+				int otherPreArgBegin;
+				int otherPreArgEnd;
+				int otherLtrArgBegin;
+				int otherLtrArgEnd;
+				if(other.arg1begin< other.arg2begin){
+					otherPreArgBegin = other.arg1begin;
+					otherPreArgEnd   = other.arg1end;
+					otherLtrArgBegin = other.arg2begin;
+					otherLtrArgEnd   = other.arg2end;
+				}else{
+					otherPreArgBegin = other.arg2begin;
+					otherPreArgEnd   = other.arg2end;
+					otherLtrArgBegin = other.arg1begin;
+					otherLtrArgEnd   = other.arg1end;
+				}
 				result =
 						(this.getClass() == other.getClass()
-						&& this.arg1begin == other.arg1begin
-						&& this.arg1end == other.arg1end
-						&& this.arg2begin == other.arg2begin && this.arg2end == other.arg2end);
+						&& preArgBegin == otherPreArgBegin
+						&& preArgEnd == otherPreArgEnd
+						&& ltrArgBegin == otherLtrArgBegin 
+						&& ltrArgEnd == otherLtrArgEnd);
 			}
 			return result;
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hashCode(this.arg1begin, this.arg1end, this.arg2begin, this.arg2end);
+			int preArgBegin;
+			int preArgEnd;
+			int ltrArgBegin;
+			int ltrArgEnd;
+			if(this.arg1begin< this.arg2begin){
+				preArgBegin = this.arg1begin;
+				preArgEnd   = this.arg1end;
+				ltrArgBegin = this.arg2begin;
+				ltrArgEnd   = this.arg2end;
+			}else{
+				preArgBegin = this.arg2begin;
+				preArgEnd 	= this.arg2end;
+				ltrArgBegin = this.arg1begin;
+				ltrArgEnd 	= this.arg1end;
+			}
+			return Objects.hashCode(preArgBegin, preArgEnd, ltrArgBegin, ltrArgEnd);
 		}
 
 		@Override
