@@ -58,7 +58,7 @@ public abstract class TemporalExtractionPipeline_ImplBase {
   protected static AggregateBuilder getPreprocessorAggregateBuilder()
       throws Exception {
     AggregateBuilder aggregateBuilder = new AggregateBuilder();
-    aggregateBuilder.add(ClinicalPipelineFactory.getDefaultPipeline());
+    aggregateBuilder.add(ClinicalPipelineFactory.getFastPipeline());
     // add semantic role labeler
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ClearNLPSemanticRoleLabelerAE.class));
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ConstituencyParser.class));
