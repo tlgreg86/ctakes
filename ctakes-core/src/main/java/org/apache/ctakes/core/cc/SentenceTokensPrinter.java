@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPUTDIR;
+
 /**
  * Saves the (base) tokens of each sentence on a separate line, separated by spaces
  *
@@ -34,8 +36,6 @@ public class SentenceTokensPrinter extends CasConsumer_ImplBase {
 
    // LOG4J logger based on interface name
    final static private Logger LOGGER = Logger.getLogger( "SentenceTokensPrinter" );
-
-   public static final String PARAM_OUTPUTDIR = "OutputDirectory";
 
 
    private String _outputDirPath;
@@ -54,7 +54,8 @@ public class SentenceTokensPrinter extends CasConsumer_ImplBase {
          final File outputDirectory = new File( outputDirPath );
          if ( !outputDirectory.exists() && !outputDirectory.mkdirs() ) {
             throw new ResourceInitializationException(
-                  new IOException( "Parameter setting 'OutputDirectory' does not point to an existing directory" +
+                  new IOException( "Parameter setting " + PARAM_OUTPUTDIR
+                                   + " does not point to an existing directory" +
                                    " or one that could be created." ) );
          }
          _outputDirPath = outputDirPath;

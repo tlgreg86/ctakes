@@ -31,7 +31,6 @@ import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPU
  */
 public class PrettyTextWriterFit extends CasConsumer_ImplBase {
 
-   // UimaFit magically sets the value of the first instance variable to the parameter value - desired or otherwise
    @ConfigurationParameter(
          name = PARAM_OUTPUTDIR,
          mandatory = false,

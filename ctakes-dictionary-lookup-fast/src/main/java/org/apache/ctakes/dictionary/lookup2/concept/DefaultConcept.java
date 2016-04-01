@@ -9,7 +9,7 @@ import org.apache.ctakes.typesystem.type.constants.CONST;
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.stream.Collectors;
 
 /**
  * Author: SPF
@@ -38,7 +38,7 @@ final public class DefaultConcept implements Concept {
     * @param preferredText -
     */
    public DefaultConcept( final String cui, final String preferredText ) {
-      this( cui, preferredText, new HashSetMap<String, String>() );
+      this( cui, preferredText, new HashSetMap<>() );
    }
 
    /**
@@ -51,11 +51,10 @@ final public class DefaultConcept implements Concept {
       _cui = cui;
       _preferredText = preferredText;
       _codes = new ImmutableCollectionMap<>( codes );
-      final Collection<Integer> ctakesSemantics = new HashSet<>();
-      for ( String tui : getCodes( TUI ) ) {
-         // Attempt to obtain one or more valid type ids from the tuis of the term
-         ctakesSemantics.add( SemanticUtil.getTuiSemanticGroupId( tui ) );
-      }
+      // Attempt to obtain one or more valid type ids from the tuis of the term
+      final Collection<Integer> ctakesSemantics = getCodes( TUI ).stream()
+            .map( SemanticUtil::getTuiSemanticGroupId )
+            .collect( Collectors.toSet() );
       if ( ctakesSemantics.isEmpty() ) {
          ctakesSemantics.add( CONST.NE_TYPE_ID_UNKNOWN );
       }

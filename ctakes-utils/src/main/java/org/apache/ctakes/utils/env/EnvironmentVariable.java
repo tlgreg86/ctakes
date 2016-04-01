@@ -18,9 +18,13 @@
  */
 package org.apache.ctakes.utils.env;
 
+import jdk.nashorn.internal.ir.annotations.Immutable;
 import org.apache.uima.UimaContext;
 
-public class EnvironmentVariable {
+@Immutable
+final public class EnvironmentVariable {
+
+   private EnvironmentVariable() {}
 
    // TODO never return null unless there is a great reason.  Refactor to non-null NOT_PRESENT
 //   static public final String NOT_PRESENT = "EnvironmentVariable.NOT_PRESENT";

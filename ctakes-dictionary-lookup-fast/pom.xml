@@ -46,32 +46,10 @@
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-core</artifactId>
 		</dependency>
-<!--  if there is a need to use RareWordDictionaryWrapper then the old ctakes-dictionary-lookup is a dependency
-      <dependency>
-         <groupId>org.apache.ctakes</groupId>
-         <artifactId>ctakes-dictionary-lookup</artifactId>
-      </dependency>
--->
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-queries</artifactId>
-		</dependency>		
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-queryparser</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-analyzers-common</artifactId>
-		</dependency>				
 		<dependency>
 			<groupId>jdom</groupId>
 			<artifactId>jdom</artifactId>
@@ -80,35 +58,7 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
-
-		<!-- cTAKES Resources -->
-<!--		<dependency>
-			<groupId>net.sourceforge.ctakesresources</groupId>
-			<artifactId>ctakes-resources-umls2011ab</artifactId>
-			<version>3.1.0</version>
-		</dependency>
--->
 	</dependencies>
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>unpack-dependencies</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>unpack-dependencies</goal>
-						</goals>
-						<configuration>
-							<includeArtifactIds>ctakes-resources-umls2011ab</includeArtifactIds>
-              <!-- <includes>**/*</includes> -->
-							<outputDirectory>${project.build.directory}/classes</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
 	</build>
 </project>

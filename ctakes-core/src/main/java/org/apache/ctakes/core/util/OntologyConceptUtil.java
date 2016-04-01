@@ -169,7 +169,7 @@ final public class OntologyConceptUtil {
 
    /**
     * @param jcas -
-    * @return set of all tuis in jcas
+    * @return set of all ontology codes in jcas
     */
    static public Map<String, Collection<String>> getSchemeCodes( final JCas jcas ) {
       return getSchemeCodes( JCasUtil.select( jcas, IdentifiedAnnotation.class ) );
@@ -177,7 +177,7 @@ final public class OntologyConceptUtil {
 
    /**
     * @param jcas -
-    * @return set of all tuis in jcas
+    * @return set of all ontology codes in jcas
     */
    static public Collection<String> getCodes( final JCas jcas ) {
       return getCodes( JCasUtil.select( jcas, IdentifiedAnnotation.class ) );
@@ -201,7 +201,7 @@ final public class OntologyConceptUtil {
    /**
     * @param jcas         -
     * @param lookupWindow -
-    * @return set of all cuis in jcas
+    * @return set of all cuis in lookupWindow
     */
    static public <T extends Annotation> Collection<String> getCuis( final JCas jcas, final T lookupWindow ) {
       return getCuis( JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, lookupWindow ) );
@@ -210,7 +210,7 @@ final public class OntologyConceptUtil {
    /**
     * @param jcas         -
     * @param lookupWindow -
-    * @return set of all tuis in jcas
+    * @return set of all tuis in lookupWindow
     */
    static public <T extends Annotation> Collection<String> getTuis( final JCas jcas, final T lookupWindow ) {
       return getTuis( JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, lookupWindow ) );
@@ -219,7 +219,7 @@ final public class OntologyConceptUtil {
    /**
     * @param jcas         -
     * @param lookupWindow -
-    * @return set of all tuis in jcas
+    * @return map of all schemes and their codes in lookupWindow
     */
    static public <T extends Annotation> Map<String, Collection<String>> getSchemeCodes( final JCas jcas,
                                                                                         final T lookupWindow ) {
@@ -229,7 +229,7 @@ final public class OntologyConceptUtil {
    /**
     * @param jcas         -
     * @param lookupWindow -
-    * @return set of all tuis in jcas
+    * @return set of all codes in lookupWindow
     */
    static public <T extends Annotation> Collection<String> getCodes( final JCas jcas, final T lookupWindow ) {
       return getCodes( JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, lookupWindow ) );

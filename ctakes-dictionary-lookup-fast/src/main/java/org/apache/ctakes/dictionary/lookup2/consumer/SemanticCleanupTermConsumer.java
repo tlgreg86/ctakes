@@ -72,11 +72,10 @@ public class SemanticCleanupTermConsumer extends AbstractTermConsumer {
          groupedSemanticCuis.put( cTakesSemantic, semanticTerms );
       }
       // Clean up sign/symptoms and disease/disorder spans that are also anatomical sites
-      if ( groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_ANATOMICAL_SITE ) ) {
-         if ( groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_FINDING ) ) {
-            for ( TextSpan anatomicalSpan : groupedSemanticCuis.get( CONST.NE_TYPE_ID_ANATOMICAL_SITE ).keySet() ) {
-               groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING ).remove( anatomicalSpan );
-            }
+      if ( groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_ANATOMICAL_SITE )
+           && groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_FINDING ) ) {
+         for ( TextSpan anatomicalSpan : groupedSemanticCuis.get( CONST.NE_TYPE_ID_ANATOMICAL_SITE ).keySet() ) {
+            groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING ).remove( anatomicalSpan );
          }
          if ( groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_DISORDER ) ) {
             for ( TextSpan anatomicalSpan : groupedSemanticCuis.get( CONST.NE_TYPE_ID_ANATOMICAL_SITE ).keySet() ) {

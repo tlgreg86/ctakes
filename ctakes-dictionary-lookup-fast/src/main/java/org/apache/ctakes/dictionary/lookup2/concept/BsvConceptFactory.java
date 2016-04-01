@@ -11,7 +11,6 @@ import org.apache.uima.UimaContext;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
@@ -88,37 +87,29 @@ final public class BsvConceptFactory implements ConceptFactory {
     * </p>
     * If the TUI column is omitted then the entityId for the dictionary is used as the TUI
     * <p/>
-    * //    * @param bsvFile file containing term rows and bsv columns
     *
     * @param bsvFilePath file containing term rows and bsv columns
     * @return collection of all valid terms read from the bsv file
     */
    static private Collection<CuiTuiTerm> parseBsvFile( final String bsvFilePath ) {
-      InputStream bsvFile = null;
-      try {
-         bsvFile = FileLocator.getAsStream( bsvFilePath );
-      } catch ( IOException ioE ) {
-         ioE.getMessage();
-         return Collections.emptyList();
-      }
       final Collection<CuiTuiTerm> cuiTuiTerms = new ArrayList<>();
-      try ( final BufferedReader reader = new BufferedReader( new InputStreamReader( bsvFile ) ) ) {
+      try ( final BufferedReader reader
+                  = new BufferedReader( new InputStreamReader( FileLocator.getAsStream( bsvFilePath ) ) ) ) {
          String line = reader.readLine();
          while ( line != null ) {
             if ( line.startsWith( "//" ) || line.startsWith( "#" ) ) {
+               line = reader.readLine();
                continue;
             }
             final String[] columns = LookupUtil.fastSplit( line, '|' );
             final CuiTuiTerm cuiTuiTerm = createCuiTuiTerm( columns );
             if ( cuiTuiTerm != null ) {
-               // Add to the dictionary
                cuiTuiTerms.add( cuiTuiTerm );
             } else {
                LOGGER.warn( "Bad BSV line " + line + " in " + bsvFilePath );
             }
             line = reader.readLine();
          }
-         reader.close();
       } catch ( IOException ioE ) {
          LOGGER.error( ioE.getMessage() );
       }

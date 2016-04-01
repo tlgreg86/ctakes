@@ -28,11 +28,9 @@ import org.apache.uima.UimaContext;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Properties;
 
 import static org.apache.ctakes.dictionary.lookup2.dictionary.RareWordTermMapCreator.CuiTerm;
@@ -113,31 +111,24 @@ final public class BsvRareWordDictionary implements RareWordDictionary {
     * @return collection of all valid terms read from the bsv file
     */
    static private Collection<CuiTerm> parseBsvFile( final String bsvFilePath ) {
-      InputStream bsvFile = null;
-      try {
-         bsvFile = FileLocator.getAsStream( bsvFilePath );
-      } catch ( IOException ioE ) {
-         ioE.getMessage();
-         return Collections.emptyList();
-      }
       final Collection<CuiTerm> cuiTerms = new ArrayList<>();
-      try ( final BufferedReader reader = new BufferedReader( new InputStreamReader( bsvFile ) ) ) {
+      try ( final BufferedReader reader
+                  = new BufferedReader( new InputStreamReader( FileLocator.getAsStream( bsvFilePath ) ) ) ) {
          String line = reader.readLine();
          while ( line != null ) {
             if ( line.startsWith( "//" ) || line.startsWith( "#" ) ) {
+               line = reader.readLine();
                continue;
             }
             final String[] columns = LookupUtil.fastSplit( line, '|' );
             final CuiTerm cuiTerm = createCuiTuiTerm( columns );
             if ( cuiTerm != null ) {
-               // Add to the dictionary
                cuiTerms.add( cuiTerm );
             } else {
                LOGGER.warn( "Bad BSV line " + line + " in " + bsvFilePath );
             }
             line = reader.readLine();
          }
-         reader.close();
       } catch ( IOException ioE ) {
          LOGGER.error( ioE.getMessage() );
       }
