@@ -71,47 +71,57 @@ public class SemanticCleanupTermConsumer extends AbstractTermConsumer {
          }
          groupedSemanticCuis.put( cTakesSemantic, semanticTerms );
       }
-      // Clean up sign/symptoms and disease/disorder spans that are also anatomical sites
-      if ( groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_ANATOMICAL_SITE )
-           && groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_FINDING ) ) {
-         for ( TextSpan anatomicalSpan : groupedSemanticCuis.get( CONST.NE_TYPE_ID_ANATOMICAL_SITE ).keySet() ) {
-            groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING ).remove( anatomicalSpan );
-         }
-         if ( groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_DISORDER ) ) {
-            for ( TextSpan anatomicalSpan : groupedSemanticCuis.get( CONST.NE_TYPE_ID_ANATOMICAL_SITE ).keySet() ) {
-               groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING ).remove( anatomicalSpan );
-            }
-         }
-      }
+      // Clean up sign/symptom and disease/disorder spans that are also anatomical sites
+      removeUnwantedSpans( CONST.NE_TYPE_ID_ANATOMICAL_SITE, CONST.NE_TYPE_ID_FINDING, groupedSemanticCuis );
+      removeUnwantedSpans( CONST.NE_TYPE_ID_ANATOMICAL_SITE, CONST.NE_TYPE_ID_DISORDER, groupedSemanticCuis );
       // Clean up sign/symptoms that are also within disease/disorder spans
       if ( groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_FINDING )
            && groupedSemanticCuis.containsKey( CONST.NE_TYPE_ID_DISORDER ) ) {
-         final CollectionMap<TextSpan, Long, ? extends Collection<Long>> semanticTerms = new HashSetMap<>();
-         for ( Map.Entry<TextSpan, ? extends Collection<Long>> diseases : groupedSemanticCuis
-               .get( CONST.NE_TYPE_ID_DISORDER ) ) {
-            semanticTerms.addAllValues( diseases.getKey(), diseases.getValue() );
-            groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING ).remove( diseases.getKey() );
-         }
-         for ( Map.Entry<TextSpan, ? extends Collection<Long>> findings : groupedSemanticCuis
-               .get( CONST.NE_TYPE_ID_FINDING ) ) {
-            semanticTerms.addAllValues( findings.getKey(), findings.getValue() );
-         }
+         removeUnwantedSpans( CONST.NE_TYPE_ID_DISORDER, CONST.NE_TYPE_ID_FINDING, groupedSemanticCuis );
+         final CollectionMap<TextSpan, Long, ? extends Collection<Long>> copiedTerms = new HashSetMap<>();
+         copyTerms( CONST.NE_TYPE_ID_DISORDER, groupedSemanticCuis, copiedTerms );
+         copyTerms( CONST.NE_TYPE_ID_FINDING, groupedSemanticCuis, copiedTerms );
          // We just created a collection with only the largest Textspans.
          // Any smaller Finding textspans are therefore within a larger d/d textspan and should be removed.
-         final CollectionMap<TextSpan, Long, ? extends Collection<Long>> preciseDiseaseTerms
-               = PrecisionTermConsumer.createPreciseTerms( semanticTerms );
-         final Iterable<TextSpan> findingSpans = new ArrayList<>( groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING )
-               .keySet() );
-         for ( TextSpan findingSpan : findingSpans ) {
-            if ( !preciseDiseaseTerms.containsKey( findingSpan ) ) {
-               groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING ).remove( findingSpan );
-            }
-         }
+         final CollectionMap<TextSpan, Long, ? extends Collection<Long>> preciseTerms
+               = PrecisionTermConsumer.createPreciseTerms( copiedTerms );
+         final CollectionMap<TextSpan, Long, ? extends Collection<Long>> findingSpanCuis
+               = groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING );
+         final Collection<TextSpan> findingSpans = new ArrayList<>( findingSpanCuis.keySet() );
+         findingSpans.stream()
+               .filter( fs -> !preciseTerms.containsKey( fs ) )
+               .forEach( findingSpanCuis::remove );
       }
       for ( Map.Entry<Integer, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> group : groupedSemanticCuis
             .entrySet() ) {
          consumeTypeIdHits( jcas, codingScheme, group.getKey(),
                PrecisionTermConsumer.createPreciseTerms( group.getValue() ), cuiConcepts );
+      }
+   }
+
+   static private void removeUnwantedSpans( final int wantedTypeId, final int unwantedTypeId,
+                                            final Map<Integer,
+                                                  CollectionMap<TextSpan,
+                                                        Long, ? extends Collection<Long>>> groupedSemanticCuis ) {
+      if ( !groupedSemanticCuis.containsKey( wantedTypeId ) || !groupedSemanticCuis.containsKey( unwantedTypeId ) ) {
+         return;
+      }
+      final Iterable<TextSpan> wantedSpans = groupedSemanticCuis.get( wantedTypeId ).keySet();
+      final CollectionMap<TextSpan, Long, ? extends Collection<Long>> typeTextSpanCuis
+            = groupedSemanticCuis.get( unwantedTypeId );
+      for ( TextSpan wantedSpan : wantedSpans ) {
+         typeTextSpanCuis.remove( wantedSpan );
+      }
+   }
+
+   static private void copyTerms( final int typeId,
+                                  final Map<Integer, CollectionMap<TextSpan,
+                                        Long, ? extends Collection<Long>>> groupedSemanticCuis,
+                                  final CollectionMap<TextSpan, Long, ? extends Collection<Long>> copyTermsMap ) {
+      final CollectionMap<TextSpan, Long, ? extends Collection<Long>> spanCuis
+            = groupedSemanticCuis.get( typeId );
+      for ( Map.Entry<TextSpan, ? extends Collection<Long>> spanCui : spanCuis ) {
+         copyTermsMap.addAllValues( spanCui.getKey(), spanCui.getValue() );
       }
    }
 
