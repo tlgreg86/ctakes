@@ -118,6 +118,9 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		@Option
 		public boolean getWriteProbabilities();
+		
+		@Option
+		public boolean getTestOnTrain();
 	}
 
 	//  protected static boolean DEFAULT_BOTH_DIRECTIONS = false;
@@ -204,7 +207,13 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 			evaluation.writeProbabilities = options.getWriteProbabilities();
 
-			params.stats = evaluation.trainAndTest(training, testing);//training);//
+			//test or train or test
+			evaluation.testOnTrain = options.getTestOnTrain();
+			if(evaluation.testOnTrain){
+				params.stats = evaluation.trainAndTest(training, training);
+			}else{//test on testing set
+				params.stats = evaluation.trainAndTest(training, testing);//training
+			}
 			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
 			//			System.err.println("No closure on gold::Closure on System::Recall Mode");
 			System.err.println(params.stats);
@@ -244,6 +253,7 @@ EvaluationOfTemporalRelations_ImplBase{
 	protected boolean skipTrain=false;
 	//  protected boolean printRelations = false;
 	private boolean writeProbabilities = false;
+	protected boolean testOnTrain=false;
 
 	public EvaluationOfBothEEAndETRelations(
 			File baseDirectory,
@@ -432,7 +442,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		aggregateBuilder.add(aed);
 		
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CrossSentenceTemporalRelationAnnotator.class));
-		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WithinSentenceBeforeRelationAnnotator.class));
+//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WithinSentenceBeforeRelationAnnotator.class));
 
 		if(this.anaforaOutput != null){
 			aed = AnalysisEngineFactory.createEngineDescription(WriteAnaforaXML.class, WriteAnaforaXML.PARAM_OUTPUT_DIR, this.anaforaOutput);
