@@ -375,7 +375,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		//calculate class-wise weights:
-		String[] weightArray=new String[TemporalRelationExtractorAnnotator.category_frequency.size()*2+2];
+		String[] weightArray=new String[TemporalRelationExtractorAnnotator.category_frequency.size()*2+4];
 		int weight_idx = 0;
 		float baseFreq = TemporalRelationExtractorAnnotator.category_frequency.get(TemporalRelationExtractorAnnotator.NO_RELATION_CATEGORY);
 		for( Map.Entry<String, Integer> entry: TemporalRelationExtractorAnnotator.category_frequency.entrySet()){
@@ -388,6 +388,9 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		weightArray[weight_idx*2] = "-c";
 		weightArray[weight_idx*2+1] = optArray[1];
+		weight_idx ++;
+		weightArray[weight_idx*2] = "-B";
+		weightArray[weight_idx*2+1] = optArray[3];
 		
 		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"), weightArray);//"-w2","12","-w3","102",//"-w1","29","-w3","12","-w4","80","-w5","228","-w6","79","-w7","49","-w8","157","-w9","553","-w10","384",//"-w1","29","-w3","12","-w4","79","-w5","255","-w6","75","-w7","50","-w8","144","-w9","544","-w10","384",//"-w1","25","-w3","9","-w4","79","-w5","267","-w6","89","-w7","60","-w8","152","-w9","615","-w10","404",//"-w1","0.2","-w3","15","-w4","4","-w5","64","-w6","24","-w7","29","-w9","70","-c", optArray[1]);"-c", "0.05");//"0.08","-w3","3","-w4","17","-w5","20","-w6","16","-w7","10","-w8","6", "-w9","45","-w10","30","-c", optArray[1]);//"-c", "0.05");//optArray);
 		//		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"), "-h","0","-c", "1000");

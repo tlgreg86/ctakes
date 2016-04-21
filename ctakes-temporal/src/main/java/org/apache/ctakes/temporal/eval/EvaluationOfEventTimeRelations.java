@@ -371,7 +371,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 		
 		//calculate class-wise weights:
-		String[] weightArray=new String[TemporalRelationExtractorAnnotator.category_frequency.size()*2+2];
+		String[] weightArray=new String[TemporalRelationExtractorAnnotator.category_frequency.size()*2+4];
 		int weight_idx = 0;
 		float baseFreq = TemporalRelationExtractorAnnotator.category_frequency.get(TemporalRelationExtractorAnnotator.NO_RELATION_CATEGORY);
 		for( Map.Entry<String, Integer> entry: TemporalRelationExtractorAnnotator.category_frequency.entrySet()){
@@ -384,6 +384,9 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		weightArray[weight_idx*2] = "-c";
 		weightArray[weight_idx*2+1] = optArray[1];
+		weight_idx ++;
+		weightArray[weight_idx*2] = "-B";
+		weightArray[weight_idx*2+1] = optArray[3];
 		//    HideOutput hider = new HideOutput();
 		JarClassifierBuilder.trainAndPackage(new File(directory,"event-time"), weightArray);//"-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18"//"-w3","2","-w4","19","-w5","13","-w6","22","-w7","96","-w8","18","-c", optArray[1]);//"-w4","18","-w5","14","-w6","21","-w7","100","-w8","19","-c", optArray[1]);//"0.05");//"-h","0","-c", "1000");//optArray);
 		//		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"), "-h","0","-c", "1000");
