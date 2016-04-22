@@ -43,6 +43,7 @@ import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator;
 //import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveGoldAttributes;
+import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteAnaforaXML;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
@@ -190,6 +191,7 @@ EvaluationOfTemporalRelations_ImplBase{
 					params);
 
 			if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/temporal-relations/event-time");
+			if(options.getAnaforaOutput()!=null) evaluation.anaforaOutput = options.getAnaforaOutput();
 			List<Integer> training = trainItems;
 			List<Integer> testing = null;
 			if(options.getTest()){
@@ -428,8 +430,8 @@ EvaluationOfTemporalRelations_ImplBase{
 		//count how many system predicted relations, their arguments are close to each other, without any other event in between
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CountCloseRelation.class));
 
-		if(this.i2b2Output != null){
-			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteI2B2XML.class, WriteI2B2XML.PARAM_OUTPUT_DIR, this.i2b2Output), "TimexView", CAS.NAME_DEFAULT_SOFA);
+		if(this.anaforaOutput != null){
+			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(WriteAnaforaXML.class, WriteAnaforaXML.PARAM_OUTPUT_DIR, this.anaforaOutput), "TimexView", CAS.NAME_DEFAULT_SOFA);
 		}
 
 		File outf = null;
