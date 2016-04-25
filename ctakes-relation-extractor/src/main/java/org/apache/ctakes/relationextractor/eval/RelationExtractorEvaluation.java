@@ -374,6 +374,8 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 			List<String> parameters = new LinkedList<>(Arrays.asList(this.parameterSettings.trainingArguments));
 			List<String> additional = Arrays.asList(weightArray);
 			parameters.addAll(additional);
+			
+			RelationExtractorAnnotator.clearCategoryFrequency();
 
 			// train the classifier and package it into a .jar file
 			JarClassifierBuilder.trainAndPackage(directory, parameters.toArray(new String[parameters.size()]));
