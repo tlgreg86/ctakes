@@ -19,12 +19,16 @@
 package org.apache.ctakes.relationextractor.ae;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
+import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -55,17 +59,63 @@ public class LocationOfRelationExtractorAnnotator extends RelationExtractorAnnot
 
 		List<IdentifiedAnnotationPair> pairs = new ArrayList<>();
 		
-		for (EventMention event : events) {
+		if(RelationExtractorEvaluation.expandEvent){//if expand
+			Map<EventMention, Collection<EventMention>> coveredMap =
+					JCasUtil.indexCovered(identifiedAnnotationView, EventMention.class, EventMention.class);
+			Map<EventMention, Collection<EventMention>> coveringMap =
+					JCasUtil.indexCovering(identifiedAnnotationView, EventMention.class, EventMention.class);
+			Map<AnatomicalSiteMention, Collection<EventMention>> siteEventMap =
+					JCasUtil.indexCovered(identifiedAnnotationView, AnatomicalSiteMention.class, EventMention.class);
+			Map<AnatomicalSiteMention, Collection<EntityMention>> siteEntityMap =
+					JCasUtil.indexCovering(identifiedAnnotationView, AnatomicalSiteMention.class, EntityMention.class);
+			
+			final List<IdentifiedAnnotation> eventList = new ArrayList<>();
+			for (EventMention event : events) {
+				eventList.addAll(coveringMap.get(event));
+				eventList.addAll(coveredMap.get(event));
+				for(IdentifiedAnnotation covEvent : eventList){
+					for (AnatomicalSiteMention site : sites) {
+						if(!hasOverlap(covEvent,site)){
+							pairs.add(new IdentifiedAnnotationPair(covEvent, site));
+						}
+					}
+				}
+				eventList.clear();
+				for (AnatomicalSiteMention site : sites) {
+					pairs.add(new IdentifiedAnnotationPair(event, site));
+					eventList.addAll(siteEventMap.get(site));
+					eventList.addAll(siteEntityMap.get(site));
+					for(IdentifiedAnnotation covSite : eventList){
+						if(!hasOverlap(event,covSite)){
+							pairs.add(new IdentifiedAnnotationPair(event, covSite));
+						}
+					}
+					eventList.clear();
+				}
+				
+			}
+		}else{//id don't expand
+			for (EventMention event : events) {
 				for (AnatomicalSiteMention site : sites) {
 					pairs.add(new IdentifiedAnnotationPair(event, site));
 				}
+			}
 		}
 		
 		
 		return pairs;
 	}
 	
-	
+	private static boolean hasOverlap(Annotation event1, Annotation event2) {
+		if(event1.getEnd()>=event2.getBegin()&&event1.getEnd()<=event2.getEnd()){
+			return true;
+		}
+		if(event2.getEnd()>=event1.getBegin()&&event2.getEnd()<=event1.getEnd()){
+			return true;
+		}
+		return false;
+	}
+
 	@Override
 	protected void createRelation(
 			JCas jCas,

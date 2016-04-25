@@ -50,6 +50,7 @@ import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManagesTreatsTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManifestationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
+import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -127,6 +128,11 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 				longName = "class-weights",
 				description = "automatically set class-wise weights for inbalanced training data")
 		public boolean getClassWeights();
+		
+		@Option(
+				longName = "expand-events",
+				description = "expand events to their covering or covered events")
+		public boolean getExpandEvents();
 
 	}
 
@@ -227,7 +233,8 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 									options.getAllowSmallerSystemArguments(),
 									options.getIgnoreImpossibleGoldRelations(),
 									options.getPrintErrors(),
-									options.getClassWeights());
+									options.getClassWeights(),
+									options.getExpandEvents());
 						}
 					});
 		}
@@ -250,6 +257,8 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 	private boolean setClassWeights;
 
 	private static PrintWriter outPrint;
+	
+	public static boolean expandEvent = false;
 
 	/**
 	 * An evaluation of a relation extractor.
@@ -282,7 +291,8 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 			boolean allowSmallerSystemArguments,
 			boolean ignoreImpossibleGoldRelations,
 			boolean printErrors,
-			boolean setClassWeights) {
+			boolean setClassWeights,
+			boolean expandEventParameter) {
 		super(baseDirectory);
 		this.relationClass = relationClass;
 		this.classifierAnnotatorClass = classifierAnnotatorClass;
@@ -292,6 +302,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		this.ignoreImpossibleGoldRelations = ignoreImpossibleGoldRelations;
 		this.printErrors = printErrors;
 		this.setClassWeights = setClassWeights;
+		expandEvent = expandEventParameter;
 	}
 
 	public RelationExtractorEvaluation(
@@ -304,6 +315,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 				relationClass,
 				classifierAnnotatorClass,
 				parameterSettings,
+				false,
 				false,
 				false,
 				false,
@@ -324,6 +336,10 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		// remove cTAKES entity mentions and modifiers in the system view and copy
 		// in the gold relations
 		builder.add(AnalysisEngineFactory.createEngineDescription(RemoveCTakesMentionsAndCopyGoldRelations.class));
+
+		//add potential events for training:
+		if (expandEvent && this.relationClass.getSimpleName().equals("LocationOfTextRelation") )
+			builder.add(AnalysisEngineFactory.createEngineDescription(AddPotentialRelations.class));
 
 		// add the relation extractor, configured for training mode
 		AnalysisEngineDescription classifierAnnotator =
@@ -366,6 +382,94 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		}
 	}
 
+	public static class AddPotentialRelations extends JCasAnnotator_ImplBase {
+		@Override
+		public void process(JCas jCas) throws AnalysisEngineProcessException {
+			JCas relationView = jCas;
+
+			Map<EventMention, Collection<EventMention>> coveredMap =
+					JCasUtil.indexCovered(relationView, EventMention.class, EventMention.class);
+			Map<EventMention, Collection<EventMention>> coveringMap =
+					JCasUtil.indexCovering(relationView, EventMention.class, EventMention.class);
+			Map<AnatomicalSiteMention, Collection<EventMention>> siteEventMap =
+					JCasUtil.indexCovered(relationView, AnatomicalSiteMention.class, EventMention.class);
+			Map<AnatomicalSiteMention, Collection<EntityMention>> siteEntityMap =
+					JCasUtil.indexCovering(relationView, AnatomicalSiteMention.class, EntityMention.class);
+			final List<IdentifiedAnnotation> eventList = new ArrayList<>();
+			for(LocationOfTextRelation relation : Lists.newArrayList(JCasUtil.select(relationView, LocationOfTextRelation.class))){
+				Annotation arg1 = relation.getArg1().getArgument();
+				Annotation arg2 = relation.getArg2().getArgument();
+				EventMention event = null;
+				if(arg1 instanceof EventMention && arg2 instanceof AnatomicalSiteMention){
+					event = (EventMention) arg1;
+
+					eventList.addAll(coveringMap.get(event));
+					eventList.addAll(coveredMap.get(event));
+					for(IdentifiedAnnotation covEvent : eventList){
+						if(!covEvent.getClass().equals(EventMention.class) && !hasOverlap(covEvent, arg2)){
+							createRelation(relationView, covEvent, arg2, relation.getCategory());
+						}
+					}
+					eventList.clear();
+					eventList.addAll(siteEventMap.get(arg2));
+					eventList.addAll(siteEntityMap.get(arg2));
+					for(IdentifiedAnnotation covSite : eventList){
+						if(!covSite.getClass().equals(EventMention.class) && !hasOverlap(arg1, covSite)){
+							createRelation(relationView, event, covSite, relation.getCategory());
+						}
+					}
+					eventList.clear();
+				}else if(arg2 instanceof EventMention && arg1 instanceof AnatomicalSiteMention){
+					event = (EventMention) arg2;
+					eventList.addAll(coveringMap.get(event));
+					eventList.addAll(coveredMap.get(event));
+					for(IdentifiedAnnotation covEvent : eventList){
+						if(!covEvent.getClass().equals(EventMention.class)&& !hasOverlap(arg1, covEvent)){
+							createRelation(relationView, arg1, covEvent, relation.getCategory());
+						}
+					}
+					eventList.clear();
+					eventList.addAll(siteEventMap.get(arg1));
+					eventList.addAll(siteEntityMap.get(arg1));
+					for(IdentifiedAnnotation covSite : eventList){
+						if(!covSite.getClass().equals(EventMention.class) && !hasOverlap(covSite, arg2)){
+							createRelation(relationView, covSite, event, relation.getCategory());
+						}
+					}
+					eventList.clear();
+				}
+			}
+
+		}
+
+		private static boolean hasOverlap(Annotation event1, Annotation event2) {
+			if(event1.getEnd()>=event2.getBegin()&&event1.getEnd()<=event2.getEnd()){
+				return true;
+			}
+			if(event2.getEnd()>=event1.getBegin()&&event2.getEnd()<=event1.getEnd()){
+				return true;
+			}
+			return false;
+		}
+
+		private static void createRelation(JCas jCas, Annotation arg1,
+				Annotation arg2, String category) {
+			RelationArgument relArg1 = new RelationArgument(jCas);
+			relArg1.setArgument(arg1);
+			relArg1.setRole("Arg1");
+			relArg1.addToIndexes();
+			RelationArgument relArg2 = new RelationArgument(jCas);
+			relArg2.setArgument(arg2);
+			relArg2.setRole("Arg2");
+			relArg2.addToIndexes();
+			BinaryTextRelation relation = new BinaryTextRelation(jCas);
+			relation.setArg1(relArg1);
+			relation.setArg2(relArg2);
+			relation.setCategory(category);
+			relation.addToIndexes();
+
+		}
+	}
 
 	@Override
 	protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
