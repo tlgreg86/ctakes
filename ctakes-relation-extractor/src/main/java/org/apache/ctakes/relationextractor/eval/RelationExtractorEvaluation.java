@@ -24,11 +24,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -121,6 +123,11 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 				description = "print relations that were incorrectly predicted")
 		public boolean getPrintErrors();
 
+		@Option(
+				longName = "class-weights",
+				description = "automatically set class-wise weights for inbalanced training data")
+		public boolean getClassWeights();
+
 	}
 
 	public static final Map<String, Class<? extends BinaryTextRelation>> RELATION_CLASSES =
@@ -136,40 +143,40 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		BEST_PARAMETERS.put(DegreeOfTextRelation.class, new ParameterSettings(
 				LibLinearStringOutcomeDataWriter.class,
 				new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-					1.0f },
-					new String[] { "-s", "1", "-c", "0.1" }));
+						1.0f },
+				new String[] { "-s", "1", "-c", "0.1" }));
 
 		RELATION_CLASSES.put("location_of", LocationOfTextRelation.class);
 		ANNOTATOR_CLASSES.put(LocationOfTextRelation.class, LocationOfRelationExtractorAnnotator.class);
 		BEST_PARAMETERS.put(LocationOfTextRelation.class, new ParameterSettings(
 				LibLinearStringOutcomeDataWriter.class,
 				new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-					1.0f },//0.5f },//
-					new String[] { "-w1","4","-s", "1", "-c", "0.01" }));//
+						1.0f },//0.5f },//
+				new String[] { "-s", "0", "-c", "1.0" }));//
 
 		RELATION_CLASSES.put("manages/treats", ManagesTreatsTextRelation.class);
 		ANNOTATOR_CLASSES.put(ManagesTreatsTextRelation.class, ManagesTreatsRelationExtractorAnnotator.class);
 		BEST_PARAMETERS.put(ManagesTreatsTextRelation.class, new ParameterSettings(
 				LibLinearStringOutcomeDataWriter.class,
 				new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-					0.5f },
-					new String[] { "-s", "0", "-c", "5.0" }));
+						0.5f },
+				new String[] { "-s", "0", "-c", "5.0" }));
 
 		RELATION_CLASSES.put("causes/brings_about", CausesBringsAboutTextRelation.class);
 		ANNOTATOR_CLASSES.put(CausesBringsAboutTextRelation.class, CausesBringsAboutRelationExtractorAnnotator.class);
 		BEST_PARAMETERS.put(CausesBringsAboutTextRelation.class, new ParameterSettings(
 				LibLinearStringOutcomeDataWriter.class,
 				new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-					0.5f },
-					new String[] { "-s", "0", "-c", "1.0" }));
+						0.5f },
+				new String[] { "-s", "0", "-c", "1.0" }));
 
 		RELATION_CLASSES.put("manifestation_of", ManifestationOfTextRelation.class);
 		ANNOTATOR_CLASSES.put(ManifestationOfTextRelation.class, ManifestationOfRelationExtractorAnnotator.class);
 		BEST_PARAMETERS.put(ManifestationOfTextRelation.class, new ParameterSettings(
 				LibLinearStringOutcomeDataWriter.class,
 				new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-					0.5f },
-					new String[] { "-s", "0", "-c", "1.0" }));
+						0.5f },
+				new String[] { "-s", "0", "-c", "1.0" }));
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -188,9 +195,9 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 					gridOfSettings.add(new ParameterSettings(
 							LibLinearStringOutcomeDataWriter.class,
 							new Object[] {
-								RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-								probabilityOfKeepingANegativeExample },
-								new String[] { "-w1","4","-s", String.valueOf(solver), "-c", String.valueOf(svmCost) }));
+									RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
+									probabilityOfKeepingANegativeExample },
+							new String[] { "-s", String.valueOf(solver), "-c", String.valueOf(svmCost) }));
 				}
 			}
 		}
@@ -219,7 +226,8 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 									options.getTestOnCTakes(),
 									options.getAllowSmallerSystemArguments(),
 									options.getIgnoreImpossibleGoldRelations(),
-									options.getPrintErrors());
+									options.getPrintErrors(),
+									options.getClassWeights());
 						}
 					});
 		}
@@ -238,6 +246,8 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 	private boolean ignoreImpossibleGoldRelations;
 
 	private boolean printErrors;
+
+	private boolean setClassWeights;
 
 	private static PrintWriter outPrint;
 
@@ -271,7 +281,8 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 			boolean testOnCTakes,
 			boolean allowSmallerSystemArguments,
 			boolean ignoreImpossibleGoldRelations,
-			boolean printErrors) {
+			boolean printErrors,
+			boolean setClassWeights) {
 		super(baseDirectory);
 		this.relationClass = relationClass;
 		this.classifierAnnotatorClass = classifierAnnotatorClass;
@@ -280,6 +291,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		this.allowSmallerSystemArguments = allowSmallerSystemArguments;
 		this.ignoreImpossibleGoldRelations = ignoreImpossibleGoldRelations;
 		this.printErrors = printErrors;
+		this.setClassWeights = setClassWeights;
 	}
 
 	public RelationExtractorEvaluation(
@@ -292,6 +304,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 				relationClass,
 				classifierAnnotatorClass,
 				parameterSettings,
+				false,
 				false,
 				false,
 				false,
@@ -328,8 +341,29 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 		// run the data-writing pipeline
 		SimplePipeline.runPipeline(collectionReader, builder.createAggregateDescription());
 
-		// train the classifier and package it into a .jar file
-		JarClassifierBuilder.trainAndPackage(directory, this.parameterSettings.trainingArguments);
+		//calculate class-wise weights:
+		if(this.setClassWeights){
+			//calculate class-wise weights:
+			String[] weightArray=new String[RelationExtractorAnnotator.category_frequency.size()*2];
+			int weight_idx = 0;
+			float baseFreq = RelationExtractorAnnotator.category_frequency.get(RelationExtractorAnnotator.NO_RELATION_CATEGORY);
+			for( Map.Entry<String, Integer> entry: RelationExtractorAnnotator.category_frequency.entrySet()){
+				weightArray[weight_idx*2] = "-w"+Integer.toString(weight_idx + 1);
+				float weight = baseFreq/entry.getValue();
+				weightArray[weight_idx*2+1] = Float.toString(weight);
+				weight_idx ++;
+				System.err.println("Category:"+entry.getKey()+"  freq:"+entry.getValue() + "   weight:"+weight);
+			}
+
+			List<String> parameters = new LinkedList<>(Arrays.asList(this.parameterSettings.trainingArguments));
+			List<String> additional = Arrays.asList(weightArray);
+			parameters.addAll(additional);
+
+			// train the classifier and package it into a .jar file
+			JarClassifierBuilder.trainAndPackage(directory, parameters.toArray(new String[parameters.size()]));
+		}else{
+			JarClassifierBuilder.trainAndPackage(directory, this.parameterSettings.trainingArguments);
+		}
 	}
 
 
@@ -524,10 +558,10 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 				Set<HashableArguments> all = Sets.union(goldMap.keySet(), systemMap.keySet());
 				List<HashableArguments> sorted = Lists.newArrayList(all);
 				Collections.sort(sorted);
-				
-	      File noteFile = new File(ViewUriUtil.getURI(jCas).toString());
-	      String fileName = noteFile.getName();
-				
+
+				File noteFile = new File(ViewUriUtil.getURI(jCas).toString());
+				String fileName = noteFile.getName();
+
 				for (HashableArguments key : sorted) {
 					BinaryTextRelation goldRelation = goldMap.get(key);
 					BinaryTextRelation systemRelation = systemMap.get(key);
@@ -539,7 +573,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 						String label = systemRelation.getCategory();
 						System.out.printf("[%s] System labeled %s for %s\n", fileName, label, formatRelation(systemRelation));
 					} else if (systemRelation.getCategory().equals(goldRelation.getCategory())) {
-					  System.out.printf("[%s] System nailed it: %s\n", fileName, formatRelation(systemRelation));
+						System.out.printf("[%s] System nailed it: %s\n", fileName, formatRelation(systemRelation));
 					} 
 				}
 			}
@@ -580,7 +614,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 				String predictedCategory = predictedSpanOutcomes.get(span);
 
 				if(goldCategory==null){
-//					System.out.println("false positive: "+ predictedCategory);
+					//					System.out.println("false positive: "+ predictedCategory);
 					outPrint.println("fp");
 				}else{
 					if(predictedCategory==null){

@@ -82,5 +82,4 @@ public class ParameterSettings {
         && Arrays.equals(this.configurationParameters, that.configurationParameters)
         && Arrays.equals(this.trainingArguments, that.trainingArguments);
   }
-
 }
