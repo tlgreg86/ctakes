@@ -62,16 +62,16 @@ public class LocationOfRelationExtractorAnnotator extends RelationExtractorAnnot
 		if(RelationExtractorEvaluation.expandEvent){//if expand
 			Map<EventMention, Collection<EventMention>> coveredMap =
 					JCasUtil.indexCovered(identifiedAnnotationView, EventMention.class, EventMention.class);
-			Map<EventMention, Collection<EventMention>> coveringMap =
-					JCasUtil.indexCovering(identifiedAnnotationView, EventMention.class, EventMention.class);
-			Map<AnatomicalSiteMention, Collection<EventMention>> siteEventMap =
-					JCasUtil.indexCovered(identifiedAnnotationView, AnatomicalSiteMention.class, EventMention.class);
-			Map<AnatomicalSiteMention, Collection<EntityMention>> siteEntityMap =
-					JCasUtil.indexCovering(identifiedAnnotationView, AnatomicalSiteMention.class, EntityMention.class);
+//			Map<EventMention, Collection<EventMention>> coveringMap =
+//					JCasUtil.indexCovering(identifiedAnnotationView, EventMention.class, EventMention.class);
+//			Map<AnatomicalSiteMention, Collection<EventMention>> siteEventMap =
+//					JCasUtil.indexCovered(identifiedAnnotationView, AnatomicalSiteMention.class, EventMention.class);
+//			Map<AnatomicalSiteMention, Collection<EntityMention>> siteEntityMap =
+//					JCasUtil.indexCovering(identifiedAnnotationView, AnatomicalSiteMention.class, EntityMention.class);
 			
 			final List<IdentifiedAnnotation> eventList = new ArrayList<>();
 			for (EventMention event : events) {
-				eventList.addAll(coveringMap.get(event));
+//				eventList.addAll(coveringMap.get(event));
 				eventList.addAll(coveredMap.get(event));
 				for(IdentifiedAnnotation covEvent : eventList){
 					for (AnatomicalSiteMention site : sites) {
@@ -83,14 +83,14 @@ public class LocationOfRelationExtractorAnnotator extends RelationExtractorAnnot
 				eventList.clear();
 				for (AnatomicalSiteMention site : sites) {
 					pairs.add(new IdentifiedAnnotationPair(event, site));
-					eventList.addAll(siteEventMap.get(site));
-					eventList.addAll(siteEntityMap.get(site));
-					for(IdentifiedAnnotation covSite : eventList){
-						if(!hasOverlap(event,covSite)){
-							pairs.add(new IdentifiedAnnotationPair(event, covSite));
-						}
-					}
-					eventList.clear();
+//					eventList.addAll(siteEventMap.get(site));
+//					eventList.addAll(siteEntityMap.get(site));
+//					for(IdentifiedAnnotation covSite : eventList){
+//						if(!hasOverlap(event,covSite)){
+//							pairs.add(new IdentifiedAnnotationPair(event, covSite));
+//						}
+//					}
+//					eventList.clear();
 				}
 				
 			}

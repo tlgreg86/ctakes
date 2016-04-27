@@ -158,7 +158,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 				LibLinearStringOutcomeDataWriter.class,
 				new Object[] { RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
 						1.0f },//0.5f },//
-				new String[] { "-s", "0", "-c", "1.0" }));//
+				new String[] { "-s", "0", "-c", "50.0" }));//
 
 		RELATION_CLASSES.put("manages/treats", ManagesTreatsTextRelation.class);
 		ANNOTATOR_CLASSES.put(ManagesTreatsTextRelation.class, ManagesTreatsRelationExtractorAnnotator.class);
@@ -391,12 +391,12 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 
 			Map<EventMention, Collection<EventMention>> coveredMap =
 					JCasUtil.indexCovered(relationView, EventMention.class, EventMention.class);
-			Map<EventMention, Collection<EventMention>> coveringMap =
-					JCasUtil.indexCovering(relationView, EventMention.class, EventMention.class);
-			Map<AnatomicalSiteMention, Collection<EventMention>> siteEventMap =
-					JCasUtil.indexCovered(relationView, AnatomicalSiteMention.class, EventMention.class);
-			Map<AnatomicalSiteMention, Collection<EntityMention>> siteEntityMap =
-					JCasUtil.indexCovering(relationView, AnatomicalSiteMention.class, EntityMention.class);
+//			Map<EventMention, Collection<EventMention>> coveringMap =
+//					JCasUtil.indexCovering(relationView, EventMention.class, EventMention.class);
+//			Map<AnatomicalSiteMention, Collection<EventMention>> siteEventMap =
+//					JCasUtil.indexCovered(relationView, AnatomicalSiteMention.class, EventMention.class);
+//			Map<AnatomicalSiteMention, Collection<EntityMention>> siteEntityMap =
+//					JCasUtil.indexCovering(relationView, AnatomicalSiteMention.class, EntityMention.class);
 			final List<IdentifiedAnnotation> eventList = new ArrayList<>();
 			for(LocationOfTextRelation relation : Lists.newArrayList(JCasUtil.select(relationView, LocationOfTextRelation.class))){
 				Annotation arg1 = relation.getArg1().getArgument();
@@ -405,7 +405,7 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 				if(arg1 instanceof EventMention && arg2 instanceof AnatomicalSiteMention){
 					event = (EventMention) arg1;
 
-					eventList.addAll(coveringMap.get(event));
+//					eventList.addAll(coveringMap.get(event));
 					eventList.addAll(coveredMap.get(event));
 					for(IdentifiedAnnotation covEvent : eventList){
 						if(!covEvent.getClass().equals(EventMention.class) && !hasOverlap(covEvent, arg2)){
@@ -413,17 +413,17 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 						}
 					}
 					eventList.clear();
-					eventList.addAll(siteEventMap.get(arg2));
-					eventList.addAll(siteEntityMap.get(arg2));
-					for(IdentifiedAnnotation covSite : eventList){
-						if(!covSite.getClass().equals(EventMention.class) && !hasOverlap(arg1, covSite)){
-							createRelation(relationView, event, covSite, relation.getCategory());
-						}
-					}
-					eventList.clear();
+//					eventList.addAll(siteEventMap.get(arg2));
+//					eventList.addAll(siteEntityMap.get(arg2));
+//					for(IdentifiedAnnotation covSite : eventList){
+//						if(!covSite.getClass().equals(EventMention.class) && !hasOverlap(arg1, covSite)){
+//							createRelation(relationView, event, covSite, relation.getCategory());
+//						}
+//					}
+//					eventList.clear();
 				}else if(arg2 instanceof EventMention && arg1 instanceof AnatomicalSiteMention){
 					event = (EventMention) arg2;
-					eventList.addAll(coveringMap.get(event));
+//					eventList.addAll(coveringMap.get(event));
 					eventList.addAll(coveredMap.get(event));
 					for(IdentifiedAnnotation covEvent : eventList){
 						if(!covEvent.getClass().equals(EventMention.class)&& !hasOverlap(arg1, covEvent)){
@@ -431,14 +431,14 @@ public class RelationExtractorEvaluation extends SHARPXMI.Evaluation_ImplBase {
 						}
 					}
 					eventList.clear();
-					eventList.addAll(siteEventMap.get(arg1));
-					eventList.addAll(siteEntityMap.get(arg1));
-					for(IdentifiedAnnotation covSite : eventList){
-						if(!covSite.getClass().equals(EventMention.class) && !hasOverlap(covSite, arg2)){
-							createRelation(relationView, covSite, event, relation.getCategory());
-						}
-					}
-					eventList.clear();
+//					eventList.addAll(siteEventMap.get(arg1));
+//					eventList.addAll(siteEntityMap.get(arg1));
+//					for(IdentifiedAnnotation covSite : eventList){
+//						if(!covSite.getClass().equals(EventMention.class) && !hasOverlap(covSite, arg2)){
+//							createRelation(relationView, covSite, event, relation.getCategory());
+//						}
+//					}
+//					eventList.clear();
 				}
 			}
 
