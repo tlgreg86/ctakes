@@ -88,7 +88,7 @@ final public class OntologyConceptUtil {
     * @return stream of all Umls Concepts associated with the annotation
     */
    static public Stream<UmlsConcept> getUmlsConceptStream( final IdentifiedAnnotation annotation ) {
-      return getOntologyConceptStream( annotation )
+      return Arrays.stream( getConceptFeatureStructures( annotation ) )
             .filter( UmlsConcept.class::isInstance )
             .map( fs -> (UmlsConcept)fs );
    }
