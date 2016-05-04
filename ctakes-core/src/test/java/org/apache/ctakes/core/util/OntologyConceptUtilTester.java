@@ -156,7 +156,7 @@ public class OntologyConceptUtilTester {
    @Test
    public void testGetConcepts() {
       assertEquals( "Null IdentifiedAnnotation should have no concepts", 0,
-            OntologyConceptUtil.getConcepts( null ).size() );
+            OntologyConceptUtil.getUmlsConcepts( null ).size() );
       assertConceptCount( TUI_1_CUI_1, 1 );
       assertConceptCount( TUI_1_CUI_2_CODE_A1, 1 );
       assertConceptCount( TUI_2_CUI_3_CODE_B3, 1 );
@@ -166,7 +166,7 @@ public class OntologyConceptUtilTester {
 
    static private void assertConceptCount( final IdentifiedAnnotation annotation, final int wantedCount ) {
       assertEquals( "Incorrect number of UmlsConcepts", wantedCount,
-            OntologyConceptUtil.getConcepts( annotation ).size() );
+            OntologyConceptUtil.getUmlsConcepts( annotation ).size() );
    }
 
    @Test

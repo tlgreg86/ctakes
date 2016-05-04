@@ -52,7 +52,7 @@ final public class OntologyConceptUtil {
     * @param annotation -
     * @return array of FeatureStructure castable to array of OntologyConcept
     */
-   static private FeatureStructure[] getOntologyConcepts( final IdentifiedAnnotation annotation ) {
+   static public FeatureStructure[] getConceptFeatureStructures( final IdentifiedAnnotation annotation ) {
       if ( annotation == null ) {
          return EMPTY_FEATURE_ARRAY;
       }
@@ -65,26 +65,40 @@ final public class OntologyConceptUtil {
 
    /**
     * @param annotation -
-    * @return steram of OntologyConcept
+    * @return stream of OntologyConcept
     */
-   static private Stream<OntologyConcept> getOntologyConceptStream( final IdentifiedAnnotation annotation ) {
-      return Arrays.stream( getOntologyConcepts( annotation ) )
+   static public Stream<OntologyConcept> getOntologyConceptStream( final IdentifiedAnnotation annotation ) {
+      return Arrays.stream( getConceptFeatureStructures( annotation ) )
             .filter( OntologyConcept.class::isInstance )
             .map( fs -> (OntologyConcept)fs )
             .filter( isSchemeOk )
             .filter( isCodeOk );
    }
 
+   /**
+    * @param annotation -
+    * @return stream of OntologyConcept
+    */
+   static public Collection<OntologyConcept> getOntologyConcepts( final IdentifiedAnnotation annotation ) {
+      return getOntologyConceptStream( annotation ).collect( Collectors.toSet() );
+   }
+
+   /**
+    * @param annotation -
+    * @return stream of all Umls Concepts associated with the annotation
+    */
+   static public Stream<UmlsConcept> getUmlsConceptStream( final IdentifiedAnnotation annotation ) {
+      return getOntologyConceptStream( annotation )
+            .filter( UmlsConcept.class::isInstance )
+            .map( fs -> (UmlsConcept)fs );
+   }
 
    /**
     * @param annotation -
     * @return set of all Umls Concepts associated with the annotation
     */
-   static public Collection<UmlsConcept> getConcepts( final IdentifiedAnnotation annotation ) {
-      return Arrays.stream( getOntologyConcepts( annotation ) )
-            .filter( UmlsConcept.class::isInstance )
-            .map( fs -> (UmlsConcept)fs )
-            .collect( Collectors.toSet() );
+   static public Collection<UmlsConcept> getUmlsConcepts( final IdentifiedAnnotation annotation ) {
+      return getUmlsConceptStream( annotation ).collect( Collectors.toSet() );
    }
 
 
@@ -97,8 +111,7 @@ final public class OntologyConceptUtil {
     * @return set of all Umls cuis associated with the annotation
     */
    static public Collection<String> getCuis( final IdentifiedAnnotation annotation ) {
-      return getConcepts( annotation )
-            .stream()
+      return getUmlsConceptStream( annotation )
             .map( UmlsConcept::getCui )
             .collect( Collectors.toSet() );
    }
@@ -108,8 +121,7 @@ final public class OntologyConceptUtil {
     * @return set of all Umls tuis associated with the annotation
     */
    static public Collection<String> getTuis( final IdentifiedAnnotation annotation ) {
-      return getConcepts( annotation )
-            .stream()
+      return getUmlsConceptStream( annotation )
             .map( UmlsConcept::getTui )
             .collect( Collectors.toSet() );
    }

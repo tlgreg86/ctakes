@@ -402,7 +402,7 @@ final public class PrettyTextWriter {
     * @return map of semantic type names and cuis within those types as they apply to the annotation
     */
    static private Map<String, Collection<String>> getSemanticCuis( final IdentifiedAnnotation identifiedAnnotation ) {
-      final Collection<UmlsConcept> umlsConcepts = OntologyConceptUtil.getConcepts( identifiedAnnotation );
+      final Collection<UmlsConcept> umlsConcepts = OntologyConceptUtil.getUmlsConcepts( identifiedAnnotation );
       if ( umlsConcepts == null || umlsConcepts.isEmpty() ) {
          return Collections.emptyMap();
       }

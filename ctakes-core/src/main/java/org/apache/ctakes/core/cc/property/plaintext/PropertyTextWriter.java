@@ -149,7 +149,7 @@ public class PropertyTextWriter {
     */
    static private Map<String, Collection<UmlsConcept>> getSemanticConcepts(
          final IdentifiedAnnotation identifiedAnnotation ) {
-      final Collection<UmlsConcept> umlsConcepts = OntologyConceptUtil.getConcepts( identifiedAnnotation );
+      final Collection<UmlsConcept> umlsConcepts = OntologyConceptUtil.getUmlsConcepts( identifiedAnnotation );
       if ( umlsConcepts == null || umlsConcepts.isEmpty() ) {
          return Collections.emptyMap();
       }

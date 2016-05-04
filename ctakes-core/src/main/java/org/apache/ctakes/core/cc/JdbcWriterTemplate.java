@@ -148,7 +148,7 @@ public class JdbcWriterTemplate extends AbstractJdbcWriter {
       for ( Annotation annotation : identifiedsIndex ) {
          if ( annotation instanceof IdentifiedAnnotation ) {
             final Collection<UmlsConcept> umlsConcepts
-                  = OntologyConceptUtil.getConcepts( (IdentifiedAnnotation)annotation );
+                  = OntologyConceptUtil.getUmlsConcepts( (IdentifiedAnnotation)annotation );
             final Collection<I2b2Concept> i2b2Concepts = createI2b2Concepts( umlsConcepts );
             for ( I2b2Concept i2b2Concept : i2b2Concepts ) {
                Collection<IdentifiedAnnotation> annotationList = cuiAnnotationListMap.get( i2b2Concept );
