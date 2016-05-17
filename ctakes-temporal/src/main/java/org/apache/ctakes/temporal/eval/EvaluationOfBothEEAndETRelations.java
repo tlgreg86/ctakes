@@ -190,6 +190,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			//			evaluation.prepareXMIsFor(patientSets);
 			if(options.getI2B2Output()!=null) evaluation.setI2B2Output(options.getI2B2Output() + "/temporal-relations/both");
 			if(options.getAnaforaOutput()!=null) evaluation.anaforaOutput = options.getAnaforaOutput();
+      
 			List<Integer> training = trainItems;
 			List<Integer> testing = null;
 			if(options.getTest()){
@@ -316,7 +317,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class));
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
 
-		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonTLINKRelations.class));//remove non tlink relations, such as alinks
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonTLINKRelations.class));//remove non tlink relations, such as alinks
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
 
