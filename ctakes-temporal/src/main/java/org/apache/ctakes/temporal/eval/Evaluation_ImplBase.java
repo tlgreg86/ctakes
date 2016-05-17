@@ -450,10 +450,21 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
             GOLD_VIEW_NAME ) );
       switch ( this.xmlFormat ) {
          case Anafora:
+           if(this.subcorpus == Subcorpus.DeepPhe){
+            aggregateBuilder.add(
+                  AnalysisEngineFactory.createEngineDescription(THYMEAnaforaXMLReader.class,
+                      THYMEAnaforaXMLReader.PARAM_ANAFORA_DIRECTORY,
+                      this.xmlDirectory,
+                      THYMEAnaforaXMLReader.PARAM_ANAFORA_XML_SUFFIXES,
+                      new String[]{} ),
+                  CAS.NAME_DEFAULT_SOFA,
+                  GOLD_VIEW_NAME );
+           }else{
             aggregateBuilder.add(
                   THYMEAnaforaXMLReader.getDescription( this.xmlDirectory ),
                   CAS.NAME_DEFAULT_SOFA,
                   GOLD_VIEW_NAME );
+           }
             break;
          case Knowtator:
             aggregateBuilder.add(
@@ -470,9 +481,12 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
       }
 
       // identify segments
-      aggregateBuilder
-            .add( AnalysisEngineFactory.createEngineDescription( SegmentsFromBracketedSectionTagsAnnotator.class ) );
-
+      if(this.subcorpus == Subcorpus.DeepPhe){
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PittHeaderAnnotator.class));
+      }else{
+        aggregateBuilder
+        .add( AnalysisEngineFactory.createEngineDescription( SegmentsFromBracketedSectionTagsAnnotator.class ) );
+      }
       // identify sentences
       aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
             SentenceDetector.class,
@@ -651,6 +665,25 @@ public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
             segment.addToIndexes();
          }
       }
+   }
+
+   /**
+    * Grabs the document time from the header
+    */
+   public static class PittHeaderAnnotator extends JCasAnnotator_ImplBase {
+
+     /**
+      * Grabs the document time from the header
+      * {@inheritDoc}
+      */
+     @Override
+     public void process( final JCas jcas ) throws AnalysisEngineProcessException {
+       String docText = jcas.getDocumentText();
+       int headerEnd = docText.indexOf("\n", docText.indexOf("[Report de-identified"));
+       Segment mainSegment = new Segment(jcas, headerEnd+1, docText.length()-1);
+       mainSegment.setId("SIMPLE_SEGMENT");
+       mainSegment.addToIndexes();
+     }
    }
 
    static File getXMIFile( File xmiDirectory, File textFile ) {

@@ -127,11 +127,13 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
         break;
       }
     }
-    if (xmlFile == null) {
+    if (this.anaforaXMLSuffixes.length > 0 && xmlFile == null) {
       throw new IllegalArgumentException("no Anafora XML file found from " + possibleXMLFiles);
     }
 
-    processXmlFile(jCas, xmlFile);
+    if(xmlFile != null){
+      processXmlFile(jCas, xmlFile);
+    }
     if(corefFile.exists()){
     	processXmlFile(jCas, corefFile);
     }
@@ -153,6 +155,7 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
     int curEventId = 1;
     int curTimexId = 1;
     int curRelId = 1;
+    int docLen = jCas.getDocumentText().length();
     
     for (Element annotationsElem : dataElem.getChildren("annotations")) {
 
@@ -180,6 +183,10 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           if (spanEnd > end) {
             end = spanEnd;
           }
+        }
+        if(begin < 0 || end >= docLen){
+          error("Illegal begin or end boundary", id);
+          continue;
         }
 
         Annotation annotation;
@@ -248,6 +255,9 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           annotation = timeMention;
 
         } else if (type.equals("Markable")) {
+          while(end >= begin && (jCas.getDocumentText().charAt(end-1) == '\n' || jCas.getDocumentText().charAt(end-1) == '\r')){
+            end--;
+          }
           Markable markable = new Markable(jCas, begin, end);
           markable.addToIndexes();
           annotation = markable;
