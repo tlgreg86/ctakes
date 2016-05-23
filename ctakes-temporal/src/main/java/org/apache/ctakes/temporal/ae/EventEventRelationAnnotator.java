@@ -44,6 +44,7 @@ import org.apache.ctakes.temporal.ae.feature.SpecialAnnotationRelationExtractor;
 import org.apache.ctakes.temporal.ae.feature.TemporalPETFlatExtractor;
 import org.apache.ctakes.temporal.ae.feature.TokenPropertyFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.DeterminerRelationFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.RelationEmbeddingFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventArgumentPropertyExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventTimeRelationFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventPositionRelationFeaturesExtractor;
@@ -72,6 +73,7 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.CleartkAnnotator;
 import org.cleartk.ml.DataWriter;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
@@ -125,12 +127,22 @@ public class EventEventRelationAnnotator extends TemporalRelationExtractorAnnota
 				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 				new File(modelDirectory, "model.jar"));
 	}
+	
+	private RelationEmbeddingFeatureExtractor embedingExtractor;
 
 	@Override
 	protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {
+		final String vectorFile = "org/apache/ctakes/temporal/mimic_vectors.txt";
+		try {
+			this.embedingExtractor = new RelationEmbeddingFeatureExtractor(vectorFile);
+		} catch (CleartkExtractorException e) {
+			System.err.println("cannot find file: "+ vectorFile);
+			e.printStackTrace();
+		}
 		return Lists.newArrayList(
 				new UnexpandedTokenFeaturesExtractor() //new TokenFeaturesExtractor()		
 //				, new EmptyFeaturesExtractor()
+				, embedingExtractor
 				, new PartOfSpeechFeaturesExtractor()
 				, new EventArgumentPropertyExtractor()
 				, new UmlsFeatureExtractor()

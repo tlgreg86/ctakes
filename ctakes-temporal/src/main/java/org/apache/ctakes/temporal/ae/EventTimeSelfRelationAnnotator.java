@@ -30,8 +30,10 @@ import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor
 import org.apache.ctakes.relationextractor.ae.features.TokenFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.CheckSpecialWordRelationExtractor;
 import org.apache.ctakes.temporal.ae.feature.ConjunctionRelationFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.ContinuousTextExtractor;
 import org.apache.ctakes.temporal.ae.feature.DependencyFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.DependencyPathFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.RelationEmbeddingFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.EmptyFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventArgumentPropertyExtractor;
 import org.apache.ctakes.temporal.ae.feature.MultiTokenFeaturesExtractor;
@@ -63,12 +65,14 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.CleartkAnnotator;
 import org.cleartk.ml.DataWriter;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
@@ -120,11 +124,21 @@ public class EventTimeSelfRelationAnnotator extends TemporalRelationExtractorAnn
 				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 				new File(modelDirectory, "model.jar"));
 	}
+	
+	private RelationEmbeddingFeatureExtractor embedingExtractor;
 
 	@Override
 	protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {
+		final String vectorFile = "org/apache/ctakes/temporal/mimic_vectors.txt";
+		try {
+			this.embedingExtractor = new RelationEmbeddingFeatureExtractor(vectorFile);
+		} catch (CleartkExtractorException e) {
+			System.err.println("cannot find file: "+ vectorFile);
+			e.printStackTrace();
+		}
 		return Lists.newArrayList(
-				new UnexpandedTokenFeaturesExtractor()//new TokenFeaturesExtractor()							
+				new UnexpandedTokenFeaturesExtractor()//new TokenFeaturesExtractor()	
+				, embedingExtractor
 				, new NearestFlagFeatureExtractor()
 				, new DependencyPathFeaturesExtractor()
 				, new EventArgumentPropertyExtractor()
