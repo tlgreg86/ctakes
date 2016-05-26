@@ -73,6 +73,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.CleartkAnnotator;
 import org.cleartk.ml.DataWriter;
 import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+//import org.cleartk.ml.feature.transform.InstanceDataWriter; //used for normalization
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
@@ -129,7 +130,7 @@ public class EventTimeSelfRelationAnnotator extends TemporalRelationExtractorAnn
 
 	@Override
 	protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {
-		final String vectorFile = "org/apache/ctakes/temporal/mimic_vectors.txt";
+		final String vectorFile = "org/apache/ctakes/temporal/glove.6B.50d.txt";
 		try {
 			this.embedingExtractor = new RelationEmbeddingFeatureExtractor(vectorFile);
 		} catch (CleartkExtractorException e) {
@@ -266,4 +267,19 @@ public class EventTimeSelfRelationAnnotator extends TemporalRelationExtractorAnn
 
 		return category;
 	}
+
+	/**used for normalization
+	public static AnalysisEngineDescription createDataWriterDescription(Class<InstanceDataWriter> dataWriterClass,
+			File outputDirectory, float probabilityOfKeepingANegativeExample) throws ResourceInitializationException {
+		return AnalysisEngineFactory.createEngineDescription(
+				EventTimeSelfRelationAnnotator.class,
+				CleartkAnnotator.PARAM_IS_TRAINING,
+				true,
+				DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
+				dataWriterClass,
+				DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
+				outputDirectory,
+				RelationExtractorAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
+				probabilityOfKeepingANegativeExample);
+	}*/
 }
