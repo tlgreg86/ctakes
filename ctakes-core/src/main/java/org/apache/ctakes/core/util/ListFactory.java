@@ -22,6 +22,9 @@ import org.apache.uima.jcas.cas.EmptyFSList;
 import org.apache.uima.jcas.cas.FSList;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.cas.TOP;
+
+import java.util.List;
+
 import org.apache.uima.jcas.JCas;
 
 /**
@@ -64,6 +67,10 @@ public class ListFactory {
 		list.setTail(new EmptyFSList(jcas));		
 		
 		return firstList;
+	}
+	
+	public static FSList buildList(JCas jcas, List<? extends TOP> objArr){
+	  return buildList(jcas, objArr.toArray(new TOP[]{}));
 	}
 	
 	public static void append(JCas jcas, FSList list, TOP element){
