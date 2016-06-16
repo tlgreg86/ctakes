@@ -78,6 +78,14 @@
 			<artifactId>ctakes-resources-umls2011ab</artifactId>
 			<version>3.1.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.ctakes</groupId>
+			<artifactId>ctakes-assertion</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ctakes</groupId>
+			<artifactId>ctakes-temporal</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
