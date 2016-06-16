@@ -39,7 +39,7 @@ public class DependencyTreeFeaturesExtractor implements RelationFeaturesExtracto
 	    return features;
 	}
 	
-	public List<Feature> extractForNode(JCas jCas, IdentifiedAnnotation mention, String ftrPrefix) {
+	public static List<Feature> extractForNode(JCas jCas, IdentifiedAnnotation mention, String ftrPrefix) {
 	    List<Feature> features = new ArrayList<Feature>();
 	    ConllDependencyNode mentionHeadNode = DependencyParseUtils.findAnnotationHead(jCas, mention);
 		
