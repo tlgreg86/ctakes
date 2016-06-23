@@ -57,7 +57,7 @@ import com.lexicalscope.jewel.cli.Option;
  * @author dmitriy dligach
  */
 public class uniquePairsCandidateEventPrinter {
-  
+
   static interface Options {
 
     @Option(longName = "xmi-dir")
@@ -65,18 +65,18 @@ public class uniquePairsCandidateEventPrinter {
 
     @Option(longName = "patients")
     public CommandLine.IntegerRanges getPatients();
-    
+
     @Option(longName = "output-train")
     public File getTrainOutputDirectory();
-    
+
     @Option(longName = "output-test")
     public File getTestOutputDirectory();
   }
 
   public static void main(String[] args) throws Exception {
-    
+
     Options options = CliFactory.parseArguments(Options.class, args);
-    
+
     File trainFile = options.getTrainOutputDirectory();
     if(trainFile.exists()) {
       trainFile.delete();
@@ -91,10 +91,10 @@ public class uniquePairsCandidateEventPrinter {
     List<Integer> patientSets = options.getPatients().getList();
     List<Integer> trainItems = THYMEData.getPatientSets(patientSets, THYMEData.TRAIN_REMAINDERS);
     List<Integer> devItems = THYMEData.getPatientSets(patientSets, THYMEData.DEV_REMAINDERS);
-    
+
     List<File> trainFiles = Utils.getFilesFor(trainItems, options.getInputDirectory());
     List<File> devFiles = Utils.getFilesFor(devItems, options.getInputDirectory());
-    
+
     // write training data to file
     CollectionReader trainCollectionReader = Utils.getCollectionReader(trainFiles);
     AnalysisEngine trainDataWriter = AnalysisEngineFactory.createEngine(
@@ -102,7 +102,7 @@ public class uniquePairsCandidateEventPrinter {
         "OutputFile",
         trainFile.getAbsoluteFile());
     SimplePipeline.runPipeline(trainCollectionReader, trainDataWriter);
-    
+
     // write dev data to file
     CollectionReader devCollectionReader = Utils.getCollectionReader(devFiles);
     AnalysisEngine devDataWriter = AnalysisEngineFactory.createEngine(
@@ -124,7 +124,7 @@ public class uniquePairsCandidateEventPrinter {
         mandatory = true,
         description = "path to the output file")
     private String outputFile;
-    
+
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
 
@@ -155,7 +155,7 @@ public class uniquePairsCandidateEventPrinter {
       for(Sentence sentence : JCasUtil.select(systemView, Sentence.class)) {
         List<String> eventEventRelationsInSentence = new ArrayList<>();
         ArrayList<EventMention> eventMentionsInSentence = new ArrayList<>(JCasUtil.selectCovered(goldView, EventMention.class, sentence));
-        
+
         // retrieve event-event relations in this sentence
         for(int i = 0; i < eventMentionsInSentence.size(); i++) {
           for(int j = i + 1; j < eventMentionsInSentence.size(); j++) {
@@ -163,7 +163,7 @@ public class uniquePairsCandidateEventPrinter {
             EventMention mention2 = eventMentionsInSentence.get(j);
             BinaryTextRelation forwardRelation = relationLookup.get(Arrays.asList(mention1, mention2));
             BinaryTextRelation reverseRelation = relationLookup.get(Arrays.asList(mention2, mention1));
-            
+
             String label;            
             if(forwardRelation != null) {
               if(forwardRelation.getCategory().equals("CONTAINS")) {
@@ -180,8 +180,8 @@ public class uniquePairsCandidateEventPrinter {
             } else {
               label = "none";         // no relation between mentions
             }
-            
-            String context = getTokensBetween(systemView, sentence, mention1, mention2, 0);
+
+            String context = getTokensBetween(systemView, sentence, mention1, "e1", mention2, "e2", 2);
             String text = String.format("%s|%s", label, context);
             eventEventRelationsInSentence.add(text.toLowerCase());
           }
@@ -195,7 +195,44 @@ public class uniquePairsCandidateEventPrinter {
       }
     }
   }
-  
+
+  /**
+   * Return tokens between arg1 and arg2 as string 
+   * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
+   */
+  public static String getTokensBetween(
+      JCas jCas, 
+      Sentence sent, 
+      Annotation left,
+      String leftType,
+      Annotation right,
+      String rightType,
+      int contextSize) {
+
+    List<String> tokens = new ArrayList<>();
+    for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, left, contextSize)) {
+      if(sent.getBegin() <= baseToken.getBegin()) {
+        tokens.add(baseToken.getCoveredText()); 
+      }
+    }
+    tokens.add("<" + leftType + ">");
+    tokens.add(left.getCoveredText());
+    tokens.add("</" + leftType + ">");
+    for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, right)) {
+      tokens.add(baseToken.getCoveredText());
+    }
+    tokens.add("<" + rightType + ">");
+    tokens.add(right.getCoveredText());
+    tokens.add("</" + rightType + ">");
+    for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, right, contextSize)) {
+      if(baseToken.getEnd() <= sent.getEnd()) {
+        tokens.add(baseToken.getCoveredText());
+      }
+    }
+
+    return String.join(" ", tokens).replaceAll("[\r\n]", " ");
+  }
+
   /**
    * Return tokens between arg1 and arg2 as string 
    * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
@@ -206,7 +243,7 @@ public class uniquePairsCandidateEventPrinter {
       Annotation left,
       Annotation right,
       int contextSize) {
-    
+
     List<String> tokens = new ArrayList<>();
     for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, left, contextSize)) {
       if(sent.getBegin() <= baseToken.getBegin()) {
@@ -223,7 +260,7 @@ public class uniquePairsCandidateEventPrinter {
         tokens.add(baseToken.getCoveredText());
       }
     }
-    
+
     return String.join(" ", tokens).replaceAll("[\r\n]", " ");
   }
 }
