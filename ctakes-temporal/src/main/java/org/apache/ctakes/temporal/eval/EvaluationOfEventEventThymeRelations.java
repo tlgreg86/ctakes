@@ -202,7 +202,7 @@ EvaluationOfTemporalRelations_ImplBase{
 				testing = devItems;
 			}
 
-			evaluation.printErrors = false;
+//			evaluation.printErrors = false;
 
 			//do closure on system, but not on gold, to calculate recall
 			evaluation.skipTrain = options.getSkipTrain();
@@ -211,7 +211,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			}else{
 				evaluation.prepareXMIsFor(patientSets);
 			}
-			evaluation.printErrors=true;
+//			evaluation.printErrors=true;
 			
 			//sort list:
 			Collections.sort(training);

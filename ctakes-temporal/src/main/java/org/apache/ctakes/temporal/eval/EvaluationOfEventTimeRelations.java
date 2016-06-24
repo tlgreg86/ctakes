@@ -212,7 +212,7 @@ EvaluationOfTemporalRelations_ImplBase{
 				evaluation.prepareXMIsFor(patientSets);
 			}
 
-			evaluation.printErrors = true;
+//			evaluation.printErrors = true;
 
 			//sort list:
 			Collections.sort(training);
