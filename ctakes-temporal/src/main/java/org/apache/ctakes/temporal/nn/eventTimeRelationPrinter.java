@@ -160,16 +160,23 @@ public class eventTimeRelationPrinter {
         for(EventMention event : JCasUtil.selectCovered(goldView, EventMention.class, sentence)) {
           for(TimeMention time : JCasUtil.selectCovered(goldView, TimeMention.class, sentence)) {
             BinaryTextRelation timeEventRelation = relationLookup.get(Arrays.asList(time, event));
-
+            BinaryTextRelation eventTimeRelation = relationLookup.get(Arrays.asList(event, time));
+            
             String label;
             if(timeEventRelation != null) {
               if(timeEventRelation.getCategory().equals("CONTAINS")) {
-                label = "contains"; 
+                label = "contains";  // this is contains
               } else {
-                label = "none"; // e.g. before or overlap
+                label = "none";      // e.g. before or overlap
+              }
+            } else if(eventTimeRelation != null) {
+              if(eventTimeRelation.getCategory().equals("CONTAINS")) {
+                label = "contains-1"; // this is contains
+              } else {
+                label = "none";       // some other relation type
               }
             } else {
-              label = "none";   // no relation between this time and event
+              label = "none";         // no relation between this time and event
             }
             
             String context;
@@ -185,26 +192,6 @@ public class eventTimeRelationPrinter {
             eventEventRelationsInSentence.add(text.toLowerCase());
           }
         }  
-        
-        //            BinaryTextRelation eventTimeRelation = relationLookup.get(Arrays.asList(event, time));
-
-        //
-        //            String label;            
-        //            if(forwardRelation != null) {
-        //              if(forwardRelation.getCategory().equals("CONTAINS")) {
-        //                label = "contains";   // this is contains relation
-        //              } else {
-        //                label = "none";       // this is some other relation
-        //              }
-        //            } else if(reverseRelation != null) {
-        //              if(reverseRelation.getCategory().equals("CONTAINS")) {
-        //                label = "contains-1"; // this is contains relation
-        //              } else {
-        //                label = "none";       // this is some other relation
-        //              }
-        //            } else {
-        //              label = "none";         // no relation between mentions
-        //            }
 
         try {
           Files.write(Paths.get(outputFile), eventEventRelationsInSentence, StandardOpenOption.APPEND);
