@@ -33,6 +33,7 @@ import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.temporal.eval.CommandLine;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
+import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
@@ -146,7 +147,7 @@ public class eventTimeRelationPrinter {
       // can't iterate over binary text relations in a sentence, so need
       // a lookup from pair of annotations to binary text relation
       Map<List<Annotation>, BinaryTextRelation> relationLookup = new HashMap<>();
-      for(BinaryTextRelation relation : JCasUtil.select(goldView, BinaryTextRelation.class)) {
+      for(BinaryTextRelation relation : JCasUtil.select(goldView, TemporalTextRelation.class)) {
         Annotation arg1 = relation.getArg1().getArgument();
         Annotation arg2 = relation.getArg2().getArgument();
         relationLookup.put(Arrays.asList(arg1, arg2), relation);
@@ -154,8 +155,8 @@ public class eventTimeRelationPrinter {
 
       // go over sentences, extracting event-event relation instances
       for(Sentence sentence : JCasUtil.select(systemView, Sentence.class)) {
-        List<String> eventEventRelationsInSentence = new ArrayList<>();
-
+        List<String> eventTimeRelationsInSentence = new ArrayList<>();
+        
         // retrieve event-time relations in this sentence
         for(EventMention event : JCasUtil.selectCovered(goldView, EventMention.class, sentence)) {
           for(TimeMention time : JCasUtil.selectCovered(goldView, TimeMention.class, sentence)) {
@@ -189,12 +190,12 @@ public class eventTimeRelationPrinter {
             }
             
             String text = String.format("%s|%s", label, context);
-            eventEventRelationsInSentence.add(text.toLowerCase());
+            eventTimeRelationsInSentence.add(text.toLowerCase());
           }
         }  
 
         try {
-          Files.write(Paths.get(outputFile), eventEventRelationsInSentence, StandardOpenOption.APPEND);
+          Files.write(Paths.get(outputFile), eventTimeRelationsInSentence, StandardOpenOption.APPEND);
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -203,7 +204,7 @@ public class eventTimeRelationPrinter {
   }
 
   /**
-   * Return tokens between arg1 and arg2 as string 
+   * Print context from left to right.
    * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
    */
   public static String getTokensBetween(
