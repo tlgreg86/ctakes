@@ -56,7 +56,7 @@ import com.lexicalscope.jewel.cli.Option;
  * 
  * @author dmitriy dligach
  */
-public class uniquePairsCandidateEventPrinter {
+public class eventEventRelationPrinter {
 
   static interface Options {
 
