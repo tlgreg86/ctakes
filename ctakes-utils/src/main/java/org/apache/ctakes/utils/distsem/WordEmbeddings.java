@@ -10,10 +10,14 @@ public class WordEmbeddings {
 
   private Map<String,WordVector> vectors = null;
   private int dimensionality = 0;
+  private WordVector meanVector = null;
+  private WordVector rawMeanVector = null;
   
   public WordEmbeddings(int dim){
     this.vectors = new HashMap<>();
     this.dimensionality = dim;
+    this.meanVector = new WordVector("_mean_", new double[this.dimensionality]);
+    this.rawMeanVector = new WordVector("_mean_raw", new double[this.dimensionality]);
   }
   
   public WordEmbeddings(Map<String,WordVector> vectors){
@@ -38,9 +42,16 @@ public class WordEmbeddings {
     int wordBreak = line.indexOf(' ');
     String word = line.substring(0, wordBreak);
     String[] dims = line.substring(wordBreak+1).split(" ");
+    
+    if(this.meanVector == null){
+      this.meanVector = new WordVector("_mean_", new double[dims.length]);
+      this.rawMeanVector = new WordVector("_mean_raw", new double[dims.length]);
+    }
+    
     double[] vector = new double[dims.length];
     for(int i = 0; i < dims.length; i++){
       vector[i] = Double.valueOf(dims[i]);
+      meanVector.vector[i] += vector[i];
     }
     vectors.put(word, new WordVector(word, vector));
   }
@@ -100,5 +111,12 @@ public class WordEmbeddings {
       }
     }
     return words;
+  }
+  
+  public WordVector getMeanVector(){
+    for(int i = 0; i < this.rawMeanVector.getLength(); i++){
+      this.meanVector.vector[i] = this.rawMeanVector.vector[i] / vectors.size();
+    }
+    return this.meanVector;
   }
 }
