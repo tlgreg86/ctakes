@@ -179,6 +179,16 @@ public class eventTimeRelationPrinter {
             } else {
               label = "none";         // no relation between this time and event
             }
+      
+//            commented version can be used to generate data with all labels            
+//            String label;
+//            if(timeEventRelation != null) {
+//              label = timeEventRelation.getCategory().toLowerCase();
+//            } else if(eventTimeRelation != null) {
+//              label = eventTimeRelation.getCategory().toLowerCase() + "-1";
+//            } else {
+//              label = "none";         // no relation between this time and event
+//            }
             
             String context;
             if(time.getBegin() < event.getBegin()) {
