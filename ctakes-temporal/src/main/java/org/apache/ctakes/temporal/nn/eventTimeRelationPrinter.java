@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,6 +97,9 @@ public class eventTimeRelationPrinter {
 
     List<File> trainFiles = Utils.getFilesFor(trainItems, options.getInputDirectory());
     List<File> devFiles = Utils.getFilesFor(devItems, options.getInputDirectory());
+    
+    // sort training files to eliminate platform specific dir listings
+    Collections.sort(trainFiles);
 
     // write training data to file
     CollectionReader trainCollectionReader = Utils.getCollectionReader(trainFiles);
