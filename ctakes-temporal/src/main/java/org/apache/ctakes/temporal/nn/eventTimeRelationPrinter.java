@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.temporal.eval.CommandLine;
@@ -100,7 +101,8 @@ public class eventTimeRelationPrinter {
     
     // sort training files to eliminate platform specific dir listings
     Collections.sort(trainFiles);
-
+//    Collections.shuffle(trainFiles, new Random(100));  
+    
     // write training data to file
     CollectionReader trainCollectionReader = Utils.getCollectionReader(trainFiles);
     AnalysisEngine trainDataWriter = AnalysisEngineFactory.createEngine(
