@@ -147,7 +147,7 @@ public class docTimeRelPrinter {
         for(EventMention event : JCasUtil.selectCovered(goldView, EventMention.class, sentence)) {
           if(event.getEvent() != null) {
             String label = event.getEvent().getProperties().getDocTimeRel();
-            String context = getEventContext(systemView, sentence, event, "e", 3);
+            String context = getEventContext(systemView, sentence, event, "e", 10);
             String text = String.format("%s|%s", label, context);
             docTimeRelExamplesInSentence.add(text.toLowerCase());
           } else {
