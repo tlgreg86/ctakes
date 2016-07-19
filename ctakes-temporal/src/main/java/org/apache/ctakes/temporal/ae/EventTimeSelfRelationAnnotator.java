@@ -34,6 +34,7 @@ import org.apache.ctakes.temporal.ae.feature.ContinuousTextExtractor;
 import org.apache.ctakes.temporal.ae.feature.DependencyFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.DependencyPathFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.RelationEmbeddingFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.RelationSyntacticETEmbeddingFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.EmptyFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventArgumentPropertyExtractor;
 import org.apache.ctakes.temporal.ae.feature.MultiTokenFeaturesExtractor;
@@ -126,13 +127,13 @@ public class EventTimeSelfRelationAnnotator extends TemporalRelationExtractorAnn
 				new File(modelDirectory, "model.jar"));
 	}
 	
-	private RelationEmbeddingFeatureExtractor embedingExtractor;
+	private RelationSyntacticETEmbeddingFeatureExtractor embedingExtractor;
 
 	@Override
 	protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {
-		final String vectorFile = "org/apache/ctakes/temporal/glove.6B.50d.txt";
+		final String vectorFile = "org/apache/ctakes/temporal/gloveresult_3";
 		try {
-			this.embedingExtractor = new RelationEmbeddingFeatureExtractor(vectorFile);
+			this.embedingExtractor = new RelationSyntacticETEmbeddingFeatureExtractor(vectorFile);
 		} catch (CleartkExtractorException e) {
 			System.err.println("cannot find file: "+ vectorFile);
 			e.printStackTrace();
