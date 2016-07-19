@@ -61,63 +61,64 @@ public class RelationEmbeddingFeatureExtractor implements RelationFeaturesExtrac
 
 		List<Feature> features = new ArrayList<>();
 
-//		String arg1LastWord = Utils.getLastWord(jCas, arg1).toLowerCase();
-//		String arg2LastWord = Utils.getLastWord(jCas, arg2).toLowerCase();
-
-		//		WordVector arg1Vector;
-		//		if(words.containsKey(arg1LastWord)) {
-		//			arg1Vector = words.getVector(arg1LastWord);
-		//		} else {
-		//			arg1Vector = words.getVector("and");
-		//		}
-		//		WordVector arg2Vector;
-		//		if(words.containsKey(arg2LastWord)) {
-		//			arg2Vector = words.getVector(arg2LastWord);
-		//		} else {
-		//			arg2Vector = words.getVector("and");
-		//		}
-
-		// head word features
-		//		for(int dim = 0; dim < numberOfDimensions; dim++) {
-		//			String featureName = String.format("arg1_dim_%d", dim);
-		//			features.add(new Feature(featureName, arg1Vector.getValue(dim)));
-		//		}
-		//		for(int dim = 0; dim < numberOfDimensions; dim++) {
-		//			String featureName = String.format("arg2_dim_%d", dim);
-		//			features.add(new Feature(featureName, arg2Vector.getValue(dim)));
-		//		}    
-
-		// head word similarity features
-//		List<WordToken> wordsOfArgs1 = JCasUtil.selectCovered(jCas, WordToken.class, arg1);
-//		List<Double> arg1Vec = getGroupVector(wordsOfArgs1);
+		List<WordToken> preWords = null;
+		List<WordToken> afterWords = null;
+		List<WordToken> wordsOfArgs1 = null;
+		List<WordToken> wordsOfArgs2 = null;
+		if(arg1.getBegin() < arg2.getBegin()){//if arg1 before arg2
+			preWords = JCasUtil.selectPreceding(jCas, WordToken.class, arg1, 2);
+			afterWords = JCasUtil.selectFollowing(jCas, WordToken.class, arg2, 2);
+			wordsOfArgs1 = JCasUtil.selectCovered(jCas, WordToken.class, arg1);
+			wordsOfArgs2 = JCasUtil.selectCovered(jCas, WordToken.class, arg2); 
+		}else{
+			preWords = JCasUtil.selectPreceding(jCas, WordToken.class, arg2, 2);
+			afterWords = JCasUtil.selectFollowing(jCas, WordToken.class, arg1, 2);
+			wordsOfArgs1 = JCasUtil.selectCovered(jCas, WordToken.class, arg2);
+			wordsOfArgs2 = JCasUtil.selectCovered(jCas, WordToken.class, arg1);
+		}
 		
-//		List<WordToken> wordsOfArgs2 = JCasUtil.selectCovered(jCas, WordToken.class, arg2);
-//		List<Double> arg2Vec = getGroupVector(wordsOfArgs2);
+		//get the 2 words before the first argument
+		List<Double> sum = getSumVector(preWords);
+		features = addFeatures(features, sum, preWords.size(), "pre");		
 
-//		for(int dim = 0; dim < numberOfDimensions; dim++) {
-//			String featureName = String.format("arg1_dim_%d", dim);
-//			features.add(new Feature(featureName, arg1Vec.get(dim)));
-//		}
-//		for(int dim = 0; dim < numberOfDimensions; dim++) {
-//			String featureName = String.format("arg2_dim_%d", dim);
-//			features.add(new Feature(featureName, arg2Vec.get(dim)));
-//		}
-
-
-//		double similarity = computeCosineSimilarity(arg1Vec, arg2Vec); 
-//		features.add(new Feature("arg_cos_sim", similarity));
-
+		// head words of the first argument features
+		sum = getSumVector(wordsOfArgs1);
+		features = addFeatures(features, sum, wordsOfArgs1.size(), "arg1");
 
 		// words between argument features
-		List<WordToken> wordsBetweenArgs = JCasUtil.selectBetween(jCas, WordToken.class, arg1, arg2);
-//		wordsBetweenArgs.addAll(wordsOfArgs1);
-//		wordsBetweenArgs.addAll(wordsOfArgs2);
-		if(wordsBetweenArgs.size() < 1) {
-			return features;  
-		}
+		List<WordToken> wordsBetweenArgs = new ArrayList<>(JCasUtil.selectBetween(jCas, WordToken.class, arg1, arg2));
+		sum = getSumVector(wordsBetweenArgs);
+		features = addFeatures(features, sum, wordsBetweenArgs.size(), "inBetween");
+		
+		// head words of the 2nd argument features 
+		sum = getSumVector(wordsOfArgs2);
+		features = addFeatures(features, sum, wordsOfArgs2.size(), "arg2");
+		
+		//get the 2 words after the 2nd argument
+		sum = getSumVector(afterWords);
+		features = addFeatures(features, sum, afterWords.size(), "after");
 
+		return features;
+	}
+
+	private List<Feature> addFeatures(List<Feature> features, List<Double> sum, int size, String field) {
+		if(size == 0){
+			for(int dim = 0; dim < numberOfDimensions; dim++) {
+				String featureName = String.format(field+"_dim_%d", dim);
+				features.add(new Feature(featureName, sum.get(dim)));
+			}
+		}else{
+			for(int dim = 0; dim < numberOfDimensions; dim++) {
+				String featureName = String.format(field+"_dim_%d", dim);
+				features.add(new Feature(featureName, sum.get(dim) / size));
+			}
+		}
+		return features;
+	}
+
+	private List<Double> getSumVector(List<WordToken> wordsInCheck) {
 		List<Double> sum = new ArrayList<>(Collections.nCopies(numberOfDimensions, 0.0));
-		for(WordToken wordToken : wordsBetweenArgs) {
+		for(WordToken wordToken : wordsInCheck) {
 			WordVector wordVector;
 			if(words.containsKey(wordToken.getCoveredText().toLowerCase())) {
 				wordVector = words.getVector(wordToken.getCoveredText().toLowerCase());
@@ -126,13 +127,7 @@ public class RelationEmbeddingFeatureExtractor implements RelationFeaturesExtrac
 			}
 			sum = addVectors(sum, wordVector);      
 		}
-
-		for(int dim = 0; dim < numberOfDimensions; dim++) {
-			String featureName = String.format("average_dim_%d", dim);
-			features.add(new Feature(featureName, sum.get(dim) / wordsBetweenArgs.size()));
-		}
-
-		return features;
+		return sum;
 	}
 
 	/**
