@@ -45,6 +45,8 @@ import org.apache.ctakes.temporal.ae.feature.TemporalPETFlatExtractor;
 import org.apache.ctakes.temporal.ae.feature.TokenPropertyFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.DeterminerRelationFeaturesExtractor;
 import org.apache.ctakes.temporal.ae.feature.RelationEmbeddingFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.RelationSyntacticETEmbeddingFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.RelationSyntacticEmbeddingFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventArgumentPropertyExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventTimeRelationFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventPositionRelationFeaturesExtractor;
@@ -128,13 +130,13 @@ public class EventEventRelationAnnotator extends TemporalRelationExtractorAnnota
 				new File(modelDirectory, "model.jar"));
 	}
 	
-	private RelationEmbeddingFeatureExtractor embedingExtractor;
+	private RelationSyntacticETEmbeddingFeatureExtractor embedingExtractor;
 
 	@Override
 	protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {
-		final String vectorFile = "org/apache/ctakes/temporal/mimic_vectors.txt";
+		final String vectorFile = "org/apache/ctakes/temporal/gloveresult_3";
 		try {
-			this.embedingExtractor = new RelationEmbeddingFeatureExtractor(vectorFile);
+			this.embedingExtractor = new RelationSyntacticETEmbeddingFeatureExtractor(vectorFile);
 		} catch (CleartkExtractorException e) {
 			System.err.println("cannot find file: "+ vectorFile);
 			e.printStackTrace();
@@ -142,7 +144,7 @@ public class EventEventRelationAnnotator extends TemporalRelationExtractorAnnota
 		return Lists.newArrayList(
 				new UnexpandedTokenFeaturesExtractor() //new TokenFeaturesExtractor()		
 //				, new EmptyFeaturesExtractor()
-				, embedingExtractor
+				,embedingExtractor
 				, new PartOfSpeechFeaturesExtractor()
 				, new EventArgumentPropertyExtractor()
 				, new UmlsFeatureExtractor()
