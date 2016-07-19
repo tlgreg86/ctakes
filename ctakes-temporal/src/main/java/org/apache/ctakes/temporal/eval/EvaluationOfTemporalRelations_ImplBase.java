@@ -130,7 +130,7 @@ Evaluation_ImplBase<AnnotationStatistics<String>> {
 					BinaryTextRelation.class))) {
 				RelationArgument arg1 = relation.getArg1();
 				RelationArgument arg2 = relation.getArg2();
-				if (arg1.getArgument()instanceof EventMention && arg2.getArgument()instanceof EventMention && !relation.getCategory().startsWith("CONTAINS")) {
+				if (!relation.getCategory().startsWith("CONTAINS")) {
 					relation.getArg1().removeFromIndexes();
 					relation.getArg2().removeFromIndexes();
 					relation.removeFromIndexes();
