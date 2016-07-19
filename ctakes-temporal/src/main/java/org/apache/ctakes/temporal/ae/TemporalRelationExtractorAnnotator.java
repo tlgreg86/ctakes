@@ -103,7 +103,7 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
 		minmaxExtractorURI = new File(outputDirectoryName, FEATURE_TRANSFORM_NAME + "_Zscore_extractor.dat").toURI();
 		return minmaxExtractorURI;
 	}
-	*/
+	 */
 
 	/**
 	 * Defines the list of feature extractors used by the classifier. Subclasses
@@ -162,7 +162,7 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		allowClassifierModelOnClasspath(context);
 		super.initialize(context);
-//		minmaxExtractor = createMinMaxNormalizationExtractor();
+		//		minmaxExtractor = createMinMaxNormalizationExtractor();
 		/**for normalization
 		if (this.minmaxExtractorURI != null) {
 			try {
@@ -238,7 +238,7 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
 						}
 					}*/
 				}
-				
+
 				/**for normalization
 				//transform features:
 				if (this.featureTransformExtractor != null) {
@@ -265,7 +265,8 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
 				// during classification feed the features to the classifier and create
 				// annotations
 				else {
-					//          String predictedCategory = this.classify(features);
+					String predictedCategory = this.classify(features);
+					/**
 					Map<String,Double> scores = this.classifier.score(features);
 
 					Map.Entry<String, Double> maxEntry = null;
@@ -296,7 +297,7 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
 							e.printStackTrace();
 							throw new AnalysisEngineProcessException(e);
 						}
-					}
+					}*/
 
 					// add a relation annotation if a true relation was predicted
 					if (predictedCategory != null && !predictedCategory.equals(NO_RELATION_CATEGORY)) {
@@ -310,7 +311,7 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
 							arg2 = temp;
 						}
 
-						createRelation(jCas, arg1, arg2, predictedCategory, confidence);
+						createRelation(jCas, arg1, arg2, predictedCategory, 0.0);
 					}
 				}
 			} // end pair in pairs
