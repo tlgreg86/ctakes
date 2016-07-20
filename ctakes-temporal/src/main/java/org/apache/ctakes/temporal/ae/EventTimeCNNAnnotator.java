@@ -29,7 +29,7 @@ import com.google.common.collect.Lists;
 
 public class EventTimeCNNAnnotator extends CleartkAnnotator<String> {
 
-	public static final String NO_RELATION_CATEGORY = "none";//-NONE-
+	public static final String NO_RELATION_CATEGORY = "none";
 
 	public EventTimeCNNAnnotator() {
 		// TODO Auto-generated constructor stub
@@ -71,10 +71,10 @@ public class EventTimeCNNAnnotator extends CleartkAnnotator<String> {
 				String context;
 				if(arg2.getBegin() < arg1.getBegin()) {
 					// ... time ... event ... scenario
-					context = eventTimeRelationPrinter.getTokensBetween(jCas, sentence, arg2, "t", arg1, "e", 2);  
+					context = eventTimeRelationPrinter.getTokensBetween(jCas, sentence, arg2, "t", arg1, "e", 5);  
 				} else {
 					// ... event ... time ... scenario
-					context = eventTimeRelationPrinter.getTokensBetween(jCas, sentence, arg1, "e", arg2, "t", 2);
+					context = eventTimeRelationPrinter.getTokensBetween(jCas, sentence, arg1, "e", arg2, "t", 5);
 				}
 
 				//derive features based on context:
@@ -88,7 +88,7 @@ public class EventTimeCNNAnnotator extends CleartkAnnotator<String> {
 				if (this.isTraining()) {
 					String category = getRelationCategory(relationLookup, arg1, arg2);
 					if (category == null) {
-						category = NO_RELATION_CATEGORY.toLowerCase();
+						category = NO_RELATION_CATEGORY;
 					}else{
 						category = category.toLowerCase();
 					}
@@ -100,7 +100,7 @@ public class EventTimeCNNAnnotator extends CleartkAnnotator<String> {
 					String predictedCategory = this.classifier.classify(feats);
 
 					// add a relation annotation if a true relation was predicted
-					if (predictedCategory != null && !predictedCategory.equals(NO_RELATION_CATEGORY.toLowerCase())) {
+					if (predictedCategory != null && !predictedCategory.equals(NO_RELATION_CATEGORY)) {
 
 						// if we predict an inverted relation, reverse the order of the arguments
 						if (predictedCategory.endsWith("-1")) {
@@ -205,8 +205,8 @@ public class EventTimeCNNAnnotator extends CleartkAnnotator<String> {
 	}
 
 	private List<IdentifiedAnnotationPair> getCandidateRelationArgumentPairs(JCas jCas, Sentence sentence) {
-		//		Map<EventMention, Collection<EventMention>> coveringMap =
-		//				JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
+//		Map<EventMention, Collection<EventMention>> coveringMap =
+//				JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
 
 		List<IdentifiedAnnotationPair> pairs = Lists.newArrayList();
 		for (EventMention event : JCasUtil.selectCovered(jCas, EventMention.class, sentence)) {
@@ -220,10 +220,10 @@ public class EventTimeCNNAnnotator extends CleartkAnnotator<String> {
 				if(this.isTraining()){//if training mode, train on both gold event and span-overlapping system events
 					for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, sentence)) {
 
-						//						Collection<EventMention> eventList = coveringMap.get(event);
-						//						for(EventMention covEvent : eventList){
-						//							pairs.add(new IdentifiedAnnotationPair(covEvent, time));
-						//						}
+//						Collection<EventMention> eventList = coveringMap.get(event);
+//						for(EventMention covEvent : eventList){
+//							pairs.add(new IdentifiedAnnotationPair(covEvent, time));
+//						}
 						pairs.add(new IdentifiedAnnotationPair(event, time));
 					}
 				}else{//if testing mode, only test on system generated events
