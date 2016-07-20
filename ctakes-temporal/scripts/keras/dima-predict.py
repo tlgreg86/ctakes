@@ -16,7 +16,7 @@ def main(args):
     working_dir = args[0]
 
     int2label = {
-        0:'-NONE-',
+        0:'none',
         1:'CONTAINS',
         2:'CONTAINS-1'
     }
