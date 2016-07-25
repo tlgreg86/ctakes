@@ -12,6 +12,7 @@ import org.apache.ctakes.temporal.nn.eventTimeRelationPrinter;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
+import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
@@ -37,6 +38,10 @@ public class EventTimeCNNAnnotator extends CleartkAnnotator<String> {
 
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
+		
+		Map<EventMention, Collection<EventMention>> coveringMap =
+				JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
+		
 		//get all gold relation lookup
 		Map<List<Annotation>, BinaryTextRelation> relationLookup;
 		relationLookup = new HashMap<>();
@@ -71,10 +76,12 @@ public class EventTimeCNNAnnotator extends CleartkAnnotator<String> {
 				String context;
 				if(arg2.getBegin() < arg1.getBegin()) {
 					// ... time ... event ... scenario
-					context = eventTimeRelationPrinter.getTokensBetween(jCas, sentence, arg2, "t", arg1, "e", 5);  
+//					context = eventTimeRelationPrinter.getTokensBetween(jCas, sentence, arg2, "t", arg1, "e", 5); 
+					context = getTokensBetweenExpanded(jCas, sentence, arg2, "t", arg1, "e", 5, coveringMap);
 				} else {
 					// ... event ... time ... scenario
-					context = eventTimeRelationPrinter.getTokensBetween(jCas, sentence, arg1, "e", arg2, "t", 5);
+//					context = eventTimeRelationPrinter.getTokensBetween(jCas, sentence, arg1, "e", arg2, "t", 5);
+					context = getTokensBetweenExpanded(jCas, sentence, arg1, "e", arg2, "t", 5, coveringMap);
 				}
 
 				//derive features based on context:
@@ -124,6 +131,107 @@ public class EventTimeCNNAnnotator extends CleartkAnnotator<String> {
 			}
 
 		}
+	}
+
+	/**
+	 * Print context from left to right.
+	 * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
+	 */
+	public static String getTokensBetweenExpanded(
+			JCas jCas, 
+			Sentence sent, 
+			Annotation left,
+			String leftType,
+			Annotation right,
+			String rightType,
+			int contextSize,
+			Map<EventMention, Collection<EventMention>> coveringMap) {
+
+		boolean leftIsExpanded = false;
+		Annotation longerLeft = left;
+		if(left instanceof EventMention){
+			longerLeft = getLongerEvent(coveringMap, left);
+			if(longerLeft != left){
+				leftIsExpanded = true;
+			}
+		}
+
+		boolean rightIsExpanded = false;
+		Annotation longerRight = right;
+		if(right instanceof EventMention){
+			longerRight = getLongerEvent(coveringMap, right);
+			if(longerRight != right){
+				rightIsExpanded = true;
+			}
+		}
+
+		List<String> tokens = new ArrayList<>();
+		if(leftIsExpanded){
+			for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, longerLeft, contextSize)) {
+				if(sent.getBegin() <= baseToken.getBegin()) {
+					tokens.add(baseToken.getCoveredText()); 
+				}
+			}
+		}else{
+			for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, left, contextSize)) {
+				if(sent.getBegin() <= baseToken.getBegin()) {
+					tokens.add(baseToken.getCoveredText()); 
+				}
+			}
+		}
+		tokens.add("<" + leftType + ">");
+		tokens.add(left.getCoveredText());
+		tokens.add("</" + leftType + ">");
+		if(leftIsExpanded){
+			for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, longerLeft, right)) {
+				tokens.add(baseToken.getCoveredText());
+			}
+		}else if(rightIsExpanded){
+			for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, longerRight)) {
+				tokens.add(baseToken.getCoveredText());
+			}
+		}else{
+			for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, right)) {
+				tokens.add(baseToken.getCoveredText());
+			}
+		}
+		tokens.add("<" + rightType + ">");
+		tokens.add(right.getCoveredText());
+		tokens.add("</" + rightType + ">");
+		if(rightIsExpanded){
+			for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, longerRight, contextSize)) {
+				if(baseToken.getEnd() <= sent.getEnd()) {
+					tokens.add(baseToken.getCoveredText());
+				}
+			}
+		}else{
+			for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, right, contextSize)) {
+				if(baseToken.getEnd() <= sent.getEnd()) {
+					tokens.add(baseToken.getCoveredText());
+				}
+			}
+		}
+
+		return String.join(" ", tokens).replaceAll("[\r\n]", " ");
+	}
+
+	private static Annotation getLongerEvent(Map<EventMention, Collection<EventMention>> coveringMap,
+			Annotation event) {
+		int maxSpan = getSpan(event);
+		Annotation longerEvent = event;
+		Collection<EventMention> eventList = coveringMap.get(event);
+		for(EventMention covEvent : eventList){
+			int span = getSpan(covEvent);
+			if(span > maxSpan){
+				maxSpan = span;
+				longerEvent = covEvent;
+			}
+		}
+		return longerEvent;
+	}
+
+	private static int getSpan(Annotation left) {
+		return (left.getEnd()-left.getBegin());
 	}
 
 	/**
@@ -205,8 +313,8 @@ public class EventTimeCNNAnnotator extends CleartkAnnotator<String> {
 	}
 
 	private List<IdentifiedAnnotationPair> getCandidateRelationArgumentPairs(JCas jCas, Sentence sentence) {
-//		Map<EventMention, Collection<EventMention>> coveringMap =
-//				JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
+		Map<EventMention, Collection<EventMention>> coveringMap =
+				JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
 
 		List<IdentifiedAnnotationPair> pairs = Lists.newArrayList();
 		for (EventMention event : JCasUtil.selectCovered(jCas, EventMention.class, sentence)) {
@@ -220,10 +328,10 @@ public class EventTimeCNNAnnotator extends CleartkAnnotator<String> {
 				if(this.isTraining()){//if training mode, train on both gold event and span-overlapping system events
 					for (TimeMention time : JCasUtil.selectCovered(jCas, TimeMention.class, sentence)) {
 
-//						Collection<EventMention> eventList = coveringMap.get(event);
-//						for(EventMention covEvent : eventList){
-//							pairs.add(new IdentifiedAnnotationPair(covEvent, time));
-//						}
+						Collection<EventMention> eventList = coveringMap.get(event);
+						for(EventMention covEvent : eventList){
+							pairs.add(new IdentifiedAnnotationPair(covEvent, time));
+						}
 						pairs.add(new IdentifiedAnnotationPair(event, time));
 					}
 				}else{//if testing mode, only test on system generated events

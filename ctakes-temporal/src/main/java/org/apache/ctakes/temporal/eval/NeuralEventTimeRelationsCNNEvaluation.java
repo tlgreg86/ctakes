@@ -326,7 +326,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			//aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CountSentenceContainsTimes.class));
 
 			//add unlabeled nearby system events as potential links: 
-//			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddPotentialRelations.class));
+			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddPotentialRelations.class));
 
 			//directory = new File(directory,"event-time");//for normalization
 
