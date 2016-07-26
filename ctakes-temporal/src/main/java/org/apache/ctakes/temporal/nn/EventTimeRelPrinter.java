@@ -59,7 +59,7 @@ import com.lexicalscope.jewel.cli.Option;
  * 
  * @author dmitriy dligach
  */
-public class eventTimeRelationPrinter {
+public class EventTimeRelPrinter {
 
   static interface Options {
 

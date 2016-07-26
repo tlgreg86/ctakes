@@ -52,7 +52,7 @@ import com.lexicalscope.jewel.cli.Option;
  * 
  * @author dmitriy dligach
  */
-public class docTimeRelPrinter {
+public class DtrRelPrinter {
 
   static interface Options {
 
