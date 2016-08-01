@@ -43,6 +43,7 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -147,7 +148,7 @@ public class DtrRelPrinter {
         for(EventMention event : JCasUtil.selectCovered(goldView, EventMention.class, sentence)) {
           if(event.getEvent() != null) {
             String label = event.getEvent().getProperties().getDocTimeRel();
-            String context = getEventContext(systemView, sentence, event, "e", 10);
+            String context = getEventPosContext(systemView, sentence, event, "e", 10);
             String text = String.format("%s|%s", label, context);
             docTimeRelExamplesInSentence.add(text.toLowerCase());
           } else {
@@ -182,6 +183,32 @@ public class DtrRelPrinter {
     for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, event, contextSize)) {
       if(baseToken.getEnd() <= sent.getEnd()) {
         tokens.add(baseToken.getCoveredText());
+      }
+    }
+    
+    return String.join(" ", tokens).replaceAll("[\r\n]", " ");
+  }
+  
+  /**
+   * Print context from left to right.
+   * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
+   */
+  public static String getEventPosContext(JCas jCas, Sentence sent, EventMention event, String marker, int contextSize) {
+    
+    List<String> tokens = new ArrayList<>();
+    for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, event, contextSize)) {
+      if(sent.getBegin() <= baseToken.getBegin()) {
+        tokens.add(baseToken.getPartOfSpeech()); 
+      }
+    }
+    tokens.add("<" + marker + ">");
+    for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, event)) {
+      tokens.add(baseToken.getPartOfSpeech());
+    }
+    tokens.add("</" + marker + ">");
+    for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, event, contextSize)) {
+      if(baseToken.getEnd() <= sent.getEnd()) {
+        tokens.add(baseToken.getPartOfSpeech());
       }
     }
     
