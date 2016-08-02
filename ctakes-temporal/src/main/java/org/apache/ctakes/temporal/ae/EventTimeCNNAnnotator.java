@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator.IdentifiedAnnotationPair;
-import org.apache.ctakes.temporal.nn.eventTimeRelationPrinter;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
