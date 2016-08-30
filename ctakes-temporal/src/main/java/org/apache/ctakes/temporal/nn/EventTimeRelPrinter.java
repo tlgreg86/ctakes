@@ -186,32 +186,21 @@ public class EventTimeRelPrinter {
               System.out.println("event-time:" + (eventTimeRelation == null ? "null" : eventTimeRelation.getCategory()));
             }
 
-            String label;
+            String label = "none";
             if(timeEventRelation != null) {
               if(timeEventRelation.getCategory().equals("CONTAINS")) {
                 label = "contains";  // this is contains
               } else {
-                label = "none";      // e.g. before or overlap
+                // label = "none";      // e.g. before or overlap
               }
-            } else if(eventTimeRelation != null) {
+            } 
+            if(eventTimeRelation != null) {
               if(eventTimeRelation.getCategory().equals("CONTAINS")) {
                 label = "contains-1"; // this is contains
               } else {
-                label = "none";       // some other relation type
+                // label = "none";       // some other relation type
               }
-            } else {
-              label = "none";         // no relation between this time and event
-            }
-
-            //            commented version can be used to generate data with all labels            
-            //            String label;
-            //            if(timeEventRelation != null) {
-            //              label = timeEventRelation.getCategory().toLowerCase();
-            //            } else if(eventTimeRelation != null) {
-            //              label = eventTimeRelation.getCategory().toLowerCase() + "-1";
-            //            } else {
-            //              label = "none";         // no relation between this time and event
-            //            }
+            } 
 
             String context;
             if(time.getBegin() < event.getBegin()) {
