@@ -97,11 +97,11 @@ public class EventTimeRelPrinter {
 
     List<File> trainFiles = Utils.getFilesFor(trainItems, options.getInputDirectory());
     List<File> devFiles = Utils.getFilesFor(devItems, options.getInputDirectory());
-    
+
     // sort training files to eliminate platform specific dir listings
     Collections.sort(trainFiles);
-//    Collections.shuffle(trainFiles, new Random(100));  
-    
+    //    Collections.shuffle(trainFiles, new Random(100));  
+
     // write training data to file
     CollectionReader trainCollectionReader = Utils.getCollectionReader(trainFiles);
     AnalysisEngine trainDataWriter = AnalysisEngineFactory.createEngine(
@@ -155,19 +155,37 @@ public class EventTimeRelPrinter {
       for(BinaryTextRelation relation : JCasUtil.select(goldView, TemporalTextRelation.class)) {
         Annotation arg1 = relation.getArg1().getArgument();
         Annotation arg2 = relation.getArg2().getArgument();
-        relationLookup.put(Arrays.asList(arg1, arg2), relation);
+
+        if(relationLookup.get(Arrays.asList(arg1, arg2)) != null) {
+          System.out.println("duplicate relation: " + arg1.getCoveredText() + " ... " + arg2.getCoveredText());
+        } else {
+          relationLookup.put(Arrays.asList(arg1, arg2), relation);
+        }
       }
 
       // go over sentences, extracting event-event relation instances
       for(Sentence sentence : JCasUtil.select(systemView, Sentence.class)) {
         List<String> eventTimeRelationsInSentence = new ArrayList<>();
-        
+
         // retrieve event-time relations in this sentence
         for(EventMention event : JCasUtil.selectCovered(goldView, EventMention.class, sentence)) {
           for(TimeMention time : JCasUtil.selectCovered(goldView, TimeMention.class, sentence)) {
+
             BinaryTextRelation timeEventRelation = relationLookup.get(Arrays.asList(time, event));
             BinaryTextRelation eventTimeRelation = relationLookup.get(Arrays.asList(event, time));
+
+            if(time.getCoveredText().toLowerCase().equals("an additional couple of weeks") && event.getCoveredText().toLowerCase().equals("starting")) {
+              System.out.println(sentence.getCoveredText());
+              System.out.println("time-event:" + (timeEventRelation == null ? "null" : timeEventRelation.getCategory()));
+              System.out.println("event-time:" + (eventTimeRelation == null ? "null" : eventTimeRelation.getCategory()));
+            }
             
+            if(time.getCoveredText().toLowerCase().equals("nine") && event.getCoveredText().toLowerCase().equals("cycles")) {
+              System.out.println(sentence.getCoveredText());
+              System.out.println("time-event:" + (timeEventRelation == null ? "null" : timeEventRelation.getCategory()));
+              System.out.println("event-time:" + (eventTimeRelation == null ? "null" : eventTimeRelation.getCategory()));
+            }
+
             String label;
             if(timeEventRelation != null) {
               if(timeEventRelation.getCategory().equals("CONTAINS")) {
@@ -184,17 +202,17 @@ public class EventTimeRelPrinter {
             } else {
               label = "none";         // no relation between this time and event
             }
-      
-//            commented version can be used to generate data with all labels            
-//            String label;
-//            if(timeEventRelation != null) {
-//              label = timeEventRelation.getCategory().toLowerCase();
-//            } else if(eventTimeRelation != null) {
-//              label = eventTimeRelation.getCategory().toLowerCase() + "-1";
-//            } else {
-//              label = "none";         // no relation between this time and event
-//            }
-            
+
+            //            commented version can be used to generate data with all labels            
+            //            String label;
+            //            if(timeEventRelation != null) {
+            //              label = timeEventRelation.getCategory().toLowerCase();
+            //            } else if(eventTimeRelation != null) {
+            //              label = eventTimeRelation.getCategory().toLowerCase() + "-1";
+            //            } else {
+            //              label = "none";         // no relation between this time and event
+            //            }
+
             String context;
             if(time.getBegin() < event.getBegin()) {
               // ... time ... event ... scenario
@@ -203,7 +221,7 @@ public class EventTimeRelPrinter {
               // ... event ... time ... scenario
               context = getTokenContext(systemView, sentence, event, "e", time, "t", 2);
             }
-            
+
             String text = String.format("%s|%s", label, context);
             eventTimeRelationsInSentence.add(text.toLowerCase());
           }
@@ -254,7 +272,7 @@ public class EventTimeRelPrinter {
 
     return String.join(" ", tokens).replaceAll("[\r\n]", " ");
   }
-  
+
   /**
    * Print POS tags from left to right.
    * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
