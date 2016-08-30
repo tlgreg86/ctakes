@@ -50,6 +50,7 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.cleartk.util.ViewUriUtil;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -157,7 +158,13 @@ public class EventTimeRelPrinter {
         Annotation arg2 = relation.getArg2().getArgument();
 
         if(relationLookup.get(Arrays.asList(arg1, arg2)) != null) {
-          System.out.println("duplicate relation: " + arg1.getCoveredText() + " ... " + arg2.getCoveredText());
+          // there is already a relation between arg1 and arg2
+          // only store if it is 'contains' relation 
+          if(relation.getCategory().equals("CONTAINS")) {
+            relationLookup.put(Arrays.asList(arg1, arg2), relation);
+          } else {
+            System.out.println("skipping relation: " + arg1.getCoveredText() + " ... " + arg2.getCoveredText());
+          }
         } else {
           relationLookup.put(Arrays.asList(arg1, arg2), relation);
         }
@@ -173,18 +180,6 @@ public class EventTimeRelPrinter {
 
             BinaryTextRelation timeEventRelation = relationLookup.get(Arrays.asList(time, event));
             BinaryTextRelation eventTimeRelation = relationLookup.get(Arrays.asList(event, time));
-
-            if(time.getCoveredText().toLowerCase().equals("an additional couple of weeks") && event.getCoveredText().toLowerCase().equals("starting")) {
-              System.out.println(sentence.getCoveredText());
-              System.out.println("time-event:" + (timeEventRelation == null ? "null" : timeEventRelation.getCategory()));
-              System.out.println("event-time:" + (eventTimeRelation == null ? "null" : eventTimeRelation.getCategory()));
-            }
-            
-            if(time.getCoveredText().toLowerCase().equals("nine") && event.getCoveredText().toLowerCase().equals("cycles")) {
-              System.out.println(sentence.getCoveredText());
-              System.out.println("time-event:" + (timeEventRelation == null ? "null" : timeEventRelation.getCategory()));
-              System.out.println("event-time:" + (eventTimeRelation == null ? "null" : eventTimeRelation.getCategory()));
-            }
 
             String label = "none";
             if(timeEventRelation != null) {
