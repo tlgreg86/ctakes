@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ctakes.temporal.nn;
+package org.apache.ctakes.temporal.nn.data;
 
 import java.io.File;
 import java.io.IOException;

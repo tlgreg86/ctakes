@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ctakes.temporal.nn;
+package org.apache.ctakes.temporal.nn.data;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,17 +43,16 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 
 /**
- * Print gold standard docTimeRel labels and the context
- * 
+ * Read cTAKES annotations from XMI files.
+ *  
  * @author dmitriy dligach
  */
-public class DtrRelPrinter {
+public class GoldEventPrinter {
 
   static interface Options {
 
@@ -91,14 +90,14 @@ public class DtrRelPrinter {
 
     List<File> trainFiles = Utils.getFilesFor(trainItems, options.getInputDirectory());
     List<File> devFiles = Utils.getFilesFor(devItems, options.getInputDirectory());
-    
+
     // sort training files to eliminate platform specific dir listings
     Collections.sort(trainFiles);
-    
+
     // write training data to file
     CollectionReader trainCollectionReader = Utils.getCollectionReader(trainFiles);
     AnalysisEngine trainDataWriter = AnalysisEngineFactory.createEngine(
-        DocTimeRelSnippetPrinter.class,
+        EventPrinter.class,
         "OutputFile",
         trainFile.getAbsoluteFile());
     SimplePipeline.runPipeline(trainCollectionReader, trainDataWriter);
@@ -106,18 +105,18 @@ public class DtrRelPrinter {
     // write dev data to file
     CollectionReader devCollectionReader = Utils.getCollectionReader(devFiles);
     AnalysisEngine devDataWriter = AnalysisEngineFactory.createEngine(
-        DocTimeRelSnippetPrinter.class,
+        EventPrinter.class,
         "OutputFile",
         devFile.getAbsolutePath());
     SimplePipeline.runPipeline(devCollectionReader, devDataWriter);
   }
 
   /**
-   * Print gold standard relations and their context.
-   * 
+   * Print events and entities.
+   *  
    * @author dmitriy dligach
    */
-  public static class DocTimeRelSnippetPrinter extends JCasAnnotator_ImplBase {
+  public static class EventPrinter extends JCasAnnotator_ImplBase {
 
     @ConfigurationParameter(
         name = "OutputFile",
@@ -128,6 +127,7 @@ public class DtrRelPrinter {
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
 
+      // gold EventMention(s) are all in gold view
       JCas goldView;
       try {
         goldView = jCas.getView("GoldView");
@@ -135,6 +135,7 @@ public class DtrRelPrinter {
         throw new AnalysisEngineProcessException(e);
       }
 
+      // system view has sentence segmentation, tokens, and dictionary lookup events
       JCas systemView;
       try {
         systemView = jCas.getView("_InitialView");
@@ -142,76 +143,64 @@ public class DtrRelPrinter {
         throw new AnalysisEngineProcessException(e);
       }
 
-      // go over sentences, extracting event-event relation instances
+      List<String> sentences = new ArrayList<>();
       for(Sentence sentence : JCasUtil.select(systemView, Sentence.class)) {
-        List<String> docTimeRelExamplesInSentence = new ArrayList<>();
-        for(EventMention event : JCasUtil.selectCovered(goldView, EventMention.class, sentence)) {
-          if(event.getEvent() != null) {
-            String label = event.getEvent().getProperties().getDocTimeRel();
-            String context = getEventPosContext(systemView, sentence, event, "e", 10);
-            String text = String.format("%s|%s", label, context);
-            docTimeRelExamplesInSentence.add(text.toLowerCase());
+        List<String> tokensInThisSentence = new ArrayList<>();
+        for(BaseToken baseToken : JCasUtil.selectCovered(systemView, BaseToken.class, sentence)) {
+          List<EventMention> events = JCasUtil.selectCovering(goldView, EventMention.class, baseToken.getBegin(), baseToken.getEnd());
+          String tokenText = tokenToString(baseToken);
+          if(events.size() > 0) {
+            tokensInThisSentence.add("[" + tokenText + "]");
           } else {
-            System.out.println("event is null: " + event.getCoveredText() + " / " + sentence.getCoveredText());
+            tokensInThisSentence.add(tokenText);
           }
         }
 
-        try {
-          Files.write(Paths.get(outputFile), docTimeRelExamplesInSentence, StandardOpenOption.APPEND);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+        String sentenceAsString = String.join(" ", tokensInThisSentence).replaceAll("[\r\n]", " ");
+        sentences.add(sentenceAsString);
+      }
+
+      try {
+        Files.write(Paths.get(outputFile), sentences, StandardOpenOption.APPEND);
+      } catch (IOException e) {
+        e.printStackTrace();
       }
     }
   }
 
-  /**
-   * Print context from left to right.
-   * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
+  /*
+   * Make sure this matches how data was pre-processed for word2vec
    */
-  public static String getEventContext(JCas jCas, Sentence sent, EventMention event, String marker, int contextSize) {
-    
-    List<String> tokens = new ArrayList<>();
-    for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, event, contextSize)) {
-      if(sent.getBegin() <= baseToken.getBegin()) {
-        tokens.add(baseToken.getCoveredText()); 
-      }
+  public static String tokenToString(BaseToken token) {
+
+    String stringValue;
+    String tokenType = token.getClass().getSimpleName();
+    String tokenText = token.getCoveredText().toLowerCase();
+
+    switch(tokenType) {
+    case "ContractionToken":
+      stringValue = tokenText;
+      break;
+    case "NewlineToken":
+      // stringValue = null;
+      stringValue = "";
+      break;
+    case "NumToken":
+      stringValue = "number_token";
+      break;
+    case "PunctuationToken":
+      stringValue = tokenText;
+      break;
+    case "SymbolToken":
+      stringValue = tokenText;
+      break;
+    case "WordToken":
+      stringValue = tokenText;
+      break;
+    default:
+      throw new IllegalArgumentException("Invalid token type: " + tokenType);
     }
-    tokens.add("<" + marker + ">");
-    tokens.add(event.getCoveredText());
-    tokens.add("</" + marker + ">");
-    for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, event, contextSize)) {
-      if(baseToken.getEnd() <= sent.getEnd()) {
-        tokens.add(baseToken.getCoveredText());
-      }
-    }
-    
-    return String.join(" ", tokens).replaceAll("[\r\n]", " ");
-  }
-  
-  /**
-   * Print context from left to right.
-   * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
-   */
-  public static String getEventPosContext(JCas jCas, Sentence sent, EventMention event, String marker, int contextSize) {
-    
-    List<String> tokens = new ArrayList<>();
-    for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, event, contextSize)) {
-      if(sent.getBegin() <= baseToken.getBegin()) {
-        tokens.add(baseToken.getPartOfSpeech()); 
-      }
-    }
-    tokens.add("<" + marker + ">");
-    for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, event)) {
-      tokens.add(baseToken.getPartOfSpeech());
-    }
-    tokens.add("</" + marker + ">");
-    for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, event, contextSize)) {
-      if(baseToken.getEnd() <= sent.getEnd()) {
-        tokens.add(baseToken.getPartOfSpeech());
-      }
-    }
-    
-    return String.join(" ", tokens).replaceAll("[\r\n]", " ");
+
+    return stringValue;
   }
 }
