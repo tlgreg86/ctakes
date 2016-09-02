@@ -298,7 +298,7 @@ EvaluationOfTemporalRelations_ImplBase{
               DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
               new File(directory,"event-time"),
               ScriptStringFeatureDataWriter.PARAM_SCRIPT_DIR,
-              "scripts/keras/"
+              "scripts/nn/"
               ) );
 
       SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
