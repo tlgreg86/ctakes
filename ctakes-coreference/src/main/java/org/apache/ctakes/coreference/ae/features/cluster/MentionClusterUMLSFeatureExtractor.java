@@ -103,7 +103,10 @@ public class MentionClusterUMLSFeatureExtractor implements
         if(cons1 != null){
           for(int i = 0; i < cons1.size(); i++){
             if(cons1.get(i) instanceof UmlsConcept){
-              a1Tuis.add(((UmlsConcept)cons1.get(i)).getTui());
+              UmlsConcept concept = (UmlsConcept)cons1.get(i);
+              if(concept.getTui() != null){
+                a1Tuis.add(concept.getTui());
+              }
             }
           }
         }
@@ -137,7 +140,10 @@ public class MentionClusterUMLSFeatureExtractor implements
           if(cons2 != null){
             for(int i = 0; i < cons2.size(); i++){
               if(cons2.get(i) instanceof UmlsConcept){
-                a2Tuis.add(((UmlsConcept)cons2.get(i)).getTui());
+                UmlsConcept concept = (UmlsConcept)cons2.get(i);
+                if(concept.getTui() != null){
+                  a2Tuis.add(concept.getTui());
+                }
               }
             }
           }
