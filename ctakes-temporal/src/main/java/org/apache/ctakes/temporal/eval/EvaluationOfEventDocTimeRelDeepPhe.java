@@ -85,6 +85,9 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 
 		@Option
 		public boolean getSkipTrain();
+		
+		@Option
+		public boolean getSkipWrite();
 	}
 
 	//	protected static ParameterSettings flatParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "linear",
@@ -107,6 +110,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 		List<Integer> testItems = Arrays.asList(2, 21);
 
 		//    possibleParams.add(defaultParams);
+		
 
 		ParameterSettings params = allParams;
 		try{
@@ -138,6 +142,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 
 			//do closure on system, but not on gold, to calculate recall
 			evaluation.skipTrain = options.getSkipTrain();
+			evaluation.skipWrite = options.getSkipWrite();
 			if(!evaluation.skipTrain){
 				evaluation.prepareXMIsFor(training);
 			}
@@ -169,6 +174,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 	protected boolean useClosure;
 	protected boolean useGoldAttributes;
 	protected boolean skipTrain=false;
+	public boolean skipWrite = false;
 	private Map<String, Logger> loggers = Maps.newHashMap();
 	//  protected boolean printRelations = false;
 
@@ -203,15 +209,17 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 	@Override
 	protected void train(CollectionReader collectionReader, File directory) throws Exception {
 		if(this.skipTrain) return;
-		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(KeepEventMentionsCoveredByGoldMentions.class));
-		aggregateBuilder.add(DocTimeRelAnnotator.createDataWriterDescription(
-//				LibSvmStringOutcomeDataWriter.class,
-				LibLinearStringOutcomeDataWriter.class,
-				new File(directory, DOC_TIME_REL)));
-		SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
-		String[] optArray;
 
+		if(!this.skipWrite){
+			AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(KeepEventMentionsCoveredByGoldMentions.class));
+			aggregateBuilder.add(DocTimeRelAnnotator.createDataWriterDescription(
+					//				LibSvmStringOutcomeDataWriter.class,
+					LibLinearStringOutcomeDataWriter.class,
+					new File(directory, DOC_TIME_REL)));
+			SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
+		}
+		String[] optArray;
 		if(this.kernelParams == null){
 			ArrayList<String> svmOptions = new ArrayList<>();
 			svmOptions.add("-c"); svmOptions.add(""+params.svmCost);        // svm cost
@@ -247,15 +255,15 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 			throws Exception {
 		this.useClosure=false;//don't do closure for test
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-//		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
+		//		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ReplaceCTakesMentionsWithGoldMentions.class));
 
-//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ClearEventProperties.class));
-		
+		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ClearEventProperties.class));
+
 		aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription(new File(directory, DOC_TIME_REL)));
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyHeadEventDocTimeRel2GoldEvent.class));
-		
+
 		Function<EventMention, ?> eventMentionToSpan = AnnotationStatistics.annotationToSpan();
 		Map<String, Function<EventMention, String>> propertyGetters;
 		propertyGetters = new HashMap<>();
@@ -364,7 +372,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 		}
 
 	}
-	
+
 	/**
 	 * Annotator that removes cTAKES Mentions and Modifiers from the system view,
 	 * and copies over the manually annotated Mentions and Modifiers from the gold
@@ -383,11 +391,11 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 			}
 
 			// remove cTAKES Mentions and Modifiers from system view
-//			List<IdentifiedAnnotation> cTakesMentions = new ArrayList<>();
-//			cTakesMentions.addAll(JCasUtil.select(systemView, EventMention.class));
-//			for (IdentifiedAnnotation cTakesMention : cTakesMentions) {
-//				cTakesMention.removeFromIndexes();
-//			}
+			//			List<IdentifiedAnnotation> cTakesMentions = new ArrayList<>();
+			//			cTakesMentions.addAll(JCasUtil.select(systemView, EventMention.class));
+			//			for (IdentifiedAnnotation cTakesMention : cTakesMentions) {
+			//				cTakesMention.removeFromIndexes();
+			//			}
 
 			// copy gold Mentions and Modifiers to the system view
 			List<EventMention> goldMentions = new ArrayList<>();
@@ -402,7 +410,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 			}
 		}
 	}
-	
+
 	public static class KeepEventMentionsCoveredByGoldMentions extends JCasAnnotator_ImplBase {
 
 		@Override
@@ -436,7 +444,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 						sysEvent.getEvent().getProperties().setDocTimeRel(goldDocTimeRel);
 					}
 				}
-				
+
 				if( !findCoveredSystemEvent ){// if we didn't find covered system event for the given gold event
 					EventMention copy = (EventMention) copier.copyFs(goldMention);
 					Feature sofaFeature = copy.getType().getFeatureByBaseName("sofa");
@@ -445,7 +453,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 					copy.addToIndexes();
 				}
 			}
-			
+
 			//remove non-gold events:
 			List<EventMention> cTakesMentions = new ArrayList<>();
 			cTakesMentions.addAll(JCasUtil.select(systemView, EventMention.class));
@@ -456,7 +464,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 			}
 		}
 	}
-	
+
 	/**
 	 * copy covered event's DocTimeRel to the gold event
 	 * remove non-gold eventMentions
@@ -471,10 +479,10 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 			} catch (CASException e) {
 				throw new AnalysisEngineProcessException(e);
 			}
-			
+
 			//build an eventMention-eventMention covered map
 			Map<EventMention, Collection<EventMention>> coveredMap =
-			JCasUtil.indexCovered(jCas, EventMention.class, EventMention.class);
+					JCasUtil.indexCovered(jCas, EventMention.class, EventMention.class);
 
 			// copy covered event's DocTimeRel to the gold event
 			for (EventMention aEvent: JCasUtil.select(systemView, EventMention.class)){
@@ -486,8 +494,8 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 					}				
 				}
 			}
-			
-			
+
+
 			List<EventMention> cTakesMentions = new ArrayList<>();
 			cTakesMentions.addAll(JCasUtil.select(systemView, EventMention.class));
 			for (EventMention aEvent: cTakesMentions){
