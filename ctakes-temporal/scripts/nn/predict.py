@@ -21,12 +21,11 @@ def main(args):
         2:'CONTAINS-1'
     }
 
-    ## Load models and weights:
-    #outcomes = ctk_io.get_outcome_array(working_dir)
-    model_dir = "/Users/Dima/Loyola/Workspaces/cTakes/ctakes/ctakes-temporal/target/eval/thyme/train_and_test/event-time"
+    ctakes_root = '/Users/Dima/Loyola/Workspaces/cTakes/ctakes/'
+    target_dir = 'ctakes-temporal/target/eval/thyme/train_and_test/event-time/'
+    model_dir = ctakes_root + target_dir
     maxlen   = pickle.load(open(os.path.join(model_dir, "maxlen.p"), "rb"))
     alphabet = pickle.load(open(os.path.join(model_dir, "alphabet.p"), "rb"))
-    #print("Outcomes array is %s" % (outcomes) )
     model = model_from_json(open(os.path.join(model_dir, "model_0.json")).read())
     model.load_weights(os.path.join(model_dir, "model_0.h5"))
 
@@ -36,26 +35,25 @@ def main(args):
             if not line:
                 break
 
-            ## Convert the line of Strings to lists of indices
             feats=[]
             for unigram in line.rstrip().split():
                 if(alphabet.has_key(unigram)):
                     feats.append(alphabet[unigram])
                 else:
                     feats.append(alphabet["none"])
-            if(len(feats)> maxlen):
+                    
+            if(len(feats) > maxlen):
                 feats=feats[0:maxlen]
             test_x = pad_sequences([feats], maxlen=maxlen)
-            #feats = np.reshape(feats, (1, 6, input_dims / 6))
-            #feats = np.reshape(feats, (1, input_dims))
 
             X_dup = []
             X_dup.append(test_x)
             X_dup.append(test_x)
             X_dup.append(test_x)
+            X_dup.append(test_x)
 
             out = model.predict(X_dup, batch_size=50)[0]
-            # print("Out is %s and decision is %d" % (out, out.argmax()))
+
         except KeyboardInterrupt:
             sys.stderr.write("Caught keyboard interrupt\n")
             break
@@ -65,12 +63,10 @@ def main(args):
             break
 
         out_str = int2label[out.argmax()]
-
         print(out_str)
         sys.stdout.flush()
 
     sys.exit(0)
-
 
 if __name__ == "__main__":
     main(sys.argv[1:])
