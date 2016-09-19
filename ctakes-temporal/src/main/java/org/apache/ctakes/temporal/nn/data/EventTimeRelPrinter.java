@@ -50,7 +50,6 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.util.ViewUriUtil;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -106,7 +105,9 @@ public class EventTimeRelPrinter {
     // write training data to file
     CollectionReader trainCollectionReader = Utils.getCollectionReader(trainFiles);
     AnalysisEngine trainDataWriter = AnalysisEngineFactory.createEngine(
-        TrainRelationSnippetPrinter.class,
+        RelationSnippetPrinter.class,
+        "IsTraining",
+        true,
         "OutputFile",
         trainFile.getAbsoluteFile());
     SimplePipeline.runPipeline(trainCollectionReader, trainDataWriter);
@@ -114,7 +115,9 @@ public class EventTimeRelPrinter {
     // write dev data to file
     CollectionReader devCollectionReader = Utils.getCollectionReader(devFiles);
     AnalysisEngine devDataWriter = AnalysisEngineFactory.createEngine(
-        TestRelationSnippetPrinter.class,
+        RelationSnippetPrinter.class,
+        "IsTraining",
+        false,
         "OutputFile",
         devFile.getAbsolutePath());
     SimplePipeline.runPipeline(devCollectionReader, devDataWriter);
@@ -122,11 +125,15 @@ public class EventTimeRelPrinter {
 
   /**
    * Print gold standard relations and their context.
-   * 
-   * @author dmitriy dligach
    */
-  public static class TrainRelationSnippetPrinter extends JCasAnnotator_ImplBase {
+  public static class RelationSnippetPrinter extends JCasAnnotator_ImplBase {
 
+    @ConfigurationParameter(
+        name = "IsTraining",
+        mandatory = true,
+        description = "are we training?")
+    private boolean isTraining;
+    
     @ConfigurationParameter(
         name = "OutputFile",
         mandatory = true,
@@ -150,22 +157,29 @@ public class EventTimeRelPrinter {
         throw new AnalysisEngineProcessException(e);
       }
 
-      // can't iterate over binary text relations in a sentence, so need
-      // a lookup from pair of annotations to binary text relation
+      // can't iterate over binary text relations in a sentence, so need a lookup
       Map<List<Annotation>, BinaryTextRelation> relationLookup = new HashMap<>();
-      for(BinaryTextRelation relation : JCasUtil.select(goldView, TemporalTextRelation.class)) {
-        Annotation arg1 = relation.getArg1().getArgument();
-        Annotation arg2 = relation.getArg2().getArgument();
+      if(isTraining) {
+        for(BinaryTextRelation relation : JCasUtil.select(goldView, TemporalTextRelation.class)) {
+          Annotation arg1 = relation.getArg1().getArgument();
+          Annotation arg2 = relation.getArg2().getArgument();
 
-        if(relationLookup.get(Arrays.asList(arg1, arg2)) != null) {
-          // there is already a relation between arg1 and arg2
-          // only store if it is 'contains' relation 
-          if(relation.getCategory().equals("CONTAINS")) {
-            relationLookup.put(Arrays.asList(arg1, arg2), relation);
+          if(relationLookup.get(Arrays.asList(arg1, arg2)) != null) {
+            // there is already a relation between arg1 and arg2
+            // only store if it is 'contains' relation 
+            if(relation.getCategory().equals("CONTAINS")) {
+              relationLookup.put(Arrays.asList(arg1, arg2), relation);
+            } else {
+              System.out.println("skipping relation: " + arg1.getCoveredText() + " ... " + arg2.getCoveredText());
+            }
           } else {
-            System.out.println("skipping relation: " + arg1.getCoveredText() + " ... " + arg2.getCoveredText());
+            relationLookup.put(Arrays.asList(arg1, arg2), relation);
           }
-        } else {
+        }
+      } else {
+        for(BinaryTextRelation relation : JCasUtil.select(goldView, TemporalTextRelation.class)) {
+          Annotation arg1 = relation.getArg1().getArgument();
+          Annotation arg2 = relation.getArg2().getArgument();
           relationLookup.put(Arrays.asList(arg1, arg2), relation);
         }
       }
@@ -192,92 +206,6 @@ public class EventTimeRelPrinter {
               if(eventTimeRelation.getCategory().equals("CONTAINS")) {
                 label = "contains-1"; // this is contains
               } 
-            } 
-
-            String context;
-            if(time.getBegin() < event.getBegin()) {
-              // ... time ... event ... scenario
-              context = getTokenContext(systemView, sentence, time, "t", event, "e", 2);  
-            } else {
-              // ... event ... time ... scenario
-              context = getTokenContext(systemView, sentence, event, "e", time, "t", 2);
-            }
-
-            String text = String.format("%s|%s", label, context);
-            eventTimeRelationsInSentence.add(text.toLowerCase());
-          }
-        }  
-
-        try {
-          Files.write(Paths.get(outputFile), eventTimeRelationsInSentence, StandardOpenOption.APPEND);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    }
-  }
-
-  /**
-   * Print gold standard relations and their context.
-   * 
-   * @author dmitriy dligach
-   */
-  public static class TestRelationSnippetPrinter extends JCasAnnotator_ImplBase {
-
-    @ConfigurationParameter(
-        name = "OutputFile",
-        mandatory = true,
-        description = "path to the output file")
-    private String outputFile;
-
-    @Override
-    public void process(JCas jCas) throws AnalysisEngineProcessException {
-
-      JCas goldView;
-      try {
-        goldView = jCas.getView("GoldView");
-      } catch (CASException e) {
-        throw new AnalysisEngineProcessException(e);
-      }
-
-      JCas systemView;
-      try {
-        systemView = jCas.getView("_InitialView");
-      } catch (CASException e) {
-        throw new AnalysisEngineProcessException(e);
-      }
-
-      // can't iterate over binary text relations in a sentence, so need
-      // a lookup from pair of annotations to binary text relation
-      Map<List<Annotation>, BinaryTextRelation> relationLookup = new HashMap<>();
-      for(BinaryTextRelation relation : JCasUtil.select(goldView, TemporalTextRelation.class)) {
-        Annotation arg1 = relation.getArg1().getArgument();
-        Annotation arg2 = relation.getArg2().getArgument();
-        relationLookup.put(Arrays.asList(arg1, arg2), relation);
-      }
-
-      // go over sentences, extracting event-event relation instances
-      for(Sentence sentence : JCasUtil.select(systemView, Sentence.class)) {
-        List<String> eventTimeRelationsInSentence = new ArrayList<>();
-
-        // retrieve event-time relations in this sentence
-        for(EventMention event : JCasUtil.selectCovered(goldView, EventMention.class, sentence)) {
-          for(TimeMention time : JCasUtil.selectCovered(goldView, TimeMention.class, sentence)) {
-
-            BinaryTextRelation timeEventRelation = relationLookup.get(Arrays.asList(time, event));
-            BinaryTextRelation eventTimeRelation = relationLookup.get(Arrays.asList(event, time));
-
-            // TODO: am I capturing multiple relations here? probably not...
-            String label = "none";
-            if(timeEventRelation != null) {
-              if(timeEventRelation.getCategory().equals("CONTAINS")) {
-                label = "contains";  // this is contains
-              }
-            } 
-            if(eventTimeRelation != null) {
-              if(eventTimeRelation.getCategory().equals("CONTAINS")) {
-                label = "contains-1"; // this is contains
-              }
             } 
 
             String context;
