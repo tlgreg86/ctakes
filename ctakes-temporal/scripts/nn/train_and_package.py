@@ -32,8 +32,7 @@ def main(args):
     train_x, train_y = provider.load(data_file)
     # turn x and y into numpy array among other things
     maxlen = max([len(seq) for seq in train_x])
-    outcomes = set(train_y)
-    classes = len(outcomes)
+    classes = len(set(train_y))
 
     train_x = pad_sequences(train_x, maxlen=maxlen)
     train_y = to_categorical(np.array(train_y), classes)
@@ -49,7 +48,6 @@ def main(args):
     train_xs = [] # train x for each branch
 
     for filter_len in '2,3,4,5'.split(','):
-      
         branch = Sequential()
         branch.add(Embedding(len(provider.word2int),
                              300,
@@ -77,8 +75,7 @@ def main(args):
     model.add(Dense(classes))
     model.add(Activation('softmax'))
 
-    optimizer = RMSprop(lr=0.0001,
-                        rho=0.9, epsilon=1e-08)
+    optimizer = RMSprop(lr=0.0001, rho=0.9, epsilon=1e-08)
     model.compile(loss='categorical_crossentropy',
                   optimizer=optimizer,
                   metrics=['accuracy'])
@@ -87,8 +84,7 @@ def main(args):
               nb_epoch=3,
               batch_size=50,
               verbose=1,
-              validation_split=0.1,
-              class_weight=None)
+              validation_split=0.1)
 
     json_string = model.to_json()
     open(os.path.join(working_dir, 'model_0.json'), 'w').write(json_string)

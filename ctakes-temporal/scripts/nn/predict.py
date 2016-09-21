@@ -34,22 +34,22 @@ def main(args):
 
             feats=[]
             for unigram in line.rstrip().split():
-                if(word2int.has_key(unigram)):
+                if(unigram in word2int):
                     feats.append(word2int[unigram])
                 else:
-                    feats.append(word2int["none"])
+                    feats.append(word2int['oov_word'])
                     
-            if(len(feats) > maxlen):
+            if len(feats) > maxlen:
                 feats=feats[0:maxlen]
             test_x = pad_sequences([feats], maxlen=maxlen)
 
-            X_dup = []
-            X_dup.append(test_x)
-            X_dup.append(test_x)
-            X_dup.append(test_x)
-            X_dup.append(test_x)
+            test_xs = []
+            test_xs.append(test_x)
+            test_xs.append(test_x)
+            test_xs.append(test_x)
+            test_xs.append(test_x)
 
-            out = model.predict(X_dup, batch_size=50)[0]
+            out = model.predict(test_xs, batch_size=50)[0]
 
         except KeyboardInterrupt:
             sys.stderr.write("Caught keyboard interrupt\n")
@@ -60,7 +60,7 @@ def main(args):
             break
 
         out_str = int2label[out.argmax()]
-        print(out_str)
+        print out_str
         sys.stdout.flush()
 
     sys.exit(0)
