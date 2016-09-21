@@ -34,10 +34,11 @@ def main(args):
 
             feats=[]
             for unigram in line.rstrip().split():
-                if(unigram in word2int):
+                if unigram in word2int:
                     feats.append(word2int[unigram])
                 else:
-                    feats.append(word2int['oov_word'])
+                    # TODO: 'none' is not in vocabulary!
+                    feats.append(word2int['none'])
                     
             if len(feats) > maxlen:
                 feats=feats[0:maxlen]
