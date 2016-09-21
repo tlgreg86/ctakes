@@ -90,8 +90,6 @@ def main(args):
               validation_split=0.1,
               class_weight=None)
 
-    model.summary()
-
     json_string = model.to_json()
     open(os.path.join(working_dir, 'model_0.json'), 'w').write(json_string)
     model.save_weights(os.path.join(working_dir, 'model_0.h5'), overwrite=True)
