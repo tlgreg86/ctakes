@@ -23,14 +23,13 @@ def main(args):
     if len(args) < 1:
         sys.stderr.write("Error - one required argument: <data directory>\n")
         sys.exit(-1)
-        
     working_dir = args[0]
     data_file = os.path.join(working_dir, 'training-data.liblinear')
 
     # learn alphabet from training data
-    data_set = dataset.DatasetProvider([data_file])
+    provider = dataset.DatasetProvider(data_file)
     # now load training examples and labels
-    train_x, train_y = data_set.load(data_file)
+    train_x, train_y = provider.load(data_file)
     # turn x and y into numpy array among other things
     maxlen = max([len(seq) for seq in train_x])
     outcomes = set(train_y)
@@ -40,7 +39,8 @@ def main(args):
     train_y = to_categorical(np.array(train_y), classes)
 
     pickle.dump(maxlen, open(os.path.join(working_dir, 'maxlen.p'),"wb"))
-    pickle.dump(data_set.alphabet, open(os.path.join(working_dir, 'alphabet.p'),"wb"))
+    pickle.dump(provider.word2int, open(os.path.join(working_dir, 'word2int.p'),"wb"))
+    pickle.dump(provider.label2int, open(os.path.join(working_dir, 'label2int.p'),"wb"))
 
     print 'train_x shape:', train_x.shape
     print 'train_y shape:', train_y.shape
@@ -51,7 +51,7 @@ def main(args):
     for filter_len in '2,3,4,5'.split(','):
       
         branch = Sequential()
-        branch.add(Embedding(len(data_set.alphabet),
+        branch.add(Embedding(len(provider.word2int),
                              300,
                              input_length=maxlen,
                              weights=None))

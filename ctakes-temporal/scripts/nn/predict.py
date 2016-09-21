@@ -12,22 +12,19 @@ def main(args):
     if len(args) < 1:
         sys.stderr.write("Error - one required argument: <model directory>\n")
         sys.exit(-1)
-
     working_dir = args[0]
 
-    int2label = {
-        0:'none',
-        1:'CONTAINS',
-        2:'CONTAINS-1'
-    }
-
-    ctakes_root = '/Users/Dima/Loyola/Workspaces/cTakes/ctakes/'
     target_dir = 'ctakes-temporal/target/eval/thyme/train_and_test/event-time/'
-    model_dir = ctakes_root + target_dir
+    model_dir = os.path.join(os.environ['CTAKES_ROOT'], target_dir)
     maxlen   = pickle.load(open(os.path.join(model_dir, "maxlen.p"), "rb"))
-    alphabet = pickle.load(open(os.path.join(model_dir, "alphabet.p"), "rb"))
+    word2int = pickle.load(open(os.path.join(model_dir, "word2int.p"), "rb"))
+    label2int = pickle.load(open(os.path.join(model_dir, "label2int.p"), "rb"))
     model = model_from_json(open(os.path.join(model_dir, "model_0.json")).read())
     model.load_weights(os.path.join(model_dir, "model_0.h5"))
+
+    int2label = {}
+    for label, integer in label2int.items():
+      int2label[integer] = label
 
     while True:
         try:
@@ -37,10 +34,10 @@ def main(args):
 
             feats=[]
             for unigram in line.rstrip().split():
-                if(alphabet.has_key(unigram)):
-                    feats.append(alphabet[unigram])
+                if(word2int.has_key(unigram)):
+                    feats.append(word2int[unigram])
                 else:
-                    feats.append(alphabet["none"])
+                    feats.append(word2int["none"])
                     
             if(len(feats) > maxlen):
                 feats=feats[0:maxlen]
