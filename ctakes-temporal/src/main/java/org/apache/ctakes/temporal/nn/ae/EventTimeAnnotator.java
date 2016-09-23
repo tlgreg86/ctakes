@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator.IdentifiedAnnotationPair;
+import org.apache.ctakes.temporal.nn.data.EventTimeRelPrinter;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
@@ -72,10 +73,10 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
         String context;
         if(arg2.getBegin() < arg1.getBegin()) {
           // ... time ... event ... scenario
-          context = getTokenContext(jCas, sentence, arg2, "t", arg1, "e", 2);
+          context = EventTimeRelPrinter.getTokenContext(jCas, sentence, arg2, "t", arg1, "e", 2);
         } else {
           // ... event ... time ... scenario
-          context = getTokenContext(jCas, sentence, arg1, "e", arg2, "t", 2);
+          context = EventTimeRelPrinter.getTokenContext(jCas, sentence, arg1, "e", arg2, "t", 2);
         }
 
         //derive features based on context:
@@ -126,43 +127,6 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
 
     }
   }
-
-  /**
-   * Print words from left to right.
-   * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
-   */
-  public static String getTokenContext(
-      JCas jCas, 
-      Sentence sent, 
-      Annotation left,
-      String leftType,
-      Annotation right,
-      String rightType,
-      int contextSize) {
-
-    List<String> tokens = new ArrayList<>();
-    for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, left, contextSize)) {
-      if(sent.getBegin() <= baseToken.getBegin()) {
-        tokens.add(baseToken.getCoveredText()); 
-      }
-    }
-    tokens.add("<" + leftType + ">");
-    tokens.add(left.getCoveredText());
-    tokens.add("</" + leftType + ">");
-    for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, right)) {
-      tokens.add(baseToken.getCoveredText());
-    }
-    tokens.add("<" + rightType + ">");
-    tokens.add(right.getCoveredText());
-    tokens.add("</" + rightType + ">");
-    for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, right, contextSize)) {
-      if(baseToken.getEnd() <= sent.getEnd()) {
-        tokens.add(baseToken.getCoveredText());
-      }
-    }
-
-    return String.join(" ", tokens).replaceAll("[\r\n]", " ");
-  }  
   
   /**
    * Print context from left to right.
