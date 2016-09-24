@@ -2,7 +2,6 @@ package org.apache.ctakes.temporal.nn.ae;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import org.apache.ctakes.temporal.nn.data.EventTimeRelPrinter;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
@@ -42,7 +40,7 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
     //get all gold relation lookup
     Map<List<Annotation>, BinaryTextRelation> relationLookup;
     relationLookup = new HashMap<>();
-    if (this.isTraining()) {
+    if(this.isTraining()) {
       relationLookup = new HashMap<>();
       for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
         Annotation arg1 = relation.getArg1().getArgument();
@@ -53,7 +51,7 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
           String reln = relationLookup.get(key).getCategory();
           System.err.println("Error in: "+ ViewUriUtil.getURI(jCas).toString());
           System.err.println("Error! This attempted relation " + relation.getCategory() + " already has a relation " + reln + " at this span: " + arg1.getCoveredText() + " -- " + arg2.getCoveredText());
-        }else{
+        } else{
           relationLookup.put(key, relation);
         }
       }
@@ -66,12 +64,12 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
           getCandidateRelationArgumentPairs(jCas, sentence);
 
       // walk through the pairs of annotations
-      for (IdentifiedAnnotationPair pair : candidatePairs) {
+      for(IdentifiedAnnotationPair pair : candidatePairs) {
         IdentifiedAnnotation arg1 = pair.getArg1();
         IdentifiedAnnotation arg2 = pair.getArg2();
 
         String context;
-        if(arg2.getBegin() < arg1.getBegin()) {
+        if (arg2.getBegin() < arg1.getBegin()) {
           // ... time ... event ... scenario
           context = EventTimeRelPrinter.getTokenContext(jCas, sentence, arg2, "t", arg1, "e", 2);
         } else {
@@ -79,11 +77,11 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
           context = EventTimeRelPrinter.getTokenContext(jCas, sentence, arg1, "e", arg2, "t", 2);
         }
 
-        //derive features based on context:
-        List<Feature> feats = new ArrayList<>();
+        // derive features based on context
+        List<Feature> features = new ArrayList<>();
         String[] tokens = context.split(" ");
         for (String token: tokens){
-          feats.add(new Feature(token.toLowerCase()));
+          features.add(new Feature(token.toLowerCase()));
         }
 
         // during training, feed the features to the data writer
@@ -91,15 +89,15 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
           String category = getRelationCategory(relationLookup, arg1, arg2);
           if (category == null) {
             category = NO_RELATION_CATEGORY;
-          }else{
+          } else{
             category = category.toLowerCase();
           }
-          this.dataWriter.write(new Instance<>(category, feats));
+          this.dataWriter.write(new Instance<>(category, features));
         }
 
         // during classification feed the features to the classifier and create annotations
         else {
-          String predictedCategory = this.classifier.classify(feats);
+          String predictedCategory = this.classifier.classify(features);
 
           // add a relation annotation if a true relation was predicted
           if (predictedCategory != null && !predictedCategory.equals(NO_RELATION_CATEGORY)) {
@@ -112,7 +110,7 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
                 arg1 = arg2;
                 arg2 = temp;
               }
-            }else{
+            } else {
               if(arg1 instanceof EventMention){
                 IdentifiedAnnotation temp = arg1;
                 arg1 = arg2;
@@ -128,107 +126,6 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
     }
   }
   
-  /**
-   * Print context from left to right.
-   * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
-   */
-  public static String getTokensBetweenExpanded(
-      JCas jCas, 
-      Sentence sent, 
-      Annotation left,
-      String leftType,
-      Annotation right,
-      String rightType,
-      int contextSize,
-      Map<EventMention, Collection<EventMention>> coveringMap) {
-
-    boolean leftIsExpanded = false;
-    Annotation longerLeft = left;
-    if(left instanceof EventMention){
-      longerLeft = getLongerEvent(coveringMap, left);
-      if(longerLeft != left){
-        leftIsExpanded = true;
-      }
-    }
-
-    boolean rightIsExpanded = false;
-    Annotation longerRight = right;
-    if(right instanceof EventMention){
-      longerRight = getLongerEvent(coveringMap, right);
-      if(longerRight != right){
-        rightIsExpanded = true;
-      }
-    }
-
-    List<String> tokens = new ArrayList<>();
-    if(leftIsExpanded){
-      for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, longerLeft, contextSize)) {
-        if(sent.getBegin() <= baseToken.getBegin()) {
-          tokens.add(baseToken.getCoveredText()); 
-        }
-      }
-    }else{
-      for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, left, contextSize)) {
-        if(sent.getBegin() <= baseToken.getBegin()) {
-          tokens.add(baseToken.getCoveredText()); 
-        }
-      }
-    }
-    tokens.add("<" + leftType + ">");
-    tokens.add(left.getCoveredText());
-    tokens.add("</" + leftType + ">");
-    if(leftIsExpanded){
-      for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, longerLeft, right)) {
-        tokens.add(baseToken.getCoveredText());
-      }
-    }else if(rightIsExpanded){
-      for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, longerRight)) {
-        tokens.add(baseToken.getCoveredText());
-      }
-    }else{
-      for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, right)) {
-        tokens.add(baseToken.getCoveredText());
-      }
-    }
-    tokens.add("<" + rightType + ">");
-    tokens.add(right.getCoveredText());
-    tokens.add("</" + rightType + ">");
-    if(rightIsExpanded){
-      for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, longerRight, contextSize)) {
-        if(baseToken.getEnd() <= sent.getEnd()) {
-          tokens.add(baseToken.getCoveredText());
-        }
-      }
-    }else{
-      for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, right, contextSize)) {
-        if(baseToken.getEnd() <= sent.getEnd()) {
-          tokens.add(baseToken.getCoveredText());
-        }
-      }
-    }
-
-    return String.join(" ", tokens).replaceAll("[\r\n]", " ");
-  }
-
-  private static Annotation getLongerEvent(Map<EventMention, Collection<EventMention>> coveringMap,
-      Annotation event) {
-    int maxSpan = getSpan(event);
-    Annotation longerEvent = event;
-    Collection<EventMention> eventList = coveringMap.get(event);
-    for(EventMention covEvent : eventList){
-      int span = getSpan(covEvent);
-      if(span > maxSpan){
-        maxSpan = span;
-        longerEvent = covEvent;
-      }
-    }
-    return longerEvent;
-  }
-
-  private static int getSpan(Annotation left) {
-    return (left.getEnd()-left.getBegin());
-  }
-
   /** Dima's way of getting lables
    * @param relationLookup
    * @param arg1
