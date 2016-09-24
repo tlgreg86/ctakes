@@ -58,10 +58,10 @@ def main(args):
             test_x2 = pad_sequences([tags], maxlen=maxlen)
 
             test_xs = []
-            test_xs.append(test_x)
-            test_xs.append(test_x)
-            test_xs.append(test_x)
-            test_xs.append(test_x)
+            test_xs.append(test_x1)
+            test_xs.append(test_x1)
+            test_xs.append(test_x1)
+            test_xs.append(test_x1)
             test_xs.append(test_x2)
             test_xs.append(test_x2)
             test_xs.append(test_x2)
