@@ -43,7 +43,7 @@ import org.apache.ctakes.temporal.eval.I2B2Data;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.temporal.keras.KerasStringOutcomeDataWriter;
 import org.apache.ctakes.temporal.keras.ScriptStringFeatureDataWriter;
-import org.apache.ctakes.temporal.nn.ae.EventTimeHybridAnnotator;
+import org.apache.ctakes.temporal.nn.ae.EventTimePosBasedAnnotator;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
 import org.apache.ctakes.temporal.utils.TLinkTypeArray2;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
@@ -290,7 +290,7 @@ EvaluationOfTemporalRelations_ImplBase{
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
 
       aggregateBuilder.add(
-          AnalysisEngineFactory.createEngineDescription(EventTimeHybridAnnotator.class,
+          AnalysisEngineFactory.createEngineDescription(EventTimePosBasedAnnotator.class,
               CleartkAnnotator.PARAM_IS_TRAINING,
               true,
               DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -341,7 +341,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
     aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
-      AnalysisEngineFactory.createEngineDescription(EventTimeHybridAnnotator.class,
+      AnalysisEngineFactory.createEngineDescription(EventTimePosBasedAnnotator.class,
           CleartkAnnotator.PARAM_IS_TRAINING,
           false,
           GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
