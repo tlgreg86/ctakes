@@ -45,7 +45,7 @@ def main(args):
             tags = []
             for tag in pos.rstrip().split():
                 if tag in tag2int:
-                    tags.append(tag2int[token])
+                    tags.append(tag2int[tag])
                 else:
                     tags.append(tag2int['oov_word'])
                     
