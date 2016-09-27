@@ -28,11 +28,11 @@ import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.collect.Lists;
 
-public class EventTimeHybridAnnotator extends CleartkAnnotator<String> {
+public class EventTimeTokenAndPosBasedAnnotator extends CleartkAnnotator<String> {
 
   public static final String NO_RELATION_CATEGORY = "none";
 
-  public EventTimeHybridAnnotator() {
+  public EventTimeTokenAndPosBasedAnnotator() {
     // TODO Auto-generated constructor stub
   }
 
@@ -42,9 +42,9 @@ public class EventTimeHybridAnnotator extends CleartkAnnotator<String> {
     //get all gold relation lookup
     Map<List<Annotation>, BinaryTextRelation> relationLookup;
     relationLookup = new HashMap<>();
-    if (this.isTraining()) {
+    if(this.isTraining()) {
       relationLookup = new HashMap<>();
-      for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
+      for(BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
         Annotation arg1 = relation.getArg1().getArgument();
         Annotation arg2 = relation.getArg2().getArgument();
         // The key is a list of args so we can do bi-directional lookup
@@ -53,7 +53,7 @@ public class EventTimeHybridAnnotator extends CleartkAnnotator<String> {
           String reln = relationLookup.get(key).getCategory();
           System.err.println("Error in: "+ ViewUriUtil.getURI(jCas).toString());
           System.err.println("Error! This attempted relation " + relation.getCategory() + " already has a relation " + reln + " at this span: " + arg1.getCoveredText() + " -- " + arg2.getCoveredText());
-        }else{
+        } else{
           relationLookup.put(key, relation);
         }
       }
@@ -66,7 +66,7 @@ public class EventTimeHybridAnnotator extends CleartkAnnotator<String> {
           getCandidateRelationArgumentPairs(jCas, sentence);
 
       // walk through the pairs of annotations
-      for (IdentifiedAnnotationPair pair : candidatePairs) {
+      for(IdentifiedAnnotationPair pair : candidatePairs) {
         IdentifiedAnnotation arg1 = pair.getArg1();
         IdentifiedAnnotation arg2 = pair.getArg2();
 
@@ -85,16 +85,16 @@ public class EventTimeHybridAnnotator extends CleartkAnnotator<String> {
         //derive features based on context:
         List<Feature> features = new ArrayList<>();
         String[] tokens = (tokenContext + "|" + posContext).split(" ");
-        for (String token: tokens){
+        for(String token: tokens){
           features.add(new Feature(token.toLowerCase()));
         }
 
         // during training, feed the features to the data writer
-        if (this.isTraining()) {
+        if(this.isTraining()) {
           String category = getRelationCategory(relationLookup, arg1, arg2);
-          if (category == null) {
+          if(category == null) {
             category = NO_RELATION_CATEGORY;
-          } else{
+          } else {
             category = category.toLowerCase();
           }
           this.dataWriter.write(new Instance<>(category, features));
@@ -104,29 +104,28 @@ public class EventTimeHybridAnnotator extends CleartkAnnotator<String> {
           String predictedCategory = this.classifier.classify(features);
 
           // add a relation annotation if a true relation was predicted
-          if (predictedCategory != null && !predictedCategory.equals(NO_RELATION_CATEGORY)) {
+          if(predictedCategory != null && !predictedCategory.equals(NO_RELATION_CATEGORY)) {
 
             // if we predict an inverted relation, reverse the order of the arguments
-            if (predictedCategory.endsWith("-1")) {
+            if(predictedCategory.endsWith("-1")) {
               predictedCategory = predictedCategory.substring(0, predictedCategory.length() - 2);
               if(arg1 instanceof TimeMention){
                 IdentifiedAnnotation temp = arg1;
                 arg1 = arg2;
                 arg2 = temp;
               }
-            }else{
+            } else {
               if(arg1 instanceof EventMention){
                 IdentifiedAnnotation temp = arg1;
                 arg1 = arg2;
                 arg2 = temp;
               }
             }
-
+            
             createRelation(jCas, arg1, arg2, predictedCategory.toUpperCase(), 0.0);
           }
         }
       }
-
     }
   }
   
