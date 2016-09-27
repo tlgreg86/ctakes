@@ -26,11 +26,11 @@ import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.collect.Lists;
 
-public class EventTimeAnnotator extends CleartkAnnotator<String> {
+public class EventTimeTokenBasedAnnotator extends CleartkAnnotator<String> {
 
   public static final String NO_RELATION_CATEGORY = "none";
 
-  public EventTimeAnnotator() {
+  public EventTimeTokenBasedAnnotator() {
     // TODO Auto-generated constructor stub
   }
 
@@ -42,7 +42,7 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
     relationLookup = new HashMap<>();
     if(this.isTraining()) {
       relationLookup = new HashMap<>();
-      for (BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
+      for(BinaryTextRelation relation : JCasUtil.select(jCas, BinaryTextRelation.class)) {
         Annotation arg1 = relation.getArg1().getArgument();
         Annotation arg2 = relation.getArg2().getArgument();
         // The key is a list of args so we can do bi-directional lookup
@@ -69,7 +69,7 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
         IdentifiedAnnotation arg2 = pair.getArg2();
 
         String context;
-        if (arg2.getBegin() < arg1.getBegin()) {
+        if(arg2.getBegin() < arg1.getBegin()) {
           // ... time ... event ... scenario
           context = EventTimeRelPrinter.getTokenContext(jCas, sentence, arg2, "t", arg1, "e", 2);
         } else {
@@ -80,14 +80,14 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
         // derive features based on context
         List<Feature> features = new ArrayList<>();
         String[] tokens = context.split(" ");
-        for (String token: tokens){
+        for(String token: tokens){
           features.add(new Feature(token.toLowerCase()));
         }
 
         // during training, feed the features to the data writer
-        if (this.isTraining()) {
+        if(this.isTraining()) {
           String category = getRelationCategory(relationLookup, arg1, arg2);
-          if (category == null) {
+          if(category == null) {
             category = NO_RELATION_CATEGORY;
           } else{
             category = category.toLowerCase();
@@ -100,10 +100,10 @@ public class EventTimeAnnotator extends CleartkAnnotator<String> {
           String predictedCategory = this.classifier.classify(features);
 
           // add a relation annotation if a true relation was predicted
-          if (predictedCategory != null && !predictedCategory.equals(NO_RELATION_CATEGORY)) {
+          if(predictedCategory != null && !predictedCategory.equals(NO_RELATION_CATEGORY)) {
 
             // if we predict an inverted relation, reverse the order of the arguments
-            if (predictedCategory.endsWith("-1")) {
+            if(predictedCategory.endsWith("-1")) {
               predictedCategory = predictedCategory.substring(0, predictedCategory.length() - 2);
               if(arg1 instanceof TimeMention){
                 IdentifiedAnnotation temp = arg1;
