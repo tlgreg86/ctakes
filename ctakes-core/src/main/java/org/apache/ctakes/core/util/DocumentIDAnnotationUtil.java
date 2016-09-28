@@ -27,6 +27,8 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.cas.TOP;
 
+import java.util.regex.Pattern;
+
 /**
  * Utility class for fetching document id
  */
@@ -37,13 +39,14 @@ final public class DocumentIDAnnotationUtil {
 
    static private final Logger LOGGER = Logger.getLogger( "DocumentIDAnnotationUtil" );
 
+   static private final Pattern FILE_FIX_PATTERN = Pattern.compile( "[^A-Za-z0-9\\.]" );
 
    // Utility classes should be final and have only a private constructor
    private DocumentIDAnnotationUtil() {
    }
 
    /**
-    * Check the jcas for a document id.  Unlike {@link #getDocumentID(org.apache.uima.jcas.JCas)},
+    * Check the jcas for a document id.  Unlike {@link #getDeepDocumentId(JCas)},
     * this method does not progress into deeper jcas layers/views.
     *
     * @param jcas ye olde ...
@@ -127,7 +130,7 @@ final public class DocumentIDAnnotationUtil {
       if ( docId == null || docId.isEmpty() ) {
          docId = "Unknown_" + System.currentTimeMillis();
       }
-      return docId.replaceAll( "[^A-Za-z0-9\\.]", "_" );
+      return FILE_FIX_PATTERN.matcher( docId ).replaceAll( "_" );
    }
 
 }

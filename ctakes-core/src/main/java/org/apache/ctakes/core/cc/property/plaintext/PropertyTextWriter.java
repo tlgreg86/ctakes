@@ -105,9 +105,6 @@ public class PropertyTextWriter {
       }
       final Collection<IdentifiedAnnotation> identifiedAnnotations
             = JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, sentence );
-      if ( identifiedAnnotations.isEmpty() ) {
-         return;
-      }
       writer.write( sentenceText );
       writer.newLine();
       for ( IdentifiedAnnotation annotation : identifiedAnnotations ) {

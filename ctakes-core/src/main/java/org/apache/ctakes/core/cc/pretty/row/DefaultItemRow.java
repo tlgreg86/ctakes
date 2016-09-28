@@ -76,7 +76,13 @@ public final class DefaultItemRow implements ItemRow {
             sb.replace( begin, begin + width, new String( fill_chars ) );
          } else {
             final int paddedOffset = getPaddedOffset( annotationText, width );
-            sb.replace( begin + paddedOffset, begin + paddedOffset + annotationText.length(), annotationText );
+            final int b = (begin + paddedOffset < 0) ? begin : begin + paddedOffset;
+            final int e = Math.min( b + annotationText.length(), rowWidth - b );
+            if ( e - b < annotationText.length() ) {
+               sb.replace( b, e, annotationText.substring( 0, e - b ) );
+            } else {
+               sb.replace( b, e, annotationText );
+            }
          }
       }
       return sb.toString();

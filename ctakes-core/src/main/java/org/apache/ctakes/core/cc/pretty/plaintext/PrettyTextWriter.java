@@ -115,9 +115,7 @@ final public class PrettyTextWriter {
       // Create annotation rows with shorter spans on top
       final Collection<ItemRow> itemRows = new ArrayList<>();
       final ItemRow baseItemRow = new DefaultItemRow();
-      for ( ItemCell itemCell : baseItemMap.values() ) {
-         baseItemRow.addItemCell( itemCell );
-      }
+      baseItemMap.values().forEach( baseItemRow::addItemCell );
       itemRows.add( baseItemRow );
       itemRows.addAll( createItemRows( coveringItemMap ) );
       // Create map of all text span offsets to adjusted offsets
@@ -408,9 +406,12 @@ final public class PrettyTextWriter {
       }
       final Map<String, Collection<String>> semanticCuis = new HashMap<>();
       for ( UmlsConcept umlsConcept : umlsConcepts ) {
-         final String cui = umlsConcept.getCui();
+         final String cui = trimTo8( umlsConcept.getCui() );
          final String tui = umlsConcept.getTui();
-         final String semanticName = SemanticGroup.getSemanticName( tui );
+         String semanticName = SemanticGroup.getSemanticName( tui );
+         if ( semanticName.equals( "Unknown" ) ) {
+            semanticName = trimTo8( identifiedAnnotation.getClass().getSimpleName() );
+         }
          Collection<String> cuis = semanticCuis.get( semanticName );
          if ( cuis == null ) {
             cuis = new HashSet<>();
@@ -419,6 +420,14 @@ final public class PrettyTextWriter {
          cuis.add( cui );
       }
       return semanticCuis;
+   }
+
+
+   static private String trimTo8( final String text ) {
+      if ( text.length() <= 8 ) {
+         return text;
+      }
+      return "<" + text.substring( text.length() - 7, text.length() );
    }
 
 }

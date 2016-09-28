@@ -364,7 +364,7 @@ final public class OntologyConceptUtil {
 
    /**
     * @param jcas         -
-    * @param lookupWindow
+    * @param lookupWindow -
     * @param cui          cui of interest
     * @return all IdentifiedAnnotations that have the given cui
     */
@@ -376,7 +376,7 @@ final public class OntologyConceptUtil {
 
    /**
     * @param jcas         -
-    * @param lookupWindow
+    * @param lookupWindow -
     * @param tui          tui of interest
     * @return all IdentifiedAnnotations that have the given tui
     */
@@ -388,7 +388,7 @@ final public class OntologyConceptUtil {
 
    /**
     * @param jcas         -
-    * @param lookupWindow
+    * @param lookupWindow -
     * @param code         code of interest
     * @return all IdentifiedAnnotations that have the given code
     */
