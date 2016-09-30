@@ -55,7 +55,15 @@ import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 
 /**
- * Print gold standard relations and their context.
+ * contains(spring of 2009, drained):
+ * perineal abscess <e> drained </e> in the <t> spring of 2009 </t> .
+ * 0        1           2            3  4       5      6  7         8
+ *
+ * time arg position: 5, 6, 7
+ * event arg position: 2
+ * 
+ * distance to time: -5, -4, -3, -2, -1, 0, 0, 0, 1
+ * distance to event: -2, -1, 0, 1, 2, 3, 4, 5, 6
  * 
  * @author dmitriy dligach
  */
@@ -350,9 +358,9 @@ public class EventTimeRelPositionPrinter {
     }
 
     String tokensAsString = String.join(" ", tokens).replaceAll("[\r\n]", " ");
-    String wrtToTimeAsString = String.join(" ", positionsWrtToTime);
-    String wrtToEventAsString = String.join(" ", positionsWrtToEvent);
+    String distanceToTime = String.join(" ", positionsWrtToTime);
+    String distanceToEvent = String.join(" ", positionsWrtToEvent);
     
-    return tokensAsString + "|" + wrtToTimeAsString + "|" + wrtToEventAsString;
+    return tokensAsString + "|" + distanceToTime + "|" + distanceToEvent;
   } 
 }
