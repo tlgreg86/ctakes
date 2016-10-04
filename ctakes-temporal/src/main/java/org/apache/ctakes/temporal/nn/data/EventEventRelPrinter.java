@@ -164,22 +164,16 @@ public class EventEventRelPrinter {
             BinaryTextRelation forwardRelation = relationLookup.get(Arrays.asList(mention1, mention2));
             BinaryTextRelation reverseRelation = relationLookup.get(Arrays.asList(mention2, mention1));
 
-            String label;            
+            String label = "none";            
             if(forwardRelation != null) {
               if(forwardRelation.getCategory().equals("CONTAINS")) {
                 label = "contains";   // this is contains relation
-              } else {
-                label = "none";       // this is some other relation
               }
             } else if(reverseRelation != null) {
               if(reverseRelation.getCategory().equals("CONTAINS")) {
                 label = "contains-1"; // this is contains relation
-              } else {
-                label = "none";       // this is some other relation
               }
-            } else {
-              label = "none";         // no relation between mentions
-            }
+            } 
 
             String context = getTokensBetween(systemView, sentence, mention1, "e1", mention2, "e2", 2);
             String text = String.format("%s|%s", label, context);
