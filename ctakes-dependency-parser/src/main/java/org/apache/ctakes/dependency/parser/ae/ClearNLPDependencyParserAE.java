@@ -18,11 +18,14 @@
  */
 package org.apache.ctakes.dependency.parser.ae;
 
-import java.io.InputStream;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.googlecode.clearnlp.component.AbstractComponent;
+import com.googlecode.clearnlp.dependency.DEPFeat;
+import com.googlecode.clearnlp.dependency.DEPNode;
+import com.googlecode.clearnlp.dependency.DEPTree;
+import com.googlecode.clearnlp.engine.EngineGetter;
+import com.googlecode.clearnlp.morphology.AbstractMPAnalyzer;
+import com.googlecode.clearnlp.nlp.NLPLib;
+import com.googlecode.clearnlp.reader.AbstractReader;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.dependency.parser.util.ClearDependencyUtility;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
@@ -42,14 +45,10 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import com.googlecode.clearnlp.component.AbstractComponent;
-import com.googlecode.clearnlp.dependency.DEPFeat;
-import com.googlecode.clearnlp.dependency.DEPNode;
-import com.googlecode.clearnlp.dependency.DEPTree;
-import com.googlecode.clearnlp.engine.EngineGetter;
-import com.googlecode.clearnlp.morphology.AbstractMPAnalyzer;
-import com.googlecode.clearnlp.nlp.NLPLib;
-import com.googlecode.clearnlp.reader.AbstractReader;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <br>
@@ -151,7 +150,11 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 			  if(token instanceof NewlineToken) continue;
 			  printableTokens.add(token);
 			}
-			
+
+			if ( printableTokens.isEmpty() ) {
+				// If there are no printable tokens then #convert fails
+				continue;
+			}
 			DEPTree tree = new DEPTree();
 
 			// Convert CAS data into structures usable by ClearNLP
@@ -164,8 +167,8 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 
 			// Run parser and convert output back to CAS friendly data types
 			parser.process(tree);
-			ArrayList<ConllDependencyNode> nodes = ClearDependencyUtility.convert(jCas, tree, sentence, printableTokens);
-			DependencyUtility.addToIndexes(jCas, nodes);
+			ArrayList<ConllDependencyNode> nodes = ClearDependencyUtility.convert( jCas, tree, sentence, printableTokens );
+			DependencyUtility.addToIndexes( jCas, nodes );
 		}
 		
 		
