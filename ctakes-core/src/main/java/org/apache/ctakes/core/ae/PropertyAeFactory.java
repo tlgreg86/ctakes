@@ -32,6 +32,7 @@ public enum PropertyAeFactory {
    static private final Logger LOGGER = Logger.getLogger( "PropertyAeFactory" );
 
 
+   // Use a single hashmap so that multiple properties files can be used
    final private Map<String, String> _properties = new HashMap<>();
 
    synchronized public void loadPropertyFile( final String filePath ) {
@@ -92,7 +93,7 @@ public enum PropertyAeFactory {
                                        final Object... parameters )
          throws ResourceInitializationException {
       final AnalysisEngineDescription description = createDescription( classType, parameters );
-      final Object allParameters = getAllParameters( parameters );
+      final Object[] allParameters = getAllParameters( parameters );
       return AnalysisEngineFactory.createEngine( description, allParameters );
    }
 
@@ -105,7 +106,7 @@ public enum PropertyAeFactory {
    public AnalysisEngineDescription createDescription( final Class<? extends AnalysisComponent> classType,
                                                        final Object... parameters )
          throws ResourceInitializationException {
-      final Object allParameters = getAllParameters( parameters );
+      final Object[] allParameters = getAllParameters( parameters );
       return AnalysisEngineFactory.createEngineDescription( classType, allParameters );
    }
 
@@ -120,7 +121,7 @@ public enum PropertyAeFactory {
    public AnalysisEngine createLoggedEngine( final Class<? extends AnalysisComponent> classType,
                                              final Object... parameters )
          throws ResourceInitializationException {
-      final Object allParameters = getAllParameters( parameters );
+      final Object[] allParameters = getAllParameters( parameters );
       return StartFinishLogger.createLoggedEngine( classType, allParameters );
    }
 
@@ -133,7 +134,7 @@ public enum PropertyAeFactory {
    public AnalysisEngineDescription createLoggedDescription( final Class<? extends AnalysisComponent> classType,
                                                              final Object... parameters )
          throws ResourceInitializationException {
-      final Object allParameters = getAllParameters( parameters );
+      final Object[] allParameters = getAllParameters( parameters );
       return StartFinishLogger.createLoggedDescription( classType, allParameters );
    }
 
