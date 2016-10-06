@@ -175,6 +175,13 @@ public class EventEventRelPrinter {
               }
             } 
 
+            if(mention1.getBegin() > mention2.getBegin())  {
+              System.out.println("We assumed mention1 is always before mention2");
+              System.out.println(sentence.getCoveredText());
+              System.out.println(mention1.getCoveredText());
+              System.out.println(mention2.getCoveredText());
+              System.out.println();
+            }
             String context = getTokensBetween(systemView, sentence, mention1, "e1", mention2, "e2", 2);
             String text = String.format("%s|%s", label, context);
             eventEventRelationsInSentence.add(text.toLowerCase());
