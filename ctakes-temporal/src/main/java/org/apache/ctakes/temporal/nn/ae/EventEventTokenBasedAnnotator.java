@@ -66,7 +66,7 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
         String context;
         if(arg2.getBegin() < arg1.getBegin()) {
           // ... event2 ... event1 ... scenario
-          System.out.println("\n-------------- aTHIS NEVER NAPPENS ------------\n");
+          System.out.println("\n-------------- THIS NEVER NAPPENS ------------\n");
           context = EventEventRelPrinter.getTokensBetween(jCas, sentence, arg2, "e2", arg1, "e1", 2); 
         } else {
           // ... event1 ... event2 ... scenario
@@ -119,7 +119,7 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
    * @param arg2
    * @return
    */
-  protected String getRelationCategory1(
+  protected String getRelationCategory(
       Map<List<Annotation>, BinaryTextRelation> relationLookup,
       IdentifiedAnnotation arg1,
       IdentifiedAnnotation arg2) {
@@ -146,37 +146,7 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
     return category;
   }
 
-  /** Dima's way of getting labels
-   * @param relationLookup
-   * @param arg1
-   * @param arg2
-   * @return
-   */
   protected String getRelationCategory2(Map<List<Annotation>, BinaryTextRelation> relationLookup,
-      IdentifiedAnnotation arg1,
-      IdentifiedAnnotation arg2) {
-    
-    BinaryTextRelation relation = relationLookup.get(Arrays.asList(arg1, arg2));
-    String category = null;
-    if (relation != null) {
-      category = relation.getCategory();
-      if(arg1 instanceof EventMention) {
-        category = category + "-1";
-      }
-    } else {
-      relation = relationLookup.get(Arrays.asList(arg2, arg1));
-      if (relation != null) {
-        category = relation.getCategory();
-        if(arg2 instanceof EventMention) {
-          category = category + "-1";
-        }
-      }
-    }
-
-    return category;
-  }
-
-  protected String getRelationCategory(Map<List<Annotation>, BinaryTextRelation> relationLookup,
       IdentifiedAnnotation arg1,
       IdentifiedAnnotation arg2) {
     
