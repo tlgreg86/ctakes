@@ -167,11 +167,11 @@ public class EventEventRelPrinter {
             String label = "none";            
             if(forwardRelation != null) {
               if(forwardRelation.getCategory().equals("CONTAINS")) {
-                label = "contains";   // this is contains relation
+                label = "contains";   // mention1 contains mention2
               }
             } else if(reverseRelation != null) {
               if(reverseRelation.getCategory().equals("CONTAINS")) {
-                label = "contains-1"; // this is contains relation
+                label = "contains-1"; // mention2 contains mention1
               }
             } 
 

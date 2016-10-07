@@ -2,7 +2,6 @@ package org.apache.ctakes.temporal.nn.ae;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import org.apache.ctakes.temporal.nn.data.EventEventRelPrinter;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -34,7 +32,7 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 
-		//get all gold relation lookup
+		// get all gold relation lookup
 		Map<List<Annotation>, BinaryTextRelation> relationLookup;
 		relationLookup = new HashMap<>();
 		if (this.isTraining()) {
@@ -47,18 +45,18 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
 				if(relationLookup.containsKey(key)){
 					String reln = relationLookup.get(key).getCategory();
 					System.err.println("Error in: "+ ViewUriUtil.getURI(jCas).toString());
-					System.err.println("Error! This attempted relation " + relation.getCategory() + " already has a relation " + reln + " at this span: " + arg1.getCoveredText() + " -- " + arg2.getCoveredText());
-				}else{
+					System.err.println("Error! This attempted relation " + relation.getCategory() + 
+					    " already has a relation " + reln + " at this span: " + 
+					    arg1.getCoveredText() + " -- " + arg2.getCoveredText());
+				} else {
 					relationLookup.put(key, relation);
 				}
 			}
 		}
 
-		// go over sentences, extracting event-time relation instances
 		for(Sentence sentence : JCasUtil.select(jCas, Sentence.class)) {
 			// collect all relevant relation arguments from the sentence
-			List<IdentifiedAnnotationPair> candidatePairs =
-					getCandidateRelationArgumentPairs(jCas, sentence);
+			List<IdentifiedAnnotationPair> candidatePairs = getCandidateRelationArgumentPairs(jCas, sentence);
 
 			// walk through the pairs of annotations
 			for (IdentifiedAnnotationPair pair : candidatePairs) {
@@ -67,10 +65,11 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
 
 				String context;
 				if(arg2.getBegin() < arg1.getBegin()) {
-					// ... time ... event ... scenario
+					// ... event2 ... event1 ... scenario
+          System.out.println("\n-------------- aTHIS NEVER NAPPENS ------------\n");
 					context = EventEventRelPrinter.getTokensBetween(jCas, sentence, arg2, "e2", arg1, "e1", 2); 
 				} else {
-					// ... event ... time ... scenario
+					// ... event1 ... event2 ... scenario
 					context = EventEventRelPrinter.getTokensBetween(jCas, sentence, arg1, "e1", arg2, "e2", 2);
 				}
 
@@ -90,7 +89,7 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
 						category = category.toLowerCase();
 					}
 					this.dataWriter.write(new Instance<>(category, feats));
-				}else {
+				} else {
 					String predictedCategory = this.classifier.classify(feats);
 
 					// add a relation annotation if a true relation was predicted
@@ -129,7 +128,7 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
 		if (relation != null) {
 			if(arg2.getBegin() < arg1.getBegin()){
 				category = relation.getCategory() + "-1";
-			}else{
+			} else {
 				category = relation.getCategory();
 			}
 		} else {
@@ -137,7 +136,7 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
 			if (relation != null) {
 				if(arg2.getBegin() < arg1.getBegin()){
 					category = relation.getCategory();
-				}else{
+				} else {
 					category = relation.getCategory() + "-1";
 				}
 			}
@@ -199,7 +198,7 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
 
 		List<IdentifiedAnnotationPair> pairs = Lists.newArrayList();
 		List<EventMention> events = new ArrayList<>(JCasUtil.selectCovered(jCas, EventMention.class, sentence));
-		//filter events:
+		// filter events
 		List<EventMention> realEvents = Lists.newArrayList();
 		for( EventMention event : events){
 			if(event.getClass().equals(EventMention.class)){
@@ -209,13 +208,11 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
 		events = realEvents;
 
 		int eventNum = events.size();
-
-		for (int i = 0; i < eventNum-1; i++){
-			for(int j = i+1; j < eventNum; j++){
+		for (int i = 0; i < eventNum-1; i++) {
+			for(int j = i+1; j < eventNum; j++) {
 				EventMention eventA = events.get(i);
 				EventMention eventB = events.get(j);
 				pairs.add(new IdentifiedAnnotationPair(eventA, eventB));
-
 			}
 		}
 

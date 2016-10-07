@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
-import org.apache.ctakes.temporal.ae.EventEventCNNAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventEventThymeRelations.RemoveCrossSentenceRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
@@ -153,11 +152,8 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 		ParameterSettings params = allParams;
 
-		//    possibleParams.add(defaultParams);
-
-		//    for(ParameterSettings params : possibleParams){
 		try{
-			File workingDir = new File("target/eval/thyme/"); // new File("/Volumes/chip-nlp/Public/THYME/eval/thyme/");//target/eval/thyme/");
+			File workingDir = new File("target/eval/thyme/"); 
 			if(!workingDir.exists()) workingDir.mkdirs();
 			if(options.getUseTmp()){
 				File tempModelDir = File.createTempFile("temporal", null, workingDir);
@@ -200,8 +196,6 @@ EvaluationOfTemporalRelations_ImplBase{
 				evaluation.prepareXMIsFor(patientSets);
 			}
 
-			//			evaluation.printErrors = true;
-
 			//sort list:
 			Collections.sort(training);
 			Collections.sort(testing);
@@ -213,8 +207,6 @@ EvaluationOfTemporalRelations_ImplBase{
 			}else{//test on testing set
 				params.stats = evaluation.trainAndTest(training, testing);//training
 			}
-			//      System.err.println(options.getKernelParams() == null ? params : options.getKernelParams());
-			//			System.err.println("No closure on gold::Closure on System::Recall Mode");
 			System.err.println(params.stats);
 
 			System.err.println("System predict relations #: "+ sysRelationCount);
@@ -233,14 +225,12 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 
-	//  private ParameterSettings params;
 	private boolean baseline;
 	protected boolean useClosure;
 	protected boolean useGoldAttributes;
 	protected boolean skipTrain=false;
 	public boolean skipWrite = false;
 	protected boolean testOnTrain=false;
-	//  protected boolean printRelations = false;
 
 	public EventEventNeuralEvaluation(
 			File baseDirectory,
@@ -279,7 +269,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 	@Override
 	protected void train(CollectionReader collectionReader, File directory) throws Exception {
-		//	  if(this.baseline) return;
+
 		if(this.skipTrain) return;
 
 		if(!this.skipWrite){
@@ -297,17 +287,7 @@ EvaluationOfTemporalRelations_ImplBase{
 				//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveBeforeAndOnRelations.class));
 			}
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class));
-
 			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
-
-
-			//count how many sentences have timex, and how many sentences have only one timex
-			//aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CountSentenceContainsTimes.class));
-
-			//add unlabeled nearby system events as potential links: 
-//			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddEEPotentialRelations.class));
-
-			//directory = new File(directory,"event-time");//for normalization
 
 			aggregateBuilder.add(
 					AnalysisEngineFactory.createEngineDescription(EventEventTokenBasedAnnotator.class,
@@ -323,13 +303,13 @@ EvaluationOfTemporalRelations_ImplBase{
 
 			SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
 		}
-		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"));//, weightArray
+		JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"));
 	}
 
 	@Override
 	protected AnnotationStatistics<String> test(CollectionReader collectionReader, File directory)
 			throws Exception {
-		this.useClosure=false;//don't do closure for test
+		this.useClosure=false; //don't do closure for test
 		AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
 
@@ -347,7 +327,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
 		if (!recallModeEvaluation && this.useClosure) { //closure for gold
 			aggregateBuilder.add(
-					AnalysisEngineFactory.createEngineDescription(AddClosure.class),//AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
+					AnalysisEngineFactory.createEngineDescription(AddClosure.class),
 					CAS.NAME_DEFAULT_SOFA,
 					GOLD_VIEW_NAME);
 		}
@@ -355,12 +335,10 @@ EvaluationOfTemporalRelations_ImplBase{
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class),
 				CAS.NAME_DEFAULT_SOFA,
 				GOLD_VIEW_NAME);
-		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEtEvents.class));
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
 		aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
-			//			EventTimeSelfRelationAnnotator.createEngineDescription(new File(directory,"event-time")));
-			AnalysisEngineFactory.createEngineDescription(EventEventCNNAnnotator.class,
+			AnalysisEngineFactory.createEngineDescription(EventEventTokenBasedAnnotator.class,
 					CleartkAnnotator.PARAM_IS_TRAINING,
 					false,
 					GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
@@ -374,9 +352,9 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 
 		File outf = null;
-		if (recallModeEvaluation && this.useClosure) {//add closure for system output
+		if (recallModeEvaluation && this.useClosure) { //add closure for system output
 			aggregateBuilder.add(
-					AnalysisEngineFactory.createEngineDescription(AddClosure.class),//AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveContainsRelations.class),
+					AnalysisEngineFactory.createEngineDescription(AddClosure.class),
 					GOLD_VIEW_NAME,
 					CAS.NAME_DEFAULT_SOFA
 					);
@@ -411,19 +389,6 @@ EvaluationOfTemporalRelations_ImplBase{
 			Collection<BinaryTextRelation> systemRelations = JCasUtil.select(
 					systemView,
 					BinaryTextRelation.class);
-
-			//newly add
-			//			systemRelations = removeNonGoldRelations(systemRelations, goldRelations, getSpan);//for removing non-gold pairs
-			//			systemRelations = correctArgOrder(systemRelations, goldRelations);//change the argument order of "OVERLAP" relation, if the order is flipped
-			//find duplicates in gold relations:
-			//			Collection<BinaryTextRelation> duplicateGoldRelations = getDuplicateRelations(goldRelations, getSpan);
-			//			if(!duplicateGoldRelations.isEmpty()){
-			//				System.err.println("******Duplicate gold relations in : " + ViewURIUtil.getURI(jCas).toString());
-			//				for (BinaryTextRelation rel : duplicateGoldRelations){
-			//					System.err.println("Duplicate : "+ formatRelation(rel));
-			//				}
-			//			}
-			//end newly add
 
 			stats.add(goldRelations, systemRelations, getSpan, getOutcome);
 			if(this.printRelations){
@@ -513,7 +478,6 @@ EvaluationOfTemporalRelations_ImplBase{
 			}
 
 		}
-
 
 		private static boolean hasOverlap(Annotation event1, Annotation event2) {
 			if(event1.getEnd()>=event2.getBegin()&&event1.getEnd()<=event2.getEnd()){
