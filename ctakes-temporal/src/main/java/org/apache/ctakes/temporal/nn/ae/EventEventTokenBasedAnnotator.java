@@ -119,7 +119,7 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
    * @param arg2
    * @return
    */
-  protected String getRelationCategory2(
+  protected String getRelationCategory1(
       Map<List<Annotation>, BinaryTextRelation> relationLookup,
       IdentifiedAnnotation arg1,
       IdentifiedAnnotation arg2) {
@@ -152,7 +152,7 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
    * @param arg2
    * @return
    */
-  protected String getRelationCategory3(Map<List<Annotation>, BinaryTextRelation> relationLookup,
+  protected String getRelationCategory2(Map<List<Annotation>, BinaryTextRelation> relationLookup,
       IdentifiedAnnotation arg1,
       IdentifiedAnnotation arg2) {
     
@@ -180,17 +180,28 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
       IdentifiedAnnotation arg1,
       IdentifiedAnnotation arg2) {
     
-    BinaryTextRelation forwardRelation = relationLookup.get(Arrays.asList(arg1, arg2));
-    BinaryTextRelation reverseRelation = relationLookup.get(Arrays.asList(arg2, arg1));
-    
-    String label = null;
-    if(forwardRelation != null) {
-      label = forwardRelation.getCategory(); // arg1 contains arg2
-    } else if(reverseRelation != null) {
-      label = reverseRelation.getCategory(); // arg2 contains arg1
+    // gold view representation (i.e. only contains relations)
+    BinaryTextRelation arg1ContainsArg2 = relationLookup.get(Arrays.asList(arg1, arg2));
+    BinaryTextRelation arg2ContainsArg1 = relationLookup.get(Arrays.asList(arg2, arg1));
+
+    // now translate to position dependent representation (i.e. contains and contains-1)
+    if(arg1ContainsArg2 != null) {
+      // still need to know whether it's arg1 ... arg2 or arg2 ... arg1
+      // because that determines whether it's contains or contains-1
+      if(arg1.getBegin() < arg2.getBegin()) {
+        return arg1ContainsArg2.getCategory();
+      } else {
+        return arg1ContainsArg2.getCategory() + "-1";
+      }
+    } else if(arg2ContainsArg1 != null) {
+      if(arg1.getBegin() < arg2.getBegin()) {
+        return arg2ContainsArg1.getCategory() + "-1";
+      } else {
+        return arg2ContainsArg1.getCategory();
+      }
+    } else {
+      return null;      
     }
-    
-    return label;
   }
 
   protected void createRelation(JCas jCas, IdentifiedAnnotation arg1,
