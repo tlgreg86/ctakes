@@ -152,7 +152,7 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
    * @param arg2
    * @return
    */
-  protected String getRelationCategory(Map<List<Annotation>, BinaryTextRelation> relationLookup,
+  protected String getRelationCategory3(Map<List<Annotation>, BinaryTextRelation> relationLookup,
       IdentifiedAnnotation arg1,
       IdentifiedAnnotation arg2) {
     
@@ -160,23 +160,38 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
     String category = null;
     if (relation != null) {
       category = relation.getCategory();
-      if(arg1 instanceof EventMention){
+      if(arg1 instanceof EventMention) {
         category = category + "-1";
       }
     } else {
       relation = relationLookup.get(Arrays.asList(arg2, arg1));
       if (relation != null) {
         category = relation.getCategory();
-        if(arg2 instanceof EventMention){
+        if(arg2 instanceof EventMention) {
           category = category + "-1";
         }
       }
     }
 
     return category;
-
   }
 
+  protected String getRelationCategory(Map<List<Annotation>, BinaryTextRelation> relationLookup,
+      IdentifiedAnnotation arg1,
+      IdentifiedAnnotation arg2) {
+    
+    BinaryTextRelation forwardRelation = relationLookup.get(Arrays.asList(arg1, arg2));
+    BinaryTextRelation reverseRelation = relationLookup.get(Arrays.asList(arg2, arg1));
+    
+    String label = null;
+    if(forwardRelation != null) {
+      label = forwardRelation.getCategory(); // arg1 contains arg2
+    } else if(reverseRelation != null) {
+      label = reverseRelation.getCategory(); // arg2 contains arg1
+    }
+    
+    return label;
+  }
 
   protected void createRelation(JCas jCas, IdentifiedAnnotation arg1,
       IdentifiedAnnotation arg2, String predictedCategory, double confidence) {
