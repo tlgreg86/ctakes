@@ -18,28 +18,11 @@
  */
 package org.apache.ctakes.core.ae;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import opennlp.tools.dictionary.Dictionary;
-import opennlp.tools.sentdetect.DefaultSDContextGenerator;
-import opennlp.tools.sentdetect.SentenceDetectorME;
-import opennlp.tools.sentdetect.SentenceModel;
-import opennlp.tools.sentdetect.SentenceSample;
-import opennlp.tools.sentdetect.SentenceSampleStream;
+import opennlp.tools.sentdetect.*;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
-
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.sentence.EndOfSentenceScannerImpl;
 import org.apache.ctakes.core.sentence.SentenceDetectorCtakes;
@@ -51,12 +34,16 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * Wraps the OpenNLP sentence detector in a UIMA annotator
@@ -82,9 +69,9 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 	public static final String SD_MODEL_FILE_PARAM = PARAM_SD_MODEL_FILE; // backwards compatibility
 	@ConfigurationParameter(
 	    name = PARAM_SD_MODEL_FILE,
-	    mandatory = true,
-	    description = "Path to sentence detector model file"
-	    )
+         description = "Path to sentence detector model file",
+         defaultValue = "org/apache/ctakes/core/sentdetect/sd-med-model.zip"
+   )
 	private String sdModelPath;
 	
 	private opennlp.tools.sentdetect.SentenceModel sdmodel;
@@ -250,10 +237,8 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 	}
 
 	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
-	  return AnalysisEngineFactory.createEngineDescription(SentenceDetector.class,
-	      SentenceDetector.PARAM_SD_MODEL_FILE,
-	      "org/apache/ctakes/core/sentdetect/sd-med-model.zip");
-	}
+      return AnalysisEngineFactory.createEngineDescription( SentenceDetector.class );
+   }
 	
 	/**
 	 * Train a new sentence detector from the training data in the first file

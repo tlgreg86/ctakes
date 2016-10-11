@@ -1,17 +1,19 @@
 package org.apache.ctakes.examples.pipelines;
 
-import java.io.FileWriter;
-
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
 import org.apache.ctakes.examples.ae.ExampleHelloWorldAnnotator;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-import org.apache.uima.jcas.JCas;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+
+import java.io.FileWriter;
 
 /**
+ * Build and run a pipeline using uimafit {@link AggregateBuilder}, {@link SimplePipeline} and {@link JCasUtil}
+ *
  * Example of a running a pipeline programatically w/o uima xml descriptor xml files
  * Adds the default Tokenization pipeline and adding the Example HelloWorld Annotator
  * 

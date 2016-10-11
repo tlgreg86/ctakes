@@ -1,0 +1,4 @@
+// After -manual- addition of POSTagger
+// Can use addPackage then add, or just use add with the fully-specified class and package
+addPackage org.apache.ctakes.examples.ae
+add ExampleHelloWorldAnnotator

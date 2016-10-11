@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * There may be some way to get values directly into the root UimaContext.
- * This factory can load plain old java properties files and pass the specified properties as parameters for AE creation
+ * This factory can load plain old java .properties files and pass the specified properties as parameters for AE creation.
+ * There may be some way to get values directly into the root UimaContext, but for now this works with UimaFit parameters.
  *
  * @author SPF , chip-nlp
  * @version %I%
@@ -33,29 +33,55 @@ public enum PropertyAeFactory {
 
 
    // Use a single hashmap so that multiple properties files can be used
-   final private Map<String, String> _properties = new HashMap<>();
+   final private Map<String, Object> _properties = new HashMap<>();
 
+   /**
+    * Load a .properties file with key value pairs
+    *
+    * @param filePath -
+    */
    synchronized public void loadPropertyFile( final String filePath ) {
       try ( InputStream stream = FileLocator.getAsStream( filePath ) ) {
          final Properties properties = new Properties();
          properties.load( stream );
-         for ( String name : properties.stringPropertyNames() ) {
-            final String value = properties.getProperty( name );
-            if ( value == null ) {
-               LOGGER.warn( "Property has no value: " + name );
-            } else {
-               _properties.put( name, value );
-            }
-         }
+         properties.entrySet().forEach( e -> _properties.put( e.getKey().toString(), e.getValue() ) );
       } catch ( IOException ioE ) {
          LOGGER.error( "Property File not found: " + filePath );
       }
    }
 
-   static private Object[] createParameters( final Map<String, String> parameterMap ) {
+   /**
+    * Add key value pairs to the stored properties
+    *
+    * @param parameters ket value pairs
+    */
+   synchronized public void addParameters( final Object... parameters ) {
+      if ( parameters.length == 0 ) {
+         LOGGER.warn( "No parameters specified." );
+         return;
+      }
+      if ( parameters.length % 2 != 0 ) {
+         LOGGER.error( "Odd number of parameters provided.  Should be key value pairs." );
+         return;
+      }
+      for ( int i = 0; i < parameters.length; i += 2 ) {
+         if ( parameters[ i ] instanceof String ) {
+            _properties.put( (String)parameters[ i ], parameters[ i + 1 ] );
+         } else {
+            LOGGER.warn( "Parameter " + i + " not a String, using " + parameters[ i ].toString() );
+            _properties.put( parameters[ i ].toString(), parameters[ i + 1 ] );
+         }
+      }
+   }
+
+   /**
+    * @param parameterMap map of parameter names and values
+    * @return array of Objects representing name value pairs
+    */
+   static private Object[] createParameters( final Map<String, Object> parameterMap ) {
       final Object[] parameters = new Object[ parameterMap.size() * 2 ];
       int i = 0;
-      for ( Map.Entry<String, String> entry : parameterMap.entrySet() ) {
+      for ( Map.Entry<String, Object> entry : parameterMap.entrySet() ) {
          parameters[ i ] = entry.getKey();
          parameters[ i + 1 ] = entry.getValue();
          i += 2;
@@ -68,18 +94,28 @@ public enum PropertyAeFactory {
     * @return new parameter arrays containing parameters loaded by this factory and followed by specified parameters
     */
    synchronized private Object[] getAllParameters( final Object... parameters ) {
+      if ( parameters.length == 0 ) {
+         return createParameters( _properties );
+      }
+      if ( parameters.length % 2 != 0 ) {
+         LOGGER.error( "Odd number of parameters provided.  Should be key value pairs." );
+         return createParameters( _properties );
+      }
       if ( _properties.isEmpty() ) {
          return parameters;
       }
-      if ( parameters == null || parameters.length == 0 ) {
-         return createParameters( _properties );
-      }
-      final Map<String, String> parameterMap = new HashMap<>( _properties );
+      final Map<String, Object> parameterMap = new HashMap<>( _properties );
       for ( int i = 0; i < parameters.length; i += 2 ) {
-         parameterMap.put( parameters[ i ].toString(), parameters[ i + 1 ].toString() );
+         if ( parameters[ i ] instanceof String ) {
+            parameterMap.put( (String)parameters[ i ], parameters[ i + 1 ] );
+         } else {
+            LOGGER.warn( "Parameter " + i + " not a String, using " + parameters[ i ].toString() );
+            parameterMap.put( parameters[ i ].toString(), parameters[ i + 1 ] );
+         }
       }
       return createParameters( parameterMap );
    }
+
 
    /**
     * This method should be avoided.  See the bottom of https://uima.apache.org/d/uimafit-current/api/index.html
@@ -143,7 +179,7 @@ public enum PropertyAeFactory {
     * @return Description with specified parameters plus those loaded from properties that is wrapped with a simple Logger AE that logs the Start and Finish of the process
     * @throws ResourceInitializationException if UimaFit has a problem
     */
-   public AnalysisEngineDescription createLoggedDescription( final AnalysisEngineDescription mainDescription )
+   static public AnalysisEngineDescription createLoggedDescription( final AnalysisEngineDescription mainDescription )
          throws ResourceInitializationException {
       return StartFinishLogger.createLoggedDescription( mainDescription );
    }

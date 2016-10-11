@@ -85,22 +85,27 @@ final public class DocumentIDAnnotationUtil {
    static public String getDeepDocumentId( final JCas startingJcas ) {
       String documentID = getDocumentID( startingJcas );
       if ( documentID == null || documentID.equals( NO_DOCUMENT_ID ) ) {
+         LOGGER.debug( "Checking document Id for initial view" );
          try {
-            LOGGER.debug( "Checking document Id for initial view" );
             final JCas viewJcas = startingJcas.getView( "_InitialView" );
             documentID = DocumentIDAnnotationUtil.getDocumentID( viewJcas );
-            if ( documentID == null || documentID.equals( NO_DOCUMENT_ID ) ) {
-               LOGGER.debug( "Checking document Id for plaintext view" );
-               final JCas plaintextJcas = startingJcas.getView( "plaintext" );
-               documentID = DocumentIDAnnotationUtil.getDocumentID( plaintextJcas );
-               if ( documentID == null || documentID.equals( NO_DOCUMENT_ID ) ) {
-                  LOGGER.warn( "Unable to find DocumentIDAnnotation" );
-                  return NO_DOCUMENT_ID;
-               }
+         } catch ( CASException | CASRuntimeException casE ) {
+            LOGGER.warn( casE.getMessage() );
+            documentID = NO_DOCUMENT_ID;
+         }
+         if ( documentID == null || documentID.equals( NO_DOCUMENT_ID ) ) {
+            LOGGER.debug( "Checking document Id for plaintext view" );
+            try {
+               final JCas viewJcas = startingJcas.getView( "plaintext" );
+               documentID = DocumentIDAnnotationUtil.getDocumentID( viewJcas );
+            } catch ( CASException | CASRuntimeException casE ) {
+               LOGGER.warn( casE.getMessage() );
+               documentID = NO_DOCUMENT_ID;
             }
-         } catch ( CASException casE ) {
-            LOGGER.warn( "Unable to find DocumentIDAnnotation", casE );
-            return NO_DOCUMENT_ID;
+            if ( documentID == null || documentID.equals( NO_DOCUMENT_ID ) ) {
+               LOGGER.warn( "Unable to find DocumentIDAnnotation" );
+               return NO_DOCUMENT_ID;
+            }
          }
       }
       return documentID;

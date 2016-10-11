@@ -173,6 +173,14 @@ final public class OntologyConceptUtil {
 
    /**
     * @param jcas -
+    * @return map of all cuis in the jcas and their counts
+    */
+   static public Map<String, Long> getCuiCounts( final JCas jcas ) {
+      return getCuiCounts( JCasUtil.select( jcas, IdentifiedAnnotation.class ) );
+   }
+
+   /**
+    * @param jcas -
     * @return set of all tuis in jcas
     */
    static public Collection<String> getTuis( final JCas jcas ) {
@@ -272,6 +280,17 @@ final public class OntologyConceptUtil {
             .map( OntologyConceptUtil::getCuis )
             .flatMap( Collection::stream )
             .collect( Collectors.toSet() );
+   }
+
+   /**
+    * @param annotations -
+    * @return map of all Umls cuis associated with the annotations and the counts of those cuis
+    */
+   static public Map<String, Long> getCuiCounts( final Collection<IdentifiedAnnotation> annotations ) {
+      return annotations.stream()
+            .map( OntologyConceptUtil::getCuis )
+            .flatMap( Collection::stream )
+            .collect( Collectors.groupingBy( Function.identity(), Collectors.counting() ) );
    }
 
    /**
