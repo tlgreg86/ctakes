@@ -199,8 +199,8 @@ public class EventEventRelationAnnotator extends TemporalRelationExtractorAnnota
 		//	      }
 		//	    }
 
-		Map<EventMention, Collection<EventMention>> coveringMap =
-				JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
+//		Map<EventMention, Collection<EventMention>> coveringMap =
+//				JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
 
 		List<IdentifiedAnnotationPair> pairs = Lists.newArrayList();
 		List<EventMention> events = new ArrayList<>(JCasUtil.selectCovered(jCas, EventMention.class, sentence));
@@ -238,29 +238,29 @@ public class EventEventRelationAnnotator extends TemporalRelationExtractorAnnota
 
 				//				List<EventMention> key = Arrays.asList(eventA, eventB);
 				
-				if(this.isTraining()){
-					//pairing covering system events:
-					if(eventAMedical || eventBMedical){
-						for (EventMention event1 : coveringMap.get(eventA)){
-							if(!hasOverlap(event1,eventB)){//don't generate overlapping arguments
-								pairs.add(new IdentifiedAnnotationPair(event1, eventB));
-							}
-
-							for(EventMention event2 : coveringMap.get(eventB)){
-								if(!hasOverlap(event1,event2)){//don't generate overlapping arguments
-									pairs.add(new IdentifiedAnnotationPair(event1, event2));
-								}
-							}
-						}
-						//					}
-						//					if(eventBMedical && !eventAMedical){
-						for(EventMention event2 : coveringMap.get(eventB)){
-							if(!hasOverlap(eventA,event2)){//don't generate overlapping arguments
-								pairs.add(new IdentifiedAnnotationPair(eventA, event2));
-							}
-						}
-					}
-				}
+//				if(this.isTraining()){
+//					//pairing covering system events:
+//					if(eventAMedical || eventBMedical){
+//						for (EventMention event1 : coveringMap.get(eventA)){
+//							if(!hasOverlap(event1,eventB)){//don't generate overlapping arguments
+//								pairs.add(new IdentifiedAnnotationPair(event1, eventB));
+//							}
+//
+//							for(EventMention event2 : coveringMap.get(eventB)){
+//								if(!hasOverlap(event1,event2)){//don't generate overlapping arguments
+//									pairs.add(new IdentifiedAnnotationPair(event1, event2));
+//								}
+//							}
+//						}
+//						//					}
+//						//					if(eventBMedical && !eventAMedical){
+//						for(EventMention event2 : coveringMap.get(eventB)){
+//							if(!hasOverlap(eventA,event2)){//don't generate overlapping arguments
+//								pairs.add(new IdentifiedAnnotationPair(eventA, event2));
+//							}
+//						}
+//					}
+//				}
 				pairs.add(new IdentifiedAnnotationPair(eventA, eventB));
 
 			}

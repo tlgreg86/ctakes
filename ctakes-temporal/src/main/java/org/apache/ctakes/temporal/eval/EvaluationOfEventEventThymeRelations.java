@@ -338,7 +338,7 @@ EvaluationOfTemporalRelations_ImplBase{
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonUMLSEvents.class));
 
 		//add unlabeled nearby system events as potential links: 
-		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddEEPotentialRelations.class));
+//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(AddEEPotentialRelations.class));
 
 		aggregateBuilder.add(EventEventRelationAnnotator.createDataWriterDescription(
 				LibLinearStringOutcomeDataWriter.class,
