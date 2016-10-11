@@ -325,6 +325,7 @@ public class EventTimeRelPositionPrinter {
       tokens.add(baseToken.getCoveredText());  
     }
     
+    // find the positions of time and event mentions
     // assume time consists of multipe words; event of one
     int currentPosition = 0;       // current token index
     int timeFirstPosition = -1000; // timex's start index
@@ -343,6 +344,35 @@ public class EventTimeRelPositionPrinter {
       currentPosition++;
     }
 
+    // try to locate events that weren't found
+    // e.g. "this can be re-discussed tomorrow"
+    // "discussed" not found due to incorrect tokenization
+    if(eventPosition == -1000) {
+      currentPosition = 0;
+      for(BaseToken token : JCasUtil.selectCovered(jCas, BaseToken.class, sent)) {
+        if(token.getCoveredText().contains(event.getCoveredText())) {
+          eventPosition = currentPosition; 
+        }
+        currentPosition++;
+      }
+    }
+    
+    if(eventPosition == -1000) {
+      System.out.println("event not found: " + event.getCoveredText());
+      System.out.println(sent.getCoveredText());
+      System.out.println();
+      eventPosition = 0; // just set it to zero for now
+    }
+
+    // now need to see if some times weren't found
+    if(timeFirstPosition == -1000 || timeLastPosition == -1000) {
+      System.out.println("time not found: " + time.getCoveredText());
+      System.out.println(sent.getCoveredText());
+      System.out.println();
+      timeFirstPosition = 0; // just set it to zero for now
+      timeLastPosition = 0;  // just set it to zero for now
+    }
+    
     List<String> positionsWrtToTime = new ArrayList<>();
     List<String> positionsWrtToEvent = new ArrayList<>();
     int tokensInSentence = JCasUtil.selectCovered(jCas, BaseToken.class, sent).size();
