@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.temporal.eval.CommandLine;
@@ -99,6 +100,8 @@ public class EventEventRelPrinter {
     CollectionReader trainCollectionReader = Utils.getCollectionReader(trainFiles);
     AnalysisEngine trainDataWriter = AnalysisEngineFactory.createEngine(
         RelationSnippetPrinter.class,
+        "IsTraining",
+        true,
         "OutputFile",
         trainFile.getAbsoluteFile());
     SimplePipeline.runPipeline(trainCollectionReader, trainDataWriter);
@@ -107,6 +110,8 @@ public class EventEventRelPrinter {
     CollectionReader devCollectionReader = Utils.getCollectionReader(devFiles);
     AnalysisEngine devDataWriter = AnalysisEngineFactory.createEngine(
         RelationSnippetPrinter.class,
+        "IsTraining",
+        false,
         "OutputFile",
         devFile.getAbsolutePath());
     SimplePipeline.runPipeline(devCollectionReader, devDataWriter);
@@ -120,14 +125,22 @@ public class EventEventRelPrinter {
   public static class RelationSnippetPrinter extends JCasAnnotator_ImplBase {
 
     @ConfigurationParameter(
+        name = "IsTraining",
+        mandatory = true,
+        description = "are we training?")
+    private boolean isTraining;
+    
+    @ConfigurationParameter(
         name = "OutputFile",
         mandatory = true,
         description = "path to the output file")
     private String outputFile;
 
+    private Random coin = new Random(0);
+    
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
-
+      
       JCas goldView;
       try {
         goldView = jCas.getView("GoldView");
@@ -182,6 +195,13 @@ public class EventEventRelPrinter {
               System.out.println(mention2.getCoveredText());
               System.out.println();
             }
+
+            // drop some portion of negative examples during training
+            if(isTraining && label.equals("none") && coin.nextDouble() <= 0.5) {
+              continue; // skip this negative example
+            }
+
+            
             String context = getTokensBetween(systemView, sentence, mention1, "e1", mention2, "e2", 2);
             String text = String.format("%s|%s", label, context);
             eventEventRelationsInSentence.add(text.toLowerCase());
