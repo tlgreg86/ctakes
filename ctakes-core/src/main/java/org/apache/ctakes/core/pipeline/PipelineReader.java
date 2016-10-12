@@ -7,6 +7,7 @@ import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_component.AnalysisComponent;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.resource.ResourceInitializationException;
 
@@ -15,30 +16,32 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
 /**
  * Creates a pipeline (PipelineBuilder) from specifications in a flat plaintext file.
- * <p>
+ *
  * <p>There are several basic commands:
  * addPackage <i>user_package_name</i>
  * loadParameters <i>path_to_properties_file_with_ae_parameters</i>
- * addParameters <i>ae_parameter_name</i>|<i>ae_parameter_value</i>| ...
+ * addParameters <i>ae_parameter_name=ae_parameter_value e_parameter_name=ae_parameter_value</i> ...
  * reader <i>collection_reader_class_name</i>
  * readFiles <i>input_directory</i>
- * <i>input_directory</i> can be empty if {@link FilesInDirectoryCollectionReader#PARAM_INPUTDIR} was specified
- * add <i>ae_or_cc_class_name</i>
- * addLogged <i>ae_or_cc_class_name</i>
+ *    <i>input_directory</i> can be empty if
+ *    {@link FilesInDirectoryCollectionReader#PARAM_INPUTDIR} ("InputDirectory") was specified
+ * add <i>ae_or_cc_class_name ae_parameter_name=ae_parameter_value e_parameter_name<=ae_parameter_value</i> ...
+ * addLogged <i>ae_or_cc_class_name ae_parameter_name=ae_parameter_value e_parameter_name=ae_parameter_value</i> ...
+ * addDescription <i>ae_or_cc_class_name</i>
  * collectCuis
  * collectEntities
  * writeXmis <i>output_directory</i>
- * <i>output_directory</i> can be empty if {@link XmiWriterCasConsumerCtakes#PARAM_OUTPUTDIR} was specified
- * <p>
+ *    <i>output_directory</i> can be empty if
+ *    {@link XmiWriterCasConsumerCtakes#PARAM_OUTPUTDIR} ("OutputDirectory") was specified
  * # and // may be used to mark line comments
  * </p>
- * <p>
  * class names must be fully-specified with package unless they are in standard ctakes cr ae or cc packages,
  * or in a package specified by an earlier addPackage command.
  *
@@ -74,7 +77,8 @@ final public class PipelineReader {
 
    static private final Object[] EMPTY_OBJECT_ARRAY = new Object[ 0 ];
 
-   static private final Pattern SPLIT_PATTERN = Pattern.compile( "\\|" );
+   static private final Pattern SPACE_PATTERN = Pattern.compile( "\\s+" );
+   static private final Pattern KEY_VALUE_PATTERN = Pattern.compile( "=" );
 
    private PipelineBuilder _builder;
 
@@ -117,7 +121,7 @@ final public class PipelineReader {
                continue;
             }
             final int spaceIndex = line.indexOf( ' ' );
-            if ( spaceIndex < 3 ) {
+            if ( spaceIndex < 0 ) {
                addToPipeline( line, "" );
             } else {
                addToPipeline( line.substring( 0, spaceIndex ), line.substring( spaceIndex + 1 ).trim() );
@@ -136,6 +140,7 @@ final public class PipelineReader {
       return _builder;
    }
 
+
    /**
     * @param command   specified by first word in the file line
     * @param parameter specified by second word in the file line
@@ -150,7 +155,7 @@ final public class PipelineReader {
             _builder.loadParameters( parameter );
             break;
          case "addParameters":
-            _builder.addParameters( getStrings( parameter ) );
+            _builder.addParameters( splitParameters( parameter ) );
             break;
          case "reader":
             _builder.reader( createReader( parameter ) );
@@ -163,15 +168,34 @@ final public class PipelineReader {
             }
             break;
          case "add":
-            _builder.add( getComponentClass( parameter ) );
+            if ( hasParameters( parameter ) ) {
+               final String[] component_parameters = splitFromParameters( parameter );
+               final String component = component_parameters[ 0 ];
+               final Object[] parameters = splitParameters( component_parameters[ 1 ] );
+               _builder.add( getComponentClass( component ), parameters );
+            } else {
+               _builder.add( getComponentClass( parameter ) );
+            }
             break;
          case "addLogged":
-            _builder.addLogged( getComponentClass( parameter ) );
+            if ( hasParameters( parameter ) ) {
+               final String[] component_parameters = splitFromParameters( parameter );
+               final String component = component_parameters[ 0 ];
+               final Object[] parameters = splitParameters( component_parameters[ 1 ] );
+               _builder.addLogged( getComponentClass( component ), parameters );
+            } else {
+               _builder.addLogged( getComponentClass( parameter ) );
+            }
             break;
+         case "addDescription":
+            final AnalysisEngineDescription description = createDescription( parameter );
+            _builder.addDescription( description );
+            break;
+
          case "collectCuis":
             _builder.collectCuis();
             break;
-         case "collectEntites":
+         case "collectEntities":
             _builder.collectEntities();
             break;
          case "writeXmis":
@@ -230,9 +254,46 @@ final public class PipelineReader {
          if ( componentClass != null ) {
             return componentClass;
          }
+         componentClass = getPackagedClass(
+               "org.apache.ctakes." + packageName, className, AnalysisComponent.class );
+         if ( componentClass != null ) {
+            return componentClass;
+         }
       }
       return null;
    }
+
+   /**
+    * This requires that the component class has a static createAnnotatorDescription method with no parameters
+    * @param className component class for which a descriptor should be created
+    * @return a description generated for the component
+    * @throws ResourceInitializationException if anything went wrong with finding the class or the method,
+    * or invoking the method to get an AnalysisEngineDescription
+    */
+   private AnalysisEngineDescription createDescription( final String className )
+         throws ResourceInitializationException {
+      final Class<? extends AnalysisComponent> componentClass = getComponentClass( className );
+      Method method;
+      try {
+         method = componentClass.getMethod( "createAnnotatorDescription" );
+      } catch ( NoSuchMethodException nsmE ) {
+         LOGGER.error( "No createAnnotatorDescription method in " + className );
+         throw new ResourceInitializationException( nsmE );
+      }
+      try {
+         final Object invocation = method.invoke( null );
+         if ( !AnalysisEngineDescription.class.isInstance( invocation ) ) {
+            LOGGER.error( "createAnnotatorDescription in " + className + " returned an "
+                          + invocation.getClass().getName() + " not an AnalysisEngineDescription" );
+            throw new ResourceInitializationException();
+         }
+         return (AnalysisEngineDescription)invocation;
+      } catch ( IllegalAccessException | InvocationTargetException multE ) {
+         LOGGER.error( "Could not invoke createAnnotatorDescription on " + className );
+         throw new ResourceInitializationException( multE );
+      }
+   }
+
 
    /**
     * @param className fully-specified or simple name of a cr Collection Reader class
@@ -282,6 +343,11 @@ final public class PipelineReader {
          if ( readerClass != null ) {
             return readerClass;
          }
+         readerClass = getPackagedClass(
+               "org.apache.ctakes." + packageName, className, CollectionReader.class );
+         if ( readerClass != null ) {
+            return readerClass;
+         }
       }
       return null;
    }
@@ -328,12 +394,90 @@ final public class PipelineReader {
    }
 
    /**
-    * @param parameter text
-    * @return array created by splitting text at '|' characters
+    *
+    * @param text -
+    * @return true if there is more than one word in the text
     */
-   static private String[] getStrings( final String parameter ) {
-      return SPLIT_PATTERN.split( parameter );
+   static private boolean hasParameters( final String text ) {
+      return SPACE_PATTERN.split( text ).length > 1;
    }
 
+   /**
+    * @param text text with more than one word
+    * @return an array of two strings, [0]= the first word, [1]= the remaining words separated by spaces
+    */
+   static private String[] splitFromParameters( final String text ) {
+      final String[] allSplits = SPACE_PATTERN.split( text );
+      final String[] returnSplits = new String[ 2 ];
+      returnSplits[ 0 ] = allSplits[ 0 ];
+      String parameters = allSplits[ 1 ];
+      for ( int i = 2; i < allSplits.length; i++ ) {
+         parameters += " " + allSplits[ i ];
+      }
+      returnSplits[ 1 ] = parameters;
+      return returnSplits;
+   }
+
+   /**
+    * @param text -
+    * @return array created by splitting text ' ' and then at '=' characters
+    */
+   static private Object[] splitParameters( final String text ) {
+      if ( text == null || text.trim().isEmpty() ) {
+         return EMPTY_OBJECT_ARRAY;
+      }
+      final String[] pairs = SPACE_PATTERN.split( text.trim() );
+      final Object[] keysAndValues = new Object[ pairs.length * 2 ];
+      int i = 0;
+      for ( String pair : pairs ) {
+         final String[] keyAndValue = KEY_VALUE_PATTERN.split( pair );
+         keysAndValues[ i ] = keyAndValue[ 0 ];
+         if ( keyAndValue.length == 1 ) {
+            keysAndValues[ i + 1 ] = "";
+         } else if ( keyAndValue.length > 2 ) {
+            LOGGER.warn( "Multiple parameter values, using first of " + pair );
+         }
+         keysAndValues[ i + 1 ] = getValueObject( keyAndValue[ 1 ] );
+         i += 2;
+      }
+      return keysAndValues;
+   }
+
+   static private Object getValueObject( final String value ) {
+      final Object returner = attemptParseBoolean( value );
+      if ( !value.equals( returner ) ) {
+         return returner;
+      }
+      return attemptParseInt( value );
+   }
+
+   /**
+    * Since uimafit parameter values can be integers, check for an integer value
+    *
+    * @param value String value parsed from file
+    * @return the value as an Integer, or the original String if an Integer could not be resolved
+    */
+   static private Object attemptParseInt( final String value ) {
+      try {
+         return Integer.valueOf( value );
+      } catch ( NumberFormatException nfE ) {
+         return value;
+      }
+   }
+
+   /**
+    * Since uimafit parameter values can be boolean, check for a boolean value
+    *
+    * @param value String value parsed from file
+    * @return the value as a Boolean, or the original String if it is not "true" or "false", case insensitive
+    */
+   static private Object attemptParseBoolean( final String value ) {
+      if ( value.equalsIgnoreCase( "true" ) ) {
+         return Boolean.TRUE;
+      } else if ( value.equalsIgnoreCase( "false" ) ) {
+         return Boolean.FALSE;
+      }
+      return value;
+   }
 
 }

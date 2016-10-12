@@ -1,0 +1,15 @@
+// This file contains commands and parameters to run the ctakes-examples "Hello World" pipeline
+
+// Equivalent of ClinicalPipelineFactory.getTokenProcessingPipeline()
+add SimpleSegmentAnnotator
+add SentenceDetector
+add TokenizerAnnotatorPTB
+add ContextDependentTokenizerAnnotator
+// The POSTagger has a -complex- startup, but it can create its own description to handle it
+addDescription POSTagger
+
+// add the simple Hello World Annotator
+add org.apache.ctakes.examples.ae.ExampleHelloWorldAnnotator
+
+// Collect discovered entities for post-run information
+collectEntities

@@ -18,14 +18,6 @@
  */
 package org.apache.ctakes.regression.test;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.cas.CAS;
@@ -42,12 +34,19 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 /**
  * Runs a full pipeline and compares the xml output to ensure all annotators
  * work together in harmony.
  * 
  * This is designed to run all CPE's inside the
- * desc/collection_processing_engine Directory. So any new pipelines added there
+ * desc/collection_processing_engine Directory. So any new pipeline added there
  * will automatically be run and tested as long as they put the generated output
  * to expectedoutput/{nameofcpe}
  * 

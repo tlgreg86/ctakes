@@ -1,8 +1,0 @@
-// Equivalent of ClinicalPipelineFactory.getTokenProcessingPipeline()
-add SimpleSegmentAnnotator
-add SentenceDetector
-add TokenizerAnnotatorPTB
-add ContextDependentTokenizerAnnotator
-
-// The POSTagger has a -complex- startup and should be added manually
-# add POSTagger

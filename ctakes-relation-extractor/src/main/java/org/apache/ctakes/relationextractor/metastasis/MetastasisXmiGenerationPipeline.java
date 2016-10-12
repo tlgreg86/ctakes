@@ -1,14 +1,6 @@
 package org.apache.ctakes.relationextractor.metastasis;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.common.io.CharStreams;
 import org.apache.ctakes.relationextractor.eval.SHARPXMI.CopyDocumentTextToGoldView;
 import org.apache.ctakes.relationextractor.eval.SHARPXMI.DocumentIDAnnotator;
 import org.apache.uima.UIMAFramework;
@@ -35,12 +27,21 @@ import org.cleartk.util.cr.UriCollectionReader;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import com.google.common.io.CharStreams;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MetastasisXmiGenerationPipeline {
 
-  public static final File ANAFORA_ANNOTATIONS_DIR = new File("DeepPhe/Metastasis/Anafora/All/");
-  public static final String XMI_OUTPUT_DIR = "DeepPhe/Metastasis/Xmi/All/";
+   //  public static final File ANAFORA_ANNOTATIONS_DIR = new File("DeepPhe/Metastasis/Anafora/All/");
+   public static final File ANAFORA_ANNOTATIONS_DIR
+         = new File( "\\\\rc-fs.tch.harvard.edu\\chip-nlp\\Public\\DeepPhe\\Metastasis\\Anafora\\Test" );
+   public static final String XMI_OUTPUT_DIR = "C:\\Spiffy\\prj_darth_phenome\\output\\temp\\metastatic\\Test";
   public static final String GOLD_VIEW_NAME = "GoldView";
 
   public static void main(String[] args) throws Exception {
@@ -62,8 +63,9 @@ public class MetastasisXmiGenerationPipeline {
 
     AggregateBuilder builder = new AggregateBuilder();
     builder.add(UriToDocumentTextAnnotator.getDescription());
-    
-    File preprocessDescFile = new File("desc/analysis_engine/RelationExtractorPreprocessor.xml");
+
+     File preprocessDescFile
+           = new File( "C:\\Spiffy\\ctakes_trunk_intellij\\dev\\apache\\ctakes-relation-extractor\\desc\\analysis_engine/RelationExtractorPreprocessor.xml" );
     XMLParser parser = UIMAFramework.getXMLParser();
     XMLInputSource source = new XMLInputSource(preprocessDescFile);
     builder.add(parser.parseAnalysisEngineDescription(source));
