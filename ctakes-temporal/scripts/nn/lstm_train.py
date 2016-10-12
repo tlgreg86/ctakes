@@ -63,7 +63,7 @@ def main(args):
             train_y,
             nb_epoch=1,
             batch_size=50,
-            verbose=1,
+            verbose=0,
             validation_split=0.1)
 
   json_string = model.to_json()
