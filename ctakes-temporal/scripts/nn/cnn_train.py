@@ -67,8 +67,8 @@ def main(args):
     model = Sequential()
     model.add(Merge(branches, mode='concat'))
 
-    model.add(Dense(300))
     model.add(Dropout(0.25))
+    model.add(Dense(300))
     model.add(Activation('relu'))
 
     model.add(Dropout(0.25))
