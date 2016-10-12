@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator.IdentifiedAnnotationPair;
 import org.apache.ctakes.temporal.nn.data.EventEventRelPrinter;
@@ -28,6 +29,7 @@ import com.google.common.collect.Lists;
 public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
 
   public static final String NO_RELATION_CATEGORY = "none";
+  private Random coin = new Random(0);
 
   @Override
   public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -83,6 +85,12 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
         // during training, feed the features to the data writer
         if(this.isTraining()) {
           String category = getRelationCategory(relationLookup, arg1, arg2);
+          
+          // drop some portion of negative examples during training
+          if(category == null && coin.nextDouble() <= 0.5) {
+            continue; // skip this negative example
+          }
+          
           if(category == null) {
             category = NO_RELATION_CATEGORY;
           } else{
