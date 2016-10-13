@@ -1,0 +1,23 @@
+// This file contains commands and parameters to run the ctakes-examples "Hello World" pipeline
+// with Entity Property output
+
+// Load a simple token processing pipeline from another file
+load org/apache/ctakes/examples/pipeline/HelloWorldPipeline.txt
+
+// I don't think that the chunker is strictly necessary, but here it is ...
+add Chunker
+addDescription adjuster.ChunkAdjuster NP,NP 1
+addDescription adjuster.ChunkAdjuster NP,PP,NP 2
+
+addDescription ClearNLPDependencyParserAE
+// Add the cleartk package for future class lookups
+addPackage org.apache.ctakes.assertion.medfacts.cleartk
+addDescription PolarityCleartkAnalysisEngine
+addDescription UncertaintyCleartkAnalysisEngine
+addDescription HistoryCleartkAnalysisEngine
+addDescription ConditionalCleartkAnalysisEngine
+addDescription GenericCleartkAnalysisEngine
+addDescription SubjectCleartkAnalysisEngine
+
+// Collect discovered Entity information for post-run access
+collectEntities

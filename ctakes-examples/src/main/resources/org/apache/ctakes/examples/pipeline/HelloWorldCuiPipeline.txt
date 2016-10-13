@@ -1,0 +1,16 @@
+// This file contains commands and parameters to run the ctakes-examples "Hello World" pipeline
+// with UMLS Concept Unique Identifiers (CUI) output
+
+// Equivalent of ClinicalPipelineFactory.getTokenProcessingPipeline()
+add SimpleSegmentAnnotator
+add SentenceDetector
+add TokenizerAnnotatorPTB
+add ContextDependentTokenizerAnnotator
+// The POSTagger has a -complex- startup, but it can create its own description to handle it
+addDescription POSTagger
+
+// Default fast dictionary lookup
+add DefaultJCasTermAnnotator
+
+// Collect discovered UMLS Concept Unique Identifiers (CUI) for post-run information
+collectCuis
