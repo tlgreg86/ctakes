@@ -61,7 +61,10 @@ public enum EntityCollector {
       final StringBuilder sb = new StringBuilder();
       for ( Map.Entry<String, Collection<Entity>> entry : _entityMap.entrySet() ) {
          sb.append( entry.getKey() ).append( "\n" );
-         entry.getValue().stream().map( Entity::toString ).forEach( sb::append );
+         entry.getValue().stream()
+               .sorted( ( e1, e2 ) -> e1._begin - e2._begin )
+               .map( Entity::toString )
+               .forEach( sb::append );
       }
       return sb.toString();
    }
@@ -110,6 +113,16 @@ public enum EntityCollector {
          sb.append( '\n' );
          return sb.toString();
       }
+
+      @Override
+      public int hashCode() {
+         return toString().hashCode();
+      }
+
+      @Override
+      public boolean equals( final Object other ) {
+         return toString().equals( other.toString() );
+      }
    }
 
    /**
@@ -126,7 +139,7 @@ public enum EntityCollector {
       }
 
       static private void putEntities( final String documentId, final Collection<IdentifiedAnnotation> annotations ) {
-         final Collection<Entity> entities = annotations.stream().map( Entity::new ).collect( Collectors.toList() );
+         final Collection<Entity> entities = annotations.stream().map( Entity::new ).collect( Collectors.toSet() );
          EntityCollector.getInstance()._entityMap.put( documentId, entities );
       }
    }

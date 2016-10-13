@@ -10,6 +10,3 @@ addDescription POSTagger
 
 // add the simple Hello World Annotator
 add org.apache.ctakes.examples.ae.ExampleHelloWorldAnnotator
-
-// Collect discovered entities for post-run information
-collectEntities

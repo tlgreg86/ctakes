@@ -1,7 +1,6 @@
 package org.apache.ctakes.examples.pipeline;
 
 
-import org.apache.ctakes.core.pipeline.EntityCollector;
 import org.apache.ctakes.core.pipeline.PipelineBuilder;
 import org.apache.ctakes.core.pipeline.PipelineReader;
 import org.apache.log4j.Logger;
@@ -39,7 +38,7 @@ final public class HelloWorldReadPipeRunner {
          final PipelineReader reader = new PipelineReader( PIPELINE_FILE_PATH );
          PipelineBuilder builder = reader.getBuilder();
          if ( args.length > 0 ) {
-            // Example to save the Aggregate descriptor to an xml file for external use such as the UIMA CVD/CPE
+            // Example to save the Aggregate descriptor to an xml file for external use such as the UIMA CVD
             builder.writeXMIs( args[ 0 ] );
          }
          // Run the pipeline with specified text
@@ -47,8 +46,6 @@ final public class HelloWorldReadPipeRunner {
       } catch ( IOException | UIMAException multE ) {
          LOGGER.error( multE.getMessage() );
       }
-      // Log the IdentifiedAnnotation objects
-      LOGGER.info( "\n" + EntityCollector.getInstance().toString() );
    }
 
 

@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
  * Creates a pipeline (PipelineBuilder) from specifications in a flat plaintext file.
  *
  * <p>There are several basic commands:
+ * load <i>path_to_another_pipeline_file</i>
  * addPackage <i>user_package_name</i>
  * loadParameters <i>path_to_properties_file_with_ae_parameters</i>
  * addParameters <i>ae_parameter_name=ae_parameter_value e_parameter_name=ae_parameter_value</i> ...
@@ -40,7 +41,7 @@ import java.util.regex.Pattern;
  * writeXmis <i>output_directory</i>
  *    <i>output_directory</i> can be empty if
  *    {@link XmiWriterCasConsumerCtakes#PARAM_OUTPUTDIR} ("OutputDirectory") was specified
- * # and // may be used to mark line comments
+ * // and # and ! may be used to mark line comments
  * </p>
  * class names must be fully-specified with package unless they are in standard ctakes cr ae or cc packages,
  * or in a package specified by an earlier addPackage command.
@@ -79,6 +80,7 @@ final public class PipelineReader {
 
    static private final Pattern SPACE_PATTERN = Pattern.compile( "\\s+" );
    static private final Pattern KEY_VALUE_PATTERN = Pattern.compile( "=" );
+   static private final Pattern COMMA_ARRAY_PATTERN = Pattern.compile( "," );
 
    private PipelineBuilder _builder;
 
@@ -116,7 +118,7 @@ final public class PipelineReader {
          String line = reader.readLine();
          while ( line != null ) {
             line = line.trim();
-            if ( line.isEmpty() || line.startsWith( "//" ) || line.startsWith( "#" ) ) {
+            if ( line.isEmpty() || line.startsWith( "//" ) || line.startsWith( "#" ) || line.startsWith( "!" ) ) {
                line = reader.readLine();
                continue;
             }
@@ -140,7 +142,7 @@ final public class PipelineReader {
       return _builder;
    }
 
-
+   // TODO add ability to pass parameters with addDescription
    /**
     * @param command   specified by first word in the file line
     * @param parameter specified by second word in the file line
@@ -148,6 +150,9 @@ final public class PipelineReader {
     */
    private void addToPipeline( final String command, final String parameter ) throws UIMAException {
       switch ( command ) {
+         case "load":
+            loadPipelineFile( parameter );
+            break;
          case "addPackage":
             _userPackages.add( parameter );
             break;
@@ -188,8 +193,16 @@ final public class PipelineReader {
             }
             break;
          case "addDescription":
-            final AnalysisEngineDescription description = createDescription( parameter );
-            _builder.addDescription( description );
+            if ( hasParameters( parameter ) ) {
+               final String[] descriptor_parameters = splitFromParameters( parameter );
+               final String component = descriptor_parameters[ 0 ];
+               final Object[] values = splitDescriptorValues( descriptor_parameters[ 1 ] );
+               final AnalysisEngineDescription description = createDescription( component, values );
+               _builder.addDescription( description );
+            } else {
+               final AnalysisEngineDescription description = createDescription( parameter );
+               _builder.addDescription( description );
+            }
             break;
 
          case "collectCuis":
@@ -266,22 +279,27 @@ final public class PipelineReader {
    /**
     * This requires that the component class has a static createAnnotatorDescription method with no parameters
     * @param className component class for which a descriptor should be created
+    * @param values optional parameter values for the descriptor creator
     * @return a description generated for the component
     * @throws ResourceInitializationException if anything went wrong with finding the class or the method,
     * or invoking the method to get an AnalysisEngineDescription
     */
-   private AnalysisEngineDescription createDescription( final String className )
+   private AnalysisEngineDescription createDescription( final String className, final Object... values )
          throws ResourceInitializationException {
       final Class<? extends AnalysisComponent> componentClass = getComponentClass( className );
       Method method;
       try {
-         method = componentClass.getMethod( "createAnnotatorDescription" );
+         if ( values.length == 0 ) {
+            method = componentClass.getMethod( "createAnnotatorDescription" );
+         } else {
+            method = componentClass.getMethod( "createAnnotatorDescription", getValueTypes( values ) );
+         }
       } catch ( NoSuchMethodException nsmE ) {
          LOGGER.error( "No createAnnotatorDescription method in " + className );
          throw new ResourceInitializationException( nsmE );
       }
       try {
-         final Object invocation = method.invoke( null );
+         final Object invocation = method.invoke( null, values );
          if ( !AnalysisEngineDescription.class.isInstance( invocation ) ) {
             LOGGER.error( "createAnnotatorDescription in " + className + " returned an "
                           + invocation.getClass().getName() + " not an AnalysisEngineDescription" );
@@ -294,6 +312,27 @@ final public class PipelineReader {
       }
    }
 
+   /**
+    * The java reflection getMethod does not handle autoboxing/unboxing.
+    * So, we assume that Integer and Boolean parameter values will actually be primitives.
+    *
+    * @param values parameter value objects
+    * @return parameter value class types, unboxing to primitives where needed
+    */
+   static private Class<?>[] getValueTypes( final Object... values ) {
+      final Class<?>[] classArray = new Class[ values.length ];
+      for ( int i = 0; i < values.length; i++ ) {
+         final Class<?> type = values[ i ].getClass();
+         if ( type.equals( Integer.class ) ) {
+            classArray[ i ] = int.class;
+         } else if ( type.equals( Boolean.class ) ) {
+            classArray[ i ] = boolean.class;
+         } else {
+            classArray[ i ] = type;
+         }
+      }
+      return classArray;
+   }
 
    /**
     * @param className fully-specified or simple name of a cr Collection Reader class
@@ -443,7 +482,19 @@ final public class PipelineReader {
       return keysAndValues;
    }
 
+   static private Object[] splitDescriptorValues( final String text ) {
+      final String[] values = SPACE_PATTERN.split( text.trim() );
+      final Object[] valueObjects = new Object[ values.length ];
+      for ( int i = 0; i < values.length; i++ ) {
+         valueObjects[ i ] = getValueObject( values[ i ] );
+      }
+      return valueObjects;
+   }
+
    static private Object getValueObject( final String value ) {
+      if ( isCommaArray( value ) ) {
+         return attemptParseArray( value );
+      }
       final Object returner = attemptParseBoolean( value );
       if ( !value.equals( returner ) ) {
          return returner;
@@ -478,6 +529,22 @@ final public class PipelineReader {
          return Boolean.FALSE;
       }
       return value;
+   }
+
+   /**
+    * @param value String value parsed from file
+    * @return true if there are any comma characters in the value, denoting an array
+    */
+   static private boolean isCommaArray( final String value ) {
+      return value.indexOf( ',' ) > 0;
+   }
+
+   /**
+    * @param value String value parsed from file
+    * @return an array of String
+    */
+   static private Object attemptParseArray( final String value ) {
+      return COMMA_ARRAY_PATTERN.split( value );
    }
 
 }

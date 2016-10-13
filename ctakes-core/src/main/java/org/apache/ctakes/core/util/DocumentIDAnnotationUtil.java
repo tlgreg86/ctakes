@@ -41,6 +41,8 @@ final public class DocumentIDAnnotationUtil {
 
    static private final Pattern FILE_FIX_PATTERN = Pattern.compile( "[^A-Za-z0-9\\.]" );
 
+   static private long _noDocIdIndex = 1;
+
    // Utility classes should be final and have only a private constructor
    private DocumentIDAnnotationUtil() {
    }
@@ -63,15 +65,18 @@ final public class DocumentIDAnnotationUtil {
       final JFSIndexRepository indexes = jcas.getJFSIndexRepository();
       final FSIterator<TOP> documentIDIterator = indexes.getAllIndexedFS( DocumentID.type );
       if ( documentIDIterator == null || !documentIDIterator.hasNext() ) {
-         LOGGER.debug( "Could not find document Id Annotation" );
-         return NO_DOCUMENT_ID;
+         LOGGER.warn( "Unable to find DocumentIDAnnotation" );
+         return createDocumentId( jcas );
       }
       final DocumentID documentIDAnnotation = (DocumentID)documentIDIterator.next();
       try {
          return documentIDAnnotation.getDocumentID();
       } catch ( CASRuntimeException casRTE ) {
-         LOGGER.warn( "document Id Annotation does not have the id feature set", casRTE );
-         return NO_DOCUMENT_ID;
+         final String newId = NO_DOCUMENT_ID + _noDocIdIndex;
+         _noDocIdIndex++;
+         LOGGER.warn( "document Id Annotation does not have the id feature set, setting to " + newId, casRTE );
+         documentIDAnnotation.setDocumentID( newId );
+         return newId;
       }
    }
 
@@ -104,7 +109,7 @@ final public class DocumentIDAnnotationUtil {
             }
             if ( documentID == null || documentID.equals( NO_DOCUMENT_ID ) ) {
                LOGGER.warn( "Unable to find DocumentIDAnnotation" );
-               return NO_DOCUMENT_ID;
+               return createDocumentId( startingJcas );
             }
          }
       }
@@ -136,6 +141,21 @@ final public class DocumentIDAnnotationUtil {
          docId = "Unknown_" + System.currentTimeMillis();
       }
       return FILE_FIX_PATTERN.matcher( docId ).replaceAll( "_" );
+   }
+
+   /**
+    * @param jCas -
+    * @return {@link #NO_DOCUMENT_ID} plus an index based upon the number of documents without IDs fetched with this class.
+    * This may lead to documents having ids indexed out of order with respect to the order in which they were run.
+    */
+   static private String createDocumentId( final JCas jCas ) {
+      final String newId = NO_DOCUMENT_ID + _noDocIdIndex;
+      _noDocIdIndex++;
+      LOGGER.debug( "Creating document ID " + newId );
+      final DocumentID documentIDAnnotation = new DocumentID( jCas );
+      documentIDAnnotation.setDocumentID( newId );
+      documentIDAnnotation.addToIndexes();
+      return newId;
    }
 
 }
