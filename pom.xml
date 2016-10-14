@@ -110,6 +110,7 @@
 		<module>ctakes-assertion-zoner</module>
 		<module>ctakes-temporal</module>
 		<module>ctakes-clinical-pipeline</module>
+		<module>ctakes-clinical-pipeline-res</module>
 		<module>ctakes-distribution</module>
 		<module>ctakes-regression-test</module>
 		<module>ctakes-assertion-res</module>
@@ -135,7 +136,7 @@
 		<module>ctakes-ytex-uima</module>
 		<module>ctakes-ytex-web</module>
 		<module>ctakes-dictionary-lookup-fast</module>
-		<module>ctakes-dictionary-lookup-fast-res</module>				
+		<module>ctakes-dictionary-lookup-fast-res</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -179,7 +180,7 @@
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-dictionary-lookup-fast-res</artifactId>
 				<version>${ctakes.version}</version>
-			</dependency>					
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-preprocessor</artifactId>
@@ -226,6 +227,13 @@
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
 					ctakes-clinical-pipeline
+				</artifactId>
+				<version>${ctakes.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.ctakes</groupId>
+				<artifactId>
+					ctakes-clinical-pipeline-res
 				</artifactId>
 				<version>${ctakes.version}</version>
 			</dependency>
@@ -744,7 +752,8 @@
 						    <additionalClasspathElement>ctakes-assertion-res/src/main/resources</additionalClasspathElement>						    
 						    <additionalClasspathElement>ctakes-assertion-zoner-res/src/main/resources</additionalClasspathElement>
 						    <additionalClasspathElement>ctakes-chunker-res/src/main/resources</additionalClasspathElement>
-						    <additionalClasspathElement>ctakes-constituency-parser-res/src/main/resources</additionalClasspathElement>
+                     <additionalClasspathElement>ctakes-clinical-pipeline-res/src/main/resources</additionalClasspathElement>
+                     <additionalClasspathElement>ctakes-constituency-parser-res/src/main/resources</additionalClasspathElement>
 						    <additionalClasspathElement>ctakes-core-res/src/main/resources</additionalClasspathElement>
 						    <additionalClasspathElement>ctakes-coreference-res/src/main/resources</additionalClasspathElement>
 						    <additionalClasspathElement>ctakes-dependency-parser-res/src/main/resources</additionalClasspathElement>	
@@ -759,7 +768,7 @@
 						    <additionalClasspathElement>ctakes-temporal-res/src/main/resources</additionalClasspathElement>						    						    						    						    						    						    						    
 							<additionalClasspathElement>ctakes-ytex-res/src/main/resources</additionalClasspathElement>
                      <additionalClasspathElement>ctakes-dictionary-lookup-fast-res/src/main/resources</additionalClasspathElement>
-                  </additionalClasspathElements>
+						</additionalClasspathElements>
 					</configuration>
 				</plugin>
 				<plugin>
