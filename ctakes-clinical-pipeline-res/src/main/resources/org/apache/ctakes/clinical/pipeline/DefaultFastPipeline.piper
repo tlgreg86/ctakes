@@ -10,15 +10,5 @@ addDescription POSTagger
 // Default fast dictionary lookup
 add DefaultJCasTermAnnotator
 
-// Add the Dependency parser for use by cleartk
-addDescription ClearNLPDependencyParserAE
-
-// Add the cleartk package for cleartk class lookups
-addPackage org.apache.ctakes.assertion.medfacts.cleartk
-// Add the cleartk attribute engines
-addDescription PolarityCleartkAnalysisEngine
-addDescription UncertaintyCleartkAnalysisEngine
-addDescription HistoryCleartkAnalysisEngine
-addDescription ConditionalCleartkAnalysisEngine
-addDescription GenericCleartkAnalysisEngine
-addDescription SubjectCleartkAnalysisEngine
+// Add Cleartk Entity Attribute annotators
+load org/apache/ctakes/assertion/pipeline/AttributeCleartkSubPipe.piper

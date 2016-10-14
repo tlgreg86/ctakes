@@ -1,10 +1,10 @@
 // This file contains commands and parameters to run the ctakes-examples "Hello World" pipeline
 // with UMLS Concept Unique Identifiers (CUI) output
 
-// Equivalent of ClinicalPipelineFactory.getTokenProcessingPipeline()
-add SimpleSegmentAnnotator
-add SentenceDetector
-add TokenizerAnnotatorPTB
+// Load a simple token processing pipeline from another pipeline file
+load org/apache/ctakes/core/pipeline/DefaultTokenizerPipeline.piper
+
+// Add non-core annotators
 add ContextDependentTokenizerAnnotator
 // The POSTagger has a -complex- startup, but it can create its own description to handle it
 addDescription POSTagger
