@@ -59,7 +59,7 @@
 				<include>org.apache.ctakes:ctakes-utils</include>
 				<include>org.apache.ctakes:ctakes-ytex</include>
 				<include>org.apache.ctakes:ctakes-ytex-uima</include>
-				<include>org.apache.ctakes:ctakes-ytex-web</include>				
+				<include>org.apache.ctakes:ctakes-ytex-web</include>
 			</includes>
 			
             <excludes>
@@ -97,6 +97,16 @@
 				<include>jcarafe-core_2.9.1-0.9.8.3.RC4.jar</include>
 				<include>jcarafe-ext_2.9.1-0.9.8.3.RC4.jar</include>
 			</includes>
+		</fileSet>
+		<!--  The Type System needs to exist outside the lib/*.jar file.  Otherwise it cannot be used with the CVD.  -->
+		<fileSet>
+			<directory>../ctakes-type-system/src/main/resources</directory>
+			<outputDirectory>resources</outputDirectory>
+			<includes>
+				<include>**/*.xml</include>
+			</includes>
+			<fileMode>644</fileMode>
+			<directoryMode>755</directoryMode>
 		</fileSet>
 		<fileSet>
 		    <directory>../ctakes-assertion/src/main/resources</directory>
@@ -147,7 +157,7 @@
 			<fileMode>644</fileMode>
 			<directoryMode>755</directoryMode>
 			<includes>
-				<include>README</include>			
+				<include>README*</include>
 			</includes>
 		</fileSet>
 		<fileSet>
@@ -157,9 +167,9 @@
 			<fileMode>644</fileMode>
 			<directoryMode>755</directoryMode>
 			<includes>
-				<include>RELEASE_NOTES.html</include>
-				<include>LICENSE</include>
-				<include>NOTICE</include>				
+				<include>RELEASE_NOTES*</include>
+				<include>LICENSE*</include>
+				<include>NOTICE*</include>
 			</includes>
 		</fileSet>
 		<fileSet>
