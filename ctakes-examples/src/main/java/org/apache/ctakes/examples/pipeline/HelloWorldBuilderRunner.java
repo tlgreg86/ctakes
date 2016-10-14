@@ -23,13 +23,13 @@ import java.io.IOException;
  * @version %I%
  * @since 10/10/2016
  */
-final public class HelloWorldBuildPipeRunner {
+final public class HelloWorldBuilderRunner {
 
-   static private final Logger LOGGER = Logger.getLogger( "HelloWorldBuildPipeRunner" );
+   static private final Logger LOGGER = Logger.getLogger( "HelloWorldBuilderRunner" );
 
    static private final String DOC_TEXT = "Hello World!";
 
-   private HelloWorldBuildPipeRunner() {
+   private HelloWorldBuilderRunner() {
    }
 
    /**

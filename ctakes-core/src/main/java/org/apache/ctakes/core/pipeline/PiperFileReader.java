@@ -50,9 +50,9 @@ import java.util.regex.Pattern;
  * @version %I%
  * @since 10/10/2016
  */
-final public class PipelineReader {
+final public class PiperFileReader {
 
-   static private final Logger LOGGER = Logger.getLogger( "PipelineReader" );
+   static private final Logger LOGGER = Logger.getLogger( "PiperFileReader" );
 
    static private final String[] CTAKES_PACKAGES
          = { "core",
@@ -90,7 +90,7 @@ final public class PipelineReader {
    /**
     * Create and empty PipelineReader
     */
-   public PipelineReader() {
+   public PiperFileReader() {
       _builder = new PipelineBuilder();
       _userPackages = new ArrayList<>();
    }
@@ -101,7 +101,7 @@ final public class PipelineReader {
     * @param filePath path to the pipeline command file
     * @throws UIMAException if the pipeline cannot be loaded
     */
-   public PipelineReader( final String filePath ) throws UIMAException {
+   public PiperFileReader( final String filePath ) throws UIMAException {
       _builder = new PipelineBuilder();
       _userPackages = new ArrayList<>();
       loadPipelineFile( filePath );
@@ -114,7 +114,8 @@ final public class PipelineReader {
     */
    public void loadPipelineFile( final String filePath ) throws UIMAException {
       try ( final BufferedReader reader
-                  = new BufferedReader( new InputStreamReader( FileLocator.getAsStream( filePath ) ) ) ) {
+                  = new BufferedReader( new InputStreamReader(
+            FileLocator.getAsStream( FileLocator.getFullPath( filePath ) ) ) ) ) {
          String line = reader.readLine();
          while ( line != null ) {
             line = line.trim();
@@ -131,7 +132,7 @@ final public class PipelineReader {
             line = reader.readLine();
          }
       } catch ( IOException ioE ) {
-         LOGGER.error( "Property File not found: " + filePath );
+         LOGGER.error( "Piper File not found: " + filePath );
       }
    }
 

@@ -2,14 +2,14 @@ package org.apache.ctakes.examples.pipeline;
 
 
 import org.apache.ctakes.core.pipeline.PipelineBuilder;
-import org.apache.ctakes.core.pipeline.PipelineReader;
+import org.apache.ctakes.core.pipeline.PiperFileReader;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 
 import java.io.IOException;
 
 /**
- * Build and run a pipeline using a {@link PipelineReader} and a {@link PipelineBuilder}.
+ * Build and run a pipeline using a {@link PiperFileReader} and a {@link PipelineBuilder}.
  * <p>
  * Example of a running a pipeline programatically w/o uima xml descriptor xml files
  * Adds the default Tokenization pipeline and adding the Example HelloWorld Annotator
@@ -18,15 +18,15 @@ import java.io.IOException;
  * @version %I%
  * @since 10/10/2016
  */
-final public class HelloWorldReadPipeRunner {
+final public class HelloWorldPiperRunner {
 
-   static private final Logger LOGGER = Logger.getLogger( "HelloWorldReadPipeRunner" );
+   static private final Logger LOGGER = Logger.getLogger( "HelloWorldPiperRunner" );
 
-   static private final String PIPELINE_FILE_PATH = "org/apache/ctakes/examples/pipeline/HelloWorldPipeline.txt";
+   static private final String PIPELINE_FILE_PATH = "org/apache/ctakes/examples/pipeline/HelloWorldPipeline.piper";
 
    static private final String DOC_TEXT = "Hello World!";
 
-   private HelloWorldReadPipeRunner() {
+   private HelloWorldPiperRunner() {
    }
 
    /**
@@ -35,7 +35,7 @@ final public class HelloWorldReadPipeRunner {
    public static void main( final String... args ) {
       try {
          // Add a simple pre-defined existing pipeline for Tokenization from file
-         final PipelineReader reader = new PipelineReader( PIPELINE_FILE_PATH );
+         final PiperFileReader reader = new PiperFileReader( PIPELINE_FILE_PATH );
          PipelineBuilder builder = reader.getBuilder();
          if ( args.length > 0 ) {
             // Example to save the Aggregate descriptor to an xml file for external use such as the UIMA CVD

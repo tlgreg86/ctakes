@@ -130,7 +130,7 @@ public class StartFinishLogger extends JCasAnnotator_ImplBase {
    public static AnalysisEngineDescription createLoggedDescription( final AnalysisEngineDescription mainDescription )
          throws ResourceInitializationException {
       final String name = mainDescription.getAnnotatorImplementationName();
-      return org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription(
+      return AnalysisEngineFactory.createEngineDescription(
             createDescription( name, true ),
             mainDescription,
             createDescription( name, false ) );

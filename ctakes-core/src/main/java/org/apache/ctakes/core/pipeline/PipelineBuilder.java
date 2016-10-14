@@ -1,9 +1,9 @@
 package org.apache.ctakes.core.pipeline;
 
 
-import org.apache.ctakes.core.ae.PropertyAeFactory;
 import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
 import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
+import org.apache.ctakes.core.util.PropertyAeFactory;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_component.AnalysisComponent;
@@ -18,6 +18,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,11 +35,13 @@ final public class PipelineBuilder {
    static private final Logger LOGGER = Logger.getLogger( "PipelineBuilder" );
 
 
-   private final List<AnalysisEngineDescription> _aeList;
+   private final List<String> _aeNameList;
+   private final List<AnalysisEngineDescription> _descList;
    private CollectionReader _reader;
 
    public PipelineBuilder() {
-      _aeList = new ArrayList<>();
+      _aeNameList = new ArrayList<>();
+      _descList = new ArrayList<>();
    }
 
    /**
@@ -103,6 +106,14 @@ final public class PipelineBuilder {
    }
 
    /**
+    *
+    * @return the CollectionReader for the pipeline or null if none has been specified
+    */
+   public CollectionReader getReader() {
+      return _reader;
+   }
+
+   /**
     * Use of this method is order-specific.
     *
     * @param component  ae or cc component class to add to the pipeline
@@ -112,7 +123,8 @@ final public class PipelineBuilder {
     */
    public PipelineBuilder add( final Class<? extends AnalysisComponent> component,
                                final Object... parameters ) throws ResourceInitializationException {
-      _aeList.add( PropertyAeFactory.getInstance().createDescription( component, parameters ) );
+      _aeNameList.add( component.getName() );
+      _descList.add( PropertyAeFactory.getInstance().createDescription( component, parameters ) );
       return this;
    }
 
@@ -127,7 +139,8 @@ final public class PipelineBuilder {
     */
    public PipelineBuilder addLogged( final Class<? extends AnalysisComponent> component,
                                      final Object... parameters ) throws ResourceInitializationException {
-      _aeList.add( PropertyAeFactory.getInstance().createLoggedDescription( component, parameters ) );
+      _aeNameList.add( component.getName() );
+      _descList.add( PropertyAeFactory.getInstance().createLoggedDescription( component, parameters ) );
       return this;
    }
 
@@ -138,8 +151,17 @@ final public class PipelineBuilder {
     * @return this PipelineBuilder
     */
    public PipelineBuilder addDescription( final AnalysisEngineDescription description ) {
-      _aeList.add( description );
+      _aeNameList.add( description.getAnnotatorImplementationName() );
+      _descList.add( description );
       return this;
+   }
+
+   /**
+    *
+    * @return an ordered list of the annotation engines in the pipeline
+    */
+   public List<String> getAeNames() {
+      return Collections.unmodifiableList( _aeNameList );
    }
 
    /**
@@ -204,7 +226,7 @@ final public class PipelineBuilder {
          return this;
       }
       final AggregateBuilder builder = new AggregateBuilder();
-      _aeList.forEach( builder::add );
+      _descList.forEach( builder::add );
       final AnalysisEngineDescription desc = builder.createAggregateDescription();
       SimplePipeline.runPipeline( _reader, desc );
       return this;
@@ -227,7 +249,7 @@ final public class PipelineBuilder {
       final JCas jcas = JCasFactory.createJCas();
       jcas.setDocumentText( text );
       final AggregateBuilder builder = new AggregateBuilder();
-      _aeList.forEach( builder::add );
+      _descList.forEach( builder::add );
       final AnalysisEngineDescription desc = builder.createAggregateDescription();
       SimplePipeline.runPipeline( jcas, desc );
       return this;

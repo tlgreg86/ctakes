@@ -27,7 +27,7 @@ import java.util.*;
  */
 public class SemanticCleanupTermConsumer extends AbstractTermConsumer {
 
-   static private final Logger LOGGER = Logger.getLogger( "MetaWsdTermConsumer" );
+   static private final Logger LOGGER = Logger.getLogger( "SemanticCleanupTermConsumer" );
 
    private final TermConsumer _idHitConsumer;
 

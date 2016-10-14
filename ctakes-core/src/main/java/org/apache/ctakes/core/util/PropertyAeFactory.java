@@ -1,5 +1,6 @@
-package org.apache.ctakes.core.ae;
+package org.apache.ctakes.core.util;
 
+import org.apache.ctakes.core.ae.StartFinishLogger;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_component.AnalysisComponent;

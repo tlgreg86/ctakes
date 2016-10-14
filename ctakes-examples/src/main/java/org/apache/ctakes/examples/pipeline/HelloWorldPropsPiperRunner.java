@@ -1,16 +1,16 @@
 package org.apache.ctakes.examples.pipeline;
 
 
-import org.apache.ctakes.core.pipeline.CuiCollector;
+import org.apache.ctakes.core.pipeline.EntityCollector;
 import org.apache.ctakes.core.pipeline.PipelineBuilder;
-import org.apache.ctakes.core.pipeline.PipelineReader;
+import org.apache.ctakes.core.pipeline.PiperFileReader;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 
 import java.io.IOException;
 
 /**
- * Build and run a pipeline using a {@link PipelineReader} and a {@link PipelineBuilder}.
+ * Build and run a pipeline using a {@link PiperFileReader} and a {@link PipelineBuilder}.
  * <p>
  * Example of a running a pipeline programatically w/o uima xml descriptor xml files
  * Adds the default Tokenization pipeline and adding the Example HelloWorld Annotator
@@ -19,15 +19,17 @@ import java.io.IOException;
  * @version %I%
  * @since 10/10/2016
  */
-final public class HelloWorldCuiReadPipeRunner {
+final public class HelloWorldPropsPiperRunner {
 
-   static private final Logger LOGGER = Logger.getLogger( "HelloWorldReadPipeRunner" );
+   static private final Logger LOGGER = Logger.getLogger( "HelloWorldPropsPiperRunner" );
 
-   static private final String PIPELINE_FILE_PATH = "org/apache/ctakes/examples/pipeline/HelloWorldCuiPipeline.txt";
+   static private final String PROPS_PIPELINE_FILE_PATH
+         = "org/apache/ctakes/examples/pipeline/HelloWorldPropsPipeline.piper";
 
-   static private final String DOC_TEXT = "Hello World!  I have allergies to nuts, bee stings, and shark bites.";
+   static private final String DOC_TEXT
+         = "Hello World!  I feel no pain.  My father takes aspirin.  My sister might have a headache.";
 
-   private HelloWorldCuiReadPipeRunner() {
+   private HelloWorldPropsPiperRunner() {
    }
 
    /**
@@ -36,7 +38,8 @@ final public class HelloWorldCuiReadPipeRunner {
    public static void main( final String... args ) {
       try {
          // Add a simple pre-defined existing pipeline for Tokenization from file
-         final PipelineReader reader = new PipelineReader( PIPELINE_FILE_PATH );
+         final PiperFileReader reader = new PiperFileReader( PROPS_PIPELINE_FILE_PATH );
+         // Add the property extraction pipeline
          PipelineBuilder builder = reader.getBuilder();
          if ( args.length > 0 ) {
             // Example to save the Aggregate descriptor to an xml file for external use such as the UIMA CVD
@@ -48,7 +51,7 @@ final public class HelloWorldCuiReadPipeRunner {
          LOGGER.error( multE.getMessage() );
       }
       // Log the IdentifiedAnnotation objects
-      LOGGER.info( "\n" + CuiCollector.getInstance().toString() );
+      LOGGER.info( "\n" + EntityCollector.getInstance().toString() );
    }
 
 

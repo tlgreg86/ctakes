@@ -103,6 +103,10 @@
 			<groupId>org.apache.uima</groupId>
 			<artifactId>uimaj-examples</artifactId> <!--  for XCasWriterCasConsumer -->
 		</dependency>
+      <dependency>
+         <groupId>com.lexicalscope.jewelcli</groupId>
+         <artifactId>jewelcli</artifactId>
+      </dependency>
 
 
 		<dependency>

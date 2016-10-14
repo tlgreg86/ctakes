@@ -2,7 +2,7 @@
 // with Entity Property output
 
 // Load a simple token processing pipeline from another file
-load org/apache/ctakes/examples/pipeline/HelloWorldPipeline.txt
+load org/apache/ctakes/examples/pipeline/HelloWorldPipeline.piper
 
 // Assertion engines require dependencies
 addDescription ClearNLPDependencyParserAE
