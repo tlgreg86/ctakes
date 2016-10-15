@@ -19,13 +19,13 @@ import java.io.IOException;
  * @version %I%
  * @since 10/12/2016
  */
-final public class DirNotesBuildPipeRunner {
+final public class ProcessDirBuilderRunner {
 
-   static private final Logger LOGGER = Logger.getLogger( "DirNotesBuildPipeRunner" );
+   static private final Logger LOGGER = Logger.getLogger( "ProcessDirBuilderRunner" );
 
    static private final String INPUT_DIR = "org/apache/ctakes/examples/notes";
 
-   private DirNotesBuildPipeRunner() {
+   private ProcessDirBuilderRunner() {
    }
 
    /**

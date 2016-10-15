@@ -19,17 +19,13 @@ import java.io.IOException;
  * @version %I%
  * @since 10/10/2016
  */
-final public class HelloWorldPropsPiperRunner {
+final public class ProcessDirPiperRunner {
 
-   static private final Logger LOGGER = Logger.getLogger( "HelloWorldPropsPiperRunner" );
+   static private final Logger LOGGER = Logger.getLogger( "ProcessDirPiperRunner" );
 
-   static private final String PIPER_FILE_PATH
-         = "org/apache/ctakes/examples/pipeline/HelloWorldProps.piper";
+   static private final String PIPER_FILE_PATH = "org/apache/ctakes/examples/pipeline/ProcessDir.piper";
 
-   static private final String DOC_TEXT
-         = "Hello World!  I feel no pain.  My father takes aspirin.  My sister might have a headache.";
-
-   private HelloWorldPropsPiperRunner() {
+   private ProcessDirPiperRunner() {
    }
 
    /**
@@ -46,7 +42,7 @@ final public class HelloWorldPropsPiperRunner {
             builder.writeXMIs( args[ 0 ] );
          }
          // Run the pipeline with specified text
-         builder.run( DOC_TEXT );
+         builder.run();
          // Log the IdentifiedAnnotation objects
          LOGGER.info( "\n" + EntityCollector.getInstance().toString() );
       } catch ( IOException | UIMAException multE ) {

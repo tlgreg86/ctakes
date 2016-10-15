@@ -23,7 +23,7 @@ final public class HelloWorldCuiPiperRunner {
 
    static private final Logger LOGGER = Logger.getLogger( "HelloWorldCuiPiperRunner" );
 
-   static private final String PIPELINE_FILE_PATH = "org/apache/ctakes/examples/pipeline/HelloWorldCuiPipeline.piper";
+   static private final String PIPER_FILE_PATH = "org/apache/ctakes/examples/pipeline/HelloWorldCui.piper";
 
    static private final String DOC_TEXT = "Hello World!  I have allergies to nuts, bee stings, and shark bites.";
 
@@ -36,7 +36,7 @@ final public class HelloWorldCuiPiperRunner {
    public static void main( final String... args ) {
       try {
          // Add a simple pre-defined existing pipeline for Tokenization from file
-         final PiperFileReader reader = new PiperFileReader( PIPELINE_FILE_PATH );
+         final PiperFileReader reader = new PiperFileReader( PIPER_FILE_PATH );
          PipelineBuilder builder = reader.getBuilder();
          if ( args.length > 0 ) {
             // Example to save the Aggregate descriptor to an xml file for external use such as the UIMA CVD
@@ -44,11 +44,11 @@ final public class HelloWorldCuiPiperRunner {
          }
          // Run the pipeline with specified text
          builder.run( DOC_TEXT );
+         // Log the IdentifiedAnnotation objects
+         LOGGER.info( "\n" + CuiCollector.getInstance().toString() );
       } catch ( IOException | UIMAException multE ) {
          LOGGER.error( multE.getMessage() );
       }
-      // Log the IdentifiedAnnotation objects
-      LOGGER.info( "\n" + CuiCollector.getInstance().toString() );
    }
 
 

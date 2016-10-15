@@ -22,7 +22,7 @@ final public class HelloWorldPiperRunner {
 
    static private final Logger LOGGER = Logger.getLogger( "HelloWorldPiperRunner" );
 
-   static private final String PIPELINE_FILE_PATH = "org/apache/ctakes/examples/pipeline/HelloWorldPipeline.piper";
+   static private final String PIPER_FILE_PATH = "org/apache/ctakes/examples/pipeline/HelloWorld.piper";
 
    static private final String DOC_TEXT = "Hello World!";
 
@@ -35,7 +35,7 @@ final public class HelloWorldPiperRunner {
    public static void main( final String... args ) {
       try {
          // Add a simple pre-defined existing pipeline for Tokenization from file
-         final PiperFileReader reader = new PiperFileReader( PIPELINE_FILE_PATH );
+         final PiperFileReader reader = new PiperFileReader( PIPER_FILE_PATH );
          PipelineBuilder builder = reader.getBuilder();
          if ( args.length > 0 ) {
             // Example to save the Aggregate descriptor to an xml file for external use such as the UIMA CVD
