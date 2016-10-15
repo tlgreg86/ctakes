@@ -202,8 +202,8 @@ public class EventEventRelPrinter {
               continue; // skip this negative example
             }
             
-            String context = getTokensBetween(systemView, sentence, mention1, "e1", mention2, "e2", 2);
-            // String context = getRegions(systemView, sentence, mention1, mention2, 2);
+            String context = getRegions(systemView, sentence, mention1, mention2, 2);
+            // String context = getTokensBetween(systemView, sentence, mention1, "e1", mention2, "e2", 2);
             String text = String.format("%s|%s", label, context);
             eventEventRelationsInSentence.add(text.toLowerCase());
           }
@@ -225,17 +225,21 @@ public class EventEventRelPrinter {
   public static String getRegions(JCas jCas, Sentence sent, Annotation left, Annotation right, int contextSize) {
 
     
-    // tokens to the left from the left argument and the argument itself
+    // tokens to the left from the left argument
     List<String> leftTokens = new ArrayList<>();
     for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, left, contextSize)) {
       if(sent.getBegin() <= baseToken.getBegin()) {
         leftTokens.add(baseToken.getCoveredText()); 
       }
     }
-    for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, left)) {
-      leftTokens.add(baseToken.getCoveredText());
-    }
     String leftAsString = String.join(" ", leftTokens).replaceAll("[\r\n]", " ");
+    
+    // left arg tokens
+    List<String> arg1Tokens = new ArrayList<>(); 
+    for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, left)) {
+      arg1Tokens.add(baseToken.getCoveredText());
+    }
+    String arg1AsString = String.join(" ", arg1Tokens).replaceAll("[\r\n]", " ");
     
     // tokens between the arguments
     List<String> betweenTokens = new ArrayList<>();
@@ -244,11 +248,15 @@ public class EventEventRelPrinter {
     }
     String betweenAsString = String.join(" ", betweenTokens).replaceAll("[\r\n]", " ");
     
-    // tokens to the right from the right argument and the argument itself
-    List<String> rightTokens = new ArrayList<>();
+    // right arg tokens
+    List<String> arg2Tokens = new ArrayList<>(); 
     for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, right)) {
-      rightTokens.add(baseToken.getCoveredText());
+      arg2Tokens.add(baseToken.getCoveredText());
     }
+    String arg2AsString = String.join(" ", arg2Tokens).replaceAll("[\r\n]", " ");
+    
+    // tokens to the right from the right argument
+    List<String> rightTokens = new ArrayList<>();
     for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, right, contextSize)) {
       if(baseToken.getEnd() <= sent.getEnd()) {
         rightTokens.add(baseToken.getCoveredText());
@@ -256,7 +264,7 @@ public class EventEventRelPrinter {
     }
     String rightAsString = String.join(" ", rightTokens).replaceAll("[\r\n]", " ");
     
-    return leftAsString + "|" + betweenAsString + "|" + rightAsString;
+    return leftAsString + "|" + arg1AsString + "|" + betweenAsString + "|" + arg2AsString + "|" + rightAsString;
   }
   
   /**
