@@ -99,6 +99,12 @@
 			</includes>
 		</fileSet>
 		<!--  The Type System needs to exist outside the lib/*.jar file.  Otherwise it cannot be used with the CVD.  -->
+      <fileSet>
+         <directory>../ctakes-examples-res/src/main/resources</directory>
+         <outputDirectory>resources</outputDirectory>
+         <fileMode>644</fileMode>
+         <directoryMode>755</directoryMode>
+      </fileSet>
 		<fileSet>
 			<directory>../ctakes-type-system/src/main/resources</directory>
 			<outputDirectory>resources</outputDirectory>
