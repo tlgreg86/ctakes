@@ -131,6 +131,7 @@
 		<module>ctakes-ne-contexts-res</module>
 		<module>ctakes-template-filler</module>
 		<module>ctakes-examples</module>
+		<module>ctakes-examples-res</module>
 		<module>ctakes-ytex-res</module>
 		<module>ctakes-ytex</module>
 		<module>ctakes-ytex-uima</module>
@@ -141,6 +142,13 @@
 	<dependencyManagement>
 		<dependencies>
 			<!-- cTAKES module versions -->
+			<dependency>
+				<groupId>org.apache.ctakes</groupId>
+				<artifactId>
+					ctakes-examples-res
+				</artifactId>
+				<version>${ctakes.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>ctakes-type-system</artifactId>
