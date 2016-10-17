@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator.IdentifiedAnnotationPair;
-import org.apache.ctakes.temporal.nn.data.EventTimeRelPrinter;
+import org.apache.ctakes.temporal.nn.data.ArgContextProvider;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
@@ -74,12 +74,12 @@ public class EventTimeTokenAndPosBasedAnnotator extends CleartkAnnotator<String>
         String posContext;
         if(arg2.getBegin() < arg1.getBegin()) {
           // ... time ... event ... scenario
-          tokenContext = EventTimeRelPrinter.getTokenContext(jCas, sentence, arg2, "t", arg1, "e", 2);
-          posContext = EventTimeRelPrinter.getPosContext(jCas, sentence, arg2, "t", arg1, "e", 2);
+          tokenContext = ArgContextProvider.getTokenContext(jCas, sentence, arg2, "t", arg1, "e", 2);
+          posContext = ArgContextProvider.getPosContext(jCas, sentence, arg2, "t", arg1, "e", 2);
         } else {
           // ... event ... time ... scenario
-          tokenContext = EventTimeRelPrinter.getTokenContext(jCas, sentence, arg1, "e", arg2, "t", 2);
-          posContext = EventTimeRelPrinter.getPosContext(jCas, sentence, arg1, "e", arg2, "t", 2);
+          tokenContext = ArgContextProvider.getTokenContext(jCas, sentence, arg1, "e", arg2, "t", 2);
+          posContext = ArgContextProvider.getPosContext(jCas, sentence, arg1, "e", arg2, "t", 2);
         }
 
         //derive features based on context:

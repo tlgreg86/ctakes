@@ -60,10 +60,10 @@ public class ArgContextProvider {
   }
   
   /**
-   * Return tokens between arg1 and arg2 as string 
+   * Print words from left to right.
    * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
    */
-  public static String getTokensBetween(
+  public static String getTokenContext(
       JCas jCas, 
       Sentence sent, 
       Annotation left,
@@ -90,6 +90,47 @@ public class ArgContextProvider {
     for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, right, contextSize)) {
       if(baseToken.getEnd() <= sent.getEnd()) {
         tokens.add(baseToken.getCoveredText());
+      }
+    }
+
+    return String.join(" ", tokens).replaceAll("[\r\n]", " ");
+  }
+
+  /**
+   * Print POS tags from left to right.
+   * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
+   */
+  public static String getPosContext(
+      JCas jCas, 
+      Sentence sent, 
+      Annotation left,
+      String leftType,
+      Annotation right,
+      String rightType,
+      int contextSize) {
+
+    List<String> tokens = new ArrayList<>();
+    for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, left, contextSize)) {
+      if(sent.getBegin() <= baseToken.getBegin()) {
+        tokens.add(baseToken.getPartOfSpeech()); 
+      }
+    }
+    tokens.add("<" + leftType + ">");
+    for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, left)) {
+      tokens.add(baseToken.getPartOfSpeech());
+    }
+    tokens.add("</" + leftType + ">");
+    for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, right)) {
+      tokens.add(baseToken.getPartOfSpeech());
+    }
+    tokens.add("<" + rightType + ">");
+    for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, right)) {
+      tokens.add(baseToken.getPartOfSpeech());
+    }
+    tokens.add("</" + rightType + ">");
+    for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, right, contextSize)) {
+      if(baseToken.getEnd() <= sent.getEnd()) {
+        tokens.add(baseToken.getPartOfSpeech());
       }
     }
 

@@ -69,10 +69,10 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
         if(arg2.getBegin() < arg1.getBegin()) {
           // ... event2 ... event1 ... scenario
           System.out.println("\n-------------- THIS NEVER NAPPENS ------------\n");
-          context = ArgContextProvider.getTokensBetween(jCas, sentence, arg2, "e2", arg1, "e1", 2); 
+          context = ArgContextProvider.getTokenContext(jCas, sentence, arg2, "e2", arg1, "e1", 2); 
         } else {
           // ... event1 ... event2 ... scenario
-          context = ArgContextProvider.getTokensBetween(jCas, sentence, arg1, "e1", arg2, "e2", 2);
+          context = ArgContextProvider.getTokenContext(jCas, sentence, arg1, "e1", arg2, "e2", 2);
         }
 
         //derive features based on context:

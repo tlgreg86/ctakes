@@ -35,7 +35,6 @@ import org.apache.ctakes.temporal.eval.CommandLine;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -211,10 +210,10 @@ public class EventTimeRelPrinter {
             String context;
             if(time.getBegin() < event.getBegin()) {
               // ... time ... event ... scenario
-              context = getTokenContext(systemView, sentence, time, "t", event, "e", 2);  
+              context = ArgContextProvider.getTokenContext(systemView, sentence, time, "t", event, "e", 2);  
             } else {
               // ... event ... time ... scenario
-              context = getTokenContext(systemView, sentence, event, "e", time, "t", 2);
+              context = ArgContextProvider.getTokenContext(systemView, sentence, event, "e", time, "t", 2);
             }
 
             String text = String.format("%s|%s", label, context);
@@ -229,83 +228,5 @@ public class EventTimeRelPrinter {
         }
       }
     }
-  }
-
-  /**
-   * Print words from left to right.
-   * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
-   */
-  public static String getTokenContext(
-      JCas jCas, 
-      Sentence sent, 
-      Annotation left,
-      String leftType,
-      Annotation right,
-      String rightType,
-      int contextSize) {
-
-    List<String> tokens = new ArrayList<>();
-    for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, left, contextSize)) {
-      if(sent.getBegin() <= baseToken.getBegin()) {
-        tokens.add(baseToken.getCoveredText()); 
-      }
-    }
-    tokens.add("<" + leftType + ">");
-    tokens.add(left.getCoveredText());
-    tokens.add("</" + leftType + ">");
-    for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, right)) {
-      tokens.add(baseToken.getCoveredText());
-    }
-    tokens.add("<" + rightType + ">");
-    tokens.add(right.getCoveredText());
-    tokens.add("</" + rightType + ">");
-    for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, right, contextSize)) {
-      if(baseToken.getEnd() <= sent.getEnd()) {
-        tokens.add(baseToken.getCoveredText());
-      }
-    }
-
-    return String.join(" ", tokens).replaceAll("[\r\n]", " ");
-  }
-
-  /**
-   * Print POS tags from left to right.
-   * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
-   */
-  public static String getPosContext(
-      JCas jCas, 
-      Sentence sent, 
-      Annotation left,
-      String leftType,
-      Annotation right,
-      String rightType,
-      int contextSize) {
-
-    List<String> tokens = new ArrayList<>();
-    for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, left, contextSize)) {
-      if(sent.getBegin() <= baseToken.getBegin()) {
-        tokens.add(baseToken.getPartOfSpeech()); 
-      }
-    }
-    tokens.add("<" + leftType + ">");
-    for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, left)) {
-      tokens.add(baseToken.getPartOfSpeech());
-    }
-    tokens.add("</" + leftType + ">");
-    for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, right)) {
-      tokens.add(baseToken.getPartOfSpeech());
-    }
-    tokens.add("<" + rightType + ">");
-    for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, right)) {
-      tokens.add(baseToken.getPartOfSpeech());
-    }
-    tokens.add("</" + rightType + ">");
-    for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, right, contextSize)) {
-      if(baseToken.getEnd() <= sent.getEnd()) {
-        tokens.add(baseToken.getPartOfSpeech());
-      }
-    }
-
-    return String.join(" ", tokens).replaceAll("[\r\n]", " ");
   }
 }

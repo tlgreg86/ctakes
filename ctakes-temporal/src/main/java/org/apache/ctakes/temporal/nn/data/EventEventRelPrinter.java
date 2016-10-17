@@ -34,7 +34,6 @@ import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.temporal.eval.CommandLine;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -202,8 +201,9 @@ public class EventEventRelPrinter {
               continue; // skip this negative example
             }
             
-            String context = ArgContextProvider.getRegions(systemView, sentence, mention1, mention2, 2);
-            // String context = getTokensBetween(systemView, sentence, mention1, "e1", mention2, "e2", 2);
+            String context = ArgContextProvider.getTokenContext(systemView, sentence, mention1, "e1", mention2, "e2", 2);
+            // String context = ArgContextProvider.getRegions(systemView, sentence, mention1, mention2, 2);
+            
             String text = String.format("%s|%s", label, context);
             eventEventRelationsInSentence.add(text.toLowerCase());
           }
