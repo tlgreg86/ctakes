@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator.IdentifiedAnnotationPair;
+import org.apache.ctakes.temporal.nn.data.ArgContextProvider;
 import org.apache.ctakes.temporal.nn.data.EventEventRelPrinter;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
@@ -71,11 +72,11 @@ public class EventEventCNNAnnotator extends CleartkAnnotator<String> {
 				String context;
 				if(arg2.getBegin() < arg1.getBegin()) {
 					// ... time ... event ... scenario
-					context = EventEventRelPrinter.getTokensBetween(jCas, sentence, arg2, "e", arg1, "e", 5); 
+					context = ArgContextProvider.getTokensBetween(jCas, sentence, arg2, "e", arg1, "e", 5); 
 //					context = getTokensBetweenExpanded(jCas, sentence, arg2, "e", arg1, "e", 5, coveringMap);
 				} else {
 					// ... event ... time ... scenario
-					context = EventEventRelPrinter.getTokensBetween(jCas, sentence, arg1, "e", arg2, "e", 5);
+					context = ArgContextProvider.getTokensBetween(jCas, sentence, arg1, "e", arg2, "e", 5);
 //					context = getTokensBetweenExpanded(jCas, sentence, arg1, "e", arg2, "e", 5, coveringMap);
 				}
 

@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator.IdentifiedAnnotationPair;
-import org.apache.ctakes.temporal.nn.data.EventEventRelPrinter;
+import org.apache.ctakes.temporal.nn.data.ArgContextProvider;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
@@ -69,10 +69,10 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
         if(arg2.getBegin() < arg1.getBegin()) {
           // ... event2 ... event1 ... scenario
           System.out.println("\n-------------- THIS NEVER NAPPENS ------------\n");
-          context = EventEventRelPrinter.getTokensBetween(jCas, sentence, arg2, "e2", arg1, "e1", 2); 
+          context = ArgContextProvider.getTokensBetween(jCas, sentence, arg2, "e2", arg1, "e1", 2); 
         } else {
           // ... event1 ... event2 ... scenario
-          context = EventEventRelPrinter.getTokensBetween(jCas, sentence, arg1, "e1", arg2, "e2", 2);
+          context = ArgContextProvider.getTokensBetween(jCas, sentence, arg1, "e1", arg2, "e2", 2);
         }
 
         //derive features based on context:
