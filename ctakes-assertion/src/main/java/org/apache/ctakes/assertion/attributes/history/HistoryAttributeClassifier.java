@@ -18,33 +18,19 @@
  */
 package org.apache.ctakes.assertion.attributes.history;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.uima.UIMAException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.jcas.tcas.DocumentAnnotation;
-import org.apache.uima.fit.util.JCasUtil;
-import org.xml.sax.SAXException;
-
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
-import org.apache.ctakes.typesystem.type.constants.CONST;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.SemanticArgument;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.jcas.tcas.DocumentAnnotation;
+
+import java.util.*;
 
 
 /**
@@ -133,7 +119,8 @@ public class HistoryAttributeClassifier {
 	 * But I still have to find that first sentence.
 	 */
 	private static boolean isInHistSection(Sentence s) {
-		String sText = s.getCoveredText();
+		// We want to trim the covered text before attempting substring, otherwise the substring call indices can be out of bounds
+		String sText = s.getCoveredText().trim();
 		
 		for (String secStart : GHC_HIST_SECTIONS)
 		{
@@ -141,7 +128,7 @@ public class HistoryAttributeClassifier {
 			
 			if (sText.length() >= slen)
 			{
-				String sentStart = sText.trim().substring(0, slen).toLowerCase();
+				String sentStart = sText.substring( 0, slen ).toLowerCase();
 				if (sentStart.equals(secStart))
 				{
 					return true;
