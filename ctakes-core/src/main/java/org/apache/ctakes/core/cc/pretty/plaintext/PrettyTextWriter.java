@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -245,12 +246,15 @@ final public class PrettyTextWriter {
                                  offsetAdjustedMap.get( textSpan.getBegin() );
             if ( needWidth > nowWidth ) {
                final int delta = needWidth - nowWidth;
-               for ( Integer originalOffset : offsetList ) {
-                  if ( originalOffset >= textSpan.getEnd() ) {
-                     final Integer oldAdjustedOffset = offsetAdjustedMap.get( originalOffset );
-                     offsetAdjustedMap.put( originalOffset, oldAdjustedOffset + delta );
-                  }
-               }
+               offsetList.stream()
+                     .filter( o -> o >= textSpan.getEnd() )
+                     .forEach( o -> offsetAdjustedMap.put( o, offsetAdjustedMap.get( o ) + delta ) );
+//               for ( Integer originalOffset : offsetList ) {
+//                  if ( originalOffset >= textSpan.getEnd() ) {
+//                     final Integer oldAdjustedOffset = offsetAdjustedMap.get( originalOffset );
+//                     offsetAdjustedMap.put( originalOffset, oldAdjustedOffset + delta );
+//                  }
+//               }
             }
          }
       }
@@ -337,13 +341,10 @@ final public class PrettyTextWriter {
     */
    static private Collection<ItemCell> getCoveredBaseItems( final TextSpan textSpan,
                                                             final Map<TextSpan, ItemCell> baseItemMap ) {
-      final Collection<ItemCell> coveredBaseItems = new ArrayList<>();
-      for ( Map.Entry<TextSpan, ItemCell> baseItemEntry : baseItemMap.entrySet() ) {
-         if ( baseItemEntry.getKey().overlaps( textSpan ) ) {
-            coveredBaseItems.add( baseItemEntry.getValue() );
-         }
-      }
-      return coveredBaseItems;
+      return baseItemMap.entrySet().stream()
+            .filter( e -> e.getKey().overlaps( textSpan ) )
+            .map( Map.Entry::getValue )
+            .collect( Collectors.toList() );
    }
 
 

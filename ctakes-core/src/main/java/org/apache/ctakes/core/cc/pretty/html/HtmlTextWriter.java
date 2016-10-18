@@ -151,7 +151,7 @@ final public class HtmlTextWriter extends CasConsumer_ImplBase {
          if ( beginTag != null ) {
             sb.append( beginTag );
          }
-         sb.append( entry.getKey() );
+         sb.append( entry.getValue() );
          final String endTag = tags.get( entry.getKey().getEnd() );
          if ( endTag != null ) {
             sb.append( endTag );
@@ -187,16 +187,23 @@ final public class HtmlTextWriter extends CasConsumer_ImplBase {
       final Map<Integer, String> tags = createTags( annotationMap );
       final StringBuilder sb = new StringBuilder();
       int previousEndIndex = -1;
+      boolean annotation;
       for ( Map.Entry<TextSpan, String> entry : baseTokenMap.entrySet() ) {
+         annotation = false;
          final TextSpan textSpan = entry.getKey();
          if ( textSpan.getBegin() != previousEndIndex ) {
             // If the previous end index was this begin index then the tag was already written
             final String beginTag = tags.get( textSpan.getBegin() );
             if ( beginTag != null ) {
                sb.append( beginTag );
+               annotation = true;
             }
          }
+//         if ( annotation ) {
+//            sb.append( "<b>" ).append( entry.getValue().charAt( 0 ) ).append( "</b>" ).append( entry.getValue().substring( 1 ) );
+//         } else {
          sb.append( entry.getValue() );
+//         }
          final String endTag = tags.get( textSpan.getEnd() );
          if ( endTag != null ) {
             sb.append( endTag );

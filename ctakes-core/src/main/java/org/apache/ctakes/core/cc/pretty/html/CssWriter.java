@@ -28,6 +28,7 @@ final class CssWriter {
          return false;
       }
       try ( final BufferedWriter writer = new BufferedWriter( new FileWriter( outputFile ) ) ) {
+         writer.write( setBody() );
          writer.write( setUnderline( "affirmed", "green", "solid", "0.2" ) );
          writer.write( setUnderline( "uncertain", "gold", "dotted", "0.2" ) );
          writer.write( setUnderline( "negated", "red", "dashed", "0.2" ) );
@@ -46,6 +47,15 @@ final class CssWriter {
    }
 
 
+   static private String setBody() {
+      return "\nbody {\n" +
+             "  margin: 20px;\n" +
+             "}\n" +
+             "\ndiv {\n" +
+             "  margin-bottom: 0.4em;\n" +
+             "}\n";
+   }
+
    // dashType is solid or dashed or double or dotted, try wavy      size is relative: 0.1 or 0.2 for 10%, 20%
    static private String setUnderline( final String className, final String color, final String dashType,
                                        final String size ) {
@@ -57,8 +67,9 @@ final class CssWriter {
    }
 
    static private String setColor( final String className, final String color ) {
-      return "\n." + className + " {\n" +
-             "  color: " + color + ";\n" +
+      return "\n." + className + "::first-letter {\n" +
+//             "  color: " + color + ";\n" +
+             "  font-weight: bold;\n" +
              "}\n";
    }
 
