@@ -1,16 +1,7 @@
 package org.apache.ctakes.coreference.ae.pairing.cluster;
 
-import static org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator.getKey;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator.CollectionTextRelationIdentifiedAnnotationPair;
 import org.apache.ctakes.coreference.ae.pairing.AnnotationPairer;
-//import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -19,6 +10,12 @@ import org.apache.ctakes.utils.struct.MapFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+
+import java.util.*;
+
+import static org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator.getKey;
+
+//import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 
 public abstract class ClusterMentionPairer_ImplBase implements AnnotationPairer<Markable, CollectionTextRelationIdentifiedAnnotationPair> {
   public abstract List<CollectionTextRelationIdentifiedAnnotationPair> getPairs(JCas jcas, Markable m);
@@ -42,7 +39,10 @@ public abstract class ClusterMentionPairer_ImplBase implements AnnotationPairer<
     IdentifiedAnnotation bestEnt = null;
     Set<IdentifiedAnnotation> otherBestEnts = new HashSet<>();
     ConllDependencyNode head = MapFactory.get(getKey(jcas), markable);
-    
+    if ( head == null ) {
+      return Collections.emptySet();
+    }
+
     Collection<IdentifiedAnnotation> coveringEnts = nodeEntMap.get(head);
     for(IdentifiedAnnotation ent : coveringEnts){
       if(ent.getOntologyConceptArr() == null) continue; // skip non-umls entities.

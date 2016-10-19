@@ -1,16 +1,19 @@
 package org.apache.ctakes.utils.struct;
 
+import org.apache.uima.jcas.cas.TOP;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.uima.jcas.cas.TOP;
 
 public class MapFactory {
   private static Map<String, Map<?,?>> mapIndex = new HashMap<>();
 
   public static <K extends TOP,V extends TOP> V get(String mapId, K key){
     Map<?,?> map = mapIndex.get(mapId);
-    return (V) map.get(key);
+    if ( map != null ) {
+      return (V)map.get( key );
+    }
+    return null;
   }
   
   public static <K extends TOP,V extends TOP> void put(String mapId, K key, V value){
