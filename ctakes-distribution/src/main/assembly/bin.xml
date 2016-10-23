@@ -60,6 +60,7 @@
 				<include>org.apache.ctakes:ctakes-ytex</include>
 				<include>org.apache.ctakes:ctakes-ytex-uima</include>
 				<include>org.apache.ctakes:ctakes-ytex-web</include>
+				<include>org.apache.ctakes:ctakes-examples</include>
 			</includes>
 			
             <excludes>
@@ -99,6 +100,18 @@
 			</includes>
 		</fileSet>
 		<!--  The Type System needs to exist outside the lib/*.jar file.  Otherwise it cannot be used with the CVD.  -->
+		<fileSet>
+			<directory>../ctakes-clinical-pipeline-res/src/main/resources</directory>
+			<outputDirectory>resources</outputDirectory>
+			<fileMode>644</fileMode>
+			<directoryMode>755</directoryMode>
+		</fileSet>
+		<fileSet>
+			<directory>../ctakes-ne-contexts-res/src/main/resources</directory>
+			<outputDirectory>resources</outputDirectory>
+			<fileMode>644</fileMode>
+			<directoryMode>755</directoryMode>
+		</fileSet>
       <fileSet>
          <directory>../ctakes-examples-res/src/main/resources</directory>
          <outputDirectory>resources</outputDirectory>
@@ -155,7 +168,23 @@
 		    <outputDirectory>resources</outputDirectory>
 			<fileMode>644</fileMode>
 			<directoryMode>755</directoryMode>
-    	</fileSet>     			
+    	</fileSet>
+		<fileSet>
+			<directory>../ctakes-core-res/src/main/resources/org/apache/ctakes/core/pipeline</directory>
+			<fileMode>644</fileMode>
+			<directoryMode>755</directoryMode>
+			<includes>
+				<include>DefaultTokenizerPipeline.piper</include>
+			</includes>
+			<outputDirectory>resources/org/apache/ctakes/core/pipeline</outputDirectory>
+		</fileSet>
+		<!--  Copy user resources  -->
+		<fileSet>
+			<directory>../resources</directory>
+			<fileMode>644</fileMode>
+			<directoryMode>755</directoryMode>
+			<outputDirectory>resources</outputDirectory>
+		</fileSet>
 		<fileSet>
 			<directory>../</directory>
 			<outputDirectory></outputDirectory>
@@ -169,7 +198,6 @@
 		<fileSet>
 			<directory>.</directory>
 			<outputDirectory></outputDirectory>
-
 			<fileMode>644</fileMode>
 			<directoryMode>755</directoryMode>
 			<includes>
@@ -201,7 +229,6 @@
 			<directoryMode>755</directoryMode>
 			<outputDirectory>config</outputDirectory>
 		</fileSet>
-
 		<!-- Copy a default log4j config that could be overridden during runtime -->
 		<fileSet>
 			<directory>../ctakes-core-res/src/main/resources</directory>

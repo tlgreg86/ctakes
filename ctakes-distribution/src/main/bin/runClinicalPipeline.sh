@@ -42,4 +42,4 @@ PRGDIR=`dirname "$PRG"`
 [ -z "$CTAKES_HOME" ] && CTAKES_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
 
 cd $CTAKES_HOME
-java -cp $CTAKES_HOME/desc/:$CTAKES_HOME/resources/:$CTAKES_HOME/lib/* -Dlog4j.configuration=file:$CTAKES_HOME/config/log4j.xml -Xms512M -Xmx3g org.apache.ctakes.core.pipeline.PiperFileRunner -p org/apache/ctakes/clinical/pipeline/DefaultClinicalPipeline.piper "$@"
+java -cp $CTAKES_HOME/desc/:$CTAKES_HOME/resources/:$CTAKES_HOME/lib/* -Dlog4j.configuration=file:$CTAKES_HOME/config/log4j.xml -Xms512M -Xmx3g org.apache.ctakes.core.pipeline.PiperFileRunner -p org/apache/ctakes/clinical/pipeline/DefaultFastPipeline.piper "$@"
