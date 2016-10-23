@@ -144,9 +144,12 @@
 			<!-- cTAKES module versions -->
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
-				<artifactId>
-					ctakes-examples-res
-				</artifactId>
+				<artifactId>ctakes-examples</artifactId>
+				<version>${ctakes.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.ctakes</groupId>
+				<artifactId>ctakes-examples-res</artifactId>
 				<version>${ctakes.version}</version>
 			</dependency>
 			<dependency>

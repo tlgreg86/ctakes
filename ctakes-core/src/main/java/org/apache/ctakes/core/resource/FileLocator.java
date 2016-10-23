@@ -188,6 +188,9 @@ final public class FileLocator {
          throw new FileNotFoundException( relativePath );
       }
       final URI indexUri = new URI( indexUrl.toExternalForm() );
+      if ( indexUri.isOpaque() ) {
+         throw new FileNotFoundException( relativePath );
+      }
       return new File( indexUri );
    }
 
