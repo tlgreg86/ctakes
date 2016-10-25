@@ -9,6 +9,9 @@ add ContextDependentTokenizerAnnotator
 // The POSTagger has a -complex- startup, but it can create its own description to handle it
 addDescription POSTagger
 
+// Change the umls and password parameters below
+// addParameters ctakes.umlsuser=CHANGEME ctakes.umlspw=CHANGEME
+
 // Default fast dictionary lookup
 add DefaultJCasTermAnnotator
 
