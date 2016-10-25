@@ -90,10 +90,12 @@ public class PiperFileRunner {
          final String umlsUser = options.getUmlsUserName();
          if ( !umlsUser.isEmpty() ) {
             builder.addParameters( "umlsUser", umlsUser );
+            builder.addParameters( "ctakes.umlsuser", umlsUser );
          }
          final String umlsPass = options.getUmlsPassword();
          if ( !umlsPass.isEmpty() ) {
             builder.addParameters( "umlsPass", umlsPass );
+            builder.addParameters( "ctakes.umlspw", umlsPass );
          }
          // load the piper file
          reader.loadPipelineFile( options.getPiperPath() );
