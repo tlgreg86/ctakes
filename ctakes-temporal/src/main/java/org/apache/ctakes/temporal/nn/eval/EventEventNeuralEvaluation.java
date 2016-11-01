@@ -35,6 +35,7 @@ import java.util.Set;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventEventThymeRelations.RemoveCrossSentenceRelations;
+import org.apache.ctakes.temporal.eval.EvaluationOfEventEventThymeRelations.RemoveNonUMLSEvents;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase;
 import org.apache.ctakes.temporal.eval.Evaluation_ImplBase;
@@ -286,7 +287,11 @@ EvaluationOfTemporalRelations_ImplBase{
         //			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddContain2Overlap.class));
         //			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveBeforeAndOnRelations.class));
       }
+      
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class));
+      
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEvents.class));
+      
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
 
       aggregateBuilder.add(
@@ -303,6 +308,7 @@ EvaluationOfTemporalRelations_ImplBase{
 
       SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
     }
+    
     JarClassifierBuilder.trainAndPackage(new File(directory,"event-event"));
   }
 
@@ -311,6 +317,7 @@ EvaluationOfTemporalRelations_ImplBase{
       throws Exception {
     this.useClosure=false; //don't do closure for test
     AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+    
     aggregateBuilder.add(CopyFromGold.getDescription(EventMention.class, TimeMention.class));
 
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
@@ -335,8 +342,11 @@ EvaluationOfTemporalRelations_ImplBase{
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class),
         CAS.NAME_DEFAULT_SOFA,
         GOLD_VIEW_NAME);
+    
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEvents.class));
 
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
+    
     aggregateBuilder.add(this.baseline ? RecallBaselineEventTimeRelationAnnotator.createAnnotatorDescription(directory) :
       AnalysisEngineFactory.createEngineDescription(EventEventTokenBasedAnnotator.class,
           CleartkAnnotator.PARAM_IS_TRAINING,
