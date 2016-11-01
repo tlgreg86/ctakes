@@ -87,9 +87,9 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
           String category = getRelationCategory(relationLookup, arg1, arg2);
           
           // drop some portion of negative examples during training
-          if(category == null && coin.nextDouble() <= 0.5) {
-            continue; // skip this negative example
-          }
+          // if(category == null && coin.nextDouble() <= 0.5) {
+          //   continue; // skip this negative example
+          // }
           
           if(category == null) {
             category = NO_RELATION_CATEGORY;
