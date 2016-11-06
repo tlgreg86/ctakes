@@ -101,7 +101,31 @@ Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.ContractionToken</description>
         </featureDescription>
       </features>
     </typeDescription>
-    <typeDescription>
+     <typeDescription>
+        <name>org.apache.ctakes.typesystem.type.structured.DocumentIdPrefix</name>
+        <description>Can specify a prefix to a document ID. Useful for directory tree retention.</description>
+        <supertypeName>uima.cas.TOP</supertypeName>
+        <features>
+           <featureDescription>
+              <name>documentIdPrefix</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+           </featureDescription>
+        </features>
+     </typeDescription>
+     <typeDescription>
+        <name>org.apache.ctakes.typesystem.type.structured.DocumentPath</name>
+        <description>Can specify the full path to a document source. Useful for directory retention.</description>
+        <supertypeName>uima.cas.TOP</supertypeName>
+        <features>
+           <featureDescription>
+              <name>documentPath</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+           </featureDescription>
+        </features>
+     </typeDescription>
+     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.syntax.Lemma</name>
       <description>Stores a lemma (canonical form of a token).  Inherits from uima.cas.TOP, allowing for reuse of standardized forms across the CAS. 
 Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.Lemma</description>
@@ -1916,6 +1940,11 @@ This instantiates a manages/treats relation which should be marked as conditiona
         </featureDescription>
       </features>
     </typeDescription>
+     <typeDescription>
+        <name>org.apache.ctakes.typesystem.type.textspan.ListEntry</name>
+        <description>A text span corresponding to a list entry, typically a single line in a multiline List.</description>
+        <supertypeName>uima.tcas.Annotation</supertypeName>
+     </typeDescription>
     <typeDescription>
       <name>org.apache.ctakes.typesystem.type.util.Pair</name>
       <description>An Attribute-Value tuple.
