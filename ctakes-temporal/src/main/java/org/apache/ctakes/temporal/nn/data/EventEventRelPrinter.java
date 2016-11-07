@@ -197,9 +197,9 @@ public class EventEventRelPrinter {
             }
 
             // drop some portion of negative examples during training
-            if(isTraining && label.equals("none") && coin.nextDouble() <= 0.5) {
-              continue; // skip this negative example
-            }
+            // if(isTraining && label.equals("none") && coin.nextDouble() <= 0.5) {
+            //   continue; // skip this negative example
+            // }
             
             String context = ArgContextProvider.getTokenContext(systemView, sentence, mention1, "e1", mention2, "e2", 2);
             // String context = ArgContextProvider.getRegions(systemView, sentence, mention1, mention2, 2);
