@@ -290,7 +290,7 @@ EvaluationOfTemporalRelations_ImplBase{
       
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class));
       
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEvents.class));
+      // aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEvents.class));
       
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
 
@@ -343,7 +343,7 @@ EvaluationOfTemporalRelations_ImplBase{
         CAS.NAME_DEFAULT_SOFA,
         GOLD_VIEW_NAME);
     
-    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEvents.class));
+    // aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEvents.class));
 
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
     
