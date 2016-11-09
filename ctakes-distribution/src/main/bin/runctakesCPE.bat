@@ -17,7 +17,7 @@
 @REM under the License.
 @REM
 
-@REM Requires JAVA JDK 1.6+
+@REM Requires JAVA JDK 1.8+
 @REM If you plan to use the UMLS Resources, set/export env variables
 @REM set ctakes.umlsuser=[username], ctakes.umlspw=[password]
 @REM or add the properties
@@ -39,6 +39,8 @@ echo This environment variable is needed to run this program
 goto end
 
 :okHome
+@REM use JAVA_HOME if set
+if exist "%JAVA_HOME%\bin\java.exe" set PATH=%JAVA_HOME%\bin;%PATH%
 @set PATH=%PATH%;%CTAKES_HOME%\lib\auth\x64
 cd %CTAKES_HOME%
 java -cp "%CTAKES_HOME%/desc/;%CTAKES_HOME%/resources/;%CTAKES_HOME%/lib/*" -Dlog4j.configuration=file:/%CTAKES_HOME%/config/log4j.xml -Xms512M -Xmx3g org.apache.uima.tools.cpm.CpmFrame
