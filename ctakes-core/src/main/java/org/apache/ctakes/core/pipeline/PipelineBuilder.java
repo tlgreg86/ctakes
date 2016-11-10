@@ -2,7 +2,7 @@ package org.apache.ctakes.core.pipeline;
 
 
 import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
-import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
+import org.apache.ctakes.core.cr.FileTreeReader;
 import org.apache.ctakes.core.util.PropertyAeFactory;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
@@ -78,20 +78,20 @@ final public class PipelineBuilder {
    }
 
    /**
-    * Adds a Collection reader to the beginning of the pipeline that will read files in a directory.
-    * Relies upon {@link FilesInDirectoryCollectionReader#PARAM_INPUTDIR} having been specified
+    * Adds a Collection reader to the beginning of the pipeline that will read files in a directory tree.
+    * Relies upon {@link FileTreeReader#PARAM_INPUTDIR} having been specified
     * Use of this method is not order-specific.
     *
     * @return this PipelineBuilder
     * @throws UIMAException if the collection reader cannot be created
     */
    public PipelineBuilder readFiles() throws UIMAException {
-      _reader = CollectionReaderFactory.createReader( FilesInDirectoryCollectionReader.class );
+      _reader = CollectionReaderFactory.createReader( FileTreeReader.class );
       return this;
    }
 
    /**
-    * Adds a Collection reader to the beginning of the pipeline that will read files in a directory.
+    * Adds a Collection reader to the beginning of the pipeline that will read files in a directory tree.
     * Use of this method is not order-specific
     *
     * @param inputDirectory directory with input files
@@ -99,9 +99,7 @@ final public class PipelineBuilder {
     * @throws UIMAException if the collection reader cannot be created
     */
    public PipelineBuilder readFiles( final String inputDirectory ) throws UIMAException {
-      _reader = CollectionReaderFactory.createReader( FilesInDirectoryCollectionReader.class,
-            FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
-            inputDirectory );
+      _reader = FileTreeReader.createReader( inputDirectory );
       return this;
    }
 
