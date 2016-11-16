@@ -25,7 +25,7 @@ import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.collect.Lists;
 
-public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
+public class EventEventTokenAndPosBasedAnnotator extends CleartkAnnotator<String> {
 
   public static final String NO_RELATION_CATEGORY = "none";
   // private Random coin = new Random(0);
@@ -64,19 +64,22 @@ public class EventEventTokenBasedAnnotator extends CleartkAnnotator<String> {
         IdentifiedAnnotation arg1 = pair.getArg1();
         IdentifiedAnnotation arg2 = pair.getArg2();
 
-        String context;
+        String tokenContext;
+        String posContext;
         if(arg2.getBegin() < arg1.getBegin()) {
           // ... event2 ... event1 ... scenario
           System.out.println("\n-------------- THIS NEVER NAPPENS ------------\n");
-          context = ArgContextProvider.getTokenContext(jCas, sentence, arg2, "e2", arg1, "e1", 2); 
+          tokenContext = ArgContextProvider.getTokenContext(jCas, sentence, arg2, "e2", arg1, "e1", 2); 
+          posContext = ArgContextProvider.getPosContext(jCas, sentence, arg2, "e2", arg1, "e1", 2); 
         } else {
           // ... event1 ... event2 ... scenario
-          context = ArgContextProvider.getTokenContext(jCas, sentence, arg1, "e1", arg2, "e2", 2);
+          tokenContext = ArgContextProvider.getTokenContext(jCas, sentence, arg1, "e1", arg2, "e2", 2);
+          posContext = ArgContextProvider.getPosContext(jCas, sentence, arg1, "e1", arg2, "e2", 2);
         }
 
         //derive features based on context:
         List<Feature> feats = new ArrayList<>();
-        String[] tokens = context.split(" ");
+        String[] tokens = (tokenContext + "|" + posContext).split(" ");
         for (String token: tokens){
           feats.add(new Feature(token.toLowerCase()));
         }
