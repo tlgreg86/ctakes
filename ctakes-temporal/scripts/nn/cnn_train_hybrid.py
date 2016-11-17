@@ -69,7 +69,7 @@ def main(args):
 
     for filter_len in '2,3,4,5'.split(','):
         branch = Sequential()
-        branch.add(Embedding(len(provider.word2int),
+        branch.add(Embedding(len(provider.tag2int),
                              300,
                              input_length=maxlen,
                              weights=None))
