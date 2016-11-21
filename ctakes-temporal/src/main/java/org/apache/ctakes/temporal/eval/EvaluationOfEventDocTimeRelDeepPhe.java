@@ -88,6 +88,9 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 		
 		@Option
 		public boolean getSkipWrite();
+		
+		@Option
+		public boolean getTestOnTrain();
 	}
 
 	//	protected static ParameterSettings flatParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "linear",
@@ -100,7 +103,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 	protected static boolean DEFAULT_BOTH_DIRECTIONS = false;
 	protected static float DEFAULT_DOWNSAMPLE = 1.0f;
 	protected static ParameterSettings allParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, DEFAULT_DOWNSAMPLE, "tk",
-			10.0, 1.0, "polynomial", ComboOperator.SUM, 0.1, 0.5);  // (0.3, 0.4 for tklibsvm)
+			0.0500, 1.0, "polynomial", ComboOperator.SUM, 0.1, 0.5);  // (0.3, 0.4 for tklibsvm)
 	private static final String DOC_TIME_REL = "docTimeRel";
 	private static final int DISCOVERTY_TYPE = 100;
 
@@ -150,8 +153,14 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 
 			Map<String, AnnotationStatistics<String>> stats = null;
 
-			stats = evaluation.trainAndTest(trainItems, testItems);//training
-
+			//test or train or test
+			evaluation.testOnTrain = options.getTestOnTrain();
+			if(evaluation.testOnTrain){
+				stats = evaluation.trainAndTest(trainItems, trainItems);
+			}else{//test on testing set
+				stats = evaluation.trainAndTest(trainItems, testItems);//training
+			}
+			
 			String name = DOC_TIME_REL;
 			System.err.println("====================");
 			System.err.println(name);
@@ -175,6 +184,7 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 	protected boolean useGoldAttributes;
 	protected boolean skipTrain=false;
 	public boolean skipWrite = false;
+	protected boolean testOnTrain=false;
 	private Map<String, Logger> loggers = Maps.newHashMap();
 	//  protected boolean printRelations = false;
 
