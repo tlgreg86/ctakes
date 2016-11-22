@@ -253,9 +253,15 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 		}
 
 		//calculate class-wise weights:
-		String[] weightArray=new String[2];
+		String[] weightArray=new String[8];
 		weightArray[0] = "-c";
 		weightArray[1] = optArray[1];
+		weightArray[2] = "-s";
+		weightArray[3] = "7";
+		weightArray[4] = "-B";
+		weightArray[5] = "0.25";
+		weightArray[6] = "-e";
+		weightArray[7] = "1.0";
 		JarClassifierBuilder.trainAndPackage(new File(directory, DOC_TIME_REL),weightArray);
 	}
 
