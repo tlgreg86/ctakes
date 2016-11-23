@@ -157,12 +157,12 @@ final public class ListAnnotator extends JCasAnnotator_ImplBase {
                if ( boundsJ.getValue1() >= boundsI.getValue1() && boundsJ.getValue1() <= boundsI.getValue2() ) {
                   removalTypeBounds.add( boundsJ );
                   if ( boundsJ.getValue2() > boundsI.getValue2() ) {
-                     newTypeBounds.put( new Pair<>( boundsI.getValue2(), boundsJ.getValue2() ), boundsI );
+                     newTypeBounds.put( new Pair<>( boundsI.getValue1(), boundsJ.getValue2() ), boundsI );
                   }
                } else if ( boundsJ.getValue2() >= boundsI.getValue1() && boundsJ.getValue2() <= boundsI.getValue2() ) {
                   removalTypeBounds.add( boundsJ );
                   if ( boundsJ.getValue1() < boundsI.getValue1() ) {
-                     newTypeBounds.put( new Pair<>( boundsI.getValue1(), boundsJ.getValue1() ), boundsI );
+                     newTypeBounds.put( new Pair<>( boundsJ.getValue1(), boundsI.getValue2() ), boundsI );
                   }
                }
             }
@@ -173,6 +173,7 @@ final public class ListAnnotator extends JCasAnnotator_ImplBase {
          for ( Map.Entry<Pair<Integer>, Pair<Integer>> pairEntry : newTypeBounds.entrySet() ) {
             listTypes.put( pairEntry.getKey(), listTypes.get( pairEntry.getValue() ) );
          }
+         removalTypeBounds.addAll( newTypeBounds.values() );
          listTypes.keySet().removeAll( removalTypeBounds );
          if ( listTypes.size() == 1 ) {
             return listTypes;
