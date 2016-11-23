@@ -49,8 +49,10 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
       public SectionType( final String name, final String headerRegex, final String footerRegex,
                           final boolean shouldParse ) {
          __name = name;
-         __headerPattern = headerRegex == null ? null : Pattern.compile( headerRegex, Pattern.MULTILINE );
-         __footerPattern = footerRegex == null ? null : Pattern.compile( footerRegex, Pattern.MULTILINE );
+         __headerPattern = headerRegex == null ? null : Pattern
+               .compile( headerRegex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE );
+         __footerPattern = footerRegex == null ? null : Pattern
+               .compile( footerRegex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE );
          __shouldParse = shouldParse;
       }
    }
