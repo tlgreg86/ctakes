@@ -225,8 +225,7 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
          docSegment.addToIndexes();
          return;
       }
-      final List<Pair<Integer>> boundsList = new ArrayList<>( sectionTags.keySet() );
-      boundsList.sort( ( p1, p2 ) -> p1.getValue1() - p2.getValue2() );
+      final List<Pair<Integer>> boundsList = createBoundsList( sectionTags.keySet() );
       Pair<Integer> leftBounds = boundsList.get( 0 );
       int sectionEnd;
       if ( leftBounds.getValue1() > 0 ) {
@@ -259,7 +258,7 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
             // Section has no text, parsing would be pointless
             continue;
          }
-         while ( docText.charAt( sectionBegin ) == ' ' ) {
+         while ( Character.isWhitespace( docText.charAt( sectionBegin ) ) ) {
             sectionBegin++;
          }
          final SectionTag leftTag = sectionTags.get( leftBounds );
@@ -276,6 +275,32 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
          segment.addToIndexes();
       }
    }
+
+
+   static private List<Pair<Integer>> createBoundsList( final Collection<Pair<Integer>> bounds ) {
+      final List<Pair<Integer>> boundsList = new ArrayList<>( bounds );
+      boundsList.sort( ( p1, p2 ) -> p1.getValue1() - p2.getValue2() );
+      final Collection<Pair<Integer>> removalBounds = new HashSet<>();
+      for ( int i = 0; i < boundsList.size() - 1; i++ ) {
+         final Pair<Integer> pairI = boundsList.get( i );
+         for ( int j = i + 1; j < boundsList.size(); j++ ) {
+            final Pair<Integer> pairJ = boundsList.get( j );
+            if ( pairJ.getValue1() >= pairI.getValue2() ) {
+               break;
+            }
+            if ( pairI.getValue2() >= pairJ.getValue2() ) {
+               removalBounds.add( pairJ );
+               break;
+            } else if ( pairI.getValue1() >= pairJ.getValue1() && pairJ.getValue2() > pairI.getValue2() ) {
+               removalBounds.add( pairI );
+               break;
+            }
+         }
+      }
+      boundsList.removeAll( removalBounds );
+      return boundsList;
+   }
+
 
    /**
     * @param text -
