@@ -156,7 +156,10 @@ final public class RegexSpanFinder implements Closeable {
          final Matcher matcher = __pattern.matcher( __text );
          while ( matcher.find() && !Thread.currentThread().isInterrupted() ) {
             final Pair<Integer> bounds = new Pair<>( matcher.start(), matcher.end() );
-            listBounds.add( bounds );
+            if ( bounds.getValue1() >= 0 && bounds.getValue2() > bounds.getValue1() &&
+                 bounds.getValue2() <= __text.length() ) {
+               listBounds.add( bounds );
+            }
          }
          return listBounds;
       }
