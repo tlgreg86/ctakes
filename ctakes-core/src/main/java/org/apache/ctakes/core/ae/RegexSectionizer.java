@@ -244,7 +244,7 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
       // add segments 1 -> n
       for ( int i = 0; i < length; i++ ) {
          leftBounds = boundsList.get( i );
-         final int sectionBegin = leftBounds.getValue2();
+         int sectionBegin = leftBounds.getValue2();
          if ( i + 1 < length ) {
             sectionEnd = boundsList.get( i + 1 ).getValue1();
          } else {
@@ -258,6 +258,9 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
          if ( docText.substring( sectionBegin, sectionEnd ).trim().isEmpty() ) {
             // Section has no text, parsing would be pointless
             continue;
+         }
+         while ( docText.charAt( sectionBegin ) == ' ' ) {
+            sectionBegin++;
          }
          final SectionTag leftTag = sectionTags.get( leftBounds );
          final Segment segment = new Segment( jcas, sectionBegin, sectionEnd );
