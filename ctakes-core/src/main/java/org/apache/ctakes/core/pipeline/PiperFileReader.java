@@ -163,6 +163,9 @@ final public class PiperFileReader {
          case "addParameters":
             _builder.addParameters( splitParameters( parameter ) );
             break;
+         case "set":
+            _builder.addParameters( splitParameters( parameter ) );
+            break;
          case "reader":
             _builder.reader( createReader( parameter ) );
             break;
