@@ -18,10 +18,16 @@
  */
 package org.apache.ctakes.temporal.ae;
 
-import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
-import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.CopyNPChunksToLookupWindowAnnotations;
-import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.RemoveEnclosedLookupWindows;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
+import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.CopyNPChunksToLookupWindowAnnotations;
+import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.RemoveEnclosedLookupWindows;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
@@ -33,14 +39,7 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-public class EventAnnotatorTest {
+public class EventAnnotatorTest extends TemporalTest_ImplBase {
 
 	// LOG4J logger based on class name
 	private Logger LOGGER = Logger.getLogger(getClass().getName());
@@ -55,7 +54,7 @@ public class EventAnnotatorTest {
 
 		// Get the default pipeline
 		AggregateBuilder builder = new AggregateBuilder();
-		builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
+		builder.add(getTokenProcessingPipeline());
 		builder.add(AnalysisEngineFactory
 				.createEngineDescription(CopyNPChunksToLookupWindowAnnotations.class));
 		builder.add(AnalysisEngineFactory

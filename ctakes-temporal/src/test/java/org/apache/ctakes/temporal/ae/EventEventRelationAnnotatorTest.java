@@ -19,14 +19,11 @@
 package org.apache.ctakes.temporal.ae;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
-import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.CopyNPChunksToLookupWindowAnnotations;
-import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory.RemoveEnclosedLookupWindows;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
-import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
+import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.CopyNPChunksToLookupWindowAnnotations;
+import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.RemoveEnclosedLookupWindows;
 import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
@@ -34,7 +31,6 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -45,7 +41,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-public class EventEventRelationAnnotatorTest {
+public class EventEventRelationAnnotatorTest extends TemporalTest_ImplBase {
 
 	// LOG4J logger based on class name
 	private Logger LOGGER = Logger.getLogger(getClass().getName());
@@ -60,7 +56,7 @@ public class EventEventRelationAnnotatorTest {
 
 		// Get the default pipeline with umls dictionary lookup
 		AggregateBuilder builder = new AggregateBuilder();
-		builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
+		builder.add(getTokenProcessingPipeline());
 		builder.add(AnalysisEngineFactory
 				.createEngineDescription(CopyNPChunksToLookupWindowAnnotations.class));
 		builder.add(AnalysisEngineFactory
