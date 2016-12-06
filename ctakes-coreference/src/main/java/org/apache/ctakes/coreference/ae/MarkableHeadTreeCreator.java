@@ -45,14 +45,14 @@ public class MarkableHeadTreeCreator extends JCasAnnotator_ImplBase {
     try{
       docId = DocumentIDAnnotationUtil.getDocumentID(jcas);
     }catch(Exception e){
-      e.printStackTrace();
+      //System.err.println(e.getMessage());
     }
     if(docId == null || docId == DocumentIDAnnotationUtil.NO_DOCUMENT_ID){
       try {
         docId = ViewUriUtil.getURI(jcas).toString();
-      } catch (AnalysisEngineProcessException e) {
-        e.printStackTrace();
-        logger.warn("No document ID found using traditional methods. Using ad hoc combination");
+      } catch (Exception e) {
+        //System.err.println(e.getMessage());
+        //logger.warn("No document ID found using traditional methods. Using ad hoc combination");
         String docText = jcas.getDocumentText();
         docId = docText.substring(0, Math.min(20, docText.length())) + "_hash=" + docText.hashCode(); 
       }

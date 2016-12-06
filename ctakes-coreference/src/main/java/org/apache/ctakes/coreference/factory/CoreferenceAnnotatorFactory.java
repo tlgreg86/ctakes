@@ -22,6 +22,10 @@ import org.apache.ctakes.coreference.ae.DeterministicMarkableAnnotator;
 import org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator;
 import org.apache.ctakes.coreference.ae.MarkableSalienceAnnotator;
 import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator;
+import org.apache.ctakes.coreference.ae.MipacqMarkableCreator;
+import org.apache.ctakes.coreference.ae.MipacqMarkableExpander;
+import org.apache.ctakes.coreference.ae.MipacqMarkablePairGenerator;
+import org.apache.ctakes.coreference.ae.MipacqSvmChainCreator;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
@@ -55,6 +59,17 @@ public class CoreferenceAnnotatorFactory {
 
     builder.add(getMentionClusterResolverDescription());
     
+    return builder.createAggregateDescription();
+  }
+  
+  public static AnalysisEngineDescription getLegacyCoreferencePipeline() throws ResourceInitializationException{
+    AggregateBuilder builder = new AggregateBuilder();
+    
+    builder.add(AnalysisEngineFactory.createEngineDescription(MipacqMarkableCreator.class));
+    builder.add(AnalysisEngineFactory.createEngineDescription(MipacqMarkableExpander.class));
+    builder.add(AnalysisEngineFactory.createEngineDescription(MipacqMarkablePairGenerator.class));
+    builder.add(AnalysisEngineFactory.createEngineDescription(MipacqSvmChainCreator.class));
+
     return builder.createAggregateDescription();
   }
   

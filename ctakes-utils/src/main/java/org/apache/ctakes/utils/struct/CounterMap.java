@@ -18,7 +18,11 @@
  */
 package org.apache.ctakes.utils.struct;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 // This class is a simplifying class which makes it easy to build hashes to keep track of counts
 // and write less boilerplate code.  If you just call it with an object, it will increment the
@@ -43,4 +47,12 @@ public class CounterMap<K> extends HashMap<K, java.lang.Integer> {
 		}
 		super.put(key, super.get(key)+i);
 	}
+	
+	public List<K> getKeysSortedByValue(){
+	  return entrySet()
+        .stream()
+        .sorted(Map.Entry.comparingByValue(Collections.reverseOrder()))
+        .map(e -> e.getKey())
+        .collect(Collectors.toList());
+   	}
 }

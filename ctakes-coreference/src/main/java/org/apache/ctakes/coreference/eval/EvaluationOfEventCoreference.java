@@ -34,7 +34,7 @@ import org.apache.ctakes.coreference.ae.MarkableSalienceAnnotator;
 import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator;
 import org.apache.ctakes.coreference.ae.MentionClusterRankingCoreferenceAnnotator;
 import org.apache.ctakes.coreference.ae.PersonChainAnnotator;
-import org.apache.ctakes.coreference.util.CoreferencePipelineFactory;
+import org.apache.ctakes.coreference.factory.CoreferenceAnnotatorFactory;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
@@ -423,7 +423,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     }else if(this.evalType == EVAL_SYSTEM.CLUSTER_RANK){
       aggregateBuilder.add(MentionClusterRankingCoreferenceAnnotator.createAnnotatorDescription(directory.getAbsolutePath() + File.separator + "model.jar"));
     }else if(this.evalType == EVAL_SYSTEM.BASELINE){
-      aggregateBuilder.add(CoreferencePipelineFactory.getCoreferencePipeline());
+      aggregateBuilder.add(CoreferenceAnnotatorFactory.getLegacyCoreferencePipeline());
     }else{
       logger.info("Running an evaluation that does not add an annotator: " + this.evalType);
     }

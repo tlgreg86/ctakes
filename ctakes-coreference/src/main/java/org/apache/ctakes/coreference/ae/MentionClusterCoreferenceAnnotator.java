@@ -1,13 +1,18 @@
 package org.apache.ctakes.coreference.ae;
 
+import static org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator.getKey;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterAgreementFeaturesExtractor;
@@ -24,14 +29,30 @@ import org.apache.ctakes.coreference.ae.pairing.cluster.ClusterPairer;
 import org.apache.ctakes.coreference.ae.pairing.cluster.HeadwordPairer;
 import org.apache.ctakes.coreference.ae.pairing.cluster.SectionHeaderPairer;
 import org.apache.ctakes.coreference.ae.pairing.cluster.SentenceDistancePairer;
+import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
+import org.apache.ctakes.typesystem.type.refsem.AnatomicalSite;
+import org.apache.ctakes.typesystem.type.refsem.DiseaseDisorder;
+import org.apache.ctakes.typesystem.type.refsem.Element;
+import org.apache.ctakes.typesystem.type.refsem.Event;
+import org.apache.ctakes.typesystem.type.refsem.Medication;
+import org.apache.ctakes.typesystem.type.refsem.Procedure;
+import org.apache.ctakes.typesystem.type.refsem.SignSymptom;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelationIdentifiedAnnotationRelation;
 import org.apache.ctakes.typesystem.type.relation.CoreferenceRelation;
+import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
+import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
+import org.apache.ctakes.typesystem.type.textsem.DiseaseDisorderMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.Markable;
+import org.apache.ctakes.typesystem.type.textsem.MedicationMention;
+import org.apache.ctakes.typesystem.type.textsem.ProcedureMention;
+import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
+import org.apache.ctakes.utils.struct.CounterMap;
+import org.apache.ctakes.utils.struct.MapFactory;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -40,6 +61,7 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.EmptyFSList;
+import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.CleartkAnnotator;
@@ -250,39 +272,6 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
               feature.setValue("NULL");
               String message = String.format("Null value found in %s from %s", feature, features);
               System.err.println(message);
-              //            throw new IllegalArgumentException(String.format(message, feature, features));
-            }else{
-//              String prefix = null;
-              //  Durret and Klein style feature conjunctions: pronoun type or pos tag. maybe try umls semantic-type?
-              /*
-              if(mentionText.equals("it") || mentionText.equals("this") || mentionText.equals("that")){
-                prefix = "PRO_"+mentionText;
-              }else if(headNode != null && headNode.getPostag() != null){
-                prefix = headNode.getPostag();                
-              }else{
-                prefix = "UNK";
-              }
-              */
-              // headword-based feature conjunctions
-/*              if(headNode != null && headNode.getCoveredText() != null && headMatches(headNode.getCoveredText().toLowerCase(), features)){
-                prefix = "HEAD_MATCH";
-              }else{
-                prefix = "NO_HEAD_MATCH";
-              }
-*/
-              
-              // UMLS semantic type feature conjunctions
-              /*
-              for(Feature feat : features){
-                if(feat.getName().startsWith("ClusterSemType")){
-                  dupFeatures.add(new Feature(feat.getName()+"_"+feature.getName(), feature.getValue()));
-                }
-              }
-              */
-              
-//              if(prefix != null){
-//                dupFeatures.add(new Feature(prefix+"_"+feature.getName(), feature.getValue()));
-//              }
             }            
           }
           
@@ -350,6 +339,8 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
     }
     
     removeSingletonClusters(jCas);
+    
+    createEventClusters(jCas);
   }
   
  
@@ -423,6 +414,68 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
     ListFactory.append(jCas, cluster.getMembers(), mention);    
   }
 
+  /**
+   * Create the set of Event types for every chain we found in the document.
+   * Event is a non-Annotation type (i.e., no span) that has its own attributes
+   * but points to an FSArray of mentions which each have their own attributes.
+   * 
+   * @param jCas
+   *        - JCas object, needed to create UIMA types
+   * @throws AnalysisEngineProcessException 
+   */
+  private static void createEventClusters(JCas jCas) throws AnalysisEngineProcessException{
+    // First, find the largest span identified annotation that shares a headword with the markable
+    // do that by finding the head of the markable, then finding the identifiedannotations that cover it:
+    Map<ConllDependencyNode, Collection<IdentifiedAnnotation>> dep2event = JCasUtil.indexCovering(jCas, ConllDependencyNode.class, IdentifiedAnnotation.class);
+    for(CollectionTextRelation cluster : JCasUtil.select(jCas, CollectionTextRelation.class)){
+      CounterMap<Class<? extends IdentifiedAnnotation>> headCounts = new CounterMap<>();
+      List<Markable> memberList = new ArrayList<>(JCasUtil.select(cluster.getMembers(), Markable.class));
+      for(Markable member : memberList){
+        ConllDependencyNode head = MapFactory.get(getKey(jCas), member);
+        // Now find all the identified annotations that share this head:
+        IdentifiedAnnotation largest = null;
+        for(IdentifiedAnnotation covering : dep2event.get(head)){
+          if(isUmlsAnnotation(covering) && head == DependencyUtility.getNominalHeadNode(jCas, covering)){
+            if(largest == null || (covering.getEnd()-covering.getBegin() > (largest.getEnd()-largest.getBegin()))){
+              largest = covering;
+            }
+          }            
+        }
+        if(largest != null){
+          headCounts.add(largest.getClass());
+        }
+      }
+      FSArray mentions = new FSArray(jCas, memberList.size());
+      IntStream.range(0, memberList.size()).forEach(i -> mentions.set(i, memberList.get(i)));
+      
+      Element element = null;
+      if(headCounts.size() == 0){
+        element = new Event(jCas);
+      }else{
+        Class<? extends IdentifiedAnnotation> mostCommon = headCounts.entrySet().stream()
+            .sorted(Map.Entry.<Class<? extends IdentifiedAnnotation>,Integer>comparingByValue().reversed())
+            .limit(1)
+            .map(f -> f.getKey())
+            .collect(Collectors.toList()).get(0);
+        if(mostCommon.equals(DiseaseDisorderMention.class)){
+          element = new DiseaseDisorder(jCas);
+        }else if(mostCommon.equals(ProcedureMention.class)){
+          element = new Procedure(jCas);
+        }else if(mostCommon.equals(SignSymptomMention.class)){
+          element = new SignSymptom(jCas);
+        }else if(mostCommon.equals(MedicationMention.class)){
+          element = new Medication(jCas);
+        }else if(mostCommon.equals(AnatomicalSiteMention.class)){
+          element = new AnatomicalSite(jCas);
+        }else{
+          System.err.println("This coreference chain has an unknown type: " + mostCommon.getSimpleName());
+          throw new AnalysisEngineProcessException();
+        }
+      }
+      element.setMentions(mentions);
+      element.addToIndexes();
+    }
+  }
 
   private static void removeSingletonClusters(JCas jcas){
     List<CollectionTextRelation> toRemove = new ArrayList<>();
@@ -436,6 +489,14 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
     for(CollectionTextRelation rel : toRemove){
       rel.removeFromIndexes();
     }
+  }
+  
+  private static boolean isUmlsEvent(IdentifiedAnnotation a){
+    return a instanceof DiseaseDisorderMention || a instanceof SignSymptomMention || a instanceof ProcedureMention || a instanceof MedicationMention;
+  }
+  
+  private static boolean isUmlsAnnotation(IdentifiedAnnotation a){
+    return isUmlsEvent(a) || a instanceof AnatomicalSiteMention;
   }
   
 //  private static final boolean dominates(Annotation arg1, Annotation arg2) {

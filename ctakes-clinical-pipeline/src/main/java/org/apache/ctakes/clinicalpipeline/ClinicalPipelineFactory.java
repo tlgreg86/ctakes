@@ -18,7 +18,21 @@
  */
 package org.apache.ctakes.clinicalpipeline;
 
-import org.apache.ctakes.assertion.medfacts.cleartk.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.ctakes.assertion.medfacts.cleartk.ConditionalCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.GenericCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.HistoryCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.SubjectCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.UncertaintyCleartkAnalysisEngine;
 import org.apache.ctakes.chunker.ae.Chunker;
 import org.apache.ctakes.chunker.ae.adjuster.ChunkAdjuster;
 import org.apache.ctakes.constituency.parser.ae.ConstituencyParser;
@@ -26,6 +40,7 @@ import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
+import org.apache.ctakes.coreference.factory.CoreferenceAnnotatorFactory;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
@@ -50,11 +65,6 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.xml.sax.SAXException;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.*;
 
 final public class ClinicalPipelineFactory {
 
@@ -127,6 +137,16 @@ final public class ClinicalPipelineFactory {
       // adjust NP in NP PP NP to span all three
       builder.add( ChunkAdjuster.createAnnotatorDescription( new String[] { "NP", "PP", "NP" }, 2 ) );
       return builder.createAggregateDescription();
+   }
+   
+   public static AnalysisEngineDescription getCoreferencePipeline() throws ResourceInitializationException, MalformedURLException {
+     AggregateBuilder builder = new AggregateBuilder();
+     
+     builder.add(getFastPipeline());
+     builder.add(ConstituencyParser.createAnnotatorDescription());
+     builder.add(CoreferenceAnnotatorFactory.getDefaultCoreferencePipeline());
+     
+     return builder.createAggregateDescription();
    }
 
    public static void main( final String... args ) throws IOException, UIMAException, SAXException {
