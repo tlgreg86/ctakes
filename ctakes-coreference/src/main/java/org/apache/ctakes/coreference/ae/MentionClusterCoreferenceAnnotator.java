@@ -337,6 +337,7 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
         if(singleton){
           // make the markable it's own cluster:
           CollectionTextRelation chain = new CollectionTextRelation(jCas);
+          chain.setCategory("Identity");
           NonEmptyFSList list = new NonEmptyFSList(jCas);
           list.setHead(mention);
           list.setTail(new EmptyFSList(jCas));
