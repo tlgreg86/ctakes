@@ -123,7 +123,7 @@ public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
 //        Annotation mention = (Annotation) ((NonEmptyFSList) members).getHead();
         ent2chain.put(mention, chainNum);
         members = ((NonEmptyFSList)members).getTail();
-        System.out.print("Mention: " + mention.getCoveredText());
+        System.out.print("Mention: " + mention.getCoveredText().replace("\n", "<CR>"));
         System.out.print(" (" + mention.getBegin() + ", " + mention.getEnd() + ")");
         System.out.print("  ----->    ");
       }

@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,7 @@ import org.apache.uima.analysis_engine.metadata.FixedFlow;
 import org.apache.uima.analysis_engine.metadata.FlowConstraints;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
+import org.apache.uima.cas.Feature;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.component.ViewCreatorAnnotator;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -92,13 +94,12 @@ import org.apache.uima.jcas.cas.FloatArray;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.CasCopier;
 import org.apache.uima.util.FileUtils;
 import org.cleartk.eval.AnnotationStatistics;
 import org.cleartk.ml.CleartkAnnotator;
-import org.cleartk.ml.jar.DataWriterFactory_ImplBase;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
-import org.cleartk.ml.jar.EncodingDirectoryDataWriterFactory;
 import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 import org.cleartk.ml.svmlight.rank.SvmLightRankDataWriter;
@@ -136,6 +137,9 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     
     @Option(shortName="s")
     public String getScorerPath();
+    
+    @Option
+    public boolean getGoldMarkables();
     
     @Option
     public boolean getSkipTest();
@@ -186,15 +190,10 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         options.getKernelParams(),
         options.getOutputDirectory());
 
-    if(options.getSkipTrain()){
-      eval.skipTrain = true;
-    }
-    if(options.getSkipDataWriting()){
-      eval.skipWrite = true;
-    }
-    if(options.getSkipTest()){
-      eval.skipTest = true;
-    }
+    eval.skipTrain = options.getSkipTrain();
+    eval.skipWrite = options.getSkipDataWriting();
+    eval.skipTest = options.getSkipTest();
+    eval.goldMarkables = options.getGoldMarkables();
     eval.evalType = options.getEvalSystem();
     eval.config = options.getConfig();
     goldOut = "gold." + eval.config + ".conll";
@@ -246,6 +245,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
   boolean skipTrain=false; 
   boolean skipWrite=false;
   boolean skipTest=false;
+  boolean goldMarkables=false;
   public enum EVAL_SYSTEM { BASELINE, MENTION_PAIR, MENTION_CLUSTER, CLUSTER_RANK, PERSON_ONLY };
   EVAL_SYSTEM evalType;
   String config=null;
@@ -279,14 +279,20 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
 
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ViewCreatorAnnotator.class, ViewCreatorAnnotator.PARAM_VIEW_NAME, "Baseline"));
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphAnnotator.class));
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphVectorAnnotator.class));
+//      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphVectorAnnotator.class));
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RelationPropagator.class));
       aggregateBuilder.add(EventAnnotator.createAnnotatorDescription());
       aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
       aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DeterministicMarkableAnnotator.class));
-      //    aggregateBuilder.add(CopyFromGold.getDescription(/*Markable.class,*/ CoreferenceRelation.class, CollectionTextRelation.class));
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemovePersonMarkables.class));
+      if(this.goldMarkables){
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyGoldMarkablesInChains.class));
+      }else{
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DeterministicMarkableAnnotator.class));
+        //    aggregateBuilder.add(CopyFromGold.getDescription(/*Markable.class,*/ CoreferenceRelation.class, CollectionTextRelation.class));
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemovePersonMarkables.class));
+      }
+      // MarkableHeadTreeCreator creates a cache of mappings from Markables to dependency heads since so many feature extractors use that information
+      // major speedup
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(MarkableHeadTreeCreator.class));
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyCoreferenceRelations.class, CopyCoreferenceRelations.PARAM_GOLD_VIEW, GOLD_VIEW_NAME));
       aggregateBuilder.add(MarkableSalienceAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/salience/model.jar"));
@@ -390,7 +396,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     aggregateBuilder.add(HistoryCleartkAnalysisEngine.createAnnotatorDescription());
     aggregateBuilder.add(SubjectCleartkAnalysisEngine.createAnnotatorDescription());
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphAnnotator.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphVectorAnnotator.class));
+//    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphVectorAnnotator.class));
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RelationPropagator.class));
     aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
     aggregateBuilder.add(EventAnnotator.createAnnotatorDescription());
@@ -400,8 +406,13 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         this.outputDirectory + goldOut,
         CoreferenceChainScoringOutput.PARAM_GOLD_VIEW_NAME,
         GOLD_VIEW_NAME));
-    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DeterministicMarkableAnnotator.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemovePersonMarkables.class));
+    if(this.goldMarkables){
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyGoldMarkablesInChains.class)); //CopyFromGold.getDescription(Markable.class));
+    }else{
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DeterministicMarkableAnnotator.class));
+      //    aggregateBuilder.add(CopyFromGold.getDescription(/*Markable.class,*/ CoreferenceRelation.class, CollectionTextRelation.class));
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemovePersonMarkables.class));
+    }
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(MarkableHeadTreeCreator.class));
     aggregateBuilder.add(MarkableSalienceAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/salience/model.jar"));
     if(this.evalType == EVAL_SYSTEM.MENTION_PAIR){
@@ -417,7 +428,9 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
       logger.info("Running an evaluation that does not add an annotator: " + this.evalType);
     }
 //    aggregateBuilder.add(CoreferenceChainAnnotator.createAnnotatorDescription());
-    aggregateBuilder.add(PersonChainAnnotator.createAnnotatorDescription());
+    if(!this.goldMarkables){
+      aggregateBuilder.add(PersonChainAnnotator.createAnnotatorDescription());
+    }
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
         CoreferenceChainScoringOutput.PARAM_OUTPUT_FILENAME,
         this.outputDirectory + systemOut));
@@ -510,6 +523,42 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     
   }
   
+  public static class CopyGoldMarkablesInChains extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+
+    @Override
+    public void process(JCas jCas) throws AnalysisEngineProcessException {
+      JCas goldView, systemView;
+      try {
+        goldView = jCas.getView( GOLD_VIEW_NAME );
+        systemView = jCas.getView( CAS.NAME_DEFAULT_SOFA );
+      } catch ( CASException e ) {
+        throw new AnalysisEngineProcessException( e );
+      }
+      // first remove any system markables that snuck in
+      for ( Markable annotation : Lists.newArrayList( JCasUtil.select( systemView, Markable.class ) ) ) {
+        annotation.removeFromIndexes();
+      }
+
+      CasCopier copier = new CasCopier( goldView.getCas(), systemView.getCas() );
+      Feature sofaFeature = jCas.getTypeSystem().getFeatureByFullName( CAS.FEATURE_FULL_NAME_SOFA );
+      HashSet<String> existingSpans = new HashSet<>();
+      for ( CollectionTextRelation chain : JCasUtil.select(goldView, CollectionTextRelation.class)){
+        for ( Markable markable : JCasUtil.select(chain.getMembers(), Markable.class)){
+          // some spans are annotated twice erroneously in gold -- if we can't fix make sure we don't add twice
+          // or else the evaluation script will explode.
+          String key = markable.getBegin() + "-" + (markable.getEnd() - markable.getBegin());
+          if(existingSpans.contains(key)) continue;
+          
+          Markable copy = (Markable)copier.copyFs( markable );
+          copy.setFeatureValue( sofaFeature, systemView.getSofa() );
+          copy.addToIndexes( systemView );
+          existingSpans.add(key);
+        }
+      }
+    }
+      
+    
+  }
   /*
    * The Relation extractors all create relation objects but don't populate the objects inside of them
    * with pointers to the relation.
@@ -686,6 +735,9 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         do{
           NonEmptyFSList element = (NonEmptyFSList) head;
           Markable goldMarkable = (Markable) element.getHead();
+          if(goldMarkable == null){
+            logger.error(String.format("Found an unexpected null gold markable"));
+          }
           boolean mapped = mapGoldMarkable(jcas, goldMarkable, gold2sys, depIndex);
           
           // if we can't align the gold markable with one in the system cas then don't add it:
@@ -831,7 +883,8 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
           System.err.println("Unauthorized markable 'I'");
         }
         List<BaseToken> coveredTokens = JCasUtil.selectCovered(jcas, BaseToken.class, markable);
-        if(coveredTokens.size() == 1 && coveredTokens.get(0).getPartOfSpeech().startsWith("PRP") &&
+        if(coveredTokens.size() == 1 && coveredTokens.get(0).getPartOfSpeech() != null &&
+            coveredTokens.get(0).getPartOfSpeech().startsWith("PRP") &&
             !markable.getCoveredText().toLowerCase().equals("it")){
           toRemove.add(markable);
         }else if(coveredTokens.size() > 0 && (coveredTokens.get(0).getCoveredText().startsWith("Mr.") || coveredTokens.get(0).getCoveredText().startsWith("Dr.") ||
