@@ -1,11 +1,8 @@
 package org.apache.ctakes.coreference.ae;
 
-import static org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator.getKey;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,7 +26,7 @@ import org.apache.ctakes.coreference.ae.pairing.cluster.ClusterPairer;
 import org.apache.ctakes.coreference.ae.pairing.cluster.HeadwordPairer;
 import org.apache.ctakes.coreference.ae.pairing.cluster.SectionHeaderPairer;
 import org.apache.ctakes.coreference.ae.pairing.cluster.SentenceDistancePairer;
-import org.apache.ctakes.dependency.parser.util.DependencyUtility;
+import org.apache.ctakes.coreference.util.MarkableUtilities;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.typesystem.type.refsem.AnatomicalSite;
@@ -42,7 +39,6 @@ import org.apache.ctakes.typesystem.type.refsem.SignSymptom;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelationIdentifiedAnnotationRelation;
 import org.apache.ctakes.typesystem.type.relation.CoreferenceRelation;
-import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
 import org.apache.ctakes.typesystem.type.textsem.DiseaseDisorderMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -52,7 +48,6 @@ import org.apache.ctakes.typesystem.type.textsem.ProcedureMention;
 import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.utils.struct.CounterMap;
-import org.apache.ctakes.utils.struct.MapFactory;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -426,20 +421,19 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
   private static void createEventClusters(JCas jCas) throws AnalysisEngineProcessException{
     // First, find the largest span identified annotation that shares a headword with the markable
     // do that by finding the head of the markable, then finding the identifiedannotations that cover it:
-    Map<ConllDependencyNode, Collection<IdentifiedAnnotation>> dep2event = JCasUtil.indexCovering(jCas, ConllDependencyNode.class, IdentifiedAnnotation.class);
+    
+    Map<Markable, List<IdentifiedAnnotation>> markable2annotations = MarkableUtilities.indexCoveringUmlsAnnotations(jCas);
+
     for(CollectionTextRelation cluster : JCasUtil.select(jCas, CollectionTextRelation.class)){
       CounterMap<Class<? extends IdentifiedAnnotation>> headCounts = new CounterMap<>();
       List<Markable> memberList = new ArrayList<>(JCasUtil.select(cluster.getMembers(), Markable.class));
       for(Markable member : memberList){
-        ConllDependencyNode head = MapFactory.get(getKey(jCas), member);
-        // Now find all the identified annotations that share this head:
+        // Now find the largest covering annotation:
         IdentifiedAnnotation largest = null;
-        for(IdentifiedAnnotation covering : dep2event.get(head)){
-          if(isUmlsAnnotation(covering) && head == DependencyUtility.getNominalHeadNode(jCas, covering)){
-            if(largest == null || (covering.getEnd()-covering.getBegin() > (largest.getEnd()-largest.getBegin()))){
-              largest = covering;
-            }
-          }            
+        for(IdentifiedAnnotation covering : markable2annotations.get(member)){
+          if(largest == null || (covering.getEnd()-covering.getBegin() > (largest.getEnd()-largest.getBegin()))){
+            largest = covering;
+          }
         }
         if(largest != null){
           headCounts.add(largest.getClass());
@@ -447,7 +441,7 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
       }
       FSArray mentions = new FSArray(jCas, memberList.size());
       IntStream.range(0, memberList.size()).forEach(i -> mentions.set(i, memberList.get(i)));
-      
+
       Element element = null;
       if(headCounts.size() == 0){
         element = new Event(jCas);
@@ -491,14 +485,7 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
     }
   }
   
-  private static boolean isUmlsEvent(IdentifiedAnnotation a){
-    return a instanceof DiseaseDisorderMention || a instanceof SignSymptomMention || a instanceof ProcedureMention || a instanceof MedicationMention;
-  }
-  
-  private static boolean isUmlsAnnotation(IdentifiedAnnotation a){
-    return isUmlsEvent(a) || a instanceof AnatomicalSiteMention;
-  }
-  
+ 
 //  private static final boolean dominates(Annotation arg1, Annotation arg2) {
 //    return (arg1.getBegin() <= arg2.getBegin() && arg1.getEnd() >= arg2.getEnd());
 //  }
