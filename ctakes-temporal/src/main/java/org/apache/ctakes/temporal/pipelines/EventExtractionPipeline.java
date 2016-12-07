@@ -71,4 +71,5 @@ public class EventExtractionPipeline extends TemporalExtractionPipeline_ImplBase
         aggregateBuilder.createAggregate(),
         xWriter);
 	}
+	
 }
