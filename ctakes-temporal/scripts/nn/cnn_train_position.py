@@ -42,7 +42,7 @@ def main(args):
   pickle.dump(maxlen, open(os.path.join(working_dir, 'maxlen.p'),"wb"))
   pickle.dump(provider.word2int, open(os.path.join(working_dir, 'word2int.p'),"wb"))
   pickle.dump(provider.label2int, open(os.path.join(working_dir, 'label2int.p'),"wb"))
-  pickle.dump(provider.tdis2int, open(os.path.join(working_dir, 'tdist2int.p'),"wb"))
+  pickle.dump(provider.tdist2int, open(os.path.join(working_dir, 'tdist2int.p'),"wb"))
   pickle.dump(provider.edist2int, open(os.path.join(working_dir, 'edist2int.p'),"wb"))
 
   branches = [] # models to be merged
@@ -107,10 +107,10 @@ def main(args):
             validation_split=0.1,
             class_weight=None)
 
-    json_string = model.to_json()
-    open(os.path.join(working_dir, 'model_0.json'), 'w').write(json_string)
-    model.save_weights(os.path.join(working_dir, 'model_0.h5'), overwrite=True)
-    sys.exit(0)
+  json_string = model.to_json()
+  open(os.path.join(working_dir, 'model_0.json'), 'w').write(json_string)
+  model.save_weights(os.path.join(working_dir, 'model_0.h5'), overwrite=True)
+  sys.exit(0)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
