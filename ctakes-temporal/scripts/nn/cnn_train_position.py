@@ -101,9 +101,9 @@ def main(args):
                 metrics=['accuracy'])
   model.fit(train_xs,
             train_y,
-            nb_epoch=1,
+            nb_epoch=30,
             batch_size=50,
-            verbose=1,
+            verbose=0,
             validation_split=0.1,
             class_weight=None)
 

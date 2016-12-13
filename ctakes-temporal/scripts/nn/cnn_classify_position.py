@@ -42,28 +42,28 @@ def main(args):
                 if token in word2int:
                     tokens.append(word2int[token])
                 else:
-                    tokens.append(word2int['none'])
+                    tokens.append(word2int['oov_word'])
 
             tdists = []
             for dist in tdist.rstrip().split():
                 if dist in tdist2int:
                     tdists.append(tdist2int[dist])
                 else:
-                    tdists.append(tdist2int['none'])
+                    tdists.append(tdist2int['oov_word'])
 
             edists = []
             for dist in edist.rstrip().split():
                 if dist in edist2int:
                     edists.append(edist2int[dist])
                 else:
-                    edists.append(edist2int['none'])
+                    edists.append(edist2int['oov_word'])
 
             if len(tokens) > maxlen:
                 tokens = tokens[0:maxlen]
             if len(tdists) > maxlen:
-                tdists = tdist[0:maxlen]
+                tdists = tdists[0:maxlen]
             if len(edists) > maxlen:
-                edists = edist[0:maxlen]
+                edists = edists[0:maxlen]
 
             test_x1 = pad_sequences([tokens], maxlen=maxlen)
             test_x2 = pad_sequences([tdists], maxlen=maxlen)
