@@ -33,7 +33,6 @@ import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.temporal.eval.CommandLine;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -194,8 +193,7 @@ public class EventEventRelPositionPrinter {
               System.out.println();
             }
             
-            String context = getPositionContext(systemView, sentence, mention1, mention2);
-            // String context = ArgContextProvider.getRegions(systemView, sentence, mention1, mention2, 2);
+            String context = ArgContextProvider.getEventEventPositionContext(systemView, sentence, mention1, mention2);
             
             String text = String.format("%s|%s", label, context);
             eventEventRelationsInSentence.add(text.toLowerCase());
@@ -210,54 +208,4 @@ public class EventEventRelPositionPrinter {
       }
     }
   }
-  
-  /**
-   * Print indices
-   * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
-   */
-  public static String getPositionContext(
-      JCas jCas, 
-      Sentence sent, 
-      EventMention event1,
-      EventMention event2) {
-
-    // get sentence as a list of tokens
-    List<String> tokens = new ArrayList<>();
-    for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, sent)) {
-      tokens.add(baseToken.getCoveredText());  
-    }
-    
-    // find the positions of event mentions
-    // assume both events consists of just head words
-    
-    int currentPosition = 0;       // current token index
-    int event1Position = -1000;    // event1's index
-    int event2Position = -1000;    // event2's index
-    
-    for(BaseToken token : JCasUtil.selectCovered(jCas, BaseToken.class, sent)) {
-      if(event1.getBegin() == token.getBegin()) {
-        event1Position = currentPosition;     // event1 position found
-      }
-      if(event2.getBegin() == token.getBegin()) { 
-        event2Position = currentPosition;     // event2 postion found
-      } 
-      currentPosition++;
-    }
-    
-    List<String> positionsWrtToEvent1 = new ArrayList<>();
-    List<String> positionsWrtToEvent2 = new ArrayList<>();    
-    int tokensInSentence = JCasUtil.selectCovered(jCas, BaseToken.class, sent).size();
-    
-    for(int tokenIndex = 0; tokenIndex < tokensInSentence; tokenIndex++) {
-      
-      positionsWrtToEvent1.add(Integer.toString(tokenIndex - event1Position));
-      positionsWrtToEvent2.add(Integer.toString(tokenIndex - event2Position));
-    }
-
-    String tokensAsString = String.join(" ", tokens).replaceAll("[\r\n]", " ");
-    String distanceToTime = String.join(" ", positionsWrtToEvent1);
-    String distanceToEvent = String.join(" ", positionsWrtToEvent2);
-    
-    return tokensAsString + "|" + distanceToTime + "|" + distanceToEvent;
-  } 
 }

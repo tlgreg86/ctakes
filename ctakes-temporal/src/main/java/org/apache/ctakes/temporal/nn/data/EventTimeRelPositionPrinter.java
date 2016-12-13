@@ -35,7 +35,6 @@ import org.apache.ctakes.temporal.eval.CommandLine;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -216,7 +215,7 @@ public class EventTimeRelPositionPrinter {
               } 
             } 
 
-            String context = getPositionContext(systemView, sentence, time, event);  
+            String context = ArgContextProvider.getEventTimePositionContext(systemView, sentence, time, event);  
             String text = String.format("%s|%s", label, context);
             eventTimeRelationsInSentence.add(text.toLowerCase());
           }
@@ -230,89 +229,4 @@ public class EventTimeRelPositionPrinter {
       }
     }
   }
-
-  /**
-   * Print indices
-   * @param contextSize number of tokens to include on the left of arg1 and on the right of arg2
-   */
-  public static String getPositionContext(
-      JCas jCas, 
-      Sentence sent, 
-      TimeMention time,
-      EventMention event) {
-
-    // get sentence as a list of tokens
-    List<String> tokens = new ArrayList<>();
-    for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, sent)) {
-      tokens.add(baseToken.getCoveredText());  
-    }
-    
-    // find the positions of time and event mentions
-    // assume time consists of multipe words; event of one
-    int currentPosition = 0;       // current token index
-    int timeFirstPosition = -1000; // timex's start index
-    int timeLastPosition = -1000;  // timex's end index
-    int eventPosition = -1000;     // event's index
-    for(BaseToken token : JCasUtil.selectCovered(jCas, BaseToken.class, sent)) {
-      if(time.getBegin() == token.getBegin()) { 
-        timeFirstPosition = currentPosition; // start of time expression found
-      }
-      if(time.getEnd() == token.getEnd()) {
-        timeLastPosition = currentPosition;  // end of time expression found
-      }
-      if(event.getBegin() == token.getBegin()) { 
-        eventPosition = currentPosition;     // event postion found
-      } 
-      currentPosition++;
-    }
-
-    // try to locate events that weren't found
-    // e.g. "this can be re-discussed tomorrow"
-    // "discussed" not found due to incorrect tokenization
-    if(eventPosition == -1000) {
-      currentPosition = 0;
-      for(BaseToken token : JCasUtil.selectCovered(jCas, BaseToken.class, sent)) {
-        if(token.getCoveredText().contains(event.getCoveredText())) {
-          eventPosition = currentPosition; 
-        }
-        currentPosition++;
-      }
-    }
-    
-    if(eventPosition == -1000) {
-      System.out.println("event not found: " + event.getCoveredText());
-      System.out.println(sent.getCoveredText());
-      System.out.println();
-      eventPosition = 0; // just set it to zero for now
-    }
-
-    // now need to see if some times weren't found
-    if(timeFirstPosition == -1000 || timeLastPosition == -1000) {
-      System.out.println("time not found: " + time.getCoveredText());
-      System.out.println(sent.getCoveredText());
-      System.out.println();
-      timeFirstPosition = 0; // just set it to zero for now
-      timeLastPosition = 0;  // just set it to zero for now
-    }
-    
-    List<String> positionsWrtToTime = new ArrayList<>();
-    List<String> positionsWrtToEvent = new ArrayList<>();
-    int tokensInSentence = JCasUtil.selectCovered(jCas, BaseToken.class, sent).size();
-    for(int tokenIndex = 0; tokenIndex < tokensInSentence; tokenIndex++) {
-      if(tokenIndex < timeFirstPosition) {
-        positionsWrtToTime.add(Integer.toString(tokenIndex - timeFirstPosition));
-      } else if(tokenIndex >= timeFirstPosition && tokenIndex <= timeLastPosition) {
-        positionsWrtToTime.add("0");
-      } else {
-        positionsWrtToTime.add(Integer.toString(tokenIndex - timeLastPosition));
-      }
-      positionsWrtToEvent.add(Integer.toString(tokenIndex - eventPosition));
-    }
-
-    String tokensAsString = String.join(" ", tokens).replaceAll("[\r\n]", " ");
-    String distanceToTime = String.join(" ", positionsWrtToTime);
-    String distanceToEvent = String.join(" ", positionsWrtToEvent);
-    
-    return tokensAsString + "|" + distanceToTime + "|" + distanceToEvent;
-  } 
 }
