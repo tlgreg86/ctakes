@@ -11,17 +11,17 @@
     <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="55" _ref_sofa="3" begin="59" end="61" tokenNumber="14"/>
     <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="63" _ref_sofa="3" begin="76" end="78" tokenNumber="19"/>
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="71" _ref_sofa="3" begin="2" end="5" tokenNumber="1" normalizedForm="The" partOfSpeech="DT" capitalization="1" numPosition="0"/>
-    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="83" _ref_sofa="3" begin="6" end="13" tokenNumber="2" normalizedForm="patient" partOfSpeech="NN" capitalization="0" numPosition="0" canonicalForm="patient"/>
-    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="95" _ref_sofa="3" begin="14" end="22" tokenNumber="3" normalizedForm="report" partOfSpeech="VBD" capitalization="0" numPosition="0" canonicalForm="report"/>
-    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="107" _ref_sofa="3" begin="23" end="27" tokenNumber="4" normalizedForm="pain" partOfSpeech="NN" capitalization="0" numPosition="0" canonicalForm="pain"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="83" _ref_sofa="3" begin="6" end="13" tokenNumber="2" normalizedForm="patient" partOfSpeech="NN" capitalization="0" numPosition="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="95" _ref_sofa="3" begin="14" end="22" tokenNumber="3" normalizedForm="reported" partOfSpeech="VBD" capitalization="0" numPosition="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="107" _ref_sofa="3" begin="23" end="27" tokenNumber="4" normalizedForm="pain" partOfSpeech="NN" capitalization="0" numPosition="0"/>
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="119" _ref_sofa="3" begin="28" end="30" tokenNumber="5" normalizedForm="in" partOfSpeech="IN" capitalization="0" numPosition="0"/>
-    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="131" _ref_sofa="3" begin="31" end="34" tokenNumber="6" normalizedForm="her" partOfSpeech="PRP$" capitalization="0" numPosition="0" canonicalForm="her"/>
-    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="143" _ref_sofa="3" begin="35" end="40" tokenNumber="7" normalizedForm="upp" partOfSpeech="JJ" capitalization="0" numPosition="0" canonicalForm="upp"/>
-    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="155" _ref_sofa="3" begin="41" end="44" tokenNumber="8" normalizedForm="arm" partOfSpeech="NN" capitalization="0" numPosition="0" canonicalForm="arm"/>
-    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="175" _ref_sofa="3" begin="47" end="49" tokenNumber="11" normalizedForm="no" partOfSpeech="DT" capitalization="1" numPosition="0" canonicalForm="no"/>
-    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="187" _ref_sofa="3" begin="50" end="58" tokenNumber="12" normalizedForm="swel" partOfSpeech="NN" capitalization="0" numPosition="0" canonicalForm="swel"/>
-    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="207" _ref_sofa="3" begin="61" end="68" tokenNumber="15" normalizedForm="aspirin" partOfSpeech="NNP" capitalization="1" numPosition="0" canonicalForm="aspirin"/>
-    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="228" _ref_sofa="3" begin="73" end="75" tokenNumber="17" normalizedForm="mg" partOfSpeech="NNS" capitalization="0" numPosition="0" canonicalForm="mg"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="131" _ref_sofa="3" begin="31" end="34" tokenNumber="6" normalizedForm="her" partOfSpeech="PRP$" capitalization="0" numPosition="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="143" _ref_sofa="3" begin="35" end="40" tokenNumber="7" normalizedForm="upper" partOfSpeech="JJ" capitalization="0" numPosition="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="155" _ref_sofa="3" begin="41" end="44" tokenNumber="8" normalizedForm="arm" partOfSpeech="NN" capitalization="0" numPosition="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="175" _ref_sofa="3" begin="47" end="49" tokenNumber="11" normalizedForm="No" partOfSpeech="DT" capitalization="1" numPosition="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="187" _ref_sofa="3" begin="50" end="58" tokenNumber="12" normalizedForm="swelling" partOfSpeech="NN" capitalization="0" numPosition="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="207" _ref_sofa="3" begin="61" end="68" tokenNumber="15" normalizedForm="Aspirin" partOfSpeech="NNP" capitalization="1" numPosition="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="228" _ref_sofa="3" begin="73" end="75" tokenNumber="17" normalizedForm="mg" partOfSpeech="NNS" capitalization="0" numPosition="0"/>
     <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="167" _ref_sofa="3" begin="44" end="45" tokenNumber="9" partOfSpeech="."/>
     <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="199" _ref_sofa="3" begin="58" end="59" tokenNumber="13" partOfSpeech="."/>
     <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="240" _ref_sofa="3" begin="75" end="76" tokenNumber="18" partOfSpeech="."/>
@@ -39,14 +39,14 @@
     <org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation _indexed="1" _id="310" _ref_sofa="3" begin="23" end="44"/>
     <org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation _indexed="1" _id="318" _ref_sofa="3" begin="47" end="58"/>
     <org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation _indexed="1" _id="322" _ref_sofa="3" begin="61" end="75"/>
-    <org.apache.ctakes.typesystem.type.textsem.MedicationMention _indexed="1" _id="340" _ref_sofa="3" begin="61" end="68" id="1" _ref_ontologyConceptArr="330" typeID="1" segmentID="SIMPLE_SEGMENT" discoveryTechnique="1" confidence="0.0" polarity="1" uncertainty="0" conditional="false" generic="false" subject="patient" historyOf="0"/>
-    <org.apache.ctakes.typesystem.type.textsem.SignSymptomMention _indexed="1" _id="383" _ref_sofa="3" begin="23" end="27" id="0" _ref_ontologyConceptArr="380" typeID="3" segmentID="SIMPLE_SEGMENT" discoveryTechnique="1" confidence="0.0" polarity="1" uncertainty="0" conditional="false" generic="false" subject="patient" historyOf="0"/>
-    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="370" codingScheme="SNOMED" code="100206" oid="100206#SNOMED" score="0.0" disambiguated="false" cui="Cui0206" tui="T_SS"/>
-    <uima.cas.FSArray _id="380" size="1">
-        <i>370</i>
+    <org.apache.ctakes.typesystem.type.textsem.SignSymptomMention _indexed="1" _id="343" _ref_sofa="3" begin="23" end="27" id="0" _ref_ontologyConceptArr="340" typeID="3" segmentID="SIMPLE_SEGMENT" discoveryTechnique="1" confidence="0.0" polarity="1" uncertainty="0" conditional="false" generic="false" subject="patient" historyOf="0"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationMention _indexed="1" _id="383" _ref_sofa="3" begin="61" end="68" id="1" _ref_ontologyConceptArr="373" typeID="1" segmentID="SIMPLE_SEGMENT" discoveryTechnique="1" confidence="0.0" polarity="1" uncertainty="0" conditional="false" generic="false" subject="patient" historyOf="0"/>
+    <org.apache.ctakes.typesystem.type.refsem.OntologyConcept _id="376" codingScheme="RXNORM" code="C6666666" oid="C6666666#RXNORM" score="0.0" disambiguated="false"/>
+    <uima.cas.FSArray _id="373" size="1">
+        <i>376</i>
     </uima.cas.FSArray>
-    <org.apache.ctakes.typesystem.type.refsem.OntologyConcept _id="333" codingScheme="RXNORM" code="C6666666" oid="C6666666#RXNORM" score="0.0" disambiguated="false"/>
-    <uima.cas.FSArray _id="330" size="1">
-        <i>333</i>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="330" codingScheme="SNOMED" code="100206" oid="100206#SNOMED" score="0.0" disambiguated="false" cui="Cui0206" tui="T_SS"/>
+    <uima.cas.FSArray _id="340" size="1">
+        <i>330</i>
     </uima.cas.FSArray>
 </CAS>

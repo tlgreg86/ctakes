@@ -25,7 +25,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +33,7 @@ import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.temporal.eval.CommandLine;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
-import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
-import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -54,19 +51,11 @@ import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 
 /**
- * contains(spring of 2009, drained):
- * perineal abscess <e> drained </e> in the <t> spring of 2009 </t> .
- * 0        1           2            3  4       5      6  7         8
- *
- * time arg position: 5, 6, 7
- * event arg position: 2
- * 
- * distance to time: -5, -4, -3, -2, -1, 0, 0, 0, 1
- * distance to event: -2, -1, 0, 1, 2, 3, 4, 5, 6
+ * Print gold standard relations and their context.
  * 
  * @author dmitriy dligach
  */
-public class EventTimeRelPositionPrinter {
+public class EventEventRelPositionPrinter {
 
   static interface Options {
 
@@ -105,10 +94,6 @@ public class EventTimeRelPositionPrinter {
     List<File> trainFiles = Utils.getFilesFor(trainItems, options.getInputDirectory());
     List<File> devFiles = Utils.getFilesFor(devItems, options.getInputDirectory());
 
-    // sort training files to eliminate platform specific dir listings
-    Collections.sort(trainFiles);
-    //    Collections.shuffle(trainFiles, new Random(100));  
-
     // write training data to file
     CollectionReader trainCollectionReader = Utils.getCollectionReader(trainFiles);
     AnalysisEngine trainDataWriter = AnalysisEngineFactory.createEngine(
@@ -132,6 +117,8 @@ public class EventTimeRelPositionPrinter {
 
   /**
    * Print gold standard relations and their context.
+   * 
+   * @author dmitriy dligach
    */
   public static class RelationSnippetPrinter extends JCasAnnotator_ImplBase {
 
@@ -149,7 +136,7 @@ public class EventTimeRelPositionPrinter {
 
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
-
+      
       JCas goldView;
       try {
         goldView = jCas.getView("GoldView");
@@ -164,65 +151,57 @@ public class EventTimeRelPositionPrinter {
         throw new AnalysisEngineProcessException(e);
       }
 
-      // can't iterate over binary text relations in a sentence, so need a lookup
+      // can't iterate over binary text relations in a sentence, so need
+      // a lookup from pair of annotations to binary text relation
       Map<List<Annotation>, BinaryTextRelation> relationLookup = new HashMap<>();
-      if(isTraining) {
-        for(BinaryTextRelation relation : JCasUtil.select(goldView, TemporalTextRelation.class)) {
-          Annotation arg1 = relation.getArg1().getArgument();
-          Annotation arg2 = relation.getArg2().getArgument();
-
-          if(relationLookup.get(Arrays.asList(arg1, arg2)) != null) {
-            // there is already a relation between arg1 and arg2
-            // only store if it is 'contains' relation 
-            if(relation.getCategory().equals("CONTAINS")) {
-              relationLookup.put(Arrays.asList(arg1, arg2), relation);
-            } else {
-              System.out.println("skipping relation: " + arg1.getCoveredText() + " ... " + arg2.getCoveredText());
-            }
-          } else {
-            relationLookup.put(Arrays.asList(arg1, arg2), relation);
-          }
-        }
-      } else {
-        for(BinaryTextRelation relation : JCasUtil.select(goldView, TemporalTextRelation.class)) {
-          Annotation arg1 = relation.getArg1().getArgument();
-          Annotation arg2 = relation.getArg2().getArgument();
-          relationLookup.put(Arrays.asList(arg1, arg2), relation);
-        }
+      for(BinaryTextRelation relation : JCasUtil.select(goldView, BinaryTextRelation.class)) {
+        Annotation arg1 = relation.getArg1().getArgument();
+        Annotation arg2 = relation.getArg2().getArgument();
+        relationLookup.put(Arrays.asList(arg1, arg2), relation);
       }
 
       // go over sentences, extracting event-event relation instances
       for(Sentence sentence : JCasUtil.select(systemView, Sentence.class)) {
-        List<String> eventTimeRelationsInSentence = new ArrayList<>();
+        List<String> eventEventRelationsInSentence = new ArrayList<>();
+        ArrayList<EventMention> eventMentionsInSentence = new ArrayList<>(JCasUtil.selectCovered(goldView, EventMention.class, sentence));
 
-        // retrieve event-time relations in this sentence
-        for(EventMention event : JCasUtil.selectCovered(goldView, EventMention.class, sentence)) {
-          for(TimeMention time : JCasUtil.selectCovered(goldView, TimeMention.class, sentence)) {
+        // retrieve event-event relations in this sentence
+        for(int i = 0; i < eventMentionsInSentence.size(); i++) {
+          for(int j = i + 1; j < eventMentionsInSentence.size(); j++) {
+            EventMention mention1 = eventMentionsInSentence.get(i);
+            EventMention mention2 = eventMentionsInSentence.get(j);
+            BinaryTextRelation forwardRelation = relationLookup.get(Arrays.asList(mention1, mention2));
+            BinaryTextRelation reverseRelation = relationLookup.get(Arrays.asList(mention2, mention1));
 
-            BinaryTextRelation timeEventRelation = relationLookup.get(Arrays.asList(time, event));
-            BinaryTextRelation eventTimeRelation = relationLookup.get(Arrays.asList(event, time));
-
-            String label = "none";
-            if(timeEventRelation != null) {
-              if(timeEventRelation.getCategory().equals("CONTAINS")) {
-                label = "contains";  // this is contains
+            String label = "none";            
+            if(forwardRelation != null) {
+              if(forwardRelation.getCategory().equals("CONTAINS")) {
+                label = "contains";   // mention1 contains mention2
               }
-            }
-            // there is at least one instance where both event-time and time-event rels exist?
-            if(eventTimeRelation != null) {
-              if(eventTimeRelation.getCategory().equals("CONTAINS")) {
-                label = "contains-1"; // this is contains
-              } 
+            } else if(reverseRelation != null) {
+              if(reverseRelation.getCategory().equals("CONTAINS")) {
+                label = "contains-1"; // mention2 contains mention1
+              }
             } 
 
-            String context = ArgContextProvider.getEventTimePositionContext(systemView, sentence, time, event);  
+            // sanity check
+            if(mention1.getBegin() > mention2.getBegin())  {
+              System.out.println("We assumed mention1 is always before mention2");
+              System.out.println(sentence.getCoveredText());
+              System.out.println(mention1.getCoveredText());
+              System.out.println(mention2.getCoveredText());
+              System.out.println();
+            }
+            
+            String context = ArgContextProvider.getEventEventPositionContext(systemView, sentence, mention1, mention2);
+            
             String text = String.format("%s|%s", label, context);
-            eventTimeRelationsInSentence.add(text.toLowerCase());
+            eventEventRelationsInSentence.add(text.toLowerCase());
           }
-        }  
+        }
 
         try {
-          Files.write(Paths.get(outputFile), eventTimeRelationsInSentence, StandardOpenOption.APPEND);
+          Files.write(Paths.get(outputFile), eventEventRelationsInSentence, StandardOpenOption.APPEND);
         } catch (IOException e) {
           e.printStackTrace();
         }
