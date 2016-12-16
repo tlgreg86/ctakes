@@ -56,9 +56,11 @@
 <delegateAnalysisEngine key="AdjustNounPhraseToIncludeFollowingPPNP">
 <import location="../../../ctakes-chunker/desc/AdjustNounPhraseToIncludeFollowingPPNP.xml"/>
 </delegateAnalysisEngine>
+<!--
 <delegateAnalysisEngine key="LvgAnnotator">
 <import location="../../../ctakes-lvg/desc/analysis_engine/LvgAnnotator.xml"/>
 </delegateAnalysisEngine>
+-->
 <delegateAnalysisEngine key="ContextDependentTokenizerAnnotator">
 <import location="../../../ctakes-context-tokenizer/desc/analysis_engine/ContextDependentTokenizerAnnotator.xml"/>
 </delegateAnalysisEngine>
@@ -122,7 +124,9 @@ Includes adjusting NP chunks to include NP NP and NP PP NP.</description>
 <node>SimpleSegmentAnnotator</node>
 <node>SentenceDetectorAnnotator</node>
 <node>TokenizerAnnotator</node>
+<!-- 
 <node>LvgAnnotator</node>
+-->
 <node>ContextDependentTokenizerAnnotator</node>
 <node>POSTagger</node>
 <node>Chunker</node>
