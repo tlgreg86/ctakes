@@ -157,110 +157,110 @@
     <org.apache.ctakes.typesystem.type.textspan.Sentence _indexed="1" _id="927" _ref_sofa="3" begin="4316" end="4325" sentenceNumber="151"/>
     <org.apache.ctakes.typesystem.type.textspan.Sentence _indexed="1" _id="933" _ref_sofa="3" begin="4327" end="4439" sentenceNumber="152"/>
     <org.apache.ctakes.typesystem.type.textspan.Sentence _indexed="1" _id="939" _ref_sofa="3" begin="4441" end="4444" sentenceNumber="153"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="945" _ref_sofa="3" begin="27" end="29" tokenNumber="4" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="953" _ref_sofa="3" begin="45" end="47" tokenNumber="12" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="961" _ref_sofa="3" begin="72" end="74" tokenNumber="18" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="969" _ref_sofa="3" begin="91" end="93" tokenNumber="21" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="977" _ref_sofa="3" begin="157" end="159" tokenNumber="43" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="985" _ref_sofa="3" begin="174" end="176" tokenNumber="46" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="993" _ref_sofa="3" begin="191" end="193" tokenNumber="51" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1001" _ref_sofa="3" begin="220" end="222" tokenNumber="56" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1009" _ref_sofa="3" begin="241" end="243" tokenNumber="59" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1017" _ref_sofa="3" begin="330" end="332" tokenNumber="79" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1025" _ref_sofa="3" begin="414" end="416" tokenNumber="95" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1033" _ref_sofa="3" begin="491" end="493" tokenNumber="111" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1041" _ref_sofa="3" begin="513" end="515" tokenNumber="115" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1049" _ref_sofa="3" begin="546" end="548" tokenNumber="119" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1057" _ref_sofa="3" begin="575" end="577" tokenNumber="124" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1065" _ref_sofa="3" begin="590" end="592" tokenNumber="126" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1073" _ref_sofa="3" begin="609" end="611" tokenNumber="130" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1081" _ref_sofa="3" begin="636" end="638" tokenNumber="135" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1089" _ref_sofa="3" begin="670" end="672" tokenNumber="140" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1097" _ref_sofa="3" begin="753" end="755" tokenNumber="154" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1105" _ref_sofa="3" begin="835" end="837" tokenNumber="173" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1113" _ref_sofa="3" begin="864" end="866" tokenNumber="178" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1121" _ref_sofa="3" begin="884" end="886" tokenNumber="187" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1129" _ref_sofa="3" begin="924" end="926" tokenNumber="192" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1137" _ref_sofa="3" begin="930" end="932" tokenNumber="194" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1145" _ref_sofa="3" begin="942" end="944" tokenNumber="196" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1153" _ref_sofa="3" begin="965" end="967" tokenNumber="202" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1161" _ref_sofa="3" begin="987" end="989" tokenNumber="207" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1169" _ref_sofa="3" begin="1007" end="1009" tokenNumber="211" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1177" _ref_sofa="3" begin="1041" end="1043" tokenNumber="218" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1185" _ref_sofa="3" begin="1060" end="1062" tokenNumber="221" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1193" _ref_sofa="3" begin="1130" end="1132" tokenNumber="240" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1201" _ref_sofa="3" begin="1144" end="1146" tokenNumber="242" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1209" _ref_sofa="3" begin="1150" end="1152" tokenNumber="244" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1217" _ref_sofa="3" begin="1173" end="1175" tokenNumber="248" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1225" _ref_sofa="3" begin="1186" end="1188" tokenNumber="250" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1233" _ref_sofa="3" begin="1209" end="1211" tokenNumber="254" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1241" _ref_sofa="3" begin="1233" end="1235" tokenNumber="259" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1249" _ref_sofa="3" begin="1280" end="1282" tokenNumber="270" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1257" _ref_sofa="3" begin="1305" end="1307" tokenNumber="275" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1265" _ref_sofa="3" begin="1331" end="1333" tokenNumber="280" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1273" _ref_sofa="3" begin="1355" end="1357" tokenNumber="284" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1281" _ref_sofa="3" begin="1373" end="1375" tokenNumber="287" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1289" _ref_sofa="3" begin="1405" end="1407" tokenNumber="296" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1297" _ref_sofa="3" begin="1434" end="1436" tokenNumber="303" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1305" _ref_sofa="3" begin="1468" end="1470" tokenNumber="311" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1313" _ref_sofa="3" begin="1499" end="1501" tokenNumber="320" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1321" _ref_sofa="3" begin="1522" end="1524" tokenNumber="326" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1329" _ref_sofa="3" begin="1611" end="1613" tokenNumber="344" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1337" _ref_sofa="3" begin="1682" end="1684" tokenNumber="361" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1345" _ref_sofa="3" begin="1722" end="1724" tokenNumber="371" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1353" _ref_sofa="3" begin="1746" end="1748" tokenNumber="379" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1361" _ref_sofa="3" begin="1754" end="1756" tokenNumber="381" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1369" _ref_sofa="3" begin="1811" end="1813" tokenNumber="396" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1377" _ref_sofa="3" begin="1848" end="1850" tokenNumber="404" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1385" _ref_sofa="3" begin="1871" end="1873" tokenNumber="407" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1393" _ref_sofa="3" begin="1877" end="1879" tokenNumber="409" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1401" _ref_sofa="3" begin="1906" end="1908" tokenNumber="414" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1409" _ref_sofa="3" begin="1928" end="1930" tokenNumber="417" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1417" _ref_sofa="3" begin="2013" end="2015" tokenNumber="435" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1425" _ref_sofa="3" begin="2025" end="2027" tokenNumber="438" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1433" _ref_sofa="3" begin="2097" end="2099" tokenNumber="453" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1441" _ref_sofa="3" begin="2187" end="2189" tokenNumber="471" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1449" _ref_sofa="3" begin="2209" end="2211" tokenNumber="476" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1457" _ref_sofa="3" begin="2288" end="2290" tokenNumber="492" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1465" _ref_sofa="3" begin="2309" end="2311" tokenNumber="496" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1473" _ref_sofa="3" begin="2340" end="2342" tokenNumber="504" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1481" _ref_sofa="3" begin="2356" end="2358" tokenNumber="507" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1489" _ref_sofa="3" begin="2428" end="2430" tokenNumber="523" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1497" _ref_sofa="3" begin="2463" end="2465" tokenNumber="532" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1505" _ref_sofa="3" begin="2523" end="2525" tokenNumber="546" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1513" _ref_sofa="3" begin="2585" end="2587" tokenNumber="559" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1521" _ref_sofa="3" begin="2639" end="2641" tokenNumber="572" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1529" _ref_sofa="3" begin="2656" end="2658" tokenNumber="579" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1537" _ref_sofa="3" begin="2673" end="2675" tokenNumber="586" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1545" _ref_sofa="3" begin="2693" end="2695" tokenNumber="591" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1553" _ref_sofa="3" begin="2755" end="2757" tokenNumber="607" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1561" _ref_sofa="3" begin="2789" end="2791" tokenNumber="615" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1569" _ref_sofa="3" begin="2817" end="2819" tokenNumber="622" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1577" _ref_sofa="3" begin="2900" end="2902" tokenNumber="642" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1585" _ref_sofa="3" begin="2954" end="2956" tokenNumber="654" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1593" _ref_sofa="3" begin="3020" end="3022" tokenNumber="669" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1601" _ref_sofa="3" begin="3088" end="3090" tokenNumber="684" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1609" _ref_sofa="3" begin="3118" end="3120" tokenNumber="693" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1617" _ref_sofa="3" begin="3155" end="3157" tokenNumber="703" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1625" _ref_sofa="3" begin="3235" end="3237" tokenNumber="719" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1633" _ref_sofa="3" begin="3309" end="3311" tokenNumber="735" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1641" _ref_sofa="3" begin="3393" end="3395" tokenNumber="750" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1649" _ref_sofa="3" begin="3468" end="3470" tokenNumber="767" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1657" _ref_sofa="3" begin="3527" end="3529" tokenNumber="779" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1665" _ref_sofa="3" begin="3584" end="3586" tokenNumber="791" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1673" _ref_sofa="3" begin="3661" end="3663" tokenNumber="803" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1681" _ref_sofa="3" begin="3749" end="3751" tokenNumber="822" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1689" _ref_sofa="3" begin="3821" end="3823" tokenNumber="840" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1697" _ref_sofa="3" begin="3850" end="3852" tokenNumber="845" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1705" _ref_sofa="3" begin="3941" end="3943" tokenNumber="861" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1713" _ref_sofa="3" begin="4007" end="4009" tokenNumber="874" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1721" _ref_sofa="3" begin="4030" end="4032" tokenNumber="879" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1729" _ref_sofa="3" begin="4112" end="4114" tokenNumber="896" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1737" _ref_sofa="3" begin="4166" end="4168" tokenNumber="905" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1745" _ref_sofa="3" begin="4250" end="4252" tokenNumber="920" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1753" _ref_sofa="3" begin="4283" end="4285" tokenNumber="926" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1761" _ref_sofa="3" begin="4325" end="4327" tokenNumber="935" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1769" _ref_sofa="3" begin="4439" end="4441" tokenNumber="960" normalizedForm="&#13;&#10;"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="945" _ref_sofa="3" begin="27" end="29" tokenNumber="4"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="953" _ref_sofa="3" begin="45" end="47" tokenNumber="12"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="961" _ref_sofa="3" begin="72" end="74" tokenNumber="18"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="969" _ref_sofa="3" begin="91" end="93" tokenNumber="21"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="977" _ref_sofa="3" begin="157" end="159" tokenNumber="43"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="985" _ref_sofa="3" begin="174" end="176" tokenNumber="46"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="993" _ref_sofa="3" begin="191" end="193" tokenNumber="51"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1001" _ref_sofa="3" begin="220" end="222" tokenNumber="56"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1009" _ref_sofa="3" begin="241" end="243" tokenNumber="59"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1017" _ref_sofa="3" begin="330" end="332" tokenNumber="79"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1025" _ref_sofa="3" begin="414" end="416" tokenNumber="95"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1033" _ref_sofa="3" begin="491" end="493" tokenNumber="111"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1041" _ref_sofa="3" begin="513" end="515" tokenNumber="115"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1049" _ref_sofa="3" begin="546" end="548" tokenNumber="119"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1057" _ref_sofa="3" begin="575" end="577" tokenNumber="124"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1065" _ref_sofa="3" begin="590" end="592" tokenNumber="126"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1073" _ref_sofa="3" begin="609" end="611" tokenNumber="130"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1081" _ref_sofa="3" begin="636" end="638" tokenNumber="135"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1089" _ref_sofa="3" begin="670" end="672" tokenNumber="140"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1097" _ref_sofa="3" begin="753" end="755" tokenNumber="154"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1105" _ref_sofa="3" begin="835" end="837" tokenNumber="173"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1113" _ref_sofa="3" begin="864" end="866" tokenNumber="178"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1121" _ref_sofa="3" begin="884" end="886" tokenNumber="187"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1129" _ref_sofa="3" begin="924" end="926" tokenNumber="192"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1137" _ref_sofa="3" begin="930" end="932" tokenNumber="194"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1145" _ref_sofa="3" begin="942" end="944" tokenNumber="196"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1153" _ref_sofa="3" begin="965" end="967" tokenNumber="202"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1161" _ref_sofa="3" begin="987" end="989" tokenNumber="207"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1169" _ref_sofa="3" begin="1007" end="1009" tokenNumber="211"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1177" _ref_sofa="3" begin="1041" end="1043" tokenNumber="218"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1185" _ref_sofa="3" begin="1060" end="1062" tokenNumber="221"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1193" _ref_sofa="3" begin="1130" end="1132" tokenNumber="240"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1201" _ref_sofa="3" begin="1144" end="1146" tokenNumber="242"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1209" _ref_sofa="3" begin="1150" end="1152" tokenNumber="244"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1217" _ref_sofa="3" begin="1173" end="1175" tokenNumber="248"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1225" _ref_sofa="3" begin="1186" end="1188" tokenNumber="250"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1233" _ref_sofa="3" begin="1209" end="1211" tokenNumber="254"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1241" _ref_sofa="3" begin="1233" end="1235" tokenNumber="259"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1249" _ref_sofa="3" begin="1280" end="1282" tokenNumber="270"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1257" _ref_sofa="3" begin="1305" end="1307" tokenNumber="275"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1265" _ref_sofa="3" begin="1331" end="1333" tokenNumber="280"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1273" _ref_sofa="3" begin="1355" end="1357" tokenNumber="284"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1281" _ref_sofa="3" begin="1373" end="1375" tokenNumber="287"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1289" _ref_sofa="3" begin="1405" end="1407" tokenNumber="296"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1297" _ref_sofa="3" begin="1434" end="1436" tokenNumber="303"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1305" _ref_sofa="3" begin="1468" end="1470" tokenNumber="311"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1313" _ref_sofa="3" begin="1499" end="1501" tokenNumber="320"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1321" _ref_sofa="3" begin="1522" end="1524" tokenNumber="326"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1329" _ref_sofa="3" begin="1611" end="1613" tokenNumber="344"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1337" _ref_sofa="3" begin="1682" end="1684" tokenNumber="361"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1345" _ref_sofa="3" begin="1722" end="1724" tokenNumber="371"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1353" _ref_sofa="3" begin="1746" end="1748" tokenNumber="379"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1361" _ref_sofa="3" begin="1754" end="1756" tokenNumber="381"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1369" _ref_sofa="3" begin="1811" end="1813" tokenNumber="396"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1377" _ref_sofa="3" begin="1848" end="1850" tokenNumber="404"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1385" _ref_sofa="3" begin="1871" end="1873" tokenNumber="407"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1393" _ref_sofa="3" begin="1877" end="1879" tokenNumber="409"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1401" _ref_sofa="3" begin="1906" end="1908" tokenNumber="414"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1409" _ref_sofa="3" begin="1928" end="1930" tokenNumber="417"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1417" _ref_sofa="3" begin="2013" end="2015" tokenNumber="435"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1425" _ref_sofa="3" begin="2025" end="2027" tokenNumber="438"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1433" _ref_sofa="3" begin="2097" end="2099" tokenNumber="453"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1441" _ref_sofa="3" begin="2187" end="2189" tokenNumber="471"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1449" _ref_sofa="3" begin="2209" end="2211" tokenNumber="476"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1457" _ref_sofa="3" begin="2288" end="2290" tokenNumber="492"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1465" _ref_sofa="3" begin="2309" end="2311" tokenNumber="496"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1473" _ref_sofa="3" begin="2340" end="2342" tokenNumber="504"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1481" _ref_sofa="3" begin="2356" end="2358" tokenNumber="507"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1489" _ref_sofa="3" begin="2428" end="2430" tokenNumber="523"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1497" _ref_sofa="3" begin="2463" end="2465" tokenNumber="532"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1505" _ref_sofa="3" begin="2523" end="2525" tokenNumber="546"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1513" _ref_sofa="3" begin="2585" end="2587" tokenNumber="559"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1521" _ref_sofa="3" begin="2639" end="2641" tokenNumber="572"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1529" _ref_sofa="3" begin="2656" end="2658" tokenNumber="579"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1537" _ref_sofa="3" begin="2673" end="2675" tokenNumber="586"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1545" _ref_sofa="3" begin="2693" end="2695" tokenNumber="591"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1553" _ref_sofa="3" begin="2755" end="2757" tokenNumber="607"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1561" _ref_sofa="3" begin="2789" end="2791" tokenNumber="615"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1569" _ref_sofa="3" begin="2817" end="2819" tokenNumber="622"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1577" _ref_sofa="3" begin="2900" end="2902" tokenNumber="642"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1585" _ref_sofa="3" begin="2954" end="2956" tokenNumber="654"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1593" _ref_sofa="3" begin="3020" end="3022" tokenNumber="669"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1601" _ref_sofa="3" begin="3088" end="3090" tokenNumber="684"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1609" _ref_sofa="3" begin="3118" end="3120" tokenNumber="693"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1617" _ref_sofa="3" begin="3155" end="3157" tokenNumber="703"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1625" _ref_sofa="3" begin="3235" end="3237" tokenNumber="719"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1633" _ref_sofa="3" begin="3309" end="3311" tokenNumber="735"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1641" _ref_sofa="3" begin="3393" end="3395" tokenNumber="750"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1649" _ref_sofa="3" begin="3468" end="3470" tokenNumber="767"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1657" _ref_sofa="3" begin="3527" end="3529" tokenNumber="779"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1665" _ref_sofa="3" begin="3584" end="3586" tokenNumber="791"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1673" _ref_sofa="3" begin="3661" end="3663" tokenNumber="803"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1681" _ref_sofa="3" begin="3749" end="3751" tokenNumber="822"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1689" _ref_sofa="3" begin="3821" end="3823" tokenNumber="840"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1697" _ref_sofa="3" begin="3850" end="3852" tokenNumber="845"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1705" _ref_sofa="3" begin="3941" end="3943" tokenNumber="861"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1713" _ref_sofa="3" begin="4007" end="4009" tokenNumber="874"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1721" _ref_sofa="3" begin="4030" end="4032" tokenNumber="879"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1729" _ref_sofa="3" begin="4112" end="4114" tokenNumber="896"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1737" _ref_sofa="3" begin="4166" end="4168" tokenNumber="905"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1745" _ref_sofa="3" begin="4250" end="4252" tokenNumber="920"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1753" _ref_sofa="3" begin="4283" end="4285" tokenNumber="926"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1761" _ref_sofa="3" begin="4325" end="4327" tokenNumber="935"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="1769" _ref_sofa="3" begin="4439" end="4441" tokenNumber="960"/>
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="1777" _ref_sofa="3" begin="0" end="7" tokenNumber="0" normalizedForm="patient" partOfSpeech="NN" capitalization="1" numPosition="0" canonicalForm="patient"/>
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="1789" _ref_sofa="3" begin="8" end="16" tokenNumber="1" normalizedForm="center" partOfSpeech="NNP" capitalization="1" numPosition="0" canonicalForm="center"/>
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="1801" _ref_sofa="3" begin="17" end="25" tokenNumber="2" normalizedForm="medicine" partOfSpeech="NN" capitalization="1" numPosition="0" canonicalForm="medicine"/>
@@ -878,247 +878,247 @@
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="11091" _ref_sofa="3" begin="4421" end="4422" tokenNumber="954" normalizedForm="s" partOfSpeech="NN" capitalization="0" numPosition="0" canonicalForm="s"/>
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="11103" _ref_sofa="3" begin="4423" end="4429" tokenNumber="955" normalizedForm="record" partOfSpeech="NN" capitalization="1" numPosition="0" canonicalForm="record"/>
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="11123" _ref_sofa="3" begin="4431" end="4434" tokenNumber="957" normalizedForm="pp." partOfSpeech="NN" capitalization="0" numPosition="0" canonicalForm="pp."/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="1813" _ref_sofa="3" begin="26" end="27" tokenNumber="3" normalizedForm="2" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="1842" _ref_sofa="3" begin="38" end="39" tokenNumber="7" normalizedForm="7" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="1859" _ref_sofa="3" begin="40" end="42" tokenNumber="9" normalizedForm="27" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="1876" _ref_sofa="3" begin="43" end="45" tokenNumber="11" normalizedForm="99" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="2001" _ref_sofa="3" begin="101" end="103" tokenNumber="25" normalizedForm="45" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3050" _ref_sofa="3" begin="605" end="609" tokenNumber="129" normalizedForm="1998" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3183" _ref_sofa="3" begin="691" end="695" tokenNumber="144" normalizedForm="1982" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3328" _ref_sofa="3" begin="772" end="773" tokenNumber="158" normalizedForm="7" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3429" _ref_sofa="3" begin="820" end="823" tokenNumber="167" normalizedForm="120" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3446" _ref_sofa="3" begin="824" end="827" tokenNumber="169" normalizedForm="130" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3523" _ref_sofa="3" begin="863" end="864" tokenNumber="177" normalizedForm="2" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3532" _ref_sofa="3" begin="866" end="867" tokenNumber="179" normalizedForm="2" partOfSpeech="LS" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3561" _ref_sofa="3" begin="877" end="878" tokenNumber="182" normalizedForm="7" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3578" _ref_sofa="3" begin="879" end="881" tokenNumber="184" normalizedForm="27" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3595" _ref_sofa="3" begin="882" end="884" tokenNumber="186" normalizedForm="99" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3704" _ref_sofa="3" begin="963" end="964" tokenNumber="200" normalizedForm="6" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3753" _ref_sofa="3" begin="985" end="987" tokenNumber="206" normalizedForm="13" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3794" _ref_sofa="3" begin="1009" end="1013" tokenNumber="212" normalizedForm="1998" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3835" _ref_sofa="3" begin="1031" end="1032" tokenNumber="216" normalizedForm="4" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3920" _ref_sofa="3" begin="1070" end="1071" tokenNumber="226" normalizedForm="3" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3985" _ref_sofa="3" begin="1102" end="1104" tokenNumber="232" normalizedForm="12" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4026" _ref_sofa="3" begin="1118" end="1119" tokenNumber="236" normalizedForm="2" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4187" _ref_sofa="3" begin="1224" end="1225" tokenNumber="256" normalizedForm="1" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4232" _ref_sofa="3" begin="1255" end="1257" tokenNumber="261" normalizedForm="25" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4297" _ref_sofa="3" begin="1272" end="1273" tokenNumber="267" normalizedForm="7" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4522" _ref_sofa="3" begin="1392" end="1396" tokenNumber="292" normalizedForm="2000" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4603" _ref_sofa="3" begin="1429" end="1433" tokenNumber="301" normalizedForm="2000" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4724" _ref_sofa="3" begin="1486" end="1489" tokenNumber="315" normalizedForm="220" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4753" _ref_sofa="3" begin="1494" end="1498" tokenNumber="318" normalizedForm="2000" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="5270" _ref_sofa="3" begin="1718" end="1719" tokenNumber="369" normalizedForm="7" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="5667" _ref_sofa="3" begin="1905" end="1906" tokenNumber="413" normalizedForm="2" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="5708" _ref_sofa="3" begin="1932" end="1933" tokenNumber="419" normalizedForm="4" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="6117" _ref_sofa="3" begin="2125" end="2127" tokenNumber="458" normalizedForm="15" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="6666" _ref_sofa="3" begin="2373" end="2375" tokenNumber="512" normalizedForm="67" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="6819" _ref_sofa="3" begin="2445" end="2447" tokenNumber="528" normalizedForm="43" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="6900" _ref_sofa="3" begin="2480" end="2482" tokenNumber="537" normalizedForm="56" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7037" _ref_sofa="3" begin="2540" end="2542" tokenNumber="551" normalizedForm="51" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7154" _ref_sofa="3" begin="2599" end="2601" tokenNumber="563" normalizedForm="23" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7271" _ref_sofa="3" begin="2648" end="2650" tokenNumber="576" normalizedForm="21" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7328" _ref_sofa="3" begin="2665" end="2667" tokenNumber="583" normalizedForm="20" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7457" _ref_sofa="3" begin="2721" end="2723" tokenNumber="597" normalizedForm="10" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7514" _ref_sofa="3" begin="2739" end="2740" tokenNumber="602" normalizedForm="4" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7767" _ref_sofa="3" begin="2845" end="2846" tokenNumber="628" normalizedForm="5" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7820" _ref_sofa="3" begin="2864" end="2865" tokenNumber="633" normalizedForm="1" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="8269" _ref_sofa="3" begin="3056" end="3057" tokenNumber="677" normalizedForm="2" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="9054" _ref_sofa="3" begin="3425" end="3426" tokenNumber="756" normalizedForm="2" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="9071" _ref_sofa="3" begin="3427" end="3428" tokenNumber="758" normalizedForm="3" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="9968" _ref_sofa="3" begin="3849" end="3850" tokenNumber="844" normalizedForm="2" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="10221" _ref_sofa="3" begin="3987" end="3989" tokenNumber="868" normalizedForm="10" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="11042" _ref_sofa="3" begin="4405" end="4407" tokenNumber="949" normalizedForm="21" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="11135" _ref_sofa="3" begin="4435" end="4438" tokenNumber="958" normalizedForm="722" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="11152" _ref_sofa="3" begin="4441" end="4444" tokenNumber="961" normalizedForm="726" partOfSpeech="CD" numType="1"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="1834" _ref_sofa="3" begin="36" end="37" tokenNumber="6" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="1851" _ref_sofa="3" begin="39" end="40" tokenNumber="8" normalizedForm="/" partOfSpeech="SYM"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="1868" _ref_sofa="3" begin="42" end="43" tokenNumber="10" normalizedForm="/" partOfSpeech="SYM"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="1909" _ref_sofa="3" begin="56" end="57" tokenNumber="15" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2010" _ref_sofa="3" begin="103" end="104" tokenNumber="26" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2030" _ref_sofa="3" begin="108" end="109" tokenNumber="28" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2050" _ref_sofa="3" begin="112" end="113" tokenNumber="30" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2070" _ref_sofa="3" begin="121" end="122" tokenNumber="32" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2102" _ref_sofa="3" begin="139" end="140" tokenNumber="35" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2158" _ref_sofa="3" begin="154" end="155" tokenNumber="40" normalizedForm="." partOfSpeech="NNP"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2178" _ref_sofa="3" begin="156" end="157" tokenNumber="42" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2454" _ref_sofa="3" begin="297" end="298" tokenNumber="71" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2474" _ref_sofa="3" begin="306" end="307" tokenNumber="73" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2734" _ref_sofa="3" begin="422" end="423" tokenNumber="97" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2886" _ref_sofa="3" begin="490" end="491" tokenNumber="110" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3131" _ref_sofa="3" begin="653" end="654" tokenNumber="138" normalizedForm="/" partOfSpeech="SYM"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3151" _ref_sofa="3" begin="672" end="673" tokenNumber="141" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3288" _ref_sofa="3" begin="752" end="753" tokenNumber="153" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3296" _ref_sofa="3" begin="755" end="756" tokenNumber="155" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3349" _ref_sofa="3" begin="779" end="780" tokenNumber="160" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3438" _ref_sofa="3" begin="823" end="824" tokenNumber="168" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3455" _ref_sofa="3" begin="827" end="828" tokenNumber="170" normalizedForm="/" partOfSpeech="SYM"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3553" _ref_sofa="3" begin="875" end="876" tokenNumber="181" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3570" _ref_sofa="3" begin="878" end="879" tokenNumber="183" normalizedForm="/" partOfSpeech="SYM"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3587" _ref_sofa="3" begin="881" end="882" tokenNumber="185" normalizedForm="/" partOfSpeech="SYM"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3628" _ref_sofa="3" begin="907" end="908" tokenNumber="190" normalizedForm="/" partOfSpeech="SYM"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3684" _ref_sofa="3" begin="957" end="958" tokenNumber="198" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3713" _ref_sofa="3" begin="964" end="965" tokenNumber="201" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3733" _ref_sofa="3" begin="979" end="980" tokenNumber="204" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3774" _ref_sofa="3" begin="997" end="998" tokenNumber="209" normalizedForm="/" partOfSpeech="SYM"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3827" _ref_sofa="3" begin="1029" end="1030" tokenNumber="215" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3892" _ref_sofa="3" begin="1064" end="1065" tokenNumber="223" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3912" _ref_sofa="3" begin="1068" end="1069" tokenNumber="225" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3953" _ref_sofa="3" begin="1087" end="1088" tokenNumber="229" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3994" _ref_sofa="3" begin="1104" end="1105" tokenNumber="233" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4059" _ref_sofa="3" begin="1129" end="1130" tokenNumber="239" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4277" _ref_sofa="3" begin="1269" end="1270" tokenNumber="265" normalizedForm="(" partOfSpeech="-LRB-"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4318" _ref_sofa="3" begin="1279" end="1280" tokenNumber="269" normalizedForm=")" partOfSpeech="-RRB-"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4386" _ref_sofa="3" begin="1316" end="1317" tokenNumber="277" normalizedForm="/" partOfSpeech="SYM"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4478" _ref_sofa="3" begin="1375" end="1376" tokenNumber="288" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4531" _ref_sofa="3" begin="1396" end="1397" tokenNumber="293" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4551" _ref_sofa="3" begin="1404" end="1405" tokenNumber="295" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4559" _ref_sofa="3" begin="1407" end="1408" tokenNumber="297" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4612" _ref_sofa="3" begin="1433" end="1434" tokenNumber="302" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4620" _ref_sofa="3" begin="1436" end="1437" tokenNumber="304" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4664" _ref_sofa="3" begin="1454" end="1455" tokenNumber="308" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4696" _ref_sofa="3" begin="1470" end="1471" tokenNumber="312" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4733" _ref_sofa="3" begin="1490" end="1491" tokenNumber="316" normalizedForm="(" partOfSpeech="-LRB-"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4762" _ref_sofa="3" begin="1498" end="1499" tokenNumber="319" normalizedForm=")" partOfSpeech="-RRB-"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4782" _ref_sofa="3" begin="1505" end="1506" tokenNumber="322" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4802" _ref_sofa="3" begin="1512" end="1513" tokenNumber="324" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4822" _ref_sofa="3" begin="1524" end="1525" tokenNumber="327" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4946" _ref_sofa="3" begin="1574" end="1575" tokenNumber="338" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5098" _ref_sofa="3" begin="1648" end="1649" tokenNumber="352" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5190" _ref_sofa="3" begin="1681" end="1682" tokenNumber="360" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5198" _ref_sofa="3" begin="1684" end="1685" tokenNumber="362" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5250" _ref_sofa="3" begin="1708" end="1709" tokenNumber="367" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5291" _ref_sofa="3" begin="1724" end="1725" tokenNumber="372" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5371" _ref_sofa="3" begin="1756" end="1757" tokenNumber="382" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5423" _ref_sofa="3" begin="1779" end="1780" tokenNumber="387" normalizedForm="(" partOfSpeech="-LRB-"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5443" _ref_sofa="3" begin="1784" end="1785" tokenNumber="389" normalizedForm=")" partOfSpeech="-RRB-"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5463" _ref_sofa="3" begin="1790" end="1791" tokenNumber="391" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5519" _ref_sofa="3" begin="1813" end="1814" tokenNumber="397" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5700" _ref_sofa="3" begin="1930" end="1931" tokenNumber="418" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5825" _ref_sofa="3" begin="1982" end="1983" tokenNumber="429" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5905" _ref_sofa="3" begin="2024" end="2025" tokenNumber="437" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5913" _ref_sofa="3" begin="2027" end="2028" tokenNumber="439" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5945" _ref_sofa="3" begin="2040" end="2041" tokenNumber="442" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6073" _ref_sofa="3" begin="2099" end="2100" tokenNumber="454" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6162" _ref_sofa="3" begin="2142" end="2143" tokenNumber="462" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6314" _ref_sofa="3" begin="2211" end="2212" tokenNumber="477" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6490" _ref_sofa="3" begin="2290" end="2291" tokenNumber="493" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6522" _ref_sofa="3" begin="2311" end="2312" tokenNumber="497" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6626" _ref_sofa="3" begin="2358" end="2359" tokenNumber="508" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6658" _ref_sofa="3" begin="2371" end="2372" tokenNumber="511" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6675" _ref_sofa="3" begin="2375" end="2376" tokenNumber="513" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6695" _ref_sofa="3" begin="2383" end="2384" tokenNumber="515" normalizedForm=";" partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6739" _ref_sofa="3" begin="2403" end="2404" tokenNumber="519" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6759" _ref_sofa="3" begin="2414" end="2415" tokenNumber="521" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6779" _ref_sofa="3" begin="2430" end="2431" tokenNumber="524" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6811" _ref_sofa="3" begin="2443" end="2444" tokenNumber="527" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6828" _ref_sofa="3" begin="2447" end="2448" tokenNumber="529" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6860" _ref_sofa="3" begin="2465" end="2466" tokenNumber="533" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6892" _ref_sofa="3" begin="2478" end="2479" tokenNumber="536" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6909" _ref_sofa="3" begin="2482" end="2483" tokenNumber="538" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6965" _ref_sofa="3" begin="2507" end="2508" tokenNumber="543" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6997" _ref_sofa="3" begin="2525" end="2526" tokenNumber="547" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7029" _ref_sofa="3" begin="2538" end="2539" tokenNumber="550" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7046" _ref_sofa="3" begin="2542" end="2543" tokenNumber="552" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7126" _ref_sofa="3" begin="2587" end="2588" tokenNumber="560" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7146" _ref_sofa="3" begin="2597" end="2598" tokenNumber="562" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7163" _ref_sofa="3" begin="2601" end="2602" tokenNumber="564" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7203" _ref_sofa="3" begin="2622" end="2623" tokenNumber="568" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7243" _ref_sofa="3" begin="2641" end="2642" tokenNumber="573" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7263" _ref_sofa="3" begin="2646" end="2647" tokenNumber="575" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7280" _ref_sofa="3" begin="2650" end="2651" tokenNumber="577" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7300" _ref_sofa="3" begin="2658" end="2659" tokenNumber="580" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7320" _ref_sofa="3" begin="2663" end="2664" tokenNumber="582" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7337" _ref_sofa="3" begin="2667" end="2668" tokenNumber="584" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7393" _ref_sofa="3" begin="2692" end="2693" tokenNumber="590" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7413" _ref_sofa="3" begin="2702" end="2703" tokenNumber="593" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7535" _ref_sofa="3" begin="2743" end="2744" tokenNumber="604" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7579" _ref_sofa="3" begin="2761" end="2762" tokenNumber="609" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7659" _ref_sofa="3" begin="2795" end="2796" tokenNumber="617" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7703" _ref_sofa="3" begin="2816" end="2817" tokenNumber="621" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7723" _ref_sofa="3" begin="2823" end="2824" tokenNumber="624" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7788" _ref_sofa="3" begin="2849" end="2850" tokenNumber="630" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7853" _ref_sofa="3" begin="2872" end="2873" tokenNumber="636" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7933" _ref_sofa="3" begin="2906" end="2907" tokenNumber="644" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7965" _ref_sofa="3" begin="2920" end="2921" tokenNumber="647" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7997" _ref_sofa="3" begin="2933" end="2934" tokenNumber="650" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8017" _ref_sofa="3" begin="2942" end="2943" tokenNumber="652" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8049" _ref_sofa="3" begin="2960" end="2961" tokenNumber="656" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8069" _ref_sofa="3" begin="2969" end="2970" tokenNumber="658" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8113" _ref_sofa="3" begin="2991" end="2992" tokenNumber="662" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8157" _ref_sofa="3" begin="3005" end="3006" tokenNumber="666" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8225" _ref_sofa="3" begin="3038" end="3039" tokenNumber="673" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8302" _ref_sofa="3" begin="3064" end="3065" tokenNumber="680" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8358" _ref_sofa="3" begin="3094" end="3095" tokenNumber="686" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8390" _ref_sofa="3" begin="3104" end="3105" tokenNumber="689" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8410" _ref_sofa="3" begin="3112" end="3113" tokenNumber="691" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8442" _ref_sofa="3" begin="3127" end="3128" tokenNumber="695" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8474" _ref_sofa="3" begin="3137" end="3138" tokenNumber="698" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8494" _ref_sofa="3" begin="3143" end="3144" tokenNumber="700" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8514" _ref_sofa="3" begin="3154" end="3155" tokenNumber="702" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8534" _ref_sofa="3" begin="3168" end="3169" tokenNumber="705" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8566" _ref_sofa="3" begin="3178" end="3179" tokenNumber="708" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8586" _ref_sofa="3" begin="3188" end="3189" tokenNumber="710" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8630" _ref_sofa="3" begin="3209" end="3210" tokenNumber="714" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8650" _ref_sofa="3" begin="3220" end="3221" tokenNumber="716" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8670" _ref_sofa="3" begin="3234" end="3235" tokenNumber="718" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8690" _ref_sofa="3" begin="3244" end="3245" tokenNumber="721" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8746" _ref_sofa="3" begin="3268" end="3269" tokenNumber="726" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8778" _ref_sofa="3" begin="3282" end="3283" tokenNumber="729" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8810" _ref_sofa="3" begin="3294" end="3295" tokenNumber="732" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8830" _ref_sofa="3" begin="3308" end="3309" tokenNumber="734" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8850" _ref_sofa="3" begin="3327" end="3328" tokenNumber="737" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8882" _ref_sofa="3" begin="3342" end="3343" tokenNumber="740" normalizedForm=";" partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8914" _ref_sofa="3" begin="3353" end="3354" tokenNumber="743" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9063" _ref_sofa="3" begin="3426" end="3427" tokenNumber="757" normalizedForm="-" partOfSpeech="SYM"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9128" _ref_sofa="3" begin="3452" end="3453" tokenNumber="763" normalizedForm=";" partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9184" _ref_sofa="3" begin="3478" end="3479" tokenNumber="769" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9216" _ref_sofa="3" begin="3487" end="3488" tokenNumber="772" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9236" _ref_sofa="3" begin="3497" end="3498" tokenNumber="774" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9304" _ref_sofa="3" begin="3536" end="3537" tokenNumber="781" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9336" _ref_sofa="3" begin="3550" end="3551" tokenNumber="784" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9356" _ref_sofa="3" begin="3559" end="3560" tokenNumber="786" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9424" _ref_sofa="3" begin="3604" end="3605" tokenNumber="793" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9468" _ref_sofa="3" begin="3631" end="3632" tokenNumber="797" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9548" _ref_sofa="3" begin="3678" end="3679" tokenNumber="805" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9708" _ref_sofa="3" begin="3735" end="3736" tokenNumber="819" normalizedForm=";" partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9764" _ref_sofa="3" begin="3760" end="3761" tokenNumber="825" normalizedForm=";" partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9832" _ref_sofa="3" begin="3787" end="3788" tokenNumber="831" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9876" _ref_sofa="3" begin="3800" end="3801" tokenNumber="835" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10001" _ref_sofa="3" begin="3871" end="3872" tokenNumber="848" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10117" _ref_sofa="3" begin="3932" end="3933" tokenNumber="858" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10242" _ref_sofa="3" begin="3992" end="3993" tokenNumber="870" normalizedForm=";" partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10346" _ref_sofa="3" begin="4044" end="4045" tokenNumber="881" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10378" _ref_sofa="3" begin="4057" end="4058" tokenNumber="884" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10398" _ref_sofa="3" begin="4067" end="4068" tokenNumber="886" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10418" _ref_sofa="3" begin="4076" end="4077" tokenNumber="888" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10438" _ref_sofa="3" begin="4086" end="4087" tokenNumber="890" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10470" _ref_sofa="3" begin="4099" end="4100" tokenNumber="893" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10514" _ref_sofa="3" begin="4125" end="4126" tokenNumber="898" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10606" _ref_sofa="3" begin="4177" end="4178" tokenNumber="907" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10662" _ref_sofa="3" begin="4203" end="4204" tokenNumber="912" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10694" _ref_sofa="3" begin="4228" end="4229" tokenNumber="915" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10726" _ref_sofa="3" begin="4246" end="4247" tokenNumber="918" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10818" _ref_sofa="3" begin="4296" end="4297" tokenNumber="928" normalizedForm=":" partOfSpeech=":"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10862" _ref_sofa="3" begin="4314" end="4315" tokenNumber="932" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="11022" _ref_sofa="3" begin="4395" end="4396" tokenNumber="947" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="11051" _ref_sofa="3" begin="4407" end="4408" tokenNumber="950" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="11115" _ref_sofa="3" begin="4429" end="4430" tokenNumber="956" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="11144" _ref_sofa="3" begin="4438" end="4439" tokenNumber="959" normalizedForm="-" partOfSpeech="HYPH"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="2210" _ref_sofa="3" begin="176" end="177" tokenNumber="47" normalizedForm="�" partOfSpeech="JJ"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="2242" _ref_sofa="3" begin="190" end="191" tokenNumber="50" normalizedForm="�" partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="4716" _ref_sofa="3" begin="1484" end="1485" tokenNumber="314" normalizedForm="=" partOfSpeech="SYM"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="4842" _ref_sofa="3" begin="1531" end="1532" tokenNumber="329" normalizedForm="�" partOfSpeech="NN"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="5218" _ref_sofa="3" begin="1692" end="1693" tokenNumber="364" normalizedForm="�" partOfSpeech="RB"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="5311" _ref_sofa="3" begin="1735" end="1736" tokenNumber="374" normalizedForm="�" partOfSpeech="NN"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="5319" _ref_sofa="3" begin="1737" end="1738" tokenNumber="375" normalizedForm="�" partOfSpeech="VBN"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="5351" _ref_sofa="3" begin="1745" end="1746" tokenNumber="378" normalizedForm="�" partOfSpeech="NN"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="5391" _ref_sofa="3" begin="1766" end="1767" tokenNumber="384" normalizedForm="�" partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="5539" _ref_sofa="3" begin="1821" end="1822" tokenNumber="399" normalizedForm="�" partOfSpeech="RB"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="7171" _ref_sofa="3" begin="2603" end="2604" tokenNumber="565" normalizedForm="�" partOfSpeech="JJ"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="7211" _ref_sofa="3" begin="2623" end="2624" tokenNumber="569" normalizedForm="�" partOfSpeech="JJ"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="9676" _ref_sofa="3" begin="3728" end="3729" tokenNumber="816" normalizedForm="�" partOfSpeech="NN"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="10930" _ref_sofa="3" begin="4345" end="4346" tokenNumber="939" normalizedForm="�" partOfSpeech="NNP"/>
-    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="11083" _ref_sofa="3" begin="4420" end="4421" tokenNumber="953" normalizedForm="�" partOfSpeech="VBD"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="1813" _ref_sofa="3" begin="26" end="27" tokenNumber="3" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="1842" _ref_sofa="3" begin="38" end="39" tokenNumber="7" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="1859" _ref_sofa="3" begin="40" end="42" tokenNumber="9" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="1876" _ref_sofa="3" begin="43" end="45" tokenNumber="11" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="2001" _ref_sofa="3" begin="101" end="103" tokenNumber="25" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3050" _ref_sofa="3" begin="605" end="609" tokenNumber="129" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3183" _ref_sofa="3" begin="691" end="695" tokenNumber="144" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3328" _ref_sofa="3" begin="772" end="773" tokenNumber="158" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3429" _ref_sofa="3" begin="820" end="823" tokenNumber="167" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3446" _ref_sofa="3" begin="824" end="827" tokenNumber="169" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3523" _ref_sofa="3" begin="863" end="864" tokenNumber="177" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3532" _ref_sofa="3" begin="866" end="867" tokenNumber="179" partOfSpeech="LS" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3561" _ref_sofa="3" begin="877" end="878" tokenNumber="182" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3578" _ref_sofa="3" begin="879" end="881" tokenNumber="184" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3595" _ref_sofa="3" begin="882" end="884" tokenNumber="186" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3704" _ref_sofa="3" begin="963" end="964" tokenNumber="200" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3753" _ref_sofa="3" begin="985" end="987" tokenNumber="206" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3794" _ref_sofa="3" begin="1009" end="1013" tokenNumber="212" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3835" _ref_sofa="3" begin="1031" end="1032" tokenNumber="216" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3920" _ref_sofa="3" begin="1070" end="1071" tokenNumber="226" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="3985" _ref_sofa="3" begin="1102" end="1104" tokenNumber="232" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4026" _ref_sofa="3" begin="1118" end="1119" tokenNumber="236" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4187" _ref_sofa="3" begin="1224" end="1225" tokenNumber="256" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4232" _ref_sofa="3" begin="1255" end="1257" tokenNumber="261" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4297" _ref_sofa="3" begin="1272" end="1273" tokenNumber="267" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4522" _ref_sofa="3" begin="1392" end="1396" tokenNumber="292" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4603" _ref_sofa="3" begin="1429" end="1433" tokenNumber="301" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4724" _ref_sofa="3" begin="1486" end="1489" tokenNumber="315" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="4753" _ref_sofa="3" begin="1494" end="1498" tokenNumber="318" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="5270" _ref_sofa="3" begin="1718" end="1719" tokenNumber="369" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="5667" _ref_sofa="3" begin="1905" end="1906" tokenNumber="413" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="5708" _ref_sofa="3" begin="1932" end="1933" tokenNumber="419" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="6117" _ref_sofa="3" begin="2125" end="2127" tokenNumber="458" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="6666" _ref_sofa="3" begin="2373" end="2375" tokenNumber="512" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="6819" _ref_sofa="3" begin="2445" end="2447" tokenNumber="528" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="6900" _ref_sofa="3" begin="2480" end="2482" tokenNumber="537" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7037" _ref_sofa="3" begin="2540" end="2542" tokenNumber="551" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7154" _ref_sofa="3" begin="2599" end="2601" tokenNumber="563" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7271" _ref_sofa="3" begin="2648" end="2650" tokenNumber="576" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7328" _ref_sofa="3" begin="2665" end="2667" tokenNumber="583" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7457" _ref_sofa="3" begin="2721" end="2723" tokenNumber="597" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7514" _ref_sofa="3" begin="2739" end="2740" tokenNumber="602" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7767" _ref_sofa="3" begin="2845" end="2846" tokenNumber="628" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="7820" _ref_sofa="3" begin="2864" end="2865" tokenNumber="633" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="8269" _ref_sofa="3" begin="3056" end="3057" tokenNumber="677" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="9054" _ref_sofa="3" begin="3425" end="3426" tokenNumber="756" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="9071" _ref_sofa="3" begin="3427" end="3428" tokenNumber="758" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="9968" _ref_sofa="3" begin="3849" end="3850" tokenNumber="844" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="10221" _ref_sofa="3" begin="3987" end="3989" tokenNumber="868" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="11042" _ref_sofa="3" begin="4405" end="4407" tokenNumber="949" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="11135" _ref_sofa="3" begin="4435" end="4438" tokenNumber="958" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="11152" _ref_sofa="3" begin="4441" end="4444" tokenNumber="961" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="1834" _ref_sofa="3" begin="36" end="37" tokenNumber="6" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="1851" _ref_sofa="3" begin="39" end="40" tokenNumber="8" partOfSpeech="SYM"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="1868" _ref_sofa="3" begin="42" end="43" tokenNumber="10" partOfSpeech="SYM"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="1909" _ref_sofa="3" begin="56" end="57" tokenNumber="15" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2010" _ref_sofa="3" begin="103" end="104" tokenNumber="26" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2030" _ref_sofa="3" begin="108" end="109" tokenNumber="28" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2050" _ref_sofa="3" begin="112" end="113" tokenNumber="30" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2070" _ref_sofa="3" begin="121" end="122" tokenNumber="32" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2102" _ref_sofa="3" begin="139" end="140" tokenNumber="35" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2158" _ref_sofa="3" begin="154" end="155" tokenNumber="40" partOfSpeech="NNP"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2178" _ref_sofa="3" begin="156" end="157" tokenNumber="42" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2454" _ref_sofa="3" begin="297" end="298" tokenNumber="71" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2474" _ref_sofa="3" begin="306" end="307" tokenNumber="73" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2734" _ref_sofa="3" begin="422" end="423" tokenNumber="97" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="2886" _ref_sofa="3" begin="490" end="491" tokenNumber="110" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3131" _ref_sofa="3" begin="653" end="654" tokenNumber="138" partOfSpeech="SYM"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3151" _ref_sofa="3" begin="672" end="673" tokenNumber="141" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3288" _ref_sofa="3" begin="752" end="753" tokenNumber="153" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3296" _ref_sofa="3" begin="755" end="756" tokenNumber="155" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3349" _ref_sofa="3" begin="779" end="780" tokenNumber="160" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3438" _ref_sofa="3" begin="823" end="824" tokenNumber="168" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3455" _ref_sofa="3" begin="827" end="828" tokenNumber="170" partOfSpeech="SYM"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3553" _ref_sofa="3" begin="875" end="876" tokenNumber="181" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3570" _ref_sofa="3" begin="878" end="879" tokenNumber="183" partOfSpeech="SYM"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3587" _ref_sofa="3" begin="881" end="882" tokenNumber="185" partOfSpeech="SYM"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3628" _ref_sofa="3" begin="907" end="908" tokenNumber="190" partOfSpeech="SYM"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3684" _ref_sofa="3" begin="957" end="958" tokenNumber="198" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3713" _ref_sofa="3" begin="964" end="965" tokenNumber="201" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3733" _ref_sofa="3" begin="979" end="980" tokenNumber="204" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3774" _ref_sofa="3" begin="997" end="998" tokenNumber="209" partOfSpeech="SYM"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3827" _ref_sofa="3" begin="1029" end="1030" tokenNumber="215" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3892" _ref_sofa="3" begin="1064" end="1065" tokenNumber="223" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3912" _ref_sofa="3" begin="1068" end="1069" tokenNumber="225" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3953" _ref_sofa="3" begin="1087" end="1088" tokenNumber="229" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="3994" _ref_sofa="3" begin="1104" end="1105" tokenNumber="233" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4059" _ref_sofa="3" begin="1129" end="1130" tokenNumber="239" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4277" _ref_sofa="3" begin="1269" end="1270" tokenNumber="265" partOfSpeech="-LRB-"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4318" _ref_sofa="3" begin="1279" end="1280" tokenNumber="269" partOfSpeech="-RRB-"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4386" _ref_sofa="3" begin="1316" end="1317" tokenNumber="277" partOfSpeech="SYM"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4478" _ref_sofa="3" begin="1375" end="1376" tokenNumber="288" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4531" _ref_sofa="3" begin="1396" end="1397" tokenNumber="293" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4551" _ref_sofa="3" begin="1404" end="1405" tokenNumber="295" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4559" _ref_sofa="3" begin="1407" end="1408" tokenNumber="297" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4612" _ref_sofa="3" begin="1433" end="1434" tokenNumber="302" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4620" _ref_sofa="3" begin="1436" end="1437" tokenNumber="304" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4664" _ref_sofa="3" begin="1454" end="1455" tokenNumber="308" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4696" _ref_sofa="3" begin="1470" end="1471" tokenNumber="312" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4733" _ref_sofa="3" begin="1490" end="1491" tokenNumber="316" partOfSpeech="-LRB-"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4762" _ref_sofa="3" begin="1498" end="1499" tokenNumber="319" partOfSpeech="-RRB-"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4782" _ref_sofa="3" begin="1505" end="1506" tokenNumber="322" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4802" _ref_sofa="3" begin="1512" end="1513" tokenNumber="324" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4822" _ref_sofa="3" begin="1524" end="1525" tokenNumber="327" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="4946" _ref_sofa="3" begin="1574" end="1575" tokenNumber="338" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5098" _ref_sofa="3" begin="1648" end="1649" tokenNumber="352" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5190" _ref_sofa="3" begin="1681" end="1682" tokenNumber="360" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5198" _ref_sofa="3" begin="1684" end="1685" tokenNumber="362" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5250" _ref_sofa="3" begin="1708" end="1709" tokenNumber="367" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5291" _ref_sofa="3" begin="1724" end="1725" tokenNumber="372" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5371" _ref_sofa="3" begin="1756" end="1757" tokenNumber="382" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5423" _ref_sofa="3" begin="1779" end="1780" tokenNumber="387" partOfSpeech="-LRB-"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5443" _ref_sofa="3" begin="1784" end="1785" tokenNumber="389" partOfSpeech="-RRB-"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5463" _ref_sofa="3" begin="1790" end="1791" tokenNumber="391" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5519" _ref_sofa="3" begin="1813" end="1814" tokenNumber="397" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5700" _ref_sofa="3" begin="1930" end="1931" tokenNumber="418" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5825" _ref_sofa="3" begin="1982" end="1983" tokenNumber="429" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5905" _ref_sofa="3" begin="2024" end="2025" tokenNumber="437" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5913" _ref_sofa="3" begin="2027" end="2028" tokenNumber="439" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="5945" _ref_sofa="3" begin="2040" end="2041" tokenNumber="442" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6073" _ref_sofa="3" begin="2099" end="2100" tokenNumber="454" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6162" _ref_sofa="3" begin="2142" end="2143" tokenNumber="462" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6314" _ref_sofa="3" begin="2211" end="2212" tokenNumber="477" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6490" _ref_sofa="3" begin="2290" end="2291" tokenNumber="493" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6522" _ref_sofa="3" begin="2311" end="2312" tokenNumber="497" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6626" _ref_sofa="3" begin="2358" end="2359" tokenNumber="508" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6658" _ref_sofa="3" begin="2371" end="2372" tokenNumber="511" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6675" _ref_sofa="3" begin="2375" end="2376" tokenNumber="513" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6695" _ref_sofa="3" begin="2383" end="2384" tokenNumber="515" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6739" _ref_sofa="3" begin="2403" end="2404" tokenNumber="519" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6759" _ref_sofa="3" begin="2414" end="2415" tokenNumber="521" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6779" _ref_sofa="3" begin="2430" end="2431" tokenNumber="524" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6811" _ref_sofa="3" begin="2443" end="2444" tokenNumber="527" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6828" _ref_sofa="3" begin="2447" end="2448" tokenNumber="529" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6860" _ref_sofa="3" begin="2465" end="2466" tokenNumber="533" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6892" _ref_sofa="3" begin="2478" end="2479" tokenNumber="536" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6909" _ref_sofa="3" begin="2482" end="2483" tokenNumber="538" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6965" _ref_sofa="3" begin="2507" end="2508" tokenNumber="543" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="6997" _ref_sofa="3" begin="2525" end="2526" tokenNumber="547" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7029" _ref_sofa="3" begin="2538" end="2539" tokenNumber="550" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7046" _ref_sofa="3" begin="2542" end="2543" tokenNumber="552" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7126" _ref_sofa="3" begin="2587" end="2588" tokenNumber="560" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7146" _ref_sofa="3" begin="2597" end="2598" tokenNumber="562" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7163" _ref_sofa="3" begin="2601" end="2602" tokenNumber="564" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7203" _ref_sofa="3" begin="2622" end="2623" tokenNumber="568" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7243" _ref_sofa="3" begin="2641" end="2642" tokenNumber="573" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7263" _ref_sofa="3" begin="2646" end="2647" tokenNumber="575" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7280" _ref_sofa="3" begin="2650" end="2651" tokenNumber="577" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7300" _ref_sofa="3" begin="2658" end="2659" tokenNumber="580" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7320" _ref_sofa="3" begin="2663" end="2664" tokenNumber="582" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7337" _ref_sofa="3" begin="2667" end="2668" tokenNumber="584" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7393" _ref_sofa="3" begin="2692" end="2693" tokenNumber="590" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7413" _ref_sofa="3" begin="2702" end="2703" tokenNumber="593" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7535" _ref_sofa="3" begin="2743" end="2744" tokenNumber="604" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7579" _ref_sofa="3" begin="2761" end="2762" tokenNumber="609" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7659" _ref_sofa="3" begin="2795" end="2796" tokenNumber="617" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7703" _ref_sofa="3" begin="2816" end="2817" tokenNumber="621" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7723" _ref_sofa="3" begin="2823" end="2824" tokenNumber="624" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7788" _ref_sofa="3" begin="2849" end="2850" tokenNumber="630" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7853" _ref_sofa="3" begin="2872" end="2873" tokenNumber="636" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7933" _ref_sofa="3" begin="2906" end="2907" tokenNumber="644" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7965" _ref_sofa="3" begin="2920" end="2921" tokenNumber="647" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="7997" _ref_sofa="3" begin="2933" end="2934" tokenNumber="650" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8017" _ref_sofa="3" begin="2942" end="2943" tokenNumber="652" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8049" _ref_sofa="3" begin="2960" end="2961" tokenNumber="656" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8069" _ref_sofa="3" begin="2969" end="2970" tokenNumber="658" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8113" _ref_sofa="3" begin="2991" end="2992" tokenNumber="662" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8157" _ref_sofa="3" begin="3005" end="3006" tokenNumber="666" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8225" _ref_sofa="3" begin="3038" end="3039" tokenNumber="673" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8302" _ref_sofa="3" begin="3064" end="3065" tokenNumber="680" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8358" _ref_sofa="3" begin="3094" end="3095" tokenNumber="686" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8390" _ref_sofa="3" begin="3104" end="3105" tokenNumber="689" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8410" _ref_sofa="3" begin="3112" end="3113" tokenNumber="691" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8442" _ref_sofa="3" begin="3127" end="3128" tokenNumber="695" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8474" _ref_sofa="3" begin="3137" end="3138" tokenNumber="698" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8494" _ref_sofa="3" begin="3143" end="3144" tokenNumber="700" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8514" _ref_sofa="3" begin="3154" end="3155" tokenNumber="702" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8534" _ref_sofa="3" begin="3168" end="3169" tokenNumber="705" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8566" _ref_sofa="3" begin="3178" end="3179" tokenNumber="708" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8586" _ref_sofa="3" begin="3188" end="3189" tokenNumber="710" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8630" _ref_sofa="3" begin="3209" end="3210" tokenNumber="714" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8650" _ref_sofa="3" begin="3220" end="3221" tokenNumber="716" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8670" _ref_sofa="3" begin="3234" end="3235" tokenNumber="718" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8690" _ref_sofa="3" begin="3244" end="3245" tokenNumber="721" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8746" _ref_sofa="3" begin="3268" end="3269" tokenNumber="726" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8778" _ref_sofa="3" begin="3282" end="3283" tokenNumber="729" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8810" _ref_sofa="3" begin="3294" end="3295" tokenNumber="732" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8830" _ref_sofa="3" begin="3308" end="3309" tokenNumber="734" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8850" _ref_sofa="3" begin="3327" end="3328" tokenNumber="737" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8882" _ref_sofa="3" begin="3342" end="3343" tokenNumber="740" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="8914" _ref_sofa="3" begin="3353" end="3354" tokenNumber="743" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9063" _ref_sofa="3" begin="3426" end="3427" tokenNumber="757" partOfSpeech="SYM"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9128" _ref_sofa="3" begin="3452" end="3453" tokenNumber="763" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9184" _ref_sofa="3" begin="3478" end="3479" tokenNumber="769" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9216" _ref_sofa="3" begin="3487" end="3488" tokenNumber="772" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9236" _ref_sofa="3" begin="3497" end="3498" tokenNumber="774" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9304" _ref_sofa="3" begin="3536" end="3537" tokenNumber="781" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9336" _ref_sofa="3" begin="3550" end="3551" tokenNumber="784" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9356" _ref_sofa="3" begin="3559" end="3560" tokenNumber="786" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9424" _ref_sofa="3" begin="3604" end="3605" tokenNumber="793" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9468" _ref_sofa="3" begin="3631" end="3632" tokenNumber="797" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9548" _ref_sofa="3" begin="3678" end="3679" tokenNumber="805" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9708" _ref_sofa="3" begin="3735" end="3736" tokenNumber="819" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9764" _ref_sofa="3" begin="3760" end="3761" tokenNumber="825" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9832" _ref_sofa="3" begin="3787" end="3788" tokenNumber="831" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="9876" _ref_sofa="3" begin="3800" end="3801" tokenNumber="835" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10001" _ref_sofa="3" begin="3871" end="3872" tokenNumber="848" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10117" _ref_sofa="3" begin="3932" end="3933" tokenNumber="858" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10242" _ref_sofa="3" begin="3992" end="3993" tokenNumber="870" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10346" _ref_sofa="3" begin="4044" end="4045" tokenNumber="881" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10378" _ref_sofa="3" begin="4057" end="4058" tokenNumber="884" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10398" _ref_sofa="3" begin="4067" end="4068" tokenNumber="886" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10418" _ref_sofa="3" begin="4076" end="4077" tokenNumber="888" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10438" _ref_sofa="3" begin="4086" end="4087" tokenNumber="890" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10470" _ref_sofa="3" begin="4099" end="4100" tokenNumber="893" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10514" _ref_sofa="3" begin="4125" end="4126" tokenNumber="898" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10606" _ref_sofa="3" begin="4177" end="4178" tokenNumber="907" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10662" _ref_sofa="3" begin="4203" end="4204" tokenNumber="912" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10694" _ref_sofa="3" begin="4228" end="4229" tokenNumber="915" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10726" _ref_sofa="3" begin="4246" end="4247" tokenNumber="918" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10818" _ref_sofa="3" begin="4296" end="4297" tokenNumber="928" partOfSpeech=":"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="10862" _ref_sofa="3" begin="4314" end="4315" tokenNumber="932" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="11022" _ref_sofa="3" begin="4395" end="4396" tokenNumber="947" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="11051" _ref_sofa="3" begin="4407" end="4408" tokenNumber="950" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="11115" _ref_sofa="3" begin="4429" end="4430" tokenNumber="956" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="11144" _ref_sofa="3" begin="4438" end="4439" tokenNumber="959" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="2210" _ref_sofa="3" begin="176" end="177" tokenNumber="47" partOfSpeech="JJ"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="2242" _ref_sofa="3" begin="190" end="191" tokenNumber="50" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="4716" _ref_sofa="3" begin="1484" end="1485" tokenNumber="314" partOfSpeech="SYM"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="4842" _ref_sofa="3" begin="1531" end="1532" tokenNumber="329" partOfSpeech="NN"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="5218" _ref_sofa="3" begin="1692" end="1693" tokenNumber="364" partOfSpeech="RB"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="5311" _ref_sofa="3" begin="1735" end="1736" tokenNumber="374" partOfSpeech="NN"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="5319" _ref_sofa="3" begin="1737" end="1738" tokenNumber="375" partOfSpeech="VBN"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="5351" _ref_sofa="3" begin="1745" end="1746" tokenNumber="378" partOfSpeech="NN"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="5391" _ref_sofa="3" begin="1766" end="1767" tokenNumber="384" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="5539" _ref_sofa="3" begin="1821" end="1822" tokenNumber="399" partOfSpeech="RB"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="7171" _ref_sofa="3" begin="2603" end="2604" tokenNumber="565" partOfSpeech="JJ"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="7211" _ref_sofa="3" begin="2623" end="2624" tokenNumber="569" partOfSpeech="JJ"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="9676" _ref_sofa="3" begin="3728" end="3729" tokenNumber="816" partOfSpeech="NN"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="10930" _ref_sofa="3" begin="4345" end="4346" tokenNumber="939" partOfSpeech="NNP"/>
+    <org.apache.ctakes.typesystem.type.syntax.SymbolToken _indexed="1" _id="11083" _ref_sofa="3" begin="4420" end="4421" tokenNumber="953" partOfSpeech="VBD"/>
     <org.apache.ctakes.typesystem.type.textsem.DateAnnotation _indexed="1" _id="11161" _ref_sofa="3" begin="38" end="45" id="0" typeID="0" segmentID="SIMPLE_SEGMENT" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0"/>
     <org.apache.ctakes.typesystem.type.textsem.DateAnnotation _indexed="1" _id="11251" _ref_sofa="3" begin="877" end="884" id="5" typeID="0" segmentID="SIMPLE_SEGMENT" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0"/>
     <org.apache.ctakes.typesystem.type.textsem.DateAnnotation _indexed="1" _id="11413" _ref_sofa="3" begin="3425" end="3428" id="20" typeID="0" segmentID="SIMPLE_SEGMENT" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0"/>

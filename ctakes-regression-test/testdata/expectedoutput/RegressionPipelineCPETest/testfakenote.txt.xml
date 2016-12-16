@@ -8,10 +8,10 @@
     <org.apache.ctakes.typesystem.type.textspan.Sentence _indexed="1" _id="33" _ref_sofa="3" begin="106" end="178" sentenceNumber="2"/>
     <org.apache.ctakes.typesystem.type.textspan.Sentence _indexed="1" _id="39" _ref_sofa="3" begin="182" end="331" sentenceNumber="3"/>
     <org.apache.ctakes.typesystem.type.textspan.Sentence _indexed="1" _id="45" _ref_sofa="3" begin="335" end="436" sentenceNumber="4"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="51" _ref_sofa="3" begin="178" end="180" tokenNumber="36" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="59" _ref_sofa="3" begin="180" end="182" tokenNumber="37" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="67" _ref_sofa="3" begin="331" end="333" tokenNumber="65" normalizedForm="&#13;&#10;"/>
-    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="75" _ref_sofa="3" begin="333" end="335" tokenNumber="66" normalizedForm="&#13;&#10;"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="51" _ref_sofa="3" begin="178" end="180" tokenNumber="36"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="59" _ref_sofa="3" begin="180" end="182" tokenNumber="37"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="67" _ref_sofa="3" begin="331" end="333" tokenNumber="65"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="75" _ref_sofa="3" begin="333" end="335" tokenNumber="66"/>
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="83" _ref_sofa="3" begin="0" end="3" tokenNumber="0" normalizedForm="mr." partOfSpeech="NNP" capitalization="1" numPosition="0" canonicalForm="mr."/>
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="95" _ref_sofa="3" begin="4" end="11" tokenNumber="1" normalizedForm="johnson" partOfSpeech="NNP" capitalization="1" numPosition="0" canonicalForm="johnson"/>
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="107" _ref_sofa="3" begin="12" end="14" tokenNumber="2" normalizedForm="is" partOfSpeech="VBZ" capitalization="0" numPosition="0" canonicalForm="is"/>
@@ -87,13 +87,13 @@
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="995" _ref_sofa="3" begin="419" end="422" tokenNumber="82" normalizedForm="his" partOfSpeech="PRP$" capitalization="0" numPosition="0" canonicalForm="his"/>
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="1007" _ref_sofa="3" begin="423" end="427" tokenNumber="83" normalizedForm="pain" partOfSpeech="NN" capitalization="0" numPosition="0" canonicalForm="pain"/>
     <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="1019" _ref_sofa="3" begin="428" end="435" tokenNumber="84" normalizedForm="himself" partOfSpeech="PRP" capitalization="0" numPosition="0" canonicalForm="himself"/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="191" _ref_sofa="3" begin="47" end="48" tokenNumber="9" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="319" _ref_sofa="3" begin="103" end="104" tokenNumber="20" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="495" _ref_sofa="3" begin="177" end="178" tokenNumber="35" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="811" _ref_sofa="3" begin="330" end="331" tokenNumber="64" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="879" _ref_sofa="3" begin="371" end="372" tokenNumber="72" normalizedForm="," partOfSpeech=","/>
-    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="1031" _ref_sofa="3" begin="435" end="436" tokenNumber="85" normalizedForm="." partOfSpeech="."/>
-    <org.apache.ctakes.typesystem.type.syntax.ContractionToken _indexed="1" _id="647" _ref_sofa="3" begin="246" end="248" tokenNumber="50" normalizedForm="'s" partOfSpeech="POS"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="191" _ref_sofa="3" begin="47" end="48" tokenNumber="9" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="319" _ref_sofa="3" begin="103" end="104" tokenNumber="20" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="495" _ref_sofa="3" begin="177" end="178" tokenNumber="35" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="811" _ref_sofa="3" begin="330" end="331" tokenNumber="64" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="879" _ref_sofa="3" begin="371" end="372" tokenNumber="72" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="1031" _ref_sofa="3" begin="435" end="436" tokenNumber="85" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.ContractionToken _indexed="1" _id="647" _ref_sofa="3" begin="246" end="248" tokenNumber="50" partOfSpeech="POS"/>
     <org.apache.ctakes.typesystem.type.syntax.NP _indexed="1" _id="1039" _ref_sofa="3" begin="0" end="11" chunkType="NP"/>
     <org.apache.ctakes.typesystem.type.syntax.NP _indexed="1" _id="1049" _ref_sofa="3" begin="26" end="47" chunkType="NP"/>
     <org.apache.ctakes.typesystem.type.syntax.NP _indexed="1" _id="1059" _ref_sofa="3" begin="35" end="47" chunkType="NP"/>

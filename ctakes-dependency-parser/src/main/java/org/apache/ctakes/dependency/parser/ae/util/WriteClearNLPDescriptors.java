@@ -127,7 +127,7 @@ public class WriteClearNLPDescriptors {
 		aggregateBuilder.add(loadDescription(SIMPLE_SEGMENTER_PATH));
 		aggregateBuilder.add(loadDescription(SENTENCE_DETECTOR_PATH));
 		aggregateBuilder.add(loadDescription(TOKENIZER_PATH));
-		aggregateBuilder.add(loadDescription(LVG_BASE_TOKEN_ANNOTATOR_PATH));
+		//aggregateBuilder.add(loadDescription(LVG_BASE_TOKEN_ANNOTATOR_PATH));
 		aggregateBuilder.add(loadDescription(POS_TAGGER_PATH));
 		return aggregateBuilder;
 	}
