@@ -11,7 +11,7 @@ addLogged ClearNLPSemanticRoleLabelerAE
 
 // Use the assertion mini pipeline
 // load parameters used by the following engines
-loadParameters org/apache/ctakes/examples/pipeline/AssertionDefaults.properties
+load org/apache/ctakes/examples/pipeline/AssertionDefaults.piper
 // the engines ...
 add medfacts.AssertionAnalysisEngine
 add medfacts.ConceptConverterAnalysisEngine
