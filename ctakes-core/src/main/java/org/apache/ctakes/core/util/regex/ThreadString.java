@@ -26,6 +26,9 @@ final class ThreadString implements CharSequence {
 
    @Override
    public CharSequence subSequence( final int start, final int end ) {
+      if ( Thread.currentThread().isInterrupted() ) {
+         throw new RuntimeException( new InterruptedException() );
+      }
       return new ThreadString( _delegate.subSequence( start, end ) );
    }
 

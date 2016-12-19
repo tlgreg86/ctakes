@@ -76,26 +76,26 @@ public class PiperFileRunner {
          // set the input directory parameter if needed
          final String inputDir = options.getInputDirectory();
          if ( !inputDir.isEmpty() ) {
-            builder.addParameters( "InputDirectory", inputDir );
+            builder.set( "InputDirectory", inputDir );
          }
          // set the output directory parameter if needed
          final String outputDir = options.getOutputDirectory();
          final String xmiOutDir = options.getXmiOutDirectory();
          if ( !outputDir.isEmpty() ) {
-            builder.addParameters( "OutputDirectory", outputDir );
+            builder.set( "OutputDirectory", outputDir );
          } else if ( !xmiOutDir.isEmpty() ) {
-            builder.addParameters( "OutputDirectory", xmiOutDir );
+            builder.set( "OutputDirectory", xmiOutDir );
          }
          // set the umls user and password parameters if needed
          final String umlsUser = options.getUmlsUserName();
          if ( !umlsUser.isEmpty() ) {
-            builder.addParameters( "umlsUser", umlsUser );
-            builder.addParameters( "ctakes.umlsuser", umlsUser );
+            builder.set( "umlsUser", umlsUser );
+            builder.set( "ctakes.umlsuser", umlsUser );
          }
          final String umlsPass = options.getUmlsPassword();
          if ( !umlsPass.isEmpty() ) {
-            builder.addParameters( "umlsPass", umlsPass );
-            builder.addParameters( "ctakes.umlspw", umlsPass );
+            builder.set( "umlsPass", umlsPass );
+            builder.set( "ctakes.umlspw", umlsPass );
          }
          // load the piper file
          reader.loadPipelineFile( options.getPiperPath() );

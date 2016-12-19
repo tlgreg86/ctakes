@@ -52,6 +52,7 @@ import java.util.regex.Pattern;
  * @version %I%
  * @since 10/10/2016
  */
+@SuppressWarnings( "unchecked" )
 final public class PiperFileReader {
 
    static private final Logger LOGGER = Logger.getLogger( "PiperFileReader" );
