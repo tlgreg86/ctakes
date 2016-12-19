@@ -2,6 +2,7 @@ package org.apache.ctakes.core.ae;
 
 
 import org.apache.ctakes.core.util.Pair;
+import org.apache.ctakes.core.util.regex.RegexSpanFinder;
 import org.apache.ctakes.core.util.regex.TimeoutMatcher;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.log4j.Logger;
@@ -30,6 +31,8 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
     */
    static private final String DEFAULT_SEGMENT_ID = "SIMPLE_SEGMENT";
    static private final String SECTION_NAME_EX = "SECTION_NAME";
+   static public final String DIVIDER_LINE_NAME = "DIVIDER_LINE";
+   static private final Pattern DIVIDER_LINE_PATTERN = Pattern.compile( "^[_\\-=]{4,}\\r?\\n" );
 
    private enum TagType {
       HEADER, FOOTER
@@ -110,6 +113,7 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
       LOGGER.info( "Starting processing" );
+      createDividerLines( jcas );
       if ( _sectionTypes.isEmpty() ) {
          LOGGER.info( "Finished processing, no section types defined" );
          return;
@@ -309,6 +313,25 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
    static protected boolean isBoolean( final String text ) {
       final String text2 = text.trim().toLowerCase();
       return text2.equalsIgnoreCase( "true" ) || text2.equalsIgnoreCase( "false" );
+   }
+
+   /**
+    * Find line dividers
+    *
+    * @param jcas ye olde ...
+    */
+   static private void createDividerLines( final JCas jcas ) {
+      final String docText = jcas.getDocumentText();
+      final List<Pair<Integer>> spans = new ArrayList<>();
+      try ( RegexSpanFinder finder = new RegexSpanFinder( DIVIDER_LINE_PATTERN ) ) {
+         spans.addAll( finder.findSpans( docText ) );
+      }
+      for ( Pair<Integer> span : spans ) {
+         final Segment lineSegment = new Segment( jcas, span.getValue1(), span.getValue2() );
+         lineSegment.setId( DIVIDER_LINE_NAME );
+         lineSegment.setPreferredText( DIVIDER_LINE_NAME );
+         lineSegment.addToIndexes();
+      }
    }
 
 
