@@ -19,6 +19,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -81,6 +83,9 @@ final public class PiperFileReader {
    static private final Pattern SPACE_PATTERN = Pattern.compile( "\\s+" );
    static private final Pattern KEY_VALUE_PATTERN = Pattern.compile( "=" );
    static private final Pattern COMMA_ARRAY_PATTERN = Pattern.compile( "," );
+   static private final Pattern QUOTE_VALUE_PATTERN = Pattern.compile( "(?:[^\"=\\s]+)|(?:\"[^\"=\\r\\n]+\")" );
+   static private final Pattern NAME_VALUE_PATTERN = Pattern
+         .compile( "[^\"\\s=]+=(?:(?:[^\"=\\s]+)|(?:\"[^\"=\\r\\n]+\"))" );
 
    private PipelineBuilder _builder;
 
@@ -143,7 +148,6 @@ final public class PiperFileReader {
       return _builder;
    }
 
-   // TODO add ability to pass parameters with addDescription
    /**
     * @param command   specified by first word in the file line
     * @param parameter specified by second word in the file line
@@ -469,7 +473,12 @@ final public class PiperFileReader {
       if ( text == null || text.trim().isEmpty() ) {
          return EMPTY_OBJECT_ARRAY;
       }
-      final String[] pairs = SPACE_PATTERN.split( text.trim() );
+      final Matcher matcher = NAME_VALUE_PATTERN.matcher( text );
+      final List<String> pairList = new ArrayList<>();
+      while ( matcher.find() ) {
+         pairList.add( text.substring( matcher.start(), matcher.end() ) );
+      }
+      final String[] pairs = pairList.toArray( new String[ pairList.size() ] );
       final Object[] keysAndValues = new Object[ pairs.length * 2 ];
       int i = 0;
       for ( String pair : pairs ) {
@@ -487,7 +496,12 @@ final public class PiperFileReader {
    }
 
    static private Object[] splitDescriptorValues( final String text ) {
-      final String[] values = SPACE_PATTERN.split( text.trim() );
+      final Matcher matcher = QUOTE_VALUE_PATTERN.matcher( text );
+      final List<String> valueList = new ArrayList<>();
+      while ( matcher.find() ) {
+         valueList.add( text.substring( matcher.start(), matcher.end() ) );
+      }
+      final String[] values = valueList.toArray( new String[ valueList.size() ] );
       final Object[] valueObjects = new Object[ values.length ];
       for ( int i = 0; i < values.length; i++ ) {
          valueObjects[ i ] = getValueObject( values[ i ] );
@@ -496,14 +510,15 @@ final public class PiperFileReader {
    }
 
    static private Object getValueObject( final String value ) {
-      if ( isCommaArray( value ) ) {
-         return attemptParseArray( value );
+      final String unquotedValue = value.replace( "\"", "" );
+      if ( isCommaArray( unquotedValue ) ) {
+         return attemptParseArray( unquotedValue );
       }
-      final Object returner = attemptParseBoolean( value );
-      if ( !value.equals( returner ) ) {
+      final Object returner = attemptParseBoolean( unquotedValue );
+      if ( !unquotedValue.equals( returner ) ) {
          return returner;
       }
-      return attemptParseInt( value );
+      return attemptParseInt( unquotedValue );
    }
 
    /**
