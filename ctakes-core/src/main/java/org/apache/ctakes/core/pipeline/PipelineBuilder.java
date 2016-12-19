@@ -47,21 +47,10 @@ final public class PipelineBuilder {
    /**
     * Use of this method is order-specific
     *
-    * @param filePath path to .properties file with ae parameter name value pairs
-    * @return this PipelineBuilder
-    */
-   public PipelineBuilder loadParameters( final String filePath ) {
-      PropertyAeFactory.getInstance().loadPropertyFile( filePath );
-      return this;
-   }
-
-   /**
-    * Use of this method is order-specific
-    *
     * @param parameters add ae parameter name value pairs
     * @return this PipelineBuilder
     */
-   public PipelineBuilder addParameters( final Object... parameters ) {
+   public PipelineBuilder set( final Object... parameters ) {
       PropertyAeFactory.getInstance().addParameters( parameters );
       return this;
    }

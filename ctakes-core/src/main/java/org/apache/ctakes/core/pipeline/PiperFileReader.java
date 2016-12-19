@@ -83,6 +83,7 @@ final public class PiperFileReader {
    static private final Pattern SPACE_PATTERN = Pattern.compile( "\\s+" );
    static private final Pattern KEY_VALUE_PATTERN = Pattern.compile( "=" );
    static private final Pattern COMMA_ARRAY_PATTERN = Pattern.compile( "," );
+   static private final Pattern QUOTE_PATTERN = Pattern.compile( "\"" );
    static private final Pattern QUOTE_VALUE_PATTERN = Pattern.compile( "(?:[^\"=\\s]+)|(?:\"[^\"=\\r\\n]+\")" );
    static private final Pattern NAME_VALUE_PATTERN = Pattern
          .compile( "[^\"\\s=]+=(?:(?:[^\"=\\s]+)|(?:\"[^\"=\\r\\n]+\"))" );
@@ -161,14 +162,8 @@ final public class PiperFileReader {
          case "addPackage":
             _userPackages.add( parameter );
             break;
-         case "loadParameters":
-            _builder.loadParameters( parameter );
-            break;
-         case "addParameters":
-            _builder.addParameters( splitParameters( parameter ) );
-            break;
          case "set":
-            _builder.addParameters( splitParameters( parameter ) );
+            _builder.set( splitParameters( parameter ) );
             break;
          case "reader":
             _builder.reader( createReader( parameter ) );
@@ -510,15 +505,18 @@ final public class PiperFileReader {
    }
 
    static private Object getValueObject( final String value ) {
-      final String unquotedValue = value.replace( "\"", "" );
-      if ( isCommaArray( unquotedValue ) ) {
-         return attemptParseArray( unquotedValue );
+      if ( value.indexOf( '\"' ) >= 0 ) {
+         // Quoted values should be returned outright - no array splitting, no integer conversion, etc.
+         return QUOTE_PATTERN.matcher( value ).replaceAll( "" );
       }
-      final Object returner = attemptParseBoolean( unquotedValue );
-      if ( !unquotedValue.equals( returner ) ) {
+      if ( isCommaArray( value ) ) {
+         return attemptParseArray( value );
+      }
+      final Object returner = attemptParseBoolean( value );
+      if ( !value.equals( returner ) ) {
          return returner;
       }
-      return attemptParseInt( unquotedValue );
+      return attemptParseInt( value );
    }
 
    /**

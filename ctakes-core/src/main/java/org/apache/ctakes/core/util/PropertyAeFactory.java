@@ -1,7 +1,6 @@
 package org.apache.ctakes.core.util;
 
 import org.apache.ctakes.core.ae.StartFinishLogger;
-import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_component.AnalysisComponent;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -9,11 +8,8 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * This factory can load plain old java .properties files and pass the specified properties as parameters for AE creation.
@@ -36,20 +32,6 @@ public enum PropertyAeFactory {
    // Use a single hashmap so that multiple properties files can be used
    final private Map<String, Object> _properties = new HashMap<>();
 
-   /**
-    * Load a .properties file with key value pairs
-    *
-    * @param filePath -
-    */
-   synchronized public void loadPropertyFile( final String filePath ) {
-      try ( InputStream stream = FileLocator.getAsStream( filePath ) ) {
-         final Properties properties = new Properties();
-         properties.load( stream );
-         properties.entrySet().forEach( e -> _properties.put( e.getKey().toString(), e.getValue() ) );
-      } catch ( IOException ioE ) {
-         LOGGER.error( "Property File not found: " + filePath );
-      }
-   }
 
    /**
     * Add key value pairs to the stored properties
