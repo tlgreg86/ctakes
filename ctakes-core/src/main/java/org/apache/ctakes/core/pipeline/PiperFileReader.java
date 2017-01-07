@@ -92,7 +92,7 @@ final public class PiperFileReader {
    private PipelineBuilder _builder;
 
    private final Collection<String> _userPackages;
-
+   private CliOptionals _cliOptionals;
 
    /**
     * Create and empty PipelineReader
@@ -112,6 +112,24 @@ final public class PiperFileReader {
       _builder = new PipelineBuilder();
       _userPackages = new ArrayList<>();
       loadPipelineFile( filePath );
+   }
+
+   /**
+    * Create a PipelineReader and load a file with command parameter pairs for building a pipeline
+    *
+    * @param filePath     path to the pipeline command file
+    * @param cliOptionals command line options pre-defined
+    * @throws UIMAException if the pipeline cannot be loaded
+    */
+   public PiperFileReader( final String filePath, final CliOptionals cliOptionals ) throws UIMAException {
+      _builder = new PipelineBuilder();
+      _userPackages = new ArrayList<>();
+      setCliOptionals( cliOptionals );
+      loadPipelineFile( filePath );
+   }
+
+   public void setCliOptionals( final CliOptionals cliOptionals ) {
+      _cliOptionals = cliOptionals;
    }
 
    /**
@@ -165,6 +183,9 @@ final public class PiperFileReader {
             break;
          case "set":
             _builder.set( splitParameters( parameter ) );
+            break;
+         case "cli":
+            _builder.set( getCliParameters( parameter ) );
             break;
          case "reader":
             _builder.reader( createReader( parameter ) );
@@ -482,6 +503,8 @@ final public class PiperFileReader {
          keysAndValues[ i ] = keyAndValue[ 0 ];
          if ( keyAndValue.length == 1 ) {
             keysAndValues[ i + 1 ] = "";
+            i += 2;
+            continue;
          } else if ( keyAndValue.length > 2 ) {
             LOGGER.warn( "Multiple parameter values, using first of " + pair );
          }
@@ -490,6 +513,44 @@ final public class PiperFileReader {
       }
       return keysAndValues;
    }
+
+   /**
+    * @param text -
+    * @return array created by splitting text ' ' and then at '=' characters
+    */
+   private Object[] getCliParameters( final String text ) {
+      if ( _cliOptionals == null ) {
+         LOGGER.error( "Attempting to set Parameter by Command-line options.  Command-line options are not specified." );
+         return EMPTY_OBJECT_ARRAY;
+      }
+      if ( text == null || text.trim().isEmpty() ) {
+         return EMPTY_OBJECT_ARRAY;
+      }
+      final Matcher matcher = NAME_VALUE_PATTERN.matcher( text );
+      final List<String> pairList = new ArrayList<>();
+      while ( matcher.find() ) {
+         pairList.add( text.substring( matcher.start(), matcher.end() ) );
+      }
+      final String[] pairs = pairList.toArray( new String[ pairList.size() ] );
+      final Object[] keysAndValues = new Object[ pairs.length * 2 ];
+      int i = 0;
+      for ( String pair : pairs ) {
+         final String[] keyAndValue = KEY_VALUE_PATTERN.split( pair );
+         keysAndValues[ i ] = keyAndValue[ 0 ];
+         if ( keyAndValue.length == 1 ) {
+            keysAndValues[ i + 1 ] = "";
+            i += 2;
+            continue;
+         } else if ( keyAndValue.length > 2 ) {
+            LOGGER.warn( "Multiple parameter values, using first of " + pair );
+         }
+         keysAndValues[ i + 1 ] = getValueObject( CliOptionalsHandler
+               .getCliOptionalValue( _cliOptionals, keyAndValue[ 1 ] ) );
+         i += 2;
+      }
+      return keysAndValues;
+   }
+
 
    static private Object[] splitDescriptorValues( final String text ) {
       final Matcher matcher = QUOTE_VALUE_PATTERN.matcher( text );

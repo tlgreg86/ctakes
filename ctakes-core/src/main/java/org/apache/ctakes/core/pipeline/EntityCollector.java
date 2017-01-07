@@ -128,6 +128,13 @@ public enum EntityCollector {
    /**
     * Analysis Engine that stores collections of cuis by document id in the CuiCollector
     */
+   @PipeBitInfo(
+         name = "Entity Collector",
+         description = "Collects information on entities generated during a run.",
+         role = PipeBitInfo.Role.SPECIAL,
+         input = "IdentifiedAnnotation " + PipeBitInfo.POPULATED_JCAS,
+         output = PipeBitInfo.NO_OUTPUT
+   )
    static public final class EntityCollectorEngine extends JCasAnnotator_ImplBase {
       @Override
       public void process( final JCas jCas ) {

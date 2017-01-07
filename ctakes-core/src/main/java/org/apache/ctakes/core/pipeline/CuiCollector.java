@@ -121,6 +121,13 @@ public enum CuiCollector {
    /**
     * Analysis Engine that stores collections of cuis by document id in the CuiCollector
     */
+   @PipeBitInfo(
+         name = "CUI Collector",
+         description = "Collects all CUIs generated during a run.",
+         role = PipeBitInfo.Role.SPECIAL,
+         input = "CUI " + PipeBitInfo.POPULATED_JCAS,
+         output = PipeBitInfo.NO_OUTPUT
+   )
    static public final class CuiCollectorEngine extends JCasAnnotator_ImplBase {
       @Override
       public void process( final JCas jCas ) {

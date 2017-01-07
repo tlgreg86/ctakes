@@ -2,7 +2,6 @@ package org.apache.ctakes.core.pipeline;
 
 
 import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 
@@ -13,63 +12,18 @@ import java.io.IOException;
  * @version %I%
  * @since 10/13/2016
  */
-public class PiperFileRunner {
+final public class PiperFileRunner {
 
    static private final Logger LOGGER = Logger.getLogger( "PiperFileRunner" );
 
-   interface RunOptions {
-      @Option(
-            shortName = "p",
-            longName = "piper",
-            description = "path to the piper file containing commands and parameters for pipeline configuration." )
-      String getPiperPath();
-
-      @Option(
-            shortName = "i",
-            longName = "inputDir",
-            description = "path to the directory containing the clinical notes to be processed.",
-            defaultValue = "" )
-      String getInputDirectory();
-
-      @Option(
-            shortName = "o",
-            longName = "outputDir",
-            description = "path to the directory where the output files are to be written.",
-            defaultValue = "" )
-      String getOutputDirectory();
-
-      @Option(
-            longName = "xmiOut",
-            description = "path to the directory where xmi files are to be written.  Adds XmiWriter to pipeline.",
-            defaultValue = "" )
-      String getXmiOutDirectory();
-
-      @Option(
-            longName = "user",
-            description = "UMLS username.",
-            defaultValue = "" )
-      String getUmlsUserName();
-
-      @Option(
-            longName = "pass",
-            description = "UMLS user password.",
-            defaultValue = "" )
-      String getUmlsPassword();
-
-      @Option(
-            shortName = { "?", "h" },
-            longName = "help",
-            description = "print usage",
-            helpRequest = true )
-      boolean isHelpWanted();
-
+   private PiperFileRunner() {
    }
 
    /**
     * @param args general run options
     */
    public static void main( final String... args ) {
-      final RunOptions options = CliFactory.parseArguments( RunOptions.class, args );
+      final CliOptionals options = CliFactory.parseArguments( CliOptionals.class, args );
       try {
          final PiperFileReader reader = new PiperFileReader();
          final PipelineBuilder builder = reader.getBuilder();
@@ -98,6 +52,7 @@ public class PiperFileRunner {
             builder.set( "ctakes.umlspw", umlsPass );
          }
          // load the piper file
+         reader.setCliOptionals( options );
          reader.loadPipelineFile( options.getPiperPath() );
          // if an input directory was specified but the piper didn't add a collection reader, add the default reader
          if ( !inputDir.isEmpty() && builder.getReader() == null ) {
