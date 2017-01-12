@@ -29,8 +29,8 @@ import java.util.regex.Pattern;
  * <p>There are several basic commands:
  * load <i>path_to_another_pipeline_file</i>
  * addPackage <i>user_package_name</i>
- * loadParameters <i>path_to_properties_file_with_ae_parameters</i>
- * addParameters <i>ae_parameter_name=ae_parameter_value e_parameter_name=ae_parameter_value</i> ...
+ * set <i>ae_parameter_name=ae_parameter_value e_parameter_name=ae_parameter_value</i> ...
+ * cli <i>ae_parameter_name=cli_parameter_char e_parameter_name=cli_parameter_char</i> ...
  * reader <i>collection_reader_class_name</i>
  * readFiles <i>input_directory</i>
  *    <i>input_directory</i> can be empty if
@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
  * add <i>ae_or_cc_class_name ae_parameter_name=ae_parameter_value e_parameter_name<=ae_parameter_value</i> ...
  * addLogged <i>ae_or_cc_class_name ae_parameter_name=ae_parameter_value e_parameter_name=ae_parameter_value</i> ...
  * addDescription <i>ae_or_cc_class_name</i>
+ * addLast <i>ae_or_cc_class_name</i>
  * collectCuis
  * collectEntities
  * writeXmis <i>output_directory</i>
