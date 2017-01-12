@@ -229,7 +229,16 @@ final public class PiperFileReader {
                _builder.addDescription( description );
             }
             break;
-
+         case "addLast":
+            if ( hasParameters( parameter ) ) {
+               final String[] component_parameters = splitFromParameters( parameter );
+               final String component = component_parameters[ 0 ];
+               final Object[] parameters = splitParameters( component_parameters[ 1 ] );
+               _builder.addLast( getComponentClass( component ), parameters );
+            } else {
+               _builder.addLast( getComponentClass( parameter ) );
+            }
+            break;
          case "collectCuis":
             _builder.collectCuis();
             break;

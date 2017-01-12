@@ -34,14 +34,17 @@ final public class PipelineBuilder {
 
    static private final Logger LOGGER = Logger.getLogger( "PipelineBuilder" );
 
-
+   private CollectionReader _reader;
    private final List<String> _aeNameList;
    private final List<AnalysisEngineDescription> _descList;
-   private CollectionReader _reader;
+   private final List<String> _aeEndNameList;
+   private final List<AnalysisEngineDescription> _descEndList;
 
    public PipelineBuilder() {
       _aeNameList = new ArrayList<>();
       _descList = new ArrayList<>();
+      _aeEndNameList = new ArrayList<>();
+      _descEndList = new ArrayList<>();
    }
 
    /**
@@ -144,11 +147,28 @@ final public class PipelineBuilder {
    }
 
    /**
+    * Adds an ae or cc component t othe very end of the pipeline.  Use of this method is order-specific.
+    *
+    * @param component  ae or cc component class to add to the end of the pipeline
+    * @param parameters ae or cc parameter name value pairs.  May be empty.
+    * @return this PipelineBuilder
+    * @throws ResourceInitializationException if the component cannot be created
+    */
+   public PipelineBuilder addLast( final Class<? extends AnalysisComponent> component,
+                                   final Object... parameters ) throws ResourceInitializationException {
+      _aeEndNameList.add( component.getName() );
+      _descEndList.add( PropertyAeFactory.getInstance().createDescription( component, parameters ) );
+      return this;
+   }
+
+   /**
     *
     * @return an ordered list of the annotation engines in the pipeline
     */
    public List<String> getAeNames() {
-      return Collections.unmodifiableList( _aeNameList );
+      final List<String> allNames = new ArrayList<>( _aeNameList );
+      allNames.addAll( _aeEndNameList );
+      return Collections.unmodifiableList( allNames );
    }
 
    /**
@@ -214,6 +234,7 @@ final public class PipelineBuilder {
       }
       final AggregateBuilder builder = new AggregateBuilder();
       _descList.forEach( builder::add );
+      _descEndList.forEach( builder::add );
       final AnalysisEngineDescription desc = builder.createAggregateDescription();
       SimplePipeline.runPipeline( _reader, desc );
       return this;
@@ -237,6 +258,7 @@ final public class PipelineBuilder {
       jcas.setDocumentText( text );
       final AggregateBuilder builder = new AggregateBuilder();
       _descList.forEach( builder::add );
+      _descEndList.forEach( builder::add );
       final AnalysisEngineDescription desc = builder.createAggregateDescription();
       SimplePipeline.runPipeline( jcas, desc );
       return this;
