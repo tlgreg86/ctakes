@@ -1,6 +1,7 @@
 package org.apache.ctakes.core.ae;
 
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.Pair;
 import org.apache.ctakes.core.util.regex.RegexSpanFinder;
 import org.apache.ctakes.core.util.regex.TimeoutMatcher;
@@ -9,22 +10,44 @@ import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author SPF , chip-nlp
  * @version %I%
  * @since 7/20/2016
  */
+@PipeBitInfo(
+      name = "Regex Sectionizer",
+      description = "Annotates Document Sections by detecting Section Headers using Regular Expressions.",
+      output = "Segment Annotations."
+)
 abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
 
    static private final Logger LOGGER = Logger.getLogger( "RegexSectionizer" );
+
+   /**
+    * Name of configuration parameter that contains the character encoding used
+    * by the input files.  If not specified, the default system encoding will
+    * be used.
+    */
+   static public final String PARAM_TAG_DIVIDERS = "TagDividers";
+   @ConfigurationParameter(
+         name = PARAM_TAG_DIVIDERS,
+         description = "The character encoding used by the input files.",
+         defaultValue = "true",
+         mandatory = false
+   )
+   private boolean _tagDividers = true;
 
    /**
     * classic ctakes default segment id
@@ -35,7 +58,7 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
    static private final Pattern DIVIDER_LINE_PATTERN = Pattern.compile( "^[_\\-=]{4,}\\r?\\n" );
 
    private enum TagType {
-      HEADER, FOOTER
+      HEADER, FOOTER, DIVIDER
    }
 
 
@@ -75,6 +98,9 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
       }
    }
 
+   static protected final SectionTag LINE_DIVIDER_TAG
+         = new SectionTag( DIVIDER_LINE_NAME, DIVIDER_LINE_NAME, TagType.DIVIDER );
+
    /**
     * Normally I would put this in a singleton but I'm not sure that a singleton will work well with/as uima ae
     *
@@ -113,7 +139,6 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
       LOGGER.info( "Starting processing" );
-      createDividerLines( jcas );
       if ( _sectionTypes.isEmpty() ) {
          LOGGER.info( "Finished processing, no section types defined" );
          return;
@@ -124,9 +149,14 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
          LOGGER.debug( "No section headers found" );
       }
       final Map<Pair<Integer>, SectionTag> footerTags = findFooterTags( docText );
-      createSegments( jcas, headerTags, footerTags );
+      final Map<Pair<Integer>, SectionTag> dividerLines = new HashMap<>();
+      if ( _tagDividers ) {
+         dividerLines.putAll( findDividerLines( docText ) );
+      }
+      createSegments( jcas, headerTags, footerTags, dividerLines );
       LOGGER.info( "Finished processing" );
    }
+
 
    /**
     * Load Sections in a manner appropriate for the Regex Sectionizer
@@ -213,14 +243,17 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
     * @param jcas       -
     * @param headerTags segment names are assigned based upon preceding headers
     * @param footerTags footers reset segment names to {@link #DEFAULT_SEGMENT_ID}
+    * @param dividerLines divider lines reset segment names to {@link #DEFAULT_SEGMENT_ID}
     */
    static private void createSegments( final JCas jcas,
                                        final Map<Pair<Integer>, SectionTag> headerTags,
-                                       final Map<Pair<Integer>, SectionTag> footerTags ) {
+                                       final Map<Pair<Integer>, SectionTag> footerTags,
+                                       final Map<Pair<Integer>, SectionTag> dividerLines ) {
       final String docText = jcas.getDocumentText();
       final Map<Pair<Integer>, SectionTag> sectionTags = new HashMap<>( headerTags.size() + footerTags.size() );
       sectionTags.putAll( headerTags );
       sectionTags.putAll( footerTags );
+      sectionTags.putAll( dividerLines );
       if ( sectionTags.isEmpty() ) {
          // whole text is simple segment
          final Segment docSegment = new Segment( jcas, 0, docText.length() - 1 );
@@ -272,7 +305,7 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
             segment.setId( leftTag.__typeName );
             segment.setPreferredText( leftTag.__name );
          } else {
-            // this tag is for a footer, so the following segment is generic
+            // this tag is for a footer or divider line, so the following segment is generic
             segment.setId( DEFAULT_SEGMENT_ID );
             segment.setPreferredText( DEFAULT_SEGMENT_ID );
          }
@@ -315,22 +348,19 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
       return text2.equalsIgnoreCase( "true" ) || text2.equalsIgnoreCase( "false" );
    }
 
+
    /**
     * Find line dividers
     *
-    * @param jcas ye olde ...
+    * @param docText -
+    * @return section tags mapped to index pairs
     */
-   static private void createDividerLines( final JCas jcas ) {
-      final String docText = jcas.getDocumentText();
-      final List<Pair<Integer>> spans = new ArrayList<>();
+   static private Map<Pair<Integer>, SectionTag> findDividerLines( final String docText ) {
+      final Function<Pair<Integer>, SectionTag> lineDividerTag = p -> LINE_DIVIDER_TAG;
       try ( RegexSpanFinder finder = new RegexSpanFinder( DIVIDER_LINE_PATTERN ) ) {
-         spans.addAll( finder.findSpans( docText ) );
-      }
-      for ( Pair<Integer> span : spans ) {
-         final Segment lineSegment = new Segment( jcas, span.getValue1(), span.getValue2() );
-         lineSegment.setId( DIVIDER_LINE_NAME );
-         lineSegment.setPreferredText( DIVIDER_LINE_NAME );
-         lineSegment.addToIndexes();
+         return finder.findSpans( docText ).stream().collect( Collectors.toMap( Function.identity(), lineDividerTag ) );
+      } catch ( IllegalArgumentException iaE ) {
+         return Collections.emptyMap();
       }
    }
 
