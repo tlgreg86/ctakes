@@ -14,9 +14,9 @@ import org.apache.uima.jcas.tcas.Annotation;
 public class ArgContextProvider {
 
 	private static TimeMention coveringTimex;
-	private static final String BTAG = "<B>";
+	private static final String BTAG = "<B";
 	private static final String OTAG = "<O>";
-	private static final String ITAG = "<I>";
+	private static final String ITAG = "<I";
 
 	/**
 	 * Position features for event-time relations
@@ -318,7 +318,7 @@ public class ArgContextProvider {
 		List<BaseToken> tokens = JCasUtil.selectCovered(jCas, BaseToken.class, timex);
 		int numTokens = tokens.size();
 		if(numTokens>0){
-			timeTag=BTAG;
+			timeTag=BTAG+"_"+timex.getTimeClass()+">";
 		}else{
 			return "";
 		}
@@ -327,7 +327,7 @@ public class ArgContextProvider {
 			return timeTag;
 		}
 		for(int i=0;i<numTokens-1; i++){
-			timeTag= timeTag+ " " + ITAG;
+			timeTag= timeTag+ " " + ITAG+"_"+timex.getTimeClass()+">";
 		}
 		return timeTag;
 	}
