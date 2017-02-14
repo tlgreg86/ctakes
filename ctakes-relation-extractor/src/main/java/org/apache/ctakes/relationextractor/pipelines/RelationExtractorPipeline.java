@@ -18,10 +18,7 @@
  */
 package org.apache.ctakes.relationextractor.pipelines;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
+import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
@@ -33,6 +30,9 @@ import org.apache.uima.jcas.JCas;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * A simple pipeline that runs relation extraction on all files in a directory and saves
@@ -68,8 +68,8 @@ public class RelationExtractorPipeline {
 
 		CollectionReaderDescription collectionReader = CollectionReaderFactory.createReaderDescriptionFromPath(
 				"../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
-				FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
-				options.inputDirectory);
+            ConfigParameterConstants.PARAM_INPUTDIR,
+            options.inputDirectory );
 
 		// make sure the model parameters match those used for training
 		AnalysisEngineDescription relationExtractor = AnalysisEngineFactory.createEngineDescriptionFromPath(

@@ -8,8 +8,6 @@ import org.apache.ctakes.core.pipeline.PiperFileReader;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
-import org.apache.uima.collection.CollectionReader;
-import org.apache.uima.fit.factory.CollectionReaderFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,10 +44,8 @@ final public class ProcessLinesClinicalRunner {
          final PipelineBuilder builder = reader.getBuilder();
          // Add the Lines from File reader
          final File inputFile = FileLocator.locateFile( INPUT_FILE_PATH );
-         final CollectionReader linesFromFileReader
-               = CollectionReaderFactory.createReader( LinesFromFileCollectionReader.class,
+         builder.reader( LinesFromFileCollectionReader.class,
                LinesFromFileCollectionReader.PARAM_INPUT_FILE_NAME, inputFile.getAbsolutePath() );
-         builder.reader( linesFromFileReader );
          // Add the lines from the piper file
          reader.loadPipelineFile( PIPER_FILE_PATH );
          // Collect IdentifiedAnnotation object information for output - simple for examples

@@ -1,6 +1,7 @@
 package org.apache.ctakes.core.cc;
 
 
+import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.structured.DocumentIdPrefix;
 import org.apache.ctakes.typesystem.type.structured.DocumentPath;
@@ -33,9 +34,10 @@ abstract public class AbstractOutputFileWriter extends CasConsumer_ImplBase {
     * Name of configuration parameter that must be set to the path of a directory into which the
     * output files will be written.
     */
-   public static final String PARAM_OUTPUTDIR = "OutputDirectory";
-   @ConfigurationParameter( name = PARAM_OUTPUTDIR,
-         description = "Root output directory to write files" )
+   @ConfigurationParameter(
+         name = ConfigParameterConstants.PARAM_OUTPUTDIR,
+         description = ConfigParameterConstants.DESC_OUTPUTDIR
+   )
    private File _outputRootDir;
 
 

@@ -39,6 +39,8 @@ package org.apache.ctakes.core.cr;
  * gather files in the directory from sub directories.    
  */
 
+import org.apache.ctakes.core.config.ConfigParameterConstants;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.uima.cas.CAS;
@@ -57,14 +59,14 @@ import java.util.List;
 
 //import org.apache.uima.jcas.tcas.DocumentAnnotation;
 
-public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase 
+@PipeBitInfo(
+      name = "Files in Dir Reader",
+      description = "Reads document texts from text files in a directory.",
+      role = PipeBitInfo.Role.READER,
+      output = PipeBitInfo.NEW_JCAS
+)
+public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase
 {
-	/**
-	   * Name of configuration parameter that must be set to the path of
-	   * a directory containing input files.
-	   */
-	  public static final String PARAM_INPUTDIR = "InputDirectory";
-
 	  /**
 	   * Name of configuration parameter that contains the character encoding used
 	   * by the input files.  If not specified, the default system encoding will
@@ -105,16 +107,16 @@ public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase
 	  @Override
 	public void initialize() throws ResourceInitializationException
 	{
-		final String inputDirPath = (String)getConfigParameterValue( PARAM_INPUTDIR );
-		File directory;
-		try {
+      final String inputDirPath = (String)getConfigParameterValue( ConfigParameterConstants.PARAM_INPUTDIR );
+      File directory;
+      try {
 			directory = FileLocator.locateFile( inputDirPath );
 		} catch ( IOException ioE ) {
 			throw new ResourceInitializationException(
 					ResourceConfigurationException.DIRECTORY_NOT_FOUND,
-					new Object[] { PARAM_INPUTDIR, getMetaData().getName(), inputDirPath } );
-		}
-		iv_encoding = (String)getConfigParameterValue( PARAM_ENCODING );
+               new Object[] { ConfigParameterConstants.PARAM_INPUTDIR, getMetaData().getName(), inputDirPath } );
+      }
+      iv_encoding = (String)getConfigParameterValue( PARAM_ENCODING );
 		iv_language = (String)getConfigParameterValue(PARAM_LANGUAGE);
 	    iv_extensions = (String[]) getConfigParameterValue(PARAM_EXTENSIONS);
 	    
@@ -131,11 +133,12 @@ public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase
 		{
 			throw new ResourceInitializationException(
 				ResourceConfigurationException.DIRECTORY_NOT_FOUND,
-				new Object[]{PARAM_INPUTDIR, this.getMetaData().getName(), directory.getPath()});
-		}
-		
-		
-	    //get list of files (not subdirectories) in the specified directory
+               new Object[] { ConfigParameterConstants.PARAM_INPUTDIR, this.getMetaData().getName(),
+                              directory.getPath() } );
+      }
+
+
+      //get list of files (not subdirectories) in the specified directory
 	    iv_files = new ArrayList<File>();
 	    if(!iv_recurse)
 	    {

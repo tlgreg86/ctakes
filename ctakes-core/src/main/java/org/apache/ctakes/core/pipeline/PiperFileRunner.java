@@ -2,6 +2,7 @@ package org.apache.ctakes.core.pipeline;
 
 
 import com.lexicalscope.jewel.cli.CliFactory;
+import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 
@@ -30,15 +31,15 @@ final public class PiperFileRunner {
          // set the input directory parameter if needed
          final String inputDir = options.getInputDirectory();
          if ( !inputDir.isEmpty() ) {
-            builder.set( "InputDirectory", inputDir );
+            builder.set( ConfigParameterConstants.PARAM_INPUTDIR, inputDir );
          }
          // set the output directory parameter if needed
          final String outputDir = options.getOutputDirectory();
          final String xmiOutDir = options.getXmiOutDirectory();
          if ( !outputDir.isEmpty() ) {
-            builder.set( "OutputDirectory", outputDir );
+            builder.set( ConfigParameterConstants.PARAM_OUTPUTDIR, outputDir );
          } else if ( !xmiOutDir.isEmpty() ) {
-            builder.set( "OutputDirectory", xmiOutDir );
+            builder.set( ConfigParameterConstants.PARAM_OUTPUTDIR, xmiOutDir );
          }
          // set the umls user and password parameters if needed
          final String umlsUser = options.getUmlsUserName();

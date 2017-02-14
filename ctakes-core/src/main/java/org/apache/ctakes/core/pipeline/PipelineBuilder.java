@@ -8,11 +8,10 @@ import org.apache.ctakes.core.util.PropertyAeFactory;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_component.AnalysisComponent;
-import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.fit.factory.AggregateBuilder;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
@@ -37,13 +36,13 @@ final public class PipelineBuilder {
 
    static private final Logger LOGGER = Logger.getLogger( "PipelineBuilder" );
 
-   private CollectionReader _reader;
+   private CollectionReaderDescription _readerDesc;
    private final List<String> _aeNameList;
    private final List<AnalysisEngineDescription> _descList;
    private final List<String> _aeEndNameList;
    private final List<AnalysisEngineDescription> _descEndList;
    // Allow the pipeline to be changed even after it has been built once.
-   private AnalysisEngine _analysisEngine;
+   private AnalysisEngineDescription _analysisEngineDesc;
    private boolean _pipelineChanged;
 
 
@@ -69,11 +68,11 @@ final public class PipelineBuilder {
    /**
     * Use of this method is not order-specific
     *
-    * @param reader Collection Reader to place at the beginning of the pipeline
+    * @param description Collection Reader Description to place at the beginning of the pipeline
     * @return this PipelineBuilder
     */
-   public PipelineBuilder reader( final CollectionReader reader ) {
-      _reader = reader;
+   public PipelineBuilder reader( final CollectionReaderDescription description ) {
+      _readerDesc = description;
       _pipelineChanged = true;
       return this;
    }
@@ -87,7 +86,7 @@ final public class PipelineBuilder {
     */
    public PipelineBuilder reader( final Class<? extends CollectionReader> readerClass, final Object... parameters )
          throws UIMAException {
-      reader( CollectionReaderFactory.createReader( readerClass, parameters ) );
+      reader( CollectionReaderFactory.createReaderDescription( readerClass, parameters ) );
       _pipelineChanged = true;
       return this;
    }
@@ -101,7 +100,7 @@ final public class PipelineBuilder {
     * @throws UIMAException if the collection reader cannot be created
     */
    public PipelineBuilder readFiles() throws UIMAException {
-      _reader = CollectionReaderFactory.createReader( FileTreeReader.class );
+      _readerDesc = CollectionReaderFactory.createReaderDescription( FileTreeReader.class );
       _pipelineChanged = true;
       return this;
    }
@@ -115,17 +114,19 @@ final public class PipelineBuilder {
     * @throws UIMAException if the collection reader cannot be created
     */
    public PipelineBuilder readFiles( final String inputDirectory ) throws UIMAException {
-      _reader = FileTreeReader.createReader( inputDirectory );
+      _readerDesc = CollectionReaderFactory.createReaderDescription( FileTreeReader.class,
+            ConfigParameterConstants.PARAM_INPUTDIR,
+            inputDirectory );
       _pipelineChanged = true;
       return this;
    }
 
    /**
     *
-    * @return the CollectionReader for the pipeline or null if none has been specified
+    * @return the Collection Reader for the pipeline or null if none has been specified
     */
-   public CollectionReader getReader() {
-      return _reader;
+   public CollectionReaderDescription getReader() {
+      return _readerDesc;
    }
 
    /**
@@ -257,12 +258,11 @@ final public class PipelineBuilder {
     * @throws UIMAException if the pipeline could not be run
     */
    public PipelineBuilder build() throws IOException, UIMAException {
-      if ( _analysisEngine == null || _pipelineChanged ) {
+      if ( _analysisEngineDesc == null || _pipelineChanged ) {
          final AggregateBuilder builder = new AggregateBuilder();
          _descList.forEach( builder::add );
          _descEndList.forEach( builder::add );
-         final AnalysisEngineDescription description = builder.createAggregateDescription();
-         _analysisEngine = AnalysisEngineFactory.createEngine( description );
+         _analysisEngineDesc = builder.createAggregateDescription();
       }
       _pipelineChanged = false;
       return this;
@@ -278,12 +278,12 @@ final public class PipelineBuilder {
     * @throws UIMAException if the pipeline could not be run
     */
    public PipelineBuilder run() throws IOException, UIMAException {
-      if ( _reader == null ) {
+      if ( _readerDesc == null ) {
          LOGGER.error( "No Collection Reader specified." );
          return this;
       }
       build();
-      SimplePipeline.runPipeline( _reader, _analysisEngine );
+      SimplePipeline.runPipeline( _readerDesc, _analysisEngineDesc );
       return this;
    }
 
@@ -298,14 +298,14 @@ final public class PipelineBuilder {
     * @throws UIMAException if the pipeline could not be run
     */
    public PipelineBuilder run( final String text ) throws IOException, UIMAException {
-      if ( _reader != null ) {
+      if ( _readerDesc != null ) {
          LOGGER.error( "Collection Reader specified, ignoring." );
          return this;
       }
       final JCas jcas = JCasFactory.createJCas();
       jcas.setDocumentText( text );
       build();
-      SimplePipeline.runPipeline( jcas, _analysisEngine );
+      SimplePipeline.runPipeline( jcas, _analysisEngineDesc );
       return this;
    }
 

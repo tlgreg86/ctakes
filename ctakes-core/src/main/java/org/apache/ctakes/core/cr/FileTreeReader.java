@@ -1,15 +1,17 @@
 package org.apache.ctakes.core.cr;
 
+import org.apache.ctakes.core.config.ConfigParameterConstants;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.structured.DocumentIdPrefix;
 import org.apache.ctakes.typesystem.type.structured.DocumentPath;
 import org.apache.log4j.Logger;
-import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.CASException;
+import org.apache.uima.UimaContext;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.collection.CollectionReader;
-import org.apache.uima.collection.CollectionReader_ImplBase;
+import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -32,7 +34,13 @@ import java.util.List;
  * @version %I%
  * @since 2/10/2016
  */
-final public class FileTreeReader extends CollectionReader_ImplBase {
+@PipeBitInfo(
+      name = "Files in Dir Tree Reader",
+      description = "Reads document texts from text files in a directory tree.",
+      role = PipeBitInfo.Role.READER,
+      output = PipeBitInfo.NEW_JCAS
+)
+final public class FileTreeReader extends JCasCollectionReader_ImplBase {
 
    static private final Logger LOGGER = Logger.getLogger( "FileTreeReader" );
 
@@ -40,7 +48,11 @@ final public class FileTreeReader extends CollectionReader_ImplBase {
     * Name of configuration parameter that must be set to the path of
     * a directory containing input files.
     */
-   public static final String PARAM_INPUTDIR = "InputDirectory";
+   @ConfigurationParameter(
+         name = ConfigParameterConstants.PARAM_INPUTDIR,
+         description = ConfigParameterConstants.DESC_INPUTDIR
+   )
+   private String _rootDirPath;
 
    /**
     * Name of configuration parameter that contains the character encoding used
@@ -48,6 +60,12 @@ final public class FileTreeReader extends CollectionReader_ImplBase {
     * be used.
     */
    public static final String PARAM_ENCODING = "Encoding";
+   @ConfigurationParameter(
+         name = PARAM_ENCODING,
+         description = "The character encoding used by the input files.",
+         mandatory = false
+   )
+   private String _encoding;
 
    /**
     * Name of optional configuration parameter that specifies the extensions
@@ -55,26 +73,31 @@ final public class FileTreeReader extends CollectionReader_ImplBase {
     * parameter should not begin with a dot <code>'.'</code>.
     */
    public static final String PARAM_EXTENSIONS = "Extensions";
+   @ConfigurationParameter(
+         name = PARAM_EXTENSIONS,
+         description = "The extensions of the files that the collection reader will read." +
+                       "  Values for this parameter should not begin with a dot.",
+         mandatory = false
+   )
+   private String[] _explicitExtensions;
 
-   private List<File> _files;
-   private String _encoding;
-   private Collection<String> _validExtensions;
    private File _rootDir;
+   private Collection<String> _validExtensions;
+   private List<File> _files;
    private int _currentIndex;
 
    /**
     * {@inheritDoc}
     */
    @Override
-   public void initialize() throws ResourceInitializationException {
+   public void initialize( final UimaContext context ) throws ResourceInitializationException {
+      super.initialize( context );
       try {
-         _rootDir = FileLocator.locateFile( (String)getConfigParameterValue( PARAM_INPUTDIR ) );
+         _rootDir = FileLocator.locateFile( _rootDirPath );
       } catch ( FileNotFoundException fnfE ) {
          throw new ResourceInitializationException( fnfE );
       }
-      _encoding = (String)getConfigParameterValue( PARAM_ENCODING );
-      final String[] explicitExtensions = (String[])getConfigParameterValue( PARAM_EXTENSIONS );
-      _validExtensions = createValidExtensions( explicitExtensions );
+      _validExtensions = createValidExtensions( _explicitExtensions );
 
       _currentIndex = 0;
       _files = getDescendentFiles( _rootDir, _validExtensions );
@@ -213,14 +236,7 @@ final public class FileTreeReader extends CollectionReader_ImplBase {
     * {@inheritDoc}
     */
    @Override
-   public void getNext( final CAS cas ) throws IOException, CollectionException {
-      JCas jcas;
-      try {
-         jcas = cas.getJCas();
-      } catch ( CASException casE ) {
-         _currentIndex++;
-         throw new IOException( casE );
-      }
+   public void getNext( final JCas jcas ) throws IOException, CollectionException {
       final File file = _files.get( _currentIndex );
       _currentIndex++;
       // Use 8KB as the default buffer size
@@ -274,9 +290,16 @@ final public class FileTreeReader extends CollectionReader_ImplBase {
    }
 
 
+   /**
+    * Convenience method to create a reader with an input directory
+    *
+    * @param inputDirectory -
+    * @return new reader
+    * @throws ResourceInitializationException -
+    */
    public static CollectionReader createReader( final String inputDirectory ) throws ResourceInitializationException {
       return CollectionReaderFactory.createReader( FileTreeReader.class,
-            FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
+            ConfigParameterConstants.PARAM_INPUTDIR,
             inputDirectory );
    }
 

@@ -18,14 +18,7 @@
  */
 package org.apache.ctakes.clinicalpipeline.runtime;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
-
-import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
+import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -37,6 +30,13 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.ParameterizedType;
+import java.util.Collection;
+
 public abstract class BagOfAnnotationsGenerator<T extends Annotation,K> {
 
 	private String outputDir = null;
@@ -46,8 +46,7 @@ public abstract class BagOfAnnotationsGenerator<T extends Annotation,K> {
 	private Class<T> classOfT;
 	
 	/**
-	 * @param args
-	 * @throws IOException 
+	 * @throws IOException
 	 * @throws UIMAException 
 	 */
 	public BagOfAnnotationsGenerator(String inputDir, String outputDir) throws UIMAException, IOException{
@@ -55,9 +54,10 @@ public abstract class BagOfAnnotationsGenerator<T extends Annotation,K> {
 	}
 	
 	public BagOfAnnotationsGenerator(String inputDir, String outputDir, String aePath) throws UIMAException, IOException {
-		reader = CollectionReaderFactory.createReaderFromPath("../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml", 
-				FilesInDirectoryCollectionReader.PARAM_INPUTDIR, inputDir);
-		this.ae = AnalysisEngineFactory.createEngineFromPath(aePath == null ? defaultAEPath : aePath);
+		reader = CollectionReaderFactory
+				.createReaderFromPath( "../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
+						ConfigParameterConstants.PARAM_INPUTDIR, inputDir );
+		this.ae = AnalysisEngineFactory.createEngineFromPath( aePath == null ? defaultAEPath : aePath );
 		this.outputDir = outputDir;
 		this.classOfT = getClassOfT();
 	}

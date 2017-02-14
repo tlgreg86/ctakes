@@ -2,7 +2,6 @@ package org.apache.ctakes.core.pipeline;
 
 
 import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
-import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
@@ -14,7 +13,6 @@ import org.apache.uima.resource.ResourceInitializationException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -34,7 +32,7 @@ import java.util.regex.Pattern;
  * reader <i>collection_reader_class_name</i>
  * readFiles <i>input_directory</i>
  *    <i>input_directory</i> can be empty if
- *    {@link FilesInDirectoryCollectionReader#PARAM_INPUTDIR} ("InputDirectory") was specified
+ *    {@link org.apache.ctakes.core.config.ConfigParameterConstants#PARAM_INPUTDIR} ("InputDirectory") was specified
  * add <i>ae_or_cc_class_name ae_parameter_name=ae_parameter_value e_parameter_name<=ae_parameter_value</i> ...
  * addLogged <i>ae_or_cc_class_name ae_parameter_name=ae_parameter_value e_parameter_name=ae_parameter_value</i> ...
  * addDescription <i>ae_or_cc_class_name</i>
@@ -189,7 +187,14 @@ final public class PiperFileReader {
             _builder.set( getCliParameters( parameter ) );
             break;
          case "reader":
-            _builder.reader( createReader( parameter ) );
+            if ( hasParameters( parameter ) ) {
+               final String[] component_parameters = splitFromParameters( parameter );
+               final String component = component_parameters[ 0 ];
+               final Object[] parameters = splitParameters( component_parameters[ 1 ] );
+               _builder.reader( getReaderClass( component ), parameters );
+            } else {
+               _builder.reader( getReaderClass( parameter ) );
+            }
             break;
          case "readFiles":
             if ( parameter.isEmpty() ) {
@@ -371,11 +376,12 @@ final public class PiperFileReader {
 
    /**
     * @param className fully-specified or simple name of a cr Collection Reader class
-    * @return instantiated collection reader
+    * @return a class for the reader
     * @throws ResourceInitializationException if the class could not be found or instantiated
     */
-   private CollectionReader createReader( final String className ) throws ResourceInitializationException {
-      Class<?> readerClass;
+   private Class<? extends CollectionReader> getReaderClass( final String className )
+         throws ResourceInitializationException {
+      Class readerClass;
       try {
          readerClass = Class.forName( className );
       } catch ( ClassNotFoundException cnfE ) {
@@ -385,18 +391,7 @@ final public class PiperFileReader {
          throw new ResourceInitializationException( "No Collection Reader found for " + className, EMPTY_OBJECT_ARRAY );
       }
       assertClassType( readerClass, CollectionReader.class );
-      final Constructor<?>[] constructors = readerClass.getConstructors();
-      for ( Constructor<?> constructor : constructors ) {
-         try {
-            if ( constructor.getParameterTypes().length == 0 ) {
-               return (CollectionReader)constructor.newInstance();
-            }
-         } catch ( InstantiationException | IllegalAccessException | InvocationTargetException iniaitE ) {
-            throw new ResourceInitializationException(
-                  "Could not construct " + className, EMPTY_OBJECT_ARRAY, iniaitE );
-         }
-      }
-      throw new ResourceInitializationException( "No Constructor for " + className, EMPTY_OBJECT_ARRAY );
+      return readerClass;
    }
 
    /**

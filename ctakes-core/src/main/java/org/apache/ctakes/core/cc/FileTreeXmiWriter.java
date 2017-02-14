@@ -1,5 +1,7 @@
 package org.apache.ctakes.core.cc;
 
+import org.apache.ctakes.core.config.ConfigParameterConstants;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.cas.CAS;
@@ -18,6 +20,14 @@ import java.io.*;
  * @version %I%
  * @since 2/12/2016
  */
+@PipeBitInfo(
+      name = "XMI Writer (Dir Tree)",
+      description = "Writes XMI files with full representation of input text and all extracted information.",
+      role = PipeBitInfo.Role.WRITER,
+      input = PipeBitInfo.POPULATED_JCAS,
+      output = PipeBitInfo.NO_OUTPUT
+)
+// TODO Create and extend AbstractInputFileReader  a'la the abstract writer
 final public class FileTreeXmiWriter extends AbstractOutputFileWriter {
 
    static private final Logger LOGGER = Logger.getLogger( "FileTreeXmiWriter" );
@@ -50,7 +60,8 @@ final public class FileTreeXmiWriter extends AbstractOutputFileWriter {
    }
 
    public static AnalysisEngine createEngine( final String outputDirectory ) throws ResourceInitializationException {
-      return AnalysisEngineFactory.createEngine( FileTreeXmiWriter.class, PARAM_OUTPUTDIR, outputDirectory );
+      return AnalysisEngineFactory
+            .createEngine( FileTreeXmiWriter.class, ConfigParameterConstants.PARAM_OUTPUTDIR, outputDirectory );
    }
 
 
