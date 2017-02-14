@@ -18,18 +18,15 @@
  */
 package org.apache.ctakes.temporal.pipelines;
 
-import java.io.File;
-
-import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
-
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
 
 /**
  * Given a temporal expression extraction model, run the time expression extractor 
@@ -54,8 +51,8 @@ public class TimeExtractionPipeline extends TemporalExtractionPipeline_ImplBase 
 
 		CollectionReader collectionReader = CollectionReaderFactory.createReaderFromPath(
 				"../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
-				FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
-				options.getInputDirectory());
+            ConfigParameterConstants.PARAM_INPUTDIR,
+            options.getInputDirectory());
 
 		AggregateBuilder aggregateBuilder = getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription(options.getTimeModelDirectory() + "model.jar"));

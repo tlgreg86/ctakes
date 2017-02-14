@@ -18,14 +18,10 @@
  */
 package org.apache.ctakes.temporal.pipelines;
 
-import java.io.File;
-
-import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
-import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
-import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
-import org.apache.ctakes.temporal.ae.EventAnnotator;
-import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
-import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+import org.apache.ctakes.core.config.ConfigParameterConstants;
+import org.apache.ctakes.temporal.ae.*;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -38,8 +34,7 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
+import java.io.File;
 
 public class FullTemporalExtractionPipeline extends
     TemporalExtractionPipeline_ImplBase {
@@ -91,7 +86,7 @@ public class FullTemporalExtractionPipeline extends
     
     CollectionReader collectionReader = CollectionReaderFactory.createReaderFromPath(
         "../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
-        FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
+          ConfigParameterConstants.PARAM_INPUTDIR,
         options.getInputDirectory());
 
     AggregateBuilder aggregateBuilder = getPreprocessorAggregateBuilder();

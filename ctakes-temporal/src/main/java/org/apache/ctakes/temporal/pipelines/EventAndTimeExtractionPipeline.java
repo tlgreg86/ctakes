@@ -18,10 +18,10 @@
  */
 package org.apache.ctakes.temporal.pipelines;
 
-import java.io.File;
-
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
 import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
-import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
+import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -31,8 +31,7 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
+import java.io.File;
 
 /**
  * Given a trained event extraction model, run the event extractor on files in a directory.
@@ -62,8 +61,8 @@ public class EventAndTimeExtractionPipeline extends TemporalExtractionPipeline_I
 
 		CollectionReader collectionReader = CollectionReaderFactory.createReaderFromPath(
 				"../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
-				FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
-				options.getInputDirectory());
+            ConfigParameterConstants.PARAM_INPUTDIR,
+            options.getInputDirectory());
 
 		AggregateBuilder aggregateBuilder = getPreprocessorAggregateBuilder();
 		aggregateBuilder.add(EventAnnotator.createAnnotatorDescription(new File(options.getEventModelDirectory())));

@@ -18,7 +18,7 @@
  */
 package org.apache.ctakes.coreference.cc;
 
-import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
+import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
@@ -90,7 +90,7 @@ public class PreprocessAndWriteXmi {
 
       CollectionReader reader = CollectionReaderFactory.createReaderFromPath(
             "../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
-            FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
+            ConfigParameterConstants.PARAM_INPUTDIR,
             inputRoot );
 
       AnalysisEngine serializer = AnalysisEngineFactory.createEngine(
