@@ -1,11 +1,8 @@
 package org.apache.ctakes.temporal.data.analysis;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
 import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
@@ -19,8 +16,10 @@ import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class ExtractDoctimerelPairProbabilities extends TemporalExtractionPipeline_ImplBase {
   static interface Options {
@@ -35,7 +34,7 @@ public class ExtractDoctimerelPairProbabilities extends TemporalExtractionPipeli
     Options options = CliFactory.parseArguments(Options.class, args);
     CollectionReader collectionReader = CollectionReaderFactory.createReaderFromPath(
         "../ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml",
-        FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
+          ConfigParameterConstants.PARAM_INPUTDIR,
         options.getInputDirectory()
         );
     
