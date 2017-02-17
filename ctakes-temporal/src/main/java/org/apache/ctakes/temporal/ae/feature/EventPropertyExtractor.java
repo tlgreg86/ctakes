@@ -25,14 +25,20 @@ import java.util.List;
 //import java.util.logging.Logger;
 import java.util.Set;
 
+import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
+import org.apache.ctakes.typesystem.type.syntax.PunctuationToken;
+import org.apache.ctakes.typesystem.type.syntax.WordToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.util.ViewUriUtil;
 
 public class EventPropertyExtractor implements FeatureExtractor1<Annotation> {
 
@@ -46,10 +52,55 @@ public class EventPropertyExtractor implements FeatureExtractor1<Annotation> {
 		//		this.name = "EventContextualModality";
 
 	}
+	
+	private static final List<String> genericWords = new ArrayList<>();
+	static{
+		genericWords.add("potential");
+		genericWords.add("possible");
+		genericWords.add("may");
+		genericWords.add("likely");
+		genericWords.add("probable");			
+		genericWords.add("prospective");
+		genericWords.add("instruct");
+		genericWords.add("if");//newly added 4 on July 13 2016
+		genericWords.add("could");
+		genericWords.add("discussed");
+		genericWords.add("discussion");
+		genericWords.add("considered");
+		genericWords.add("monitor");//newly added on Aug 19 2016
+		genericWords.add("plan");//newly added on Aug 19 2016
+		genericWords.add("cxr");
+		genericWords.add("data");
+		//			genericWords.add("change");
+		//			genericWords.add("prescription");
+		//			genericWords.add("prescribe");
+		//			genericWords.add("prescribed");
+		//			genericWords.add("speak");
+		//			genericWords.add("spoke");
+	}
 
 	@Override
 	public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException {
 		List<Feature> features = new ArrayList<>();
+		
+		//get Document ID:
+		try {
+			String docID = ViewUriUtil.getURI(view).toString();
+			
+			int begin = docID.lastIndexOf("_");
+			String fname = docID.substring(begin+1);
+			features.add(new Feature("docName", fname));
+			
+			if(fname.equals("RAD")||fname.equals("SP")){
+				features.add(new Feature("docName:RAD+SP"));
+			}else{
+				features.add(new Feature("docName:others"));
+			}
+			
+		} catch (AnalysisEngineProcessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		//1 get event:
 		EventMention event = (EventMention)annotation;
@@ -85,12 +136,79 @@ public class EventPropertyExtractor implements FeatureExtractor1<Annotation> {
 					features.add(new Feature("RightMostEvent"));
 				}
 			}
+			
+			//check if this event is generic:
+			List<WordToken> words = new ArrayList<>(JCasUtil.selectPreceding(view, WordToken.class, event, 15));
+			words.addAll(JCasUtil.selectFollowing(view, WordToken.class, event, 15));
+			for(WordToken word : words){
+				if(outsideScope(word, coveringSent)){//if the word is outside the sentence
+					continue;
+				}
+				if(genericWords.contains(word.getCoveredText().toLowerCase())){
+					features.add(new Feature("GenericEvent"));
+					break;
+				}
+			}
+			
+			//check how many words are in the event mention:
+//			List<WordToken> coveredWords = new ArrayList<>(JCasUtil.selectCovered(view, WordToken.class, event));
+//			int numWords = coveredWords.size();
+//			if(numWords==1){
+//				features.add(new Feature("singleWordEvent"));
+//			}
+//			features.add(new Feature("Event_Word_num", numWords));
+			
+			//check if there is any newLine token in close vicinity:
+			int newlineNum = 0;
+			for (BaseToken btoken: JCasUtil.selectPreceding(view, BaseToken.class, event, 20)){
+				if(btoken instanceof NewlineToken){
+					newlineNum++;
+				}
+			}
+			if(newlineNum > 0){
+				features.add(new Feature("hasPrecedingNewline"));
+				features.add(new Feature("newLineNum_preceding", newlineNum));
+			}
+			newlineNum = 0;
+			for (BaseToken btoken: JCasUtil.selectFollowing(view, BaseToken.class, event, 20)){
+				if(btoken instanceof NewlineToken){
+					newlineNum++;
+				}
+			}
+			if(newlineNum > 0){
+				features.add(new Feature("hasFollowingNewline"));
+				features.add(new Feature("newLineNum_following", newlineNum));
+			}
+			
+			//check if there is any semi-column is close vicinity:
+//			int	semiColumnNum = 0;
+//			for (BaseToken btoken: JCasUtil.selectFollowing(view, BaseToken.class, event, 5)){
+//				if(btoken instanceof PunctuationToken){
+//					if(btoken.getCoveredText().equals(":")){
+//						semiColumnNum++;
+//					}
+//				}
+//			}
+//			if(semiColumnNum > 0){
+//				features.add(new Feature("hasFollowingSemiColumn"));
+//				features.add(new Feature("semiColumn_following", semiColumnNum));
+//			}
 		}
 
 		features.addAll(getEventFeats("mentionProperty", event));
 
 		return features;
 	}
+	
+	private static boolean outsideScope(WordToken word, Sentence eventSent) {
+		if(word.getBegin()< eventSent.getBegin()){
+			return true;
+		}else if(word.getEnd()>eventSent.getEnd()){
+			return true;
+		}
+		return false;
+	}
+
 
 	private static Collection<? extends Feature> getEventFeats(String name, EventMention mention) {
 		List<Feature> feats = new ArrayList<>();

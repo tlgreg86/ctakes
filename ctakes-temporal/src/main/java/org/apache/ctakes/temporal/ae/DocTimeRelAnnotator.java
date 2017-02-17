@@ -19,6 +19,7 @@
 package org.apache.ctakes.temporal.ae;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 //import java.io.IOException;
 import java.util.List;
@@ -27,11 +28,14 @@ import java.util.Map;
 
 import org.apache.ctakes.temporal.ae.feature.ClosestVerbExtractor;
 import org.apache.ctakes.temporal.ae.feature.ContinuousTextExtractor;
+import org.apache.ctakes.temporal.ae.feature.CoveredTextToValuesExtractor;
+import org.apache.ctakes.temporal.ae.feature.DateAndMeasurementExtractor;
 import org.apache.ctakes.temporal.ae.feature.EventPropertyExtractor;
 import org.apache.ctakes.temporal.ae.feature.NearbyVerbTenseXExtractor;
 import org.apache.ctakes.temporal.ae.feature.SectionHeaderExtractor;
 import org.apache.ctakes.temporal.ae.feature.TimeXExtractor;
 import org.apache.ctakes.temporal.ae.feature.UmlsSingleFeatureExtractor;
+import org.apache.ctakes.temporal.ae.feature.duration.DurationExpectationFeatureExtractor;
 import org.apache.ctakes.temporal.utils.SoftMaxUtil;
 import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
@@ -53,9 +57,14 @@ import org.cleartk.ml.DataWriter;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.Instance;
 import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Bag;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Covered;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.FirstCovered;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.LastCovered;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
+import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction;
+import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction.PatternType;
 import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.feature.extractor.CombinedExtractor1;
 import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
@@ -63,6 +72,8 @@ import org.cleartk.ml.feature.extractor.TypePathExtractor;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
+
+import com.google.common.base.Charsets;
 
 //import com.google.common.base.Charsets;
 
@@ -109,17 +120,19 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
 
 	private CleartkExtractor<EventMention, BaseToken> contextExtractor;  
 	private CleartkExtractor<EventMention, BaseToken> tokenVectorContext;
+	private CleartkExtractor<EventMention, BaseToken> tokenVectorContext2;
 	private ContinuousTextExtractor continuousText;
+	private ContinuousTextExtractor continuousText2;
 	private SectionHeaderExtractor sectionIDExtractor;
 	private ClosestVerbExtractor closestVerbExtractor;
 	private TimeXExtractor timeXExtractor;
 	private EventPropertyExtractor genericExtractor;
-	private UmlsSingleFeatureExtractor umlsExtractor;
+//	private UmlsSingleFeatureExtractor umlsExtractor;
 	private NearbyVerbTenseXExtractor verbTensePatternExtractor;
 
-	//  private DateAndMeasurementExtractor dateExtractor;  
-	//  private CoveredTextToValuesExtractor disSemExtractor;
-	//  private DurationExpectationFeatureExtractor durationExtractor;
+	private DateAndMeasurementExtractor dateExtractor;  
+//	private CoveredTextToValuesExtractor disSemExtractor;
+//	private DurationExpectationFeatureExtractor durationExtractor;
 
 	public static final String PARAM_PROB_VIEW = "ProbView";
 	@ConfigurationParameter(name=PARAM_PROB_VIEW, mandatory=false)
@@ -130,16 +143,21 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
 		super.initialize(context);
 		CombinedExtractor1<BaseToken> baseExtractor = new CombinedExtractor1<>(
 				new CoveredTextExtractor<BaseToken>(),
+				CharacterCategoryPatternFunction.<BaseToken>createExtractor(PatternType.ONE_PER_CHAR),
 				new TypePathExtractor<>(BaseToken.class, "partOfSpeech"));
 		this.contextExtractor = new CleartkExtractor<>(
 				BaseToken.class,
 				baseExtractor,
 				new Preceding(3),
-				new Covered(),
+				new FirstCovered(1),
+				new LastCovered(1),
+				new Bag(new Covered()),
 				new Following(3));
 		final String vectorFile = "org/apache/ctakes/temporal/mimic_vectors.txt";
+		final String vectorFile2 = "org/apache/ctakes/temporal/thyme_word2vec_mapped_50.vec";
 		try {
 			this.continuousText = new ContinuousTextExtractor(vectorFile);
+			this.continuousText2 = new ContinuousTextExtractor(vectorFile2);
 		} catch (CleartkExtractorException e) {
 			System.err.println("cannot find file: "+ vectorFile);
 			e.printStackTrace();
@@ -147,25 +165,29 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
 		this.tokenVectorContext = new CleartkExtractor<>(
 				BaseToken.class,
 				continuousText,      
-				//new Preceding(5),
+				new Preceding(5),
+				new Covered(),
+				new Following(5));
+		this.tokenVectorContext2 = new CleartkExtractor<>(
+				BaseToken.class,
+				continuousText2,  
 				new Covered());
-		//new Following(5));
 		this.sectionIDExtractor = new SectionHeaderExtractor();
 		this.closestVerbExtractor = new ClosestVerbExtractor();
 		this.timeXExtractor = new TimeXExtractor();
 		this.genericExtractor = new EventPropertyExtractor();
-		this.umlsExtractor = new UmlsSingleFeatureExtractor();
+//		this.umlsExtractor = new UmlsSingleFeatureExtractor();
 		this.verbTensePatternExtractor = new NearbyVerbTenseXExtractor();
 
-		//    this.dateExtractor = new DateAndMeasurementExtractor();
-
-		//    try {
-		//    	Map<String, double[]> word_disSem = CoveredTextToValuesExtractor.parseTextDoublesMap(new File("src/main/resources/embeddings.size25.txt"), Charsets.UTF_8);
-		//    	this.disSemExtractor = new CoveredTextToValuesExtractor("DisSemFeat", word_disSem);
-		//	} catch (IOException e) {
-		//		e.printStackTrace();
-		//	}
-		//    this.durationExtractor = new DurationExpectationFeatureExtractor();
+		this.dateExtractor = new DateAndMeasurementExtractor();
+		
+//		try {
+//			Map<String, double[]> word_disSem = CoveredTextToValuesExtractor.parseTextDoublesMap(new File("src/main/resources/embeddings.size25.txt"), Charsets.UTF_8);
+//			this.disSemExtractor = new CoveredTextToValuesExtractor("DisSemFeat", word_disSem);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		this.durationExtractor = new DurationExpectationFeatureExtractor();
 	}
 
 	@Override
@@ -176,22 +198,24 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
 			if(sents!=null && sents.size()>0){
 				features.addAll(this.contextExtractor.extractWithin(jCas, eventMention, sents.get(0)));
 				features.addAll(this.tokenVectorContext.extractWithin(jCas, eventMention, sents.get(0)));
+				features.addAll(this.tokenVectorContext2.extractWithin(jCas, eventMention, sents.get(0)));
 			}else{
 				features.addAll(this.contextExtractor.extract(jCas, eventMention));
 				features.addAll(this.tokenVectorContext.extract(jCas, eventMention));
+				features.addAll(this.tokenVectorContext2.extract(jCas, eventMention));
 			}
 
 			features.addAll(this.sectionIDExtractor.extract(jCas, eventMention)); //add section heading
 			features.addAll(this.closestVerbExtractor.extract(jCas, eventMention)); //add closest verb
 			features.addAll(this.timeXExtractor.extract(jCas, eventMention)); //add the closest time expression types
 			features.addAll(this.genericExtractor.extract(jCas, eventMention)); //add the closest time expression types
-			features.addAll(this.umlsExtractor.extract(jCas, eventMention)); //add umls features
+//			features.addAll(this.umlsExtractor.extract(jCas, eventMention)); //add umls features
 			features.addAll(this.verbTensePatternExtractor.extract(jCas, eventMention));//add nearby verb POS pattern feature
 
 			//    
-			//    features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
-			//    features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
-			//    features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
+			features.addAll(this.dateExtractor.extract(jCas, eventMention)); //add the closest NE type
+//			features.addAll(this.durationExtractor.extract(jCas, eventMention)); //add duration feature
+//			features.addAll(this.disSemExtractor.extract(jCas, eventMention)); //add distributional semantic features
 			if (this.isTraining()) {
 				if(eventMention.getEvent() != null){
 					String outcome = eventMention.getEvent().getProperties().getDocTimeRel();

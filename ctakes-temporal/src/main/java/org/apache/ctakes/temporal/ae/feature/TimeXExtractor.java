@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.TreeMap;
 //import java.util.logging.Logger;
 
+import org.apache.ctakes.typesystem.type.syntax.NumToken;
 //import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPETExtractor;
 //import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalSingleTreeExtractor;
 import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
@@ -91,6 +92,8 @@ public class TimeXExtractor implements FeatureExtractor1 {
 	  if (sentList != null && !sentList.isEmpty()){
 		  timeDistMap = new TreeMap<>();
 		  
+		  //boolean hasNumberToken = false;
+		  
 		  for(Sentence sent : sentList) {
 			  for (TimeMention time : JCasUtil.selectCovered(view, TimeMention.class, sent)) {
 				  timeDistMap.put(Math.abs(time.getBegin() - annotation.getBegin()), time);
@@ -101,7 +104,16 @@ public class TimeXExtractor implements FeatureExtractor1 {
 			  for (DateAnnotation time : JCasUtil.selectCovered(view, DateAnnotation.class, sent)) {
 				  timeDistMap.put(Math.abs(time.getBegin() - annotation.getBegin()), time);
 			  }
+			  //for (NumToken number : JCasUtil.selectCovered(view, NumToken.class, sent)){
+			//	  hasNumberToken = true;
+			//	  int numDigit = number.getCoveredText().length();
+			//	  features.add(new Feature("num_digit_numToken", numDigit));
+			 // }
 		  }
+
+		  //if(hasNumberToken){
+			//  features.add(new Feature("has_number_tokens_in_sentence"));
+		  //}
 		  
 		  //get the closest Time Expression feature
 		  for (Map.Entry<Integer, IdentifiedAnnotation> entry : timeDistMap.entrySet()) {
