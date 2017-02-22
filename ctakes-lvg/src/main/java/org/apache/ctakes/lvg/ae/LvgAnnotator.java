@@ -561,15 +561,65 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 		}
 	}
 
-	@SuppressWarnings("resource")
+
+  /**
+   * Copy to under /tmp the files needed for EventAnnotatorTest.
+   * Localize all hardcoded file names and paths related to copying files to under /tmp (or C:\tmp) to this method.
+   * The lvg/data/HSqlDb/ subdirectory is not copied as it is larger than the rest and is not needed for EventAnnotatorTest. 
+   * @return The full path to the copy of lvg.properties file
+   */
+  public static String copyLvgFilesToTmp() {
+
+	final String returnValue = "/tmp/data/config/lvg.properties";
+	final String prefix = "org/apache/ctakes/lvg/";
+	final String [] filesToCopy = { 
+			"data/config/lvg.properties",
+            "data/misc/conjunctionWord.data",
+            "data/misc/nonInfoWords.data",
+            "data/misc/removeS.data",
+            "data/misc/stopWords.data",
+            "data/misc/symbolSynonyms.data",
+            "data/rules/dm.rul",
+            "data/rules/im.rul",
+            "data/rules/plural.rul",
+            "data/rules/verbinfl.rul",
+            "data/rules/exceptionD.data",
+            "data/rules/exceptionI.data",
+            "data/rules/ruleD.data",
+            "data/rules/ruleI.data",
+            "data/rules/trieD.data",
+            "data/rules/trieI.data",
+            "data/Unicode/diacriticMap.data",
+            "data/Unicode/ligatureMap.data",
+            "data/Unicode/nonStripMap.data",
+            "data/Unicode/synonymMap.data",
+            "data/Unicode/symbolMap.data",
+            "data/Unicode/unicodeMap.data",
+            
+	};
+	
+	for (String path:filesToCopy) {
+		InputStream stream =  LvgAnnotator.class.getClassLoader().getResourceAsStream(prefix+path);
+		
+		File file = new File("/tmp/"+path);
+				
+		try {
+	        FileUtils.copyInputStreamToFile(stream, file);
+		} catch (IOException e) {
+	        throw new RuntimeException("Error copying temporary InpuStream " + stream.toString() + " to " + file.getAbsolutePath() + ".", e);
+		}
+		
+	}
+	
+    return returnValue;
+    
+  }
+  
+  
   public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException, MalformedURLException {
-    InputStream lvgStream = LvgAnnotator.class.getClassLoader().getResourceAsStream("org/apache/ctakes/lvg/data/config/lvg.properties");
-    File lvgFile = new File("/tmp/lvg.properties");
-    try {
-      FileUtils.copyInputStreamToFile(lvgStream, lvgFile);
-    } catch (IOException e) {
-      throw new RuntimeException("Error copying temporary InpuStream org/apache/ctakes/lvg/data/config/lvg.properties to /tmp/lvg.properties.", e);
-    }
+	
+    File lvgFile = new File(copyLvgFilesToTmp());
+    
     return AnalysisEngineFactory.createEngineDescription(LvgAnnotator.class,
         LvgAnnotator.PARAM_USE_CMD_CACHE,
         false,
