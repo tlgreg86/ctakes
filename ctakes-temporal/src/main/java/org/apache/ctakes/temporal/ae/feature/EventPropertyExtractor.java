@@ -84,11 +84,12 @@ public class EventPropertyExtractor implements FeatureExtractor1<Annotation> {
 		List<Feature> features = new ArrayList<>();
 		
 		//get Document ID:
+		String fname;
 		try {
 			String docID = ViewUriUtil.getURI(view).toString();
 			
 			int begin = docID.lastIndexOf("_");
-			String fname = docID.substring(begin+1);
+			fname = docID.substring(begin+1);
 			features.add(new Feature("docName", fname));
 			
 			if(fname.equals("RAD")||fname.equals("SP")){
@@ -98,8 +99,14 @@ public class EventPropertyExtractor implements FeatureExtractor1<Annotation> {
 			}
 			
 		} catch (AnalysisEngineProcessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			fname = "AnalysisEngineProcessException.UnableToGetDocIdFromUriView";
+			features.add(new Feature("docName", fname));
+			
+		} catch (org.apache.uima.cas.CASRuntimeException e) { // for unit tests that don't set up the UriView 
+			e.printStackTrace();
+			fname = "CASRuntimeException.UnableToGetDocIdFromUriView";
+			features.add(new Feature("docName", fname));
 		}
 
 		//1 get event:
