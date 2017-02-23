@@ -25,6 +25,7 @@ import java.util.List;
 //import java.util.logging.Logger;
 import java.util.Set;
 
+import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.syntax.PunctuationToken;
@@ -86,7 +87,7 @@ public class EventPropertyExtractor implements FeatureExtractor1<Annotation> {
 		//get Document ID:
 		String fname;
 		try {
-			String docID = ViewUriUtil.getURI(view).toString();
+			String docID = DocumentIDAnnotationUtil.getDocumentID(view);//ViewUriUtil.getURI(view).toString();
 			
 			int begin = docID.lastIndexOf("_");
 			fname = docID.substring(begin+1);
@@ -98,10 +99,10 @@ public class EventPropertyExtractor implements FeatureExtractor1<Annotation> {
 				features.add(new Feature("docName:others"));
 			}
 			
-		} catch (AnalysisEngineProcessException e) {
-			e.printStackTrace();
-			fname = "AnalysisEngineProcessException.UnableToGetDocIdFromUriView";
-			features.add(new Feature("docName", fname));
+//		} catch (AnalysisEngineProcessException e) {
+//			e.printStackTrace();
+//			fname = "AnalysisEngineProcessException.UnableToGetDocIdFromUriView";
+//			features.add(new Feature("docName", fname));
 			
 		} catch (org.apache.uima.cas.CASRuntimeException e) { // for unit tests that don't set up the UriView 
 			e.printStackTrace();
