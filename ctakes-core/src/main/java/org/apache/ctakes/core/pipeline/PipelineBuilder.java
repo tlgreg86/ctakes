@@ -254,8 +254,8 @@ final public class PipelineBuilder {
     * A pipeline can be extended between builds, but the full pipeline will be rebuilt on each call.
     * Use of this method is order-specific.
     * @return this PipelineBuilder
-    * @throws IOException   if the pipeline could not be run
-    * @throws UIMAException if the pipeline could not be run
+    * @throws IOException   if the pipeline could not be built
+    * @throws UIMAException if the pipeline could not be built
     */
    public PipelineBuilder build() throws IOException, UIMAException {
       if ( _analysisEngineDesc == null || _pipelineChanged ) {
@@ -309,5 +309,14 @@ final public class PipelineBuilder {
       return this;
    }
 
+   /**
+    * @return an analysis engine description, for use in creating xml descriptor files, etc.
+    * @throws IOException   if the description could not be built
+    * @throws UIMAException if the description could not be built
+    */
+   public AnalysisEngineDescription getAnalysisEngineDesc() throws IOException, UIMAException {
+      build();
+      return _analysisEngineDesc;
+   }
 
 }
