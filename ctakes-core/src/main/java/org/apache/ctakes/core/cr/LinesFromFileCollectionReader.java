@@ -18,27 +18,23 @@
  */
 package org.apache.ctakes.core.cr;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.log4j.Logger;
-
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.collection.CollectionReader_ImplBase;
 import org.apache.uima.jcas.JCas;
-//import org.apache.uima.jcas.tcas.DocumentAnnotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
-import org.apache.ctakes.typesystem.type.structured.DocumentID;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+//import org.apache.uima.jcas.tcas.DocumentAnnotation;
 
 /**
  * 
@@ -56,6 +52,12 @@ import org.apache.ctakes.typesystem.type.structured.DocumentID;
  *
  */
 
+@PipeBitInfo(
+      name = "Lines in File Reader",
+      description = "Reads a document texts from a single text file, treating each line as a document.",
+      role = PipeBitInfo.Role.READER,
+      output = PipeBitInfo.NEW_JCAS
+)
 public class LinesFromFileCollectionReader extends CollectionReader_ImplBase {
 
 	/**

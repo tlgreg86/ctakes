@@ -85,16 +85,29 @@ final public class PrettyTextWriter {
       } else {
          outputFile = new File( _outputDirPath, docId + FILE_EXTENSION );
       }
-      try ( final BufferedWriter writer = new BufferedWriter( new FileWriter( outputFile ) ) ) {
-         final Collection<Sentence> sentences = JCasUtil.select( jcas, Sentence.class );
+      writeFile( jcas, outputFile.getPath() );
+//      try ( final BufferedWriter writer = new BufferedWriter( new FileWriter( outputFile ) ) ) {
+//         final Collection<Sentence> sentences = JCasUtil.select( jcas, Sentence.class );
+//         for ( Sentence sentence : sentences ) {
+//            writeSentence( jcas, sentence, writer );
+//         }
+//      } catch ( IOException ioE ) {
+//         LOGGER.error( "Could not not write pretty file " + outputFile.getPath() );
+//         LOGGER.error( ioE.getMessage() );
+//      }
+      LOGGER.info( "Finished processing" );
+   }
+
+   public void writeFile( final JCas jCas, final String outputFilePath ) {
+      try ( final BufferedWriter writer = new BufferedWriter( new FileWriter( outputFilePath ) ) ) {
+         final Collection<Sentence> sentences = JCasUtil.select( jCas, Sentence.class );
          for ( Sentence sentence : sentences ) {
-            writeSentence( jcas, sentence, writer );
+            writeSentence( jCas, sentence, writer );
          }
       } catch ( IOException ioE ) {
-         LOGGER.error( "Could not not write pretty file " + outputFile.getPath() );
+         LOGGER.error( "Could not not write pretty file " + outputFilePath );
          LOGGER.error( ioE.getMessage() );
       }
-      LOGGER.info( "Finished processing" );
    }
 
    /**

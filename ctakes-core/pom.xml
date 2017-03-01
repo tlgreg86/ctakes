@@ -55,6 +55,7 @@
 			<groupId>jdom</groupId>
 			<artifactId>jdom</artifactId>
 		</dependency>
+      <!--  Todo - get rid of jdom v1  -->
 		<dependency>
 			<groupId>org.jdom</groupId>
 			<artifactId>jdom2</artifactId>
@@ -79,6 +80,7 @@
 			<groupId>org.apache.opennlp</groupId>
 			<artifactId>opennlp-tools</artifactId>
 		</dependency>
+      <!--  Todo : is lucene necessary at this level?  -->
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-core</artifactId>
@@ -91,6 +93,7 @@
 			<groupId>edu.mit.findstruct</groupId>
 			<artifactId>findstructapi</artifactId>
 		</dependency>
+      <!--  Todo : is anything actually using this sqlwrapper?  -->
 		<dependency>
 			<groupId>com.googlecode.armbrust-file-utils</groupId>
 			<artifactId>sqlwrapper</artifactId>

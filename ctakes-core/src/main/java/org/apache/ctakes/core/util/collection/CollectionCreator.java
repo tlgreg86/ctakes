@@ -1,4 +1,4 @@
-package org.apache.ctakes.dictionary.lookup2.util.collection;
+package org.apache.ctakes.core.util.collection;
 
 import java.util.Collection;
 

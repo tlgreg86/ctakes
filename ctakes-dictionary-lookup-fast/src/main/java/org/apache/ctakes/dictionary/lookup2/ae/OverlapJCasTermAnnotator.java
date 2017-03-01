@@ -18,13 +18,14 @@
  */
 package org.apache.ctakes.dictionary.lookup2.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary;
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
 import org.apache.ctakes.dictionary.lookup2.textspan.DefaultTextSpan;
 import org.apache.ctakes.dictionary.lookup2.textspan.MultiTextSpan;
 import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
 import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
-import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -43,6 +44,11 @@ import java.util.List;
  * Affiliation: CHIP-NLP
  * Date: 12/6/13
  */
+@PipeBitInfo(
+      name = "Dictionary Lookup (Default)",
+      description = "Annotates clinically-relevant terms.  Terms can overlap dictionary entries.",
+      output = "Clinically-relevant Terms and their unique concept identifiers."
+)
 final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
 
    // LOG4J logger based on interface name

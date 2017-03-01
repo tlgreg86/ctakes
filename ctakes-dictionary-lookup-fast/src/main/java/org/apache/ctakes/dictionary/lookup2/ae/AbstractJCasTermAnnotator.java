@@ -21,6 +21,8 @@ package org.apache.ctakes.dictionary.lookup2.ae;
 import org.apache.ctakes.core.fsm.token.NumberToken;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.JCasUtil;
+import org.apache.ctakes.core.util.collection.CollectionMap;
+import org.apache.ctakes.core.util.collection.HashSetMap;
 import org.apache.ctakes.dictionary.lookup2.concept.Concept;
 import org.apache.ctakes.dictionary.lookup2.concept.ConceptFactory;
 import org.apache.ctakes.dictionary.lookup2.dictionary.DictionaryDescriptorParser;
@@ -28,8 +30,6 @@ import org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary;
 import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
 import org.apache.ctakes.dictionary.lookup2.util.DictionarySpec;
 import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
-import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
-import org.apache.ctakes.dictionary.lookup2.util.collection.HashSetMap;
 import org.apache.ctakes.typesystem.type.syntax.*;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
@@ -37,6 +37,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorContextException;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.cas.text.AnnotationIndex;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
@@ -55,7 +56,7 @@ import java.util.*;
  * Affiliation: CHIP-NLP
  * Date: 12/6/13
  */
-abstract public class AbstractJCasTermAnnotator extends org.apache.uima.fit.component.JCasAnnotator_ImplBase
+abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
       implements JCasTermAnnotator, WindowProcessor {
 
    // LOG4J logger based on interface name

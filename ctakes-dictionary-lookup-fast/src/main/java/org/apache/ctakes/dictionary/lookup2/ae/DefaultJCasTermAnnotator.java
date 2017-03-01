@@ -18,12 +18,13 @@
  */
 package org.apache.ctakes.dictionary.lookup2.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary;
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
 import org.apache.ctakes.dictionary.lookup2.textspan.DefaultTextSpan;
 import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
 import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
-import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -37,6 +38,11 @@ import java.util.List;
  * Affiliation: CHIP-NLP
  * Date: 11/19/13
  */
+@PipeBitInfo(
+      name = "Dictionary Lookup (Default)",
+      description = "Annotates clinically-relevant terms.  Terms must match dictionary entries exactly.",
+      output = "Clinically-relevant Terms and their unique concept identifiers."
+)
 final public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
 
    /**

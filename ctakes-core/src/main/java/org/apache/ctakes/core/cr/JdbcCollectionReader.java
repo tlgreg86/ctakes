@@ -18,25 +18,11 @@
  */
 package org.apache.ctakes.core.cr;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.resource.FileResource;
+import org.apache.ctakes.core.resource.JdbcConnectionResource;
+import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.log4j.Logger;
-
 import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.collection.CollectionReader_ImplBase;
@@ -44,15 +30,23 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
-import org.apache.ctakes.core.resource.FileResource;
-import org.apache.ctakes.core.resource.JdbcConnectionResource;
-import org.apache.ctakes.typesystem.type.structured.DocumentID;
+import java.io.*;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Collection Reader that pulls documents to be processed from a database.
  * 
  * @author Mayo Clinic
  */
+@PipeBitInfo(
+      name = "JDBC Collection Reader",
+      description = "Reads document texts from database text fields.",
+      role = PipeBitInfo.Role.READER,
+      output = PipeBitInfo.NEW_JCAS
+)
 public class JdbcCollectionReader extends CollectionReader_ImplBase
 {
 

@@ -1,4 +1,4 @@
-package org.apache.ctakes.dictionary.lookup2.util.collection;
+package org.apache.ctakes.core.util.collection;
 
 import java.util.Collection;
 import java.util.Map;
@@ -30,7 +30,7 @@ public interface CollectionMap<K, V, T extends Collection<V>> extends Map<K, T>,
     * @param key key for internal collection
     * @return (possibly new) collection mapped with key
     */
-   public T obtainCollection( K key );
+   public T getOrCreateCollection( K key );
 
    /**
     * check the collection map for a key and value combination

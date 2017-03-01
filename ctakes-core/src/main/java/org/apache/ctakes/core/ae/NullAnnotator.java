@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.core.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
@@ -31,7 +32,12 @@ import org.apache.uima.jcas.JCas;
  * @author Mayo Clinic
  *
  */
-public class NullAnnotator extends JCasAnnotator_ImplBase 
+@PipeBitInfo(
+      name = "Null Annotator",
+      description = "Does absolutely nothing.",
+      output = PipeBitInfo.NO_OUTPUT
+)
+public class NullAnnotator extends JCasAnnotator_ImplBase
 {
 
 	   public void process(JCas jcas)

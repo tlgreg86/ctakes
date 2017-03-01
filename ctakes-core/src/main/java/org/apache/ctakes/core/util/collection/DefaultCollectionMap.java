@@ -1,4 +1,4 @@
-package org.apache.ctakes.dictionary.lookup2.util.collection;
+package org.apache.ctakes.core.util.collection;
 
 import java.util.*;
 
@@ -76,7 +76,7 @@ final public class DefaultCollectionMap<K, V, T extends Collection<V>> implement
     * {@inheritDoc}
     */
    @Override
-   public T obtainCollection( final K key ) {
+   public T getOrCreateCollection( final K key ) {
       T collection = _delegate.get( key );
       if ( collection == null ) {
          collection = _collectionCreator.createCollection();

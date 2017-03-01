@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.core.cc;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.WordTokenUtil;
 import org.apache.ctakes.typesystem.type.syntax.WordToken;
@@ -44,6 +45,13 @@ import java.io.*;
  * FilesInDirectoryCasConsumer can now be used to write the plain text to local plain text files.
  */
 
+@PipeBitInfo(
+      name = "Document Text Writer (Dir)",
+      description = "Writes Text files with original text from the document in a specified directory.",
+      role = PipeBitInfo.Role.WRITER,
+      input = "Document Text.",
+      output = PipeBitInfo.NO_OUTPUT
+)
 public class NormalizedFilesInDirectoryCasConsumer extends CasConsumer_ImplBase {
 
    public static final String PARAM_OUTPUTDIR = "OutputDirectory";

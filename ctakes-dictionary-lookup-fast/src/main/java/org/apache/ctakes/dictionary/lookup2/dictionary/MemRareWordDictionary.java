@@ -18,8 +18,8 @@
  */
 package org.apache.ctakes.dictionary.lookup2.dictionary;
 
+import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
-import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 
 import java.util.Collection;
 

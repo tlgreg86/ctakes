@@ -18,24 +18,20 @@
  */
 package org.apache.ctakes.core.cc;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
+import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CasConsumer_ImplBase;
-import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceProcessException;
 
-import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * For each CAS a local file with the offsets of the BaseToken annotations is written to a directory specifed by a parameter.
@@ -55,6 +51,13 @@ import org.apache.ctakes.typesystem.type.syntax.BaseToken;
  * from Knowtator annotations.  
  */
 
+@PipeBitInfo(
+      name = "Token Offset Writer",
+      description = "Writes a two-column BSV file containing Begin and End offsets of tokens in a document.",
+      role = PipeBitInfo.Role.WRITER,
+      input = "BaseToken " + PipeBitInfo.POPULATED_JCAS,
+      output = PipeBitInfo.NO_OUTPUT
+)
 public class TokenOffsetsCasConsumer extends CasConsumer_ImplBase {
 
 	public static final String PARAM_OUTPUTDIR = "OutputDirectory";

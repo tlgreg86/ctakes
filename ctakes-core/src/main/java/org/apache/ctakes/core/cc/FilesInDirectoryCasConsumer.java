@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.core.cc;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.log4j.Logger;
 import org.apache.uima.cas.CAS;
@@ -41,6 +42,13 @@ import java.io.*;
  * FilesInDirectoryCasConsumer can now be used to write the plain text to local plain text files.
  */
 
+@PipeBitInfo(
+      name = "Document Text Writer",
+      description = "Writes Text files with original text from the document.",
+      role = PipeBitInfo.Role.WRITER,
+      input = "Document Text.",
+      output = PipeBitInfo.NO_OUTPUT
+)
 public class FilesInDirectoryCasConsumer extends CasConsumer_ImplBase {
 
    public static final String PARAM_OUTPUTDIR = "OutputDirectory";

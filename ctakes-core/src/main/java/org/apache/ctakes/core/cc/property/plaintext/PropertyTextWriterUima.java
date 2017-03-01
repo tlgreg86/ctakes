@@ -1,5 +1,6 @@
 package org.apache.ctakes.core.cc.property.plaintext;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
@@ -20,6 +21,13 @@ import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPU
  * @version %I%
  * @since 10/15/2015
  */
+@PipeBitInfo(
+      name = "Property Text Writer (UIMA)",
+      description = "Writes text files with lists of annotations and properties (POS, Semantic Group, CUI, Negation).",
+      role = PipeBitInfo.Role.WRITER,
+      input = PipeBitInfo.POPULATED_JCAS,
+      output = PipeBitInfo.NO_OUTPUT
+)
 public class PropertyTextWriterUima extends CasConsumer_ImplBase {
 
 

@@ -18,11 +18,7 @@
  */
 package org.apache.ctakes.core.cr;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.impl.XmiCasDeserializer;
 import org.apache.uima.collection.CollectionException;
@@ -33,9 +29,21 @@ import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 import org.xml.sax.SAXException;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+
+
 /**
  * A simple collection reader that reads CASes in XMI format from a directory in the filesystem.
  */
+@PipeBitInfo(
+      name = "XMI in Dir Reader",
+      description = "Reads document texts and annotations from XMI files in a directory.",
+      role = PipeBitInfo.Role.READER,
+      output = PipeBitInfo.POPULATED_JCAS
+)
 public class XmiCollectionReaderCtakes extends CollectionReader_ImplBase {
   /**
    * Name of configuration parameter that must be set to the path of a directory containing the XMI

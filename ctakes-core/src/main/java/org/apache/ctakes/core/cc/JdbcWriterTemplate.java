@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.core.cc;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.OntologyConceptUtil;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -39,6 +40,13 @@ import java.util.*;
  * @version %I%
  * @since 1/8/2015
  */
+@PipeBitInfo(
+      name = "JDBC Writer (Template)",
+      description = "Stores extracted information and document metadata in a database.",
+      role = PipeBitInfo.Role.WRITER,
+      input = PipeBitInfo.POPULATED_JCAS,
+      output = PipeBitInfo.NO_OUTPUT
+)
 public class JdbcWriterTemplate extends AbstractJdbcWriter {
 
    static private final Logger LOGGER = Logger.getLogger( "JdbcWriterTemplate" );

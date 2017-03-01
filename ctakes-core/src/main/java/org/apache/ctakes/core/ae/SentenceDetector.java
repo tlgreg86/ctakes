@@ -23,6 +23,7 @@ import opennlp.tools.sentdetect.*;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.sentence.EndOfSentenceScannerImpl;
 import org.apache.ctakes.core.sentence.SentenceDetectorCtakes;
@@ -50,6 +51,11 @@ import java.util.*;
  * 
  * @author Mayo Clinic
  */
+@PipeBitInfo(
+      name = "Sentence Detector",
+      description = "Annotates Sentences based upon an OpenNLP model.",
+      output = "Sentence annotations."
+)
 public class SentenceDetector extends JCasAnnotator_ImplBase {
 	/**
 	 * Value is "SegmentsToSkip". This parameter specifies which sections to

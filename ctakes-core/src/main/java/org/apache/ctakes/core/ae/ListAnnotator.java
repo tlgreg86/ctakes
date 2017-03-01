@@ -1,5 +1,6 @@
 package org.apache.ctakes.core.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.Pair;
 import org.apache.ctakes.core.util.regex.RegexSpanFinder;
@@ -32,6 +33,11 @@ import java.util.stream.Collectors;
  * @version %I%
  * @since 9/26/2016
  */
+@PipeBitInfo(
+      name = "List Annotator",
+      description = "Annotates formatted List Sections by detecting them using Regular Expressions provided in an input File.",
+      output = "List and ListEntry annotations."
+)
 final public class ListAnnotator extends JCasAnnotator_ImplBase {
 
    static private final Logger LOGGER = Logger.getLogger( "ListAnnotator" );

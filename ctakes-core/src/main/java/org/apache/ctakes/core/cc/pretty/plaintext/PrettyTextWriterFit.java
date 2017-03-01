@@ -2,18 +2,14 @@ package org.apache.ctakes.core.cc.pretty.plaintext;
 
 //import org.apache.log4j.Logger;
 
+import org.apache.ctakes.core.cc.AbstractOutputFileWriter;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.CASException;
-import org.apache.uima.fit.component.CasConsumer_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import static org.apache.ctakes.core.config.ConfigParameterConstants.DESC_OUTPUTDIR;
+import java.io.IOException;
+
 import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPUTDIR;
 
 
@@ -29,17 +25,15 @@ import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPU
  * @see org.apache.ctakes.core.cc.pretty.plaintext.PrettyTextWriter
  * @since 7/8/2015
  */
-public class PrettyTextWriterFit extends CasConsumer_ImplBase {
+@PipeBitInfo(
+      name = "Pretty Text Writer",
+      description = "Writes text files with document text and simple markups (POS, Semantic Group, CUI, Negation).",
+      role = PipeBitInfo.Role.WRITER,
+      input = PipeBitInfo.POPULATED_JCAS,
+      output = PipeBitInfo.NO_OUTPUT
+)
+final public class PrettyTextWriterFit extends AbstractOutputFileWriter {
 
-   @ConfigurationParameter(
-         name = PARAM_OUTPUTDIR,
-         mandatory = false,
-         description = DESC_OUTPUTDIR,
-         defaultValue = ""
-   )
-   private String fitOutputDirectoryPath;
-
-//   static private final Logger LOGGER = Logger.getLogger( "PrettyTextWriterFit" );
 
    // delegate
    final private PrettyTextWriter _prettyTextWriter;
@@ -53,14 +47,21 @@ public class PrettyTextWriterFit extends CasConsumer_ImplBase {
     * {@inheritDoc}
     */
    @Override
+   public void writeFile( final JCas jCas,
+                          final String outputDir,
+                          final String documentId,
+                          final String fileName ) throws IOException {
+      _prettyTextWriter.writeFile( jCas, outputDir + "/" + fileName );
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public void initialize( final UimaContext uimaContext ) throws ResourceInitializationException {
       super.initialize( uimaContext );
       try {
-         if ( fitOutputDirectoryPath != null ) {
-            _prettyTextWriter.setOutputDirectory( fitOutputDirectoryPath );
-         } else {
-            _prettyTextWriter.setOutputDirectory( (String)uimaContext.getConfigParameterValue( PARAM_OUTPUTDIR ) );
-         }
+         _prettyTextWriter.setOutputDirectory( (String)uimaContext.getConfigParameterValue( PARAM_OUTPUTDIR ) );
       } catch ( IllegalArgumentException | SecurityException multE ) {
          // thrown if the path specifies a File (not Dir) or by file system access methods
          throw new ResourceInitializationException( multE );
@@ -68,37 +69,37 @@ public class PrettyTextWriterFit extends CasConsumer_ImplBase {
    }
 
 
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public void process( final CAS aCAS ) throws AnalysisEngineProcessException {
-      JCas jcas;
-      try {
-         jcas = aCAS.getJCas();
-      } catch ( CASException casE ) {
-         throw new AnalysisEngineProcessException( casE );
-      }
-      _prettyTextWriter.process( jcas );
-   }
-
-   /**
-    * @return This Cas Consumer as an Analysis Engine
-    * @throws org.apache.uima.resource.ResourceInitializationException if anything went wrong
-    */
-   static public AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
-      return createAnnotatorDescription( "" );
-   }
-
-   /**
-    * @param outputDirectoryPath may be empty or null, in which case the current working directory is used
-    * @return This Cas Consumer as an Analysis Engine
-    * @throws org.apache.uima.resource.ResourceInitializationException if anything went wrong
-    */
-   static public AnalysisEngineDescription createAnnotatorDescription( final String outputDirectoryPath )
-         throws ResourceInitializationException {
-      return AnalysisEngineFactory.createEngineDescription( PrettyTextWriterFit.class,
-            PARAM_OUTPUTDIR, outputDirectoryPath );
-   }
+//   /**
+//    * {@inheritDoc}
+//    */
+//   @Override
+//   public void process( final CAS aCAS ) throws AnalysisEngineProcessException {
+//      JCas jcas;
+//      try {
+//         jcas = aCAS.getJCas();
+//      } catch ( CASException casE ) {
+//         throw new AnalysisEngineProcessException( casE );
+//      }
+//      _prettyTextWriter.process( jcas );
+//   }
+//
+//   /**
+//    * @return This Cas Consumer as an Analysis Engine
+//    * @throws org.apache.uima.resource.ResourceInitializationException if anything went wrong
+//    */
+//   static public AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
+//      return createAnnotatorDescription( "" );
+//   }
+//
+//   /**
+//    * @param outputDirectoryPath may be empty or null, in which case the current working directory is used
+//    * @return This Cas Consumer as an Analysis Engine
+//    * @throws org.apache.uima.resource.ResourceInitializationException if anything went wrong
+//    */
+//   static public AnalysisEngineDescription createAnnotatorDescription( final String outputDirectoryPath )
+//         throws ResourceInitializationException {
+//      return AnalysisEngineFactory.createEngineDescription( PrettyTextWriterFit.class,
+//            PARAM_OUTPUTDIR, outputDirectoryPath );
+//   }
 
 }

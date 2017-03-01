@@ -1,5 +1,6 @@
 package org.apache.ctakes.core.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.AnalysisComponent;
@@ -20,13 +21,18 @@ import org.apache.uima.resource.ResourceInitializationException;
  * @version %I%
  * @since 8/8/2016
  */
+@PipeBitInfo(
+      name = "Start or Finish Logger",
+      description = "Simple Annotator to place before and after other annotators that do not Log their Start and Finish.",
+      role = PipeBitInfo.Role.SPECIAL,
+      output = PipeBitInfo.NO_OUTPUT
+)
 public class StartFinishLogger extends JCasAnnotator_ImplBase {
 
 
    public static final String PARAM_LOGGER_NAME = "LOGGER_NAME";
    @ConfigurationParameter(
          name = PARAM_LOGGER_NAME,
-         mandatory = true,
          description = "provides the full name of the Annotator Engine for which start / end logging should be done.",
          defaultValue = { "StartEndProgressLogger" }
    )

@@ -1,9 +1,9 @@
 package org.apache.ctakes.dictionary.lookup2.concept;
 
+import org.apache.ctakes.core.util.collection.CollectionMap;
+import org.apache.ctakes.core.util.collection.HashSetMap;
+import org.apache.ctakes.core.util.collection.ImmutableCollectionMap;
 import org.apache.ctakes.dictionary.lookup2.util.SemanticUtil;
-import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
-import org.apache.ctakes.dictionary.lookup2.util.collection.HashSetMap;
-import org.apache.ctakes.dictionary.lookup2.util.collection.ImmutableCollectionMap;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 
 import javax.annotation.concurrent.Immutable;

@@ -1,5 +1,6 @@
 package org.apache.ctakes.core.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.Pair;
 import org.apache.ctakes.core.util.regex.RegexSpanFinder;
@@ -25,6 +26,11 @@ import java.util.regex.Pattern;
  * @version %I%
  * @since 9/23/2016
  */
+@PipeBitInfo(
+      name = "Paragraph Annotator",
+      description = "Annotates Paragraphs by detecting them using Regular Expressions provided in an input File or by empty text lines.",
+      output = "Paragraph annotations."
+)
 final public class ParagraphAnnotator extends JCasAnnotator_ImplBase {
 
    static private final Logger LOGGER = Logger.getLogger( "ParagraphAnnotator" );

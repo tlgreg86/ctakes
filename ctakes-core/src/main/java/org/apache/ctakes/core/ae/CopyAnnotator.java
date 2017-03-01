@@ -18,23 +18,24 @@
  */
 package org.apache.ctakes.core.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.util.ParamUtil;
+import org.apache.log4j.Logger;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.TOP;
+import org.apache.uima.resource.ResourceInitializationException;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.ctakes.core.util.ParamUtil;
-import org.apache.log4j.Logger;
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.TOP;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.util.JCasUtil;
 
 
 /**
@@ -44,6 +45,12 @@ import org.apache.uima.fit.util.JCasUtil;
  * @author Mayo Clinic
  * 
  */
+@PipeBitInfo(
+      name = "JCas Copy Annotator",
+      description = "Copies document text and all annotations into a new JCas.",
+      input = "JCas.",
+      output = "JCas copy."
+)
 public class CopyAnnotator extends JCasAnnotator_ImplBase {
   public static final String PARAM_SOURCE_CLASS = "srcObjClass";
   @ConfigurationParameter(

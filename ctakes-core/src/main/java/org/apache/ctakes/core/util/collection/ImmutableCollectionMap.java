@@ -1,4 +1,4 @@
-package org.apache.ctakes.dictionary.lookup2.util.collection;
+package org.apache.ctakes.core.util.collection;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.*;
@@ -47,7 +47,7 @@ final public class ImmutableCollectionMap<K, V, T extends Collection<V>> impleme
     * {@inheritDoc}
     */
    @Override
-   public T obtainCollection( final K key ) {
+   public T getOrCreateCollection( final K key ) {
       return getCollection( key );
    }
 

@@ -18,11 +18,13 @@
  */
 package org.apache.ctakes.core.ae;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.ctakes.core.nlp.tokenizer.Token;
+import org.apache.ctakes.core.nlp.tokenizer.Tokenizer;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.resource.StringIntegerMapResource;
+import org.apache.ctakes.core.util.ParamUtil;
+import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
@@ -34,19 +36,21 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceAccessException;
 import org.apache.uima.resource.ResourceInitializationException;
 
-
-import org.apache.ctakes.core.nlp.tokenizer.Token;
-import org.apache.ctakes.core.nlp.tokenizer.Tokenizer;
-import org.apache.ctakes.core.resource.StringIntegerMapResource;
-import org.apache.ctakes.core.util.ParamUtil;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
-import org.apache.ctakes.typesystem.type.textspan.Segment;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * UIMA annotator that uses the Tokenizer module.
  * 
  * @author Mayo Clinic
  */
+@PipeBitInfo(
+      name = "Tokenizer Annotator",
+      description = "Annotates Document Tokens.",
+      output = "Token annotations."
+)
 public class TokenizerAnnotator extends JCasAnnotator_ImplBase {
 	// LOG4J logger based on class name
 	private Logger logger = Logger.getLogger(getClass().getName());

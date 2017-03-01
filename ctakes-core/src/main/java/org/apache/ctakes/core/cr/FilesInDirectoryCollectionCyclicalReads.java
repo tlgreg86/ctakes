@@ -43,17 +43,23 @@ package org.apache.ctakes.core.cr;
  * gather files in the directory from sub directories.    
  */
 
-import java.io.IOException;
-
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
+import java.io.IOException;
 
-public class FilesInDirectoryCollectionCyclicalReads extends FilesInDirectoryCollectionReader 
+
+@PipeBitInfo(
+      name = "Files in Dir Cycle Reader",
+      description = "Reads document texts from text files in a directory, repeating for a number of iterations.",
+      role = PipeBitInfo.Role.READER,
+      output = PipeBitInfo.NEW_JCAS
+)
+public class FilesInDirectoryCollectionCyclicalReads extends FilesInDirectoryCollectionReader
 {
 	/**
 	   * Name of configuration parameter that must be set to the path of

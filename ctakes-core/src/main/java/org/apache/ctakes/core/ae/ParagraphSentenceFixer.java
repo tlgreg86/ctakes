@@ -1,5 +1,6 @@
 package org.apache.ctakes.core.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.Pair;
 import org.apache.ctakes.typesystem.type.textspan.Paragraph;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -23,6 +24,12 @@ import java.util.stream.Collectors;
  * @version %I%
  * @since 10/6/2016
  */
+@PipeBitInfo(
+      name = "Paragraph Sentence Fixer",
+      description = "Re-annotates Sentences based upon existing Paragraphs, preventing a Sentence from spanning more than one Paragraph.",
+      input = "Sentence and Paragraph annotations.",
+      output = "Adjusted Sentences."
+)
 final public class ParagraphSentenceFixer extends JCasAnnotator_ImplBase {
 
    static private final Logger LOGGER = Logger.getLogger( "ParagraphSentenceFixer" );

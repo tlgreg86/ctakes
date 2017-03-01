@@ -1,8 +1,6 @@
 package org.apache.ctakes.core.cr;
 
-import java.io.File;
-import java.io.IOException;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -21,6 +19,15 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
+import java.io.File;
+import java.io.IOException;
+
+@PipeBitInfo(
+      name = "Lucene Field Reader",
+      description = "Reads document texts from Lucene text fields.",
+      role = PipeBitInfo.Role.READER,
+      output = PipeBitInfo.NEW_JCAS
+)
 public class LuceneCollectionReader extends CasCollectionReader_ImplBase {
 
   public static final String PARAM_INDEX_DIR = "IndexDirectory";

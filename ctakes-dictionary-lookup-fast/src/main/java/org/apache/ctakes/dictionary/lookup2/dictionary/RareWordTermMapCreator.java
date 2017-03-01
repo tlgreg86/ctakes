@@ -18,11 +18,11 @@
  */
 package org.apache.ctakes.dictionary.lookup2.dictionary;
 
+import org.apache.ctakes.core.util.collection.ArrayListMap;
+import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
 import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
-import org.apache.ctakes.dictionary.lookup2.util.collection.ArrayListMap;
-import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.log4j.Logger;
 
 import java.util.*;

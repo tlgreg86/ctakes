@@ -18,21 +18,7 @@
  */
 package org.apache.ctakes.core.cc;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.JCasUtil;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CasConsumer_ImplBase;
@@ -40,6 +26,13 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceProcessException;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
 
 
 /**
@@ -49,6 +42,13 @@ import org.apache.uima.resource.ResourceProcessException;
  * @author Mayo Clinic
  * 
  */
+@PipeBitInfo(
+      name = "HTML Table Writer",
+      description = "Writes HTML files with a Table representation of extracted information.",
+      role = PipeBitInfo.Role.WRITER,
+      input = PipeBitInfo.POPULATED_JCAS,
+      output = PipeBitInfo.NO_OUTPUT
+)
 public class HtmlTableCasConsumer extends CasConsumer_ImplBase
 {
     private File iv_outputDir;

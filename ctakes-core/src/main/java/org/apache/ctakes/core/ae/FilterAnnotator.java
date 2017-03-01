@@ -24,6 +24,10 @@ package org.apache.ctakes.core.ae;
  * 
  * @author m039575 
  */
+
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.typesystem.type.textsem.EntityMention;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -33,9 +37,12 @@ import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import org.apache.ctakes.typesystem.type.textsem.EntityMention;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-
+@PipeBitInfo(
+      name = "Annotation Remover",
+      description = "Removes annotations of a given type from the JCas.",
+      input = PipeBitInfo.POPULATED_JCAS,
+      output = "JCas without annotations of the given type."
+)
 public class FilterAnnotator extends JCasAnnotator_ImplBase {
 	// TODO parameterize retainAttrTypeId = DISORDER_ANNOTATIONS = 2
 	private static int DISORDER_ANNOTATIONS = 2;

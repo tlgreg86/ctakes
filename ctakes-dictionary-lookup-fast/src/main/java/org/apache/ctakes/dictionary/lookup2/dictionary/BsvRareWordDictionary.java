@@ -19,10 +19,10 @@
 package org.apache.ctakes.dictionary.lookup2.dictionary;
 
 import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
 import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
 import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
-import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 

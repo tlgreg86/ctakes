@@ -18,32 +18,31 @@
  */
 package org.apache.ctakes.core.cr;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Iterator;
-import java.util.List;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.uima.UimaContext;
-import org.apache.uima.cas.impl.XmiCasDeserializer;
 import org.apache.uima.collection.CasInitializer;
 import org.apache.uima.collection.CollectionException;
+import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
-import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.xml.sax.SAXException;
+
+import java.io.*;
+import java.util.Iterator;
+import java.util.List;
 
 /**
- * UIMA CollectionReader that reads in CASes from XMI files.
+ * UIMA CollectionReader that reads in Text from text files.
  */
+@PipeBitInfo(
+      name = "Text Files Reader",
+      description = "Reads document texts from text files specified in a provided list.",
+      role = PipeBitInfo.Role.READER,
+      output = PipeBitInfo.NEW_JCAS
+)
 public class TextReader extends JCasCollectionReader_ImplBase {
 
   public static final String PARAM_FILES = "files";

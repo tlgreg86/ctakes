@@ -1,5 +1,6 @@
 package org.apache.ctakes.core.cc.pretty.plaintext;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
@@ -20,6 +21,13 @@ import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPU
  * @see org.apache.ctakes.core.cc.pretty.plaintext.PrettyTextWriter
  * @since 6/24/2015
  */
+@PipeBitInfo(
+      name = "Pretty Text Writer (UIMA)",
+      description = "Writes text files with document text and simple markups (POS, Semantic Group, CUI, Negation).",
+      role = PipeBitInfo.Role.WRITER,
+      input = PipeBitInfo.POPULATED_JCAS,
+      output = PipeBitInfo.NO_OUTPUT
+)
 final public class PrettyTextWriterUima extends CasConsumer_ImplBase {
 
 

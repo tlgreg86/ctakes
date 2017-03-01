@@ -1,11 +1,11 @@
 package org.apache.ctakes.dictionary.lookup2.concept;
 
 import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.core.util.collection.CollectionMap;
+import org.apache.ctakes.core.util.collection.HashSetMap;
 import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
 import org.apache.ctakes.dictionary.lookup2.util.TuiCodeUtil;
-import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
-import org.apache.ctakes.dictionary.lookup2.util.collection.HashSetMap;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 

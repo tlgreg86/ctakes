@@ -18,11 +18,11 @@
  */
 package org.apache.ctakes.dictionary.lookup2.consumer;
 
+import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.concept.Concept;
 import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
 import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
 import org.apache.ctakes.dictionary.lookup2.util.SemanticUtil;
-import org.apache.ctakes.dictionary.lookup2.util.collection.CollectionMap;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.textsem.*;
@@ -130,15 +130,22 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
       }
       final Collection<UmlsConcept> umlsConcepts = new HashSet<>();
       for ( Concept concept : concepts ) {
+         final Collection<Integer> allSemantics = concept.getCtakesSemantics();
+         if ( !allSemantics.contains( cTakesSemantic ) ) {
+            continue;
+         }
+         boolean added = false;
          final Collection<String> tuis = concept.getCodes( Concept.TUI );
          if ( !tuis.isEmpty() ) {
             for ( String tui : tuis ) {
                // the concept could have tuis outside this cTakes semantic group
                if ( SemanticUtil.getTuiSemanticGroupId( tui ) == cTakesSemantic ) {
                   umlsConcepts.addAll( _umlsConceptCreator.createUmlsConcepts( jcas, codingScheme, tui, concept ) );
+                  added = true;
                }
             }
-         } else {
+         }
+         if ( !added ) {
             umlsConcepts.addAll( _umlsConceptCreator.createUmlsConcepts( jcas, codingScheme, null, concept ) );
          }
       }

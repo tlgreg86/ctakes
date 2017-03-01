@@ -1,6 +1,7 @@
 package org.apache.ctakes.core.ae;
 
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -18,6 +19,11 @@ import java.io.InputStreamReader;
  * @version %I%
  * @since 10/5/2016
  */
+@PipeBitInfo(
+      name = "Regex Sectionizer (BSV)",
+      description = "Annotates Document Sections by detecting Section Headers using Regular Expressions provided in a Bar-Separated-Value (BSV) File.",
+      output = "Segment Annotations."
+)
 public class BsvRegexSectionizer extends RegexSectionizer {
 
    static private final Logger LOGGER = Logger.getLogger( "BsvRegexSectionizer" );

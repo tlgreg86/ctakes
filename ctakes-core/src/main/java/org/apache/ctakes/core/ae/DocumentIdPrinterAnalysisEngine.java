@@ -19,13 +19,19 @@
 package org.apache.ctakes.core.ae;
 
 
-import org.apache.log4j.Logger;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
+import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.jcas.JCas;
 
+@PipeBitInfo(
+      name = "Document ID Printer",
+      description = "Logs the Document ID to Log4j and Standard Output.",
+      role = PipeBitInfo.Role.SPECIAL,
+      output = PipeBitInfo.NO_OUTPUT
+)
 public class DocumentIdPrinterAnalysisEngine extends JCasAnnotator_ImplBase
 {
   protected final Logger logger = Logger.getLogger(DocumentIdPrinterAnalysisEngine.class.getName());

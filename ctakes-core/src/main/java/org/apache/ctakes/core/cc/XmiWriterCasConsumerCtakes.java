@@ -37,6 +37,7 @@ package org.apache.ctakes.core.cc;
  * under the License.
  */
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.UimaContext;
@@ -73,6 +74,13 @@ import java.net.URL;
  * <li><code>OutputDirectory</code> - path to directory into which output files will be written</li>
  * </ul>
  */
+@PipeBitInfo(
+      name = "XMI Writer (CasConsumerCtakes)",
+      description = "Writes XMI files with full representation of input text and all extracted information.",
+      role = PipeBitInfo.Role.WRITER,
+      input = PipeBitInfo.POPULATED_JCAS,
+      output = PipeBitInfo.NO_OUTPUT
+)
 public class XmiWriterCasConsumerCtakes extends CasConsumer_ImplBase {
 	/**
 	 * Name of configuration parameter that must be set to the path of a directory into which the

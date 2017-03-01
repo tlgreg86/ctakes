@@ -1,5 +1,6 @@
 package org.apache.ctakes.core.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.textspan.List;
 import org.apache.ctakes.typesystem.type.textspan.ListEntry;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -18,6 +19,12 @@ import java.util.regex.Pattern;
  * @version %I%
  * @since 9/28/2016
  */
+@PipeBitInfo(
+      name = "List Sentence Fixer",
+      description = "Re-annotates Sentences based upon existing List Entries, preventing a Sentence from spanning more than one List Entry.",
+      input = "Sentence and List Entry annotations.",
+      output = "Adjusted Sentences."
+)
 final public class ListSentenceFixer extends JCasAnnotator_ImplBase {
 
    static private final Logger LOGGER = Logger.getLogger( "ListSentenceFixer" );

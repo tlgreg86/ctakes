@@ -18,12 +18,7 @@
  */
 package org.apache.ctakes.core.ae;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.JCasUtil;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
@@ -34,6 +29,8 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
+
+import java.util.*;
 
 
 /* 
@@ -56,6 +53,12 @@ import org.apache.uima.resource.ResourceInitializationException;
  * For example, a sentence should not end in the middle of a decimal number.
  * 
  */
+@PipeBitInfo(
+      name = "Overlap Annotator",
+      description = "Removes or modifies annotations that overlap.",
+      input = PipeBitInfo.POPULATED_JCAS,
+      output = "Removed or modified annotations."
+)
 public class OverlapAnnotator extends JCasAnnotator_ImplBase {
 	// LOG4J logger based on class name
 	private Logger iv_logger = Logger.getLogger(getClass().getName());

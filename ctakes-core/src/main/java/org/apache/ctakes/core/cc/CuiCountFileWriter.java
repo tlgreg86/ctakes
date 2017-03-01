@@ -1,5 +1,6 @@
 package org.apache.ctakes.core.cc;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.OntologyConceptUtil;
 import org.apache.ctakes.typesystem.type.constants.CONST;
@@ -32,6 +33,14 @@ import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPU
  * @version %I%
  * @since 7/29/2016
  */
+@PipeBitInfo(
+      name = "CUI Count Writer",
+      description = "Writes a two-column BSV file containing CUIs and their total counts in a document.",
+      role = PipeBitInfo.Role.WRITER,
+      input = "CUI " + PipeBitInfo.POPULATED_JCAS,
+      output = PipeBitInfo.NO_OUTPUT
+)
+// TODO extend AbstractOutputFileWriter
 public class CuiCountFileWriter extends CasConsumer_ImplBase {
 
    static private final Logger LOGGER = Logger.getLogger( "CuiCountFileWriter" );

@@ -18,26 +18,21 @@
  */
 package org.apache.ctakes.core.cc;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeSet;
-
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.typesystem.type.syntax.WordToken;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CasConsumer_ImplBase;
-import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceProcessException;
 import org.apache.uima.util.ProcessTrace;
 
-import org.apache.ctakes.typesystem.type.syntax.WordToken;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.*;
 
 /**
  * This class creates a file that contains the frequencies of the word tokens found in a set
@@ -45,6 +40,13 @@ import org.apache.ctakes.typesystem.type.syntax.WordToken;
  * file for any kind of annotation but only counts Token annotations at the moment.   
  */
 
+@PipeBitInfo(
+      name = "Word Count Writer",
+      description = "Writes a two-column BSV file containing Words and their total counts in a document.",
+      role = PipeBitInfo.Role.WRITER,
+      input = "WordToken " + PipeBitInfo.POPULATED_JCAS,
+      output = PipeBitInfo.NO_OUTPUT
+)
 public class TokenFreqCasConsumer extends CasConsumer_ImplBase
 { 
 	/**

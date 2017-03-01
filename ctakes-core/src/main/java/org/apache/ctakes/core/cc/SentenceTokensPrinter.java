@@ -1,5 +1,6 @@
 package org.apache.ctakes.core.cc;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.JCasUtil;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -32,6 +33,13 @@ import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPU
  * @version %I%
  * @since 9/22/2014
  */
+@PipeBitInfo(
+      name = "Sentences Writer",
+      description = "Writes Text files with original text from the document, sentence by sentence.",
+      role = PipeBitInfo.Role.WRITER,
+      input = "Sentence " + PipeBitInfo.POPULATED_JCAS,
+      output = PipeBitInfo.NO_OUTPUT
+)
 public class SentenceTokensPrinter extends CasConsumer_ImplBase {
 
    // LOG4J logger based on interface name

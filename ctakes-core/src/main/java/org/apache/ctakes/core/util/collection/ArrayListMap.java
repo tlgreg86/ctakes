@@ -1,4 +1,4 @@
-package org.apache.ctakes.dictionary.lookup2.util.collection;
+package org.apache.ctakes.core.util.collection;
 
 import java.util.*;
 
@@ -56,8 +56,8 @@ final public class ArrayListMap<K, V> implements CollectionMap<K, V, List<V>> {
     * {@inheritDoc}
     */
    @Override
-   public List<V> obtainCollection( final K key ) {
-      return _delegate.obtainCollection( key );
+   public List<V> getOrCreateCollection( final K key ) {
+      return _delegate.getOrCreateCollection( key );
    }
 
 

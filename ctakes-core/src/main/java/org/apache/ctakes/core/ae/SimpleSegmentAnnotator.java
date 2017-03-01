@@ -18,15 +18,16 @@
  */
 package org.apache.ctakes.core.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
 
 /**
  * Creates a single segment annotation that spans the entire document. This is
@@ -35,6 +36,11 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
  * 
  * @author Mayo Clinic
  */
+@PipeBitInfo(
+      name = "Single Segment Annotator",
+      description = "Annotates Document as a single Section.",
+      output = "Segment annotation."
+)
 public class SimpleSegmentAnnotator extends JCasAnnotator_ImplBase {
 	
   public static final String PARAM_SEGMENT_ID = "SegmentID";
