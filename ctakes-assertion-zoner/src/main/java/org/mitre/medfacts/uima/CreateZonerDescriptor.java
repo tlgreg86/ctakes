@@ -20,16 +20,13 @@ package org.mitre.medfacts.uima;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.ctakes.core.ae.DocumentIdPrinterAnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.xml.sax.SAXException;
 
 public class CreateZonerDescriptor
 {

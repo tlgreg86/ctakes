@@ -24,31 +24,20 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import org.apache.ctakes.assertion.zoner.types.Heading;
-import org.apache.ctakes.assertion.zoner.types.Subzone;
 import org.apache.ctakes.assertion.zoner.types.Zone;
 import org.apache.uima.UimaContext;
-//import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.DataResource;
-import org.apache.uima.resource.ResourceAccessException;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.SharedResourceObject;
 
-//import org.mitre.medfacts.zoner.*;
 import org.mitre.medfacts.zoner.ZonerCli;
 import org.mitre.medfacts.zoner.ZonerCli.HeadingRange;
 import org.mitre.medfacts.zoner.ZonerCli.Range;
-//import org.mitre.medfacts.zoner.ZonerCliSimplified;
-//import org.mitre.medfacts.zoner.ZonerCliSimplified.HeadingRange;
-//import org.mitre.medfacts.zoner.ZonerCliSimplified.Range;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.descriptor.ExternalResource;
 import org.apache.uima.fit.descriptor.TypeCapability;
 
 @TypeCapability(outputs =
@@ -72,31 +61,17 @@ public class ZoneAnnotator extends JCasAnnotator_ImplBase {
 
   protected final Logger logger = Logger.getLogger(ZoneAnnotator.class.getName());
 	
-	//private ZonerCliSimplified zonerCli;
-	
 	@Override
 	public void initialize (UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-		// Create ZonerCli using the resource URI 
-//		URI uri;
-//		try {
-//			uri = getContext().getResourceURI(PARAM_SECTION_REGEX_FILE_NAME);
-//		} catch (ResourceAccessException e) {
-//			e.printStackTrace();
-//			throw new ResourceInitializationException(e);
-//		}
-		//zonerCli = new ZonerCliSimplified(sectionRegexFileUri);
-
 	}
 	
 	private int countOfIndexOutOfBounds = 0;
 
 	@Override
 	public void process(JCas jcas) throws AnalysisEngineProcessException {
-//	  ZonerCliSimplified zonerCli =
-//	      new ZonerCliSimplified(sectionRegexFileUri);
 	  
-	  System.out.println("sectionRegexFileUriString: " + sectionRegexFileUriString);
+	System.out.println("sectionRegexFileUriString: " + sectionRegexFileUriString);
     URL sectionRegexFileInClasspathUrl = 
         getClass().getClassLoader().getResource(sectionRegexFileUriString);
     System.out.println("sectionRegexFileInClasspathUrl: " + sectionRegexFileInClasspathUrl);
@@ -140,18 +115,6 @@ public class ZoneAnnotator extends JCasAnnotator_ImplBase {
 		    zAnnot.addToIndexes();
 		    logger.info(String.format("added new zone annotation [%d-%d] \"%s\"", zAnnot.getBegin(), zAnnot.getEnd(), zAnnot.getCoveredText()));
 		}
-		
-//		List<Range> subsectionRangeList = zonerCli.getSubsections();
-//		for (Iterator<Range> i = subsectionRangeList.iterator(); i.hasNext();  ) {
-//			Range r = i.next();
-//		    Subzone sAnnot = new Subzone(jcas);	
-//		    sAnnot.setBegin(r.getBegin());
-//		    sAnnot.setEnd(r.getEnd());
-//		    sAnnot.setLabel(r.getLabel());
-//		    sAnnot.addToIndexes();
-//		    logger.info(String.format("added new subzone annotation [%d-%d] \"%s\"", sAnnot.getBegin(), sAnnot.getEnd(), sAnnot.getCoveredText()));
-//		}
-		
 		
 		
 		// Add the heading annotations
