@@ -563,17 +563,22 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 
 
   /**
-   * Copy to under /tmp the files needed for EventAnnotatorTest.
-   * Localize all hardcoded file names and paths related to copying files to under /tmp (or C:\tmp) to this method.
-   * The lvg/data/HSqlDb/ subdirectory is not copied as it is larger than the rest and is not needed for EventAnnotatorTest. 
+   * Copy to under /tmp/ (or some other specified directory) the files needed for EventAnnotatorTest and anyone else 
+   * using UIMAfit to create a pipeline.
+   * Localize to this method all hardcoded file names and subdirs related to copying files to under /tmp (or C:\tmp).
+   * @param absolutePath - Where to copy the LVG data/config subtree. Typically "/tmp/".
    * @return The full path to the copy of lvg.properties file
    */
-  public static String copyLvgFilesToTmp() {
+  public static String copyLvgFiles(String absolutePath) {
 
 	final String returnValue = "/tmp/data/config/lvg.properties";
 	final String prefix = "org/apache/ctakes/lvg/";
 	final String [] filesToCopy = { 
 			"data/config/lvg.properties",
+			"data/HSqlDb/lvg2008.backup",
+			"data/HSqlDb/lvg2008.data",
+			"data/HSqlDb/lvg2008.properties",
+			"data/HSqlDb/lvg2008.script",
             "data/misc/conjunctionWord.data",
             "data/misc/nonInfoWords.data",
             "data/misc/removeS.data",
@@ -601,8 +606,10 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	for (String path:filesToCopy) {
 		InputStream stream =  LvgAnnotator.class.getClassLoader().getResourceAsStream(prefix+path);
 		
-		File file = new File("/tmp/"+path);
-				
+		File file = new File(absolutePath, path);
+		Logger logger = Logger.getLogger(LvgAnnotator.class.getName());
+		logger.info("Copying lvg-related file to " + file.getAbsolutePath());
+
 		try {
 	        FileUtils.copyInputStreamToFile(stream, file);
 		} catch (IOException e) {
@@ -618,8 +625,26 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
   
   public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException, MalformedURLException {
 	
-    File lvgFile = new File(copyLvgFilesToTmp());
-    
+    // Here if a pipeline is run from source, for example in Eclipse using a Run Configuration for project ctakes-clinical-pipeline,  
+	// the cwd might be, for example, C:\workspaces\cTAKES\ctakes\ctakes-clinical-pipeline
+	// Therefore we can no longer let LvgCmdApiResourceImpl use the current working directory to look for 
+	// the lvg properties file or the lvg resources (plural.rul etc.)
+	// Instead we use getResource to find the URL for the lvg.properties file. 
+	final String lvgProperties = "org/apache/ctakes/lvg/data/config/lvg.properties";
+	Logger logger = Logger.getLogger(LvgAnnotator.class.getName());
+	java.net.URL url = LvgAnnotator.class.getClassLoader().getResource(lvgProperties);
+	if (url!=null) {
+		logger.info("URL for lvg.properties =" + url.getFile());
+	} else {
+		String absolutePath = "/tmp/";
+		logger.info("URL==null");
+		logger.info("Unable to find " + lvgProperties + ".");
+		logger.info("Copying files and directories to under " + absolutePath);
+	    File lvgFile = new File(copyLvgFiles(absolutePath));
+	    url = lvgFile.toURI().toURL();
+	}
+	
+
     return AnalysisEngineFactory.createEngineDescription(LvgAnnotator.class,
         LvgAnnotator.PARAM_USE_CMD_CACHE,
         false,
@@ -635,7 +660,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
         false,
         LvgAnnotator.PARAM_LVGCMDAPI_RESRC_KEY,
         ExternalResourceFactory.createExternalResourceDescription(
-            LvgCmdApiResourceImpl.class, lvgFile.toURI().toURL()));
+            LvgCmdApiResourceImpl.class, url));
 	}
 	
 	/**
