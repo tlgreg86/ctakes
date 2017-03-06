@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#!/usr/bin/env groovy
+//#!/usr/bin/env groovy
 /**
 ** 	This assumes that you have installed Groovy and 
 ** 	that you have the command groovy available in your path. 
@@ -35,24 +35,28 @@
       
 @Grab(group='org.apache.ctakes',
       module='ctakes-core',
-            version='3.1.0')
+            version='3.2.0')
 @Grab(group='org.apache.ctakes',
       module='ctakes-core-res',
-            version='3.1.0')			
+            version='3.2.0')			
 @Grab(group='org.apache.ctakes',
       module='ctakes-constituency-parser',
-            version='3.1.0')
+            version='3.2.0')
 @Grab(group='org.apache.ctakes',
       module='ctakes-constituency-parser-res',
-            version='3.1.0')
+            version='3.2.0')
 @Grab(group='org.cleartk',
       module='cleartk-util',
       version='0.9.2')
+      
+@Grab(group='org.apache.uima',
+      module='uimafit-core',
+      version='2.1.0')
 
 /*
 @Grab(group='org.apache.ctakes',
       module='ctakes-clinical-pipeline',
-            version='3.1.0')
+            version='3.2.0')
 */
           
 import java.io.File;
@@ -61,13 +65,13 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReader;
 import org.cleartk.util.cr.FilesCollectionReader;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.AggregateBuilder;
-import org.uimafit.pipeline.SimplePipeline;	
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.factory.TypePrioritiesFactory;
-import static org.uimafit.util.JCasUtil.*;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.pipeline.SimplePipeline;	
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.factory.TypePrioritiesFactory;
+import static org.apache.uima.fit.util.JCasUtil.*;
 
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
@@ -78,7 +82,7 @@ import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
 import org.apache.ctakes.constituency.parser.ae.ConstituencyParser;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.util.JCasUtil;
 
 		if(args.length < 1) {
 		System.out.println("Please specify input directory");
@@ -88,7 +92,7 @@ import org.uimafit.util.JCasUtil;
 
 		CollectionReader collectionReader = FilesCollectionReader.getCollectionReaderWithSuffixes(args[0], CAS.NAME_DEFAULT_SOFA, "txt");
 		//Download Models
-		//TODO: Seperate downloads from URL here is a hack.  
+		//TODO: Separate downloads from URL here is a hack.  
 		//Models should really be automatically downloaded from 
 		//maven central as part of ctakes-*-res projects/artifacts via @grab.
 		//Illustrative purposes until we have all of the *-res artifacts in maven central.
@@ -105,13 +109,13 @@ import org.uimafit.util.JCasUtil;
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(TokenizerAnnotatorPTB.class));			
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(
 			ConstituencyParser.class,
-			ConstituencyParser.PARAM_MODELFILE,
+			ConstituencyParser.PARAM_MODEL_FILENAME,
             "sharpacq-3.1.bin"));
 		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(Writer.class));
 		SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
 
 // Custom writer class used at the end of the pipeline to write results to screen
-class Writer extends org.uimafit.component.JCasAnnotator_ImplBase {
+class Writer extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
   void process(JCas jcas) {
 	//Get each Treebanknode and print out the text and it's parse string
     //select(jcas, TopTreebankNode).each { println "${it.treebankParse} "  }
