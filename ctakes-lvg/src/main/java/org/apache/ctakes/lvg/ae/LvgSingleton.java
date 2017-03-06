@@ -1,7 +1,6 @@
 package org.apache.ctakes.lvg.ae;
 
 
-import org.apache.commons.io.FileUtils;
 import org.apache.ctakes.lvg.resource.LvgCmdApiResourceImpl;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
@@ -13,7 +12,6 @@ import org.apache.uima.resource.ResourceInitializationException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 
 /**
@@ -32,7 +30,6 @@ enum LvgSingleton {
    }
 
    static public final String PROPERTIES_PATH = "org/apache/ctakes/lvg/data/config/lvg.properties";
-   static public final String PROP_FILE_PATH = "/tmp/lvg.properties";
 
    private final Logger LOGGER = Logger.getLogger( "LvgSingleton" );
    private final Object LOCK = new Object();
@@ -71,17 +68,20 @@ enum LvgSingleton {
          if ( _lvgCmdApi != null ) {
             return _lvgCmdApi;
          }
-         final File lvgFile = new File( PROP_FILE_PATH );
-         try ( InputStream propFileStream = LvgSingleton.class.getClassLoader()
-               .getResourceAsStream( PROPERTIES_PATH ) ) {
-            FileUtils.copyInputStreamToFile( propFileStream, lvgFile );
-         } catch ( IOException ioE ) {
-            LOGGER.error( "Error copying temporary InputStream " + PROPERTIES_PATH + " to " + PROP_FILE_PATH );
-            throw ioE;
+         
+         URL url = LvgAnnotator.class.getClassLoader().getResource( PROPERTIES_PATH );
+         if (url!=null) {
+        	 LOGGER.info("URL for lvg.properties =" + url.getFile());
+         } else {
+             String absolutePath = "/tmp/";
+             LOGGER.info("URL==null");
+             LOGGER.info("Unable to find " + PROPERTIES_PATH + ".");
+             LOGGER.info("Copying files and directories to under " + absolutePath);
+             File lvgFile = new File(LvgAnnotator.copyLvgFiles(absolutePath));
+             url = lvgFile.toURI().toURL();
          }
-         final URL propFileUrl = lvgFile.toURI().toURL();
-         _lvgCmdApi
-               = ExternalResourceFactory.createExternalResourceDescription( LvgCmdApiResourceImpl.class, propFileUrl );
+
+         _lvgCmdApi = ExternalResourceFactory.createExternalResourceDescription( LvgCmdApiResourceImpl.class, url );
          return _lvgCmdApi;
       }
    }
