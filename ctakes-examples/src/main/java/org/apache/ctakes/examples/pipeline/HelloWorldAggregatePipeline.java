@@ -32,7 +32,7 @@ public class HelloWorldAggregatePipeline {
 
       // You can consider using ClinicalPipelineFactory.getDefaultPipeline();
       // Which will include the UMLS Lookup, but you'll need to set your
-      // -Dctakes.umlsuser and -Dctatkes.umlspw in your environment
+      // -Dctakes.umlsuser and -Dctakes.umlspw in your environment
       builder.add( ClinicalPipelineFactory.getTokenProcessingPipeline() );
 
       //Add the new HelloWorld Example:
