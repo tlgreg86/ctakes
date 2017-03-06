@@ -14,16 +14,19 @@ Introduction
 
 This annotator wraps the National Library of Medicine (NLM) SPECIALIST lexical tools.
 
-See the documentation for the SPECIALIST lexical tools at
-http://lexsrv2.nlm.nih.gov/LexSysGroup/Projects/ctakes-lvg/current/index.html
-  
-And also see the documentation for Lvg and Norm at 
-http://lexsrv2.nlm.nih.gov/LexSysGroup/Projects/ctakes-lvg/current/docs/userDoc/index.html
+See the cTAKES Wiki for the latest information about this annotator:
+https://cwiki.apache.org/confluence/display/CTAKES/cTAKES
+
+Documentation for the SPECIALIST lexical tools is at:
+https://lsg3.nlm.nih.gov/Specialist/Home/index.html
+
+Documentation for Lvg and Norm can be found at: 
+https://lsg3.nlm.nih.gov/LexSysGroup/Projects/lvg/current/web/index.html
   
 This annotator generates a canonical form for each word and also generates a list of lemma 
 entries with Penn Treebank tags.  These tags could be useful for a part of speech (POS) tagger.
 
-However, for the OpenNLP POS tagger, we use a tag dictionary rather than lemma information.
+However, for the OpenNLP POS tagger, cTAKES uses a tag dictionary rather than lemma information.
 See the documentation for the POS tagger annotator. 
 
 
@@ -34,7 +37,7 @@ Description of resources
 %%%%%%%%%%%%%%%%
 lvg.properties
 %%%%%%%%%%%%%%%%
-The LVG config file  resources/ctakes-lvg/data/config/lvg.properties  defines the location
+The LVG configuration file lvg.properties defines the location
 and attributes of the LVG database and the jdbc driver used.
 
 %%%%%%%%%%%%%%%%
@@ -46,12 +49,6 @@ The database engine used is hsqldb.
 The LVG database available from the NLM is hundreds of megabytes.  To keep this 
 project relatively small, the database tables included with this project have a 
 relatively small number of rows.
- 
-To use the full lvg2008 database, download either lvg2008lite.tgz or lvg2008.tgz from 
-http://lexsrv3.nlm.nih.gov/SPECIALIST/Projects/ctakes-lvg/2008/index.html
-and extract  data/HSqlDb  from that download to a temporary location.
-Then replace the  resources/ctakes-lvg/data/HSqlDb  directory in this project with 
-the  data/HSqlDb  directory from that download.
 
 #########################
 Running the LVG annotator
