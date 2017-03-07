@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-//#!/usr/bin/env groovy
+#!/usr/bin/env groovy
 /**
 ** 	This assumes that you have installed Groovy and 
 ** 	that you have the command groovy available in your path. 
