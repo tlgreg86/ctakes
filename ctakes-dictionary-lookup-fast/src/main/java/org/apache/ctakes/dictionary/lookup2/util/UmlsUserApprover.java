@@ -61,6 +61,8 @@ public enum UmlsUserApprover {
    static final private Logger DOT_LOGGER = Logger.getLogger( "ProgressAppender" );
    static final private Logger EOL_LOGGER = Logger.getLogger( "ProgressDone" );
 
+   static final private String CHANGEME = "CHANGEME";
+   
    // cache of valid users
    static private final Collection<String> _validUsers = new ArrayList<>();
 
@@ -118,6 +120,20 @@ public enum UmlsUserApprover {
          LOGGER.error( "Could not encode URL for " + user + " with vendor license " + vendor );
          return false;
       }
+      
+      // Potentially someone could have a user ID of CHANGEME or a password of CHANGEME but don't allow those
+      // to make it easy for us to detect that the user or password was not set correctly.
+      if (user.equals(CHANGEME)) {
+    	  LOGGER.info( "Not checking UMLS Account for user " + user + ":" );
+    	  LOGGER.error("  User " + CHANGEME + " not allowed, verify you are setting " + USER_PARAM + " or " + UMLSUSER_PARAM + " properly.");
+    	  return false;
+      }
+      if (pass.equals(CHANGEME)) {
+    	  LOGGER.info( "Not checking UMLS Account for user " + user + " password " + pass );
+    	  LOGGER.error("  Password " + CHANGEME + " not allowed, verify you are setting " + PASS_PARAM + " or " + UMLSPW_PARAM + " properly.");
+    	  return false;
+      }
+
       final Timer timer = new Timer();
       try {
          LOGGER.info( "Checking UMLS Account at " + umlsUrl + " for user " + user + ":" );
