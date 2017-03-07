@@ -20,8 +20,10 @@
 
 -->
 <!-- umls tables in a different schema no easy way known to me to override 
-	schema for specific tables at runtime use this template to create the hibernate 
-	mapping -->
+	schema for specific tables at runtime use this template to create the hibernate	mapping -->
+<!--  since this is a template and not valid xml of its own, a validator (such as the one in Eclipse) will show an error:
+       Element type "hibernate-mapping" must be followed by either attribute specifications, ">" or "/>".	
+-->
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.apache.ctakes.ytex.umls.model"
 	schema="@umls.schema@" @filter.umls.catalog@>
