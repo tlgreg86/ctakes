@@ -43,8 +43,6 @@ final public class CliOptionalsHandler {
             return optionals.getOption_j();
          case "k":
             return optionals.getOption_k();
-         case "l":
-            return optionals.getOption_l();
          case "m":
             return optionals.getOption_m();
          case "n":
@@ -109,8 +107,6 @@ final public class CliOptionalsHandler {
             return optionals.getOption_J();
          case "K":
             return optionals.getOption_K();
-         case "L":
-            return optionals.getOption_L();
          case "M":
             return optionals.getOption_M();
          case "N":

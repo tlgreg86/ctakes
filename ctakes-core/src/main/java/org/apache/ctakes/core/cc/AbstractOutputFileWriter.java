@@ -40,6 +40,12 @@ abstract public class AbstractOutputFileWriter extends CasConsumer_ImplBase {
    )
    private File _outputRootDir;
 
+   @ConfigurationParameter(
+         name = "SubDirectory",
+         description = "SubDirectory for all output files.",
+         defaultValue = ""
+   )
+   private String _subDirectory;
 
    /**
     * {@inheritDoc}
@@ -112,19 +118,24 @@ abstract public class AbstractOutputFileWriter extends CasConsumer_ImplBase {
     */
    protected String getSubdirectory( final JCas jCas, final String documentId ) {
       String subDirectory = "";
+      String subSeparator = "";
+      if ( _subDirectory != null && !_subDirectory.isEmpty() ) {
+         subDirectory = _subDirectory;
+         subSeparator = "/";
+      }
       final Collection<DocumentIdPrefix> prefices = JCasUtil.select( jCas, DocumentIdPrefix.class );
       if ( prefices == null || prefices.isEmpty() ) {
          LOGGER.debug( "No subdirectory information for " + documentId );
-         return "";
+         return subDirectory;
       }
       for ( DocumentIdPrefix prefix : prefices ) {
-         subDirectory = prefix.getDocumentIdPrefix();
-         if ( subDirectory != null && !subDirectory.isEmpty() ) {
-            return subDirectory;
+         String docSubDirectory = prefix.getDocumentIdPrefix();
+         if ( docSubDirectory != null && !docSubDirectory.isEmpty() ) {
+            return subDirectory + subSeparator + docSubDirectory;
          }
       }
       LOGGER.debug( "No subdirectory information for " + documentId );
-      return "";
+      return subDirectory;
    }
 
    /**

@@ -117,6 +117,48 @@ final public class FileLocator {
     * @throws FileNotFoundException if the file cannot be found
     */
    static public String getFullPath( final String relativePath ) throws FileNotFoundException {
+      final String fullPath = getFullPathQuiet( relativePath );
+      if ( fullPath != null && !fullPath.isEmpty() ) {
+         return fullPath;
+      }
+      final StringBuilder sb = new StringBuilder();
+      sb.append( "Could not find " ).append( relativePath ).append( "\nas absolute or in $CLASSPATH :\n" );
+      final ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+      final URL[] classpathUrls = ((URLClassLoader)classLoader).getURLs();
+      for ( URL url : classpathUrls ) {
+         sb.append( url.getFile() ).append( "\n" );
+      }
+      final String cwd = System.getProperty( "user.dir" );
+      sb.append( "or in working directory : " ).append( cwd ).append( "\n" );
+      sb.append( "or in any parent thereof (with or without /ctakes/)\n" );
+      final String cTakesHome = System.getenv( CTAKES_HOME );
+      sb.append( "or in $CTAKES_HOME : " ).append( cTakesHome );
+      LOGGER.error( sb.toString() );
+      throw new FileNotFoundException( "No File exists at " + relativePath );
+   }
+
+   /**
+    * QUIETLY Attempts to discover the real location of a file pointed to by relativePath.
+    * The search will be performed in the following order:
+    * <p>
+    * 1. By checking to see if the provided relative path is actually an absolute path
+    * 2. By checking within the ClassPath
+    * 3. By checking directly under the current working directory
+    * 4. By checking under $CTAKES_HOME
+    * 5. By traversing above the current working directory.  Useful when running under a module directory in an IDE
+    * Example:  cwd = /usr/bin/ctakes/ctakes-module , relativePath = ctakes-other-module/more/file.ext
+    * The directory above cwd /usr/bin/ctakes will be checked for containment of the relative path
+    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
+    * 6. By traversing above the current working directory and under a subdirectory ctakes/
+    * Example: cwd = /usr/bin/my_custom_ctakes/my_ctakes-module , relativePath = ctakes-other-module/more/file.ext
+    * The directory above cwd /usr/bin will be checked for containment of ctakes/ plus the relative path
+    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
+    * </p>
+    *
+    * @param relativePath some relative path to a file
+    * @return the canonical path of the file or the absolute path of the file if the canonical cannot be made
+    */
+   static public String getFullPathQuiet( final String relativePath ) {
       File file = new File( relativePath );
       if ( file.exists() ) {
          return createDiscoveredPath( relativePath, file, "without adjustment" );
@@ -158,18 +200,7 @@ final public class FileLocator {
             return createDiscoveredPath( relativePath, file, "above Working Directory /ctakes" );
          }
       }
-      final StringBuilder sb = new StringBuilder();
-      sb.append( "Could not find " ).append( relativePath ).append( "\nas absolute or in $CLASSPATH :\n" );
-      final ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-      final URL[] classpathUrls = ((URLClassLoader)classLoader).getURLs();
-      for ( URL url : classpathUrls ) {
-         sb.append( url.getFile() ).append( "\n" );
-      }
-      sb.append( "or in working directory : " ).append( cwd ).append( "\n" );
-      sb.append( "or in any parent thereof (with or without /ctakes/)\n" );
-      sb.append( "or in $CTAKES_HOME : " ).append( cTakesHome );
-      LOGGER.error( sb.toString() );
-      throw new FileNotFoundException( "No File exists at " + relativePath );
+      return "";
    }
 
    /**

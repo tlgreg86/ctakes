@@ -6,8 +6,8 @@ addDescription ClearNLPDependencyParserAE
 addLogged ClearNLPSemanticRoleLabelerAE
 
 // Add the assertion packages for class lookups
-addPackage org.apache.ctakes.assertion.medfacts
-addPackage org.apache.ctakes.assertion.attributes
+package org.apache.ctakes.assertion.medfacts
+package org.apache.ctakes.assertion.attributes
 add ConceptConverterAnalysisEngine
 add AssertionAnalysisEngineFit
 add GenericAttributeAnalysisEngine

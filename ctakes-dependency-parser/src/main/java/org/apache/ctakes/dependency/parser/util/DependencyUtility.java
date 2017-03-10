@@ -18,19 +18,18 @@
  */
 package org.apache.ctakes.dependency.parser.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
+import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
+import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.text.AnnotationIndex;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.fit.util.JCasUtil;
 
-import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
-import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author m081914
@@ -122,15 +121,15 @@ public abstract class DependencyUtility {
 		ArrayList<ConllDependencyNode> anodes = new ArrayList<ConllDependencyNode>(nodes);
 		Boolean[][] matrixofheads = new Boolean[anodes.size()][anodes.size()];
 		List<ConllDependencyNode> outnodes = new ArrayList<ConllDependencyNode>();
-		
-		// Remove root from consideration
+
+      // Remove root from consideration
 		for (int i=0; i<anodes.size(); i++) {
 			if (anodes.get(i).getId()==0) {
 				anodes.remove(i);
 			}
 		}
-		
-		// Create a dependency matrix
+
+      // Create a dependency matrix
 		for (int id1=0; id1<anodes.size(); id1++) {
 			for (int id2=0; id2<anodes.size(); id2++) {
 				// no head-dependency relationship between id1 and id2
@@ -164,8 +163,8 @@ public abstract class DependencyUtility {
 				}
 			}
 		}
-		
-		// Unheaded phrases
+
+      // Unheaded phrases
 		if (outnodes.isEmpty()) {
 			// pick a noun from the left, if there is one
 			for (int i=0; i<anodes.size(); i++) {

@@ -65,10 +65,7 @@ public interface CliOptionals extends StandardOptions {
          defaultValue = "" )
    String getOption_k();
 
-   @Option(
-         shortName = "l",
-         defaultValue = "" )
-   String getOption_l();
+   // -l is reserved for common parameter "LookupXml"
 
    @Option(
          shortName = "m",
@@ -236,10 +233,7 @@ public interface CliOptionals extends StandardOptions {
          defaultValue = "" )
    String getOption_K();
 
-   @Option(
-         shortName = "L",
-         defaultValue = "" )
-   String getOption_L();
+   // -l is reserved for common parameter "LookupXml"
 
    @Option(
          shortName = "M",

@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.dictionary.lookup2.ae;
 
+import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.fsm.token.NumberToken;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.JCasUtil;
@@ -66,6 +67,14 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
    private DictionarySpec _dictionarySpec;
    private final Set<String> _exclusionPartsOfSpeech = new HashSet<>();
 
+   @ConfigurationParameter( name = ConfigParameterConstants.PARAM_LOOKUP_XML, mandatory = false,
+         description = ConfigParameterConstants.DESC_LOOKUP_XML, defaultValue = "" )
+   private String _lookupXml;
+
+   /**
+    * @deprecated replaced by _lookupXml
+    */
+   @Deprecated
    @ConfigurationParameter( name = JCasTermAnnotator.DICTIONARY_DESCRIPTOR_KEY, mandatory = false,
          description = "Path to Dictionary spec xml", defaultValue = DEFAULT_DICT_DESC_PATH )
    private String _descriptorFilePath;
@@ -111,8 +120,12 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
          _minimumLookupSpan = parseInt( minimumSpan, PARAM_MIN_SPAN_KEY, _minimumLookupSpan );
       }
       LOGGER.info( "Using minimum term text span: " + _minimumLookupSpan );
-      LOGGER.info( "Using Dictionary Descriptor: " + _descriptorFilePath );
-      try ( InputStream descriptorStream = FileLocator.getAsStream( _descriptorFilePath ) ) {
+      String descriptorFilePath = _descriptorFilePath;
+      if ( _lookupXml != null && !_lookupXml.isEmpty() ) {
+         descriptorFilePath = _lookupXml;
+      }
+      LOGGER.info( "Using Dictionary Descriptor: " + descriptorFilePath );
+      try ( InputStream descriptorStream = FileLocator.getAsStream( descriptorFilePath ) ) {
          _dictionarySpec = DictionaryDescriptorParser.parseDescriptor( descriptorStream, uimaContext );
       } catch ( IOException | AnnotatorContextException multE ) {
          throw new ResourceInitializationException( multE );

@@ -41,6 +41,11 @@ final public class PiperFileRunner {
          } else if ( !xmiOutDir.isEmpty() ) {
             builder.set( ConfigParameterConstants.PARAM_OUTPUTDIR, xmiOutDir );
          }
+         // set the dictionary lookup descriptor xml
+         final String lookupXml = options.getLookupXml();
+         if ( !lookupXml.isEmpty() ) {
+            builder.set( ConfigParameterConstants.PARAM_LOOKUP_XML, lookupXml );
+         }
          // set the umls user and password parameters if needed
          final String umlsUser = options.getUmlsUserName();
          if ( !umlsUser.isEmpty() ) {

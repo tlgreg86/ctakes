@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.dictionary.lookup2.util;
 
+import org.apache.ctakes.core.util.DotLogger;
 import org.apache.ctakes.utils.env.EnvironmentVariable;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
@@ -26,7 +27,9 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Properties;
 
 
 /**
@@ -58,16 +61,11 @@ public enum UmlsUserApprover {
    final static String UMLSPW_PARAM = "ctakes.umlspw";
 
    static final private Logger LOGGER = Logger.getLogger( "UmlsUserApprover" );
-   static final private Logger DOT_LOGGER = Logger.getLogger( "ProgressAppender" );
-   static final private Logger EOL_LOGGER = Logger.getLogger( "ProgressDone" );
 
    static final private String CHANGEME = "CHANGEME";
    
    // cache of valid users
    static private final Collection<String> _validUsers = new ArrayList<>();
-
-   private UmlsUserApprover() {
-   }
 
    /**
     * validate the UMLS license / user
@@ -134,10 +132,8 @@ public enum UmlsUserApprover {
     	  return false;
       }
 
-      final Timer timer = new Timer();
-      try {
+      try ( DotLogger dotter = new DotLogger() ) {
          LOGGER.info( "Checking UMLS Account at " + umlsUrl + " for user " + user + ":" );
-         timer.scheduleAtFixedRate( new DotPlotter(), 333, 333 );
          final URL url = new URL( umlsUrl );
          final URLConnection connection = url.openConnection();
          connection.setDoOutput( true );
@@ -157,8 +153,6 @@ public enum UmlsUserApprover {
          }
          writer.close();
          reader.close();
-         timer.cancel();
-         EOL_LOGGER.error( "" );
          if ( isValidUser ) {
             LOGGER.info( "  UMLS Account at " + umlsUrl + " for user " + user + " has been validated" );
             _validUsers.add( cacheCode );
@@ -167,24 +161,10 @@ public enum UmlsUserApprover {
          }
          return isValidUser;
       } catch ( IOException ioE ) {
-         timer.cancel();
-         EOL_LOGGER.error( "" );
          LOGGER.error( ioE.getMessage() );
          return false;
       }
    }
 
-   static private class DotPlotter extends TimerTask {
-      private int _count = 0;
-
-      @Override
-      public void run() {
-         DOT_LOGGER.info( "." );
-         _count++;
-         if ( _count % 50 == 0 ) {
-            EOL_LOGGER.info( " " + _count );
-         }
-      }
-   }
 
 }

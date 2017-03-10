@@ -1,7 +1,7 @@
 // This file contains commands and parameters to run the ctakes-examples "Hello World" pipeline
 
 // Load a simple token processing pipeline from another pipeline file
-load org/apache/ctakes/core/pipeline/DefaultTokenizerPipeline.piper
+load DefaultTokenizerPipeline.piper
 
 // Add non-core annotators
 add ContextDependentTokenizerAnnotator

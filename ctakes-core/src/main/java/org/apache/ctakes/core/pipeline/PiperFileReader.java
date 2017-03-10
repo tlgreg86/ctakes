@@ -11,6 +11,7 @@ import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
@@ -25,8 +26,8 @@ import java.util.regex.Pattern;
  * Creates a pipeline (PipelineBuilder) from specifications in a flat plaintext file.
  *
  * <p>There are several basic commands:
+ * package <i>user_package_name</i>
  * load <i>path_to_another_pipeline_file</i>
- * addPackage <i>user_package_name</i>
  * set <i>ae_parameter_name=ae_parameter_value e_parameter_name=ae_parameter_value</i> ...
  * cli <i>ae_parameter_name=cli_parameter_char e_parameter_name=cli_parameter_char</i> ...
  * reader <i>collection_reader_class_name</i>
@@ -45,7 +46,7 @@ import java.util.regex.Pattern;
  * // and # and ! may be used to mark line comments
  * </p>
  * class names must be fully-specified with package unless they are in standard ctakes cr ae or cc packages,
- * or in a package specified by an earlier addPackage command.
+ * or in a package specified by an earlier package command.
  *
  * @author SPF , chip-nlp
  * @version %I%
@@ -139,7 +140,7 @@ final public class PiperFileReader {
    public void loadPipelineFile( final String filePath ) throws UIMAException {
       try ( final BufferedReader reader
                   = new BufferedReader( new InputStreamReader(
-            FileLocator.getAsStream( FileLocator.getFullPath( filePath ) ) ) ) ) {
+            FileLocator.getAsStream( getPiperPath( filePath ) ) ) ) ) {
          String line = reader.readLine();
          while ( line != null ) {
             line = line.trim();
@@ -177,7 +178,7 @@ final public class PiperFileReader {
          case "load":
             loadPipelineFile( parameter );
             break;
-         case "addPackage":
+         case "package":
             _userPackages.add( parameter );
             break;
          case "set":
@@ -315,6 +316,43 @@ final public class PiperFileReader {
       }
       return null;
    }
+
+   /**
+    * @param filePath fully-specified or simple path of a piper file
+    * @return discovered path for the piper file
+    */
+   private String getPiperPath( final String filePath ) throws FileNotFoundException {
+      String fullPath = FileLocator.getFullPathQuiet( filePath );
+      if ( fullPath != null && !fullPath.isEmpty() ) {
+         return fullPath;
+      }
+      // Check user packages
+      for ( String packageName : _userPackages ) {
+         fullPath = FileLocator.getFullPathQuiet( packageName.replace( '.', '/' ) + '/' + filePath );
+         if ( fullPath != null && !fullPath.isEmpty() ) {
+            return fullPath;
+         }
+         fullPath = FileLocator.getFullPathQuiet( packageName.replace( '.', '/' ) + "/pipeline/" + filePath );
+         if ( fullPath != null && !fullPath.isEmpty() ) {
+            return fullPath;
+         }
+      }
+      // Check ctakes packages
+      for ( String packageName : CTAKES_PACKAGES ) {
+         fullPath = FileLocator
+               .getFullPathQuiet( "org/apache/ctakes/" + packageName.replace( '.', '/' ) + '/' + filePath );
+         if ( fullPath != null && !fullPath.isEmpty() ) {
+            return fullPath;
+         }
+         fullPath = FileLocator
+               .getFullPathQuiet( "org/apache/ctakes/" + packageName.replace( '.', '/' ) + "/pipeline/" + filePath );
+         if ( fullPath != null && !fullPath.isEmpty() ) {
+            return fullPath;
+         }
+      }
+      throw new FileNotFoundException( "No piper file found for " + filePath );
+   }
+
 
    /**
     * This requires that the component class has a static createAnnotatorDescription method with no parameters

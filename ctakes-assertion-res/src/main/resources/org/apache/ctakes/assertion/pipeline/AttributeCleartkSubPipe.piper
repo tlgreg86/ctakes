@@ -6,7 +6,7 @@ addDescription ClearNLPDependencyParserAE
 addLogged ClearNLPSemanticRoleLabelerAE
 
 // Add the cleartk package for cleartk class lookups
-addPackage org.apache.ctakes.assertion.medfacts.cleartk
+package org.apache.ctakes.assertion.medfacts.cleartk
 // Add the cleartk attribute engines
 addDescription PolarityCleartkAnalysisEngine
 addDescription UncertaintyCleartkAnalysisEngine

@@ -5,7 +5,7 @@
 load org/apache/ctakes/examples/pipeline/HelloWorld.piper
 
 // Add Cleartk Entity Attribute annotators
-load org/apache/ctakes/assertion/pipeline/AttributeCleartkSubPipe.piper
+load AttributeCleartkSubPipe.piper
 
 // Collect discovered Entity information for post-run access
 collectEntities

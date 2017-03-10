@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.dictionary.lookup2.ae;
 
+import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary;
 import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
@@ -37,6 +38,10 @@ import java.util.List;
  */
 public interface JCasTermAnnotator extends AnalysisComponent {
 
+   /**
+    * @deprecated replaced by {@link ConfigParameterConstants#PARAM_LOOKUP_XML }
+    */
+   @Deprecated
    static final String DICTIONARY_DESCRIPTOR_KEY = "DictionaryDescriptor";
    /**
     * specifies the type of window to use for lookup

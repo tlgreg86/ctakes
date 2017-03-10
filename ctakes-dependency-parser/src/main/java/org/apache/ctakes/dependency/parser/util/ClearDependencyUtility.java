@@ -18,9 +18,8 @@
  */
 package org.apache.ctakes.dependency.parser.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.googlecode.clearnlp.dependency.DEPNode;
+import com.googlecode.clearnlp.dependency.DEPTree;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -28,8 +27,8 @@ import org.apache.log4j.Logger;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
-import com.googlecode.clearnlp.dependency.DEPNode;
-import com.googlecode.clearnlp.dependency.DEPTree;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author m081914
@@ -73,8 +72,8 @@ public class ClearDependencyUtility extends DependencyUtility {
 	public static ArrayList<ConllDependencyNode> convert(JCas jcas, DEPTree clearTree, Sentence sentence, List<BaseToken> tokens)  {
         
         ArrayList<ConllDependencyNode> uimaNodes = new ArrayList<ConllDependencyNode>(tokens.size()+1);
-        
-        // Create the root node first
+
+      // Create the root node first
         int rootBegin = tokens.get(0).getBegin();
         int rootEnd = tokens.get(tokens.size()-1).getEnd();
         uimaNodes.add( 0, new ConllDependencyNode(jcas, rootBegin, rootEnd));

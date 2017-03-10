@@ -37,6 +37,12 @@ interface StandardOptions {
    String getXmiOutDirectory();
 
    @Option(
+         shortName = "l",
+         longName = "lookupXml",
+         description = "path to the xml file containing information for dictionary lookup configuration." )
+   String getLookupXml();
+
+   @Option(
          longName = "user",
          description = "UMLS username.",
          defaultValue = "" )

@@ -26,5 +26,12 @@ final public class ConfigParameterConstants {
    static public final String OPTION_OUTPUTDIR = "-o";
    static public final String DESC_OUTPUTDIR = "Directory for all output files.";
 
+   /**
+    * Name of configuration parameter that can be set to the path of
+    * a file containing dictionary lookup configuration.
+    */
+   static public final String PARAM_LOOKUP_XML = "LookupXml";
+   static public final String OPTION_LOOKUP_XML = "-l";
+   static public final String DESC_LOOKUP_XML = "Directory for all output files.";
 
 }
