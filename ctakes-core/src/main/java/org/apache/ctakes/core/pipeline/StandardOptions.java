@@ -39,7 +39,8 @@ interface StandardOptions {
    @Option(
          shortName = "l",
          longName = "lookupXml",
-         description = "path to the xml file containing information for dictionary lookup configuration." )
+         description = "path to the xml file containing information for dictionary lookup configuration.",
+         defaultValue = "" )
    String getLookupXml();
 
    @Option(
