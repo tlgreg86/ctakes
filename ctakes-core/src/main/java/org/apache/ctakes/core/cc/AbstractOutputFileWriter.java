@@ -41,8 +41,8 @@ abstract public class AbstractOutputFileWriter extends CasConsumer_ImplBase {
    private File _outputRootDir;
 
    @ConfigurationParameter(
-         name = "SubDirectory",
-         description = "SubDirectory for all output files.",
+         name = ConfigParameterConstants.PARAM_SUBDIR,
+         description = ConfigParameterConstants.DESC_SUBDIR,
          defaultValue = ""
    )
    private String _subDirectory;
@@ -53,7 +53,12 @@ abstract public class AbstractOutputFileWriter extends CasConsumer_ImplBase {
    @Override
    public void initialize( final UimaContext context ) throws ResourceInitializationException {
       super.initialize( context );
-      if ( !_outputRootDir.exists() ) {
+      if ( _subDirectory != null && !_subDirectory.isEmpty() ) {
+         final File subDirectory = new File( _outputRootDir, _subDirectory );
+         if ( !subDirectory.exists() ) {
+            subDirectory.mkdirs();
+         }
+      } else if ( !_outputRootDir.exists() ) {
          _outputRootDir.mkdirs();
       }
    }

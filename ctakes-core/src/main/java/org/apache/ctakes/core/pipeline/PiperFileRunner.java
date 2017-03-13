@@ -35,6 +35,12 @@ final public class PiperFileRunner {
          }
          // set the output directory parameter if needed
          final String outputDir = options.getOutputDirectory();
+         // set the subdirectory parameter if needed
+         final String subDir = options.getSubDirectory();
+         if ( !subDir.isEmpty() ) {
+            builder.set( ConfigParameterConstants.PARAM_SUBDIR, subDir );
+         }
+         // if xmi output directory is set but standard output directory is not, use xmi out as standard out
          final String xmiOutDir = options.getXmiOutDirectory();
          if ( !outputDir.isEmpty() ) {
             builder.set( ConfigParameterConstants.PARAM_OUTPUTDIR, outputDir );

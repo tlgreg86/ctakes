@@ -28,6 +28,14 @@ final public class ConfigParameterConstants {
 
    /**
     * Name of configuration parameter that can be set to the path of
+    * a subdirectory for input or output files.
+    */
+   static public final String PARAM_SUBDIR = "SubDirectory";
+   static public final String OPTION_SUBDIR = "-s";
+   static public final String DESC_SUBDIR = "SubDirectory for files.";
+
+   /**
+    * Name of configuration parameter that can be set to the path of
     * a file containing dictionary lookup configuration.
     */
    static public final String PARAM_LOOKUP_XML = "LookupXml";

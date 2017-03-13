@@ -31,6 +31,13 @@ interface StandardOptions {
    String getOutputDirectory();
 
    @Option(
+         shortName = "s",
+         longName = "subDir",
+         description = "path to a subdirectory for input and/or output.",
+         defaultValue = "" )
+   String getSubDirectory();
+
+   @Option(
          longName = "xmiOut",
          description = "path to the directory where xmi files are to be written.  Adds XmiWriter to pipeline.",
          defaultValue = "" )

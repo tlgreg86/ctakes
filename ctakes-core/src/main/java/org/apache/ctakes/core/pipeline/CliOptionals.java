@@ -91,10 +91,7 @@ public interface CliOptionals extends StandardOptions {
          defaultValue = "" )
    String getOption_r();
 
-   @Option(
-         shortName = "s",
-         defaultValue = "" )
-   String getOption_s();
+   // -s is reserved for common parameter "SubDirectory"
 
    @Option(
          shortName = "t",
@@ -259,10 +256,7 @@ public interface CliOptionals extends StandardOptions {
          defaultValue = "" )
    String getOption_R();
 
-   @Option(
-         shortName = "S",
-         defaultValue = "" )
-   String getOption_S();
+   // -s is reserved for common parameter "SubDirectory"
 
    @Option(
          shortName = "T",
