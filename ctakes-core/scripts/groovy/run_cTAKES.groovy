@@ -30,7 +30,7 @@
 **
 **  Set the following below 
 **    cTAKES_HOME (where you extracted cTAKES. This should be the parent of bin, desc, resources, etc)
-**    EXTERNAL_RESOURCE_PATH (the parent of ctakes-resources-3.1.0, available from SF.net)
+**    EXTERNAL_RESOURCE_PATH (the parent of ctakes-resources-4.0.0, available from SF.net)
 **
 ** 	On Debian/Ubuntu systems, installing Groovy should be as easy as apt-get install groovy.
 ** 	You can download groovy from http://groovy.codehaus.org/
@@ -45,8 +45,8 @@ println("Starting " + this.class.getName());
 //this.class.classLoader.rootLoader.URLs.each{ println it }
 
 // TODO improve handling of whether user enters a trailing slash for these two constants:
-def cTAKES_HOME = "/C:/Apache-cTAKES/apache-ctakes-3.1.1/";
-cTAKES_HOME = "/C:/Apps/Apache-cTAKES/3.1.1-from-bin-zip/apache-ctakes-3.1.1/";
+def cTAKES_HOME = "/C:/Apache-cTAKES/apache-ctakes-4.0.0/";
+cTAKES_HOME = "/C:/Apps/Apache-cTAKES/4.0.0-from-bin-zip/apache-ctakes-4.0.0/";
 def EXTERNAL_RESOURCE_PATH = "/C:/parent-of-ctakes-resources";
 EXTERNAL_RESOURCE_PATH = "/C:/usr/data/cTAKES-resources"; 
 
@@ -81,13 +81,13 @@ for (int i=0; i<files.length; i++) {
 	}
 }
 
-//println("TODO -- consider having script download and unzip ctakes-resources-3.1.0.zip to lib");
-//println("TODO -- download and unzip ctakes-resources-3.1.0.zip to lib");
+//println("TODO -- consider having script download and unzip ctakes-resources-4.0.0.zip to lib");
+//println("TODO -- download and unzip ctakes-resources-4.0.0.zip to lib");
 // Add the ctakesresources (UMLS dictionary, LVG database) that are separately downloadable 
 // from the Apache cTAKES code itself to the classpath before adding 
 // the resources from within the cTAKES install directory, so these are picked up first
-println("Adding ctakes-resources-3.1.0/resources to classpath");  // from ctakes-resources-3.1.0.zip
-this.class.classLoader.rootLoader.addURL( new URL("file://" + EXTERNAL_RESOURCE_PATH + "/ctakes-resources-3.1.0/resources/") );
+println("Adding ctakes-resources-4.0.0/resources to classpath");  // from ctakes-resources-4.0.0.zip
+this.class.classLoader.rootLoader.addURL( new URL("file://" + EXTERNAL_RESOURCE_PATH + "/ctakes-resources-4.0.0/resources/") );
 
 
 // Add cTAKES' resources directory to classpath
