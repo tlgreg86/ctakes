@@ -104,13 +104,13 @@ public class ClearNLPSemanticRoleLabelerAE extends JCasAnnotator_ImplBase {
 
    @ConfigurationParameter(
          name = PARAM_PRED_MODEL_FILE_NAME,
-         description = "This parameter provides the file name of the semantic role labeler model required by the factory method provided by ClearNLPUtil.",
+         description = "This parameter provides the file name of the pred model required by the factory method provided by ClearNLPUtil.",
          defaultValue = DEFAULT_PRED_MODEL_FILE_NAME )
    private String parserPredFileName;
 
    @ConfigurationParameter(
          name = PARAM_ROLE_MODEL_FILE_NAME,
-         description = "This parameter provides the file name of the semantic role labeler model required by the factory method provided by ClearNLPUtil.",
+         description = "This parameter provides the file name of the role model required by the factory method provided by ClearNLPUtil.",
          defaultValue = DEFAULT_ROLE_MODEL_FILE_NAME )
    private String parserRoleFileName;
 
@@ -128,17 +128,17 @@ public class ClearNLPSemanticRoleLabelerAE extends JCasAnnotator_ImplBase {
 
          InputStream srlPred = (this.srlPredUri == null)
                                ? FileLocator.getAsStream( DEFAULT_PRED_MODEL_FILE_NAME )
-                               : FileLocator.getAsStream( this.srlPredUri.getPath() );
+                               : FileLocator.getAsStream( parserPredFileName );
          this.identifier = EngineGetter.getComponent( srlPred, this.language, NLPLib.MODE_PRED );
 
          InputStream srlRole = (this.srlRoleUri == null)
                                ? FileLocator.getAsStream( DEFAULT_ROLE_MODEL_FILE_NAME )
-                               : FileLocator.getAsStream( this.srlRoleUri.getPath() );
+                               : FileLocator.getAsStream( parserRoleFileName );
          this.classifier = EngineGetter.getComponent( srlRole, this.language, NLPLib.MODE_ROLE );
 
          InputStream srlModel = (this.srlModelUri == null)
                                 ? FileLocator.getAsStream( DEFAULT_SRL_MODEL_FILE_NAME )
-                                : FileLocator.getAsStream( this.srlModelUri.getPath() );
+                                : FileLocator.getAsStream( parserModelFileName );
          this.srlabeler = EngineGetter.getComponent( srlModel, this.language, NLPLib.MODE_SRL );
 
       } catch ( Exception e ) {
