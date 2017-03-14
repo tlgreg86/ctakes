@@ -51,8 +51,6 @@ final public class CliOptionalsHandler {
             return optionals.getOption_q();
          case "r":
             return optionals.getOption_r();
-         case "s":
-            return optionals.getOption_s();
          case "t":
             return optionals.getOption_t();
          case "u":
@@ -115,8 +113,6 @@ final public class CliOptionalsHandler {
             return optionals.getOption_Q();
          case "R":
             return optionals.getOption_R();
-         case "S":
-            return optionals.getOption_S();
          case "T":
             return optionals.getOption_T();
          case "U":
