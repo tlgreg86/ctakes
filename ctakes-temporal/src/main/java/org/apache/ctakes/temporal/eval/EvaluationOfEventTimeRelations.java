@@ -44,6 +44,7 @@ import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
 //import org.apache.ctakes.temporal.ae.feature.selection.ZscoreNormalizationExtractor; //for normalization
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveGoldAttributes;
+import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveNonContainsRelations;
 import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteAnaforaXML;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
 //import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
@@ -326,7 +327,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddContain2Overlap.class));
 			//			aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddTransitiveBeforeAndOnRelations.class));
 		}
-		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(RemoveNonContainsRelations.class));
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class));
 		//		aggregateBuilder.add(AnalysisEngineFactory.createPrimitiveDescription(AddFlippedOverlap.class));//add flipped overlap instances to training data
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(Overlap2Contains.class));
@@ -442,6 +443,10 @@ EvaluationOfTemporalRelations_ImplBase{
 				AnalysisEngineFactory.createEngineDescription(RemoveEventEventRelations.class),
 				CAS.NAME_DEFAULT_SOFA,
 				GOLD_VIEW_NAME);
+		
+		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonContainsRelations.class),
+				CAS.NAME_DEFAULT_SOFA,
+				GOLD_VIEW_NAME);
 		//		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveNonUMLSEtEvents.class));
 
 		aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveRelations.class));
@@ -467,11 +472,11 @@ EvaluationOfTemporalRelations_ImplBase{
 					GOLD_VIEW_NAME,
 					CAS.NAME_DEFAULT_SOFA
 					);
-			outf =  new File("target/eval/thyme/SystemError_eventTime_recall_test.txt");
+			outf =  new File("target/eval/thyme/SVM_SystemError_eventTime_recall_test.txt");
 		}else if (!recallModeEvaluation && this.useClosure){
-			outf =  new File("target/eval/thyme/SystemError_eventTime_precision_test.txt");
+			outf =  new File("target/eval/thyme/SVM_SystemError_eventTime_precision_test.txt");
 		}else{
-			outf =  new File("target/eval/thyme/SystemError_eventTime_plain_test.txt");
+			outf =  new File("target/eval/thyme/SVM_SystemError_eventTime_plain_test.txt");
 		}
 
 		PrintWriter outDrop =null;
