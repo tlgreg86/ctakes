@@ -41,6 +41,9 @@ public class FileResourceImpl implements FileResource, SharedResourceObject
     	URI uri = dr.getUri();
     	if(uri != null)
     	{
+    		if (uri.getScheme().equalsIgnoreCase("jar")) {
+    			throw new ResourceInitializationException(new RuntimeException("Attempting to load a FileResource from a jar. The File to be loaded cannot be within a jar." + uri.toString()));
+    		}
         	iv_file = new File(dr.getUri());
     	}
     	else
