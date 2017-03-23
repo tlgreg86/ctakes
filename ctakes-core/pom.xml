@@ -110,15 +110,13 @@
          <groupId>com.lexicalscope.jewelcli</groupId>
          <artifactId>jewelcli</artifactId>
       </dependency>
-
-
-		<dependency>
-			<groupId>org.apache.uima</groupId>
-			<artifactId>uimafit-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.cleartk</groupId>
-			<artifactId>cleartk-ml</artifactId>
-		</dependency>
+      <dependency>
+         <groupId>org.apache.uima</groupId>
+		<artifactId>uimafit-core</artifactId>
+         </dependency>
+      <dependency>
+         <groupId>org.cleartk</groupId>
+         <artifactId>cleartk-ml</artifactId>
+      </dependency>
 	</dependencies>
 </project>
