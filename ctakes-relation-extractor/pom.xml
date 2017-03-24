@@ -107,11 +107,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.opennlp</groupId>
-			<artifactId>opennlp-maxent</artifactId>
+			<artifactId>opennlp-tools</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.opennlp</groupId>
-			<artifactId>opennlp-tools</artifactId>
+			<artifactId>opennlp-maxent</artifactId>
 		</dependency>
 		<dependency>
             <groupId>org.apache.lucene</groupId>

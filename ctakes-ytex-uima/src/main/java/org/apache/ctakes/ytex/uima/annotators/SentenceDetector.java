@@ -169,8 +169,7 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 			char[] eosc = eoss.getEndOfSentenceCharacters();
 			// SentenceDContextGenerator cg = new SentenceDContextGenerator();
 			DefaultSDContextGenerator cg = new DefaultSDContextGenerator(eosc);
-			sentenceDetector = new SentenceDetectorCtakes(
-					sdmodel.getMaxentModel(), cg, eoss);
+			sentenceDetector = new SentenceDetectorCtakes(sdmodel.getMaxentModel(), cg, eoss);
 
 			skipSegmentsSet = ParamUtil.getStringParameterValuesSet(
 					PARAM_SEGMENTS_TO_SKIP, context);

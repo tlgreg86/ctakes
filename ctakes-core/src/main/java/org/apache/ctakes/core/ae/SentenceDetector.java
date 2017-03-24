@@ -20,6 +20,7 @@ package org.apache.ctakes.core.ae;
 
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.sentdetect.*;
+import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
@@ -98,8 +99,7 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		  sdmodel = new SentenceModel(is);
 		  EndOfSentenceScannerImpl eoss = new EndOfSentenceScannerImpl();
 		  DefaultSDContextGenerator cg = new DefaultSDContextGenerator(eoss.getEndOfSentenceCharacters());
-		  sentenceDetector = new SentenceDetectorCtakes(
-		      sdmodel.getMaxentModel(), cg, eoss);
+		  sentenceDetector = new SentenceDetectorCtakes(sdmodel.getMaxentModel(), cg, eoss);
 
 		  skipSegmentsSet = new HashSet<>();
 		  if(skipSegmentsArray != null){
@@ -289,10 +289,15 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 
 
 		Charset charset = Charset.forName("UTF-8");
-    SentenceModel mod = null;
+		SentenceModel mod = null;
 		
-		try(FileInputStream inStream = new FileInputStream(inFile)){
-		  ObjectStream<String> lineStream = new PlainTextByLineStream(inStream, charset);
+    	
+    
+		MarkableFileInputStreamFactory mfisf = new MarkableFileInputStreamFactory(inFile);
+		ObjectStream<String> lineStream = null;
+		try {
+			
+		  lineStream = new PlainTextByLineStream(mfisf, charset);
 		  ObjectStream<SentenceSample> sampleStream = new SentenceSampleStream(lineStream);
 
 		  // Training Parameters
@@ -310,6 +315,8 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		  } finally {
 		    sampleStream.close();
 		  }
+		} catch (IOException e) {
+			lineStream.close();
 		}
 		
 		try(FileOutputStream outStream = new FileOutputStream(outFile)){

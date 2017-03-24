@@ -29,11 +29,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import opennlp.maxent.GIS;
-import opennlp.maxent.GISModel;
+import opennlp.tools.ml.maxent.GISTrainer;
+import opennlp.tools.ml.maxent.GISModel;
 import opennlp.model.EventStream;
-import opennlp.model.MaxentModel;
+import opennlp.tools.ml.model.MaxentModel;
 import opennlp.tools.dictionary.Dictionary;
+import opennlp.tools.sentdetect.DefaultSDContextGenerator;
 import opennlp.tools.sentdetect.EndOfSentenceScanner;
 import opennlp.tools.sentdetect.SDContextGenerator;
 import opennlp.tools.sentdetect.SDEventStream;
@@ -42,7 +43,10 @@ import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.sentdetect.SentenceSample;
 import opennlp.tools.sentdetect.SentenceSampleStream;
 import opennlp.tools.sentdetect.lang.Factory;
-import opennlp.tools.util.HashSumEventStream;
+import opennlp.tools.ml.model.Event;
+import opennlp.tools.ml.model.HashSumEventStream;
+import opennlp.tools.util.AbstractObjectStream;
+import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
@@ -99,7 +103,7 @@ public class SentenceDetectorCtakes {
 	   *
 	   * @param model the {@link SentenceModel}
 	   */
-	  public SentenceDetectorCtakes(MaxentModel model, SDContextGenerator cg, EndOfSentenceScanner eoss) {
+	  public SentenceDetectorCtakes(MaxentModel model, DefaultSDContextGenerator cg, EndOfSentenceScanner eoss) {
 		  this.model = model;
 		  cgen = cg;
 		  scanner = eoss;
@@ -107,7 +111,7 @@ public class SentenceDetectorCtakes {
 	  }
 
 
-	  /**
+	/**
 	   * Detect sentences in a String.
 	   *
 	   * @param s  The string to be processed.
@@ -244,18 +248,18 @@ public class SentenceDetectorCtakes {
 	    Factory factory = new Factory();
 
 	    // TODO: Fix the EventStream to throw exceptions when training goes wrong
-	    EventStream eventStream = new SDEventStream(samples,
+	    SDEventStream eventStream = new SDEventStream(samples,
 	        factory.createSentenceContextGenerator(languageCode),
 	        factory.createEndOfSentenceScanner(languageCode));
 	    
-	    HashSumEventStream hses = new HashSumEventStream(eventStream);
-	    GISModel sentModel = GIS.trainModel(hses, iterations, cutoff);
+	    HashSumEventStream hses = new HashSumEventStream(eventStream); // AbstractObjectStream<Event>
+	    GISTrainer trainer = new GISTrainer();
+	    MaxentModel sentModel = trainer.trainModel(hses, iterations, cutoff);
 
 	    manifestInfoEntries.put(BaseModel.TRAINING_EVENTHASH_PROPERTY, 
 	        hses.calculateHashSum().toString(16));
 	    
-	    return new SentenceModel(languageCode, sentModel,
-	        useTokenEnd, abbreviations, manifestInfoEntries);
+	    return new SentenceModel(languageCode, sentModel, useTokenEnd, abbreviations, manifestInfoEntries);
 	  }
 
 	  private static void usage() {
@@ -324,10 +328,14 @@ public class SentenceDetectorCtakes {
 	      if ((lang == null) || (encoding == null)) {
 	        usage();
 	      }
-
 	      
-	      SentenceModel model = train(lang, new SentenceSampleStream(new PlainTextByLineStream(
-	          new InputStreamReader(new FileInputStream(inFile), encoding))), true, null, cutoff, iters);
+	      MarkableFileInputStreamFactory mfisf = new MarkableFileInputStreamFactory(inFile);
+		  ObjectStream<String> lineStream = null;
+		  lineStream = new PlainTextByLineStream(mfisf, encoding);
+		  ObjectStream<SentenceSample> sampleStream = new SentenceSampleStream(lineStream);
+		  
+	      //new PlainTextByLineStream(new InputStreamReader(new FileInputStream(inFile), encoding))
+		  SentenceModel model = train(lang, sampleStream, true, null, cutoff, iters);
 
 	      // TODO: add support for iterations and cutoff settings
 
