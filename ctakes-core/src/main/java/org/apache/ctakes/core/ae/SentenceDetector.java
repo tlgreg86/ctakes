@@ -290,15 +290,11 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 
 		Charset charset = Charset.forName("UTF-8");
 		SentenceModel mod = null;
-		
-    	
     
 		MarkableFileInputStreamFactory mfisf = new MarkableFileInputStreamFactory(inFile);
-		ObjectStream<String> lineStream = null;
-		try {
-			
-		  lineStream = new PlainTextByLineStream(mfisf, charset);
-		  ObjectStream<SentenceSample> sampleStream = new SentenceSampleStream(lineStream);
+		try (ObjectStream<String> lineStream = new PlainTextByLineStream(mfisf, charset)) {
+		  
+		  ObjectStream<SentenceSample> sampleStream =  new SentenceSampleStream(lineStream);
 
 		  // Training Parameters
 		  TrainingParameters mlParams = new TrainingParameters();
@@ -313,10 +309,8 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 		  try {
 		    mod = SentenceDetectorME.train("en", sampleStream, true, dict, mlParams);
 		  } finally {
-		    sampleStream.close();
+			  sampleStream.close();
 		  }
-		} catch (IOException e) {
-			lineStream.close();
 		}
 		
 		try(FileOutputStream outStream = new FileOutputStream(outFile)){
