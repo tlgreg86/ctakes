@@ -23,8 +23,7 @@ import java.io.IOException;
 @PipeBitInfo(
       name = "Thread-Safe LVG",
       description = "Annotates Lexical Variants for terms with attempted thread safety.",
-      input = "WordTokens.",
-      output = "Lexical Variants stored in existing WordTokens."
+      dependencies = PipeBitInfo.TypeProduct.BASE_TOKEN
 )
 final public class ThreadSafeLvg extends JCasAnnotator_ImplBase {
 

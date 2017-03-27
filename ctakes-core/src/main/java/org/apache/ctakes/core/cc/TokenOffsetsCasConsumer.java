@@ -55,8 +55,7 @@ import java.util.List;
       name = "Token Offset Writer",
       description = "Writes a two-column BSV file containing Begin and End offsets of tokens in a document.",
       role = PipeBitInfo.Role.WRITER,
-      input = "BaseToken " + PipeBitInfo.POPULATED_JCAS,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.BASE_TOKEN }
 )
 public class TokenOffsetsCasConsumer extends CasConsumer_ImplBase {
 

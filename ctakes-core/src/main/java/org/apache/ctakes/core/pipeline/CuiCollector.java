@@ -125,8 +125,7 @@ public enum CuiCollector {
          name = "CUI Collector",
          description = "Collects all CUIs generated during a run.",
          role = PipeBitInfo.Role.SPECIAL,
-         input = "CUI " + PipeBitInfo.POPULATED_JCAS,
-         output = PipeBitInfo.NO_OUTPUT
+         dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
    )
    static public final class CuiCollectorEngine extends JCasAnnotator_ImplBase {
       @Override

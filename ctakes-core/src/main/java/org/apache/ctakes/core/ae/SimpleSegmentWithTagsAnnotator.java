@@ -41,7 +41,7 @@ import java.io.StringReader;
 @PipeBitInfo(
       name = "Segment Annotator (Tag)",
       description = "Annotates Document Sections by detecting start and end Section Tags.",
-      output = "Segment Annotations."
+      products = { PipeBitInfo.TypeProduct.SECTION }
 )
 public class SimpleSegmentWithTagsAnnotator extends JCasAnnotator_ImplBase {
 	private String segmentId;

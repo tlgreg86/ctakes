@@ -37,8 +37,7 @@ import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPU
       name = "CUI Count Writer",
       description = "Writes a two-column BSV file containing CUIs and their total counts in a document.",
       role = PipeBitInfo.Role.WRITER,
-      input = "CUI " + PipeBitInfo.POPULATED_JCAS,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
 )
 // TODO extend AbstractOutputFileWriter
 public class CuiCountFileWriter extends CasConsumer_ImplBase {

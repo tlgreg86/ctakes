@@ -38,7 +38,7 @@ import java.util.List;
       name = "Files in Dir Tree Reader",
       description = "Reads document texts from text files in a directory tree.",
       role = PipeBitInfo.Role.READER,
-      output = PipeBitInfo.NEW_JCAS
+      products = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.DOCUMENT_ID_PREFIX }
 )
 final public class FileTreeReader extends JCasCollectionReader_ImplBase {
 

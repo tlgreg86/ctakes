@@ -27,9 +27,9 @@ import java.util.stream.Collectors;
  * @since 7/20/2016
  */
 @PipeBitInfo(
-      name = "Regex Sectionizer",
+      name = "Regex Sectionizer (A)",
       description = "Annotates Document Sections by detecting Section Headers using Regular Expressions.",
-      output = "Segment Annotations."
+      products = { PipeBitInfo.TypeProduct.SECTION }
 )
 abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
 

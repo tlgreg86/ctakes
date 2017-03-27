@@ -24,14 +24,17 @@ import java.io.*;
       name = "XMI Writer (Dir Tree)",
       description = "Writes XMI files with full representation of input text and all extracted information.",
       role = PipeBitInfo.Role.WRITER,
-      input = PipeBitInfo.POPULATED_JCAS,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID },
+      usables = { PipeBitInfo.TypeProduct.DOCUMENT_ID_PREFIX }
 )
 // TODO Create and extend AbstractInputFileReader  a'la the abstract writer
 final public class FileTreeXmiWriter extends AbstractOutputFileWriter {
 
    static private final Logger LOGGER = Logger.getLogger( "FileTreeXmiWriter" );
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void writeFile( final JCas jCas, final String outputDir,
                           final String documentId, final String fileName ) throws IOException {

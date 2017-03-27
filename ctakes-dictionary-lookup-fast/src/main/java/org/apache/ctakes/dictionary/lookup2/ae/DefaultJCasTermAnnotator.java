@@ -41,7 +41,8 @@ import java.util.List;
 @PipeBitInfo(
       name = "Dictionary Lookup (Default)",
       description = "Annotates clinically-relevant terms.  Terms must match dictionary entries exactly.",
-      output = "Clinically-relevant Terms and their unique concept identifiers."
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.BASE_TOKEN },
+      products = PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION
 )
 final public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
 

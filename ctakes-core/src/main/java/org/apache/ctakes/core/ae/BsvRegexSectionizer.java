@@ -20,9 +20,9 @@ import java.io.InputStreamReader;
  * @since 10/5/2016
  */
 @PipeBitInfo(
-      name = "Regex Sectionizer (BSV)",
+      name = "Regex Sectionizer",
       description = "Annotates Document Sections by detecting Section Headers using Regular Expressions provided in a Bar-Separated-Value (BSV) File.",
-      output = "Segment Annotations."
+      products = { PipeBitInfo.TypeProduct.SECTION }
 )
 public class BsvRegexSectionizer extends RegexSectionizer {
 

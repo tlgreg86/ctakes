@@ -37,8 +37,8 @@ import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPU
       name = "Sentences Writer",
       description = "Writes Text files with original text from the document, sentence by sentence.",
       role = PipeBitInfo.Role.WRITER,
-      input = "Sentence " + PipeBitInfo.POPULATED_JCAS,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.SENTENCE,
+                       PipeBitInfo.TypeProduct.BASE_TOKEN }
 )
 public class SentenceTokensPrinter extends CasConsumer_ImplBase {
 

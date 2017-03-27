@@ -42,7 +42,7 @@ import java.util.ArrayList;
       name = "XMI in Dir Reader",
       description = "Reads document texts and annotations from XMI files in a directory.",
       role = PipeBitInfo.Role.READER,
-      output = PipeBitInfo.POPULATED_JCAS
+      products = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
 )
 public class XmiCollectionReaderCtakes extends CollectionReader_ImplBase {
   /**

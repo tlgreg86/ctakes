@@ -10,6 +10,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPUTDIR;
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
 
 /**
  * Writes Document text, pos, semantic types and cuis.  Each Sentence starts a new series of pretty text lines.
@@ -25,8 +26,8 @@ import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPU
       name = "Pretty Text Writer (UIMA)",
       description = "Writes text files with document text and simple markups (POS, Semantic Group, CUI, Negation).",
       role = PipeBitInfo.Role.WRITER,
-      input = PipeBitInfo.POPULATED_JCAS,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { DOCUMENT_ID, SENTENCE, BASE_TOKEN },
+      usables = { IDENTIFIED_ANNOTATION, EVENT, TIMEX, TEMPORAL_RELATION }
 )
 final public class PrettyTextWriterUima extends CasConsumer_ImplBase {
 

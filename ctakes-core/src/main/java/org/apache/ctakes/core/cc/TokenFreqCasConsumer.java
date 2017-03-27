@@ -44,8 +44,7 @@ import java.util.*;
       name = "Word Count Writer",
       description = "Writes a two-column BSV file containing Words and their total counts in a document.",
       role = PipeBitInfo.Role.WRITER,
-      input = "WordToken " + PipeBitInfo.POPULATED_JCAS,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.BASE_TOKEN }
 )
 public class TokenFreqCasConsumer extends CasConsumer_ImplBase
 { 

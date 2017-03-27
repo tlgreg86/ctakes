@@ -24,8 +24,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 @PipeBitInfo(
       name = "Start or Finish Logger",
       description = "Simple Annotator to place before and after other annotators that do not Log their Start and Finish.",
-      role = PipeBitInfo.Role.SPECIAL,
-      output = PipeBitInfo.NO_OUTPUT
+      role = PipeBitInfo.Role.SPECIAL
 )
 public class StartFinishLogger extends JCasAnnotator_ImplBase {
 

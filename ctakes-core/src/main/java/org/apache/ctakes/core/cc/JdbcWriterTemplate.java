@@ -44,8 +44,7 @@ import java.util.*;
       name = "JDBC Writer (Template)",
       description = "Stores extracted information and document metadata in a database.",
       role = PipeBitInfo.Role.WRITER,
-      input = PipeBitInfo.POPULATED_JCAS,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
 )
 public class JdbcWriterTemplate extends AbstractJdbcWriter {
 

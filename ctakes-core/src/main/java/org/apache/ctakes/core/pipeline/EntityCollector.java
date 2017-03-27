@@ -132,8 +132,7 @@ public enum EntityCollector {
          name = "Entity Collector",
          description = "Collects information on entities generated during a run.",
          role = PipeBitInfo.Role.SPECIAL,
-         input = "IdentifiedAnnotation " + PipeBitInfo.POPULATED_JCAS,
-         output = PipeBitInfo.NO_OUTPUT
+         dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
    )
    static public final class EntityCollectorEngine extends JCasAnnotator_ImplBase {
       @Override

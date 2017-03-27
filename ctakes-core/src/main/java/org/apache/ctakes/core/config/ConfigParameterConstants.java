@@ -12,6 +12,15 @@ final public class ConfigParameterConstants {
 
    /**
     * Name of configuration parameter that can be set to the path of
+    * a Piper file.
+    */
+   static public final String PARAM_PIPER = "Piper";
+   static public final String OPTION_PIPER = "-p";
+   static public final String DESC_PIPER = "Location of a Piper File.";
+
+
+   /**
+    * Name of configuration parameter that can be set to the path of
     * a directory containing input files.
     */
    static public final String PARAM_INPUTDIR = "InputDirectory";

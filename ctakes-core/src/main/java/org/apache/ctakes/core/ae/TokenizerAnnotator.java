@@ -49,7 +49,8 @@ import java.util.Set;
 @PipeBitInfo(
       name = "Tokenizer Annotator",
       description = "Annotates Document Tokens.",
-      output = "Token annotations."
+      dependencies = { PipeBitInfo.TypeProduct.SECTION },
+      products = { PipeBitInfo.TypeProduct.BASE_TOKEN }
 )
 public class TokenizerAnnotator extends JCasAnnotator_ImplBase {
 	// LOG4J logger based on class name

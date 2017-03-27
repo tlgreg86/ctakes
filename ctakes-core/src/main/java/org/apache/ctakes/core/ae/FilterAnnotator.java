@@ -40,8 +40,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 @PipeBitInfo(
       name = "Annotation Remover",
       description = "Removes annotations of a given type from the JCas.",
-      input = PipeBitInfo.POPULATED_JCAS,
-      output = "JCas without annotations of the given type."
+      dependencies = { PipeBitInfo.TypeProduct.BASE_TOKEN }
 )
 public class FilterAnnotator extends JCasAnnotator_ImplBase {
 	// TODO parameterize retainAttrTypeId = DISORDER_ANNOTATIONS = 2

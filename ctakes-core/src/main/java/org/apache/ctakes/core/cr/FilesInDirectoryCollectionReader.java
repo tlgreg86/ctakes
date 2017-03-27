@@ -63,7 +63,7 @@ import java.util.List;
       name = "Files in Dir Reader",
       description = "Reads document texts from text files in a directory.",
       role = PipeBitInfo.Role.READER,
-      output = PipeBitInfo.NEW_JCAS
+      products = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
 )
 public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase
 {

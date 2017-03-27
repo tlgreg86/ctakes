@@ -30,8 +30,8 @@ import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPU
       name = "Property Text Writer",
       description = "Writes text files with lists of annotations and properties (POS, Semantic Group, CUI, Negation).",
       role = PipeBitInfo.Role.WRITER,
-      input = PipeBitInfo.POPULATED_JCAS,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.SENTENCE,
+                       PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
 )
 public class PropertyTextWriterFit extends CasConsumer_ImplBase {
 

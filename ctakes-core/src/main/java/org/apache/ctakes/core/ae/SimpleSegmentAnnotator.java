@@ -39,7 +39,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 @PipeBitInfo(
       name = "Single Segment Annotator",
       description = "Annotates Document as a single Section.",
-      output = "Segment annotation."
+      products = { PipeBitInfo.TypeProduct.SECTION }
 )
 public class SimpleSegmentAnnotator extends JCasAnnotator_ImplBase {
 	

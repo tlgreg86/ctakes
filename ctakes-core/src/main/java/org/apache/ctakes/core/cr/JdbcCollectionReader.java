@@ -45,7 +45,7 @@ import java.util.StringTokenizer;
       name = "JDBC Collection Reader",
       description = "Reads document texts from database text fields.",
       role = PipeBitInfo.Role.READER,
-      output = PipeBitInfo.NEW_JCAS
+      products = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
 )
 public class JdbcCollectionReader extends CollectionReader_ImplBase
 {

@@ -26,7 +26,7 @@ import java.io.IOException;
       name = "Lucene Field Reader",
       description = "Reads document texts from Lucene text fields.",
       role = PipeBitInfo.Role.READER,
-      output = PipeBitInfo.NEW_JCAS
+      products = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
 )
 public class LuceneCollectionReader extends CasCollectionReader_ImplBase {
 

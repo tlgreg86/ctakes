@@ -46,8 +46,7 @@ import java.io.*;
       name = "Document Text Writer",
       description = "Writes Text files with original text from the document.",
       role = PipeBitInfo.Role.WRITER,
-      input = "Document Text.",
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
 )
 public class FilesInDirectoryCasConsumer extends CasConsumer_ImplBase {
 

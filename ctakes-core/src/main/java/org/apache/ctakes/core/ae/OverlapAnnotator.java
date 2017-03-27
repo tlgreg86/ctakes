@@ -56,8 +56,7 @@ import java.util.*;
 @PipeBitInfo(
       name = "Overlap Annotator",
       description = "Removes or modifies annotations that overlap.",
-      input = PipeBitInfo.POPULATED_JCAS,
-      output = "Removed or modified annotations."
+      dependencies = { PipeBitInfo.TypeProduct.BASE_TOKEN }
 )
 public class OverlapAnnotator extends JCasAnnotator_ImplBase {
 	// LOG4J logger based on class name

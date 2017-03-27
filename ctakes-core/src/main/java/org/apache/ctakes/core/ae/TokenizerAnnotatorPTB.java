@@ -37,6 +37,8 @@ import org.apache.uima.resource.ResourceInitializationException;
 
 import java.util.*;
 
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
+
 /**
  * UIMA annotator that tokenizes based on Penn Treebank rules.
  * 
@@ -45,7 +47,8 @@ import java.util.*;
 @PipeBitInfo(
       name = "Tokenizer Annotator (PTB)",
       description = "Annotates Document Penn TreeBank Tokens.",
-      output = "Token annotations."
+      dependencies = { SECTION, SENTENCE },
+      products = { BASE_TOKEN }
 )
 public class TokenizerAnnotatorPTB extends JCasAnnotator_ImplBase
 {

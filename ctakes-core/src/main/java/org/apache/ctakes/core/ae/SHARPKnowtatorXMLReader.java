@@ -59,7 +59,9 @@ import java.util.*;
       name = "Knowtator XML Reader",
       description = "Reads annotations from Knowtator XML files in a directory.",
       role = PipeBitInfo.Role.SPECIAL,
-      output = PipeBitInfo.POPULATED_JCAS
+      products = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.EVENT,
+                   PipeBitInfo.TypeProduct.TIMEX, PipeBitInfo.TypeProduct.LOCATION_RELATION,
+                   PipeBitInfo.TypeProduct.DEGREE_RELATION, PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
 )
 public class SHARPKnowtatorXMLReader extends JCasAnnotator_ImplBase {
   static Logger LOGGER = Logger.getLogger(SHARPKnowtatorXMLReader.class);

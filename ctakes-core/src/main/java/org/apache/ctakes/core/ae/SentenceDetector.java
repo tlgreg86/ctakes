@@ -43,7 +43,10 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -55,7 +58,8 @@ import java.util.*;
 @PipeBitInfo(
       name = "Sentence Detector",
       description = "Annotates Sentences based upon an OpenNLP model.",
-      output = "Sentence annotations."
+      dependencies = { PipeBitInfo.TypeProduct.SECTION },
+      products = { PipeBitInfo.TypeProduct.SENTENCE }
 )
 public class SentenceDetector extends JCasAnnotator_ImplBase {
 	/**

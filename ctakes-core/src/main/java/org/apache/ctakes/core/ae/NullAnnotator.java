@@ -34,8 +34,7 @@ import org.apache.uima.jcas.JCas;
  */
 @PipeBitInfo(
       name = "Null Annotator",
-      description = "Does absolutely nothing.",
-      output = PipeBitInfo.NO_OUTPUT
+      description = "Does absolutely nothing."
 )
 public class NullAnnotator extends JCasAnnotator_ImplBase
 {

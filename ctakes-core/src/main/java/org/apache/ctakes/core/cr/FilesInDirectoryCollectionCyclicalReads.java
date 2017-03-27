@@ -57,7 +57,7 @@ import java.io.IOException;
       name = "Files in Dir Cycle Reader",
       description = "Reads document texts from text files in a directory, repeating for a number of iterations.",
       role = PipeBitInfo.Role.READER,
-      output = PipeBitInfo.NEW_JCAS
+      products = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
 )
 public class FilesInDirectoryCollectionCyclicalReads extends FilesInDirectoryCollectionReader
 {

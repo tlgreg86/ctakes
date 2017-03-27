@@ -30,7 +30,7 @@ import org.apache.uima.jcas.JCas;
       name = "Document ID Printer",
       description = "Logs the Document ID to Log4j and Standard Output.",
       role = PipeBitInfo.Role.SPECIAL,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
 )
 public class DocumentIdPrinterAnalysisEngine extends JCasAnnotator_ImplBase
 {

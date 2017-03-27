@@ -44,7 +44,7 @@ import java.util.List;
       name = "XMI Files Reader",
       description = "Reads document texts and annotations from XMI files specified in a provided list.",
       role = PipeBitInfo.Role.READER,
-      output = PipeBitInfo.POPULATED_JCAS
+      products = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
 )
 public class XMIReader extends JCasCollectionReader_ImplBase {
 

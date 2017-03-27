@@ -46,7 +46,8 @@ import java.util.regex.Pattern;
 @PipeBitInfo(
       name = "Segment Annotator (CDA)",
       description = "Annotates Document Sections by detecting Section Headers using Regular Expressions provided in a File.",
-      output = "Segment Annotations."
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID },
+      products = { PipeBitInfo.TypeProduct.SECTION }
 )
 public class CDASegmentAnnotator extends JCasAnnotator_ImplBase {
 

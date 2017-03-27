@@ -27,8 +27,7 @@ import java.util.stream.Collectors;
 @PipeBitInfo(
       name = "Paragraph Sentence Fixer",
       description = "Re-annotates Sentences based upon existing Paragraphs, preventing a Sentence from spanning more than one Paragraph.",
-      input = "Sentence and Paragraph annotations.",
-      output = "Adjusted Sentences."
+      dependencies = { PipeBitInfo.TypeProduct.PARAGRAPH, PipeBitInfo.TypeProduct.SENTENCE }
 )
 final public class ParagraphSentenceFixer extends JCasAnnotator_ImplBase {
 

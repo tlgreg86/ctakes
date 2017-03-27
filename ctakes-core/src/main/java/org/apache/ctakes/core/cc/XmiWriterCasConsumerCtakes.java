@@ -78,8 +78,7 @@ import java.net.URL;
       name = "XMI Writer (CasConsumerCtakes)",
       description = "Writes XMI files with full representation of input text and all extracted information.",
       role = PipeBitInfo.Role.WRITER,
-      input = PipeBitInfo.POPULATED_JCAS,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
 )
 public class XmiWriterCasConsumerCtakes extends CasConsumer_ImplBase {
 	/**

@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 /**
  * @author SPF , chip-nlp
  * @version %I%
@@ -157,22 +158,6 @@ final public class PipeBitInfoUtil {
        * {@inheritDoc}
        */
       @Override
-      public String input() {
-         return "Unknown Inputs.";
-      }
-
-      /**
-       * {@inheritDoc}
-       */
-      @Override
-      public String output() {
-         return "Unknown Outputs.";
-      }
-
-      /**
-       * {@inheritDoc}
-       */
-      @Override
       public String[] parameters() {
          final Collection<String> parameters = getParameterDescriptions( _pipeBitClass );
          return parameters.toArray( new String[ parameters.size() ] );
@@ -182,8 +167,27 @@ final public class PipeBitInfoUtil {
        * {@inheritDoc}
        */
       @Override
-      public String[] dependencies() {
-         return new String[] { "Unknown Dependencies." };
+      public TypeProduct[] dependencies() {
+         if ( CollectionReader_ImplBase.class.isAssignableFrom( _pipeBitClass ) ) {
+            return NO_TYPE_PRODUCTS;
+         }
+         return new TypeProduct[] { TypeProduct.SECTION, TypeProduct.BASE_TOKEN };
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public TypeProduct[] usables() {
+         return NO_TYPE_PRODUCTS;
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public TypeProduct[] products() {
+         return NO_TYPE_PRODUCTS;
       }
 
       /**

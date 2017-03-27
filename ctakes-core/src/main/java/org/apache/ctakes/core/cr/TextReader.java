@@ -41,7 +41,7 @@ import java.util.List;
       name = "Text Files Reader",
       description = "Reads document texts from text files specified in a provided list.",
       role = PipeBitInfo.Role.READER,
-      output = PipeBitInfo.NEW_JCAS
+      products = PipeBitInfo.TypeProduct.DOCUMENT_ID
 )
 public class TextReader extends JCasCollectionReader_ImplBase {
 

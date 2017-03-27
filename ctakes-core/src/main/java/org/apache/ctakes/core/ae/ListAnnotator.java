@@ -36,7 +36,8 @@ import java.util.stream.Collectors;
 @PipeBitInfo(
       name = "List Annotator",
       description = "Annotates formatted List Sections by detecting them using Regular Expressions provided in an input File.",
-      output = "List and ListEntry annotations."
+      dependencies = { PipeBitInfo.TypeProduct.SECTION },
+      products = { PipeBitInfo.TypeProduct.LIST, PipeBitInfo.TypeProduct.LIST_ENTRY }
 )
 final public class ListAnnotator extends JCasAnnotator_ImplBase {
 

@@ -47,7 +47,8 @@ import java.util.List;
 @PipeBitInfo(
       name = "Dictionary Lookup (Default)",
       description = "Annotates clinically-relevant terms.  Terms can overlap dictionary entries.",
-      output = "Clinically-relevant Terms and their unique concept identifiers."
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.BASE_TOKEN },
+      products = PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION
 )
 final public class OverlapJCasTermAnnotator extends AbstractJCasTermAnnotator {
 

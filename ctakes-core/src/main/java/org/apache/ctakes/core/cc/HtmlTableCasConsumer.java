@@ -46,8 +46,7 @@ import java.util.*;
       name = "HTML Table Writer",
       description = "Writes HTML files with a Table representation of extracted information.",
       role = PipeBitInfo.Role.WRITER,
-      input = PipeBitInfo.POPULATED_JCAS,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.BASE_TOKEN }
 )
 public class HtmlTableCasConsumer extends CasConsumer_ImplBase
 {

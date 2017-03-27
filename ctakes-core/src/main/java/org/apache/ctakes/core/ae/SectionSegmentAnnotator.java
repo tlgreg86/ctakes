@@ -47,7 +47,7 @@ import java.util.HashMap;
 @PipeBitInfo(
       name = "Section Annotator",
       description = "Annotates Document Sections by detecting Section Headers in template.",
-      output = "Segment Annotations."
+      products = { PipeBitInfo.TypeProduct.SECTION }
 )
 public class SectionSegmentAnnotator extends JCasAnnotator_ImplBase {
 	private String segmentId;

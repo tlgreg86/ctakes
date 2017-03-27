@@ -29,7 +29,8 @@ import java.util.regex.Pattern;
 @PipeBitInfo(
       name = "Paragraph Annotator",
       description = "Annotates Paragraphs by detecting them using Regular Expressions provided in an input File or by empty text lines.",
-      output = "Paragraph annotations."
+      dependencies = { PipeBitInfo.TypeProduct.SECTION },
+      products = { PipeBitInfo.TypeProduct.PARAGRAPH }
 )
 final public class ParagraphAnnotator extends JCasAnnotator_ImplBase {
 

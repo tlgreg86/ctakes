@@ -56,7 +56,7 @@ import java.util.List;
       name = "Lines in File Reader",
       description = "Reads a document texts from a single text file, treating each line as a document.",
       role = PipeBitInfo.Role.READER,
-      output = PipeBitInfo.NEW_JCAS
+      products = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
 )
 public class LinesFromFileCollectionReader extends CollectionReader_ImplBase {
 

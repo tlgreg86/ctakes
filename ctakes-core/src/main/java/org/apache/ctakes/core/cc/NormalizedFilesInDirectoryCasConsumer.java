@@ -49,8 +49,7 @@ import java.io.*;
       name = "Document Text Writer (Dir)",
       description = "Writes Text files with original text from the document in a specified directory.",
       role = PipeBitInfo.Role.WRITER,
-      input = "Document Text.",
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.BASE_TOKEN }
 )
 public class NormalizedFilesInDirectoryCasConsumer extends CasConsumer_ImplBase {
 

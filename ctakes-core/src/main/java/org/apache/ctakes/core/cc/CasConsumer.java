@@ -42,8 +42,7 @@ import java.io.OutputStream;
       name = "XMI Writer (CasConsumer)",
       description = "Writes XMI files with full representation of input text and all extracted information.",
       role = PipeBitInfo.Role.WRITER,
-      input = PipeBitInfo.POPULATED_JCAS,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
 )
 public class CasConsumer extends CasConsumer_ImplBase {
    // LOG4J logger based on class name

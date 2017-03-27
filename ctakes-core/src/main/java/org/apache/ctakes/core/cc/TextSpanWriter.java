@@ -33,8 +33,7 @@ import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPU
       name = "Text Span Writer",
       description = "Writes BSV files with original text for extracted annotations and their span offsets.",
       role = PipeBitInfo.Role.WRITER,
-      input = "IdentifiedAnnotation " + PipeBitInfo.POPULATED_JCAS,
-      output = PipeBitInfo.NO_OUTPUT
+      dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
 )
 public class TextSpanWriter extends CasConsumer_ImplBase {
 
