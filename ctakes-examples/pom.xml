@@ -38,5 +38,13 @@
         <groupId>org.apache.ctakes</groupId>
         <artifactId>ctakes-examples-res</artifactId>
      </dependency>
+     <dependency>
+        <groupId>org.apache.ctakes</groupId>
+        <artifactId>ctakes-side-effect</artifactId>
+     </dependency>
+     <dependency>
+        <groupId>org.apache.ctakes</groupId>
+        <artifactId>ctakes-smoking-status</artifactId>
+     </dependency>
   </dependencies>
 </project>

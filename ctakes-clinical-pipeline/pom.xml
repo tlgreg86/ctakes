@@ -158,8 +158,7 @@
 							</dependency>
 							<dependency>
 								<groupId>gov.nih.nlm.nls.lvg</groupId>
-								<artifactId>lvg2010dist</artifactId>
-								<version>0.0.1</version>
+								<artifactId>lvgdist</artifactId>
 							</dependency>
 						</dependencies>						
 					</plugin>
@@ -234,8 +233,7 @@
 							</dependency>
 							<dependency>
 								<groupId>gov.nih.nlm.nls.lvg</groupId>
-								<artifactId>lvg2010dist</artifactId>
-								<version>0.0.1</version>
+								<artifactId>lvgdist</artifactId>
 							</dependency>
 						</dependencies>
 					</plugin>
