@@ -383,11 +383,16 @@ public class DrugMentionAnnotator extends JCasAnnotator_ImplBase
 
 		if (fromAnnotation.getStrength()!=null || fromAnnotation.getStrengthUnit()!=null) {
 			MedicationStrengthModifier modifier = new MedicationStrengthModifier(jcas);
+			String str = fromAnnotation.getStrength().trim(); 
+			int i = str.lastIndexOf(' ');
+			if (i>=0) {
+				str = str.substring(i+1);  // won't be past end of string since trimmed before used lastIndexOf
+			}
 			MedicationStrength strength = new MedicationStrength(jcas);
-			strength.setNumber(fromAnnotation.getStrength());
+			strength.setNumber(str);
 			strength.setUnit(fromAnnotation.getStrengthUnit());
 			modifier.setNormalizedForm(strength);
-			modifier.setCategory(fromAnnotation.getStrength() + fromAnnotation.getStrengthUnit());
+			modifier.setCategory(str + fromAnnotation.getStrengthUnit());
 			//strength.addToIndexes(); // don't need to be able to get these directly from the AnnotationIndex
 			medicationMention.setMedicationStrength(modifier);
 		}
