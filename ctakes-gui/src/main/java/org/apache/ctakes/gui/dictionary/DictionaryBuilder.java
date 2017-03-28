@@ -62,7 +62,7 @@ final class DictionaryBuilder {
       LOGGER.info( "Parsing Concepts" );
       // Create a map of Cuis to empty Concepts for all wanted Tuis and source vocabularies
       final Map<Long, Concept> conceptMap
-            = ConceptMapFactory.createInitialConceptMap( umlsDirPath, wantedTargets, wantedTuis );
+            = ConceptMapFactory.createInitialConceptMap( umlsDirPath, wantedSources, wantedTuis );
       // Fill in information for all valid concepts
       MrconsoParser.parseAllConcepts( umlsDirPath, conceptMap, wantedSources, wantedTargets, umlsTermUtil,
             wantedLanguages, true, MIN_CHAR_LENGTH, MAX_CHAR_LENGTH, MAX_WORD_COUNT, MAX_SYM_COUNT );

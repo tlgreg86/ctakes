@@ -147,10 +147,10 @@ final public class MrconsoParser {
             if ( isPreferredTerm( tokens ) ) {
                concept.setPreferredText( text );
             }
-            if ( !isSourceOk( tokens, wantedSources ) ) {
-               tokens = FileUtil.readBsvTokens( reader, mrconsoPath );
-               continue;
-            }
+//            if ( !isSourceOk( tokens, wantedSources ) ) {
+//               tokens = FileUtil.readBsvTokens( reader, mrconsoPath );
+//               continue;
+//            }
             // Get tokenized text
             final String tokenizedText = TextTokenizer.getTokenizedText( text );
             if ( tokenizedText == null || tokenizedText.isEmpty()

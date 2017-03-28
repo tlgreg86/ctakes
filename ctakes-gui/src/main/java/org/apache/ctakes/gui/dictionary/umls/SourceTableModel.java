@@ -35,8 +35,6 @@ final public class SourceTableModel implements TableModel {
       _wantedTargets.clear();
       _sources.addAll( sources );
       Collections.sort( _sources );
-      // by default, use all sources
-      _wantedSources.addAll( sources );
       _wantedSources.addAll( Arrays.asList( CTAKES_SOURCES ) );
       _wantedTargets.addAll( Arrays.asList( CTAKES_SOURCES ) );
       fireTableChanged( new TableModelEvent( this ) );

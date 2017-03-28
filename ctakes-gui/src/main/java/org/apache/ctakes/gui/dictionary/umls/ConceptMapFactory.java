@@ -12,15 +12,18 @@ import java.util.Map;
  * @version %I%
  * @since 12/11/2015
  */
-public class ConceptMapFactory {
+final public class ConceptMapFactory {
 
    static private final Logger LOGGER = Logger.getLogger( "ConceptMapFactory" );
 
+   private ConceptMapFactory() {
+   }
+
    static public Map<Long, Concept> createInitialConceptMap( final String umlsDirPath,
-                                                             final Collection<String> wantedTargets,
+                                                             final Collection<String> wantedSources,
                                                              final Collection<Tui> wantedTuis ) {
-      if ( wantedTargets.isEmpty() ) {
-         LOGGER.warn( "No target vocabularies specified" );
+      if ( wantedSources.isEmpty() ) {
+         LOGGER.warn( "No source vocabularies specified" );
          return Collections.emptyMap();
       }
       if ( wantedTuis.isEmpty() ) {
@@ -30,7 +33,7 @@ public class ConceptMapFactory {
       // get the valid Cuis for all wanted Tuis
       final Map<Long, Concept> concepts = MrstyParser.createConceptsForTuis( umlsDirPath, wantedTuis );
       // filter out the Cuis that do not belong to the given sources
-      final Collection<Long> validVocabularyCuis = MrconsoParser.getValidVocabularyCuis( umlsDirPath, wantedTargets );
+      final Collection<Long> validVocabularyCuis = MrconsoParser.getValidVocabularyCuis( umlsDirPath, wantedSources );
       concepts.keySet().retainAll( validVocabularyCuis );
       LOGGER.info( "Total Valid Cuis " + concepts.size() + "\t from wanted Tuis and Vocabularies" );
       return concepts;
