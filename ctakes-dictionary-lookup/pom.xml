@@ -34,10 +34,10 @@
 			<artifactId>ctakes-dictionary-lookup-res</artifactId>
 		</dependency>		    
 		<dependency>
-			<groupId>hsqldb</groupId>
+         <groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<version>1.8.0.10</version>
-		</dependency>	
+         <version>2.3.4</version>
+      </dependency>
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-type-system</artifactId>

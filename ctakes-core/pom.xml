@@ -102,10 +102,10 @@
 			<groupId>net.sourceforge.openai</groupId>
 			<artifactId>openaifsm</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.uima</groupId>
-			<artifactId>uimaj-examples</artifactId> <!--  for XCasWriterCasConsumer -->
-		</dependency>
+		<!--<dependency>-->
+		<!--<groupId>org.apache.uima</groupId>-->
+		<!--<artifactId>uimaj-examples</artifactId> &lt;!&ndash;  for XCasWriterCasConsumer &ndash;&gt;-->
+		<!--</dependency>-->
       <dependency>
          <groupId>com.lexicalscope.jewelcli</groupId>
          <artifactId>jewelcli</artifactId>
