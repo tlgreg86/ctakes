@@ -28,6 +28,8 @@
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-type-system</artifactId>
 		</dependency>
+		<!--  If ctakes-lvg is a dependency then everything in ctakes-lvg should be removed.  e.g. lookup, core
+				This makes maintenance much easier wrt upgraded versions and removed/unused modules (e.g. old lookup).-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-lvg</artifactId>
