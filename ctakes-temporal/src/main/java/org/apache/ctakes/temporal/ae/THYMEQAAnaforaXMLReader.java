@@ -1,58 +1,33 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
 package org.apache.ctakes.temporal.ae;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
 import org.apache.ctakes.typesystem.type.relation.AspectualTextRelation;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
-import org.apache.ctakes.typesystem.type.relation.CoreferenceRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
-import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.log4j.Logger;
-import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.collection.CollectionReader;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.EmptyFSList;
 import org.apache.uima.jcas.cas.FSArray;
-import org.apache.uima.jcas.cas.NonEmptyFSList;
+import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.util.ViewUriUtil;
-import org.cleartk.util.cr.UriCollectionReader;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
@@ -60,45 +35,18 @@ import org.jdom2.input.SAXBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
-  private static Logger LOGGER = Logger.getLogger(THYMEAnaforaXMLReader.class);
-
-  public static final String PARAM_ANAFORA_DIRECTORY = "anaforaDirectory";
-
-  @ConfigurationParameter(
-      name = PARAM_ANAFORA_DIRECTORY,
-      description = "root directory of the Anafora-annotated files, with one subdirectory for "
-          + "each annotated file")
-  protected File anaforaDirectory;
-
-  public static final String PARAM_ANAFORA_XML_SUFFIXES = "anaforaSuffixes";
-
-  @ConfigurationParameter(
-      name = PARAM_ANAFORA_XML_SUFFIXES,
-      mandatory = false,
-      description = "list of suffixes that might be added to a file name to identify the Anafora "
-          + "XML annotations file; only the first suffix corresponding to a file will be used")
-  protected String[] anaforaXMLSuffixes = new String[] {
-      ".Temporal-Relations.gold.completed.xml",
-      ".Temporal-Relation.gold.completed.xml",
-          ".Temporal.dave.completed.xml",
-      ".Temporal-Relation-Adjudication.gold.completed.xml",
-      ".Temporal-Entity-Adjudication.gold.completed.xml",
-      ".temporal.Temporal-Adjudication.gold.completed.xml",
-      ".temporal.Temporal-Entities.gold.completed.xml",
-      ".Temporal-Entity.gold.completed.xml",
-      ".Gold_Temporal_Entities.xml",
-      ".Gold_Temporal_Relations.xml"
-      };
-
-  public static AnalysisEngineDescription getDescription() throws ResourceInitializationException {
-    return AnalysisEngineFactory.createEngineDescription(THYMEAnaforaXMLReader.class);
-  }
-
+public class THYMEQAAnaforaXMLReader extends THYMEAnaforaXMLReader {
+	private static Logger LOGGER = Logger.getLogger(THYMEQAAnaforaXMLReader.class);
+	
   public static AnalysisEngineDescription getDescription(File anaforaDirectory)
       throws ResourceInitializationException {
     return AnalysisEngineFactory.createEngineDescription(
-        THYMEAnaforaXMLReader.class,
+        THYMEQAAnaforaXMLReader.class,
+        THYMEAnaforaXMLReader.PARAM_ANAFORA_XML_SUFFIXES,
+        new String[]{ ".THYME_QA.timi4508.completed.xml",
+            ".THYME_QA.gusa3085.completed.xml",
+            ".THYME_QA.bethard.completed.xml",
+            ".THYME_QA.dligach.completed.xml"},
         THYMEAnaforaXMLReader.PARAM_ANAFORA_DIRECTORY,
         anaforaDirectory);
   }
@@ -139,7 +87,7 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
     	processXmlFile(jCas, corefFile);
     }
   }
-  
+
   private static void processXmlFile(JCas jCas, File xmlFile) throws AnalysisEngineProcessException{
     // load the XML
     Element dataElem;
@@ -157,9 +105,11 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
     int curTimexId = 1;
     int curRelId = 1;
     int docLen = jCas.getDocumentText().length();
+    Map<String, List<String>> questionRelations = Maps.newHashMap();
     
     for (Element annotationsElem : dataElem.getChildren("annotations")) {
 
+    	// TODO -- need mapping from id to relation
       Map<String, Annotation> idToAnnotation = Maps.newHashMap();
       for (Element entityElem : annotationsElem.getChildren("entity")) {
         String id = removeSingleChildText(entityElem, "id", null);
@@ -197,18 +147,11 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
             error("no docTimeRel, assuming OVERLAP", id);
             docTimeRel = "OVERLAP";
           }
-          String eventType = removeSingleChildText(propertiesElem, "Type", id);
-          String degree = removeSingleChildText(propertiesElem, "Degree", id);
           String polarity = removeSingleChildText(propertiesElem, "Polarity", id);
-          String contextualModality = removeSingleChildText(propertiesElem, "ContextualModality", id);
-          String contextualAspect = removeSingleChildText(propertiesElem, "ContextualAspect", id);
-          String permanence = removeSingleChildText(propertiesElem, "Permanence", id);
           EventMention eventMention = new EventMention(jCas, begin, end);
           Event event = new Event(jCas);
           EventProperties eventProperties = new EventProperties(jCas);
           eventProperties.setDocTimeRel(docTimeRel);
-          eventProperties.setCategory(eventType);
-          eventProperties.setDegree(degree);
           if (polarity.equals("POS")) {
             eventProperties.setPolarity(CONST.NE_POLARITY_NEGATION_ABSENT);
           } else if (polarity.equals("NEG")) {
@@ -216,9 +159,6 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           } else {
             error("polarity that was not POS or NEG", id);
           }
-          eventProperties.setContextualModality(contextualModality);
-          eventProperties.setContextualAspect(contextualAspect);
-          eventProperties.setPermanence(permanence);
           eventProperties.addToIndexes();
           event.setConfidence(1.0f);
           event.setDiscoveryTechnique(CONST.NE_DISCOVERY_TECH_GOLD_ANNOTATION);
@@ -241,31 +181,6 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           timeMention.addToIndexes();
           annotation = timeMention;
 
-        } else if (type.equals("DOCTIME")) {
-          TimeMention timeMention = new TimeMention(jCas, begin, end);
-          timeMention.setId(curTimexId++);
-          timeMention.setTimeClass(type);
-          timeMention.addToIndexes();
-          annotation = timeMention;
-
-        } else if (type.equals("SECTIONTIME")) {
-          TimeMention timeMention = new TimeMention(jCas, begin, end);
-          timeMention.setId(curTimexId++);
-          timeMention.setTimeClass(type);
-          timeMention.addToIndexes();
-          annotation = timeMention;
-
-        } else if (type.equals("Markable")) {
-          while(end >= begin && (jCas.getDocumentText().charAt(end-1) == '\n' || jCas.getDocumentText().charAt(end-1) == '\r')){
-            end--;
-          }
-          Markable markable = new Markable(jCas, begin, end);
-          markable.addToIndexes();
-          annotation = markable;
-
-        } else if (type.equals("DUPLICATE")) {
-          LOGGER.warn("Ignoring duplicate sections in annotations.");
-          continue;
         } else {
           throw new UnsupportedOperationException("unsupported entity type: " + type);
         }
@@ -307,51 +222,19 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           AspectualTextRelation relation = new AspectualTextRelation(jCas);
           addRelation(jCas, relation, sourceID, targetID, alinkType, idToAnnotation, id);
 
-        } else if (type.equals("Identical")) {
-          CollectionTextRelation chain = new CollectionTextRelation(jCas);
-          String mention = removeSingleChildText(propertiesElem, "FirstInstance", id);
-          NonEmptyFSList list = new NonEmptyFSList(jCas);
-          NonEmptyFSList root = list;
-          Markable antecedent, anaphor;
-          antecedent = (Markable) idToAnnotation.get(mention);
-          list.setHead(antecedent);
-          List<Element> corefs = propertiesElem.getChildren("Coreferring_String");
-//          while((mention = removeSingleChildText(propertiesElem, "Coreferring_String", id)) != null){
-          for(Element coref : corefs){
-            mention = coref.getText();
-            NonEmptyFSList child = new NonEmptyFSList(jCas);
-            anaphor = (Markable) idToAnnotation.get(mention);
-            child.setHead(anaphor);
-            CoreferenceRelation pair = new CoreferenceRelation(jCas);
-            pair.setCategory("Identity");
-            RelationArgument arg1 = new RelationArgument(jCas);
-            arg1.setArgument(antecedent);
-            arg1.setRole("antecedent");
-            pair.setArg1(arg1);
-            RelationArgument arg2 = new RelationArgument(jCas);
-            arg2.setArgument(anaphor);
-            arg2.setRole("anaphor");
-            pair.setArg2(arg2);
-            pair.addToIndexes();
-            list.setTail(child);
-            list = child;
-            antecedent = anaphor;
-          }
-          propertiesElem.removeChildren("Coreferring_String");
-          EmptyFSList tail = new EmptyFSList(jCas);
-          list.setTail(tail);
-          root.addToIndexes();
-          chain.setMembers(root);
-          chain.addToIndexes();
-        } else if (type.equals("Set/Subset")){
-          error("This reader has not implemented reading of Set/Subset relations yet", id);
-          
-        } else if (type.equals("Whole/Part")){
-          error("This reader has not implemented reading of Whole/Part relations yet", id);
-          
-        } else if (type.equals("Appositive")){
-          error("This reader has not implemented reading of Appositive relations yet", id);
-          
+        } else if (type.equals("Question")){
+        	String questionText = removeSingleChildText(propertiesElem, "Question", id);
+        	String confidence = removeSingleChildText(propertiesElem, "Confidence", id);
+        	String difficulty = removeSingleChildText(propertiesElem, "Difficulty", id);
+        	String questionDescription = questionText + " - Confidence: " + confidence + " - Difficulty: " + difficulty;
+        	
+        	List<Element> answers = propertiesElem.getChildren("Answer");
+        	List<String> ids = new ArrayList<>();
+        	for(Element answer : answers){
+        		ids.add(answer.getText());
+        	}
+        	propertiesElem.removeChildren("Answer");
+        	questionRelations.put(questionDescription, ids);
         } else {
           throw new UnsupportedOperationException("unsupported relation type: " + type);
         }
@@ -369,9 +252,21 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           error("unprocessed children " + children, id);
         }
       }
+      
+      // After reading in all the relations we can create the Question annotations
+      for(String question : questionRelations.keySet()){
+      	CollectionTextRelation qaRel = new CollectionTextRelation(jCas);
+      	qaRel.setCategory(question);
+        List<TOP> answerList = new ArrayList<>();
+      	for(String id : questionRelations.get(question)){
+      		TOP answer = idToAnnotation.get(id);
+      		answerList.add(answer);
+      	}
+      	qaRel.setMembers(ListFactory.buildList(jCas, answerList));
+      	qaRel.addToIndexes();
+      }
     }
   }
-
   private static Element getSingleChild(Element elem, String elemName, String causeID) {
     List<Element> children = elem.getChildren(elemName);
     if (children.size() != 1) {
@@ -438,13 +333,4 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
     LOGGER.error(String.format("found %s in annotation with ID %s", found, id));
   }
 
-  public static void main(String[] args) throws Exception {
-    List<File> files = Lists.newArrayList();
-    for (String path : args) {
-      files.add(new File(path));
-    }
-    CollectionReader reader = UriCollectionReader.getCollectionReaderFromFiles(files);
-    AnalysisEngine engine = AnalysisEngineFactory.createEngine(THYMEAnaforaXMLReader.class);
-    SimplePipeline.runPipeline(reader, engine);
-  }
 }

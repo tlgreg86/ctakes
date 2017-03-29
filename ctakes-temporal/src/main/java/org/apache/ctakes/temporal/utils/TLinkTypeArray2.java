@@ -21,10 +21,12 @@ package org.apache.ctakes.temporal.utils;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
+import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
 
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -154,7 +156,7 @@ public class TLinkTypeArray2 {
 	   arg1.setArgument(entityA);
 	   RelationArgument arg2 = new RelationArgument(jCas);
 	   arg2.setArgument(entityB);
-	   BinaryTextRelation relation = new BinaryTextRelation(jCas);
+	   TemporalTextRelation relation = new TemporalTextRelation(jCas);
 	   relation.setArg1(arg1);
 	   relation.setArg2(arg2);
 	   relation.setCategory(tlinkType.name().replace( "_", "-" ));//check if this is correct

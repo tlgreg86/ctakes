@@ -167,6 +167,8 @@ public class AnnotationIdCollection {
 		 * {@inheritDoc}
 		 */
 		public int compare( final Annotation arg1, final Annotation arg2 ) {
+			if(arg1 == null) return -1;
+			else if(arg2 == null) return 1;
 			final int startDiff = arg1.getBegin() - arg2.getBegin();
 			if ( startDiff != 0 ) {
 				return startDiff;
