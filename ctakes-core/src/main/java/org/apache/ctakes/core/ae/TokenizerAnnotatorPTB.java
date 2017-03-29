@@ -217,6 +217,7 @@ public class TokenizerAnnotatorPTB extends JCasAnnotator_ImplBase
 
 
 // From http://www.seas.upenn.edu/~jmott/2009_addendum.pdf
+// which was moved to https://www.ldc.upenn.edu/sites/www.ldc.upenn.edu/files/etb-supplementary-guidelines-2009-addendum.pdf
 // modified by Task1.4.4_adoptedConventions[AL]_Feb28_2011.doc
 
 //All strings separated by white space are treated as separate tokens. 

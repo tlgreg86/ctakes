@@ -49,6 +49,7 @@ import org.apache.ctakes.typesystem.type.syntax.WordToken;
  * A class used to break natural text into tokens following PTB rules.
  * See Supplementary Guidelines for ETTB 2.0
  * dated April 6th, 2009. 
+ * https://www.ldc.upenn.edu/sites/www.ldc.upenn.edu/files/etb-supplementary-guidelines-2009-addendum.pdf
  * The token markup is external to the text and is not embedded.
  * Character offset location is used to identify the boundaries of a token.
  * 
