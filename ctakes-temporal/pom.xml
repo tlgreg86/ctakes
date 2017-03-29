@@ -59,6 +59,8 @@
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-pos-tagger</artifactId>
 		</dependency>
+		<!--  If chunker is a dependency then everything in chunker should be removed.  core, type-system, pos-tagger ...
+				This makes maintenance much easier wrt upgraded versions and removed/unused modules (e.g. old lookup).-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-chunker</artifactId>
