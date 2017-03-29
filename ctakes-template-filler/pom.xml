@@ -46,6 +46,8 @@
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-drug-ner-res</artifactId>
 		</dependency>
+		<!--  If clinical-pipeline is a dependency then everything in clinical-pipeline should be removed.
+				This makes maintenance much easier wrt upgraded versions and removed/unused modules (e.g. old lookup).-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-clinical-pipeline</artifactId>
