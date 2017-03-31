@@ -34,9 +34,9 @@ import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.cleartk.util.ViewUriUtil;
 
-public class SentenceDetectorAnnotator extends CleartkAnnotator<String>{
+public class SentenceDetectorAnnotatorBIO extends CleartkAnnotator<String>{
 
-  private Logger logger = Logger.getLogger(SentenceDetectorAnnotator.class);
+  private Logger logger = Logger.getLogger(SentenceDetectorAnnotatorBIO.class);
   private static final int WINDOW_SIZE = 3;
   
   public static enum FEAT_CONFIG {GILLICK, CHAR, SHAPE, LINE_POS, CHAR_SHAPE, CHAR_POS, CHAR_SHAPE_POS }
@@ -361,26 +361,26 @@ public class SentenceDetectorAnnotator extends CleartkAnnotator<String>{
   
   public static AnalysisEngineDescription getDataWriter(File outputDirectory, Class<? extends DataWriter<?>> class1) throws ResourceInitializationException {
     return AnalysisEngineFactory.createEngineDescription(
-        SentenceDetectorAnnotator.class,
-        SentenceDetectorAnnotator.PARAM_IS_TRAINING,
+        SentenceDetectorAnnotatorBIO.class,
+        SentenceDetectorAnnotatorBIO.PARAM_IS_TRAINING,
         true,
         DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
         outputDirectory,
         DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
         class1,
-        SentenceDetectorAnnotator.PARAM_FEAT_CONFIG,
-        SentenceDetectorAnnotator.FEAT_CONFIG.CHAR);
+        SentenceDetectorAnnotatorBIO.PARAM_FEAT_CONFIG,
+        SentenceDetectorAnnotatorBIO.FEAT_CONFIG.CHAR);
   }
 
   public static AnalysisEngineDescription getDescription(String modelPath) throws ResourceInitializationException {
     return AnalysisEngineFactory.createEngineDescription(
-        SentenceDetectorAnnotator.class,
-        SentenceDetectorAnnotator.PARAM_IS_TRAINING,
+        SentenceDetectorAnnotatorBIO.class,
+        SentenceDetectorAnnotatorBIO.PARAM_IS_TRAINING,
         false,
         GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
         modelPath,
-        SentenceDetectorAnnotator.PARAM_FEAT_CONFIG,
-        SentenceDetectorAnnotator.FEAT_CONFIG.CHAR);
+        SentenceDetectorAnnotatorBIO.PARAM_FEAT_CONFIG,
+        SentenceDetectorAnnotatorBIO.FEAT_CONFIG.CHAR);
   }
   
   public static AnalysisEngineDescription getDescription() throws ResourceInitializationException {

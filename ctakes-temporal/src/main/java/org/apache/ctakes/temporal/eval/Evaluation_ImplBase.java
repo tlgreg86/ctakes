@@ -492,7 +492,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				SentenceDetector.class,
 				SentenceDetector.SD_MODEL_FILE_PARAM,
 				"org/apache/ctakes/core/sentdetect/sd-med-model.zip" ) );
-		//      aggregateBuilder.add(SentenceDetectorAnnotator.getDescription(FileLocator.locateFile("org/apache/ctakes/core/sentdetect/model.jar").getPath()));
+		//      aggregateBuilder.add(SentenceDetectorAnnotatorBIO.getDescription(FileLocator.locateFile("org/apache/ctakes/core/sentdetect/model.jar").getPath()));
 
 		// identify tokens
 		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( TokenizerAnnotatorPTB.class ) );
