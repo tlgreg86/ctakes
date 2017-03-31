@@ -9,6 +9,7 @@ import org.apache.ctakes.typesystem.type.textspan.List;
 import org.apache.ctakes.typesystem.type.textspan.ListEntry;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
@@ -52,7 +53,7 @@ public class ListEntryNegator extends JCasAnnotator_ImplBase {
       LOGGER.info( "Finished Processing" );
    }
 
-   static private void processList( final JCas jCas, final List list ) {
+   static private void processList( final JCas jCas, final AnnotationFS list ) {
       final java.util.List<ListEntry> listEntries = new ArrayList<>( JCasUtil
             .selectCovered( jCas, ListEntry.class, list ) );
       if ( listEntries.isEmpty() ) {
@@ -70,7 +71,7 @@ public class ListEntryNegator extends JCasAnnotator_ImplBase {
    }
 
 
-   static private void processNegatables( final String docText, final java.util.List<ListEntry> listEntries,
+   static private void processNegatables( final String docText, final Iterable<ListEntry> listEntries,
                                           final java.util.List<IdentifiedAnnotation> negatables ) {
       int j = 0;
       IdentifiedAnnotation negatable = negatables.get( 0 );
