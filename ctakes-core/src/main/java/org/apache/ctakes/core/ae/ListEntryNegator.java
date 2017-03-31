@@ -23,6 +23,8 @@ import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.IDENTIFIED
 import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.LIST;
 
 /**
+ * Sets negation for disease/disorder and sign/symptom annotations in lists.
+ *
  * @author SPF , chip-nlp
  * @version %I%
  * @since 3/31/2017
