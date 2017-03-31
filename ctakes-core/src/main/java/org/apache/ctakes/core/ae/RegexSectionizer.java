@@ -35,15 +35,10 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
 
    static private final Logger LOGGER = Logger.getLogger( "RegexSectionizer" );
 
-   /**
-    * Name of configuration parameter that contains the character encoding used
-    * by the input files.  If not specified, the default system encoding will
-    * be used.
-    */
    static public final String PARAM_TAG_DIVIDERS = "TagDividers";
    @ConfigurationParameter(
          name = PARAM_TAG_DIVIDERS,
-         description = "The character encoding used by the input files.",
+         description = "True if lines of divider characters ____ , ---- , === should divide sections",
          defaultValue = "true",
          mandatory = false
    )
