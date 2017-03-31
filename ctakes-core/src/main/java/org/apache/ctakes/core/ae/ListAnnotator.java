@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
       name = "List Annotator",
       description = "Annotates formatted List Sections by detecting them using Regular Expressions provided in an input File.",
       dependencies = { PipeBitInfo.TypeProduct.SECTION },
-      products = { PipeBitInfo.TypeProduct.LIST, PipeBitInfo.TypeProduct.LIST_ENTRY }
+      products = { PipeBitInfo.TypeProduct.LIST }
 )
 final public class ListAnnotator extends JCasAnnotator_ImplBase {
 
@@ -53,10 +53,10 @@ final public class ListAnnotator extends JCasAnnotator_ImplBase {
     */
    static private final String DEFAULT_LIST_ID = "SIMPLE_LIST";
 
-
    @ConfigurationParameter(
          name = LIST_TYPES_PATH,
-         description = LIST_TYPES_DESC
+         description = LIST_TYPES_DESC,
+         defaultValue = "org/apache/ctakes/core/list/DefaultListRegex.bsv"
    )
    private String _listTypesPath;
 
