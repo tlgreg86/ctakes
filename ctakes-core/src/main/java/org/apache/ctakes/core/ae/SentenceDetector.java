@@ -349,11 +349,7 @@ public class SentenceDetector extends JCasAnnotator_ImplBase {
 
 	public static File getFileInExistingDir(String fn) throws IOException {
 		File f = new File(fn);
-		File parent = f.getParentFile();
-		if (parent == null) {
-			throw new IOException("Parent of directory not found: "
-					+ f.getAbsolutePath());
-		}
+		File parent = f.getAbsoluteFile().getParentFile();
 		if (!parent.isDirectory()) {
 			throw new IOException("Directory not found: "
 					+ f.getParentFile().getAbsolutePath());
