@@ -18,8 +18,8 @@
  */
 package org.apache.ctakes.assertion.medfacts;
 
-import org.mitre.medfacts.zoner.CharacterOffsetToLineTokenConverter;
-import org.mitre.medfacts.zoner.CharacterOffsetToLineTokenConverterDefaultImpl;
+import org.apache.ctakes.assertion.stub.CharacterOffsetToLineTokenConverter;
+import org.apache.ctakes.assertion.stub.CharacterOffsetToLineTokenConverterDefaultImpl;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -43,18 +43,19 @@ import org.apache.uima.jcas.cas.Sofa;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.mitre.medfacts.i2b2.annotation.Annotation;
-import org.mitre.medfacts.i2b2.annotation.ConceptType;
+import org.apache.ctakes.assertion.stub.Annotation;
+import org.apache.ctakes.assertion.stub.AssertionAnnotation;
+import org.apache.ctakes.assertion.stub.ConceptType;
 import org.apache.uima.cas.text.AnnotationIndex;
 //import org.apache.uima.jcas.tcas.Annotation;
 
-import org.mitre.medfacts.zoner.LineAndTokenPosition;
+import org.apache.ctakes.assertion.stub.LineAndTokenPosition;
 import java.io.PrintWriter;
 import java.io.IOException;
-import org.mitre.medfacts.i2b2.api.SingleDocumentProcessor;
-import org.mitre.medfacts.i2b2.util.StringHandling;
-import org.mitre.medfacts.zoner.LineTokenToCharacterOffsetConverter;
-import org.mitre.medfacts.i2b2.processors.AssertionFileProcessor;
+import org.apache.ctakes.assertion.stub.SingleDocumentProcessor;
+import org.apache.ctakes.assertion.stub.StringHandling;
+import org.apache.ctakes.assertion.stub.LineTokenToCharacterOffsetConverter;
+import org.apache.ctakes.assertion.stub.AssertionFileProcessor;
 import java.util.List;
 
 import org.apache.ctakes.assertion.medfacts.types.Assertion;
@@ -64,11 +65,9 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.ctakes.typesystem.type.syntax.WordToken;
-import org.apache.uima.jcas.JCas;
 import java.io.FileOutputStream;
 import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.util.XMLSerializer;
-
 
 
 /*
@@ -198,7 +197,7 @@ public class Converti2b2AnnotationsToCTAKES {
 				logger.info("  assertion: " + a.toString());
 				//Concept assertion = new Concept(jcas);
 
-				org.mitre.medfacts.i2b2.annotation.AssertionAnnotation i2b2Assertion = (org.mitre.medfacts.i2b2.annotation.AssertionAnnotation)a;
+				AssertionAnnotation i2b2Assertion = (AssertionAnnotation)a;
 				ConceptType conceptType = i2b2Assertion.getConceptType();
 
 				IdentifiedAnnotation entityOrEventMention = null;
@@ -242,7 +241,7 @@ public class Converti2b2AnnotationsToCTAKES {
 
   private static void adjustAssertionAttributesByI2B2Convertion(
       IdentifiedAnnotation entityOrEventMention,
-      org.mitre.medfacts.i2b2.annotation.AssertionAnnotation i2b2Assertion)
+      AssertionAnnotation i2b2Assertion)
   {
     
   }

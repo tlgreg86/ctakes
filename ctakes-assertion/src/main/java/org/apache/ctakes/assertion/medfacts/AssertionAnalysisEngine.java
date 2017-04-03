@@ -42,16 +42,16 @@ import org.apache.uima.jcas.tcas.Annotation_Type;
 import org.apache.uima.resource.ResourceAccessException;
 import org.apache.uima.resource.ResourceInitializationException;
 //import org.jfree.util.Log;
-import org.mitre.jcarafe.jarafe.JarafeMEDecoder;
-import org.mitre.medfacts.i2b2.annotation.PartOfSpeechTagger;
-import org.mitre.medfacts.i2b2.annotation.ScopeParser;
-import org.mitre.medfacts.i2b2.api.ApiConcept;
-import org.mitre.medfacts.i2b2.api.AssertionDecoderConfiguration;
-import org.mitre.medfacts.i2b2.api.SingleDocumentProcessor;
-import org.mitre.medfacts.i2b2.cli.BatchRunner;
-import org.mitre.medfacts.i2b2.util.StringHandling;
-import org.mitre.medfacts.zoner.CharacterOffsetToLineTokenConverter;
-import org.mitre.medfacts.zoner.LineTokenToCharacterOffsetConverter;
+import org.apache.ctakes.assertion.stub.JarafeMEDecoder;
+import org.apache.ctakes.assertion.stub.PartOfSpeechTagger;
+import org.apache.ctakes.assertion.stub.ScopeParser;
+import org.apache.ctakes.assertion.stub.ApiConcept;
+import org.apache.ctakes.assertion.stub.AssertionDecoderConfiguration;
+import org.apache.ctakes.assertion.stub.SingleDocumentProcessor;
+import org.apache.ctakes.assertion.stub.BatchRunner;
+import org.apache.ctakes.assertion.stub.StringHandling;
+import org.apache.ctakes.assertion.stub.CharacterOffsetToLineTokenConverter;
+import org.apache.ctakes.assertion.stub.LineTokenToCharacterOffsetConverter;
 
 
 import org.apache.ctakes.assertion.attributes.generic.GenericAttributeClassifier;

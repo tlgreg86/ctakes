@@ -18,8 +18,8 @@
  */
 package org.apache.ctakes.assertion.medfacts;
 
-import org.mitre.medfacts.zoner.CharacterOffsetToLineTokenConverter;
-import org.mitre.medfacts.zoner.CharacterOffsetToLineTokenConverterDefaultImpl;
+import org.apache.ctakes.assertion.stub.CharacterOffsetToLineTokenConverter;
+import org.apache.ctakes.assertion.stub.CharacterOffsetToLineTokenConverterDefaultImpl;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -43,7 +43,7 @@ import org.apache.uima.util.InvalidXMLException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.mitre.medfacts.zoner.LineAndTokenPosition;
+import org.apache.ctakes.assertion.stub.LineAndTokenPosition;
 import java.io.PrintWriter;
 import java.io.IOException;
 

@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
-import org.mitre.medfacts.i2b2.annotation.ConceptType;
+import org.apache.ctakes.assertion.stub.ConceptType;
 
 import org.apache.ctakes.typesystem.type.refsem.OntologyConcept;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;

@@ -20,6 +20,8 @@ package org.apache.ctakes.assertion.medfacts.i2b2.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import java.util.regex.Pattern;
@@ -37,11 +39,12 @@ import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.mitre.medfacts.i2b2.api.ApiConcept;
-import org.mitre.medfacts.i2b2.api.SingleDocumentProcessor;
-import org.mitre.medfacts.zoner.CharacterOffsetToLineTokenConverter;
-import org.mitre.medfacts.zoner.LineAndTokenPosition;
-import org.mitre.medfacts.zoner.LineTokenToCharacterOffsetConverter;
+import org.apache.ctakes.assertion.stub.ApiConcept;
+import org.apache.ctakes.assertion.stub.AssertionDecoderConfiguration;
+import org.apache.ctakes.assertion.stub.SingleDocumentProcessor;
+import org.apache.ctakes.assertion.stub.CharacterOffsetToLineTokenConverter;
+import org.apache.ctakes.assertion.stub.LineAndTokenPosition;
+import org.apache.ctakes.assertion.stub.LineTokenToCharacterOffsetConverter;
 
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.PunctuationToken;
