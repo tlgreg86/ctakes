@@ -159,6 +159,7 @@ EvaluationOfTemporalRelations_ImplBase{
 			1.0, 0.1, "radial basis function", ComboOperator.SUM, 0.5, 0.5);
 	private static Boolean recallModeEvaluation = true;
 
+	// usage: train EE and ET CNN model separately. then call this evaluator with "--skipWrite" parameter
 	public static void main(String[] args) throws Exception {
 		TempRelOptions options = CliFactory.parseArguments(TempRelOptions.class, args);
 		List<Integer> trainItems = null;
