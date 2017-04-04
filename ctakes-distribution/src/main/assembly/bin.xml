@@ -46,6 +46,7 @@
 				<include>org.apache.ctakes:ctakes-dictionary-lookup</include>
 				<include>org.apache.ctakes:ctakes-dictionary-lookup-fast</include>				
 				<include>org.apache.ctakes:ctakes-drug-ner</include>
+				<include>org.apache.ctakes:ctakes-gui</include>
 				<include>org.apache.ctakes:ctakes-lvg</include>
 				<include>org.apache.ctakes:ctakes-ne-contexts</include>
 				<include>org.apache.ctakes:ctakes-pos-tagger</include>
@@ -149,6 +150,12 @@
     	</fileSet>
       <fileSet>
          <directory>../ctakes-dictionary-lookup-fast-res/src/main/resources</directory>
+         <outputDirectory>resources</outputDirectory>
+         <fileMode>644</fileMode>
+         <directoryMode>755</directoryMode>
+      </fileSet>
+      <fileSet>
+         <directory>../ctakes-gui-res/src/main/resources</directory>
          <outputDirectory>resources</outputDirectory>
          <fileMode>644</fileMode>
          <directoryMode>755</directoryMode>
