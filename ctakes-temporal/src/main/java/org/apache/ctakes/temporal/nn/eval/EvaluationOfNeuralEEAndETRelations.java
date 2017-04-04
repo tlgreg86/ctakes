@@ -51,7 +51,7 @@ import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterS
 import org.apache.ctakes.temporal.keras.KerasStringOutcomeDataWriter;
 import org.apache.ctakes.temporal.keras.ScriptStringFeatureDataWriter;
 import org.apache.ctakes.temporal.nn.ae.EventEventTokenBasedAnnotator;
-import org.apache.ctakes.temporal.nn.ae.EventTimeTokenAndPathBasedAnnotator;
+//import org.apache.ctakes.temporal.nn.ae.EventTimeTokenAndPathBasedAnnotator;
 import org.apache.ctakes.temporal.nn.ae.EventTimeTokenBasedAnnotator;
 import org.apache.ctakes.temporal.nn.eval.EventTimeNeuralEvaluation.RemoveEventEventRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase;
@@ -365,7 +365,7 @@ EvaluationOfTemporalRelations_ImplBase{
 						) );
 
 		aggregateBuilder.add(
-				AnalysisEngineFactory.createEngineDescription(EventTimeTokenBasedAnnotator.class,//EventTimeTokenAndPathBasedAnnotator.class,//
+				AnalysisEngineFactory.createEngineDescription(EventEventTokenBasedAnnotator.class,//EventTimeTokenAndPathBasedAnnotator.class,//
 						CleartkAnnotator.PARAM_IS_TRAINING,
 						true,
 						DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
