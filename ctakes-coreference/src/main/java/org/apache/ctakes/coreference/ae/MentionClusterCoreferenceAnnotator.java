@@ -74,7 +74,7 @@ import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.cleartk.util.ViewUriUtil;
 @PipeBitInfo(
-	      name = "Coreference using Mention Clusters",
+	      name = "Coreference using Clusters",
 	      description = "Coreference annotator using mention-synchronous paradigm.",
    	      dependencies = { BASE_TOKEN, SENTENCE, SECTION, IDENTIFIED_ANNOTATION, MARKABLE },
    	      products = { COREFERENCE_RELATION }
