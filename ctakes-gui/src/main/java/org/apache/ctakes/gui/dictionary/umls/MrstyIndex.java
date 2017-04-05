@@ -9,7 +9,7 @@ public enum MrstyIndex {
    CUI( 0 ), TUI( 1 );
    final public int _index;
 
-   private MrstyIndex( final int index ) {
+   MrstyIndex( final int index ) {
       _index = index;
    }
 

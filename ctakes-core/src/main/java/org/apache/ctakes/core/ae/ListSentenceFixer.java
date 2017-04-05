@@ -22,8 +22,7 @@ import java.util.regex.Pattern;
 @PipeBitInfo(
       name = "List Sentence Fixer",
       description = "Re-annotates Sentences based upon existing List Entries, preventing a Sentence from spanning more than one List Entry.",
-      dependencies = { PipeBitInfo.TypeProduct.LIST, PipeBitInfo.TypeProduct.LIST_ENTRY,
-                       PipeBitInfo.TypeProduct.SENTENCE }
+      dependencies = { PipeBitInfo.TypeProduct.LIST, PipeBitInfo.TypeProduct.SENTENCE }
 )
 final public class ListSentenceFixer extends JCasAnnotator_ImplBase {
 

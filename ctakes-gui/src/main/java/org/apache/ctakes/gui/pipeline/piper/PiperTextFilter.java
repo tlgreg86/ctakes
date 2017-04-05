@@ -1,6 +1,8 @@
 package org.apache.ctakes.gui.pipeline.piper;
 
+import org.apache.ctakes.core.pipeline.PiperFileReader;
 import org.apache.log4j.Logger;
+import org.apache.uima.UIMAException;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -8,6 +10,7 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * @author SPF , chip-nlp
@@ -18,11 +21,13 @@ final public class PiperTextFilter extends DocumentFilter {
 
    static private final Logger LOGGER = Logger.getLogger( "PiperTextFilter" );
 
+   final private TextValidator _textValidator;
    final private TextFormatter _textFormatter;
 
 
    public PiperTextFilter( final DefaultStyledDocument document ) {
       _textFormatter = new TextFormatter( document );
+      _textValidator = new TextValidator( document );
       document.setDocumentFilter( this );
    }
 
@@ -31,14 +36,9 @@ final public class PiperTextFilter extends DocumentFilter {
     */
    @Override
    public void remove( final FilterBypass fb, final int begin, final int length ) throws BadLocationException {
-      String text = "";
-      final Document document = fb.getDocument();
-      if ( begin + length <= document.getLength() ) {
-         text = fb.getDocument().getText( begin, length );
-      }
       super.remove( fb, begin, length );
-      if ( shouldReformat( document, begin, length ) ) {
-         formatText( document );
+      if ( shouldReformat( fb.getDocument(), begin, length ) ) {
+         formatText( fb.getDocument() );
       }
    }
 
@@ -80,9 +80,21 @@ final public class PiperTextFilter extends DocumentFilter {
       }
    }
 
-   static private final class TextFormatter implements Runnable {
-      final private StyledDocument _document;
-      final private Map<String, Style> _styles = new HashMap<>();
+   public boolean validateText() {
+      final ExecutorService executor = Executors.newSingleThreadExecutor();
+      Future<Boolean> valid = executor.submit( (Callable<Boolean>)_textValidator );
+      try {
+         return valid.get( 1000, TimeUnit.MILLISECONDS );
+      } catch ( InterruptedException | ExecutionException | TimeoutException multE ) {
+         LOGGER.warn( "Piper validation timed out." );
+         return false;
+      }
+   }
+
+
+   static private class TextFormatter implements Runnable {
+      final StyledDocument _document;
+      final Map<String, Style> _styles = new HashMap<>();
 
       private TextFormatter( final StyledDocument document ) {
          _document = document;
@@ -132,7 +144,7 @@ final public class PiperTextFilter extends DocumentFilter {
          return style;
       }
 
-      private void formatLine( final int begin, final int end ) throws BadLocationException {
+      void formatLine( final int begin, final int end ) throws BadLocationException {
          final int length = end - begin;
          if ( length <= 0 ) {
             return;
@@ -174,5 +186,64 @@ final public class PiperTextFilter extends DocumentFilter {
 //         return style;
 //      }
    }
+
+
+   static private final class TextValidator extends TextFormatter implements Callable<Boolean> {
+      final private PiperFileReader _reader;
+
+      private TextValidator( final StyledDocument document ) {
+         super( document );
+         _reader = new PiperFileReader();
+      }
+
+      @Override
+      public Boolean call() {
+         boolean valid = true;
+         try {
+            final String text = _document.getText( 0, _document.getLength() );
+            int lineBegin = 0;
+            boolean lineEnded = false;
+            for ( int i = 0; i < _document.getLength(); i++ ) {
+               lineEnded = false;
+               if ( text.charAt( i ) == '\n' ) {
+                  if ( validateLine( lineBegin, i ) ) {
+                     formatLine( lineBegin, i );
+                  }
+                  lineBegin = i + 1;
+                  lineEnded = true;
+               }
+            }
+            if ( !lineEnded ) {
+               formatLine( lineBegin, _document.getLength() );
+               valid = false;
+            }
+         } catch ( BadLocationException blE ) {
+            LOGGER.error( blE.getMessage() );
+            valid = false;
+         }
+         _document.setCharacterAttributes( _document.getLength(), _document.getLength(), _styles.get( "PLAIN" ), true );
+         _reader.getBuilder().clear();
+         return valid;
+      }
+
+      private boolean validateLine( final int begin, final int end ) throws BadLocationException {
+         final int length = end - begin;
+         if ( length <= 0 ) {
+            return false;
+         }
+         final String text = _document.getText( begin, length );
+         if ( text.startsWith( "#" ) || text.startsWith( "//" ) || text.startsWith( "!" ) ) {
+            return true;
+         }
+         try {
+            _reader.parsePipelineLine( text );
+         } catch ( UIMAException uE ) {
+            _document.setCharacterAttributes( begin, end, _styles.get( "ERROR" ), true );
+            return false;
+         }
+         return true;
+      }
+   }
+
 
 }

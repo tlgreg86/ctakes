@@ -11,7 +11,7 @@ import com.lexicalscope.jewel.cli.Option;
  * @version %I%
  * @since 1/7/2017
  */
-public interface CliOptionals extends StandardOptions {
+public interface CliOptionals extends StandardCliOptions {
 
    @Option(
          shortName = "a",

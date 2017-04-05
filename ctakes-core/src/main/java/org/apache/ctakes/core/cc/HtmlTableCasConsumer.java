@@ -64,6 +64,7 @@ public class HtmlTableCasConsumer extends CasConsumer_ImplBase
 
     private String[] iv_tdStyleArr = { "I", "B" };
 
+   @Override
     public void initialize() throws ResourceInitializationException
     {
         try
@@ -100,7 +101,8 @@ public class HtmlTableCasConsumer extends CasConsumer_ImplBase
         }
     }
 
-    public void processCas(CAS cas) throws ResourceProcessException
+   @Override
+   public void processCas( CAS cas ) throws ResourceProcessException
     {
         try
         {
@@ -155,7 +157,7 @@ public class HtmlTableCasConsumer extends CasConsumer_ImplBase
                         Iterator<Annotation> annItr = annList.iterator();
                         while (annItr.hasNext())
                         {
-                            Annotation ann = (Annotation) annItr.next();
+                           Annotation ann = annItr.next();
                             // account for preceeding whitespace
                             int delta = ann.getBegin() - cursor;
                             if (delta > 0)
@@ -232,7 +234,7 @@ public class HtmlTableCasConsumer extends CasConsumer_ImplBase
         Integer key = new Integer(annType);
         if (iv_getterMethMap.containsKey(key))
         {
-            Method meth = (Method) iv_getterMethMap.get(key);
+           Method meth = iv_getterMethMap.get( key );
             Object val = meth.invoke(ann, (Object[]) null);
             if (val != null)
             {
@@ -270,7 +272,7 @@ public class HtmlTableCasConsumer extends CasConsumer_ImplBase
         while (nestedAnnList.size() != 0)
         {
             // pop annotation off
-            Annotation ann = (Annotation) nestedAnnList.remove(0);
+           Annotation ann = nestedAnnList.remove( 0 );
 
             BitSet annBitSet = new BitSet(tSpanSize);
             annBitSet.set(ann.getBegin() - tSpanAnn.getBegin(), ann.getEnd()
@@ -281,7 +283,7 @@ public class HtmlTableCasConsumer extends CasConsumer_ImplBase
             boolean rowFound = false;
             while (!rowFound)
             {
-                BitSet trBitSet = (BitSet) maskAtRowList.get(idx);
+               BitSet trBitSet = maskAtRowList.get( idx );
 
                 // interset BitSets to determine if annotation will fit
                 // in this row
@@ -294,7 +296,7 @@ public class HtmlTableCasConsumer extends CasConsumer_ImplBase
                         maskAtRowList.add(trBitSet);
                     } else
                     {
-                        trBitSet = (BitSet) maskAtRowList.get(idx);
+                       trBitSet = maskAtRowList.get( idx );
                     }
                 }
                 trBitSet.or(annBitSet);
@@ -329,7 +331,8 @@ public class HtmlTableCasConsumer extends CasConsumer_ImplBase
          * 
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
-        public int compare(Annotation a1, Annotation a2)
+        @Override
+        public int compare( Annotation a1, Annotation a2 )
         {
             Integer len1 = new Integer(a1.getCoveredText().length());
             Integer len2 = new Integer(a2.getCoveredText().length());
@@ -369,7 +372,8 @@ public class HtmlTableCasConsumer extends CasConsumer_ImplBase
          * 
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
-        public int compare(Annotation a1, Annotation a2)
+        @Override
+        public int compare( Annotation a1, Annotation a2 )
         {
             if (a1.getBegin() < a2.getBegin())
                 return -1;
@@ -394,7 +398,7 @@ public class HtmlTableCasConsumer extends CasConsumer_ImplBase
                 .iterator();
         while (itr.hasNext())
         {
-            Annotation ann = (Annotation) itr.next();
+           Annotation ann = itr.next();
             if ((ann.getBegin() >= begin) && (ann.getEnd() <= end))
             {
                 list.add(ann);

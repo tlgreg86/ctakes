@@ -62,10 +62,10 @@ public class TokenFreqCasConsumer extends CasConsumer_ImplBase
  * This method opens/creates the file specified by "TokenFreqFile" and initializes the 
  * data structure that will keep track of frequency counts.
  * @see org.apache.uima.collection.CasConsumer_ImplBase#initialize()
- */	
-	public void initialize() throws ResourceInitializationException 
-	{
-		try
+ */
+@Override
+public void initialize() throws ResourceInitializationException {
+   try
 		{
 			String wordFreqFileName = (String) getConfigParameterValue(PARAM_WORD_FREQ_FILE);
 			wordFreqFile = new File(wordFreqFileName);
@@ -87,9 +87,9 @@ public class TokenFreqCasConsumer extends CasConsumer_ImplBase
 	 * 
 	 * @see org.apache.uima.collection.base_cpm.CasObjectProcessor#processCas(org.apache.uima.cas.CAS)
 	 */
-	public void processCas(CAS cas) throws ResourceProcessException 
-	{
-		try 
+   @Override
+   public void processCas( CAS cas ) throws ResourceProcessException {
+      try
 		{
 			JCas jcas;
 			jcas = cas.getJCas();
@@ -103,9 +103,9 @@ public class TokenFreqCasConsumer extends CasConsumer_ImplBase
 	        	{
 	        		wordFreqs.put(text, new int[1]);
 	        	}
-	        	((int[])wordFreqs.get(text))[0]++;
-	        }	        	
-		}
+              wordFreqs.get( text )[ 0 ]++;
+           }
+      }
 		catch(Exception exception)
 		{
 			throw new ResourceProcessException(exception);
@@ -116,9 +116,9 @@ public class TokenFreqCasConsumer extends CasConsumer_ImplBase
 	 * This method sorts the frequency counts and prints out the resulting frequencies in descending
 	 * order to the frequency file in 'word|count' format.
 	 */
-	public void collectionProcessComplete(ProcessTrace arg0) throws ResourceProcessException, IOException 
-	{
-		//sortedFreqs will contain objects of type Object[] of length 2.  The first object in the array
+   @Override
+   public void collectionProcessComplete( ProcessTrace arg0 ) throws ResourceProcessException, IOException {
+      //sortedFreqs will contain objects of type Object[] of length 2.  The first object in the array
 		//will hold the token and the second the frequency.  We want to sort on the frequency first in 
 		//descending order and token in ascending order for those tokens with the same frequency. 
 		TreeSet<Object[]> sortedFreqs = new TreeSet<Object[]>(
@@ -139,17 +139,17 @@ public class TokenFreqCasConsumer extends CasConsumer_ImplBase
 		while(words.hasNext())
 		{
 			String word = words.next();
-			int freq = ((int[])(wordFreqs.get(word)))[0];
-			sortedFreqs.add(new Object[] {word,new Integer(freq)});
-		}
+         int freq = wordFreqs.get( word )[ 0 ];
+         sortedFreqs.add( new Object[] { word, new Integer( freq ) } );
+      }
 		
 		PrintStream out = new PrintStream(new FileOutputStream(wordFreqFile));
 		Iterator<Object[]> freqs = sortedFreqs.iterator(); 
 		while(freqs.hasNext())
 		{
-			Object[] tokenFreq = (Object[]) freqs.next();
-			String word = (String) tokenFreq[0];
-			int freq = ((Integer)tokenFreq[1]).intValue();
+         Object[] tokenFreq = freqs.next();
+         String word = (String)tokenFreq[ 0 ];
+         int freq = ((Integer)tokenFreq[1]).intValue();
 			out.println(word+"|"+freq);
 		}
 		out.flush();

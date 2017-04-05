@@ -54,6 +54,8 @@ final public class PipeBitInfoPanel extends BitInfoPanel {
          clear();
          return;
       }
+      _pipeBitInfo = info;
+      _pipeBitClass = pipeBitClass;
       setBitName( info.name() );
       _description.setText( info.description() );
       _dependencies.setText( Arrays.stream( info.dependencies() )
@@ -62,7 +64,7 @@ final public class PipeBitInfoPanel extends BitInfoPanel {
       _usables.setText( Arrays.stream( info.usables() )
             .map( PipeBitInfo.TypeProduct::toString )
             .collect( Collectors.joining( ", " ) ) );
-      _outputs.setText( Arrays.stream( info.products() )
+      _products.setText( Arrays.stream( info.products() )
             .map( PipeBitInfo.TypeProduct::toString )
             .collect( Collectors.joining( ", " ) ) );
       final ParameterHolder holder = new DefaultParameterHolder( pipeBitClass );

@@ -159,7 +159,7 @@ public enum Tui {
 
    final private String _description;
 
-   private Tui( final String description ) {
+   Tui( final String description ) {
       _description = description;
    }
 

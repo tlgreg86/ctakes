@@ -53,9 +53,10 @@ public class FilterAnnotator extends JCasAnnotator_ImplBase {
 		retainAttrTypeId = DISORDER_ANNOTATIONS;
 	}
 
-	public void initialize(UimaContext annotCtx)
-			throws ResourceInitializationException {
-		super.initialize(annotCtx);
+   @Override
+   public void initialize( UimaContext annotCtx )
+         throws ResourceInitializationException {
+      super.initialize(annotCtx);
 
 		removeList = new java.util.ArrayList<Annotation>();
 	}
@@ -64,8 +65,9 @@ public class FilterAnnotator extends JCasAnnotator_ImplBase {
 	 * Checks if the annotation is of the type to be retained. If not, removes
 	 * it from the index. Uses helper method isValid(Annotation).
 	 */
-	public void process(JCas jcas) throws AnalysisEngineProcessException {
-		removeList.clear();
+   @Override
+   public void process( JCas jcas ) throws AnalysisEngineProcessException {
+      removeList.clear();
 
 		// iterate over source objects in JCas
 		JFSIndexRepository indexes = jcas.getJFSIndexRepository();
@@ -73,9 +75,9 @@ public class FilterAnnotator extends JCasAnnotator_ImplBase {
 				retainAnnType).iterator();
 
 		while (srcObjItr.hasNext()) {
-			Annotation ann = (Annotation) srcObjItr.next();
-			if (!isValid(ann))
-				removeList.add(ann);
+         Annotation ann = srcObjItr.next();
+         if ( !isValid( ann ) )
+            removeList.add(ann);
 		}
 
 		for (int i = 0; i < removeList.size(); i++)
@@ -84,11 +86,9 @@ public class FilterAnnotator extends JCasAnnotator_ImplBase {
 	}
 
 	private boolean isValid(Annotation ann) {
-		if (((IdentifiedAnnotation) ann).getTypeID() != retainAttrTypeId)
-			return false;
+      return ((IdentifiedAnnotation)ann).getTypeID() == retainAttrTypeId;
 
-		return true;
-	}
+   }
 
 	// -- private datamembers ----
 	private int retainAnnType; // annotation type you want to retain

@@ -1,5 +1,7 @@
 package org.apache.ctakes.gui.pipeline.bit;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.gui.component.FileTableCellEditor;
 import org.apache.ctakes.gui.component.SmoothTipTable;
 import org.apache.ctakes.gui.pipeline.bit.parameter.ParameterCellRenderer;
 import org.apache.ctakes.gui.pipeline.bit.parameter.ParameterInfoPanel;
@@ -14,6 +16,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.io.File;
 
 /**
  * @author SPF , chip-nlp
@@ -24,11 +27,14 @@ abstract public class BitInfoPanel extends JPanel {
 
    static private final Logger LOGGER = Logger.getLogger( "BitInfoPanel" );
 
+   protected PipeBitInfo _pipeBitInfo;
+   protected Class<?> _pipeBitClass;
+
    protected JComponent _name;
    protected JLabel _description;
    protected JLabel _dependencies;
    protected JLabel _usables;
-   protected JLabel _outputs;
+   protected JLabel _products;
 
    protected ParameterTableModel _parameterTableModel;
    protected ParameterInfoPanel _parameterInfoPanel;
@@ -47,6 +53,27 @@ abstract public class BitInfoPanel extends JPanel {
       add( _parameterInfoPanel, BorderLayout.SOUTH );
    }
 
+   final public PipeBitInfo getPipeBitInfo() {
+      return _pipeBitInfo;
+   }
+
+   final public Class<?> getPipeBitClass() {
+      return _pipeBitClass;
+   }
+
+   final public String getBitName() {
+      return ((JLabel)_name).getText();
+   }
+
+   final public String getDescription() {
+      return _description.getText();
+   }
+
+   final public ParameterTableModel getParameterModel() {
+      return _parameterTableModel;
+   }
+
+
    abstract protected String getNameLabelPrefix();
 
    abstract protected JComponent createNameEditor();
@@ -56,11 +83,13 @@ abstract public class BitInfoPanel extends JPanel {
    abstract protected ParameterInfoPanel createParameterInfoPanel();
 
    protected void clear() {
+      _pipeBitInfo = null;
+      _pipeBitClass = null;
       setBitName( "" );
       _description.setText( "" );
       _dependencies.setText( "" );
       _usables.setText( "" );
-      _outputs.setText( "" );
+      _products.setText( "" );
       _parameterTableModel.setParameterHolder( null );
       _parameterInfoPanel.setParameterHolder( null );
    }
@@ -74,8 +103,8 @@ abstract public class BitInfoPanel extends JPanel {
       final JComponent inPanel = createNamePanel( "Dependencies:", _dependencies );
       _usables = new JLabel();
       final JComponent usablePanel = createNamePanel( "Usable:", _usables );
-      _outputs = new JLabel();
-      final JComponent outPanel = createNamePanel( "Products:", _outputs );
+      _products = new JLabel();
+      final JComponent outPanel = createNamePanel( "Products:", _products );
 
       final JPanel panel = new JPanel( new GridLayout( 5, 1 ) );
       panel.add( namePanel );
@@ -91,12 +120,17 @@ abstract public class BitInfoPanel extends JPanel {
       table.setRowHeight( 20 );
       table.setAutoResizeMode( JTable.AUTO_RESIZE_LAST_COLUMN );
       table.getColumnModel().getColumn( 0 ).setPreferredWidth( 100 );
+      table.getColumnModel().getColumn( 2 ).setMaxWidth( 25 );
       final TableRowSorter<TableModel> sorter = new TableRowSorter<>( model );
       table.setAutoCreateRowSorter( true );
       table.setRowSorter( sorter );
       table.setRowSelectionAllowed( true );
       table.setCellSelectionEnabled( true );
       table.setDefaultRenderer( ConfigurationParameter.class, new ParameterCellRenderer() );
+      final FileTableCellEditor fileEditor = new FileTableCellEditor();
+      fileEditor.getFileChooser().setFileSelectionMode( JFileChooser.FILES_AND_DIRECTORIES );
+      table.setDefaultRenderer( File.class, fileEditor );
+      table.setDefaultEditor( File.class, fileEditor );
       ListSelectionModel selectionModel = table.getSelectionModel();
       selectionModel.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
       return table;

@@ -143,21 +143,23 @@ final public class PiperFileReader {
             FileLocator.getAsStream( getPiperPath( filePath ) ) ) ) ) {
          String line = reader.readLine();
          while ( line != null ) {
-            line = line.trim();
-            if ( line.isEmpty() || line.startsWith( "//" ) || line.startsWith( "#" ) || line.startsWith( "!" ) ) {
-               line = reader.readLine();
-               continue;
-            }
-            final int spaceIndex = line.indexOf( ' ' );
-            if ( spaceIndex < 0 ) {
-               addToPipeline( line, "" );
-            } else {
-               addToPipeline( line.substring( 0, spaceIndex ), line.substring( spaceIndex + 1 ).trim() );
-            }
+            parsePipelineLine( line.trim() );
             line = reader.readLine();
          }
       } catch ( IOException ioE ) {
          LOGGER.error( "Piper File not found: " + filePath );
+      }
+   }
+
+   public void parsePipelineLine( final String line ) throws UIMAException {
+      if ( line.isEmpty() || line.startsWith( "//" ) || line.startsWith( "#" ) || line.startsWith( "!" ) ) {
+         return;
+      }
+      final int spaceIndex = line.indexOf( ' ' );
+      if ( spaceIndex < 0 ) {
+         addToPipeline( line, "" );
+      } else {
+         addToPipeline( line.substring( 0, spaceIndex ), line.substring( spaceIndex + 1 ).trim() );
       }
    }
 
@@ -563,7 +565,7 @@ final public class PiperFileReader {
     */
    private Object[] getCliParameters( final String text ) {
       if ( _cliOptionals == null ) {
-         LOGGER.error( "Attempting to set Parameter by Command-line options.  Command-line options are not specified." );
+         LOGGER.warn( "Attempted to set Parameter by Command-line options.  Command-line options are not specified." );
          return EMPTY_OBJECT_ARRAY;
       }
       if ( text == null || text.trim().isEmpty() ) {

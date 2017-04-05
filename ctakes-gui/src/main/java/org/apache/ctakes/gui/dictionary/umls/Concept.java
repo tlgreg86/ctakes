@@ -2,6 +2,7 @@ package org.apache.ctakes.gui.dictionary.umls;
 
 
 import org.apache.ctakes.core.util.collection.HashSetMap;
+import org.apache.ctakes.gui.dictionary.util.TextTokenizer;
 
 import java.util.*;
 
@@ -54,9 +55,16 @@ final public class Concept {
    }
 
    public void cullExtensions() {
-      if ( _preferredText != null && !_preferredText.isEmpty() && !_preferredText.equals( PREFERRED_TERM_UNKNOWN )
-           && !_textCounts.containsKey( _preferredText.toLowerCase() ) ) {
-         _textCounts.put( _preferredText.toLowerCase(), 1 );
+      if ( _preferredText != null && !_preferredText.isEmpty() && !_preferredText.equals( PREFERRED_TERM_UNKNOWN ) ) {
+         final String tokenizedPrefText = TextTokenizer.getTokenizedText( _preferredText.toLowerCase() );
+         if ( !_textCounts.containsKey( tokenizedPrefText ) && tokenizedPrefText.length() < 255 ) {
+            final boolean nonAlpha = tokenizedPrefText.chars()
+                  .filter( c -> !Character.isAlphabetic( c ) )
+                  .findFirst().isPresent();
+            if ( !nonAlpha ) {
+               _textCounts.put( tokenizedPrefText, 1 );
+            }
+         }
       }
       if ( _textCounts.size() < 2 ) {
          return;

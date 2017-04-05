@@ -15,14 +15,17 @@ public class UserParameterInfoPanel extends ParameterInfoPanel {
 
    static private final Logger LOGGER = Logger.getLogger( "UserParameterInfoPanel" );
 
+   @Override
    protected String getValueLabelPrefix() {
       return "User";
    }
 
+   @Override
    protected JComponent createValuesEditor() {
       return new JTextField();
    }
 
+   @Override
    protected void setParameterValues( final String values ) {
       ((JTextComponent)_values).setText( values );
    }

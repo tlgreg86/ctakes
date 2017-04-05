@@ -86,9 +86,10 @@ public class TokenizerAnnotator extends JCasAnnotator_ImplBase {
 
 	private int tokenCount = 0;
 
-	public void initialize(UimaContext aContext)
-			throws ResourceInitializationException {
-		super.initialize(aContext);
+   @Override
+   public void initialize( UimaContext aContext )
+         throws ResourceInitializationException {
+      super.initialize(aContext);
 
 		context = aContext;
 		try {
@@ -126,7 +127,8 @@ public class TokenizerAnnotator extends JCasAnnotator_ImplBase {
 	/**
 	 * Entry point for processing.
 	 */
-	public void process(JCas jcas) throws AnalysisEngineProcessException {
+   @Override
+   public void process( JCas jcas ) throws AnalysisEngineProcessException {
 
 		logger.info("process(JCas)");
 
@@ -160,7 +162,7 @@ public class TokenizerAnnotator extends JCasAnnotator_ImplBase {
 
 		Iterator<Token> tokenItr = tokens.iterator();
 		while (tokenItr.hasNext()) {
-			Token token = (Token) tokenItr.next();
+         Token token = tokenItr.next();
 
 			// convert token into JCas object
 			BaseToken bta = TokenConverter.convert(token, jcas, beginPos);

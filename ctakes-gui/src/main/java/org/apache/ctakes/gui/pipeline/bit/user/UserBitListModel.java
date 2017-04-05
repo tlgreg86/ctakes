@@ -97,7 +97,7 @@ final public class UserBitListModel extends AbstractListModel<UserBit> {
       _userBits.remove( listIndex );
    }
 
-   private UserBit getUserBit( final int viewIndex ) {
+   public UserBit getUserBit( final int viewIndex ) {
       int listIndex = viewIndex;
       if ( _readerBit != null ) {
          if ( viewIndex == 0 ) {

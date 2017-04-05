@@ -53,6 +53,13 @@ final public class PipelineBuilder {
       _descEndList = new ArrayList<>();
    }
 
+   public void clear() {
+      _aeNameList.clear();
+      _descList.clear();
+      _aeEndNameList.clear();
+      _descEndList.clear();
+   }
+
    /**
     * Use of this method is order-specific
     *

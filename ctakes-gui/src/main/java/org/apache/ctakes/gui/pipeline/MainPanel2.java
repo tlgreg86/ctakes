@@ -8,11 +8,17 @@ import org.apache.ctakes.gui.component.SmoothTipList;
 import org.apache.ctakes.gui.pipeline.bit.PipeBitFinder;
 import org.apache.ctakes.gui.pipeline.bit.available.AvailablesListModel;
 import org.apache.ctakes.gui.pipeline.bit.info.*;
+import org.apache.ctakes.gui.pipeline.bit.parameter.ParameterHolder;
+import org.apache.ctakes.gui.pipeline.bit.parameter.ParameterTableModel;
 import org.apache.ctakes.gui.pipeline.piper.PiperTextFilter;
 import org.apache.ctakes.gui.util.IconLoader;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileView;
 import javax.swing.table.JTableHeader;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -23,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -42,14 +49,20 @@ final class MainPanel2 extends JPanel {
 
    private final AvailablesListModel _availablesListModel = new AvailablesListModel();
    private JList<PipeBitInfo> _availablesList;
-
+   private PipeBitInfoPanel _infoPanel;
    private DefaultStyledDocument _piperDocument;
+   private PiperTextFilter _piperTextFilter;
+
 
    private JButton _newButton;
    private JButton _openButton;
    private JButton _saveButton;
+   private JButton _validateButton;
    private JButton _runButton;
    private JButton _helpButton;
+
+   private JButton _setButton;
+   private JButton _addButton;
 
 
    MainPanel2() {
@@ -64,6 +77,10 @@ final class MainPanel2 extends JPanel {
 
       add( logSplit, BorderLayout.CENTER );
       SwingUtilities.invokeLater( new ButtonIconLoader() );
+
+      _chooser.setFileFilter( new FileNameExtensionFilter( "Pipeline Definition (Piper) File", "piper" ) );
+      _chooser.setFileView( new PiperFileView() );
+
    }
 
 
@@ -77,32 +94,45 @@ final class MainPanel2 extends JPanel {
       _availablesList = createPipeBitList( _availablesListModel );
       final JScrollPane scroll = new JScrollPane( _availablesList );
       scroll.setColumnHeaderView( header );
+      scroll.setMinimumSize( new Dimension( 100, 10 ) );
       final JList<PipeBitInfo> rowHeaders = new JList<>( _availablesListModel );
       rowHeaders.setFixedCellHeight( 20 );
       rowHeaders.setCellRenderer( new RoleRenderer() );
       scroll.setRowHeaderView( rowHeaders );
       scroll.setHorizontalScrollBarPolicy( ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER );
 
-      final JSplitPane split = new PositionedSplitPane();
+      final JSplitPane split = new JSplitPane();
       split.setLeftComponent( scroll );
-      split.setRightComponent( createBitInfoPanel( _availablesList ) );
-      split.setDividerLocation( 0.3d );
+      split.setRightComponent( createInfoPlusPanel() );
+      split.setResizeWeight( 0.5 );
+      split.setDividerLocation( 0.4d );
       return split;
    }
 
+   private JComponent createInfoPlusPanel() {
+      final JPanel panel = new JPanel( new BorderLayout() );
+      _infoPanel = createBitInfoPanel( _availablesList );
+      panel.add( _infoPanel, BorderLayout.CENTER );
+      panel.add( createAddButtonPanel(), BorderLayout.EAST );
+      return panel;
+   }
 
    private JComponent createEastPanel() {
       _piperDocument = new DefaultStyledDocument();
-      new PiperTextFilter( _piperDocument );
-      final JTextPane textPane = new JTextPane( _piperDocument );
-      return new JScrollPane( textPane );
+      _piperTextFilter = new PiperTextFilter( _piperDocument );
+      final JTextPane _textPane = new JTextPane( _piperDocument );
+      final JScrollPane scroll = new JScrollPane( _textPane );
+      scroll.setMinimumSize( new Dimension( 100, 10 ) );
+      return scroll;
    }
 
 
    private JComponent createMainPanel() {
       final JComponent westPanel = createWestPanel();
       final JComponent eastPanel = createEastPanel();
-      return new JSplitPane( JSplitPane.HORIZONTAL_SPLIT, westPanel, eastPanel );
+      final JSplitPane mainSplit = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT, westPanel, eastPanel );
+      mainSplit.setDividerLocation( 0.6 );
+      return mainSplit;
    }
 
    private JToolBar createToolBar() {
@@ -119,13 +149,27 @@ final class MainPanel2 extends JPanel {
       _helpButton = addButton( toolBar, "Help" );
       _helpButton.addActionListener( new HelpAction() );
       toolBar.add( Box.createHorizontalGlue() );
+      _validateButton = addButton( toolBar, "Validate Current Piper File" );
+      _validateButton.addActionListener( new ValidateAction() );
       _runButton = addButton( toolBar, "Run Current Piper File" );
+      _runButton.setEnabled( false );
       toolBar.addSeparator( new Dimension( 10, 0 ) );
       return toolBar;
    }
 
    static private JButton addButton( final JToolBar toolBar, final String toolTip ) {
       toolBar.addSeparator( new Dimension( 10, 0 ) );
+      final JButton button = new JButton();
+      button.setFocusPainted( false );
+      // prevents first button from having a painted border
+      button.setFocusable( false );
+      button.setToolTipText( toolTip );
+      toolBar.add( button );
+      return button;
+   }
+
+   static private JButton addVerticalButton( final JToolBar toolBar, final String toolTip ) {
+      toolBar.addSeparator( new Dimension( 0, 10 ) );
       final JButton button = new JButton();
       button.setFocusPainted( false );
       // prevents first button from having a painted border
@@ -154,6 +198,39 @@ final class MainPanel2 extends JPanel {
       executor.execute( new PiperBitParser() );
    }
 
+
+   private JComponent createAddButtonPanel() {
+      final JToolBar toolBar = new JToolBar( SwingConstants.VERTICAL );
+      toolBar.setFloatable( false );
+      toolBar.setRollover( true );
+
+      _setButton = addVerticalButton( toolBar, "Set Global Parameter" );
+      _setButton.addActionListener( new SetAction() );
+
+
+      final AddAction addAction = new AddAction();
+      final ParameterTableModel parameterModel = _infoPanel.getParameterModel();
+      parameterModel.addTableModelListener( addAction );
+      _addButton = addVerticalButton( toolBar, "Add selected Pipe Bit" );
+      _addButton.addActionListener( addAction );
+      _addButton.setEnabled( false );
+
+      SwingUtilities.invokeLater( new CommandIconLoader() );
+      return toolBar;
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
    private class PiperBitParser implements Runnable {
       @Override
       public void run() {
@@ -175,19 +252,22 @@ final class MainPanel2 extends JPanel {
       @Override
       public void run() {
          final String dir = "org/apache/ctakes/gui/pipeline/icon/";
-         final String newFile = "NewPiper.png";
-         final String openFile = "OpenPiper.png";
-         final String saveFile = "SavePiper.png";
-         final String runFile = "RunPiper.png";
-         final String helpFile = "Help_32.png";
-         final Icon newIcon = IconLoader.loadIcon( dir + newFile );
-         final Icon openIcon = IconLoader.loadIcon( dir + openFile );
-         final Icon saveIcon = IconLoader.loadIcon( dir + saveFile );
-         final Icon runIcon = IconLoader.loadIcon( dir + runFile );
-         final Icon helpIcon = IconLoader.loadIcon( dir + helpFile );
+         final String newPng = "NewPiper.png";
+         final String openPng = "OpenPiper.png";
+         final String savePng = "SavePiper.png";
+         final String validatePng = "CheckRun.png";
+         final String runPng = "RunPiper.png";
+         final String helpPng = "Help_32.png";
+         final Icon newIcon = IconLoader.loadIcon( dir + newPng );
+         final Icon openIcon = IconLoader.loadIcon( dir + openPng );
+         final Icon saveIcon = IconLoader.loadIcon( dir + savePng );
+         final Icon validateIcon = IconLoader.loadIcon( dir + validatePng );
+         final Icon runIcon = IconLoader.loadIcon( dir + runPng );
+         final Icon helpIcon = IconLoader.loadIcon( dir + helpPng );
          _newButton.setIcon( newIcon );
          _openButton.setIcon( openIcon );
          _saveButton.setIcon( saveIcon );
+         _validateButton.setIcon( validateIcon );
          _runButton.setIcon( runIcon );
          _helpButton.setIcon( helpIcon );
       }
@@ -214,7 +294,7 @@ final class MainPanel2 extends JPanel {
          String text = "";
          final File file = _chooser.getSelectedFile();
          try {
-            text = Files.lines( Paths.get( file.getPath() ) ).collect( Collectors.joining() );
+            text = Files.lines( Paths.get( file.getPath() ) ).collect( Collectors.joining( "\n" ) );
          } catch ( IOException ioE ) {
             LOGGER.error( ioE.getMessage() );
             return;
@@ -240,8 +320,12 @@ final class MainPanel2 extends JPanel {
          }
          final File file = _chooser.getSelectedFile();
          try {
+            String path = file.getPath();
+            if ( !path.endsWith( ".piper" ) ) {
+               path += ".piper";
+            }
             final String text = _piperDocument.getText( 0, _piperDocument.getLength() );
-            Files.write( Paths.get( file.getPath() ), text.getBytes() );
+            Files.write( Paths.get( path ), text.getBytes() );
             _piperDocument.remove( 0, _piperDocument.getLength() );
             _piperDocument.insertString( 0, text, null );
          } catch ( BadLocationException | IOException multE ) {
@@ -260,6 +344,152 @@ final class MainPanel2 extends JPanel {
          panel.add( list, BorderLayout.CENTER );
          panel.add( new JLabel( "Types are associated with Pipe Bits." ), BorderLayout.SOUTH );
          JOptionPane.showMessageDialog( null, panel, "Type Products Help", PLAIN_MESSAGE, null );
+      }
+   }
+
+   private final class ValidateAction implements ActionListener {
+      @Override
+      public void actionPerformed( final ActionEvent event ) {
+         if ( _piperTextFilter == null || _addButton == null ) {
+            return;
+         }
+         final boolean valid = _piperTextFilter.validateText();
+         _addButton.setEnabled( valid );
+      }
+   }
+
+   static private final class PiperFileView extends FileView {
+      private Icon _piperIcon = null;
+
+      private PiperFileView() {
+         SwingUtilities.invokeLater( new FileIconLoader() );
+      }
+
+      @Override
+      public String getTypeDescription( final File file ) {
+         final String name = file.getName();
+         if ( name.endsWith( ".piper" ) ) {
+            return "Pipeline Definition (Piper) file.";
+         }
+         return super.getTypeDescription( file );
+      }
+
+      @Override
+      public Icon getIcon( final File file ) {
+         final String name = file.getName();
+         if ( name.endsWith( ".piper" ) && _piperIcon != null ) {
+            return _piperIcon;
+         }
+         return super.getIcon( file );
+      }
+
+      /**
+       * Simple Runnable that loads an icon
+       */
+      private final class FileIconLoader implements Runnable {
+         @Override
+         public void run() {
+            final String dir = "org/apache/ctakes/gui/pipeline/icon/";
+            final String piperPng = "PiperFile.png";
+            _piperIcon = IconLoader.loadIcon( dir + piperPng );
+         }
+      }
+   }
+
+   private final class CommandIconLoader implements Runnable {
+      @Override
+      public void run() {
+         final String dir = "org/apache/ctakes/gui/pipeline/icon/";
+//         final String arrow = "BlueRightArrow.png";
+         final String setPng = "Parameters.png";
+         final String addPng = "PlusMark.png";
+         final Icon setIcon = IconLoader.loadIcon( dir + setPng );
+         final Icon addIcon = IconLoader.loadIcon( dir + addPng );
+         _setButton.setIcon( setIcon );
+         _addButton.setIcon( addIcon );
+      }
+   }
+
+
+   private final class SetAction implements ActionListener {
+      @Override
+      public void actionPerformed( final ActionEvent event ) {
+         try {
+            // TODO - hook "set" to the parameter selected in the parameter table.  Can use Value from table.
+            // Would require tracking.  Or maybe a constant parse and track of variables set when the formatting is done.
+            // Then the "add" button would need to be enabled accordingly ...
+            // and the parameter table could display the mapped value.
+            _piperDocument.insertString( _piperDocument.getLength(), "set ", null );
+         } catch ( BadLocationException blE ) {
+            LOGGER.error( blE.getMessage() );
+         }
+      }
+   }
+
+
+   private final class AddAction implements ActionListener, TableModelListener {
+      @Override
+      public void actionPerformed( final ActionEvent event ) {
+         final String bitName = _infoPanel.getBitName();
+         if ( bitName == null || bitName.isEmpty() ) {
+            return;
+         }
+         final StringBuilder sb = new StringBuilder();
+         sb.append( "\n" );
+         final String description = _infoPanel.getDescription().trim();
+         if ( !description.isEmpty() ) {
+            sb.append( "//  " ).append( _infoPanel.getBitName() ).append( "\n" );
+            sb.append( "//  " ).append( description ).append( "\n" );
+         }
+         final StringBuilder helpSb = new StringBuilder();
+         final StringBuilder parmSb = new StringBuilder();
+         final ParameterTableModel parameterModel = _infoPanel.getParameterModel();
+         final ParameterHolder holder = parameterModel.getParameterHolder();
+         final int count = holder.getParameterCount();
+         final java.util.List<String[]> values = parameterModel.getValues();
+         for ( int i = 0; i < count; i++ ) {
+            final String[] value = values.get( i );
+            if ( value != null && value.length > 0 &&
+                 !Arrays.equals( value, holder.getParameter( i ).defaultValue() ) ) {
+               helpSb.append( "#   " ).append( holder.getParameterName( i ) )
+                     .append( "  " ).append( holder.getParameterDescription( i ) ).append( "\n" );
+               final String valueText = Arrays.stream( value ).collect( Collectors.joining( "," ) );
+               parmSb.append( " " ).append( holder.getParameterName( i ) ).append( "=" ).append( valueText );
+            }
+         }
+         sb.append( helpSb.toString() );
+         sb.append( "add " ).append( _infoPanel.getPipeBitClass().getName() );
+         sb.append( parmSb.toString() ).append( "\n" );
+         try {
+//            _piperDocument.insertString( _textPane.getCaretPosition(), sb.toString(), null );
+            // tODO publicize textpane
+            _piperDocument.insertString( _piperDocument.getLength(), sb.toString(), null );
+         } catch ( BadLocationException blE ) {
+            LOGGER.error( blE.getMessage() );
+         }
+      }
+
+      @Override
+      public void tableChanged( final TableModelEvent event ) {
+         final ParameterTableModel parameterModel = _infoPanel.getParameterModel();
+         final ParameterHolder holder = parameterModel.getParameterHolder();
+         final int count = holder.getParameterCount();
+         if ( count > 0 ) {
+            final java.util.List<String[]> values = parameterModel.getValues();
+            for ( int i = 0; i < count; i++ ) {
+               final String[] value = values.get( i );
+               if ( holder.isParameterMandatory( i )
+                    && (value == null
+                        || value.length == 0
+                        || value[ 0 ].trim().isEmpty()
+                        ||
+                        value[ 0 ].equals( org.apache.uima.fit.descriptor.ConfigurationParameter.NO_DEFAULT_VALUE )) ) {
+                  _addButton.setEnabled( false );
+                  return;
+               }
+            }
+         }
+         _addButton.setEnabled( true );
       }
    }
 

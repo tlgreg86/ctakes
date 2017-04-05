@@ -102,9 +102,9 @@ public class LinesFromFileCollectionReader extends CollectionReader_ImplBase {
 	
 	private Logger iv_logger = Logger.getLogger(getClass().getName());
 
-	public void initialize() throws ResourceInitializationException
-	{
-		BufferedReader fileReader = null;
+   @Override
+   public void initialize() throws ResourceInitializationException {
+      BufferedReader fileReader = null;
 		try
 		{
 			String fileLocation = (String) getConfigParameterValue(PARAM_INPUT_FILE_NAME);
@@ -141,17 +141,17 @@ public class LinesFromFileCollectionReader extends CollectionReader_ImplBase {
 			try { fileReader.close(); } catch(IOException ioe) {}
 		}
 	}
-	
-	public void getNext(CAS cas) throws IOException, CollectionException 
-	{
-	  	JCas jcas;
+
+   @Override
+   public void getNext( CAS cas ) throws IOException, CollectionException {
+      JCas jcas;
 	  	try
 	    {
 	  		jcas = cas.getJCas();
-	  	
-		  	String line = (String) iv_linesFromFile.get(iv_currentIndex);
-		  	int lineNumber = iv_currentIndex + 1;
-		  	String id;
+
+          String line = iv_linesFromFile.get( iv_currentIndex );
+          int lineNumber = iv_currentIndex + 1;
+          String id;
 		  	String text;
 		  	if(iv_delimeter != null)
 			{
@@ -208,14 +208,15 @@ public class LinesFromFileCollectionReader extends CollectionReader_ImplBase {
 	    
 	}
 
-	public boolean hasNext() throws IOException, CollectionException 
-	{
-		return iv_currentIndex < iv_linesFromFile.size();
+   @Override
+   public boolean hasNext() throws IOException, CollectionException {
+      return iv_currentIndex < iv_linesFromFile.size();
 	}
 
-	public Progress[] getProgress() {
-	    return new Progress[]{
-	    	       new ProgressImpl(iv_currentIndex, iv_linesFromFile.size(),Progress.ENTITIES)};
+   @Override
+   public Progress[] getProgress() {
+      return new Progress[] {
+            new ProgressImpl(iv_currentIndex, iv_linesFromFile.size(),Progress.ENTITIES)};
 	}
 
 	 /**
@@ -227,6 +228,8 @@ public class LinesFromFileCollectionReader extends CollectionReader_ImplBase {
 	  {
 	    return iv_linesFromFile.size();
 	  }
-	  
-	public void close() throws IOException {}
+
+   @Override
+   public void close() throws IOException {
+   }
 }

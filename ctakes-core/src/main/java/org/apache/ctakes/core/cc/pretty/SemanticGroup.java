@@ -29,7 +29,7 @@ public enum SemanticGroup {
     * @param name short name of the type: anatomy, disorder, finding, procedure, drug
     * @param tuis tuis that define the semantic type
     */
-   private SemanticGroup( final String name, final String... tuis ) {
+   SemanticGroup( final String name, final String... tuis ) {
       _name = name;
       _tuis = Arrays.asList( tuis );
    }

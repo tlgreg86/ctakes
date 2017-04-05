@@ -19,6 +19,7 @@ final public class ParameterCellRenderer implements TableCellRenderer {
 
    private final TableCellRenderer _delegate = new DefaultTableCellRenderer();
 
+   @Override
    public Component getTableCellRendererComponent( final JTable table, final Object value,
                                                    final boolean isSelected, final boolean hasFocus,
                                                    final int row, final int column ) {

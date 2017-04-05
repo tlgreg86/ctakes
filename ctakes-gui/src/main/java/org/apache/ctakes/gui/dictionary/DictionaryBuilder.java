@@ -5,10 +5,12 @@ import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.core.util.collection.HashSetMap;
 import org.apache.ctakes.gui.dictionary.umls.*;
 import org.apache.ctakes.gui.dictionary.util.HsqlUtil;
+import org.apache.ctakes.gui.dictionary.util.JdbcUtil;
 import org.apache.ctakes.gui.dictionary.util.RareWordDbWriter;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.sql.Connection;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +28,7 @@ final class DictionaryBuilder {
    static private final String CTAKES_RES_MODULE = "ctakes-dictionary-lookup-fast-res";
    static private final String CTAKES_RES_DB_PATH = CTAKES_RES_MODULE + "/src/main/" + CTAKES_APP_DB_PATH;
    static private final int MIN_CHAR_LENGTH = 2;
-   static private final int MAX_CHAR_LENGTH = 50;
+   static private final int MAX_CHAR_LENGTH = 48;
    static private final int MAX_WORD_COUNT = 12;
    static private final int MAX_SYM_COUNT = 7;
    static private final int WSD_DIVISOR = 2;
@@ -48,8 +50,7 @@ final class DictionaryBuilder {
       final UmlsTermUtil umlsTermUtil = new UmlsTermUtil( DEFAULT_DATA_DIR );
       final Map<Long, Concept> conceptMap
             = parseAll( umlsTermUtil, umlsDirPath, wantedLanguages, wantedSources, wantedTargets, wantedTuis );
-      writeDatabase( ctakesDirPath, dictionaryName, conceptMap );
-      return true;
+      return writeDatabase( ctakesDirPath, dictionaryName, conceptMap );
    }
 
 
@@ -200,15 +201,16 @@ final class DictionaryBuilder {
       if ( Arrays.asList( ctakesRoot.list() ).contains( CTAKES_RES_MODULE ) ) {
          databaseDirPath = ctakesDirPath + "/" + CTAKES_RES_DB_PATH;
       }
-      if ( !HsqlUtil.createDatabase( databaseDirPath, dictionaryName ) ) {
+      final String url = HsqlUtil.URL_PREFIX + databaseDirPath.replace( '\\', '/' ) + "/" + dictionaryName + "/" +
+                         dictionaryName;
+      final Connection connection = JdbcUtil.createDatabaseConnection( url, "SA", "" );
+      if ( !HsqlUtil.createDatabase( connection ) ) {
          return false;
       }
       if ( !DictionaryXmlWriter.writeXmlFile( databaseDirPath, dictionaryName ) ) {
          return false;
       }
-      final String url = HsqlUtil.URL_PREFIX + databaseDirPath.replace( '\\', '/' ) + "/" + dictionaryName + "/" +
-                         dictionaryName;
-      return RareWordDbWriter.writeConcepts( conceptMap, url, "sa", "" );
+      return RareWordDbWriter.writeConcepts( connection, conceptMap );
    }
 
 

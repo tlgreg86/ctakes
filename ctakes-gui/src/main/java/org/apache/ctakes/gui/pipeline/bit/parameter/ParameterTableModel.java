@@ -8,7 +8,11 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -20,12 +24,17 @@ final public class ParameterTableModel implements TableModel {
 
    static private final Logger LOGGER = Logger.getLogger( "ParameterTableModel" );
 
-   static private final String[] COLUMN_NAMES = { "Parameter Name", "Value" };
-   static private final Class<?>[] COLUMN_CLASSES = { ConfigurationParameter.class, String[].class };
+   static private final String[] COLUMN_NAMES = { "Parameter Name", "Value", "" };
+   static private final Class<?>[] COLUMN_CLASSES = { ConfigurationParameter.class, String.class, File.class };
 
    private final EventListenerList _listenerList = new EventListenerList();
 
    private ParameterHolder _parameterHolder;
+   private List<String[]> _values = new ArrayList<>();
+
+   public ParameterHolder getParameterHolder() {
+      return _parameterHolder;
+   }
 
    /**
     * Populate the list
@@ -35,6 +44,7 @@ final public class ParameterTableModel implements TableModel {
    public void setParameterHolder( final ParameterHolder holder ) {
       final int oldSize = _parameterHolder == null ? 0 : _parameterHolder.getParameterCount();
       _parameterHolder = holder;
+      _values.clear();
       if ( holder == null ) {
          if ( oldSize > 0 ) {
             fireTableChanged(
@@ -42,12 +52,19 @@ final public class ParameterTableModel implements TableModel {
          }
          return;
       }
+      for ( int i = 0; i < holder.getParameterCount(); i++ ) {
+         _values.add( holder.getParameterValue( i ) );
+      }
       if ( holder.getParameterCount() > 0 ) {
          fireTableChanged( new TableModelEvent( this ) );
       } else if ( oldSize > 0 ) {
          fireTableChanged(
                new TableModelEvent( this, 0, oldSize - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.DELETE ) );
       }
+   }
+
+   public List<String[]> getValues() {
+      return Collections.unmodifiableList( _values );
    }
 
    /**
@@ -90,7 +107,7 @@ final public class ParameterTableModel implements TableModel {
     */
    @Override
    public boolean isCellEditable( final int rowIndex, final int columnIndex ) {
-      return false;
+      return columnIndex != 0;
    }
 
    /**
@@ -102,9 +119,14 @@ final public class ParameterTableModel implements TableModel {
          case 0:
             return _parameterHolder.getParameter( rowIndex );
          case 1:
-            return Arrays.stream( _parameterHolder.getParameterValue( rowIndex ) )
+            return Arrays.stream( _values.get( rowIndex ) )
                   .filter( v -> !ConfigurationParameter.NO_DEFAULT_VALUE.equals( v ) )
                   .collect( Collectors.joining( " , " ) );
+         case 2:
+            final String path = Arrays.stream( _values.get( rowIndex ) )
+                  .filter( v -> !ConfigurationParameter.NO_DEFAULT_VALUE.equals( v ) )
+                  .collect( Collectors.joining( "/" ) );
+            return new File( path );
       }
       return "ERROR";
    }
@@ -114,6 +136,14 @@ final public class ParameterTableModel implements TableModel {
     */
    @Override
    public void setValueAt( final Object aValue, final int rowIndex, final int columnIndex ) {
+      if ( columnIndex == 1 ) {
+         _values.set( rowIndex, aValue.toString().split( "," ) );
+         fireTableChanged( new TableModelEvent( this, rowIndex, rowIndex, columnIndex ) );
+      } else if ( columnIndex == 2 && File.class.isInstance( aValue ) ) {
+         final String[] path = { ((File)aValue).getPath() };
+         _values.set( rowIndex, path );
+         fireTableChanged( new TableModelEvent( this, rowIndex, rowIndex, 1 ) );
+      }
    }
 
    /**

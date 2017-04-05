@@ -114,6 +114,7 @@ final public class SystemOutPanel extends JScrollPane {
    private class UiOutputStream extends OutputStream {
       private final StringBuilder __sb = new StringBuilder();
 
+      @Override
       public void write( final int b ) throws IOException {
          __sb.append( (char)b );
          if ( (char)b == '\n' ) {
@@ -122,12 +123,14 @@ final public class SystemOutPanel extends JScrollPane {
          }
       }
 
+      @Override
       public void flush() throws IOException {
          appendText( __sb.toString() );
          __sb.setLength( 0 );
          super.flush();
       }
 
+      @Override
       public void close() throws IOException {
          appendText( __sb.toString() );
          __sb.setLength( 0 );

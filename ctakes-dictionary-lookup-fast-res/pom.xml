@@ -31,6 +31,7 @@
    <description>Resources Project for ctakes-dictionary-lookup-fast</description>
    <dependencies>
       <dependency>
+         <!--  TODO  -->
          <groupId>net.sourceforge.ctakesresources</groupId>
          <artifactId>ctakes-resources-snomed-rword-hsqldb-2011ab</artifactId>
          <version>3.2.1.1</version>

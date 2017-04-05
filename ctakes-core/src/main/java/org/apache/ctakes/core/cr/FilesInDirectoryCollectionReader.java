@@ -199,17 +199,17 @@ public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase
     /**
      * @see org.apache.uima.collection.CollectionReader#hasNext()
      */
-	public boolean hasNext()
-	{
-		return iv_currentIndex < iv_files.size();
+    @Override
+    public boolean hasNext() {
+       return iv_currentIndex < iv_files.size();
 	}
 
 	  /**
 	   * @see org.apache.uima.collection.CollectionReader#getNext(org.apache.uima.cas.CAS)
 	   */
-	  public void getNext(CAS aCAS) throws IOException, CollectionException
-	  {
-	  	JCas jcas;
+     @Override
+     public void getNext( CAS aCAS ) throws IOException, CollectionException {
+        JCas jcas;
 	  	InputStream fileInputStream = null;
 	  	Reader fileReader = null;
 	  	
@@ -218,9 +218,9 @@ public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase
 	        jcas = aCAS.getJCas();
 	   	
 	  		//open input stream to file
-	      	File file = (File)iv_files.get(iv_currentIndex);
-	      	fileInputStream = new FileInputStream(file);
-	      	fileReader = new BufferedReader(new InputStreamReader(fileInputStream));
+          File file = iv_files.get( iv_currentIndex );
+          fileInputStream = new FileInputStream( file );
+          fileReader = new BufferedReader(new InputStreamReader(fileInputStream));
 
 	      	DocumentID documentIDAnnotation = new DocumentID(jcas);
 		    String docID = createDocID(file);
@@ -283,16 +283,16 @@ public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase
 	  /**
 	   * @see org.apache.uima.collection.base_cpm.BaseCollectionReader#close()
 	   */
-	  public void close() throws IOException
-	  {
-	  }
+     @Override
+     public void close() throws IOException {
+     }
 
 	  /**
 	   * @see org.apache.uima.collection.base_cpm.BaseCollectionReader#getProgress()
 	   */
-	  public Progress[] getProgress()
-	  {
-	    return new Progress[]{
+     @Override
+     public Progress[] getProgress() {
+        return new Progress[]{
 	       new ProgressImpl(iv_currentIndex, iv_files.size(),Progress.ENTITIES)};
 	  }
 

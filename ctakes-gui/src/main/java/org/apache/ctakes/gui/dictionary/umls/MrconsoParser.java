@@ -147,10 +147,6 @@ final public class MrconsoParser {
             if ( isPreferredTerm( tokens ) ) {
                concept.setPreferredText( text );
             }
-//            if ( !isSourceOk( tokens, wantedSources ) ) {
-//               tokens = FileUtil.readBsvTokens( reader, mrconsoPath );
-//               continue;
-//            }
             // Get tokenized text
             final String tokenizedText = TextTokenizer.getTokenizedText( text );
             if ( tokenizedText == null || tokenizedText.isEmpty()
@@ -231,7 +227,6 @@ final public class MrconsoParser {
     */
    static public Collection<Long> getValidVocabularyCuis( final String umlsDirPath,
                                                           final Collection<String> sourceVocabularies ) {
-//      return getValidVocabularyCuis( umlsDirPath, sourceVocabularies, getDefaultExclusions() );
       return getValidVocabularyCuis( umlsDirPath, sourceVocabularies, getNonRxnormExclusions() );
    }
 
@@ -258,6 +253,10 @@ final public class MrconsoParser {
                                                            final String... invalidTypes ) {
       final String mrconsoPath = umlsDirPath + MR_CONSO_SUB_PATH;
       LOGGER.info( "Compiling list of Cuis with wanted Vocabularies using " + mrconsoPath );
+      final Map<String, Long> sourceCuis = new HashMap<>( sourceVocabularies.size() );
+      for ( String target : sourceVocabularies ) {
+         sourceCuis.put( target, 0L );
+      }
       final Collection<Long> validCuis = new HashSet<>();
       long lineCount = 0;
       try ( final BufferedReader reader = FileUtil.createReader( mrconsoPath ) ) {
@@ -265,20 +264,30 @@ final public class MrconsoParser {
          while ( tokens != null ) {
             lineCount++;
             if ( lineCount % 100000 == 0 ) {
-               LOGGER.info( "File Line " + lineCount + "\t Valid Cuis " + validCuis.size() );
+               final String cuis = sourceCuis.entrySet().stream().map( e -> e.getKey() + " " + e.getValue() )
+                     .collect( Collectors.joining( ", " ) );
+               LOGGER.info( "File Lines " + lineCount + "\t Cuis: " + cuis );
             }
             if ( tokens.size() > SOURCE._index
                  && sourceVocabularies.stream().anyMatch( getToken( tokens, SOURCE )::equals )
                  && Arrays.stream( invalidTypes ).noneMatch( getToken( tokens, TERM_TYPE )::equals ) ) {
                final Long cuiCode = CuiCodeUtil.getInstance().getCuiCode( getToken( tokens, CUI ) );
-               validCuis.add( cuiCode );
+               if ( validCuis.add( cuiCode ) ) {
+                  final String source = getToken( tokens, SOURCE );
+                  final long cuis = sourceCuis.get( source );
+                  sourceCuis.put( source, (cuis + 1) );
+               }
             }
             tokens = FileUtil.readBsvTokens( reader, mrconsoPath );
          }
       } catch ( IOException ioE ) {
          LOGGER.error( ioE.getMessage() );
       }
+      final String cuis = sourceCuis.entrySet().stream().map( e -> e.getKey() + " " + e.getValue() )
+            .collect( Collectors.joining( ", " ) );
+      LOGGER.info( "File Lines " + lineCount + "\t Cuis: " + cuis );
       LOGGER.info( "File Lines " + lineCount + "\t Valid Cuis " + validCuis.size() + "\t for wanted Vocabularies" );
+      LOGGER.info( "   Any Difference is caused by overlap of sources." );
       return validCuis;
    }
 

@@ -101,7 +101,8 @@ public class FilesInDirectoryCollectionCyclicalReads extends FilesInDirectoryCol
 	  /**
 	   * @see org.apache.uima.collection.CollectionReader_ImplBase#initialize()
 	   */
-	public void initialize() throws ResourceInitializationException {
+     @Override
+     public void initialize() throws ResourceInitializationException {
 
 		super.initialize();
 		totalNumFiles = iv_files.size();
@@ -122,10 +123,10 @@ public class FilesInDirectoryCollectionCyclicalReads extends FilesInDirectoryCol
      * the iteration amount will be processed.  Multiples of the total available documents
      * will be provided to supplement the list required to meet the total iteration value.
      */
-	public boolean hasNext()
-	{
-		
-		// If hasNext false then start over only if count that has been passed to the contructor hasn't been reached. 
+    @Override
+    public boolean hasNext() {
+
+       // If hasNext false then start over only if count that has been passed to the contructor hasn't been reached.
 		boolean doNext = iv_currentIndex < totalNumFiles;
 	
 		if ((!doNext) && (scaleTime > 0)) {
@@ -143,10 +144,7 @@ public class FilesInDirectoryCollectionCyclicalReads extends FilesInDirectoryCol
 
 		}
 		if (scaleTime == -1) {
-			if (iv_currentIndex < iv_iteration)
-				doNext = true;
-			else
-				doNext = false;
+         doNext = iv_currentIndex < iv_iteration;
 
 		}
 		
@@ -156,8 +154,8 @@ public class FilesInDirectoryCollectionCyclicalReads extends FilesInDirectoryCol
 	  /**
 	   * @see org.apache.uima.collection.CollectionReader#getNext(org.apache.uima.cas.CAS)
 	   */
-	  public void getNext(CAS aCAS) throws IOException, CollectionException
-	  {
+     @Override
+     public void getNext( CAS aCAS ) throws IOException, CollectionException {
 
 		super.getNext(aCAS);
 		
@@ -168,17 +166,18 @@ public class FilesInDirectoryCollectionCyclicalReads extends FilesInDirectoryCol
 	  /**
 	   * @see org.apache.uima.collection.base_cpm.BaseCollectionReader#close()
 	   */
-	  public void close() throws IOException
-	  {
-		  super.close();
+     @Override
+     public void close() throws IOException {
+        super.close();
 	  }
 
 	  /**
 	   * @see org.apache.uima.collection.base_cpm.BaseCollectionReader#getProgress()
 	   */
-	  public Progress[] getProgress() {
-		  int offSet = iv_currentIndex;
-		  if ((scaleTime > 0) && (iv_currentIndex > 0)) 
+     @Override
+     public Progress[] getProgress() {
+        int offSet = iv_currentIndex;
+        if ((scaleTime > 0) && (iv_currentIndex > 0))
 			  offSet = iv_currentIndex*(1/scaleTime);
 		  if (scaleTime == 0){
 			  offSet = iv_iteration + remainTimes;
@@ -195,9 +194,9 @@ public class FilesInDirectoryCollectionCyclicalReads extends FilesInDirectoryCol
 		 * 
 		 * @return the number of documents in the collection
 		 */
-	  public int getNumberOfDocuments()
-	  {
-	    return iv_files.size();
+     @Override
+     public int getNumberOfDocuments() {
+        return iv_files.size();
 	  }
 
 

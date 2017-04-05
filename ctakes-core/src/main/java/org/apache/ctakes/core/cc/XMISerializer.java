@@ -96,6 +96,7 @@ final public class XMISerializer {
        * @see org.xml.sax.ContentHandler#startElement(java.lang.String,
        * java.lang.String, java.lang.String, org.xml.sax.Attributes)
        */
+      @Override
       public void startElement( String uri, String localName, String qName,
                                 Attributes atts ) throws SAXException {
          for ( int i = 0; i < atts.getLength(); i++ ) {
@@ -111,6 +112,7 @@ final public class XMISerializer {
        *
        * @see org.xml.sax.ContentHandler#characters(char[], int, int)
        */
+      @Override
       public void characters( char[] ch, int start, int length )
             throws SAXException {
          checkForInvalidXmlChars( ch, start, length, mXml11 );
@@ -122,6 +124,7 @@ final public class XMISerializer {
        *
        * @see org.xml.sax.ContentHandler#endDocument()
        */
+      @Override
       public void endDocument() throws SAXException {
          mHandler.endDocument();
       }
@@ -132,6 +135,7 @@ final public class XMISerializer {
        * @see org.xml.sax.ContentHandler#endElement(java.lang.String,
        * java.lang.String, java.lang.String)
        */
+      @Override
       public void endElement( String uri, String localName, String qName )
             throws SAXException {
          mHandler.endElement( uri, localName, qName );
@@ -142,6 +146,7 @@ final public class XMISerializer {
        *
        * @see org.xml.sax.ContentHandler#endPrefixMapping(java.lang.String)
        */
+      @Override
       public void endPrefixMapping( String prefix ) throws SAXException {
          mHandler.endPrefixMapping( prefix );
       }
@@ -151,6 +156,7 @@ final public class XMISerializer {
        *
        * @see org.xml.sax.ContentHandler#ignorableWhitespace(char[], int, int)
        */
+      @Override
       public void ignorableWhitespace( char[] ch, int start, int length )
             throws SAXException {
          mHandler.ignorableWhitespace( ch, start, length );
@@ -163,6 +169,7 @@ final public class XMISerializer {
        * org.xml.sax.ContentHandler#processingInstruction(java.lang.String,
        * java.lang.String)
        */
+      @Override
       public void processingInstruction( String target, String data )
             throws SAXException {
          mHandler.processingInstruction( target, data );
@@ -174,6 +181,7 @@ final public class XMISerializer {
        * @see
        * org.xml.sax.ContentHandler#setDocumentLocator(org.xml.sax.Locator)
        */
+      @Override
       public void setDocumentLocator( Locator locator ) {
          mHandler.setDocumentLocator( locator );
       }
@@ -183,6 +191,7 @@ final public class XMISerializer {
        *
        * @see org.xml.sax.ContentHandler#skippedEntity(java.lang.String)
        */
+      @Override
       public void skippedEntity( String name ) throws SAXException {
          mHandler.skippedEntity( name );
       }
@@ -192,6 +201,7 @@ final public class XMISerializer {
        *
        * @see org.xml.sax.ContentHandler#startDocument()
        */
+      @Override
       public void startDocument() throws SAXException {
          mHandler.startDocument();
       }
@@ -202,6 +212,7 @@ final public class XMISerializer {
        * @see org.xml.sax.ContentHandler#startPrefixMapping(java.lang.String,
        * java.lang.String)
        */
+      @Override
       public void startPrefixMapping( String prefix, String uri )
             throws SAXException {
          mHandler.startPrefixMapping( prefix, uri );

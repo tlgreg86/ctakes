@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.apache.ctakes.gui.dictionary.umls.MrstyIndex.CUI;
 import static org.apache.ctakes.gui.dictionary.umls.MrstyIndex.TUI;
@@ -32,7 +33,11 @@ final public class MrstyParser {
       LOGGER.info( "Compiling list of Cuis with wanted Tuis using " + mrstyPath );
       long lineCount = 0;
       final Map<Long, Concept> wantedConcepts = new HashMap<>();
-      final Collection<Tui> usedTuis = new HashSet<>( wantedTuis.size() );
+      final Collection<Tui> usedTuis = EnumSet.noneOf( Tui.class );
+      final Map<Tui, Long> tuiCodeCount = new EnumMap<>( Tui.class );
+      for ( Tui tui : wantedTuis ) {
+         tuiCodeCount.put( tui, 0L );
+      }
       try ( final BufferedReader reader = FileUtil.createReader( mrstyPath ) ) {
          List<String> tokens = FileUtil.readBsvTokens( reader, mrstyPath );
          while ( tokens != null ) {
@@ -51,16 +56,24 @@ final public class MrstyParser {
                }
                concept.addTui( tuiEnum );
                usedTuis.add( tuiEnum );
+               final long count = tuiCodeCount.get( tuiEnum );
+               tuiCodeCount.put( tuiEnum, (count + 1) );
             }
             if ( lineCount % 100000 == 0 ) {
-               LOGGER.info( "File Line " + lineCount + "\t Valid Cuis " + wantedConcepts.size() );
+//               LOGGER.info( "File Line " + lineCount + "\t Valid Cuis " + wantedConcepts.size() );
+               final String counts = tuiCodeCount.entrySet().stream().map( e -> e.getKey().name() + " " + e.getValue() )
+                     .collect( Collectors.joining( ", " ) );
+               LOGGER.info( "File Line " + lineCount + "\t Cuis: " + counts );
             }
             tokens = FileUtil.readBsvTokens( reader, mrstyPath );
          }
       } catch ( IOException ioE ) {
          LOGGER.error( ioE.getMessage() );
       }
-      LOGGER.info( "File Lines " + lineCount + "\t Valid Cuis " + wantedConcepts.size() + "\t for wanted Tuis" );
+//      LOGGER.info( "File Lines " + lineCount + "\t Valid Cuis " + wantedConcepts.size() + "\t for wanted Tuis" );
+      final String counts = tuiCodeCount.entrySet().stream().map( e -> e.getKey().name() + " " + e.getValue() )
+            .collect( Collectors.joining( ", " ) );
+      LOGGER.info( "File Lines " + lineCount + "\t Cuis: " + counts );
       if ( usedTuis.size() != wantedTuis.size() ) {
          wantedTuis.removeAll( usedTuis );
          for ( Tui missingTui : wantedTuis ) {

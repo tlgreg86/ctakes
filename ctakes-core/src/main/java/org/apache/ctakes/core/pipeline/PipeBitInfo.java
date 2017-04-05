@@ -10,7 +10,6 @@ import org.apache.ctakes.typesystem.type.syntax.Chunk;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
-import org.apache.ctakes.typesystem.type.textspan.ListEntry;
 import org.apache.ctakes.typesystem.type.textspan.Paragraph;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -50,7 +49,6 @@ public @interface PipeBitInfo {
       SENTENCE( Sentence.class ),
       PARAGRAPH( Paragraph.class ),
       LIST( org.apache.ctakes.typesystem.type.textspan.List.class ),
-      LIST_ENTRY( ListEntry.class ),
       BASE_TOKEN( BaseToken.class ),
       CHUNK( Chunk.class ),
       IDENTIFIED_ANNOTATION( IdentifiedAnnotation.class ),

@@ -9,7 +9,7 @@ import com.lexicalscope.jewel.cli.Option;
  * @version %I%
  * @since 1/7/2017
  */
-interface StandardOptions {
+interface StandardCliOptions {
    @Option(
          shortName = "p",
          longName = "piper",

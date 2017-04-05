@@ -21,7 +21,7 @@ final public class SourceTableModel implements TableModel {
    static private final String[] COLUMN_NAMES = { "Source", "Target", "Vocabulary" };
    static private final Class<?>[] COLUMN_CLASSES = { Boolean.class, Boolean.class, String.class };
 
-   static private final String[] CTAKES_SOURCES = { "SNOMEDCT", "SNOMEDCT_US", "RXNORM" };
+   static private final String[] CTAKES_SOURCES = { "SNOMEDCT_US", "RXNORM" };
 
    private final EventListenerList _listenerList = new EventListenerList();
    private final Collection<String> _wantedSources = new HashSet<>();

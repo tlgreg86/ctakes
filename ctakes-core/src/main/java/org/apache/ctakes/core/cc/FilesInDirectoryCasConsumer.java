@@ -56,6 +56,7 @@ public class FilesInDirectoryCasConsumer extends CasConsumer_ImplBase {
 
    File iv_outputDirectory;
 
+   @Override
    public void initialize() throws ResourceInitializationException {
       String outputDirectoryName = (String)getConfigParameterValue( PARAM_OUTPUTDIR );
       iv_outputDirectory = new File( outputDirectoryName );
@@ -65,6 +66,7 @@ public class FilesInDirectoryCasConsumer extends CasConsumer_ImplBase {
       }
    }
 
+   @Override
    public void processCas( CAS cas ) throws ResourceProcessException {
       try {
          JCas jcas;

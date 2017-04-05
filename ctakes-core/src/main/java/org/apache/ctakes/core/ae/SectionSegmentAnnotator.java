@@ -58,8 +58,9 @@ public class SectionSegmentAnnotator extends JCasAnnotator_ImplBase {
 
 	public HashMap<Integer, DocumentSection> sections;
 
-	public void initialize(UimaContext aContext) throws ResourceInitializationException {
-		super.initialize(aContext);
+   @Override
+   public void initialize( UimaContext aContext ) throws ResourceInitializationException {
+      super.initialize( aContext );
 
 		try {
 			templateFile = ((FileResource)aContext.getResourceObject("template")).getFile().getAbsolutePath();
@@ -78,7 +79,8 @@ public class SectionSegmentAnnotator extends JCasAnnotator_ImplBase {
 	 * Entry point for processing.
 	 * Identify all the sections of the medical record
 	 */
-	public void process(JCas jCas) throws AnalysisEngineProcessException {
+   @Override
+   public void process( JCas jCas ) throws AnalysisEngineProcessException {
 
 		String text = jCas.getDocumentText();
 

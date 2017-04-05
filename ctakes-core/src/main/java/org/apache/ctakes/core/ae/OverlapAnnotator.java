@@ -90,9 +90,10 @@ public class OverlapAnnotator extends JCasAnnotator_ImplBase {
 	private int iv_bAnnotType;
 	private Action iv_action;
 
-	public void initialize(UimaContext annotCtx)
-			throws ResourceInitializationException {
-		super.initialize(annotCtx);
+   @Override
+   public void initialize( UimaContext annotCtx )
+         throws ResourceInitializationException {
+      super.initialize(annotCtx);
 
 		try {
 			String classname;
@@ -279,8 +280,9 @@ public class OverlapAnnotator extends JCasAnnotator_ImplBase {
 		}
 	}
 
-	public void process(JCas jcas) throws AnalysisEngineProcessException {
-		iv_logger.info("process(JCas)");
+   @Override
+   public void process( JCas jcas ) throws AnalysisEngineProcessException {
+      iv_logger.info( "process(JCas)" );
 
 		JFSIndexRepository indexes = jcas.getJFSIndexRepository();
 
@@ -327,9 +329,9 @@ public class OverlapAnnotator extends JCasAnnotator_ImplBase {
 		FSIterator<Annotation> annotItr = indexes.getAnnotationIndex(annotType)
 				.iterator();
 		while (annotItr.hasNext()) {
-			Annotation annot = (Annotation) annotItr.next();
-			l.add(annot);
-		}
+         Annotation annot = annotItr.next();
+         l.add( annot );
+      }
 		return l;
 	}
 
@@ -374,8 +376,8 @@ public class OverlapAnnotator extends JCasAnnotator_ImplBase {
 	 * 
 	 */
 	interface Action {
-		public void performAction(Annotation aAnnot, Annotation bAnnot);
-	}
+      void performAction( Annotation aAnnot, Annotation bAnnot );
+   }
 
 	/**
 	 * Implementation that modifies feature values of either annotation A or B.
@@ -404,9 +406,10 @@ public class OverlapAnnotator extends JCasAnnotator_ImplBase {
 			iv_endSrc = endSrc;
 		}
 
-		public void performAction(Annotation aAnnot, Annotation bAnnot) {
-			Annotation ann = null;
-			if (iv_selector == SELECT_A) {
+      @Override
+      public void performAction( Annotation aAnnot, Annotation bAnnot ) {
+         Annotation ann = null;
+         if (iv_selector == SELECT_A) {
 				ann = aAnnot;
 			} else {
 				ann = bAnnot;
@@ -471,9 +474,10 @@ public class OverlapAnnotator extends JCasAnnotator_ImplBase {
 			iv_selector = selector;
 		}
 
-		public void performAction(Annotation aAnnot, Annotation bAnnot) {
-			if (iv_selector == SELECT_A) {
-				aAnnot.removeFromIndexes();
+      @Override
+      public void performAction( Annotation aAnnot, Annotation bAnnot ) {
+         if ( iv_selector == SELECT_A ) {
+            aAnnot.removeFromIndexes();
 			} else if (iv_selector == SELECT_B) {
 				bAnnot.removeFromIndexes();
 			} else {

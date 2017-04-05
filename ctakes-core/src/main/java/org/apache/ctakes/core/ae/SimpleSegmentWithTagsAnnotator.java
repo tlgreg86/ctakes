@@ -47,10 +47,11 @@ public class SimpleSegmentWithTagsAnnotator extends JCasAnnotator_ImplBase {
 	private String segmentId;
 
 	private Logger logger = Logger.getLogger(getClass().getName());
-	
-	public void initialize(UimaContext aContext)
-			throws ResourceInitializationException {
-		super.initialize(aContext);
+
+   @Override
+   public void initialize( UimaContext aContext )
+         throws ResourceInitializationException {
+      super.initialize(aContext);
 
 		segmentId = (String) aContext.getConfigParameterValue("SegmentID");
 		if (segmentId == null) {
@@ -61,9 +62,10 @@ public class SimpleSegmentWithTagsAnnotator extends JCasAnnotator_ImplBase {
 	/**
 	 * Entry point for processing.
 	 */
-	public void process(JCas jcas) throws AnalysisEngineProcessException {
-		logger.info("process(JCas)");
-		// sa.setBegin(0);
+   @Override
+   public void process( JCas jcas ) throws AnalysisEngineProcessException {
+      logger.info( "process(JCas)" );
+      // sa.setBegin(0);
 		String text = jcas.getDocumentText();
 		if (text == null) {
 			System.out.println("text == null in Segmentannotator");

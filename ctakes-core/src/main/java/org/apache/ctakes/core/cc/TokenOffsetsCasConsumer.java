@@ -62,19 +62,19 @@ public class TokenOffsetsCasConsumer extends CasConsumer_ImplBase {
 	public static final String PARAM_OUTPUTDIR = "OutputDirectory";
 
 	File iv_outputDirectory;
-	
-	public void initialize() throws ResourceInitializationException 
-	{
-	    String outputDirectoryName = (String)getConfigParameterValue(PARAM_OUTPUTDIR);
+
+   @Override
+   public void initialize() throws ResourceInitializationException {
+      String outputDirectoryName = (String)getConfigParameterValue(PARAM_OUTPUTDIR);
 	    iv_outputDirectory = new File(outputDirectoryName);
 	    if(!iv_outputDirectory.exists() || !iv_outputDirectory.isDirectory())
 	    	throw new ResourceInitializationException(
 	    			new Exception("Parameter setting 'OutputDirectory' does not point to an existing directory."));
 	}
-	
-	public void processCas(CAS cas) throws ResourceProcessException 
-	{
-		try 
+
+   @Override
+   public void processCas( CAS cas ) throws ResourceProcessException {
+      try
 		{
 			JCas jcas;
 			jcas = cas.getJCas();
@@ -106,9 +106,9 @@ public class TokenOffsetsCasConsumer extends CasConsumer_ImplBase {
 		OutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile));
 		for(int i=0; i<offsets.size(); i++)
 		{
-			String offset = (String) offsets.get(i)+"\n";
-			out.write(offset.getBytes());
-		}
+         String offset = offsets.get( i ) + "\n";
+         out.write( offset.getBytes() );
+      }
 		out.flush();
 		out.close();
 	}

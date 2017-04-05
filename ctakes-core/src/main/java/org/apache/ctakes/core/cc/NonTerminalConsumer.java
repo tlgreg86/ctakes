@@ -35,5 +35,5 @@ public interface NonTerminalConsumer extends CasConsumer
      * Gets the generated output from a CasConsumer in XML form.
      * @return Output xml in String form.
      */
-    public String getOutputXml();
+    String getOutputXml();
 }

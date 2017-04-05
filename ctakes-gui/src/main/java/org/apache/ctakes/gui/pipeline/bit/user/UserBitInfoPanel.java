@@ -53,6 +53,7 @@ final public class UserBitInfoPanel extends BitInfoPanel {
       return new UserParameterInfoPanel();
    }
 
+   @Override
    protected void clear() {
       _bitNameListener.setUserBit( null );
       super.clear();
@@ -63,17 +64,18 @@ final public class UserBitInfoPanel extends BitInfoPanel {
          clear();
          return;
       }
-      final PipeBitInfo info = userBit.getPipeBitInfo();
+      _pipeBitInfo = userBit.getPipeBitInfo();
+      _pipeBitClass = userBit.getPipeBitClass();
       _bitNameListener.setUserBit( null );
-      setBitName( info.name() );
-      _description.setText( info.description() );
-      _dependencies.setText( Arrays.stream( info.dependencies() )
+      setBitName( _pipeBitInfo.name() );
+      _description.setText( _pipeBitInfo.description() );
+      _dependencies.setText( Arrays.stream( _pipeBitInfo.dependencies() )
             .map( PipeBitInfo.TypeProduct::toString )
             .collect( Collectors.joining( ", " ) ) );
-      _usables.setText( Arrays.stream( info.usables() )
+      _usables.setText( Arrays.stream( _pipeBitInfo.usables() )
             .map( PipeBitInfo.TypeProduct::toString )
             .collect( Collectors.joining( ", " ) ) );
-      _outputs.setText( Arrays.stream( info.products() )
+      _products.setText( Arrays.stream( _pipeBitInfo.products() )
             .map( PipeBitInfo.TypeProduct::toString )
             .collect( Collectors.joining( ", " ) ) );
       _parameterTableModel.setParameterHolder( userBit );

@@ -92,6 +92,9 @@ final public class UmlsTermUtil {
    }
 
    public boolean isTextValid( final String text ) {
+      if ( text.length() > 255 ) {
+         return false;
+      }
       if ( _keepPrefixTriggers.stream().anyMatch( text::startsWith ) ) {
          return true;
       }
@@ -135,10 +138,7 @@ final public class UmlsTermUtil {
       if ( _removalColonTriggers.stream().anyMatch( text::contains ) ) {
          return false;
       }
-      if ( _removalFunctionTriggers.stream().anyMatch( text::contains ) ) {
-         return false;
-      }
-      return true;
+      return !_removalFunctionTriggers.stream().anyMatch( text::contains );
    }
 
    static public boolean isTextTooShort( final String text, final int minCharLength ) {
@@ -148,6 +148,9 @@ final public class UmlsTermUtil {
 
    static public boolean isTextTooLong( final String text, final int maxCharLength,
                                         final int maxWordCount, final int maxSymCount ) {
+      if ( text.length() > 255 ) {
+         return true;
+      }
       final String[] splits = WHITESPACE.split( text );
       int wordCount = 0;
       int symCount = 0;
@@ -298,8 +301,12 @@ final public class UmlsTermUtil {
                   = abbreviation.replace( ":", "" ).replace( "(", "" ).replace( ")", "" ).replace( "-", "" )
                   .replace( "[", "" ).replace( "]", "" ).replace( "&", "" ).trim();
             final Collection<String> extractedAbbreviations = new HashSet<>( 2 );
-            extractedAbbreviations.add( noAbbrTerm );
-            extractedAbbreviations.add( abbrTerm );
+            if ( noAbbrTerm.length() < 255 ) {
+               extractedAbbreviations.add( noAbbrTerm );
+            }
+            if ( abbrTerm.length() < 255 ) {
+               extractedAbbreviations.add( abbrTerm );
+            }
             return extractedAbbreviations;
          }
       }

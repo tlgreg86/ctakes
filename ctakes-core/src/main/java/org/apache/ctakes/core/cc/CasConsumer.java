@@ -58,6 +58,7 @@ public class CasConsumer extends CasConsumer_ImplBase {
    /**
     * Read in configuration parameters
     */
+   @Override
    public void initialize() throws ResourceInitializationException {
       iv_outputDir = (String)getConfigParameterValue( "outputDir" );
    }
@@ -104,6 +105,7 @@ public class CasConsumer extends CasConsumer_ImplBase {
    /**
     * Create an xml file from the data in the cas.
     */
+   @Override
    public void processCas( CAS cas ) throws ResourceProcessException {
 
       iv_logger.info( "Started" );

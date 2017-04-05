@@ -7,7 +7,7 @@ package org.apache.ctakes.core.cc.pretty.cell;
 public interface UmlsItemCell extends ItemCell {
 
    // Return Code used to indicate that a full entity span should be filled with an indicator character, e.g. '='
-   static public final String ENTITY_FILL = "ENTITY_FILL";
+   String ENTITY_FILL = "ENTITY_FILL";
 
    /**
     * @return true if the umls entity represented by this item cell is negated

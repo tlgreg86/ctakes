@@ -164,6 +164,9 @@ final public class RareWordUtil {
       int bestIndex = 0;
       long bestCount = Long.MAX_VALUE;
       for ( int i = 0; i < tokens.length; i++ ) {
+         if ( tokens[ i ].length() >= 48 ) {
+            continue;
+         }
          Long count = tokenCounts.get( tokens[ i ] );
          if ( count != null && count < bestCount ) {
             bestIndex = i;

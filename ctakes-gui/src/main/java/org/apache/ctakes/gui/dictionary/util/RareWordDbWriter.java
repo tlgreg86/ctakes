@@ -42,21 +42,19 @@ final public class RareWordDbWriter {
    }
 
 
-   static public boolean writeConcepts( final Map<Long, Concept> concepts,
-                                        final String url, final String user, final String pass ) {
+   static public boolean writeConcepts( final Connection connection, final Map<Long, Concept> concepts ) {
       // Get Count of appearance in dictionary per term token
       final Map<String, Long> tokenCounts = RareWordUtil.getTokenCounts( concepts.values() );
       // Create insert sql statements
       final String mainTableSql = JdbcUtil.createRowInsertSql( "CUI_TERMS", CuiTermsField.values() );
-      final String tuiTableSql = JdbcUtil.createCodeInsertSql( "tui" );
-      final String preftermTableSql = JdbcUtil.createCodeInsertSql( "prefterm" );
+      final String tuiTableSql = JdbcUtil.createCodeInsertSql( "TUI" );
+      final String preftermTableSql = JdbcUtil.createCodeInsertSql( "PREFTERM" );
       final Map<String, String> insertCodeSqls = createCodeInsertSqls();
 
       long mainTableCount = 0;
       long tuiTableCount = 0;
       long preftermTableCount = 0;
       final Map<String, Long> codeTableCounts = createCodeCounts();
-      final Connection connection = JdbcUtil.createDatabaseConnection( url, user, pass );
       try {
          // Create PreparedStatements from insert sql statements
          final PreparedStatement mainTableStatement = connection.prepareStatement( mainTableSql );
@@ -70,6 +68,9 @@ final public class RareWordDbWriter {
             // write main term table
             boolean conceptOk = false;
             for ( String text : conceptEntry.getValue().getTexts() ) {
+               if ( text.length() >= 255 ) {
+                  continue;
+               }
                final RareWordUtil.IndexedRareWord indexedRareWord = RareWordUtil.getIndexedRareWord( text,
                      tokenCounts );
                if ( RareWordUtil.NULL_RARE_WORD.equals( indexedRareWord ) ) {
@@ -95,11 +96,14 @@ final public class RareWordDbWriter {
                tuiTableCount = incrementCount( "Tui", tuiTableCount );
             }
             // write preferred term table
-            final String preferredText = concept.getPreferredText();
+            String preferredText = concept.getPreferredText();
             if ( preferredText != null
                  && !preferredText.isEmpty()
                  && !preferredText.equals( Concept.PREFERRED_TERM_UNKNOWN ) ) {
                preftermStatement.setLong( CuiTermsField.CUI.__index, cui );
+               if ( preferredText.length() > 511 ) {
+                  preferredText = preferredText.substring( 0, 510 );
+               }
                preftermStatement.setString( 2, preferredText );
                preftermStatement.executeUpdate();
                preftermTableCount = incrementCount( "Preferred Term", preftermTableCount );
@@ -125,15 +129,13 @@ final public class RareWordDbWriter {
          for ( PreparedStatement codeStatement : codeStatements.values() ) {
             codeStatement.close();
          }
-         final Statement writeDelayStatement = connection.createStatement();
-         writeDelayStatement.execute( "SET WRITE_DELAY FALSE" );
-         writeDelayStatement.close();
          final Statement setBinaryStatement = connection.createStatement();
-         setBinaryStatement.execute( "SET SCRIPTFORMAT BINARY" );
+         // Compressed has a slow loading time
+//         setBinaryStatement.execute( "SET FILES SCRIPT FORMAT COMPRESSED" );
+         // text is the default
+//         setBinaryStatement.execute( "SET FILES SCRIPT FORMAT TEXT" );
          setBinaryStatement.close();
-         final Statement readOnlyStatement = connection.createStatement();
-         readOnlyStatement.execute( "SET READONLY TRUE" );
-         readOnlyStatement.close();
+         connection.commit();
          final Statement shutdownStatement = connection.createStatement();
          shutdownStatement.execute( "SHUTDOWN" );
          shutdownStatement.close();
@@ -152,7 +154,6 @@ final public class RareWordDbWriter {
             .forEach( LOGGER::info );
       return true;
    }
-
 
    static private Map<String, String> createCodeInsertSqls() {
       return VocabularyStore.getInstance().getAllVocabularies().stream()

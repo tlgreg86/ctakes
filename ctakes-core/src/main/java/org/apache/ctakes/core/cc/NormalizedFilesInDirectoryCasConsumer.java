@@ -57,6 +57,7 @@ public class NormalizedFilesInDirectoryCasConsumer extends CasConsumer_ImplBase 
 
    File iv_outputDirectory;
 
+   @Override
    public void initialize() throws ResourceInitializationException {
       String outputDirectoryName = (String)getConfigParameterValue( PARAM_OUTPUTDIR );
       iv_outputDirectory = new File( outputDirectoryName );

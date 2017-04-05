@@ -112,6 +112,7 @@ public class JdbcCollectionReader extends CollectionReader_ImplBase
     private int prepStmtValArrIdx = 0;
     private boolean usePrepStmtVals = false;
 
+   @Override
     public void initialize() throws ResourceInitializationException
     {
         try
@@ -173,7 +174,7 @@ public class JdbcCollectionReader extends CollectionReader_ImplBase
         prepStmtValArr = new List[lineList.size()];
         for (int i = 0; i < lineList.size(); i++)
         {
-            String currLine = (String) lineList.get(i);
+           String currLine = lineList.get( i );
             List<String> valList = new ArrayList<String>();
             StringTokenizer st = new StringTokenizer(currLine, "\t");
             while (st.hasMoreTokens())
@@ -244,7 +245,8 @@ public class JdbcCollectionReader extends CollectionReader_ImplBase
      * 
      * @see org.apache.uima.collection.CollectionReader#getNext(org.apache.uima.cas.CAS)
      */
-    public void getNext(CAS cas) throws IOException, CollectionException
+    @Override
+    public void getNext( CAS cas ) throws IOException, CollectionException
     {
         currRowCount++;
         try
@@ -354,6 +356,7 @@ public class JdbcCollectionReader extends CollectionReader_ImplBase
      * 
      * @see org.apache.uima.collection.base_cpm.BaseCollectionReader#hasNext()
      */
+    @Override
     public boolean hasNext() throws IOException, CollectionException
     {
         try
@@ -415,6 +418,7 @@ public class JdbcCollectionReader extends CollectionReader_ImplBase
      * 
      * @see org.apache.uima.collection.base_cpm.BaseCollectionReader#getProgress()
      */
+    @Override
     public Progress[] getProgress()
     {
         Progress p = new ProgressImpl(currRowCount, totalRowCount,
@@ -427,6 +431,7 @@ public class JdbcCollectionReader extends CollectionReader_ImplBase
      * 
      * @see org.apache.uima.collection.base_cpm.BaseCollectionReader#close()
      */
+    @Override
     public void close() throws IOException
     {
         try
