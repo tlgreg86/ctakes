@@ -1,6 +1,9 @@
 package org.apache.ctakes.coreference.ae;
 
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
+
 import java.io.File;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +14,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterAgreementFeaturesExtractor;
 import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterAttributeFeaturesExtractor;
@@ -69,7 +73,12 @@ import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.cleartk.util.ViewUriUtil;
-
+@PipeBitInfo(
+	      name = "Coreference using Mention Clusters",
+	      description = "Coreference annotator using mention-synchronous paradigm.",
+   	      dependencies = { BASE_TOKEN, SENTENCE, SECTION, IDENTIFIED_ANNOTATION, MARKABLE },
+   	      products = { COREFERENCE_RELATION }
+	)
 public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String> {
   public static final String NO_RELATION_CATEGORY = "-NONE-";
   public static final String PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE =
