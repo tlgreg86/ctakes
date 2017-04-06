@@ -95,11 +95,14 @@ final public class PiperTextFilter extends DocumentFilter {
 
    public boolean validateText() {
       final ExecutorService executor = Executors.newSingleThreadExecutor();
-      Future<Boolean> valid = executor.submit( (Callable<Boolean>)_textValidator );
+      Future<Boolean> validator = executor.submit( (Callable<Boolean>)_textValidator );
       try {
-         return valid.get( 1000, TimeUnit.MILLISECONDS );
+         boolean valid = validator.get( 1000, TimeUnit.MILLISECONDS );
+         executor.shutdown();
+         return valid;
       } catch ( InterruptedException | ExecutionException | TimeoutException multE ) {
          LOGGER.warn( "Piper validation timed out." );
+         executor.shutdown();
          return false;
       }
    }

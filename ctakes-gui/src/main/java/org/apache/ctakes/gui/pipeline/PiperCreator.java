@@ -32,12 +32,7 @@ final public class PiperCreator {
       final Dimension size = new Dimension( 800, 600 );
       frame.setSize( size );
       frame.setMinimumSize( size );
-      final JMenuBar menuBar = new JMenuBar();
-//      final JMenu fileMenu = new JMenu( "File" );
-//      menuBar.add( fileMenu );
-
-      frame.setJMenuBar( menuBar );
-      System.setProperty( "apple.laf.useScreenMenuBar", "true" );
+//      System.setProperty( "apple.laf.useScreenMenuBar", "true" );
       return frame;
    }
 

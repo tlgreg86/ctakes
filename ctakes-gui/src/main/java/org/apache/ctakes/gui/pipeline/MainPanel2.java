@@ -30,7 +30,8 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -206,6 +207,7 @@ final class MainPanel2 extends JPanel {
    void findPipeBits() {
       final ExecutorService executor = Executors.newSingleThreadExecutor();
       executor.execute( new PiperBitParser() );
+      executor.shutdown();
    }
 
 
@@ -414,27 +416,17 @@ final class MainPanel2 extends JPanel {
          }
          LOGGER.info( "Running Piper File ..." );
          final ExecutorService executor = Executors.newSingleThreadExecutor();
-         final Future<Boolean> success = executor.submit( new PiperFileRunner() );
-         try {
-            if ( success.get() ) {
-               LOGGER.info( "Run complete." );
-            } else {
-               LOGGER.warn( "Run may have encountered problems." );
-            }
-         } catch ( InterruptedException | ExecutionException multE ) {
-            LOGGER.warn( multE );
-            LOGGER.warn( "Run may have encountered problems." );
-         }
+         executor.execute( new PiperFileRunner() );
+         executor.shutdown();
       }
    }
 
-   private class PiperFileRunner implements Callable<Boolean> {
+   private class PiperFileRunner implements Runnable {
       @Override
-      public Boolean call() {
+      public void run() {
          final JFrame frame = (JFrame)SwingUtilities.getRoot( MainPanel2.this );
          frame.setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
          DisablerPane.getInstance().setVisible( true );
-         boolean success = false;
          try {
             final PiperFileReader reader = new PiperFileReader();
             final String text = _piperDocument.getText( 0, _piperDocument.getLength() );
@@ -443,13 +435,11 @@ final class MainPanel2 extends JPanel {
                reader.parsePipelineLine( line );
             }
             reader.getBuilder().run();
-            success = true;
          } catch ( Throwable t ) {
             LOGGER.error( "Pipeline Run caused Exception:", t );
          }
          DisablerPane.getInstance().setVisible( false );
          frame.setCursor( Cursor.getDefaultCursor() );
-         return success;
       }
    }
 
