@@ -267,7 +267,7 @@ final public class PiperTextFilter extends DocumentFilter {
             LOGGER.error( blE.getMessage() );
             valid = false;
          }
-         _document.setCharacterAttributes( _document.getLength(), _document.getLength(), _styles.get( "PLAIN" ), true );
+         _document.setCharacterAttributes( _document.getLength(), 1, _styles.get( "PLAIN" ), true );
          _reader.getBuilder().clear();
          if ( !_haveReader ) {
             LOGGER.warn( "No Reader specified" );

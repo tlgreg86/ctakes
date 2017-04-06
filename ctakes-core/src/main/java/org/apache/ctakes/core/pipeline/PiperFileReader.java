@@ -137,7 +137,7 @@ final public class PiperFileReader {
     *
     * @param filePath path to the pipeline command file
     */
-   public void loadPipelineFile( final String filePath ) throws UIMAException {
+   public boolean loadPipelineFile( final String filePath ) throws UIMAException {
       try ( final BufferedReader reader
                   = new BufferedReader( new InputStreamReader(
             FileLocator.getAsStream( getPiperPath( filePath ) ) ) ) ) {
@@ -148,7 +148,9 @@ final public class PiperFileReader {
          }
       } catch ( IOException ioE ) {
          LOGGER.error( "Piper File not found: " + filePath );
+         return false;
       }
+      return true;
    }
 
    public boolean parsePipelineLine( final String line ) throws UIMAException {
@@ -178,8 +180,7 @@ final public class PiperFileReader {
    private boolean addToPipeline( final String command, final String parameter ) throws UIMAException {
       switch ( command ) {
          case "load":
-            loadPipelineFile( parameter );
-            return true;
+            return loadPipelineFile( parameter );
          case "package":
             _userPackages.add( parameter );
             return true;

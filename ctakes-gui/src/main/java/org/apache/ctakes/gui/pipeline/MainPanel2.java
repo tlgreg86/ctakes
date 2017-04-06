@@ -127,6 +127,7 @@ final class MainPanel2 extends JPanel {
       _piperTextFilter = new PiperTextFilter( _piperDocument );
       _textPane = new JTextPane( _piperDocument );
       _textPane.putClientProperty( "caretWidth", 2 );
+      _textPane.setCaretColor( Color.MAGENTA );
       final JScrollPane scroll = new JScrollPane( _textPane );
       final TextLineNumber lineNumber = new TextLineNumber( _textPane, 2 );
       scroll.setRowHeaderView( lineNumber );
@@ -400,6 +401,7 @@ final class MainPanel2 extends JPanel {
          LOGGER.info( "Validating Piper File ..." );
          final boolean valid = _piperTextFilter.validateText();
          _runButton.setEnabled( valid );
+         LOGGER.info( "Validation Complete." );
       }
    }
 
