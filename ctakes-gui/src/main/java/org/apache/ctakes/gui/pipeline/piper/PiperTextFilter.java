@@ -49,6 +49,9 @@ final public class PiperTextFilter extends DocumentFilter {
    public void insertString( final FilterBypass fb, final int begin, final String text, final AttributeSet attr )
          throws BadLocationException {
       super.insertString( fb, begin, text, attr );
+//      if ( shouldValidate( fb.getDocument(), begin, text.length() ) ) {
+//         validateText();
+//      } else
       if ( shouldReformat( fb.getDocument(), begin, text.length() ) ) {
          formatText( fb.getDocument() );
       }
@@ -62,6 +65,9 @@ final public class PiperTextFilter extends DocumentFilter {
                         final AttributeSet attrs )
          throws BadLocationException {
       super.replace( fb, begin, length, text, attrs );
+//      if ( shouldValidate( fb.getDocument(), begin, length ) ) {
+//         validateText();
+//      } else
       if ( shouldReformat( fb.getDocument(), begin, length ) ) {
          formatText( fb.getDocument() );
       }
@@ -78,6 +84,13 @@ final public class PiperTextFilter extends DocumentFilter {
       if ( StyledDocument.class.isInstance( document ) ) {
          SwingUtilities.invokeLater( _textFormatter );
       }
+   }
+
+   static private boolean shouldValidate( final Document document, final int begin, final int length )
+         throws BadLocationException {
+      final int testLength = Math.min( length + 2, document.getLength() - begin );
+      final String deltaText = document.getText( begin, testLength );
+      return deltaText.contains( "\n" );
    }
 
    public boolean validateText() {
@@ -124,51 +137,79 @@ final public class PiperTextFilter extends DocumentFilter {
       }
 
       private void createStyles() {
-         createStyle( "PLAIN", Color.BLACK, "PLAIN" );
-         createStyle( "COMMENT", Color.GRAY, "COMMENT" );
-         final Style error = createStyle( "ERROR", Color.RED, "ERROR" );
-         StyleConstants.setStrikeThrough( error, true );
+         createStyle( "PLAIN", Color.BLACK, false, "PLAIN" );
+         final Style comment = createStyle( "COMMENT", Color.GRAY, false, "COMMENT" );
+         StyleConstants.setItalic( comment, true );
+         final Style error = createStyle( "ERROR", Color.RED, false, "ERROR" );
+         StyleConstants.setUnderline( error, true );
+         createStyle( "PIPE_BIT", Color.BLUE, false, "PIPE_BIT" );
+         createStyle( "BOLD_PIPE_BIT", Color.BLUE, "BOLD_PIPE_BIT" );
          createStyle( "PARAMETER", Color.YELLOW, "PARAMETER" );
          createStyle( "LOAD", Color.MAGENTA, "load" );
          createStyle( "PACKAGE", Color.YELLOW.darker(), "package" );
          createStyle( "SET", Color.ORANGE.darker(), "set", "cli" );
          createStyle( "READER", Color.GREEN.darker().darker(), "reader", "readFiles" );
          createStyle( "ADD", Color.CYAN.darker().darker(), "add", "addLogged", "addDescription", "addLast" );
-         createStyle( "WRITE_XMI", Color.BLUE, "writeXmis", "collectCuis", "collectEntities" );
+         createStyle( "WRITE_XMI", Color.BLUE.darker(), "writeXmis", "collectCuis", "collectEntities" );
       }
 
       private Style createStyle( final String name, final Color color, final String... keys ) {
+         return createStyle( name, color, true, keys );
+      }
+
+      private Style createStyle( final String name, final Color color, final boolean bold, final String... keys ) {
          final Style style = _document.addStyle( name, null );
          StyleConstants.setForeground( style, color );
+         if ( bold ) {
+            StyleConstants.setBold( style, true );
+         }
          Arrays.stream( keys ).forEach( k -> _styles.put( k, style ) );
          return style;
       }
 
-      void formatLine( final int begin, final int end ) throws BadLocationException {
+      boolean formatLine( final int begin, final int end ) throws BadLocationException {
          final int length = end - begin;
          if ( length <= 0 ) {
-            return;
+            return true;
          }
          final String text = _document.getText( begin, length );
          if ( text.startsWith( "#" ) || text.startsWith( "//" ) || text.startsWith( "!" ) ) {
             _document.setCharacterAttributes( begin, length, _styles.get( "COMMENT" ), true );
-            return;
+            return true;
          }
          int commandEnd = text.indexOf( ' ' );
          if ( commandEnd < 0 ) {
             commandEnd = length;
          }
-         final Style commandStyle = getCommandStyle( text.substring( 0, commandEnd ) );
+         final String command = text.substring( 0, commandEnd );
+         final Style commandStyle = getCommandStyle( command );
          _document.setCharacterAttributes( begin, commandEnd, commandStyle, true );
          if ( length > commandEnd ) {
-            _document.setCharacterAttributes( begin + commandEnd, length - commandEnd, _styles.get( "PLAIN" ), true );
+            int styleEnd = commandEnd + 1;
+            if ( command.equals( "reader" ) || command.startsWith( "add" ) ) {
+               final int bitStart = commandEnd + 1;
+               int bitEnd = text.indexOf( ' ', bitStart );
+               if ( bitEnd < 0 ) {
+                  bitEnd = length;
+               }
+               int bitBold = bitStart;
+               final String pipeBitText = text.substring( bitStart, bitEnd );
+               final int dotIndex = pipeBitText.lastIndexOf( '.' );
+               if ( dotIndex > 0 ) {
+                  bitBold = bitStart + dotIndex + 1;
+                  _document.setCharacterAttributes(
+                        begin + bitStart, bitBold - bitStart, _styles.get( "PIPE_BIT" ), true );
+               }
+               _document
+                     .setCharacterAttributes( begin + bitBold, bitEnd - bitBold, _styles.get( "BOLD_PIPE_BIT" ), true );
+               styleEnd = bitEnd;
+            }
+            _document.setCharacterAttributes( begin + styleEnd, length - styleEnd, _styles.get( "PLAIN" ), true );
          }
-//         int nextSpace = text.indexOf( ' ', commandEnd );
-//         while ( nextSpace > 0 ) {
-//
-//
-//            nextSpace = text.indexOf( ' ', nextSpace + 1 );
-//         }
+         if ( commandStyle.equals( _styles.get( "ERROR" ) ) ) {
+            return false;
+         }
+         return true;
       }
 
       private Style getCommandStyle( final String command ) {
@@ -178,7 +219,8 @@ final public class PiperTextFilter extends DocumentFilter {
          }
          return style;
       }
-//      private Style getParameterStyle( final String parameter ) {
+
+      //      private Style getParameterStyle( final String parameter ) {
 //         final Style style = _styles.get( command );
 //         if ( style == null ) {
 //            return _styles.get( "ERROR" );
@@ -190,6 +232,7 @@ final public class PiperTextFilter extends DocumentFilter {
 
    static private final class TextValidator extends TextFormatter implements Callable<Boolean> {
       final private PiperFileReader _reader;
+      private boolean _haveReader;
 
       private TextValidator( final StyledDocument document ) {
          super( document );
@@ -198,6 +241,7 @@ final public class PiperTextFilter extends DocumentFilter {
 
       @Override
       public Boolean call() {
+         _haveReader = false;
          boolean valid = true;
          try {
             final String text = _document.getText( 0, _document.getLength() );
@@ -208,6 +252,8 @@ final public class PiperTextFilter extends DocumentFilter {
                if ( text.charAt( i ) == '\n' ) {
                   if ( validateLine( lineBegin, i ) ) {
                      formatLine( lineBegin, i );
+                  } else {
+                     valid = false;
                   }
                   lineBegin = i + 1;
                   lineEnded = true;
@@ -223,25 +269,36 @@ final public class PiperTextFilter extends DocumentFilter {
          }
          _document.setCharacterAttributes( _document.getLength(), _document.getLength(), _styles.get( "PLAIN" ), true );
          _reader.getBuilder().clear();
+         if ( !_haveReader ) {
+            LOGGER.warn( "No Reader specified" );
+            return false;
+         }
          return valid;
       }
 
       private boolean validateLine( final int begin, final int end ) throws BadLocationException {
          final int length = end - begin;
          if ( length <= 0 ) {
-            return false;
+            return true;
          }
          final String text = _document.getText( begin, length );
          if ( text.startsWith( "#" ) || text.startsWith( "//" ) || text.startsWith( "!" ) ) {
             return true;
+         } else if ( text.startsWith( "readFiles " ) || text.startsWith( "reader " ) ) {
+            if ( _haveReader ) {
+               LOGGER.warn( "More than one Reader specified" );
+               _document.setCharacterAttributes( begin, end, _styles.get( "ERROR" ), true );
+               return false;
+            }
+            _haveReader = true;
          }
          try {
-            _reader.parsePipelineLine( text );
+            return _reader.parsePipelineLine( text );
          } catch ( UIMAException uE ) {
+            LOGGER.warn( uE.getMessage() );
             _document.setCharacterAttributes( begin, end, _styles.get( "ERROR" ), true );
             return false;
          }
-         return true;
       }
    }
 

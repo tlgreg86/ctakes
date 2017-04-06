@@ -13,6 +13,7 @@ final public class PositionedSplitPane extends JSplitPane {
 
    static private final Logger LOGGER = Logger.getLogger( "PositionedSplitPane" );
 
+   private final Object LOCKER = new Object();
    private boolean _isLocationSet;
    private int _pixelLocation = -1;
    private double _proportionalLocation = -1d;
@@ -82,15 +83,17 @@ final public class PositionedSplitPane extends JSplitPane {
     */
    @Override
    public void paint( final Graphics g ) {
-      if ( !_isLocationSet || getDividerLocation() < 0 ) {
-         if ( _pixelLocation > 0 ) {
-            super.setDividerLocation( _pixelLocation );
-         } else if ( _proportionalLocation > 0 ) {
-            super.setDividerLocation( _proportionalLocation );
+      synchronized ( LOCKER ) {
+         if ( !_isLocationSet ) {
+            if ( _pixelLocation > 0 ) {
+               super.setDividerLocation( _pixelLocation );
+            } else if ( _proportionalLocation > 0 ) {
+               super.setDividerLocation( _proportionalLocation );
+            }
+            _isLocationSet = true;
          }
-         _isLocationSet = true;
+         super.paint( g );
       }
-      super.paint( g );
    }
 
 }

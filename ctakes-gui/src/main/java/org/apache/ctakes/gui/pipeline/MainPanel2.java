@@ -1,10 +1,7 @@
 package org.apache.ctakes.gui.pipeline;
 
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
-import org.apache.ctakes.gui.component.DisablerPane;
-import org.apache.ctakes.gui.component.LoggerPanel;
-import org.apache.ctakes.gui.component.PositionedSplitPane;
-import org.apache.ctakes.gui.component.SmoothTipList;
+import org.apache.ctakes.gui.component.*;
 import org.apache.ctakes.gui.pipeline.bit.PipeBitFinder;
 import org.apache.ctakes.gui.pipeline.bit.available.AvailablesListModel;
 import org.apache.ctakes.gui.pipeline.bit.info.*;
@@ -29,9 +26,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;
@@ -61,8 +61,12 @@ final class MainPanel2 extends JPanel {
    private JButton _runButton;
    private JButton _helpButton;
 
-   private JButton _setButton;
+   private JTextPane _textPane;
+
    private JButton _addButton;
+   private JButton _setButton;
+   private JButton _loadButton;
+   private JButton _packageButton;
 
 
    MainPanel2() {
@@ -81,6 +85,7 @@ final class MainPanel2 extends JPanel {
       _chooser.setFileFilter( new FileNameExtensionFilter( "Pipeline Definition (Piper) File", "piper" ) );
       _chooser.setFileView( new PiperFileView() );
 
+      createNewPiper();
    }
 
 
@@ -120,8 +125,11 @@ final class MainPanel2 extends JPanel {
    private JComponent createEastPanel() {
       _piperDocument = new DefaultStyledDocument();
       _piperTextFilter = new PiperTextFilter( _piperDocument );
-      final JTextPane _textPane = new JTextPane( _piperDocument );
+      _textPane = new JTextPane( _piperDocument );
+      _textPane.putClientProperty( "caretWidth", 2 );
       final JScrollPane scroll = new JScrollPane( _textPane );
+      final TextLineNumber lineNumber = new TextLineNumber( _textPane, 2 );
+      scroll.setRowHeaderView( lineNumber );
       scroll.setMinimumSize( new Dimension( 100, 10 ) );
       return scroll;
    }
@@ -203,10 +211,7 @@ final class MainPanel2 extends JPanel {
       final JToolBar toolBar = new JToolBar( SwingConstants.VERTICAL );
       toolBar.setFloatable( false );
       toolBar.setRollover( true );
-
-      _setButton = addVerticalButton( toolBar, "Set Global Parameter" );
-      _setButton.addActionListener( new SetAction() );
-
+      toolBar.addSeparator( new Dimension( 0, 30 ) );
 
       final AddAction addAction = new AddAction();
       final ParameterTableModel parameterModel = _infoPanel.getParameterModel();
@@ -214,15 +219,59 @@ final class MainPanel2 extends JPanel {
       _addButton = addVerticalButton( toolBar, "Add selected Pipe Bit" );
       _addButton.addActionListener( addAction );
       _addButton.setEnabled( false );
+      toolBar.addSeparator( new Dimension( 0, 60 ) );
+      _setButton = addVerticalButton( toolBar, "Set Global Parameter" );
+      _setButton.addActionListener( new SetAction() );
+
+      toolBar.add( Box.createVerticalGlue() );
+      _loadButton = addVerticalButton( toolBar, "Load SubPiper" );
+      _loadButton.addActionListener( new LoadAction() );
+
+      _packageButton = addVerticalButton( toolBar, "Add Package" );
+      _packageButton.addActionListener( new PackageAction() );
 
       SwingUtilities.invokeLater( new CommandIconLoader() );
       return toolBar;
    }
 
 
+   private void createNewPiper() {
+      final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern( "MMMM dd, yyyy" );
+      final LocalDate date = LocalDate.now();
+      final String text = "//       ***  Piper File  ***\n" +
+                          "//       Created by " + System.getProperty( "user.name" ) + "\n" +
+                          "//       on " + date.format( dateFormatter ) + "\n\n";
+      try {
+         _piperDocument.remove( 0, _piperDocument.getLength() );
+         _piperDocument.insertString( 0, text, null );
+         _textPane.setCaretPosition( _piperDocument.getLength() );
+      } catch ( BadLocationException blE ) {
+         LOGGER.warn( blE.getMessage() );
+      }
+      _runButton.setEnabled( false );
+   }
 
 
-
+   private int getInsertCaret() throws BadLocationException {
+      int caret = _textPane.getCaretPosition();
+      if ( caret > 1 && _piperDocument.getText( caret - 1, 1 ).charAt( 0 ) == '\n' ) {
+         return caret;
+      }
+      final int length = _piperDocument.getLength() - caret;
+      final String docText = _piperDocument.getText( caret, length );
+      boolean careted = false;
+      for ( int i = 0; i < length - 1; i++ ) {
+         if ( docText.charAt( i ) == '\n' ) {
+            caret += i + 1;
+            careted = true;
+            break;
+         }
+      }
+      if ( !careted ) {
+         caret = _piperDocument.getLength();
+      }
+      return caret;
+   }
 
 
 
@@ -255,7 +304,7 @@ final class MainPanel2 extends JPanel {
          final String newPng = "NewPiper.png";
          final String openPng = "OpenPiper.png";
          final String savePng = "SavePiper.png";
-         final String validatePng = "CheckRun.png";
+         final String validatePng = "RunReady.png";
          final String runPng = "RunPiper.png";
          final String helpPng = "Help_32.png";
          final Icon newIcon = IconLoader.loadIcon( dir + newPng );
@@ -276,11 +325,7 @@ final class MainPanel2 extends JPanel {
    private final class NewPiperAction implements ActionListener {
       @Override
       public void actionPerformed( final ActionEvent event ) {
-         try {
-            _piperDocument.remove( 0, _piperDocument.getLength() );
-         } catch ( BadLocationException blE ) {
-            LOGGER.warn( blE.getMessage() );
-         }
+         createNewPiper();
       }
    }
 
@@ -305,6 +350,7 @@ final class MainPanel2 extends JPanel {
          } catch ( BadLocationException blE ) {
             LOGGER.warn( blE.getMessage() );
          }
+         _runButton.setEnabled( false );
       }
    }
 
@@ -326,8 +372,6 @@ final class MainPanel2 extends JPanel {
             }
             final String text = _piperDocument.getText( 0, _piperDocument.getLength() );
             Files.write( Paths.get( path ), text.getBytes() );
-            _piperDocument.remove( 0, _piperDocument.getLength() );
-            _piperDocument.insertString( 0, text, null );
          } catch ( BadLocationException | IOException multE ) {
             LOGGER.warn( multE.getMessage() );
          }
@@ -350,11 +394,12 @@ final class MainPanel2 extends JPanel {
    private final class ValidateAction implements ActionListener {
       @Override
       public void actionPerformed( final ActionEvent event ) {
-         if ( _piperTextFilter == null || _addButton == null ) {
+         if ( _piperTextFilter == null || _runButton == null ) {
             return;
          }
+         LOGGER.info( "Validating Piper File ..." );
          final boolean valid = _piperTextFilter.validateText();
-         _addButton.setEnabled( valid );
+         _runButton.setEnabled( valid );
       }
    }
 
@@ -400,13 +445,18 @@ final class MainPanel2 extends JPanel {
       @Override
       public void run() {
          final String dir = "org/apache/ctakes/gui/pipeline/icon/";
-//         final String arrow = "BlueRightArrow.png";
-         final String setPng = "Parameters.png";
          final String addPng = "PlusMark.png";
-         final Icon setIcon = IconLoader.loadIcon( dir + setPng );
+         final String setPng = "Parameters.png";
+         final String loadPng = "BlueGearYellowGear.png";
+         final String packagePng = "Folder_Blue.png";
          final Icon addIcon = IconLoader.loadIcon( dir + addPng );
-         _setButton.setIcon( setIcon );
+         final Icon setIcon = IconLoader.loadIcon( dir + setPng );
+         final Icon loadIcon = IconLoader.loadIcon( dir + loadPng );
+         final Icon packageIcon = IconLoader.loadIcon( dir + packagePng );
          _addButton.setIcon( addIcon );
+         _setButton.setIcon( setIcon );
+         _loadButton.setIcon( loadIcon );
+         _packageButton.setIcon( packageIcon );
       }
    }
 
@@ -419,13 +469,43 @@ final class MainPanel2 extends JPanel {
             // Would require tracking.  Or maybe a constant parse and track of variables set when the formatting is done.
             // Then the "add" button would need to be enabled accordingly ...
             // and the parameter table could display the mapped value.
-            _piperDocument.insertString( _piperDocument.getLength(), "set ", null );
+            final int caret = getInsertCaret();
+            _piperDocument.insertString( caret, "\n// Set a global value\nset ", null );
          } catch ( BadLocationException blE ) {
             LOGGER.error( blE.getMessage() );
          }
+         _runButton.setEnabled( false );
       }
    }
 
+   private final class LoadAction implements ActionListener {
+      @Override
+      public void actionPerformed( final ActionEvent event ) {
+         try {
+            final int caret = getInsertCaret();
+            _piperDocument.insertString( caret, "\n// Load a Piper file containing a partial Pipeline\nload ", null );
+         } catch ( BadLocationException blE ) {
+            LOGGER.error( blE.getMessage() );
+         }
+         _runButton.setEnabled( false );
+      }
+   }
+
+   private final class PackageAction implements ActionListener {
+      @Override
+      public void actionPerformed( final ActionEvent event ) {
+         try {
+            final int caret = getInsertCaret();
+            _piperDocument
+                  .insertString( caret, "\n// Add a Package that contains Pipe Bits or Piper files\npackage ", null );
+         } catch ( BadLocationException blE ) {
+            LOGGER.error( blE.getMessage() );
+         }
+         _runButton.setEnabled( false );
+      }
+   }
+
+   static private final Function<String, String> maybeQuote = t -> t.contains( " " ) ? "\"" + t + "\"" : t;
 
    private final class AddAction implements ActionListener, TableModelListener {
       @Override
@@ -453,20 +533,26 @@ final class MainPanel2 extends JPanel {
                  !Arrays.equals( value, holder.getParameter( i ).defaultValue() ) ) {
                helpSb.append( "#   " ).append( holder.getParameterName( i ) )
                      .append( "  " ).append( holder.getParameterDescription( i ) ).append( "\n" );
-               final String valueText = Arrays.stream( value ).collect( Collectors.joining( "," ) );
+               final String valueText = Arrays.stream( value ).map( maybeQuote ).collect( Collectors.joining( "," ) );
                parmSb.append( " " ).append( holder.getParameterName( i ) ).append( "=" ).append( valueText );
             }
          }
          sb.append( helpSb.toString() );
-         sb.append( "add " ).append( _infoPanel.getPipeBitClass().getName() );
+         final PipeBitInfo info = _infoPanel.getPipeBitInfo();
+         if ( info.role() == PipeBitInfo.Role.READER ) {
+            sb.append( "reader " );
+         } else {
+            sb.append( "add " );
+         }
+         sb.append( _infoPanel.getPipeBitClass().getName() );
          sb.append( parmSb.toString() ).append( "\n" );
          try {
-//            _piperDocument.insertString( _textPane.getCaretPosition(), sb.toString(), null );
-            // tODO publicize textpane
-            _piperDocument.insertString( _piperDocument.getLength(), sb.toString(), null );
+            final int caret = getInsertCaret();
+            _piperDocument.insertString( caret, sb.toString(), null );
          } catch ( BadLocationException blE ) {
             LOGGER.error( blE.getMessage() );
          }
+         _runButton.setEnabled( false );
       }
 
       @Override

@@ -151,15 +151,15 @@ final public class PiperFileReader {
       }
    }
 
-   public void parsePipelineLine( final String line ) throws UIMAException {
+   public boolean parsePipelineLine( final String line ) throws UIMAException {
       if ( line.isEmpty() || line.startsWith( "//" ) || line.startsWith( "#" ) || line.startsWith( "!" ) ) {
-         return;
+         return true;
       }
       final int spaceIndex = line.indexOf( ' ' );
       if ( spaceIndex < 0 ) {
-         addToPipeline( line, "" );
+         return addToPipeline( line, "" );
       } else {
-         addToPipeline( line.substring( 0, spaceIndex ), line.substring( spaceIndex + 1 ).trim() );
+         return addToPipeline( line.substring( 0, spaceIndex ), line.substring( spaceIndex + 1 ).trim() );
       }
    }
 
@@ -175,20 +175,20 @@ final public class PiperFileReader {
     * @param parameter specified by second word in the file line
     * @throws UIMAException if the command could not be executed
     */
-   private void addToPipeline( final String command, final String parameter ) throws UIMAException {
+   private boolean addToPipeline( final String command, final String parameter ) throws UIMAException {
       switch ( command ) {
          case "load":
             loadPipelineFile( parameter );
-            break;
+            return true;
          case "package":
             _userPackages.add( parameter );
-            break;
+            return true;
          case "set":
             _builder.set( splitParameters( parameter ) );
-            break;
+            return true;
          case "cli":
             _builder.set( getCliParameters( parameter ) );
-            break;
+            return true;
          case "reader":
             if ( hasParameters( parameter ) ) {
                final String[] component_parameters = splitFromParameters( parameter );
@@ -198,14 +198,14 @@ final public class PiperFileReader {
             } else {
                _builder.reader( getReaderClass( parameter ) );
             }
-            break;
+            return true;
          case "readFiles":
             if ( parameter.isEmpty() ) {
                _builder.readFiles();
             } else {
                _builder.readFiles( parameter );
             }
-            break;
+            return true;
          case "add":
             if ( hasParameters( parameter ) ) {
                final String[] component_parameters = splitFromParameters( parameter );
@@ -215,7 +215,7 @@ final public class PiperFileReader {
             } else {
                _builder.add( getComponentClass( parameter ) );
             }
-            break;
+            return true;
          case "addLogged":
             if ( hasParameters( parameter ) ) {
                final String[] component_parameters = splitFromParameters( parameter );
@@ -225,7 +225,7 @@ final public class PiperFileReader {
             } else {
                _builder.addLogged( getComponentClass( parameter ) );
             }
-            break;
+            return true;
          case "addDescription":
             if ( hasParameters( parameter ) ) {
                final String[] descriptor_parameters = splitFromParameters( parameter );
@@ -237,7 +237,7 @@ final public class PiperFileReader {
                final AnalysisEngineDescription description = createDescription( parameter );
                _builder.addDescription( description );
             }
-            break;
+            return true;
          case "addLast":
             if ( hasParameters( parameter ) ) {
                final String[] component_parameters = splitFromParameters( parameter );
@@ -247,22 +247,23 @@ final public class PiperFileReader {
             } else {
                _builder.addLast( getComponentClass( parameter ) );
             }
-            break;
+            return true;
          case "collectCuis":
             _builder.collectCuis();
-            break;
+            return true;
          case "collectEntities":
             _builder.collectEntities();
-            break;
+            return true;
          case "writeXmis":
             if ( parameter.isEmpty() ) {
                _builder.writeXMIs();
             } else {
                _builder.writeXMIs( parameter );
             }
-            break;
+            return true;
          default:
-            LOGGER.error( "Unknown Command: " + command );
+            LOGGER.error( "Unknown Piper Command: " + command );
+            return false;
       }
    }
 
