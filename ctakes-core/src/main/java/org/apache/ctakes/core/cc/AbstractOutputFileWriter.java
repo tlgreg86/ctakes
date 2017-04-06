@@ -43,6 +43,7 @@ abstract public class AbstractOutputFileWriter extends CasConsumer_ImplBase {
    @ConfigurationParameter(
          name = ConfigParameterConstants.PARAM_SUBDIR,
          description = ConfigParameterConstants.DESC_SUBDIR,
+         mandatory = false,
          defaultValue = ""
    )
    private String _subDirectory;
