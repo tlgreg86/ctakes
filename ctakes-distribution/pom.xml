@@ -26,7 +26,7 @@
    <parent>
       <groupId>org.apache.ctakes</groupId>
       <artifactId>ctakes</artifactId>
-      <version>3.2.3-SNAPSHOT</version>
+      <version>4.0.0</version>
    </parent>
    <packaging>pom</packaging>
 
@@ -193,14 +193,14 @@
                            <target>
                               <checksum algorithm="sha1" format="MD5SUM">
                                  <fileset dir="${project.build.directory}">
-                                    <include name="*.zip"/>
-                                    <include name="*.gz"/>
+                                    <include name="*.zip" />
+                                    <include name="*.gz" />
                                  </fileset>
                               </checksum>
                               <checksum algorithm="md5" format="MD5SUM">
                                  <fileset dir="${project.build.directory}">
-                                    <include name="*.zip"/>
-                                    <include name="*.gz"/>
+                                    <include name="*.zip" />
+                                    <include name="*.gz" />
                                  </fileset>
                               </checksum>
                            </target>
@@ -266,14 +266,14 @@
                            <target>
                               <checksum algorithm="sha1" format="MD5SUM">
                                  <fileset dir="${project.build.directory}">
-                                    <include name="*.zip"/>
-                                    <include name="*.gz"/>
+                                    <include name="*.zip" />
+                                    <include name="*.gz" />
                                  </fileset>
                               </checksum>
                               <checksum algorithm="md5" format="MD5SUM">
                                  <fileset dir="${project.build.directory}">
-                                    <include name="*.zip"/>
-                                    <include name="*.gz"/>
+                                    <include name="*.zip" />
+                                    <include name="*.gz" />
                                  </fileset>
                               </checksum>
                            </target>

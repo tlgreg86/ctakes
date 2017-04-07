@@ -3,7 +3,7 @@
    <parent>
       <groupId>org.apache.ctakes</groupId>
       <artifactId>ctakes</artifactId>
-      <version>3.2.3-SNAPSHOT</version>
+      <version>4.0.0</version>
    </parent>
    <artifactId>ctakes-examples-res</artifactId>
    <name>ctakes-examples-res</name>
