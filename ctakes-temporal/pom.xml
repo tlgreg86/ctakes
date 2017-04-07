@@ -28,7 +28,7 @@
 	<parent>
 		<groupId>org.apache.ctakes</groupId>
 		<artifactId>ctakes</artifactId>
-		<version>3.2.3-SNAPSHOT</version>
+		<version>4.0.1-SNAPSHOT</version>
 	</parent>
 	<dependencies>
 		<dependency>
@@ -144,7 +144,7 @@
 		<!--dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-sentdetect-cleartk</artifactId>
-			<version>3.2.3-SNAPSHOT</version>
+			<version>4.0.1-SNAPSHOT</version>
 		</dependency-->
 	</dependencies>
 	<!-- The below is all necessary to unpack the UMLS resources since they 
