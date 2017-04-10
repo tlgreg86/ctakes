@@ -18,10 +18,7 @@
  */
 package org.apache.ctakes.temporal.ae;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.ae.feature.ParseSpanFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.TimeWordTypeExtractor;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -42,15 +39,23 @@ import org.cleartk.ml.CleartkAnnotator;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.Instances;
 import org.cleartk.ml.chunking.BioChunking;
-import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.*;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
-import org.cleartk.ml.feature.extractor.CombinedExtractor1;
-import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
-import org.cleartk.ml.feature.extractor.FeatureExtractor1;
-import org.cleartk.ml.feature.extractor.TypePathExtractor;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+@PipeBitInfo(
+      name = "Timex Annotator",
+      description = "Annotates absolute time / date Temporal expressions into a View.",
+      role = PipeBitInfo.Role.SPECIAL,
+      dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+                       PipeBitInfo.TypeProduct.BASE_TOKEN },
+      products = { PipeBitInfo.TypeProduct.TIMEX }
+)
 public class CRFTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
   public static final String PARAM_TIMEX_VIEW = "TimexView";
   @ConfigurationParameter(

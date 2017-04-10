@@ -18,9 +18,7 @@
  */
 package org.apache.ctakes.relationextractor.ae.baselines;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.DegreeOfRelationExtractorAnnotator;
 import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -28,10 +26,20 @@ import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Annotate degree_of relation between two entities whenever 
  * they are enclosed within the same noun phrse.
  */
+@PipeBitInfo(
+      name = "Degree of Annotator 4",
+      description = "Annotates Degree Of relations between two entities whenever they are enclosed within the same noun phrase.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+      products = { PipeBitInfo.TypeProduct.DEGREE_RELATION }
+)
 public class Baseline4DegreeOfRelationExtractorAnnotator extends DegreeOfRelationExtractorAnnotator {
 
 	@Override

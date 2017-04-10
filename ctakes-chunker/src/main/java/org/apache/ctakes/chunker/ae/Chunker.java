@@ -18,14 +18,8 @@
  */
 package org.apache.ctakes.chunker.ae;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.List;
-
 import opennlp.tools.chunker.ChunkerModel;
-// import opennlp.tools.lang.english.TreebankChunker; // no longer part of OpenNLP as of 1.5
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -33,12 +27,19 @@ import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.List;
+
+// import opennlp.tools.lang.english.TreebankChunker; // no longer part of OpenNLP as of 1.5
 
 /**
  * This class provides a UIMA wrapper for the OpenNLP
@@ -46,6 +47,13 @@ import org.apache.uima.fit.util.JCasUtil;
  * kind as specified by the chunker model and the chunk creator.  
  */
 
+@PipeBitInfo(
+      name = "Chunker",
+      description = "Annotator that generates chunks of any kind as specified by the chunker model and the chunk creator.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.BASE_TOKEN },
+      products = { PipeBitInfo.TypeProduct.CHUNK }
+)
 public class Chunker extends JCasAnnotator_ImplBase {
 
 	// LOG4J logger based on class name

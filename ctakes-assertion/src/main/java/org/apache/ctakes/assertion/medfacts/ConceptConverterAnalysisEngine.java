@@ -18,46 +18,26 @@
  */
 package org.apache.ctakes.assertion.medfacts;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import org.apache.ctakes.assertion.medfacts.types.Concept;
+import org.apache.ctakes.assertion.stub.ConceptType;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.typesystem.type.textsem.EntityMention;
+import org.apache.ctakes.typesystem.type.textsem.EventMention;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.log4j.Logger;
-
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.FeatureStructure;
-import org.apache.uima.cas.Type;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.resource.ResourceAccessException;
-import org.apache.ctakes.assertion.stub.JarafeMEDecoder;
-import org.apache.ctakes.assertion.stub.ConceptType;
-import org.apache.ctakes.assertion.stub.ScopeParser;
-import org.apache.ctakes.assertion.stub.ApiConcept;
-import org.apache.ctakes.assertion.stub.AssertionDecoderConfiguration;
-import org.apache.ctakes.assertion.stub.SingleDocumentProcessor;
-import org.apache.ctakes.assertion.stub.BatchRunner;
-import org.apache.ctakes.assertion.stub.StringHandling;
-import org.apache.ctakes.assertion.stub.LineTokenToCharacterOffsetConverter;
 
-import org.apache.ctakes.assertion.medfacts.types.Assertion;
-import org.apache.ctakes.assertion.medfacts.types.Concept;
-import org.apache.ctakes.assertion.medfacts.types.Concept_Type;
-import org.apache.ctakes.typesystem.type.refsem.OntologyConcept;
-import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
-import org.apache.ctakes.typesystem.type.textsem.EntityMention;
-import org.apache.ctakes.typesystem.type.textsem.EventMention;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-
+@PipeBitInfo(
+      name = "Concept Converter",
+      description = "Creates a simple Concept for each Identified Annotation.",
+      dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class ConceptConverterAnalysisEngine extends JCasAnnotator_ImplBase
 {
   public static final Logger logger = Logger

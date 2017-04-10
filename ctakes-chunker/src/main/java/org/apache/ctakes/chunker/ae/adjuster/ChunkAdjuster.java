@@ -18,10 +18,7 @@
  */
 package org.apache.ctakes.chunker.ae.adjuster;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
@@ -30,12 +27,16 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorConfigurationException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * UIMA annotator that uses a pattern and a rule about that pattern to adjust
@@ -59,6 +60,12 @@ import org.apache.uima.fit.util.JCasUtil;
  * 
  * 
  */
+@PipeBitInfo(
+		name = "Chunk Adjuster",
+		description = "Annotator that uses a pattern and a rule about that pattern to adjust certain annotations.",
+		role = PipeBitInfo.Role.SPECIAL,
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.CHUNK }
+)
 public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 	/**
 	 * The pattern of chunks that trigger an adjustment.
@@ -95,8 +102,8 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 	 * Performs initialization logic. This implementation just reads values for
 	 * the configuration parameters. This method is not invoked for every
 	 * document processed.
-	 * 
-	 * @see org.apache.uima.analysis_engine.annotator.BaseAnnotator#initialize(AnnotatorContext)
+	 *
+	 //	 * @see org.apache.uima.analysis_engine.annotator.BaseAnnotator#initialize(AnnotatorContext)
 	 */
 	@Override
   public void initialize(UimaContext aContext)

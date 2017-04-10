@@ -18,15 +18,10 @@
  */
 package org.apache.ctakes.assertion.cr;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.ctakes.assertion.medfacts.cleartk.AssertionComponents;
 import org.apache.ctakes.assertion.util.AssertionConst;
 import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.log4j.Logger;
@@ -45,12 +40,24 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Reads lines from file named by AssertionConst.NEGEX_CORPUS
  * If use the main() method, uses this collection reader to
  * read the corpus and then uses the XMI writer to write
  * the XMI to directory given by AssertionConst.NEGEX_CORPUS_PREPROCESSED
  */
+@PipeBitInfo(
+		name = "NegEx Corpus Reader",
+		description = "Reads lines from file named by AssertionConst.NEGEX_CORPUS",
+		role = PipeBitInfo.Role.READER,
+		products = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class NegExCorpusReader extends CollectionReader_ImplBase {
   static Logger LOGGER = Logger.getLogger(NegExCorpusReader.class);
   

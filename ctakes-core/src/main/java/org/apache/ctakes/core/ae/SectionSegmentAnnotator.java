@@ -45,7 +45,7 @@ import java.util.HashMap;
  * @author Mayo Clinic
  */
 @PipeBitInfo(
-      name = "Section Annotator",
+      name = "Sectionizer",
       description = "Annotates Document Sections by detecting Section Headers in template.",
       products = { PipeBitInfo.TypeProduct.SECTION }
 )

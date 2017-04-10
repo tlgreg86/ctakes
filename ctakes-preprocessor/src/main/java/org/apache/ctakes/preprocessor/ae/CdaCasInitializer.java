@@ -18,28 +18,11 @@
  */
 package org.apache.ctakes.preprocessor.ae;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.FSIterator;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.JFSIndexRepository;
-import org.apache.uima.jcas.cas.FSArray;
-import org.apache.uima.jcas.cas.TOP;
-import org.apache.uima.resource.ResourceInitializationException;
-
-
 import org.apache.ctakes.core.ci.HyphenTextModifierImpl;
 import org.apache.ctakes.core.ci.TextModification;
 import org.apache.ctakes.core.ci.TextModifier;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
-import org.apache.ctakes.core.resource.FileResource;
 import org.apache.ctakes.preprocessor.ClinicalNotePreProcessor;
 import org.apache.ctakes.preprocessor.DocumentMetaData;
 import org.apache.ctakes.preprocessor.PreProcessor;
@@ -48,8 +31,18 @@ import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.util.Pair;
 import org.apache.ctakes.typesystem.type.util.Pairs;
+import org.apache.log4j.Logger;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.FSArray;
+import org.apache.uima.resource.ResourceInitializationException;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Bootstraps the CAS by:
@@ -63,6 +56,12 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
  * </ol>
  * 
  */
+@PipeBitInfo(
+      name = "CDA View Sectionizer",
+      description = "Transforms CDA text into plain text, inserts hyphens into words, stores the resulting text in a new View and creates Sections.",
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID },
+      products = { PipeBitInfo.TypeProduct.SECTION }
+)
 public class CdaCasInitializer extends JCasAnnotator_ImplBase
 {
 	protected static final String DEFAULT_HYPHEN_FILE = "org/apache/ctakes/preprocessor/tokenizer/hyphenated.txt";

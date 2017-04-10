@@ -47,7 +47,8 @@ import java.util.Map;
  */
 @PipeBitInfo(
       name = "JCas Copy Annotator",
-      description = "Copies document text and all annotations into a new JCas."
+      description = "Copies document text and all annotations into a new JCas.",
+      role = PipeBitInfo.Role.SPECIAL
 )
 public class CopyAnnotator extends JCasAnnotator_ImplBase {
   public static final String PARAM_SOURCE_CLASS = "srcObjClass";

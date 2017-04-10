@@ -18,11 +18,9 @@
  */
 package org.apache.ctakes.postagger;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionException;
@@ -31,8 +29,10 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
-import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * This collection reader reads in part-of-speech training/test data in the
@@ -40,6 +40,12 @@ import org.apache.ctakes.typesystem.type.textspan.Sentence;
  * format. Each line in the file will correspond to a "document" - i.e.
  * getNext() will populate the CAS with information from one line of the file.
  */
+@PipeBitInfo(
+      name = "OpenNLP POS Reader",
+      description = "Reads in part-of-speech training/test data in the OpenNLP format.",
+      role = PipeBitInfo.Role.READER,
+      products = { PipeBitInfo.TypeProduct.BASE_TOKEN, PipeBitInfo.TypeProduct.SENTENCE }
+)
 public class OpenNLPPOSCollectionReader extends CollectionReader_ImplBase {
 
 	/**

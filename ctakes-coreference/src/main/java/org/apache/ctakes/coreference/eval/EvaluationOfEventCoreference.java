@@ -1,39 +1,17 @@
 package org.apache.ctakes.coreference.eval;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.ctakes.assertion.medfacts.cleartk.GenericCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.HistoryCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.SubjectCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.UncertaintyCleartkAnalysisEngine;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+import org.apache.ctakes.assertion.medfacts.cleartk.*;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.ListFactory;
-import org.apache.ctakes.coreference.ae.CoreferenceChainScoringOutput;
-import org.apache.ctakes.coreference.ae.DeterministicMarkableAnnotator;
-import org.apache.ctakes.coreference.ae.EventCoreferenceAnnotator;
-import org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator;
-import org.apache.ctakes.coreference.ae.MarkableSalienceAnnotator;
-import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator;
-import org.apache.ctakes.coreference.ae.MentionClusterRankingCoreferenceAnnotator;
-import org.apache.ctakes.coreference.ae.PersonChainAnnotator;
+import org.apache.ctakes.coreference.ae.*;
 import org.apache.ctakes.coreference.factory.CoreferenceAnnotatorFactory;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
@@ -43,20 +21,12 @@ import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase;
 import org.apache.ctakes.typesystem.type.constants.CONST;
-import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
-import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
-import org.apache.ctakes.typesystem.type.relation.CoreferenceRelation;
-import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
-import org.apache.ctakes.typesystem.type.relation.RelationArgument;
+import org.apache.ctakes.typesystem.type.relation.*;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.syntax.WordToken;
-import org.apache.ctakes.typesystem.type.textsem.DiseaseDisorderMention;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.Markable;
-import org.apache.ctakes.typesystem.type.textsem.ProcedureMention;
-import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
+import org.apache.ctakes.typesystem.type.textsem.*;
 import org.apache.ctakes.typesystem.type.textspan.Paragraph;
 import org.apache.ctakes.utils.distsem.WordEmbeddings;
 import org.apache.ctakes.utils.distsem.WordVector;
@@ -80,13 +50,7 @@ import org.apache.uima.fit.factory.FlowControllerFactory;
 import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
-import org.apache.uima.flow.FinalStep;
-import org.apache.uima.flow.Flow;
-import org.apache.uima.flow.FlowControllerContext;
-import org.apache.uima.flow.FlowControllerDescription;
-import org.apache.uima.flow.JCasFlow_ImplBase;
-import org.apache.uima.flow.SimpleStep;
-import org.apache.uima.flow.Step;
+import org.apache.uima.flow.*;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.FSList;
@@ -106,12 +70,13 @@ import org.cleartk.ml.svmlight.rank.SvmLightRankDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
 import org.cleartk.util.ViewUriUtil;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_ImplBase {
  
@@ -522,7 +487,13 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     }
     
   }
-  
+
+  @PipeBitInfo(
+        name = "Gold Markables Copier",
+        description = "Copies Markables from the Gold view to the System view.",
+        role = PipeBitInfo.Role.SPECIAL,
+        dependencies = { PipeBitInfo.TypeProduct.MARKABLE }
+  )
   public static class CopyGoldMarkablesInChains extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 
     @Override
@@ -696,7 +667,13 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
       }
     }
   }
-  
+
+  @PipeBitInfo(
+        name = "Coreference Copier",
+        description = "Sets Modality based upon context.",
+        role = PipeBitInfo.Role.SPECIAL,
+        dependencies = { PipeBitInfo.TypeProduct.MARKABLE, PipeBitInfo.TypeProduct.COREFERENCE_RELATION }
+  )
   public static class CopyCoreferenceRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 
     public static final String PARAM_GOLD_VIEW = "GoldViewName";

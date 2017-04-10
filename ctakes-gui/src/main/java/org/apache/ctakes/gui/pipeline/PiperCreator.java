@@ -41,40 +41,42 @@ final public class PiperCreator {
    }
 
    public static void main( final String... args ) {
-      try {
-         UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-         UIManager.getDefaults().put( "SplitPane.border", BorderFactory.createEmptyBorder() );
-      } catch ( ClassNotFoundException | InstantiationException
-            | IllegalAccessException | UnsupportedLookAndFeelException multE ) {
-         LOGGER.error( multE.getLocalizedMessage() );
-      }
-      final JFrame frame = createFrame();
-      final MainPanel2 mainPanel = createMainPanel();
-      frame.add( mainPanel );
-      frame.pack();
-      frame.setVisible( true );
-      DisablerPane.getInstance().initialize( frame );
-      PipeBitPainter.getInstance().loadIcons();
-      LOGGER.info( "1. Select any Pipe Bit in the list on the left." );
-      LOGGER.info( "   A Pipe Bit is any part of a full Pipeline: Reader, Annotator, Writer." );
-      LOGGER.info( "   Once selected, the center panel will be populated with information on the Pipe Bit." );
-      LOGGER.info( "2. Edit values for Pipe Bit Parameters." );
-      LOGGER.info( "   Parameters and values are displayed in the central table." );
-      LOGGER.info( "   Values can be edited directly on the table." );
-      LOGGER.info( "   In the rightmost column is a button to open a Filechooser if needed." );
-      LOGGER.info( "3. Add the Pipe Bit to the Pipeline.  Added Pipe Bits will appear in the text panel." );
-      LOGGER.info( "   When all Pipe Bit requirements are met, the Add Pipe Bit (\"+\") button will be enabled." );
-      LOGGER.info( "4. Validate the Pipeline by clicking the runner at the starting line." );
-      LOGGER.info( "   Any part of the pipeline that is invalid will be underlined and red." );
-      LOGGER.info( "5. Run the Pipeline.  When the Pipeline is valid the Runner button will be enabled." );
-      LOGGER.info( "-  You can manually edit the pipeline at any time." );
+      SwingUtilities.invokeLater( () -> {
+         try {
+            UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+            UIManager.getDefaults().put( "SplitPane.border", BorderFactory.createEmptyBorder() );
+         } catch ( ClassNotFoundException | InstantiationException
+               | IllegalAccessException | UnsupportedLookAndFeelException multE ) {
+            LOGGER.error( multE.getLocalizedMessage() );
+         }
+         final JFrame frame = createFrame();
+         final MainPanel2 mainPanel = createMainPanel();
+         frame.add( mainPanel );
+         frame.pack();
+         frame.setVisible( true );
+         DisablerPane.getInstance().initialize( frame );
+         PipeBitPainter.getInstance().loadIcons();
+         LOGGER.info( "1. Select any Pipe Bit in the list on the left." );
+         LOGGER.info( "   A Pipe Bit is any part of a full Pipeline: Reader, Annotator, Writer." );
+         LOGGER.info( "   Once selected, the center panel will be populated with information on the Pipe Bit." );
+         LOGGER.info( "2. Edit values for Pipe Bit Parameters." );
+         LOGGER.info( "   Parameters and values are displayed in the central table." );
+         LOGGER.info( "   Values can be edited directly on the table." );
+         LOGGER.info( "   In the rightmost column is a button to open a Filechooser if needed." );
+         LOGGER.info( "3. Add the Pipe Bit to the Pipeline.  Added Pipe Bits will appear in the text panel." );
+         LOGGER.info( "   When all Pipe Bit requirements are met, the Add Pipe Bit (\"+\") button will be enabled." );
+         LOGGER.info( "4. Validate the Pipeline by clicking the runner at the starting line." );
+         LOGGER.info( "   Any part of the pipeline that is invalid will be underlined and red." );
+         LOGGER.info( "5. Run the Pipeline.  When the Pipeline is valid the Runner button will be enabled." );
+         LOGGER.info( "-  You can manually edit the pipeline at any time." );
 
-      final Object[] options = { "Scan" };
-      final Icon scanIcon = IconLoader.loadIcon( "org/apache/ctakes/gui/pipeline/icon/" + "FindOnPc_48.png" );
-      JOptionPane.showOptionDialog( frame, "A Scan must be performed to find available Pipe Bits.\n" +
-                                           "Pipe Bits are used to assemble a cTAKES Pipeline.",
-            "Find Pipe Bits", JOptionPane.YES_OPTION, JOptionPane.PLAIN_MESSAGE, scanIcon, options, options[ 0 ] );
-      mainPanel.findPipeBits();
+         final Object[] options = { "Scan" };
+         final Icon scanIcon = IconLoader.loadIcon( "org/apache/ctakes/gui/pipeline/icon/" + "FindOnPc_48.png" );
+         JOptionPane.showOptionDialog( frame, "A Scan must be performed to find available Pipe Bits.\n" +
+                                              "Pipe Bits are used to assemble a cTAKES Pipeline.",
+               "Find Pipe Bits", JOptionPane.YES_OPTION, JOptionPane.PLAIN_MESSAGE, scanIcon, options, options[ 0 ] );
+         mainPanel.findPipeBits();
+      } );
 
    }
 

@@ -47,7 +47,7 @@ import java.util.Set;
  * @author Mayo Clinic
  */
 @PipeBitInfo(
-      name = "Tokenizer Annotator",
+      name = "Tokenizer",
       description = "Annotates Document Tokens.",
       dependencies = { PipeBitInfo.TypeProduct.SECTION },
       products = { PipeBitInfo.TypeProduct.BASE_TOKEN }

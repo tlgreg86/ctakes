@@ -18,21 +18,11 @@
  */
 package org.apache.ctakes.temporal.eval;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.eval.SHARPXMI;
 import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
@@ -44,6 +34,12 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.pipeline.JCasIterator;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.CasCopier;
@@ -53,17 +49,12 @@ import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
 import org.cleartk.util.ViewUriUtil;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.factory.AggregateBuilder;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.pipeline.JCasIterator;
-import org.apache.uima.fit.pipeline.SimplePipeline;
-import org.apache.uima.fit.util.JCasUtil;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.*;
+import java.util.logging.Formatter;
 
 public class EvaluationOfEventDocTimeRelDeepPhe extends
 Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
@@ -372,6 +363,11 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 		};
 	}
 
+	@PipeBitInfo(
+			name = "Event Property Clearer",
+			description = "Clears all event properties.",
+			role = PipeBitInfo.Role.SPECIAL
+	)
 	public static class ClearEventProperties extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 		@Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -485,6 +481,12 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>>{
 	 * copy covered event's DocTimeRel to the gold event
 	 * remove non-gold eventMentions
 	 */
+	@PipeBitInfo(
+			name = "DocTimeRel to Gold Copier",
+			description = "Copies an Event's DocTimeRel from the System view to the Gold view.",
+			role = PipeBitInfo.Role.SPECIAL,
+			dependencies = { PipeBitInfo.TypeProduct.EVENT }
+	)
 	public static class CopyHeadEventDocTimeRel2GoldEvent extends JCasAnnotator_ImplBase {
 
 		@Override

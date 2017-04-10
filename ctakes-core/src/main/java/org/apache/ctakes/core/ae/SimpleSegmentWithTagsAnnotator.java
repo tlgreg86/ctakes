@@ -39,7 +39,7 @@ import java.io.StringReader;
  * @author Mayo Clinic
  */
 @PipeBitInfo(
-      name = "Segment Annotator (Tag)",
+      name = "Tag Sectionizer",
       description = "Annotates Document Sections by detecting start and end Section Tags.",
       products = { PipeBitInfo.TypeProduct.SECTION }
 )

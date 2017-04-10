@@ -18,11 +18,7 @@
  */
 package org.apache.ctakes.necontexts;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.JCasUtil;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
@@ -39,6 +35,11 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.jcas.tcas.DocumentAnnotation;
 import org.apache.uima.resource.ResourceInitializationException;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 
 /**
  * The context annotator iterates through focus annotations and analyzes the
@@ -53,6 +54,11 @@ import org.apache.uima.resource.ResourceInitializationException;
  * hit such as updating an existing annotation or creating a new one.
  */
 //public class ContextAnnotator extends JCasAnnotator_ImplBase {
+@PipeBitInfo(
+      name = "Context Annotator",
+      description = "Collects context for focus annotations for use by context consuming annotators.",
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.BASE_TOKEN }
+)
 public class ContextAnnotator extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 	// LOG4J logger based on class name
 	private Logger iv_logger = Logger.getLogger(getClass().getName());

@@ -18,48 +18,22 @@
  */
 package org.apache.ctakes.temporal.nn.eval;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.base.Function;
+import com.google.common.collect.*;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
-import org.apache.ctakes.temporal.ae.CrossSentenceTemporalRelationAnnotator;
 import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
-import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
-import org.apache.ctakes.temporal.ae.EventTimeSelfRelationAnnotator;
-import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator;
-import org.apache.ctakes.temporal.ae.WithinSentenceBeforeRelationAnnotator;
-//import org.apache.ctakes.temporal.ae.EventTimeSyntacticAnnotator;
-//import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
-//import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
-import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
-import org.apache.ctakes.temporal.eval.EvaluationOfEventEventThymeRelations.AddEEPotentialRelations;
-import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.AddPotentialRelations;
-import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.Overlap2Contains;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
-import org.apache.ctakes.temporal.keras.KerasStringOutcomeDataWriter;
-import org.apache.ctakes.temporal.keras.ScriptStringFeatureDataWriter;
-import org.apache.ctakes.temporal.nn.ae.EventEventTokenBasedAnnotator;
-//import org.apache.ctakes.temporal.nn.ae.EventTimeTokenAndPathBasedAnnotator;
-import org.apache.ctakes.temporal.nn.ae.EventTimeTokenBasedAnnotator;
-import org.apache.ctakes.temporal.nn.eval.EventTimeNeuralEvaluation.RemoveEventEventRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase;
 import org.apache.ctakes.temporal.eval.Evaluation_ImplBase;
 import org.apache.ctakes.temporal.eval.I2B2Data;
 import org.apache.ctakes.temporal.eval.THYMEData;
-//import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
-//import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
+import org.apache.ctakes.temporal.keras.KerasStringOutcomeDataWriter;
+import org.apache.ctakes.temporal.keras.ScriptStringFeatureDataWriter;
+import org.apache.ctakes.temporal.nn.ae.EventEventTokenBasedAnnotator;
+import org.apache.ctakes.temporal.nn.ae.EventTimeTokenBasedAnnotator;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
 import org.apache.ctakes.temporal.utils.TLinkTypeArray2;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
@@ -75,11 +49,9 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.component.ViewCreatorAnnotator;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.factory.ConfigurationParameterFactory;
 import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
@@ -93,21 +65,25 @@ import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.cleartk.ml.jar.JarClassifierBuilder;
-import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
-//import org.cleartk.ml.libsvm.tk.TkLibSvmStringOutcomeDataWriter;
-//import org.cleartk.ml.libsvm.LIBSVMStringOutcomeDataWriter;
-//import org.cleartk.ml.tksvmlight.TKSVMlightStringOutcomeDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
 import org.cleartk.util.ViewUriUtil;
 
-import com.google.common.base.Function;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.util.*;
+
+//import org.apache.ctakes.temporal.ae.EventTimeSyntacticAnnotator;
+//import org.apache.ctakes.temporal.ae.EventTimeRelationAnnotator;
+//import org.apache.ctakes.temporal.ae.EventEventRelationAnnotator;
+//import org.apache.ctakes.temporal.nn.ae.EventTimeTokenAndPathBasedAnnotator;
+//import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.WriteI2B2XML;
+//import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMLFormat;
+//import org.cleartk.ml.libsvm.tk.TkLibSvmStringOutcomeDataWriter;
+//import org.cleartk.ml.libsvm.LIBSVMStringOutcomeDataWriter;
+//import org.cleartk.ml.tksvmlight.TKSVMlightStringOutcomeDataWriter;
 
 public class EvaluationOfNeuralEEAndETRelations extends
 EvaluationOfTemporalRelations_ImplBase{
@@ -775,6 +751,12 @@ EvaluationOfTemporalRelations_ImplBase{
 	}
 
 
+	@PipeBitInfo(
+			name = "Transitive Contains Adder",
+			description = "Adds Contains temporal relations for annotations / relations in contain other relations.",
+			role = PipeBitInfo.Role.SPECIAL,
+			dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+	)
 	public static class AddTransitiveContainsRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 
 		@Override
@@ -840,6 +822,12 @@ EvaluationOfTemporalRelations_ImplBase{
 
 	}
 
+	@PipeBitInfo(
+			name = "TLink Overlap Adder",
+			description = "Adds an Overlap temporal relation for each Contains temporal relation.",
+			role = PipeBitInfo.Role.SPECIAL,
+			dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+	)
 	public static class AddContain2Overlap extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 
 		@Override
@@ -866,6 +854,12 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 
+	@PipeBitInfo(
+			name = "Reverse Overlap TLinker",
+			description = "Adds Overlap temporal relations with arguments flipped.",
+			role = PipeBitInfo.Role.SPECIAL,
+			dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+	)
 	public static class AddFlippedOverlap extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 
 		@Override
@@ -906,6 +900,12 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 
+	@PipeBitInfo(
+			name = "TLink Closure Engine",
+			description = "Performs closure on Temporal Relations",
+			role = PipeBitInfo.Role.SPECIAL,
+			dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+	)
 	public static class AddClosure extends JCasAnnotator_ImplBase {
 
 		@Override

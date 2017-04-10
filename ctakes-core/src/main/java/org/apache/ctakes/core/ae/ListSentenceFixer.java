@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * @since 9/28/2016
  */
 @PipeBitInfo(
-      name = "List Sentence Fixer",
+      name = "List Sentence Splitter",
       description = "Re-annotates Sentences based upon existing List Entries, preventing a Sentence from spanning more than one List Entry.",
       dependencies = { PipeBitInfo.TypeProduct.LIST, PipeBitInfo.TypeProduct.SENTENCE }
 )

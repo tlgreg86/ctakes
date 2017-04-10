@@ -45,7 +45,7 @@ import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
  * @author Mayo Clinic
  */
 @PipeBitInfo(
-      name = "Tokenizer Annotator (PTB)",
+      name = "PTB Tokenizer",
       description = "Annotates Document Penn TreeBank Tokens.",
       dependencies = { SECTION, SENTENCE },
       products = { BASE_TOKEN }

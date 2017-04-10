@@ -18,21 +18,7 @@
  */
 package org.apache.ctakes.clinicalpipeline;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.ctakes.assertion.medfacts.cleartk.ConditionalCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.GenericCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.HistoryCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.SubjectCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.UncertaintyCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.*;
 import org.apache.ctakes.chunker.ae.Chunker;
 import org.apache.ctakes.chunker.ae.adjuster.ChunkAdjuster;
 import org.apache.ctakes.constituency.parser.ae.ConstituencyParser;
@@ -40,6 +26,7 @@ import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.coreference.factory.CoreferenceAnnotatorFactory;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
@@ -65,6 +52,11 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.xml.sax.SAXException;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.*;
 
 final public class ClinicalPipelineFactory {
 
@@ -229,6 +221,12 @@ final public class ClinicalPipelineFactory {
       return cuis;
    }
 
+   @PipeBitInfo(
+         name = "NP Lookup Window Creator",
+         description = "Creates a Lookup Window from Noun Phrase Chunks.",
+         role = PipeBitInfo.Role.SPECIAL,
+         dependencies = { PipeBitInfo.TypeProduct.CHUNK }
+   )
    public static class CopyNPChunksToLookupWindowAnnotations extends JCasAnnotator_ImplBase {
 
       @Override
@@ -241,6 +239,11 @@ final public class ClinicalPipelineFactory {
       }
    }
 
+   @PipeBitInfo(
+         name = "Overlap Lookup Window Remover",
+         description = "Removes Lookup Windows that are within larger Lookup Windows.",
+         role = PipeBitInfo.Role.SPECIAL
+   )
    public static class RemoveEnclosedLookupWindows extends JCasAnnotator_ImplBase {
 
       @Override

@@ -18,52 +18,42 @@
  */
 package org.apache.ctakes.assertion.medfacts;
 
+import org.apache.ctakes.assertion.medfacts.i2b2.api.CharacterOffsetToLineTokenConverterCtakesImpl;
+import org.apache.ctakes.assertion.medfacts.i2b2.api.SingleDocumentProcessorCtakes;
+import org.apache.ctakes.assertion.medfacts.types.Concept;
+import org.apache.ctakes.assertion.stub.*;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.typesystem.type.constants.CONST;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.FSIterator;
+import org.apache.uima.cas.text.AnnotationIndex;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceAccessException;
+import org.apache.uima.resource.ResourceInitializationException;
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.FSIterator;
-import org.apache.uima.cas.Type;
-import org.apache.uima.cas.text.AnnotationIndex;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.jcas.tcas.Annotation_Type;
-import org.apache.uima.resource.ResourceAccessException;
-import org.apache.uima.resource.ResourceInitializationException;
 //import org.jfree.util.Log;
-import org.apache.ctakes.assertion.stub.JarafeMEDecoder;
-import org.apache.ctakes.assertion.stub.PartOfSpeechTagger;
-import org.apache.ctakes.assertion.stub.ScopeParser;
-import org.apache.ctakes.assertion.stub.ApiConcept;
-import org.apache.ctakes.assertion.stub.AssertionDecoderConfiguration;
-import org.apache.ctakes.assertion.stub.SingleDocumentProcessor;
-import org.apache.ctakes.assertion.stub.BatchRunner;
-import org.apache.ctakes.assertion.stub.StringHandling;
-import org.apache.ctakes.assertion.stub.CharacterOffsetToLineTokenConverter;
-import org.apache.ctakes.assertion.stub.LineTokenToCharacterOffsetConverter;
 
-
-import org.apache.ctakes.assertion.attributes.generic.GenericAttributeClassifier;
-import org.apache.ctakes.assertion.attributes.subject.SubjectAttributeClassifier;
-import org.apache.ctakes.assertion.medfacts.i2b2.api.CharacterOffsetToLineTokenConverterCtakesImpl;
-import org.apache.ctakes.assertion.medfacts.i2b2.api.SingleDocumentProcessorCtakes;
-import org.apache.ctakes.assertion.medfacts.types.Assertion;
-import org.apache.ctakes.assertion.medfacts.types.Concept;
-import org.apache.ctakes.assertion.medfacts.types.Concept_Type;
-import org.apache.ctakes.typesystem.type.constants.CONST;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-
+@PipeBitInfo(
+      name = "Assertion Engine",
+      description = "Adds Negation, Uncertainty, Conditional and Subject to annotations.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class AssertionAnalysisEngine extends JCasAnnotator_ImplBase
 {
   private static Logger logger = Logger.getLogger(AssertionAnalysisEngine.class.getName());

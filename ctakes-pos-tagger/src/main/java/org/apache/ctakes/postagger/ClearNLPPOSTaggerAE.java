@@ -18,28 +18,28 @@
  */
 package org.apache.ctakes.postagger;
 
-import java.net.URI;
-import java.net.URL;
-import java.util.List;
-
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
-import org.apache.ctakes.typesystem.type.textspan.Sentence;
-import org.apache.log4j.Logger;
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.descriptor.TypeCapability;
-import org.apache.uima.fit.util.JCasUtil;
-
 import com.googlecode.clearnlp.component.AbstractComponent;
 import com.googlecode.clearnlp.dependency.DEPNode;
 import com.googlecode.clearnlp.dependency.DEPTree;
 import com.googlecode.clearnlp.engine.EngineGetter;
 import com.googlecode.clearnlp.nlp.NLPLib;
 import com.googlecode.clearnlp.reader.AbstractReader;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.log4j.Logger;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.TypeCapability;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+
+import java.net.URI;
+import java.net.URL;
+import java.util.List;
 
 /**
  * <br>
@@ -57,6 +57,12 @@ import com.googlecode.clearnlp.reader.AbstractReader;
 				"org.apache.ctakes.typesystem.type.syntax.BaseToken:end",
 				"org.apache.ctakes.typesystem.type.syntax.BaseToken:begin"
 		})
+@PipeBitInfo(
+		name = "ClearNLP POS Tagger",
+		description = "Adds Parts of Speech to Annotations.",
+		role = PipeBitInfo.Role.ANNOTATOR,
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.BASE_TOKEN }
+)
 public class ClearNLPPOSTaggerAE extends JCasAnnotator_ImplBase {
 
 	final String language = AbstractReader.LANG_EN;

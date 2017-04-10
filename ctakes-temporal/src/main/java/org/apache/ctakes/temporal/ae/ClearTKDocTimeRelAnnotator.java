@@ -18,21 +18,21 @@
  */
 package org.apache.ctakes.temporal.ae;
 
-import java.util.Map;
-
+import com.google.common.collect.Maps;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.timeml.type.Anchor;
 import org.cleartk.timeml.type.DocumentCreationTime;
 import org.cleartk.timeml.type.TemporalLink;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.util.JCasUtil;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 /**
  * for every cTAKES EventMention annotation, create a ClearTK Event Annotation
@@ -40,6 +40,11 @@ import com.google.common.collect.Maps;
  * @author Chen Lin
  * 
  */
+@PipeBitInfo(
+      name = "ClearTK DocTimeRel",
+      description = "Annotates event relativity to document creation time.",
+      dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.EVENT }
+)
 public class ClearTKDocTimeRelAnnotator extends JCasAnnotator_ImplBase {
 
 	public ClearTKDocTimeRelAnnotator() {
