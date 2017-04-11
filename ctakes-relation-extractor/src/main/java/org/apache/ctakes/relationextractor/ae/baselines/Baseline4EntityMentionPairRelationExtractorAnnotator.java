@@ -18,9 +18,7 @@
  */
 package org.apache.ctakes.relationextractor.ae.baselines;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
@@ -31,10 +29,20 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Annotate location_of relation between two entities whenever 
  * they are enclosed within the same noun phrse.
  */
+@PipeBitInfo(
+		name = "Location of Annotator 4",
+		description = "Annotates Location Of relations between two entities whenever they are enclosed within the same noun phrase.",
+		role = PipeBitInfo.Role.ANNOTATOR,
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+		products = { PipeBitInfo.TypeProduct.LOCATION_RELATION }
+)
 public class Baseline4EntityMentionPairRelationExtractorAnnotator extends RelationExtractorAnnotator {
 	
 	@Override

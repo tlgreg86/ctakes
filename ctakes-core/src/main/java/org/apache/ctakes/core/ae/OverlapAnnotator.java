@@ -56,6 +56,7 @@ import java.util.*;
 @PipeBitInfo(
       name = "Overlap Annotator",
       description = "Removes or modifies annotations that overlap.",
+      role = PipeBitInfo.Role.SPECIAL,
       dependencies = { PipeBitInfo.TypeProduct.BASE_TOKEN }
 )
 public class OverlapAnnotator extends JCasAnnotator_ImplBase {

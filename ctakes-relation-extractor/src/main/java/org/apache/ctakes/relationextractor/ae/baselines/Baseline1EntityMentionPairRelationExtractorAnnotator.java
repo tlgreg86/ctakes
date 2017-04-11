@@ -18,9 +18,8 @@
  */
 package org.apache.ctakes.relationextractor.ae.baselines;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.common.collect.Lists;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -29,12 +28,20 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Annotate location_of relation between two entities in sentences containing
  * exactly two entities (where the entities are of the correct types).
  */
+@PipeBitInfo(
+      name = "Location of Annotator 1",
+      description = "Annotates Location Of relations in sentences containing exactly two entities (where the entities are of the correct types).",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+      products = { PipeBitInfo.TypeProduct.LOCATION_RELATION }
+)
 public class Baseline1EntityMentionPairRelationExtractorAnnotator extends RelationExtractorAnnotator {
 	
 	@Override

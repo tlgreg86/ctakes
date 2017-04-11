@@ -26,6 +26,7 @@ import com.googlecode.clearnlp.engine.EngineGetter;
 import com.googlecode.clearnlp.morphology.AbstractMPAnalyzer;
 import com.googlecode.clearnlp.nlp.NLPLib;
 import com.googlecode.clearnlp.reader.AbstractReader;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.dependency.parser.util.ClearDependencyUtility;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
@@ -73,6 +74,13 @@ import java.util.List;
 				"org.apache.ctakes.typesystem.type.syntax.BaseToken:end",
 				"org.apache.ctakes.typesystem.type.syntax.BaseToken:begin"
 		})
+@PipeBitInfo(
+      name = "ClearNLP Dependency Parser",
+      description = "Analyses Sentence Structure, storing information in nodes.",
+      role = PipeBitInfo.Role.SPECIAL,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.BASE_TOKEN },
+      products = { PipeBitInfo.TypeProduct.DEPENDENCY_NODE }
+)
 public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 
   final String language = AbstractReader.LANG_EN;

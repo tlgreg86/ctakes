@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @since 10/6/2016
  */
 @PipeBitInfo(
-      name = "Paragraph Sentence Fixer",
+      name = "Paragraph Sentence Splitter",
       description = "Re-annotates Sentences based upon existing Paragraphs, preventing a Sentence from spanning more than one Paragraph.",
       dependencies = { PipeBitInfo.TypeProduct.PARAGRAPH, PipeBitInfo.TypeProduct.SENTENCE }
 )

@@ -18,10 +18,9 @@
  */
 package org.apache.ctakes.constituency.parser.ae;
 
-import java.io.FileNotFoundException;
-
 import org.apache.ctakes.constituency.parser.MaxentParserWrapper;
 import org.apache.ctakes.constituency.parser.ParserWrapper;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
@@ -33,7 +32,14 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
+import java.io.FileNotFoundException;
 
+
+@PipeBitInfo(
+      name = "Constituency Parser",
+      description = ".",
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.SENTENCE }
+)
 public class ConstituencyParser extends JCasAnnotator_ImplBase {
 	public static final String PARAM_MODEL_FILENAME = "MODEL_FILENAME";
 	

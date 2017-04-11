@@ -23,6 +23,7 @@ import com.googlecode.clearnlp.dependency.*;
 import com.googlecode.clearnlp.engine.EngineGetter;
 import com.googlecode.clearnlp.nlp.NLPLib;
 import com.googlecode.clearnlp.reader.AbstractReader;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -74,6 +75,14 @@ import java.util.Map;
             "org.apache.ctakes.typesystem.type.syntax.BaseToken:begin",
             "org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode"
       } )
+@PipeBitInfo(
+      name = "ClearNLP Semantic Role Labeler",
+      description = "Adds Semantic Roles Relations.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.BASE_TOKEN,
+                       PipeBitInfo.TypeProduct.DEPENDENCY_NODE },
+      products = { PipeBitInfo.TypeProduct.SEMANTIC_RELATION }
+)
 public class ClearNLPSemanticRoleLabelerAE extends JCasAnnotator_ImplBase {
    final String language = AbstractReader.LANG_EN;
    public Logger logger = Logger.getLogger( getClass().getName() );

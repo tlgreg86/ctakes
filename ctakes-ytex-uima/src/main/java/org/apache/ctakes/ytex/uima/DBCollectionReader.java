@@ -18,18 +18,9 @@
  */
 package org.apache.ctakes.ytex.uima;
 
-import java.io.IOException;
-import java.sql.Driver;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.ytex.uima.types.DocKey;
 import org.apache.ctakes.ytex.uima.types.KeyValuePair;
 import org.apache.uima.cas.CAS;
@@ -54,6 +45,15 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.Driver;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * 
  * Read documents from db. Config parameters:
@@ -72,6 +72,10 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @author vijay
  * 
  */
+@PipeBitInfo(
+		name = "Database Reader",
+		description = "Read documents from a database.",
+		role = PipeBitInfo.Role.READER )
 public class DBCollectionReader extends CollectionReader_ImplBase {
 	private static final Log log = LogFactory.getLog(DBCollectionReader.class);
 

@@ -18,35 +18,18 @@
  */
 package org.apache.ctakes.temporal.eval;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.base.Function;
+import com.google.common.collect.*;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
 import org.apache.ctakes.core.ae.CDASegmentAnnotator;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
-import org.apache.ctakes.temporal.ae.ConsecutiveSentencesEventEventRelationAnnotator;
-import org.apache.ctakes.temporal.ae.ConsecutiveSentencesEventTimeRelationAnnotator;
-import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
-import org.apache.ctakes.temporal.ae.EventAdmissionTimeAnnotator;
-import org.apache.ctakes.temporal.ae.EventDischargeTimeAnnotator;
-import org.apache.ctakes.temporal.ae.EventEventI2B2RelationAnnotator;
-import org.apache.ctakes.temporal.ae.EventTimeI2B2RelationAnnotator;
-import org.apache.ctakes.temporal.ae.TemporalRelationRuleAnnotator;
+import org.apache.ctakes.temporal.ae.*;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventEventThymeRelations.AddEEPotentialRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.AddPotentialRelations;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
-import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase.RemoveGoldAttributes;
 import org.apache.ctakes.temporal.utils.AnnotationIdCollection;
 import org.apache.ctakes.temporal.utils.TLinkTypeArray2;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
@@ -72,18 +55,14 @@ import org.apache.uima.util.FileUtils;
 import org.cleartk.eval.AnnotationStatistics;
 import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
-//import org.cleartk.classifier.tksvmlight.TKSVMlightStringOutcomeDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
 import org.cleartk.util.ViewUriUtil;
 
-import com.google.common.base.Function;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
+import java.io.*;
+import java.net.URI;
+import java.util.*;
+
+//import org.cleartk.classifier.tksvmlight.TKSVMlightStringOutcomeDataWriter;
 
 public class EvaluationOfI2B2TemporalRelations extends
 EvaluationOfTemporalRelations_ImplBase{
@@ -834,8 +813,13 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 
-	
 
+	@PipeBitInfo(
+			name = "Reverse Overlap TLinker",
+			description = "Adds Overlap temporal relations with arguments flipped.",
+			role = PipeBitInfo.Role.SPECIAL,
+			dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+	)
 	public static class AddFlippedOverlap extends JCasAnnotator_ImplBase {
 
 		@Override
@@ -964,6 +948,12 @@ EvaluationOfTemporalRelations_ImplBase{
 		}
 	}
 
+	@PipeBitInfo(
+			name = "TLink Closure Engine",
+			description = "Performs closure on Temporal Relations",
+			role = PipeBitInfo.Role.SPECIAL,
+			dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+	)
 	public static class AddClosure extends JCasAnnotator_ImplBase {
 
 		@Override

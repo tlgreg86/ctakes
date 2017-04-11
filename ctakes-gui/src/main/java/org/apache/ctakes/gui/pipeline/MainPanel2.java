@@ -72,7 +72,6 @@ final class MainPanel2 extends JPanel {
 
    MainPanel2() {
       super( new BorderLayout() );
-
       final JSplitPane logSplit = new PositionedSplitPane( JSplitPane.VERTICAL_SPLIT );
       logSplit.setTopComponent( createMainPanel() );
       logSplit.setBottomComponent( LoggerPanel.createLoggerPanel() );
@@ -85,7 +84,6 @@ final class MainPanel2 extends JPanel {
 
       _chooser.setFileFilter( new FileNameExtensionFilter( "Pipeline Definition (Piper) File", "piper" ) );
       _chooser.setFileView( new PiperFileView() );
-
       createNewPiper();
    }
 

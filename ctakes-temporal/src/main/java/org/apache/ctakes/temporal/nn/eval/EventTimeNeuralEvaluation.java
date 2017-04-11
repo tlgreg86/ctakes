@@ -18,22 +18,11 @@
  */
 package org.apache.ctakes.temporal.nn.eval;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.base.Function;
+import com.google.common.collect.*;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
@@ -78,14 +67,12 @@ import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
 import org.cleartk.util.ViewUriUtil;
 
-import com.google.common.base.Function;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.util.*;
 
 public class EventTimeNeuralEvaluation extends
 EvaluationOfTemporalRelations_ImplBase{
@@ -511,6 +498,13 @@ EvaluationOfTemporalRelations_ImplBase{
     }
   }
 
+   @PipeBitInfo(
+         name = "E-T Relation Overlapper",
+         description = "Adds Event-Time temporal relations for annotations overlapping those already having relations.",
+         role = PipeBitInfo.Role.SPECIAL,
+         dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.TIMEX,
+                          PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+   )
   public static class AddPotentialRelations extends JCasAnnotator_ImplBase {
     public static final String PARAM_RELATION_VIEW = "RelationView";
     @ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
@@ -621,6 +615,12 @@ EvaluationOfTemporalRelations_ImplBase{
     }
   }
 
+   @PipeBitInfo(
+         name = "Closed TLink Counter",
+         description = "Counts the number of TLinks that have shares Events or Times in the Gold view.",
+         role = PipeBitInfo.Role.SPECIAL,
+         dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+   )
   public static class CountCloseRelation extends JCasAnnotator_ImplBase {
 
     private String systemViewName = CAS.NAME_DEFAULT_SOFA;
@@ -694,6 +694,12 @@ EvaluationOfTemporalRelations_ImplBase{
     }
   }
 
+   @PipeBitInfo(
+         name = "Transitive Contains Adder",
+         description = "Adds Contains temporal relations for annotations / relations in contain other relations.",
+         role = PipeBitInfo.Role.SPECIAL,
+         dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+   )
   public static class AddTransitiveContainsRelations extends JCasAnnotator_ImplBase {
 
     @Override
@@ -759,6 +765,12 @@ EvaluationOfTemporalRelations_ImplBase{
 
   }
 
+   @PipeBitInfo(
+         name = "TLink Overlap Adder",
+         description = "Adds an Overlap temporal relation for each Contains temporal relation.",
+         role = PipeBitInfo.Role.SPECIAL,
+         dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+   )
   public static class AddContain2Overlap extends JCasAnnotator_ImplBase {
 
     @Override
@@ -785,6 +797,12 @@ EvaluationOfTemporalRelations_ImplBase{
     }
   }
 
+   @PipeBitInfo(
+         name = "Reverse Overlap TLinker",
+         description = "Adds Overlap temporal relations with arguments flipped.",
+         role = PipeBitInfo.Role.SPECIAL,
+         dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+   )
   public static class AddFlippedOverlap extends JCasAnnotator_ImplBase {
 
     @Override
@@ -895,6 +913,12 @@ EvaluationOfTemporalRelations_ImplBase{
     }
   }
 
+   @PipeBitInfo(
+         name = "TLink Closure Engine",
+         description = "Performs closure on Temporal Relations",
+         role = PipeBitInfo.Role.SPECIAL,
+         dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+   )
   public static class AddClosure extends JCasAnnotator_ImplBase {
 
     @Override

@@ -18,19 +18,24 @@
  */
 package org.apache.ctakes.temporal.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.timeml.type.DocumentCreationTime;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
 
 /**
  * for every cTAKES JCas, create a ClearTK Document Creation Time Annotation, fake span, no attribute. 
  * @author Chen Lin
  *
  */
+@PipeBitInfo(
+		name = "ClearTK DocTime Creator",
+		description = "Creates an annotation for document creation time."
+)
 public class ClearTKDocumentCreationTimeAnnotator extends JCasAnnotator_ImplBase {
 
 	public ClearTKDocumentCreationTimeAnnotator() {

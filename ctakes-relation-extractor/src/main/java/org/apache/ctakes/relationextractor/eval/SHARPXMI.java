@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.lexicalscope.jewel.cli.Option;
 import org.apache.ctakes.core.ae.SHARPKnowtatorXMLReader;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.uima.UIMAFramework;
@@ -367,6 +368,11 @@ public class SHARPXMI {
       }
    }
 
+   @PipeBitInfo(
+         name = "Text to Gold Copier",
+         description = "Copies Text from the System view to the Gold view.",
+         role = PipeBitInfo.Role.SPECIAL
+   )
    public static class CopyDocumentTextToGoldView extends JCasAnnotator_ImplBase {
       @Override
       public void process( JCas jCas ) throws AnalysisEngineProcessException {

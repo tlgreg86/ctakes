@@ -18,15 +18,10 @@
  */
 package org.apache.ctakes.temporal.ae;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.base.Charsets;
+import com.google.common.collect.Maps;
+import com.google.common.io.Resources;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.ae.feature.TimeWordTypeExtractor;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.TopTreebankNode;
@@ -48,13 +43,9 @@ import org.cleartk.ml.CleartkAnnotator;
 import org.cleartk.ml.DataWriter;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.Instance;
-import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.*;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Bag;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Covered;
-import org.cleartk.ml.feature.extractor.CombinedExtractor1;
-import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
-import org.cleartk.ml.feature.extractor.FeatureExtractor1;
-import org.cleartk.ml.feature.extractor.TypePathExtractor;
 import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction;
 import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction.PatternType;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
@@ -62,10 +53,17 @@ import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.cleartk.timeml.util.TimeWordsExtractor;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.Maps;
-import com.google.common.io.Resources;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
 
+@PipeBitInfo(
+      name = "Constituency Timex Filter",
+      description = "Creates Timex annotations.",
+      dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.BASE_TOKEN,
+                       PipeBitInfo.TypeProduct.TIMEX }
+)
 public class ConstituencyBasedTimeAnnotator extends
 TemporalEntityAnnotator_ImplBase {
 

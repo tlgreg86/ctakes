@@ -7,8 +7,10 @@ import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.structured.DocumentIdPrefix;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
+import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.Markable;
+import org.apache.ctakes.typesystem.type.textsem.SemanticRoleRelation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Paragraph;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
@@ -55,9 +57,11 @@ public @interface PipeBitInfo {
       EVENT( Event.class ),
       TIMEX( TimeMention.class ),
       GENERIC_RELATION( BinaryTextRelation.class ),
+      SEMANTIC_RELATION( SemanticRoleRelation.class ),
       LOCATION_RELATION( LocationOfTextRelation.class ),
       DEGREE_RELATION( DegreeOfTextRelation.class ),
       TEMPORAL_RELATION( TemporalTextRelation.class ),
+      DEPENDENCY_NODE( ConllDependencyNode.class ),
       MARKABLE( Markable.class ),
       COREFERENCE_RELATION( CoreferenceRelation.class );
 

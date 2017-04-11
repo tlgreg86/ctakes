@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
  * be added to the file.
  */
 @PipeBitInfo(
-      name = "Segment Annotator (CDA)",
+      name = "CCDA Sectionizer",
       description = "Annotates Document Sections by detecting Section Headers using Regular Expressions provided in a File.",
       dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID },
       products = { PipeBitInfo.TypeProduct.SECTION }

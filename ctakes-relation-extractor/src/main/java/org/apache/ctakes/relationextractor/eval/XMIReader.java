@@ -18,6 +18,18 @@
  */
 package org.apache.ctakes.relationextractor.eval;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.uima.UimaContext;
+import org.apache.uima.cas.impl.XmiCasDeserializer;
+import org.apache.uima.collection.CollectionException;
+import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.Progress;
+import org.apache.uima.util.ProgressImpl;
+import org.xml.sax.SAXException;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,20 +37,15 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.uima.UimaContext;
-import org.apache.uima.cas.impl.XmiCasDeserializer;
-import org.apache.uima.collection.CollectionException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.util.Progress;
-import org.apache.uima.util.ProgressImpl;
-import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.xml.sax.SAXException;
-
 /**
  * UIMA CollectionReader that reads in CASes from XMI files.
  */
+@PipeBitInfo(
+      name = "XMI Files Reader",
+      description = "Reads document texts and annotations from XMI files specified in a provided list.",
+      role = PipeBitInfo.Role.READER,
+      products = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
+)
 public class XMIReader extends JCasCollectionReader_ImplBase {
 
   public static final String PARAM_FILES = "files";

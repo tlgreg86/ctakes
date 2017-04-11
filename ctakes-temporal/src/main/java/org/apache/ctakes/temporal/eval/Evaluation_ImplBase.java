@@ -21,7 +21,6 @@ package org.apache.ctakes.temporal.eval;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.lexicalscope.jewel.cli.Option;
-
 import org.apache.ctakes.chunker.ae.Chunker;
 import org.apache.ctakes.chunker.ae.DefaultChunkCreator;
 import org.apache.ctakes.chunker.ae.adjuster.ChunkAdjuster;
@@ -30,7 +29,7 @@ import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.OverlapAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
-//import org.apache.ctakes.core.cleartk.ae.SentenceDetectorAnnotator;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
@@ -87,7 +86,6 @@ import org.cleartk.timeml.util.TimeWordsExtractor;
 import org.cleartk.util.ViewUriUtil;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
 import org.cleartk.util.cr.UriCollectionReader;
-//import org.threeten.bp.temporal.TemporalUnit;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.ContentHandler;
@@ -103,10 +101,12 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+//import org.apache.ctakes.core.cleartk.ae.SentenceDetectorAnnotator;
+//import org.threeten.bp.temporal.TemporalUnit;
 
 public abstract class Evaluation_ImplBase<STATISTICS_TYPE> extends
 org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
@@ -587,6 +587,12 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		return annotations;
 	}
 
+	@PipeBitInfo(
+			name = "NP Lookup Window Creator",
+			description = "Creates a Lookup Window from Noun Phrase Chunks.",
+			role = PipeBitInfo.Role.SPECIAL,
+			dependencies = { PipeBitInfo.TypeProduct.CHUNK }
+	)
 	public static class CopyNPChunksToLookupWindowAnnotations extends JCasAnnotator_ImplBase {
 
 		@Override
@@ -599,6 +605,11 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		}
 	}
 
+	@PipeBitInfo(
+			name = "Overlap Lookup Window Remover",
+			description = "Removes Lookup Windows that are within larger Lookup Windows.",
+			role = PipeBitInfo.Role.SPECIAL
+	)
 	public static class RemoveEnclosedLookupWindows extends JCasAnnotator_ImplBase {
 
 		@Override
@@ -823,6 +834,11 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 	}
 
 
+	@PipeBitInfo(
+			name = "Gold Annotation Copier",
+			description = "Copies an annotation type from the Gold view to the System view.",
+			role = PipeBitInfo.Role.SPECIAL
+	)
 	public static class CopyFromGold extends JCasAnnotator_ImplBase {
 
 		public static AnalysisEngineDescription getDescription( Class<?>... classes )
@@ -868,6 +884,11 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		}
 	}
 
+	@PipeBitInfo(
+			name = "System Annotation Copier",
+			description = "Copies an annotation type from the System view to a Gold view.",
+			role = PipeBitInfo.Role.SPECIAL
+	)
 	public static class CopyFromSystem extends JCasAnnotator_ImplBase {
 
 		public static AnalysisEngineDescription getDescription( Class<?>... classes )

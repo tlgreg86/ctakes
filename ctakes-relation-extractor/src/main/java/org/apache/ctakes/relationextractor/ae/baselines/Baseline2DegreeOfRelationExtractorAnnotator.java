@@ -18,11 +18,10 @@
  */
 package org.apache.ctakes.relationextractor.ae.baselines;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.Ordering;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.Modifier;
@@ -35,9 +34,10 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.CleartkProcessingException;
 import org.cleartk.ml.Feature;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.collect.Ordering;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -45,6 +45,13 @@ import com.google.common.collect.Ordering;
  * and a single legitimate degree_of arg1 (i.e. disiease/disorder or sign/symptom). Use the pair of
  * arguments that have the shortest distance to each other. 
  */
+@PipeBitInfo(
+      name = "Degree of Annotator 2",
+      description = "Annotates Degree Of relations between two shortest-distance entities in sentences with multiple modifiers.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+      products = { PipeBitInfo.TypeProduct.DEGREE_RELATION }
+)
 public class Baseline2DegreeOfRelationExtractorAnnotator extends RelationExtractorAnnotator {
 
 	@Override

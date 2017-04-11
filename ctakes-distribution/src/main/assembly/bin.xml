@@ -88,8 +88,6 @@
 	</dependencySets>
 
 	<fileSets>
-		<fileSet>
-		</fileSet>
 		<!--  The Type System needs to exist outside the lib/*.jar file.  Otherwise it cannot be used with the CVD.  -->
 		<fileSet>
 			<directory>../ctakes-clinical-pipeline-res/src/main/resources</directory>
@@ -175,51 +173,12 @@
 			</includes>
 			<outputDirectory>resources/org/apache/ctakes/core/pipeline</outputDirectory>
 		</fileSet>
-		<!--  Copy user resources  -->
-		<fileSet>
-			<directory>../resources</directory>
-			<fileMode>644</fileMode>
-			<directoryMode>755</directoryMode>
-			<outputDirectory>resources</outputDirectory>
-		</fileSet>
-		<fileSet>
-			<directory>../</directory>
-			<outputDirectory></outputDirectory>
-
-			<fileMode>644</fileMode>
-			<directoryMode>755</directoryMode>
-			<includes>
-				<include>README*</include>
-			</includes>
-		</fileSet>
-		<fileSet>
-			<directory>.</directory>
-			<outputDirectory></outputDirectory>
-			<fileMode>644</fileMode>
-			<directoryMode>755</directoryMode>
-			<includes>
-				<include>RELEASE_NOTES*</include>
-				<include>LICENSE*</include>
-				<include>NOTICE*</include>
-			</includes>
-		</fileSet>
-		<fileSet>
-			<directory>target</directory>
-			<outputDirectory></outputDirectory>
-			<fileMode>644</fileMode>
-			<directoryMode>755</directoryMode>
-			<includes>
-				<include>issuesFixed/**</include>
-			</includes>
-		</fileSet>
-
 		<fileSet>
 			<directory>src/main/bin</directory>
 			<fileMode>755</fileMode>
 			<directoryMode>755</directoryMode>
 			<outputDirectory>bin</outputDirectory>
 		</fileSet>
-
 		<fileSet>
 			<directory>src/main/config</directory>
 			<fileMode>644</fileMode>
@@ -236,8 +195,7 @@
 			</includes>
 			<outputDirectory>config</outputDirectory>
 		</fileSet>
-
-		<!-- Copy all of the XML Descriptors. Temp Preserving this structure so 
+		<!-- Copy all of the XML Descriptors. Temp Preserving this structure so
 			that the relative paths still work. -->
 		<fileSet>
 			<directory>../</directory>
@@ -261,4 +219,26 @@
 			<directoryMode>755</directoryMode>
 		</fileSet>
 	</fileSets>
+	<files>
+		<file>
+			<source>../README</source>
+			<outputDirectory/>
+		</file>
+		<file>
+			<source>RELEASE_NOTES.html</source>
+			<outputDirectory/>
+		</file>
+		<file>
+			<source>LICENSE</source>
+			<outputDirectory/>
+		</file>
+		<file>
+			<source>NOTICE</source>
+			<outputDirectory/>
+		</file>
+		<!--<file>-->
+			<!--<source>target/issuesFixed/**</source>-->
+			<!--<outputDirectory/>-->
+		<!--</file>-->
+	</files>
 </assembly>
