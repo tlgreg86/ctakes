@@ -18,21 +18,11 @@
  */
 package org.apache.ctakes.temporal.eval;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.ae.ContextualModalityAnnotator;
 import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
@@ -52,18 +42,20 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.FileUtils;
-//import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 import org.cleartk.eval.AnnotationStatistics;
 import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
-//import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
 import org.cleartk.util.ViewUriUtil;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.*;
+import java.util.logging.Formatter;
+
+//import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
+//import org.cleartk.ml.libsvm.LibSvmStringOutcomeDataWriter;
 
 public class EvaluationOfEventProperties extends
 Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
@@ -346,8 +338,13 @@ Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
 		};
 	}
 
-	public static class ClearEventProperties extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
-		@Override
+   @PipeBitInfo(
+         name = "Event Property Clearer",
+         description = "Clears all event properties.",
+         role = PipeBitInfo.Role.SPECIAL
+   )
+   public static class ClearEventProperties extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+      @Override
 		public void process(JCas jCas) throws AnalysisEngineProcessException {
 			for (EventProperties eventProperties : JCasUtil.select(jCas, EventProperties.class)) {
 				eventProperties.setAspect(null);

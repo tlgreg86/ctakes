@@ -37,7 +37,7 @@ import org.apache.uima.resource.ResourceInitializationException;
  * @author Mayo Clinic
  */
 @PipeBitInfo(
-      name = "Single Segment Annotator",
+      name = "Single Sectionizer",
       description = "Annotates Document as a single Section.",
       products = { PipeBitInfo.TypeProduct.SECTION }
 )

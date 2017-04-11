@@ -18,15 +18,10 @@
  */
 package org.apache.ctakes.relationextractor.ae.baselines;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.Ordering;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
@@ -37,14 +32,19 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.collect.Ordering;
+import java.util.*;
 
 /**
  * This baseline links each modifier with the closest entity of a type  
  * that's suitable for degree_of, as long as there is no intervening modifier. 
  */
+@PipeBitInfo(
+		name = "Degree of Annotator 3",
+		description = "Annotates Degree Of relations between two shortest-distance entities in sentences as long as there is no intervening modifier.",
+		role = PipeBitInfo.Role.ANNOTATOR,
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+		products = { PipeBitInfo.TypeProduct.DEGREE_RELATION }
+)
 public class Baseline3DegreeOfRelationExtractorAnnotator extends RelationExtractorAnnotator {
 	
 	@Override

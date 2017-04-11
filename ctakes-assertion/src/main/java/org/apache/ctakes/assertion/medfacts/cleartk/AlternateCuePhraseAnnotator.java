@@ -18,26 +18,31 @@
  */
 package org.apache.ctakes.assertion.medfacts.cleartk;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.temporary.assertion.AssertionCuePhraseAnnotation;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.ctakes.core.resource.FileLocator;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
-import org.apache.ctakes.typesystem.type.temporary.assertion.AssertionCuePhraseAnnotation;
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.util.JCasUtil;
-
+@PipeBitInfo(
+      name = "Property Cue Finder",
+      description = "Reads assertion cue words from file and annotates them.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.BASE_TOKEN }
+)
 public class AlternateCuePhraseAnnotator extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_INPUT_FILE = "INPUT_FILE";

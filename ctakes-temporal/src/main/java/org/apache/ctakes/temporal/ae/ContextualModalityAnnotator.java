@@ -18,9 +18,7 @@
  */
 package org.apache.ctakes.temporal.ae;
 
-import java.io.File;
-import java.util.List;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.UimaContext;
@@ -45,6 +43,14 @@ import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
+import java.io.File;
+import java.util.List;
+
+@PipeBitInfo(
+      name = "Context Modality Annotator",
+      description = "Sets Modality based upon context.",
+      dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class ContextualModalityAnnotator extends CleartkAnnotator<String> {
   public static AnalysisEngineDescription createDataWriterDescription(
       Class<? extends DataWriter<String>> dataWriterClass,

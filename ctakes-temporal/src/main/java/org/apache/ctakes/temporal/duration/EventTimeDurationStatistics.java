@@ -18,12 +18,12 @@
  */
 package org.apache.ctakes.temporal.duration;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.eval.CommandLine;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
@@ -34,18 +34,18 @@ import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionReader;
-import org.apache.uima.jcas.JCas;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Analyze duration information for the relation arguments of CONTAINS relation.
@@ -87,7 +87,14 @@ public class EventTimeDurationStatistics {
    * Look at those event-time relations whose event argument has duration data
    * and whose time argument can be normalized using Bethard timex normalizer.
    */
-  public static class AnalyseRelationArgumentDuration extends JCasAnnotator_ImplBase {                                               
+  @PipeBitInfo(
+        name = "E-T Duration Computer",
+        description = "Writes a file with durations of Contains Event-Timex temporal relations.",
+        role = PipeBitInfo.Role.SPECIAL,
+        dependencies = { PipeBitInfo.TypeProduct.EVENT, PipeBitInfo.TypeProduct.TIMEX,
+                         PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+  )
+  public static class AnalyseRelationArgumentDuration extends JCasAnnotator_ImplBase {
 
     @ConfigurationParameter(
         name = "OutputFile",

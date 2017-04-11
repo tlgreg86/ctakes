@@ -18,21 +18,27 @@
  */
 package org.apache.ctakes.temporal.ae;
 
-import java.util.HashSet;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.timeml.type.Anchor;
 import org.cleartk.timeml.type.TemporalLink;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.util.JCasUtil;
 
+import java.util.HashSet;
+
+@PipeBitInfo(
+      name = "ClearTK Thyme Linker",
+      description = "Maps old THYME project relations to a binary text relation representation.",
+      products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class ClearTKLinkToTHYMELinkAnnotator extends JCasAnnotator_ImplBase {
 
   static HashSet<String> ctkRels = new HashSet<String>();

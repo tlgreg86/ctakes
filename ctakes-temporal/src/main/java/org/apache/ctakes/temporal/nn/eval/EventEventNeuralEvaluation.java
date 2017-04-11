@@ -17,21 +17,12 @@
  * under the License.
  */
 package org.apache.ctakes.temporal.nn.eval;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
+import com.google.common.base.Function;
+import com.google.common.collect.*;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.ae.baselines.RecallBaselineEventTimeRelationAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventEventThymeRelations.RemoveCrossSentenceRelations;
@@ -75,14 +66,12 @@ import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
 import org.cleartk.util.ViewUriUtil;
 
-import com.google.common.base.Function;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.util.*;
 
 public class EventEventNeuralEvaluation extends
 EvaluationOfTemporalRelations_ImplBase{
@@ -438,6 +427,13 @@ EvaluationOfTemporalRelations_ImplBase{
     return stats;
   }
 
+  @PipeBitInfo(
+        name = "Event-Event TLinker",
+        description = "Adds Event -to- Event temporal relations.",
+        role = PipeBitInfo.Role.ANNOTATOR,
+        dependencies = { PipeBitInfo.TypeProduct.EVENT },
+        products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+  )
   public static class AddEEPotentialRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
     public static final String PARAM_RELATION_VIEW = "RelationView";
     @ConfigurationParameter(name = PARAM_RELATION_VIEW,mandatory=false)
@@ -517,6 +513,12 @@ EvaluationOfTemporalRelations_ImplBase{
     }
   }
 
+  @PipeBitInfo(
+        name = "Closed TLink Counter",
+        description = "Counts the number of TLinks that have shares Events or Times in the Gold view.",
+        role = PipeBitInfo.Role.SPECIAL,
+        dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+  )
   public static class CountCloseRelation extends JCasAnnotator_ImplBase {
 
     private String systemViewName = CAS.NAME_DEFAULT_SOFA;
@@ -661,6 +663,12 @@ EvaluationOfTemporalRelations_ImplBase{
     }
   }
 
+  @PipeBitInfo(
+        name = "TLink Closure Engine",
+        description = "Performs closure on Temporal Relations",
+        role = PipeBitInfo.Role.SPECIAL,
+        dependencies = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+  )
   public static class AddClosure extends JCasAnnotator_ImplBase {
 
     @Override

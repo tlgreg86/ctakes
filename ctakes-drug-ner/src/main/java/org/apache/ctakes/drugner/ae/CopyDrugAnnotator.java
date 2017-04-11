@@ -18,29 +18,24 @@
  */
 package org.apache.ctakes.drugner.ae;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.FSUtil;
 import org.apache.ctakes.core.util.JCasUtil;
 import org.apache.ctakes.core.util.ParamUtil;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.analysis_engine.ResultSpecification;
-import org.apache.uima.analysis_engine.annotator.AnnotatorConfigurationException;
-import org.apache.uima.analysis_engine.annotator.AnnotatorContext;
-import org.apache.uima.analysis_engine.annotator.AnnotatorInitializationException;
-import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
-import org.apache.uima.analysis_engine.annotator.JTextAnnotator_ImplBase;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.resource.ResourceInitializationException;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -50,6 +45,12 @@ import org.apache.uima.resource.ResourceInitializationException;
  * @author duffp
  * 
  */
+@PipeBitInfo(
+		name = "Drug Copier",
+		description = "Copies data from an existing JCas into a new JCas.",
+		role = PipeBitInfo.Role.SPECIAL,
+		dependencies = { PipeBitInfo.TypeProduct.SECTION }
+)
 public class CopyDrugAnnotator extends JCasAnnotator_ImplBase
 {
 	private int iv_srcType;

@@ -18,19 +18,28 @@
  */
 package org.apache.ctakes.relationextractor.ae.baselines;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.DegreeOfRelationExtractorAnnotator;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.CleartkProcessingException;
 import org.cleartk.ml.Feature;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Annotated degree_of relation in sentences containing a single entity mention
  * of a valid degree_of type and a single modifier.
  */
+@PipeBitInfo(
+      name = "Degree of Annotator 1",
+      description = "Annotates Degree Of relations in sentences containing a single entity mention of a valid" +
+                    " degree_of type and a single modifier.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+      products = { PipeBitInfo.TypeProduct.DEGREE_RELATION }
+)
 public class Baseline1DegreeOfRelationExtractorAnnotator extends DegreeOfRelationExtractorAnnotator {
 
 	@Override

@@ -18,65 +18,38 @@
  */
 package org.apache.ctakes.contexttokenizer.ae;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.ctakes.core.ae.TokenizerAnnotator;
-import org.apache.ctakes.core.fsm.adapters.ContractionTokenAdapter;
-import org.apache.ctakes.core.fsm.adapters.DecimalTokenAdapter;
-import org.apache.ctakes.core.fsm.adapters.IntegerTokenAdapter;
-import org.apache.ctakes.core.fsm.adapters.NewlineTokenAdapter;
-import org.apache.ctakes.core.fsm.adapters.PunctuationTokenAdapter;
-import org.apache.ctakes.core.fsm.adapters.SymbolTokenAdapter;
-import org.apache.ctakes.core.fsm.adapters.WordTokenAdapter;
-import org.apache.ctakes.core.fsm.machine.DateFSM;
-import org.apache.ctakes.core.fsm.machine.FractionFSM;
-import org.apache.ctakes.core.fsm.machine.MeasurementFSM;
-import org.apache.ctakes.core.fsm.machine.PersonTitleFSM;
-import org.apache.ctakes.core.fsm.machine.RangeFSM;
-import org.apache.ctakes.core.fsm.machine.RomanNumeralFSM;
-import org.apache.ctakes.core.fsm.machine.TimeFSM;
-import org.apache.ctakes.core.fsm.output.DateToken;
-import org.apache.ctakes.core.fsm.output.FractionToken;
-import org.apache.ctakes.core.fsm.output.MeasurementToken;
-import org.apache.ctakes.core.fsm.output.PersonTitleToken;
-import org.apache.ctakes.core.fsm.output.RangeToken;
-import org.apache.ctakes.core.fsm.output.RomanNumeralToken;
-import org.apache.ctakes.core.fsm.output.TimeToken;
+import org.apache.ctakes.core.fsm.adapters.*;
+import org.apache.ctakes.core.fsm.machine.*;
+import org.apache.ctakes.core.fsm.output.*;
 import org.apache.ctakes.core.fsm.token.BaseToken;
 import org.apache.ctakes.core.fsm.token.EolToken;
-import org.apache.ctakes.typesystem.type.syntax.ContractionToken;
-import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
-import org.apache.ctakes.typesystem.type.syntax.NumToken;
-import org.apache.ctakes.typesystem.type.syntax.PunctuationToken;
-import org.apache.ctakes.typesystem.type.syntax.SymbolToken;
-import org.apache.ctakes.typesystem.type.syntax.WordToken;
-import org.apache.ctakes.typesystem.type.textsem.DateAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.FractionAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.MeasurementAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.PersonTitleAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.RangeAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.RomanNumeralAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.TimeAnnotation;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.typesystem.type.syntax.*;
+import org.apache.ctakes.typesystem.type.textsem.*;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+
+import java.util.*;
 
 /**
  * Finds tokens based on context.
  * 
  * @author Mayo Clinic
  */
+@PipeBitInfo(
+      name = "Context Dependent Annotator",
+      description = "Finds tokens based upon context.  Time, Date, Roman numeral, Fraction, Range, Measurement, Person title.",
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.BASE_TOKEN }
+)
 public class ContextDependentTokenizerAnnotator extends JCasAnnotator_ImplBase {
 	// LOG4J logger based on class name
 	private Logger iv_logger = Logger.getLogger(getClass().getName());

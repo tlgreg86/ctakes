@@ -42,7 +42,7 @@ import java.util.StringTokenizer;
  * @author Mayo Clinic
  */
 @PipeBitInfo(
-      name = "JDBC Collection Reader",
+      name = "JDBC Reader",
       description = "Reads document texts from database text fields.",
       role = PipeBitInfo.Role.READER,
       products = { PipeBitInfo.TypeProduct.DOCUMENT_ID }

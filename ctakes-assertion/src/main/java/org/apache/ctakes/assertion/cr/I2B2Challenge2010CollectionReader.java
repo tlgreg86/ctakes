@@ -18,16 +18,7 @@
  */
 package org.apache.ctakes.assertion.cr;
 
-import java.awt.Point;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -41,7 +32,22 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
+import java.awt.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+@PipeBitInfo(
+      name = "I2B2 Challenge Reader",
+      description = "Reads entities and their properties from file. ",
+      role = PipeBitInfo.Role.READER,
+      products = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class I2B2Challenge2010CollectionReader extends CollectionReader_ImplBase {
 
 	public final static String PARAM_INPUTDIR = "inputDir";

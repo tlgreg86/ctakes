@@ -18,12 +18,9 @@
  */
 package org.apache.ctakes.assertion.medfacts.cleartk;
 
-import java.io.File;
-import java.net.URI;
-
 import org.apache.ctakes.assertion.attributes.features.selection.Chi2FeatureSelection;
 import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
-import org.apache.ctakes.typesystem.type.constants.CONST;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -33,6 +30,15 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.Instance;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
+import java.io.File;
+import java.net.URI;
+
+@PipeBitInfo(
+      name = "ClearTK Conditional Annotator",
+      description = "Determines whether or not Identified Annotations are conditional.",
+      dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+      usables = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
+)
 public class ConditionalCleartkAnalysisEngine extends
 		AssertionCleartkAnalysisEngine {
 

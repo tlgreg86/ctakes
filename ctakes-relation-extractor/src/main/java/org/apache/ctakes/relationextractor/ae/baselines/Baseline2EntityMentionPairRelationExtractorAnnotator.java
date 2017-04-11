@@ -18,13 +18,10 @@
  */
 package org.apache.ctakes.relationextractor.ae.baselines;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.Ordering;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -35,14 +32,19 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.collect.Ordering;
+import java.util.*;
 
 /**
  * Annotate location_of relation between two entities in sentences with multiple anatomical sites
  * and a single legitimate location_of arg2. Use the pair of arguments that are the closest to each other.
  */
+@PipeBitInfo(
+      name = "Location of Annotator 2",
+      description = "Annotates Location Of relations in sentences containing with multiple anatomical sites.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+      products = { PipeBitInfo.TypeProduct.LOCATION_RELATION }
+)
 public class Baseline2EntityMentionPairRelationExtractorAnnotator extends RelationExtractorAnnotator {
 	
 	@Override

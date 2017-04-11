@@ -18,23 +18,18 @@
  */
 package org.apache.ctakes.relationextractor.ae;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.CausesBringsAboutTextRelation;
-import org.apache.ctakes.typesystem.type.relation.ManagesTreatsTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
-import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
-import org.apache.ctakes.typesystem.type.textsem.DiseaseDisorderMention;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.MedicationMention;
-import org.apache.ctakes.typesystem.type.textsem.ProcedureMention;
-import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
+import org.apache.ctakes.typesystem.type.textsem.*;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Identifies causes/brings_about relation.
@@ -49,6 +44,13 @@ import org.apache.uima.jcas.tcas.Annotation;
  * arg1: procedure, medication, disease/disorder  
  * arg2: disease/disorder, sign/symptom
  */
+@PipeBitInfo(
+      name = "Causal Relation Annotator",
+      description = "Annotates Causal relations in sentences.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+      products = { PipeBitInfo.TypeProduct.GENERIC_RELATION }
+)
 public class CausesBringsAboutRelationExtractorAnnotator extends RelationExtractorAnnotator {
 
   @Override

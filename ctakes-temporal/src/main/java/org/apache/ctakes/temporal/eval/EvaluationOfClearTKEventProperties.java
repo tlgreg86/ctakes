@@ -18,19 +18,10 @@
  */
 package org.apache.ctakes.temporal.eval;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+import com.lexicalscope.jewel.cli.CliFactory;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.ae.ClearTKDocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.ClearTKDocumentCreationTimeAnnotator;
 import org.apache.ctakes.temporal.ae.EventToClearTKEventAnnotator;
@@ -53,17 +44,15 @@ import org.cleartk.opennlp.tools.ParserAnnotator;
 import org.cleartk.opennlp.tools.PosTaggerAnnotator;
 import org.cleartk.opennlp.tools.SentenceAnnotator;
 import org.cleartk.snowball.DefaultSnowballStemmer;
-import org.cleartk.timeml.event.EventAspectAnnotator;
-import org.cleartk.timeml.event.EventClassAnnotator;
-import org.cleartk.timeml.event.EventModalityAnnotator;
-import org.cleartk.timeml.event.EventPolarityAnnotator;
-import org.cleartk.timeml.event.EventTenseAnnotator;
+import org.cleartk.timeml.event.*;
 import org.cleartk.timeml.tlink.TemporalLinkEventToDocumentCreationTimeAnnotator;
 import org.cleartk.token.tokenizer.TokenAnnotator;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
-import com.lexicalscope.jewel.cli.CliFactory;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.*;
+import java.util.logging.Formatter;
 
 public class EvaluationOfClearTKEventProperties extends
     Evaluation_ImplBase<Map<String, AnnotationStatistics<String>>> {
@@ -225,6 +214,11 @@ public class EvaluationOfClearTKEventProperties extends
     };
   }
 
+   @PipeBitInfo(
+         name = "Event Property Clearer",
+         description = "Clears all event properties.",
+         role = PipeBitInfo.Role.SPECIAL
+   )
   public static class ClearEventProperties extends JCasAnnotator_ImplBase {
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {

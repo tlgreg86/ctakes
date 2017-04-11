@@ -18,10 +18,8 @@
  */
 package org.apache.ctakes.temporal.ae;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.common.collect.Lists;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.ae.feature.ParseSpanFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.TimeWordTypeExtractor;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -43,22 +41,28 @@ import org.cleartk.ml.DataWriter;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.Instance;
 import org.cleartk.ml.chunking.BioChunking;
-import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.*;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
-import org.cleartk.ml.feature.extractor.CombinedExtractor1;
-import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
-import org.cleartk.ml.feature.extractor.FeatureExtractor1;
-import org.cleartk.ml.feature.extractor.TypePathExtractor;
 import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction;
 import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction.PatternType;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 
+@PipeBitInfo(
+      name = "Backward Timex Annotator",
+      description = "Annotates absolute time / date Temporal expressions.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+                       PipeBitInfo.TypeProduct.BASE_TOKEN },
+      products = { PipeBitInfo.TypeProduct.TIMEX }
+)
 public class BackwardsTimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 
   public static final String PARAM_TIMEX_VIEW = "TimexView";

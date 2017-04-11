@@ -42,12 +42,10 @@ package org.apache.ctakes.dependency.parser.cr;
  */
 
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
+import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionException;
@@ -56,9 +54,13 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 
-import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
-import org.apache.ctakes.typesystem.type.syntax.BaseToken;
-import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
 
 /**
  * This collection reader reads in dependency tree training/test data in a tab-
@@ -66,6 +68,12 @@ import org.apache.ctakes.typesystem.type.textspan.Sentence;
  * format. Each file will correspond to a "document" - i.e.
  * getNext() will populate the CAS with information from a file.
  */
+@PipeBitInfo(
+      name = "Dependency File Reader",
+      description = "Reads in dependency tree training/test data in a tab-delimited format.",
+      role = PipeBitInfo.Role.READER,
+      products = { BASE_TOKEN, SENTENCE, DEPENDENCY_NODE }
+)
 public class DependencyFileCollectionReader extends CollectionReader_ImplBase {
 
 	/**

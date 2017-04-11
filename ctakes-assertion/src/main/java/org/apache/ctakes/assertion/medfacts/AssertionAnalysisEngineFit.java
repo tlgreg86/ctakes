@@ -3,6 +3,8 @@ package org.apache.ctakes.assertion.medfacts;
 import org.apache.ctakes.assertion.medfacts.i2b2.api.CharacterOffsetToLineTokenConverterCtakesImpl;
 import org.apache.ctakes.assertion.medfacts.i2b2.api.SingleDocumentProcessorCtakes;
 import org.apache.ctakes.assertion.medfacts.types.Concept;
+import org.apache.ctakes.assertion.stub.*;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.log4j.Logger;
@@ -14,13 +16,6 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.ctakes.assertion.stub.JarafeMEDecoder;
-import org.apache.ctakes.assertion.stub.PartOfSpeechTagger;
-import org.apache.ctakes.assertion.stub.ScopeParser;
-import org.apache.ctakes.assertion.stub.ApiConcept;
-import org.apache.ctakes.assertion.stub.AssertionDecoderConfiguration;
-import org.apache.ctakes.assertion.stub.BatchRunner;
-import org.apache.ctakes.assertion.stub.CharacterOffsetToLineTokenConverter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,6 +30,12 @@ import static org.apache.ctakes.typesystem.type.constants.CONST.ATTR_SUBJECT_PAT
  * @version %I%
  * @since 10/19/2016
  */
+@PipeBitInfo(
+      name = "Assertion Engine",
+      description = "Adds Negation, Uncertainty, Conditional and Subject to annotations.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class AssertionAnalysisEngineFit extends JCasAnnotator_ImplBase {
 
    static private final Logger LOGGER = Logger.getLogger( "AssertionAnalysisEngineFit" );

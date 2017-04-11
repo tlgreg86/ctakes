@@ -1,37 +1,22 @@
 package org.apache.ctakes.temporal.ae;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.Lists;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
-import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator.IdentifiedAnnotationPair;
 import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
-import org.apache.ctakes.temporal.ae.feature.DeterminerRelationFeaturesExtractor;
-import org.apache.ctakes.temporal.ae.feature.EventArgumentPropertyExtractor;
-import org.apache.ctakes.temporal.ae.feature.EventPositionRelationFeaturesExtractor;
-import org.apache.ctakes.temporal.ae.feature.NumberOfEventTimeBetweenCandidatesExtractor;
-import org.apache.ctakes.temporal.ae.feature.SRLRelationFeaturesExtractor;
-import org.apache.ctakes.temporal.ae.feature.SectionHeaderRelationExtractor;
-import org.apache.ctakes.temporal.ae.feature.TimeXRelationFeaturesExtractor;
-//import org.apache.ctakes.temporal.ae.feature.TemporalAttributeForMixEventTimeExtractor;
-import org.apache.ctakes.temporal.ae.feature.UmlsFeatureExtractor;
-import org.apache.ctakes.temporal.ae.feature.UnexpandedTokenFeaturesExtractor;
+import org.apache.ctakes.temporal.ae.feature.*;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
-//import org.apache.ctakes.typesystem.type.syntax.WordToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
-//import org.apache.ctakes.typesystem.type.textspan.Paragraph;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.jcas.tcas.DocumentAnnotation;
@@ -41,12 +26,21 @@ import org.cleartk.ml.DataWriter;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.util.JCasUtil;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.*;
 
+//import org.apache.ctakes.temporal.ae.feature.TemporalAttributeForMixEventTimeExtractor;
+//import org.apache.ctakes.typesystem.type.syntax.WordToken;
+//import org.apache.ctakes.typesystem.type.textspan.Paragraph;
+
+@PipeBitInfo(
+		name = "Consecutive Sentence E-T TLinker",
+		description = "Creates Event - Time TLinks between consecutive sentences.",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+							  PipeBitInfo.TypeProduct.EVENT, PipeBitInfo.TypeProduct.TIMEX },
+		products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class ConsecutiveSentencesEventTimeRelationAnnotator extends RelationExtractorAnnotator {
 
 	public static AnalysisEngineDescription createDataWriterDescription(
