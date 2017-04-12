@@ -21,6 +21,7 @@
 #   Runs the default clinical pipeline on files in the input directory specified by -i {directory}
 #   Writes .xmi files to the output directory specified by --xmiOut {directory}
 #   Uses UMLS credentials specified by --user {username} --pass {password}
+#   Can also use a custom dictionary with -l {dictionaryConfigFile}
 #
 #
 # Requires JAVA JDK 1.8+

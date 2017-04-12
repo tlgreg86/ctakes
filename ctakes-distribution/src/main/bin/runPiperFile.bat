@@ -19,8 +19,23 @@
 ::
 ::
 ::   Runs the pipeline in the piper file specified by -p {piperfile}
-::   with any other provided parameters
+::   with any other provided parameters.  Standard parameters are:
+::   -i , --inputDir {inputDirectory}
+::   -o , --outputDir {outputDirectory}
+::   -s , --subDir {subDirectory}  (for i/o)
+::   --xmiOut {xmiOutputDirectory} (if different from -o)
+::   -l , --lookupXml {dictionaryConfigFile} (fast only)
+::   --user {umlsUsername}
+::   --pass {umlsPassword}
+::   -? , --help
 ::
+::   Other parameters may be declared in the piper file using the cli command:
+::     cli {parameterName}={singleCharacter}
+::   For instance, for declaration of ParagraphAnnotator path to regex file optional parameter PARAGRAPH_TYPES_PATH,
+::   in the custom piper file add the line:
+::     cli PARAGRAPH_TYPES_PATH=t
+::   and when executing this script use:
+::      runPiperFile -p path/to/my/custom.piper -t path/to/my/custom.bsv  ...
 ::
 :: Requires JAVA JDK 1.8+
 ::
