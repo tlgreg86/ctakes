@@ -1,5 +1,0 @@
-// Commands and parameters to create a default token processing pipeline
-
-add SimpleSegmentAnnotator
-add SentenceDetector
-add TokenizerAnnotatorPTB
