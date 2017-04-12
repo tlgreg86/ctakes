@@ -31,13 +31,9 @@
    <description>Resources Project for ctakes-dictionary-lookup-fast</description>
    <dependencies>
       <dependency>
-         <!--  TODO  -->
          <groupId>net.sourceforge.ctakesresources</groupId>
-         <artifactId>ctakes-resources-snomed-rword-hsqldb-2011ab</artifactId>
-         <version>3.2.1.1</version>
-         <!--<groupId>net.sourceforge.ctakesresources</groupId>-->
-         <!--<artifactId>ctakes-resources-sno_rx</artifactId>-->
-         <!--<version>16ab</version>-->
+         <artifactId>ctakes-resources-sno_rx</artifactId>
+         <version>4.0.0</version>
       </dependency>
    </dependencies>
    <build>
