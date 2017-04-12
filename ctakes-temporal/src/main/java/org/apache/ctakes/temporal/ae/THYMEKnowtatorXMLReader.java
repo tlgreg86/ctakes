@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.ctakes.core.ae.SHARPKnowtatorXMLReader;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.eval.CommandLine;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -42,6 +43,14 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 
+@PipeBitInfo(
+      name = "Knowtator XML Reader (THYME)",
+      description = "Reads annotations from THYME schema Knowtator XML files in a directory.",
+      role = PipeBitInfo.Role.SPECIAL,
+      products = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.EVENT,
+            PipeBitInfo.TypeProduct.TIMEX, PipeBitInfo.TypeProduct.LOCATION_RELATION,
+            PipeBitInfo.TypeProduct.DEGREE_RELATION, PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class THYMEKnowtatorXMLReader extends SHARPKnowtatorXMLReader {
 
   public static final String PARAM_KNOWTATOR_XML_DIRECTORY = "knowtatorXMLDirectory";

@@ -42,6 +42,7 @@ package org.apache.ctakes.dependency.parser;
  */
 
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -64,6 +65,12 @@ import java.io.FileWriter;
  *
  * @author Mayo Clinic
  */
+@PipeBitInfo(
+      name = "Dependency Node Writer",
+      description = "Writes information about Dependency Nodes to file.",
+      role = PipeBitInfo.Role.WRITER,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.DEPENDENCY_NODE }
+)
 public class DependencyNodeWriter extends CasConsumer_ImplBase {
    // LOG4J logger based on class name
    private Logger iv_logger = Logger.getLogger( getClass().getName() );

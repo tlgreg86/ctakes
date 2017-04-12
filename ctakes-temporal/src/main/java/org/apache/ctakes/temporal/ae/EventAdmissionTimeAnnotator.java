@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 //import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.ae.feature.ClosestVerbExtractor;
 //import org.apache.ctakes.temporal.ae.feature.CoveredTextToValuesExtractor;
 import org.apache.ctakes.temporal.ae.feature.DateAndMeasurementExtractor;
@@ -72,6 +73,13 @@ import com.google.common.collect.Lists;
 
 //import com.google.common.base.Charsets;
 
+@PipeBitInfo(
+		name = "Admission Time Annotator",
+		description = "Adds Temporal Relations for Events with respect to the time of Patient Admission.",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+				PipeBitInfo.TypeProduct.TIMEX, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+		products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class EventAdmissionTimeAnnotator extends CleartkAnnotator<String> {
 
 	public static AnalysisEngineDescription createDataWriterDescription(

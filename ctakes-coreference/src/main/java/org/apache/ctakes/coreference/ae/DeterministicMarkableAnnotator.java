@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
@@ -24,6 +25,15 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
+@PipeBitInfo(
+      name = "Markable Annotator (Deterministic)",
+      description = "Annotates Markables for use by Coreference Annotators." +
+            " degree_of type and a single modifier.",
+      dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+            PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.DEPENDENCY_NODE,
+            PipeBitInfo.TypeProduct.TIMEX },
+      products = { PipeBitInfo.TypeProduct.MARKABLE }
+)
 public class DeterministicMarkableAnnotator extends JCasAnnotator_ImplBase {
 
   // list starters like A.  or #1    or 3)

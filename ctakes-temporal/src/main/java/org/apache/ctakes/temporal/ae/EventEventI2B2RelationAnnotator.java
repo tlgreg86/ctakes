@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
@@ -78,6 +79,13 @@ import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.collect.Lists;
 
+@PipeBitInfo(
+		name = "E-E I2B2 TLinker",
+		description = "Creates Event - Event TLinks with I2B2 model.",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+				PipeBitInfo.TypeProduct.EVENT },
+		products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class EventEventI2B2RelationAnnotator extends RelationExtractorAnnotator {
 
 	public static AnalysisEngineDescription createDataWriterDescription(

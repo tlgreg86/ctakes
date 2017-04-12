@@ -1,6 +1,7 @@
 package org.apache.ctakes.gui.pipeline.bit.info;
 
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.pipeline.PipeBitInfoUtil;
 import org.apache.ctakes.gui.component.CellRendererLabel;
 import org.apache.ctakes.gui.component.CellRendererPanel;
 import org.apache.log4j.Logger;
@@ -69,6 +70,11 @@ final public class PipeBitInfoRenderer implements ListCellRenderer<Object> {
          return _renderer;
       }
       final PipeBitInfo info = (PipeBitInfo)value;
+
+      if ( PipeBitInfoUtil.isUnknown( info ) ) {
+         final Color bg = isSelected ? Color.GRAY : Color.LIGHT_GRAY;
+         _renderer.setBackground( bg );
+      }
 
       if ( !isSelected ) {
          final Color color = getColor( info.role() );

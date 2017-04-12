@@ -78,20 +78,29 @@ abstract public class BitInfoPanel extends JPanel {
 
    abstract protected JComponent createNameEditor();
 
-   abstract protected void setBitName( final String text );
+   abstract protected void setBitName( final String text, final String toolTip );
 
    abstract protected ParameterInfoPanel createParameterInfoPanel();
 
    protected void clear() {
       _pipeBitInfo = null;
       _pipeBitClass = null;
-      setBitName( "" );
-      _description.setText( "" );
-      _dependencies.setText( "" );
-      _usables.setText( "" );
-      _products.setText( "" );
+      setBitName( "", "" );
+      clear( _description );
+      clear( _dependencies );
+      clear( _usables );
+      clear( _products );
       _parameterTableModel.setParameterHolder( null );
       _parameterInfoPanel.setParameterHolder( null );
+   }
+
+   protected void clear( final JLabel label ) {
+      setLabelText( label, "", "" );
+   }
+
+   protected void setLabelText( final JLabel label, final String text, final String toolTip ) {
+      label.setText( text );
+      label.setToolTipText( toolTip );
    }
 
    private JComponent createMainPanel() {

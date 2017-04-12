@@ -44,8 +44,9 @@ final public class UserBitInfoPanel extends BitInfoPanel {
    }
 
    @Override
-   protected void setBitName( final String text ) {
+   protected void setBitName( final String text, final String toolTip ) {
       ((JTextComponent)_name).setText( text );
+      _name.setToolTipText( toolTip );
    }
 
    @Override
@@ -67,17 +68,20 @@ final public class UserBitInfoPanel extends BitInfoPanel {
       _pipeBitInfo = userBit.getPipeBitInfo();
       _pipeBitClass = userBit.getPipeBitClass();
       _bitNameListener.setUserBit( null );
-      setBitName( _pipeBitInfo.name() );
-      _description.setText( _pipeBitInfo.description() );
-      _dependencies.setText( Arrays.stream( _pipeBitInfo.dependencies() )
+      setBitName( _pipeBitInfo.name(), _pipeBitClass.getName() );
+      setLabelText( _description, _pipeBitInfo.description(), _pipeBitInfo.description() );
+      final String dependencies = Arrays.stream( _pipeBitInfo.dependencies() )
             .map( PipeBitInfo.TypeProduct::toString )
-            .collect( Collectors.joining( ", " ) ) );
-      _usables.setText( Arrays.stream( _pipeBitInfo.usables() )
+            .collect( Collectors.joining( ", " ) );
+      setLabelText( _dependencies, dependencies, dependencies );
+      final String usables = Arrays.stream( _pipeBitInfo.usables() )
             .map( PipeBitInfo.TypeProduct::toString )
-            .collect( Collectors.joining( ", " ) ) );
-      _products.setText( Arrays.stream( _pipeBitInfo.products() )
+            .collect( Collectors.joining( ", " ) );
+      setLabelText( _usables, usables, usables );
+      final String products = Arrays.stream( _pipeBitInfo.products() )
             .map( PipeBitInfo.TypeProduct::toString )
-            .collect( Collectors.joining( ", " ) ) );
+            .collect( Collectors.joining( ", " ) );
+      setLabelText( _products, products, products );
       _parameterTableModel.setParameterHolder( userBit );
       _parameterInfoPanel.setParameterHolder( userBit );
       _bitNameListener.setUserBit( userBit );

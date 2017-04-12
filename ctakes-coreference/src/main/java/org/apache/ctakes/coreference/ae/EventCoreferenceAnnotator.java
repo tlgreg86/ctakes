@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.coreference.ae.features.AttributeFeatureExtractor;
 import org.apache.ctakes.coreference.ae.features.CorefSyntaxFeatureExtractor;
 import org.apache.ctakes.coreference.ae.features.DistSemFeatureExtractor;
@@ -66,6 +67,14 @@ import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
+@PipeBitInfo(
+      name = "Event Coreference Annotator",
+      description = "Annotates Event Coreferences.",
+      dependencies = { PipeBitInfo.TypeProduct.SECTION,
+            PipeBitInfo.TypeProduct.DEPENDENCY_NODE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION,
+            PipeBitInfo.TypeProduct.MARKABLE },
+      products = { PipeBitInfo.TypeProduct.COREFERENCE_RELATION }
+)
 public class EventCoreferenceAnnotator extends RelationExtractorAnnotator {
 
   public static final String IDENTITY_RELATION = "Identity";

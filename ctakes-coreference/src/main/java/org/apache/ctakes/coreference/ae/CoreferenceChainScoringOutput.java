@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.ctakes.constituency.parser.util.TreeUtils;
+import org.apache.ctakes.core.config.ConfigParameterConstants;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -32,10 +34,15 @@ import org.cleartk.util.ViewUriUtil;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 
+@PipeBitInfo(
+      name = "Coreference Score Writer",
+      description = "Writes scores of system coreference chains compared to chains in a Gold View.",
+      role = PipeBitInfo.Role.SPECIAL,
+      dependencies = { PipeBitInfo.TypeProduct.MARKABLE, PipeBitInfo.TypeProduct.COREFERENCE_RELATION }
+)
 public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
-  public static final String PARAM_OUTPUT_FILENAME = "OutputDirectory";
   @ConfigurationParameter(
-      name = PARAM_OUTPUT_FILENAME,
+      name = ConfigParameterConstants.PARAM_OUTPUTDIR,
       mandatory = true,
       description = "Name of chain file in CoNLL format"
       )

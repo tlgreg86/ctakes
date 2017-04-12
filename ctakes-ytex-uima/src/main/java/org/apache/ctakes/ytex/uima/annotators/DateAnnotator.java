@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.ytex.uima.types.Date;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
@@ -45,6 +46,11 @@ import com.mdimension.jchronic.utils.Span;
  * Iterate through all annotations of this type, and use chronic to parse the
  * covered text.
  */
+@PipeBitInfo(
+		name = "Date Annotator",
+		description = "Annotates Dates based upon whether or not text can be normalized to a date.",
+		dependencies = { PipeBitInfo.TypeProduct.BASE_TOKEN }
+)
 public class DateAnnotator extends JCasAnnotator_ImplBase {
 	private static final Log log = LogFactory.getLog(DateAnnotator.class);
 	public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";

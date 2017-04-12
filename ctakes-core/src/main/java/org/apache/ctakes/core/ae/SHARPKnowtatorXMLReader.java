@@ -56,8 +56,8 @@ import java.net.URISyntaxException;
 import java.util.*;
 
 @PipeBitInfo(
-      name = "Knowtator XML Reader",
-      description = "Reads annotations from Knowtator XML files in a directory.",
+      name = "Knowtator XML Reader (SHARP)",
+      description = "Reads annotations from SHARP schema Knowtator XML files in a directory.",
       role = PipeBitInfo.Role.SPECIAL,
       products = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.EVENT,
                    PipeBitInfo.TypeProduct.TIMEX, PipeBitInfo.TypeProduct.LOCATION_RELATION,

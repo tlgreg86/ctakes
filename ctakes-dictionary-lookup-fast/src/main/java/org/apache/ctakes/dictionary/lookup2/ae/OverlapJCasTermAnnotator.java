@@ -45,7 +45,7 @@ import java.util.List;
  * Date: 12/6/13
  */
 @PipeBitInfo(
-      name = "Dictionary Lookup (Default)",
+      name = "Dictionary Lookup (Overlap)",
       description = "Annotates clinically-relevant terms.  Terms can overlap dictionary entries.",
       dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.BASE_TOKEN },
       products = PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION

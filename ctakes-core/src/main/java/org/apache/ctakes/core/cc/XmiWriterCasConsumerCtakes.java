@@ -75,7 +75,7 @@ import java.net.URL;
  * </ul>
  */
 @PipeBitInfo(
-      name = "XMI Writer (CasConsumerCtakes)",
+      name = "XMI Writer",
       description = "Writes XMI files with full representation of input text and all extracted information.",
       role = PipeBitInfo.Role.WRITER,
       dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
