@@ -48,7 +48,8 @@ public enum PipeBitFinder {
       final String className = clazz.getName();
       return !className.startsWith( "org.apache.uima.tutorial" )
              && !className.startsWith( "org.apache.uima.examples" )
-             && !Modifier.isAbstract( clazz.getModifiers() );
+             && !Modifier.isAbstract( clazz.getModifiers() )
+             && clazz.getEnclosingClass() == null;
    }
 
    synchronized public void scan() {
