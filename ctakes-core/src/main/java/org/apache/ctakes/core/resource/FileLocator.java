@@ -44,37 +44,65 @@ final public class FileLocator {
    private FileLocator() {
    }
 
-    public static InputStream getAsStream(String location) throws FileNotFoundException
-    {
-        try
-        {
-        	//Get from classpath
-        	InputStream is  = FileLocator.class.getClassLoader().getResourceAsStream(location);
-        	if (is==null) throw new RuntimeException("Unable to locate " + location + " on classpath.");
-        	return is;
-        }
-        catch (Exception e)
-        {
-        	//Try to get from filestream, locating relative to the current directory if 
-        	// location is a relative path
-        	File f = new File(location);
-        	FileInputStream fs = new FileInputStream(f);
-        	return fs;
-        }
-    }
-	
-    /**
-     * Where a Stream is usable, use {@link #getAsStream(String)} .
-     * Where a path String is usable, use {@link #getFullPath(String)} .
-     */
-    public static File locateFile( final String location ) throws FileNotFoundException {
-       final String fullPath = getFullPath( location );
-       final File file = new File( fullPath );
-       if ( !file.exists() ) {
-          throw new FileNotFoundException( "No File at " + location );
-       }
-       return file;
-    }
+   /**
+    * @param location some string representing the full or partial location of a file
+    * @return an input stream for the file
+    * @throws FileNotFoundException if no file could be found
+    */
+   public static InputStream getAsStream( final String location ) throws FileNotFoundException {
+      return getAsStream( FileLocator.class, location );
+   }
+
+   /**
+    * @param clazz    some class whose classloader should be used
+    * @param location some string representing the full or partial location of a file
+    * @return an input stream for the file
+    * @throws FileNotFoundException if no file could be found
+    */
+   public static InputStream getAsStream( final Class<?> clazz, final String location ) throws FileNotFoundException {
+      try {
+         //Get from classpath
+         final InputStream is = clazz.getClassLoader().getResourceAsStream( location );
+         if ( is != null ) {
+            return is;
+         }
+      } catch ( Exception e ) {
+         LOGGER.debug( e.getMessage() );
+      }
+      //Try to get from filestream, locating file rigorously
+      final File file = locateFile( clazz, location );
+      return new FileInputStream( file );
+   }
+
+   /**
+    * Where a Stream is usable, use {@link #getAsStream(String)} .
+    * Where a path String is usable, use {@link #getFullPath(String)} .
+    *
+    * @param location some string representing the full or partial location of a file
+    * @return a File if successfully located
+    * @throws FileNotFoundException if no file can be located
+    */
+   public static File locateFile( final String location ) throws FileNotFoundException {
+      return locateFile( FileLocator.class, location );
+   }
+
+   /**
+    * Where a Stream is usable, use {@link #getAsStream(String)} .
+    * Where a path String is usable, use {@link #getFullPath(String)} .
+    *
+    * @param clazz some class whose classloader should be used
+    * @param location some string representing the full or partial location of a file
+    * @return a File if successfully located
+    * @throws FileNotFoundException if no file can be located
+    */
+   public static File locateFile( final Class<?> clazz, final String location ) throws FileNotFoundException {
+      final String fullPath = getFullPath( clazz, location );
+      final File file = new File( fullPath );
+      if ( !file.exists() ) {
+         throw new FileNotFoundException( "No File at " + location );
+      }
+      return file;
+   }
 
    /**
     * Logs a debug message before returning the absolute path of a file derived from some relative path
@@ -93,6 +121,7 @@ final public class FileLocator {
          return file.getPath();
       }
    }
+
 
    /**
     * Attempts to discover the real location of a file pointed to by relativePath.
@@ -117,7 +146,34 @@ final public class FileLocator {
     * @throws FileNotFoundException if the file cannot be found
     */
    static public String getFullPath( final String relativePath ) throws FileNotFoundException {
-      final String fullPath = getFullPathQuiet( relativePath );
+      return getFullPathQuiet( FileLocator.class, relativePath );
+   }
+
+   /**
+    * Attempts to discover the real location of a file pointed to by relativePath.
+    * The search will be performed in the following order:
+    * <p>
+    * 1. By checking to see if the provided relative path is actually an absolute path
+    * 2. By checking within the ClassPath
+    * 3. By checking directly under the current working directory
+    * 4. By checking under $CTAKES_HOME
+    * 5. By traversing above the current working directory.  Useful when running under a module directory in an IDE
+    * Example:  cwd = /usr/bin/ctakes/ctakes-module , relativePath = ctakes-other-module/more/file.ext
+    * The directory above cwd /usr/bin/ctakes will be checked for containment of the relative path
+    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
+    * 6. By traversing above the current working directory and under a subdirectory ctakes/
+    * Example: cwd = /usr/bin/my_custom_ctakes/my_ctakes-module , relativePath = ctakes-other-module/more/file.ext
+    * The directory above cwd /usr/bin will be checked for containment of ctakes/ plus the relative path
+    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
+    * </p>
+    *
+    * @param clazz some class whose classloader should be used
+    * @param relativePath some relative path to a file
+    * @return the canonical path of the file or the absolute path of the file if the canonical cannot be made
+    * @throws FileNotFoundException if the file cannot be found
+    */
+   static public String getFullPath( final Class<?> clazz, final String relativePath ) throws FileNotFoundException {
+      final String fullPath = getFullPathQuiet( clazz, relativePath );
       if ( fullPath != null && !fullPath.isEmpty() ) {
          return fullPath;
       }
@@ -159,13 +215,39 @@ final public class FileLocator {
     * @return the canonical path of the file or the absolute path of the file if the canonical cannot be made
     */
    static public String getFullPathQuiet( final String relativePath ) {
+      return getFullPathQuiet( FileLocator.class, relativePath );
+   }
+
+   /**
+    * QUIETLY Attempts to discover the real location of a file pointed to by relativePath.
+    * The search will be performed in the following order:
+    * <p>
+    * 1. By checking to see if the provided relative path is actually an absolute path
+    * 2. By checking within the ClassPath
+    * 3. By checking directly under the current working directory
+    * 4. By checking under $CTAKES_HOME
+    * 5. By traversing above the current working directory.  Useful when running under a module directory in an IDE
+    * Example:  cwd = /usr/bin/ctakes/ctakes-module , relativePath = ctakes-other-module/more/file.ext
+    * The directory above cwd /usr/bin/ctakes will be checked for containment of the relative path
+    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
+    * 6. By traversing above the current working directory and under a subdirectory ctakes/
+    * Example: cwd = /usr/bin/my_custom_ctakes/my_ctakes-module , relativePath = ctakes-other-module/more/file.ext
+    * The directory above cwd /usr/bin will be checked for containment of ctakes/ plus the relative path
+    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
+    * </p>
+    *
+    * @param clazz some class whose classloader should be used
+    * @param relativePath some relative path to a file
+    * @return the canonical path of the file or the absolute path of the file if the canonical cannot be made
+    */
+   static public String getFullPathQuiet( final Class<?> clazz, final String relativePath ) {
       File file = new File( relativePath );
       if ( file.exists() ) {
          return createDiscoveredPath( relativePath, file, "without adjustment" );
       }
       // check in the classpath
       try {
-         file = locateOnClasspath( relativePath );
+         file = locateOnClasspath( clazz, relativePath );
          if ( file.exists() ) {
             return createDiscoveredPath( relativePath, file, "under Classpath" );
          }
@@ -178,12 +260,22 @@ final public class FileLocator {
       if ( file.exists() ) {
          return createDiscoveredPath( relativePath, file, "under Working Directory" );
       }
+      // in an ide the resources/ dir may not be in classpath
+      file = new File( cwd, "resources/" + relativePath );
+      if ( file.exists() ) {
+         return createDiscoveredPath( relativePath, file, "under Working Directory resources" );
+      }
       // Check under the $CTAKES_HOME location  Do this before messing with relative path traversal
       final String cTakesHome = System.getenv( CTAKES_HOME );
       if ( cTakesHome != null && !cTakesHome.isEmpty() ) {
          file = new File( cTakesHome, relativePath );
          if ( file.exists() ) {
             return createDiscoveredPath( relativePath, file, "under $CTAKES_HOME" );
+         }
+         // in an ide the resources/ dir may not be in classpath
+         file = new File( cTakesHome, "resources/" + relativePath );
+         if ( file.exists() ) {
+            return createDiscoveredPath( relativePath, file, "under $CTAKES_HOME resources" );
          }
       }
       // Users running projects out of an ide may have the module directory as cwd
@@ -206,14 +298,15 @@ final public class FileLocator {
    /**
     * Check the java classpath for the presence of a file pointed to by relativePath
     *
+    * @param clazz some class whose classloader should be used
     * @param relativePath some relative path to a file
     * @return a file in the classpath pointed to by relativePath - if found
     * @throws FileNotFoundException if the file is not found in the classpath
     * @throws URISyntaxException    if the discovered file cannot be converted into a URI
     */
-   private static File locateOnClasspath( final String relativePath )
+   private static File locateOnClasspath( final Class<?> clazz, final String relativePath )
          throws FileNotFoundException, URISyntaxException {
-      final ClassLoader classLoader = FileLocator.class.getClassLoader();
+      final ClassLoader classLoader = clazz.getClassLoader();
       final URL indexUrl = classLoader.getResource( relativePath );
       if ( indexUrl == null ) {
          throw new FileNotFoundException( relativePath );
@@ -224,5 +317,6 @@ final public class FileLocator {
       }
       return new File( indexUri );
    }
+
 
 }
