@@ -165,6 +165,12 @@
 			<directoryMode>755</directoryMode>
     	</fileSet>
 		<fileSet>
+			<directory>../ctakes-chunker-res/src/main/resources/org/apache/ctakes/chunker/pipeline</directory>
+			<outputDirectory>resources/org/apache/ctakes/chunker/pipeline</outputDirectory>
+			<fileMode>644</fileMode>
+			<directoryMode>755</directoryMode>
+		</fileSet>
+		<fileSet>
 			<directory>../ctakes-core-res/src/main/resources/org/apache/ctakes/core/pipeline</directory>
 			<fileMode>644</fileMode>
 			<directoryMode>755</directoryMode>
