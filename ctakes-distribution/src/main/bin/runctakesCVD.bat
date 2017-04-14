@@ -55,7 +55,7 @@ IF NOT "%~2"=="" GOTO MoreThanOneParam
 
 if exist "%CTAKES_HOME%\%1" (
   echo CVD will load AE "%CTAKES_HOME%\%1"
-  java -cp "%CTAKES_HOME%/desc/;%CTAKES_HOME%/resources/;%CTAKES_HOME%/lib/*" -Dlog4j.configuration=file:/%CTAKES_HOME%/config/log4j.xml -Xms512M -Xmx3g org.apache.uima.tools.cvd.CVD -desc %1
+  java -cp "%CTAKES_HOME%\desc\;%CTAKES_HOME%\resources\;%CTAKES_HOME%\lib\*" -Dlog4j.configuration=file:\%CTAKES_HOME%\config\log4j.xml -Xms512M -Xmx3g org.apache.uima.tools.cvd.CVD -desc %1
 ) else (
   echo Unable to find descriptor "%1"
   GOTO NoParam
@@ -65,7 +65,7 @@ GOTO ChangeBack
 
 :NoParam
   echo Use the GUI to select the AE to load
-  java -cp "%CTAKES_HOME%/desc/;%CTAKES_HOME%/resources/;%CTAKES_HOME%/lib/*" -Dlog4j.configuration=file:/%CTAKES_HOME%/config/log4j.xml -Xms512M -Xmx3g org.apache.uima.tools.cvd.CVD
+  java -cp "%CTAKES_HOME%\desc\;%CTAKES_HOME%\resources\;%CTAKES_HOME%\lib\*" -Dlog4j.configuration=file:\%CTAKES_HOME%\config\log4j.xml -Xms512M -Xmx3g org.apache.uima.tools.cvd.CVD
 GOTO ChangeBack
 
 

@@ -47,10 +47,10 @@ goto end
 if exist "%JAVA_HOME%\bin\java.exe" set PATH=%JAVA_HOME%\bin;%PATH%
 
 cd %CTAKES_HOME%
-set CLASS_PATH=%CTAKES_HOME%/desc/;%CTAKES_HOME%/resources/;%CTAKES_HOME%/lib/*
-set LOG4J_PARM=-Dlog4j.configuration=file:/%CTAKES_HOME%/config/log4j.xml
+set CLASS_PATH=%CTAKES_HOME%\desc\;%CTAKES_HOME%\resources\;%CTAKES_HOME%\lib\*
+set LOG4J_PARM=-Dlog4j.configuration=file:\%CTAKES_HOME%\config\log4j.xml
 set PIPE_RUNNER=org.apache.ctakes.core.pipeline.PiperFileRunner
-set FAST_PIPER=resources/org/apache/ctakes/clinical/pipeline/DefaultFastPipeline.piper
+set FAST_PIPER=resources\org\apache\ctakes\clinical\pipeline\DefaultFastPipeline.piper
 java -cp "%CLASS_PATH%" %LOG4J_PARM% -Xms512M -Xmx3g %PIPE_RUNNER% -p %FAST_PIPER% %*
 cd %CURRENT_DIR%
 
