@@ -49,6 +49,6 @@ final public class ConfigParameterConstants {
     */
    static public final String PARAM_LOOKUP_XML = "LookupXml";
    static public final String OPTION_LOOKUP_XML = "-l";
-   static public final String DESC_LOOKUP_XML = "Directory for all output files.";
+   static public final String DESC_LOOKUP_XML = "Path to the xml file containing information for dictionary lookup configuration.";
 
 }
