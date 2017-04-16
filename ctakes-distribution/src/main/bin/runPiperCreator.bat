@@ -32,12 +32,12 @@
 set CURRENT_DIR=%cd%
 if not "%CTAKES_HOME%" == "" goto gotHome
 set CTAKES_HOME=%CURRENT_DIR%
-if exist "%CTAKES_HOME%\bin\runctakesGUI.bat" goto okHome
+if exist "%CTAKES_HOME%\bin\runPiperCreator.bat" goto okHome
 cd ..
 set CTAKES_HOME=%cd%
 
 :gotHome
-if exist "%CTAKES_HOME%\bin\runctakesGUI.bat" goto okHome
+if exist "%CTAKES_HOME%\bin\runPiperCreator.bat" goto okHome
 echo The CTAKES_HOME environment variable is not defined correctly
 echo This environment variable is needed to run this program
 goto end
