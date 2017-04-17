@@ -20,7 +20,7 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
 @PipeBitInfo(
-		name = "Cross- Sentence E-E TLinker",
+		name = "E-E Cross- Sentence TLinker",
 		description = "Creates Event - Event TLinks across sentences.",
 		dependencies = { PipeBitInfo.TypeProduct.EVENT, PipeBitInfo.TypeProduct.TIMEX },
 		products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }

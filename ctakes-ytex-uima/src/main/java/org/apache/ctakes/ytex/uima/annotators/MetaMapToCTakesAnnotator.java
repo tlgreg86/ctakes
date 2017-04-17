@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.refsem.OntologyConcept;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
@@ -58,6 +59,13 @@ import org.apache.uima.resource.ResourceInitializationException;
  * @author vijay
  * 
  */
+@PipeBitInfo(
+		name = "Metamap Annotation xlater",
+		description = "Create MedicationEventMention/EntityMention annotations for each set of" +
+				" CandidateConcept annotations that span the same text.",
+		role = PipeBitInfo.Role.SPECIAL,
+		products = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class MetaMapToCTakesAnnotator extends JCasAnnotator_ImplBase {
 	private static final Log log = LogFactory
 			.getLog(MetaMapToCTakesAnnotator.class);

@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -46,6 +47,11 @@ import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 
+@PipeBitInfo(
+		name = "E-T Baseline Scorer",
+		description = "Prints Event - Time Scores ...",
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.EVENT, PipeBitInfo.TypeProduct.TIMEX }
+)
 public class F1BaselineEventTimeRelationAnnotator extends
 		RelationExtractorAnnotator {
 

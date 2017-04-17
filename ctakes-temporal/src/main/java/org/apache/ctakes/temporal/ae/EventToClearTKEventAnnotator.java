@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.temporal.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -34,6 +35,11 @@ import org.apache.uima.fit.util.JCasUtil;
  * @author Chen Lin
  * 
  */
+@PipeBitInfo(
+		name = "ClearTK Event Creator",
+		description = "Creates ClearTK Events from cTAKES Events.",
+		dependencies = { PipeBitInfo.TypeProduct.EVENT }
+)
 public class EventToClearTKEventAnnotator extends JCasAnnotator_ImplBase {
 
 	public EventToClearTKEventAnnotator() {

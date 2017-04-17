@@ -21,6 +21,7 @@ package org.apache.ctakes.relationextractor.data;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.DegreeOfRelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.LocationOfRelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator.IdentifiedAnnotationPair;
@@ -51,6 +52,14 @@ import com.google.common.collect.Multiset;
  * @author dmitriy dligach
  *
  */
+@PipeBitInfo(
+		name = "Gold Stats Calculator",
+		description = "Count various stats such as token and relation counts based on the gold standard data.",
+		role = PipeBitInfo.Role.SPECIAL,
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.BASE_TOKEN,
+				PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.GENERIC_RELATION,
+				PipeBitInfo.TypeProduct.LOCATION_RELATION, PipeBitInfo.TypeProduct.DEGREE_RELATION }
+)
 public class GoldAnnotationStatsCalculator extends JCasAnnotator_ImplBase {
 
 	public static final String goldViewName = "GoldView";

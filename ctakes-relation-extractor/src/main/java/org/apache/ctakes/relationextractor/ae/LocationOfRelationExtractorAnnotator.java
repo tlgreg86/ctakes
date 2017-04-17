@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
@@ -40,6 +41,13 @@ import org.apache.uima.fit.util.JCasUtil;
  * Identifies Location_Of relations between {@link EventMention}s and
  * {@link AnatomicalSiteMention}s.
  */
+@PipeBitInfo(
+		name = "Location of Annotator",
+		description = "Annotates Location Of relations.",
+		role = PipeBitInfo.Role.ANNOTATOR,
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+		products = { PipeBitInfo.TypeProduct.LOCATION_RELATION }
+)
 public class LocationOfRelationExtractorAnnotator extends RelationExtractorAnnotator {
 
 	@Override

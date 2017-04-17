@@ -35,7 +35,7 @@ import java.util.*;
 //import org.apache.ctakes.typesystem.type.textspan.Paragraph;
 
 @PipeBitInfo(
-      name = "Consecutive Sentence E-E TLinker",
+      name = "E-E Consecutive Sentence TLinker",
       description = "Creates Event - Event TLinks between consecutive sentences.",
       dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
                        PipeBitInfo.TypeProduct.EVENT },

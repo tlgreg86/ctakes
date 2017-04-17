@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.ctakes.assertion.util.AssertionConst;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -53,6 +54,10 @@ import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.fit.util.JCasUtil;
 
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.COREFERENCE_RELATION;
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.MARKABLE;
+
 /**
  * 
  * Read in gold annotations from XMI and create a view within the current CAS, and copy the 
@@ -61,6 +66,14 @@ import org.apache.uima.fit.util.JCasUtil;
  * gold standard, using XMI that had already been created by the Apache cTAKES 3.0 gold standard reader. 
  *
  */
+@PipeBitInfo(
+		name = "Gold View Merger",
+		description = "Read in gold annotations from XMI and create a view within the current CAS, and copy the" +
+				" gold annotations into the new view within the current CAS.",
+		role = PipeBitInfo.Role.SPECIAL,
+		dependencies = { DOCUMENT_ID },
+		products = { IDENTIFIED_ANNOTATION }
+)
 public class MergeGoldViewFromOneCasIntoInitialViewOfAnotherCas extends JCasAnnotator_ImplBase {
 
 	static final Logger LOGGER = Logger.getLogger(MergeGoldViewFromOneCasIntoInitialViewOfAnotherCas.class.getName());

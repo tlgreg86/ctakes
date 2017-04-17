@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator.IdentifiedAnnotationPair;
 import org.apache.ctakes.temporal.nn.data.ArgContextProvider;
@@ -36,6 +37,13 @@ import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.collect.Lists;
 
+@PipeBitInfo(
+		name = "E-T Token TLinker",
+		description = "Creates Event - Time TLinks from Token type.",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+				PipeBitInfo.TypeProduct.EVENT, PipeBitInfo.TypeProduct.TIMEX },
+		products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class EventTimeTokenBasedAnnotator extends CleartkAnnotator<String> {
 
 	public static final String NO_RELATION_CATEGORY = "none";

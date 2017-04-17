@@ -5,12 +5,14 @@ import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.ScanInterruptedException;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.SubclassMatchProcessor;
 import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
+import org.apache.ctakes.core.util.DotLogger;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_component.Annotator_ImplBase;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.collection.CasConsumer_ImplBase;
 import org.apache.uima.collection.CollectionReader_ImplBase;
 
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -74,12 +76,12 @@ public enum PipeBitFinder {
       // Don't want super-primitive cleartk or uima classes
       final FastClasspathScanner scanner = new FastClasspathScanner();
       LOGGER.info( "Starting Scan for Pipeline Bits" );
-      try {
+      try ( DotLogger dotter = new DotLogger() ){
          scanner.matchSubclassesOf( CollectionReader_ImplBase.class, readerAdder )
                .matchSubclassesOf( Annotator_ImplBase.class, annotatorAdder )
                .matchSubclassesOf( CasConsumer_ImplBase.class, writerAdder );
          final ScanResult result = scanner.scan();
-      } catch ( ScanInterruptedException siE ) {
+      } catch ( ScanInterruptedException | IOException siE ) {
          LOGGER.error( siE.getMessage() );
       }
       // Get rid of the abstract classes
