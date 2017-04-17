@@ -33,14 +33,10 @@
 		<groupId>org.apache.ctakes</groupId>
 		<artifactId>ctakes-assertion-res</artifactId>
 	</dependency>	    
-    <dependency>
-      <groupId>org.apache.ctakes</groupId>
-      <artifactId>ctakes-dictionary-lookup</artifactId>
-    </dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-core</artifactId>
-		</dependency>
+	<dependency>
+		<groupId>org.apache.ctakes</groupId>
+		<artifactId>ctakes-core</artifactId>
+	</dependency>
     <dependency>
       <groupId>org.apache.ctakes</groupId>
       <artifactId>ctakes-constituency-parser</artifactId>
