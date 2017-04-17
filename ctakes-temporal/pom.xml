@@ -151,29 +151,6 @@
 		can't be used from the classpath -->
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>unpack</id>
-						<phase>initialize</phase>
-						<goals>
-							<goal>unpack</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>net.sourceforge.ctakesresources</groupId>
-									<artifactId>ctakes-resources-umls2011ab</artifactId>
-									<version>4.0.0</version>
-								</artifactItem>
-							</artifactItems>
-							<outputDirectory>${project.build.directory}/unpacked</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
