@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.apache.ctakes.assertion.eval.AssertionEvaluation.Options;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.relation.Relation;
@@ -79,6 +80,12 @@ import org.xml.sax.SAXException;
  * @author Philip Ogren
  */
 
+@PipeBitInfo(
+		name = "Judged Attribute XMI Writer",
+		description = "Writes XMI File based upon judged attributes.",
+		role = PipeBitInfo.Role.WRITER,
+		dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class JudgeAttributeInstances extends JCasConsumer_ImplBase {
 
 	/**

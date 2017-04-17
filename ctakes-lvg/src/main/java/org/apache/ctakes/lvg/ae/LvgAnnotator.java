@@ -41,6 +41,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.lvg.resource.LvgCmdApiResource;
 import org.apache.ctakes.lvg.resource.LvgCmdApiResourceImpl;
@@ -73,6 +74,11 @@ import org.apache.uima.fit.factory.ExternalResourceFactory;
  *         the cache, this may be bad if it is misspelled in the case where the
  *         misspelling is a word in the lexicon.
  */
+@PipeBitInfo(
+		name = "LVG Annotator",
+		description = "Adds cononical form of words.",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.BASE_TOKEN }
+)
 public class LvgAnnotator extends JCasAnnotator_ImplBase {
   public static final String[] defaultExclusionWords = {"And", "and", "By", "by", "For", "for", "In", "in", "Of", "of", "On", "on", "The", "the", "To", "to", "With", "with"};
   public static final String[] defaultTreebankMap = {"adj|JJ", "adv|RB", "aux|AUX", "compl|CS", "conj|CC", "det|DET", "modal|MD", "noun|NN", "prep|IN", "pron|PRP", "verb|VB"};

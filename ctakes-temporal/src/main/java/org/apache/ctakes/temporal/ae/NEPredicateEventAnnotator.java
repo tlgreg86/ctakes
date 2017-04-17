@@ -20,6 +20,7 @@ package org.apache.ctakes.temporal.ae;
 
 import java.io.File;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -34,6 +35,12 @@ import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
 
+@PipeBitInfo(
+		name = "NE Predicate Annotator",
+		description = "Creates Events from Identified Annotations and Predicates.",
+		dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+		products = { PipeBitInfo.TypeProduct.EVENT }
+)
 public class NEPredicateEventAnnotator extends TemporalEntityAnnotator_ImplBase {
 
 	public NEPredicateEventAnnotator() {

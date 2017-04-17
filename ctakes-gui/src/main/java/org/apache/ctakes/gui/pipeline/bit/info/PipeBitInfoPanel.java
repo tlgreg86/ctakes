@@ -39,8 +39,9 @@ final public class PipeBitInfoPanel extends BitInfoPanel {
    }
 
    @Override
-   protected void setBitName( final String text ) {
+   protected void setBitName( final String text, final String toolTip ) {
       ((JLabel)_name).setText( text );
+      _name.setToolTipText( toolTip );
    }
 
    @Override
@@ -56,17 +57,20 @@ final public class PipeBitInfoPanel extends BitInfoPanel {
       }
       _pipeBitInfo = info;
       _pipeBitClass = pipeBitClass;
-      setBitName( info.name() );
-      _description.setText( info.description() );
-      _dependencies.setText( Arrays.stream( info.dependencies() )
+      setBitName( info.name(), pipeBitClass.getName() );
+      setLabelText( _description, info.description(), _pipeBitInfo.description() );
+      final String dependencies = Arrays.stream( _pipeBitInfo.dependencies() )
             .map( PipeBitInfo.TypeProduct::toString )
-            .collect( Collectors.joining( ", " ) ) );
-      _usables.setText( Arrays.stream( info.usables() )
+            .collect( Collectors.joining( ", " ) );
+      setLabelText( _dependencies, dependencies, dependencies );
+      final String usables = Arrays.stream( _pipeBitInfo.usables() )
             .map( PipeBitInfo.TypeProduct::toString )
-            .collect( Collectors.joining( ", " ) ) );
-      _products.setText( Arrays.stream( info.products() )
+            .collect( Collectors.joining( ", " ) );
+      setLabelText( _usables, usables, usables );
+      final String products = Arrays.stream( _pipeBitInfo.products() )
             .map( PipeBitInfo.TypeProduct::toString )
-            .collect( Collectors.joining( ", " ) ) );
+            .collect( Collectors.joining( ", " ) );
+      setLabelText( _products, products, products );
       final ParameterHolder holder = new DefaultParameterHolder( pipeBitClass );
       _parameterTableModel.setParameterHolder( holder );
       _parameterInfoPanel.setParameterHolder( holder );

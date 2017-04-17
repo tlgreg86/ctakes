@@ -3,6 +3,7 @@ package org.apache.ctakes.coreference.ae;
 import java.util.Comparator;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
@@ -17,6 +18,12 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.util.ViewUriUtil;
 
+@PipeBitInfo(
+      name = "Markable Head Tree Creator",
+      description = "Annotates Markables.",
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID,
+            PipeBitInfo.TypeProduct.MARKABLE, PipeBitInfo.TypeProduct.DEPENDENCY_NODE }
+)
 public class MarkableHeadTreeCreator extends JCasAnnotator_ImplBase {
 
   private static final String MAP_KEY = "MarkableHeadMap";

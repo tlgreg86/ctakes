@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.syntax.TerminalTreebankNode;
 import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -38,6 +39,12 @@ import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 
+@PipeBitInfo(
+      name = "Identified Annotation Expander",
+      description = "Enlarges the text span of an identified annotation based upon part of speech.",
+      role = PipeBitInfo.Role.SPECIAL,
+      dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class IdentifiedAnnotationExpander extends JCasAnnotator_ImplBase {
 
   @Override

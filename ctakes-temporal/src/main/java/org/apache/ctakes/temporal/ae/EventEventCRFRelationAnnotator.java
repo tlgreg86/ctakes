@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator.IdentifiedAnnotationPair;
 import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtractor;
@@ -99,6 +100,13 @@ import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.collect.Lists;
 
+@PipeBitInfo(
+		name = "E-E CRF TLinker",
+		description = "Creates Event - Event TLinks with Conditional Random Field.",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+				PipeBitInfo.TypeProduct.EVENT },
+		products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class EventEventCRFRelationAnnotator extends TemporalSequenceAnnotator_ImplBase {
 
 	public static final String NO_RELATION_CATEGORY = "-NONE-";

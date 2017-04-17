@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator.IdentifiedAnnotationPair;
 import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtractor;
@@ -89,6 +90,13 @@ import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.collect.Lists;
 
+@PipeBitInfo(
+		name = "E-E Gold TLinker",
+		description = "Creates Event - Event TLinks from the Gold View.",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+				PipeBitInfo.TypeProduct.EVENT },
+		products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class EventEventRelationGoldContainerAnnotator extends RelationExtractorAnnotator {
 
 	public static AnalysisEngineDescription createDataWriterDescription(

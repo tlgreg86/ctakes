@@ -39,7 +39,7 @@ import java.io.OutputStream;
  * @author Mayo Clinic
  */
 @PipeBitInfo(
-      name = "XMI Writer (CasConsumer)",
+      name = "XMI Writer 2",
       description = "Writes XMI files with full representation of input text and all extracted information.",
       role = PipeBitInfo.Role.WRITER,
       dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID }

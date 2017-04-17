@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterAgreementFeaturesExtractor;
 import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterAttributeFeaturesExtractor;
@@ -62,6 +63,16 @@ import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.cleartk.ml.svmlight.rank.QidInstance;
 import org.cleartk.util.ViewUriUtil;
 
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.COREFERENCE_RELATION;
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.MARKABLE;
+
+@PipeBitInfo(
+      name = "Coreference (Cluster Rank)",
+      description = "Coreference annotator using mention-synchronous paradigm.",
+      dependencies = { BASE_TOKEN, SENTENCE, SECTION, PARAGRAPH, IDENTIFIED_ANNOTATION, MARKABLE },
+      products = { COREFERENCE_RELATION }
+)
 public class MentionClusterRankingCoreferenceAnnotator extends CleartkAnnotator<Double> {
   public static final String NO_RELATION_CATEGORY = "-NONE-";
   public static final String CLUSTER_RELATION_CATEGORY = "CoreferenceClusterMember";

@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
@@ -75,6 +76,12 @@ import org.apache.uima.resource.ResourceInitializationException;
 
 import opennlp.tools.postag.POSModel;
 
+@PipeBitInfo(
+		name = "Part of Speech Tagger",
+		description = "Annotate Parts of Speech.",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+				PipeBitInfo.TypeProduct.BASE_TOKEN, }
+)
 public class POSTagger extends JCasAnnotator_ImplBase {
 
 	// LOG4J logger based on class name

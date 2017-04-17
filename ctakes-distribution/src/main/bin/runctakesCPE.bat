@@ -43,7 +43,7 @@ goto end
 if exist "%JAVA_HOME%\bin\java.exe" set PATH=%JAVA_HOME%\bin;%PATH%
 @set PATH=%PATH%;%CTAKES_HOME%\lib\auth\x64
 cd %CTAKES_HOME%
-java -cp "%CTAKES_HOME%/desc/;%CTAKES_HOME%/resources/;%CTAKES_HOME%/lib/*" -Dlog4j.configuration=file:/%CTAKES_HOME%/config/log4j.xml -Xms512M -Xmx3g org.apache.uima.tools.cpm.CpmFrame
+java -cp "%CTAKES_HOME%\desc\;%CTAKES_HOME%\resources\;%CTAKES_HOME%\lib\*" -Dlog4j.configuration=file:\%CTAKES_HOME%\config\log4j.xml -Xms512M -Xmx3g org.apache.uima.tools.cpm.CpmFrame
 cd %CURRENT_DIR%
 :end
 ENDLOCAL

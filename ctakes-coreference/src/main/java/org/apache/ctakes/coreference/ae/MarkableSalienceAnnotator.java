@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.coreference.ae.features.salience.ClinicalFeatureExtractor;
 import org.apache.ctakes.coreference.ae.features.salience.GrammaticalRoleFeatureExtractor;
 import org.apache.ctakes.coreference.ae.features.salience.MorphosyntacticFeatureExtractor;
@@ -26,6 +27,14 @@ import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
+@PipeBitInfo(
+      name = "Markable Salience Annotator",
+      description = "Annotates Markable Salience.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.PARAGRAPH, PipeBitInfo.TypeProduct.SENTENCE,
+            PipeBitInfo.TypeProduct.MARKABLE, PipeBitInfo.TypeProduct.DEPENDENCY_NODE },
+      usables = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class MarkableSalienceAnnotator extends CleartkAnnotator<Boolean> {
 
   List<FeatureExtractor1<Markable>> extractors = new ArrayList<>();

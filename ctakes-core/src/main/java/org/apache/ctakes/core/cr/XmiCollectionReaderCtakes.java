@@ -39,7 +39,7 @@ import java.util.ArrayList;
  * A simple collection reader that reads CASes in XMI format from a directory in the filesystem.
  */
 @PipeBitInfo(
-      name = "XMI in Dir Reader",
+      name = "XMI in Dir Reader (1)",
       description = "Reads document texts and annotations from XMI files in a directory.",
       role = PipeBitInfo.Role.READER,
       products = { PipeBitInfo.TypeProduct.DOCUMENT_ID }

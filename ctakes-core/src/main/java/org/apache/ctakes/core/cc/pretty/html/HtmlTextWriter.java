@@ -4,6 +4,7 @@ package org.apache.ctakes.core.cc.pretty.html;
 import org.apache.ctakes.core.cc.pretty.SemanticGroup;
 import org.apache.ctakes.core.cc.pretty.textspan.DefaultTextSpan;
 import org.apache.ctakes.core.cc.pretty.textspan.TextSpan;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.OntologyConceptUtil;
@@ -30,12 +31,21 @@ import java.util.stream.Collectors;
 
 import static org.apache.ctakes.core.config.ConfigParameterConstants.DESC_OUTPUTDIR;
 import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPUTDIR;
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.TEMPORAL_RELATION;
 
 /**
  * @author SPF , chip-nlp
  * @version %I%
  * @since 9/8/2016
  */
+@PipeBitInfo(
+      name = "HTML Writer",
+      description = "Writes html files with document text and simple markups (Semantic Group, CUI, Negation).",
+      role = PipeBitInfo.Role.WRITER,
+      dependencies = { DOCUMENT_ID, SENTENCE, BASE_TOKEN },
+      usables = { DOCUMENT_ID_PREFIX, IDENTIFIED_ANNOTATION, EVENT, TIMEX, TEMPORAL_RELATION }
+)
 final public class HtmlTextWriter extends CasConsumer_ImplBase {
 
    static private final Logger LOGGER = Logger.getLogger( "HtmlTextWriter" );

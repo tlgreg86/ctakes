@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
@@ -73,6 +74,13 @@ import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.collect.Lists;
 
+@PipeBitInfo(
+		name = "E-T TLinker",
+		description = "Creates Event - Time TLinks.",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+				PipeBitInfo.TypeProduct.EVENT, PipeBitInfo.TypeProduct.TIMEX },
+		products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 
 	public static AnalysisEngineDescription createDataWriterDescription(

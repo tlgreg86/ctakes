@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
@@ -50,6 +51,12 @@ import org.apache.ctakes.core.util.Mapper;
  * @author stephen wu
  *
  */
+@PipeBitInfo(
+		name = "Knowtator XML Reader (Generic)",
+		description = "Read named entity annotations from knowtator xml files into the CAS.",
+		role = PipeBitInfo.Role.SPECIAL,
+		products = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.GENERIC_RELATION }
+)
 public class GoldEntityAndAttributeReader extends JCasAnnotator_ImplBase {
 
 	// paramater that should contain the path to knowtator xml files

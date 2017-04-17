@@ -21,6 +21,7 @@ package org.apache.ctakes.relationextractor.ae;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.ManifestationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
@@ -45,6 +46,13 @@ import org.apache.uima.jcas.tcas.Annotation;
  * arg1: disease/disorder, sign/symptom
  * arg2: disease/disorder
  */
+@PipeBitInfo(
+      name = "Manifestation of Annotator",
+      description = "Annotates Manifestation Of relations.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+      products = { PipeBitInfo.TypeProduct.GENERIC_RELATION }
+)
 public class ManifestationOfRelationExtractorAnnotator extends RelationExtractorAnnotator {
 
   @Override

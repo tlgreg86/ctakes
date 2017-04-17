@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.clinicalpipeline.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.WordTokenUtil;
 import org.apache.ctakes.typesystem.type.refsem.OntologyConcept;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -47,6 +48,11 @@ import java.util.Set;
  *
  * @author Mayo Clinic
  */
+@PipeBitInfo(
+      name = "Extraction Prepper",
+      description = "Assigns IDs and Canonical text to Identified Annotations.",
+      dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class ExtractionPrepAnnotator extends JCasAnnotator_ImplBase {
    private String iv_annotVerPropKey;
    private int iv_annotVer;

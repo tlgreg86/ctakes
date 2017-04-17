@@ -21,6 +21,7 @@ package org.apache.ctakes.relationextractor.ae;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.DegreeOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
@@ -36,6 +37,13 @@ import org.apache.uima.jcas.tcas.Annotation;
  * Identifies Degree_Of relations between {@link EventMention}s and
  * {@link Modifier}s.
  */
+@PipeBitInfo(
+      name = "Degree of Annotator",
+      description = "Annotates Degree Of relations.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+      products = { PipeBitInfo.TypeProduct.DEGREE_RELATION }
+)
 public class DegreeOfRelationExtractorAnnotator extends RelationExtractorAnnotator {
 
   @Override

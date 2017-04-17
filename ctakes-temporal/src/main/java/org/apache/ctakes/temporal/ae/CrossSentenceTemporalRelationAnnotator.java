@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.duration.Utils;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
@@ -18,6 +19,12 @@ import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
+@PipeBitInfo(
+		name = "E-E Cross- Sentence TLinker",
+		description = "Creates Event - Event TLinks across sentences.",
+		dependencies = { PipeBitInfo.TypeProduct.EVENT, PipeBitInfo.TypeProduct.TIMEX },
+		products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class CrossSentenceTemporalRelationAnnotator extends JCasAnnotator_ImplBase {
 
 	public static boolean isValidDate(String inDate) {

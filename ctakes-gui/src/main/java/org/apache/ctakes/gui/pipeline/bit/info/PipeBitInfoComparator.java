@@ -1,6 +1,7 @@
 package org.apache.ctakes.gui.pipeline.bit.info;
 
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.pipeline.PipeBitInfoUtil;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -37,6 +38,10 @@ public enum PipeBitInfoComparator implements Comparator<PipeBitInfo> {
    public int compare( final PipeBitInfo info1, final PipeBitInfo info2 ) {
       if ( info1.role() != info2.role() ) {
          return compareByRole( info1, info2 );
+      }
+
+      if ( PipeBitInfoUtil.isUnknown( info1 ) != PipeBitInfoUtil.isUnknown( info2 ) ) {
+         return PipeBitInfoUtil.isUnknown( info1 ) ? 1 : -1;
       }
       final int depends = compareByDependency( info1, info2 );
       if ( depends != 0 ) {

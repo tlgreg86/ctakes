@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.FSIterator;
@@ -36,6 +37,11 @@ import org.apache.uima.util.ProcessTrace;
 
 import org.apache.ctakes.typesystem.type.syntax.TopTreebankNode;
 
+@PipeBitInfo(
+		name = "Parser Tree Writer",
+		description = "Writes information about TreeBank Nodes to file.",
+		role = PipeBitInfo.Role.WRITER
+)
 public class ParserTreeWriterConsumer extends CasConsumer_ImplBase {
 
 	PrintWriter out = null;

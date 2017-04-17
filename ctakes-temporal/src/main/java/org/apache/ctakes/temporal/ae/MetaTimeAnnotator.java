@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.eval.THYMEData;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
@@ -49,6 +50,12 @@ import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
 
+@PipeBitInfo(
+      name = "Meta Time Annotator",
+      description = "...",
+      dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+            PipeBitInfo.TypeProduct.BASE_TOKEN, PipeBitInfo.TypeProduct.TIMEX }
+)
 public class MetaTimeAnnotator extends TemporalSequenceAnnotator_ImplBase {
 
   private BioChunking<BaseToken, TimeMention> timeChunking;

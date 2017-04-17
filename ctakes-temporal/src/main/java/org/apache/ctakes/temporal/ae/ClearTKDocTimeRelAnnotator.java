@@ -41,7 +41,7 @@ import java.util.Map;
  * 
  */
 @PipeBitInfo(
-      name = "ClearTK DocTimeRel",
+      name = "DocTimeRel ClearTK Annotator",
       description = "Annotates event relativity to document creation time.",
       dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.EVENT }
 )

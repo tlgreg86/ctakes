@@ -26,6 +26,7 @@ import java.util.List;
 //import java.util.Map;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.ae.feature.ClosestVerbExtractor;
 import org.apache.ctakes.temporal.ae.feature.ContinuousTextExtractor;
 import org.apache.ctakes.temporal.ae.feature.CoveredTextToValuesExtractor;
@@ -77,6 +78,12 @@ import com.google.common.base.Charsets;
 
 //import com.google.common.base.Charsets;
 
+@PipeBitInfo(
+		name = "DocTimeRel Annotator",
+		description = "Annotates event relativity to document creation time.",
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE,
+				PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.EVENT }
+)
 public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
 
 	public static AnalysisEngineDescription createDataWriterDescription(

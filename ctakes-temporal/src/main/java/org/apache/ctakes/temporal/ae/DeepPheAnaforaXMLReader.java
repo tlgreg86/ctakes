@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
@@ -47,6 +48,12 @@ import org.jdom2.input.SAXBuilder;
 
 import com.google.common.collect.Lists;
 
+@PipeBitInfo(
+      name = "Anafora XML Reader (DeepPhe)",
+      description = "Reads annotations from DeepPhe schema Anafora XML files in a directory.",
+      role = PipeBitInfo.Role.SPECIAL,
+      products = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class DeepPheAnaforaXMLReader extends JCasAnnotator_ImplBase {
   private static Logger LOGGER = Logger.getLogger(DeepPheAnaforaXMLReader.class);
 

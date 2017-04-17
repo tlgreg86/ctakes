@@ -19,8 +19,23 @@
 ::
 ::
 ::   Runs the pipeline in the piper file specified by -p {piperfile}
-::   with any other provided parameters
+::   with any other provided parameters.  Standard parameters are:
+::   -i , --inputDir {inputDirectory}
+::   -o , --outputDir {outputDirectory}
+::   -s , --subDir {subDirectory}  (for i/o)
+::   --xmiOut {xmiOutputDirectory} (if different from -o)
+::   -l , --lookupXml {dictionaryConfigFile} (fast only)
+::   --user {umlsUsername}
+::   --pass {umlsPassword}
+::   -? , --help
 ::
+::   Other parameters may be declared in the piper file using the cli command:
+::     cli {parameterName}={singleCharacter}
+::   For instance, for declaration of ParagraphAnnotator path to regex file optional parameter PARAGRAPH_TYPES_PATH,
+::   in the custom piper file add the line:
+::     cli PARAGRAPH_TYPES_PATH=t
+::   and when executing this script use:
+::      runPiperFile -p path/to/my/custom.piper -t path/to/my/custom.bsv  ...
 ::
 :: Requires JAVA JDK 1.8+
 ::
@@ -45,8 +60,8 @@ goto end
 if exist "%JAVA_HOME%\bin\java.exe" set PATH=%JAVA_HOME%\bin;%PATH%
 
 cd %CTAKES_HOME%
-set CLASS_PATH=%CTAKES_HOME%/desc/;%CTAKES_HOME%/resources/;%CTAKES_HOME%/lib/*
-set LOG4J_PARM=-Dlog4j.configuration=file:/%CTAKES_HOME%/config/log4j.xml
+set CLASS_PATH=%CTAKES_HOME%\desc\;%CTAKES_HOME%\resources\;%CTAKES_HOME%\lib\*
+set LOG4J_PARM=-Dlog4j.configuration=file:\%CTAKES_HOME%\config\log4j.xml
 set PIPE_RUNNER=org.apache.ctakes.core.pipeline.PiperFileRunner
 java -cp "%CLASS_PATH%" %LOG4J_PARM% -Xms512M -Xmx3g %PIPE_RUNNER% %*
 cd %CURRENT_DIR%

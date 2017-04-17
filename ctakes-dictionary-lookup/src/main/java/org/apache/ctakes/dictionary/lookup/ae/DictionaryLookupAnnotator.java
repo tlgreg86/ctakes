@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileResource;
 import org.apache.ctakes.dictionary.lookup.MetaDataHit;
 import org.apache.ctakes.dictionary.lookup.algorithms.LookupAlgorithm;
@@ -50,6 +51,12 @@ import org.apache.uima.resource.ResourceInitializationException;
  * 
  * @author Mayo Clinic
  */
+@PipeBitInfo(
+		name = "Dictionary Lookup (Old)",
+		description = "Annotates clinically-relevant terms.  This is an older, slower dictionary lookup implementation.",
+		dependencies = { PipeBitInfo.TypeProduct.CHUNK, PipeBitInfo.TypeProduct.BASE_TOKEN },
+		products = PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION
+)
 public class DictionaryLookupAnnotator extends JCasAnnotator_ImplBase
 {
 	// LOG4J logger based on class name

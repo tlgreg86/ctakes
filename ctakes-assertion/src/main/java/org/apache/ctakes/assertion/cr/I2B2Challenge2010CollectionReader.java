@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
 @PipeBitInfo(
       name = "I2B2 Challenge Reader",
       description = "Reads entities and their properties from file. ",
-      role = PipeBitInfo.Role.READER,
+      role = PipeBitInfo.Role.SPECIAL,
       products = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
 )
 public class I2B2Challenge2010CollectionReader extends CollectionReader_ImplBase {

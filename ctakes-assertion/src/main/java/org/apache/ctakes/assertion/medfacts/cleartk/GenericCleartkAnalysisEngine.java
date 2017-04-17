@@ -26,6 +26,7 @@ import org.apache.ctakes.assertion.attributes.features.GenericFeaturesExtractor;
 import org.apache.ctakes.assertion.attributes.features.selection.Chi2FeatureSelection;
 import org.apache.ctakes.assertion.attributes.features.selection.FeatureSelection;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ContextWordWindowExtractor;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -35,6 +36,11 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.Instance;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
+@PipeBitInfo(
+		name = "Generic Status ClearTK Annotator",
+		description = "Annotates the Generic status for Identified Annotations.",
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class GenericCleartkAnalysisEngine extends
 		AssertionCleartkAnalysisEngine {
 

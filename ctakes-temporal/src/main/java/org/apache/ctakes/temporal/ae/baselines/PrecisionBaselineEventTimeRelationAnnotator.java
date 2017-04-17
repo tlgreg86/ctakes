@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -46,6 +47,14 @@ import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 
+@PipeBitInfo(
+      name = "E-T Precision TLinker",
+      description = "Creates Event - Time relations.",
+      role = PipeBitInfo.Role.ANNOTATOR,
+      dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION,
+            PipeBitInfo.TypeProduct.EVENT, PipeBitInfo.TypeProduct.TIMEX },
+      products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class PrecisionBaselineEventTimeRelationAnnotator extends RelationExtractorAnnotator {
 
   public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)

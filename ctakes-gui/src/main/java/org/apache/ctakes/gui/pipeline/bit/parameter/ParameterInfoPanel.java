@@ -80,11 +80,24 @@ public class ParameterInfoPanel extends JPanel {
    }
 
    private void clear() {
-      _name.setText( "" );
-      _type.setText( "" );
-      _description.setText( "" );
-      _mandatory.setText( "" );
+      clear( _name );
+      clear( _type );
+      clear( _description );
+      clear( _mandatory );
       setParameterValues( "" );
+   }
+
+   private void clear( final JLabel label ) {
+      setLabelText( label, "" );
+   }
+
+   private void setLabelText( final JLabel label, final String text ) {
+      setLabelText( label, text, text );
+   }
+
+   private void setLabelText( final JLabel label, final String text, final String toolTip ) {
+      label.setText( text );
+      label.setToolTipText( toolTip );
    }
 
    public void setParameterHolder( final ParameterHolder holder ) {
@@ -97,10 +110,12 @@ public class ParameterInfoPanel extends JPanel {
          clear();
          return;
       }
-      _name.setText( _holder.getParameterName( index ) );
-      _type.setText( _holder.getParameterClass( index ) );
-      _description.setText( _holder.getParameterDescription( index ) );
-      _mandatory.setText( Boolean.toString( _holder.isParameterMandatory( index ) ) );
+      setLabelText( _name, _holder.getParameterName( index ) );
+      setLabelText( _type, _holder.getParameterClass( index ) );
+      setLabelText( _description, _holder.getParameterDescription( index ) );
+      final boolean mandatory = _holder.isParameterMandatory( index );
+      setLabelText( _mandatory, Boolean.toString( mandatory ),
+            "A parameter Value is " + (mandatory ? "" : "not ") + "mandatory for the Pipe Bit to operate." );
       final String values = Arrays.stream( _holder.getParameterValue( index ) )
             .filter( v -> !ConfigurationParameter.NO_DEFAULT_VALUE.equals( v ) )
             .collect( Collectors.joining( " , " ) );

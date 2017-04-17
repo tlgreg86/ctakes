@@ -548,9 +548,8 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 				"DeleteAction",
 				new String[] { "selector=B" } ) );
 		// add UMLS on top of lookup windows
-		aggregateBuilder.add( DefaultJCasTermAnnotator.createAnnotatorDescription() );
-
 		aggregateBuilder.add( LvgAnnotator.createAnnotatorDescription() );
+		aggregateBuilder.add( DefaultJCasTermAnnotator.createAnnotatorDescription() );
 
 		// add dependency parser
 		aggregateBuilder.add( ClearNLPDependencyParserAE.createAnnotatorDescription() );

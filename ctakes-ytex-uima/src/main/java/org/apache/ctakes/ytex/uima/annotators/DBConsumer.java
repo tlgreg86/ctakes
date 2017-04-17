@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.ytex.uima.ApplicationContextHolder;
 import org.apache.ctakes.ytex.uima.mapper.DocumentMapperService;
 import org.apache.uima.UimaContext;
@@ -61,6 +62,12 @@ import org.xml.sax.SAXException;
  * @author vijay
  * 
  */
+@PipeBitInfo(
+		name = "XMI Writer 3",
+		description = "Writes XMI files with full representation of input text and all extracted information.",
+		role = PipeBitInfo.Role.WRITER,
+		dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID }
+)
 public class DBConsumer extends JCasAnnotator_ImplBase {
 	private static final Log log = LogFactory.getLog(DBConsumer.class);
 	private DocumentMapperService documentMapperService;

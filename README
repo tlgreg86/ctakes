@@ -6,10 +6,10 @@ http://ctakes.apache.org
 
 Requirements
 ---------------------------------------
-Java 1.7 is required to run cTAKES
+Java 1.8 is required to run cTAKES
 Maven 3.0.0 is required for building it
 
-Running the default pipeline in the UIMA CAS Visual Debugger
+Running a simple pipeline in the UIMA CAS Visual Debugger
 or in the Collection Processing Engine
 ----------------------------------------------------------------
 Run bin/runctakesCVD/CPE.sh.bat

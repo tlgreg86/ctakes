@@ -28,6 +28,7 @@ import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AboveLeftFragment
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ContextWordWindowExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ExtractorListFeatureFunctionConverter;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.NegationDependencyFeatureExtractor;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
@@ -37,6 +38,12 @@ import org.cleartk.ml.Instance;
 import org.cleartk.ml.feature.function.FeatureFunctionExtractor;
 
 
+
+@PipeBitInfo(
+		name = "Negation Annotator (Feda)",
+		description = "Annotates negation property.",
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class PolarityFedaCleartkAnalysisEngine extends PolarityCleartkAnalysisEngine {
 
 	@Override

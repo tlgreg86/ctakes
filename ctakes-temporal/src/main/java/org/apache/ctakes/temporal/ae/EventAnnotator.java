@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.ae.feature.ChunkingExtractor;
 import org.apache.ctakes.temporal.ae.feature.PredicateArgumentExtractor;
 import org.apache.ctakes.temporal.ae.feature.selection.Chi2FeatureSelection;
@@ -72,6 +73,13 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
+@PipeBitInfo(
+      name = "Event Annotator",
+      description = "Annotates Temporal Events.",
+      dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+            PipeBitInfo.TypeProduct.CHUNK, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION },
+      products = { PipeBitInfo.TypeProduct.EVENT }
+)
 public class EventAnnotator extends TemporalEntityAnnotator_ImplBase {
 
   public static final String PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE = "ProbabilityOfKeepingANegativeExample";

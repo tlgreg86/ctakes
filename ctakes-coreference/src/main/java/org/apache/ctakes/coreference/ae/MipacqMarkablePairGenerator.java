@@ -24,6 +24,7 @@ import java.io.FileReader;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.coreference.type.BooleanLabeledFS;
 import org.apache.ctakes.coreference.type.DemMarkable;
 import org.apache.ctakes.coreference.type.Markable;
@@ -46,6 +47,13 @@ import org.apache.uima.jcas.cas.EmptyFSList;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.tcas.Annotation;
 
+@PipeBitInfo(
+		name = "Markable Pair Creator (MiPACQ)",
+		description = "Pairs Markables using a stop word list.",
+		role = PipeBitInfo.Role.SPECIAL,
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.MARKABLE, PipeBitInfo.TypeProduct.CHUNK  },
+		usables = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class MipacqMarkablePairGenerator extends JCasAnnotator_ImplBase {
 
   public static final String PARAM_STOPWORDS_FILE = "StopFile";

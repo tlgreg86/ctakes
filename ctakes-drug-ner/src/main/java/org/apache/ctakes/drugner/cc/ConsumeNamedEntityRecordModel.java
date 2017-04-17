@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.collection.CasConsumer_ImplBase;
@@ -78,6 +79,12 @@ import org.apache.ctakes.drugner.type.SubSectionAnnotation;
  * 
  * @author
  */
+@PipeBitInfo(
+		name = "Database File Writer",
+		description = "Writes to a file that is compatible with Database import.",
+		role = PipeBitInfo.Role.WRITER,
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class ConsumeNamedEntityRecordModel extends CasConsumer_ImplBase {
 	private String iv_annotVerPropKey;
 

@@ -24,6 +24,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.ae.feature.ParseSpanFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.TimeWordTypeExtractor;
 import org.apache.ctakes.temporal.ae.feature.selection.Chi2FeatureSelection;
@@ -60,6 +61,13 @@ import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
+@PipeBitInfo(
+		name = "Time Annotator",
+		description = "...",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+				PipeBitInfo.TypeProduct.BASE_TOKEN },
+		products = { PipeBitInfo.TypeProduct.TIMEX }
+)
 public class TimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 
 	public static final String PARAM_FEATURE_SELECTION_THRESHOLD = "WhetherToDoFeatureSelection";

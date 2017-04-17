@@ -23,6 +23,8 @@ final public class PipeBitInfoUtil {
 
    static private final Logger LOGGER = Logger.getLogger( "PipeBitInfoUtil" );
 
+   static private final String UNKNOWN_PIPE_BIT = "! Unfamiliar";
+
    private PipeBitInfoUtil() {
    }
 
@@ -94,6 +96,10 @@ final public class PipeBitInfoUtil {
       return parameters;
    }
 
+   static public boolean isUnknown( final PipeBitInfo info ) {
+      return info.description().startsWith( UNKNOWN_PIPE_BIT );
+   }
+
    /**
     * @param pipeBitClass -
     * @return annotated parameters for the class and all of its parent classes
@@ -129,8 +135,7 @@ final public class PipeBitInfoUtil {
        */
       @Override
       public String description() {
-         final String prefix = "Pipeline component that ";
-         String purpose = " has an unknown purpose.";
+         String purpose = "Has an unknown purpose.";
          if ( CollectionReader_ImplBase.class.isAssignableFrom( _pipeBitClass ) ) {
             purpose = "Reads or creates Text and provides it to a pipeline.";
          } else if ( JCasAnnotator_ImplBase.class.isAssignableFrom( _pipeBitClass ) ) {
@@ -138,7 +143,7 @@ final public class PipeBitInfoUtil {
          } else if ( CasConsumer_ImplBase.class.isAssignableFrom( _pipeBitClass ) ) {
             purpose = "Consumes Annotations and performs some task at the end of a pipeline.";
          }
-         return name() + " : " + prefix + purpose;
+         return UNKNOWN_PIPE_BIT + " " + name() + " : " + purpose + "  Use with care.";
       }
 
       /**
@@ -168,10 +173,7 @@ final public class PipeBitInfoUtil {
        */
       @Override
       public TypeProduct[] dependencies() {
-         if ( CollectionReader_ImplBase.class.isAssignableFrom( _pipeBitClass ) ) {
-            return NO_TYPE_PRODUCTS;
-         }
-         return new TypeProduct[] { TypeProduct.SECTION, TypeProduct.BASE_TOKEN };
+         return NO_TYPE_PRODUCTS;
       }
 
       /**

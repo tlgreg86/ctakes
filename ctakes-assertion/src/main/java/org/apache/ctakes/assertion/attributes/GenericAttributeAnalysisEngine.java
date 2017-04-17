@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.assertion.attributes;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -37,6 +38,11 @@ import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
  * 
  */
 
+@PipeBitInfo(
+		name = "Generic Status Annotator",
+		description = "Annotates the Generic status for Identified Annotations.",
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class GenericAttributeAnalysisEngine extends JCasAnnotator_ImplBase {
 
 	public Logger logger = Logger.getLogger(getClass().getName());

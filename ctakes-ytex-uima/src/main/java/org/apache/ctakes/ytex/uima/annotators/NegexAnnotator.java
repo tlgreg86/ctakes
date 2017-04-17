@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.textsem.ContextAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -86,6 +87,11 @@ import org.apache.uima.resource.ResourceInitializationException;
  * @author vijay
  * 
  */
+@PipeBitInfo(
+		name = "Negation Annotator (Negex)",
+		description = "Use negex to assign polarity to Named Entities.",
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class NegexAnnotator extends JCasAnnotator_ImplBase {
 	private static final Log log = LogFactory.getLog(NegexAnnotator.class);
 	private List<NegexRule> listNegexRules = null;

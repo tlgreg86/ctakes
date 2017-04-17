@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.refsem.OntologyConcept;
 import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
@@ -49,6 +50,13 @@ import org.apache.uima.resource.ResourceInitializationException;
  * @author vijay
  * 
  */
+@PipeBitInfo(
+		name = "Named Entity Annotator (RegEx)",
+		description = "Use regex to identify the Named Entities. " +
+				" Read the named entity regex - concept id map from the db.",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION },
+		products = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class NamedEntityRegexAnnotator extends JCasAnnotator_ImplBase {
 	private static final Log log = LogFactory
 			.getLog(NamedEntityRegexAnnotator.class);

@@ -111,13 +111,14 @@ final class MainPanel extends JPanel {
       File mrConso = new File( umlsDirPath, "MRCONSO.RRF" );
       if ( mrConso.isFile() ) {
          _umlsDirPath = mrConso.getParentFile().getParent();
-      }
-      final String plusMetaPath = new File( umlsDirPath, "META" ).getPath();
-      mrConso = new File( plusMetaPath, "MRCONSO.RRF" );
-      if ( mrConso.isFile() ) {
-         _umlsDirPath = umlsDirPath;
       } else {
-         error( "Invalid UMLS Installation", umlsDirPath + " is not a valid path to a UMLS installation" );
+         final String plusMetaPath = new File( umlsDirPath, "META" ).getPath();
+         mrConso = new File( plusMetaPath, "MRCONSO.RRF" );
+         if ( mrConso.isFile() ) {
+            _umlsDirPath = umlsDirPath;
+         } else {
+            error( "Invalid UMLS Installation", umlsDirPath + " is not a valid path to a UMLS installation" );
+         }
       }
       return _umlsDirPath;
    }
@@ -252,6 +253,10 @@ final class MainPanel extends JPanel {
 
       @Override
       public void actionPerformed( final ActionEvent event ) {
+         if ( _sourceModel.getRowCount() == 0 ) {
+            error( "UMLS not yet loaded", "Please specify a UMLS installation." );
+            return;
+         }
          final String dictionaryName = __textComponent.getText();
          if ( dictionaryName != null && !dictionaryName.isEmpty() ) {
             buildDictionary( dictionaryName.toLowerCase() );

@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 import org.apache.ctakes.assertion.medfacts.cleartk.*;
+import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
@@ -367,7 +368,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     aggregateBuilder.add(EventAnnotator.createAnnotatorDescription());
     aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
-        CoreferenceChainScoringOutput.PARAM_OUTPUT_FILENAME,
+          ConfigParameterConstants.PARAM_OUTPUTDIR,
         this.outputDirectory + goldOut,
         CoreferenceChainScoringOutput.PARAM_GOLD_VIEW_NAME,
         GOLD_VIEW_NAME));
@@ -397,7 +398,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
       aggregateBuilder.add(PersonChainAnnotator.createAnnotatorDescription());
     }
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
-        CoreferenceChainScoringOutput.PARAM_OUTPUT_FILENAME,
+        ConfigParameterConstants.PARAM_OUTPUTDIR,
         this.outputDirectory + systemOut));
 
     FlowControllerDescription corefFlowControl = FlowControllerFactory.createFlowControllerDescription(CorefEvalFlowController.class);

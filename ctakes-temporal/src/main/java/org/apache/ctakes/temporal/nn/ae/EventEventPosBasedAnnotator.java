@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator.IdentifiedAnnotationPair;
 import org.apache.ctakes.temporal.nn.data.ArgContextProvider;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
@@ -25,6 +26,13 @@ import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.collect.Lists;
 
+@PipeBitInfo(
+      name = "E-E POS TLinker",
+      description = "Creates Event - Event TLinks with Parts of Speech.",
+      dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.SENTENCE,
+            PipeBitInfo.TypeProduct.EVENT },
+      products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class EventEventPosBasedAnnotator extends CleartkAnnotator<String> {
 
   public static final String NO_RELATION_CATEGORY = "none";

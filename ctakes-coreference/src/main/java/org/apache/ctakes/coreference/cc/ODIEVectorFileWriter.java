@@ -32,6 +32,7 @@ import libsvm.svm_node;
 
 import org.apache.ctakes.constituency.parser.treekernel.TreeExtractor;
 import org.apache.ctakes.constituency.parser.util.TreeUtils;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.coreference.type.BooleanLabeledFS;
@@ -65,6 +66,12 @@ import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 
+@PipeBitInfo(
+		name = "ODIE Vector File Writer",
+		description = "Write ODIE Vector File.",
+		role = PipeBitInfo.Role.WRITER,
+		dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.MARKABLE }
+)
 public class ODIEVectorFileWriter extends JCasAnnotator_ImplBase {
 
 	private Logger log = Logger.getLogger(this.getClass());

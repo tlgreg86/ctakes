@@ -34,6 +34,7 @@ import org.apache.ctakes.core.fsm.adapters.NewlineTokenAdapter;
 import org.apache.ctakes.core.fsm.adapters.PunctuationTokenAdapter;
 import org.apache.ctakes.core.fsm.adapters.SymbolTokenAdapter;
 import org.apache.ctakes.core.fsm.adapters.WordTokenAdapter;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DateParser;
 import org.apache.ctakes.core.util.FSUtil;
 import org.apache.ctakes.core.util.JCasUtil;
@@ -133,7 +134,13 @@ import org.apache.uima.resource.ResourceInitializationException;
  * 
  * @author Mayo Clinic
  */
-public class DrugMentionAnnotator extends JCasAnnotator_ImplBase 
+@PipeBitInfo(
+		name = "Drug Mention Annotator",
+		description = "Creates modifier annotations needed to handle the drug mentions.",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.BASE_TOKEN },
+		products = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
+public class DrugMentionAnnotator extends JCasAnnotator_ImplBase
 {
 	// LOG4J logger based on class name
 	public static Logger iv_logger = Logger.getLogger(DrugMentionAnnotator.class);

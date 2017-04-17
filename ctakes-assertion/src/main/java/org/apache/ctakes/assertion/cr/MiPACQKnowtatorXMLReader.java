@@ -34,6 +34,7 @@ import org.apache.ctakes.assertion.util.AssertionConst;
 import org.apache.ctakes.core.cc.XmiWriterCasConsumerCtakes;
 import org.apache.ctakes.core.knowtator.KnowtatorAnnotation;
 import org.apache.ctakes.core.knowtator.KnowtatorXMLParser;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.SHARPKnowtatorXMLDefaults;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.refsem.BodyLaterality;
@@ -122,6 +123,12 @@ import com.google.common.io.Files;
  * and the original plaintext files are in "text" subdirectory w/ train/dev/test subsubdirs
  *
  */
+@PipeBitInfo(
+      name = "Knowtator XML Reader (MiPACQ)",
+      description = "Reads annotations from MiPACQ schema Knowtator XML files in a directory.",
+      role = PipeBitInfo.Role.SPECIAL,
+      products = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.GENERIC_RELATION }
+)
 public class MiPACQKnowtatorXMLReader extends JCasAnnotator_ImplBase {
   static Logger LOGGER = Logger.getLogger(MiPACQKnowtatorXMLReader.class);
   

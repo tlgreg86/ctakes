@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
@@ -48,6 +49,15 @@ import org.jdom2.input.SAXBuilder;
 
 import com.google.common.collect.Sets;
 
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.TEMPORAL_RELATION;
+
+@PipeBitInfo(
+      name = "I2B2 XML Reader (THYME)",
+      description = "Reads annotations from THYME schema I2B2 XML files in a directory.",
+      role = PipeBitInfo.Role.SPECIAL,
+      products = {  PipeBitInfo.TypeProduct.EVENT, PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class I2B2TemporalXMLReader extends JCasAnnotator_ImplBase {
   public static final String PARAM_INPUT_DIR = "PARAM_INPUT_DIR";
   @ConfigurationParameter(

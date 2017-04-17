@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.lvg.ae;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.lvg.resource.LvgCmdApiResource;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -65,6 +66,11 @@ import org.apache.uima.resource.ResourceInitializationException;
  *         the cache, this may be bad if it is misspelled in the case where the
  *         misspelling is a word in the lexicon.
  */
+@PipeBitInfo(
+		name = "LVG Basetoken Annotator",
+		description = "Adds cononical form of Base Tokens.",
+		dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.BASE_TOKEN }
+)
 public class LvgBaseTokenAnnotator extends JCasAnnotator_ImplBase {
 	/**
 	 * Value is "PostLemmas". This parameter determines whether the feature

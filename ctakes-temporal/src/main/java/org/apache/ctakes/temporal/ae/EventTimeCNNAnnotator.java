@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.ae.TemporalRelationExtractorAnnotator.IdentifiedAnnotationPair;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
@@ -27,6 +28,12 @@ import org.cleartk.util.ViewUriUtil;
 
 import com.google.common.collect.Lists;
 
+@PipeBitInfo(
+		name = "E-T CNN TLinker",
+		description = "Creates Event - Time TLinks with Convolutional Neural Network.",
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.EVENT, PipeBitInfo.TypeProduct.TIMEX },
+		products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
+)
 public class EventTimeCNNAnnotator extends CleartkAnnotator<String> {
 
 	public static final String NO_RELATION_CATEGORY = "none";

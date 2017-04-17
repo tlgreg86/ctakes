@@ -41,7 +41,7 @@ import java.util.List;
  * UIMA CollectionReader that reads in CASes from XMI files.
  */
 @PipeBitInfo(
-      name = "XMI Files Reader",
+      name = "XMI Reader (1)",
       description = "Reads document texts and annotations from XMI files specified in a provided list.",
       role = PipeBitInfo.Role.READER,
       products = { PipeBitInfo.TypeProduct.DOCUMENT_ID }

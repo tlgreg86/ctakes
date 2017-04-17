@@ -31,7 +31,7 @@ import static org.apache.ctakes.typesystem.type.constants.CONST.ATTR_SUBJECT_PAT
  * @since 10/19/2016
  */
 @PipeBitInfo(
-      name = "Assertion Engine",
+      name = "Assertion Engine (FIT)",
       description = "Adds Negation, Uncertainty, Conditional and Subject to annotations.",
       role = PipeBitInfo.Role.ANNOTATOR,
       dependencies = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
