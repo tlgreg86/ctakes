@@ -52,7 +52,7 @@ import com.google.common.collect.Lists;
       name = "Anafora XML Reader (DeepPhe)",
       description = "Reads annotations from DeepPhe schema Anafora XML files in a directory.",
       role = PipeBitInfo.Role.SPECIAL,
-      products = { PipeBitInfo.TypeProduct.EVENT }
+      products = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
 )
 public class DeepPheAnaforaXMLReader extends JCasAnnotator_ImplBase {
   private static Logger LOGGER = Logger.getLogger(DeepPheAnaforaXMLReader.class);

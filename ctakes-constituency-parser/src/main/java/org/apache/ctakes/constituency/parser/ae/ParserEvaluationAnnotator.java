@@ -31,6 +31,7 @@ import opennlp.tools.parser.ParserModel;
 import opennlp.tools.parser.chunking.Parser;
 
 import org.apache.ctakes.core.cr.LinesFromFileCollectionReader;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.syntax.TopTreebankNode;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -44,6 +45,10 @@ import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
+@PipeBitInfo(
+		name = "Parser Evaluator",
+		description = ".."
+)
 public class ParserEvaluationAnnotator extends JCasAnnotator_ImplBase{
 
 	public static final String PARAM_PARSERMODEL = "ParserModel";

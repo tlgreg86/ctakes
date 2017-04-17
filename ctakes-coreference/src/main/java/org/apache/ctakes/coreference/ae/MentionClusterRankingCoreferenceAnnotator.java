@@ -68,7 +68,7 @@ import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.COREFERENC
 import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.MARKABLE;
 
 @PipeBitInfo(
-      name = "Coreference using Cluster Rank",
+      name = "Coreference (Cluster Rank)",
       description = "Coreference annotator using mention-synchronous paradigm.",
       dependencies = { BASE_TOKEN, SENTENCE, SECTION, PARAGRAPH, IDENTIFIED_ANNOTATION, MARKABLE },
       products = { COREFERENCE_RELATION }

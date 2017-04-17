@@ -30,6 +30,7 @@ import org.apache.ctakes.assertion.medfacts.cleartk.extractors.AssertionDependen
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.ContextWordWindowExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.DependencyWordsFragmentExtractor;
 import org.apache.ctakes.assertion.medfacts.cleartk.extractors.NegationDependencyFeatureExtractor;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
@@ -42,6 +43,11 @@ import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 
+@PipeBitInfo(
+		name = "Negation Annotator (ClearTK)",
+		description = "Annotates negation property.",
+		dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION }
+)
 public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngine {
   
   public static final String NEGATED = "NEGATED";

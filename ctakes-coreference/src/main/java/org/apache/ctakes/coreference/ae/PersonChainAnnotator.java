@@ -3,6 +3,7 @@ package org.apache.ctakes.coreference.ae;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
@@ -19,6 +20,12 @@ import org.apache.uima.jcas.cas.FSList;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.resource.ResourceInitializationException;
 
+@PipeBitInfo(
+      name = "Person Coreference Annotator",
+      description = "Annotates coreferences between person mentions.",
+      dependencies = { PipeBitInfo.TypeProduct.BASE_TOKEN },
+      products = { PipeBitInfo.TypeProduct.MARKABLE, PipeBitInfo.TypeProduct.COREFERENCE_RELATION }
+)
 public class PersonChainAnnotator extends JCasAnnotator_ImplBase {
 
   @Override

@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.coreference.type.DemMarkable;
 import org.apache.ctakes.coreference.type.NEMarkable;
 import org.apache.ctakes.coreference.type.PronounMarkable;
@@ -40,6 +41,12 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 
+@PipeBitInfo(
+		name = "Markable Creator (MiPACQ)",
+		description = "Annotates Markables using a word list.",
+		dependencies = { PipeBitInfo.TypeProduct.BASE_TOKEN, PipeBitInfo.TypeProduct.CHUNK  },
+		products = { PipeBitInfo.TypeProduct.MARKABLE }
+)
 public class MipacqMarkableCreator extends JCasAnnotator_ImplBase {
 
 	public static int nextID = 0;

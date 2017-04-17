@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
@@ -45,6 +46,12 @@ import org.jdom2.input.SAXBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+@PipeBitInfo(
+      name = "Anafora XML Reader (Metastasis)",
+      description = "Reads annotations from DeepPhe schema Anafora XML files in a directory.",
+      role = PipeBitInfo.Role.SPECIAL,
+      products = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.LOCATION_RELATION }
+)
 public class MetastasisAnaforaXMLReader extends JCasAnnotator_ImplBase {
   
   private static Logger LOGGER = Logger.getLogger(MetastasisAnaforaXMLReader.class);

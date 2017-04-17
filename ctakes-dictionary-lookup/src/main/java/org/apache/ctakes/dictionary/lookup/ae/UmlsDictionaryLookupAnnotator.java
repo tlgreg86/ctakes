@@ -19,6 +19,7 @@
 package org.apache.ctakes.dictionary.lookup.ae;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileResourceImpl;
 import org.apache.ctakes.core.resource.JdbcConnectionResourceImpl;
 import org.apache.ctakes.utils.env.EnvironmentVariable;
@@ -45,6 +46,12 @@ import java.net.URLEncoder;
  *
  * @author Mayo Clinic
  */
+@PipeBitInfo(
+      name = "UMLS Dictionary Lookup (Old)",
+      description = "Annotates clinically-relevant terms.  This is an older, slower dictionary lookup implementation.",
+      dependencies = { PipeBitInfo.TypeProduct.CHUNK, PipeBitInfo.TypeProduct.BASE_TOKEN },
+      products = PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION
+)
 public class UmlsDictionaryLookupAnnotator extends DictionaryLookupAnnotator {
    /* Special implementation to pre bundle the UMLS SnowmedCT/RxNorm dictionaries
     * Performs a check for user's UMLS licence at init time via their RESTful API

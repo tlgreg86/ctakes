@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.coreference.type.BooleanLabeledFS;
 import org.apache.ctakes.coreference.type.DemMarkable;
@@ -60,6 +61,12 @@ import org.apache.uima.resource.ResourceInitializationException;
 
 import libsvm.svm_node;
 
+@PipeBitInfo(
+		name = "SVM Chain Creator (MiPACQ)",
+		description = "Creates Coreferences using a Simple Vector Machine.",
+		dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.MARKABLE  },
+		products = { PipeBitInfo.TypeProduct.COREFERENCE_RELATION }
+)
 public class MipacqSvmChainCreator extends JCasAnnotator_ImplBase {
 
   public static final String PARAM_STOPWORDS_FILENAME = "StopWords";

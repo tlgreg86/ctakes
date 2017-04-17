@@ -21,6 +21,7 @@ package org.apache.ctakes.relationextractor.ae;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.textsem.Modifier;
@@ -39,6 +40,12 @@ import org.cleartk.ml.Instance;
 import org.cleartk.ml.chunking.BioChunking;
 import org.cleartk.ml.chunking.Chunking;
 
+@PipeBitInfo(
+      name = "Modifier Extractor",
+      description = "Annotates Modifiers and Chunks.",
+      dependencies = { PipeBitInfo.TypeProduct.BASE_TOKEN, PipeBitInfo.TypeProduct.SENTENCE  },
+      products = { PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.CHUNK }
+)
 public class ModifierExtractorAnnotator extends CleartkAnnotator<String> {
 
   public static AnalysisEngineDescription getDescription(Object... additionalConfiguration)

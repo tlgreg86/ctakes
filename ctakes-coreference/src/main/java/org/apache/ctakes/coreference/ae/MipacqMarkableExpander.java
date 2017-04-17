@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.coreference.type.DemMarkable;
 import org.apache.ctakes.coreference.type.Markable;
 import org.apache.ctakes.coreference.type.NEMarkable;
@@ -36,6 +37,12 @@ import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
+@PipeBitInfo(
+		name = "Markable Expander (MiPACQ)",
+		description = "Expands Markable text spans to cover a noun phrase.",
+		role = PipeBitInfo.Role.SPECIAL,
+		dependencies = { PipeBitInfo.TypeProduct.MARKABLE, PipeBitInfo.TypeProduct.CHUNK  }
+)
 public class MipacqMarkableExpander extends JCasAnnotator_ImplBase {
 
 	@Override
