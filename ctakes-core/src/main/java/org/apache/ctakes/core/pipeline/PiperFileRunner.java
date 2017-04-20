@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * @author SPF , chip-nlp
@@ -24,6 +25,15 @@ final public class PiperFileRunner {
     * @param args general run options
     */
    public static void main( final String... args ) {
+      if ( !run( args ) ) {
+         System.exit( 1 );
+      }
+   }
+
+   /**
+    * @param args general run options
+    */
+   public static boolean run( final String... args ) {
       final CliOptionals options = CliFactory.parseArguments( CliOptionals.class, args );
       try {
          final PiperFileReader reader = new PiperFileReader();
@@ -81,8 +91,9 @@ final public class PiperFileRunner {
          builder.run();
       } catch ( UIMAException | IOException multE ) {
          LOGGER.error( multE.getMessage() );
-         System.exit( 1 );
+         return false;
       }
+      return true;
    }
 
 
