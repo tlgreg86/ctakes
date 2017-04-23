@@ -17,7 +17,7 @@ final public class PiperRunner {
    static private final Logger LOGGER = Logger.getLogger( "PiperRunner" );
 
    static private JFrame createFrame() {
-      final JFrame frame = new JFrame( "cTAKES Simple Pipeline Fabricator" );
+      final JFrame frame = new JFrame( "cTAKES Piper File Submitter" );
       frame.setDefaultCloseOperation( WindowConstants.EXIT_ON_CLOSE );
       // Use 1024 x 768 as the minimum required resolution (XGA)
       // iPhone 3 : 480 x 320 (3:2, HVGA)

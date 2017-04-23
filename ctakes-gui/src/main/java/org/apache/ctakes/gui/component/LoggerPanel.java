@@ -20,6 +20,7 @@ import java.util.Collection;
  */
 final public class LoggerPanel extends JScrollPane {
 
+   static private final int MAX_DOC_LENGTH = Integer.MAX_VALUE - 5000;
 
    static public LoggerPanel createLoggerPanel( final Level... levels ) {
       final LoggerPanel panel = new LoggerPanel( levels );
@@ -75,6 +76,10 @@ final public class LoggerPanel extends JScrollPane {
    public void appendText( final String text ) {
       SwingUtilities.invokeLater( () -> {
          try {
+            if (_textAreaDoc.getLength() >= MAX_DOC_LENGTH ) {
+               // clear log if it gets too long.  Not the best solution, but good enough for now.
+               _textAreaDoc.remove( 0, _textAreaDoc.getLength() );
+            }
             _textAreaDoc.insertString( _textAreaDoc.getLength(), text, null );
          } catch ( BadLocationException blE ) {
             //
