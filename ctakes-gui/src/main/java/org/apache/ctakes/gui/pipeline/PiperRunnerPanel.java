@@ -1,6 +1,7 @@
 package org.apache.ctakes.gui.pipeline;
 
 
+import org.apache.ctakes.core.pipeline.PiperFileReader;
 import org.apache.ctakes.core.pipeline.PiperFileRunner;
 import org.apache.ctakes.gui.component.*;
 import org.apache.ctakes.gui.pipeline.bit.parameter.ParameterCellRenderer;
@@ -254,8 +255,9 @@ public class PiperRunnerPanel extends JPanel {
          if ( option != JFileChooser.APPROVE_OPTION ) {
             return;
          }
+         final PiperFileReader reader = new PiperFileReader();
          final File file = _piperChooser.getSelectedFile();
-         String text = loadPiperText( file.getPath() );
+         String text = loadPiperText( reader, file.getPath() );
           try {
             _piperDocument.remove( 0, _piperDocument.getLength() );
             _piperDocument.insertString( 0, text, null );
@@ -265,7 +267,7 @@ public class PiperRunnerPanel extends JPanel {
          _cliNames.clear();
          _cliChars.clear();
          _cliValues.clear();
-         if ( !loadPiperCli( text ) ) {
+         if ( !loadPiperCli( reader, text ) ) {
             error( "Could not load Piper File: " + file.getPath() );
             return;
          }
@@ -274,40 +276,44 @@ public class PiperRunnerPanel extends JPanel {
          _cliTable.revalidate();
          _cliTable.repaint();
       }
-      private String loadPiperText( final String filePath ) {
+      private String loadPiperText( final PiperFileReader reader, final String filePath ) {
          LOGGER.info( "Loading Piper File: " + filePath);
          try {
-            return  Files.lines( Paths.get( filePath ) ).collect( Collectors.joining( "\n" ) );
+            final String loadPath = reader.getPiperPath( filePath );
+            return  Files.lines( Paths.get( loadPath ) ).collect( Collectors.joining( "\n" ) );
          } catch ( IOException ioE ) {
             error( ioE.getMessage() );
             return "";
          }
       }
-      private boolean loadPiperCli( final String text ) {
+      private boolean loadPiperCli( final PiperFileReader reader, final String text ) {
          for ( String line : text.split( "\\n" ) ) {
             if ( line.startsWith( "cli " ) && line.length() > 5 ) {
                final String[] allValues = line.substring( 4 ).split( "\\s+" );
                for ( String allValue : allValues ) {
                   final String[] values = allValue.split( "=" );
-                  if ( values.length != 2 || values[1].length() != 1 ) {
+                  if ( values.length != 2 || values[ 1 ].length() != 1 ) {
                      error( "Illegal cli values: " + line );
                      return false;
                   }
-                  final String name = values[ 0 ] + " (-" + values[1] + ")";
-                  if ( _cliChars.put( name, values[1].charAt( 0 ) ) != null ) {
+                  final String name = values[ 0 ] + " (-" + values[ 1 ] + ")";
+                  if ( _cliChars.put( name, values[ 1 ].charAt( 0 ) ) != null ) {
                      error( "Repeated cli value: " + line );
                      return false;
                   }
                   _cliNames.add( name );
                }
+            } else if ( line.startsWith( "package " ) && line.length() > 9 ) {
+               final String packagePath = line.substring( 8 );
+               reader.addUserPackage( packagePath );
             } else if ( line.startsWith( "load " ) && line.length() > 6 ) {
-               final String filePath = line.substring( 6 ).trim();
-               final String subText = loadPiperText( filePath );
+               final String filePath = line.substring( 5 ).trim();
+               final String subText = loadPiperText( reader, filePath );
                if ( subText.isEmpty() ) {
                   error( "Piper File not found: " + filePath );
                   return false;
                }
-               if ( !loadPiperCli( subText ) ) {
+               if ( !loadPiperCli( reader, subText ) ) {
                   error( "Could not load Piper File: " + filePath );
                   return false;
                }

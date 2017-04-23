@@ -133,6 +133,14 @@ final public class PiperFileReader {
    }
 
    /**
+    * Add some user package or directory to the known path
+    * @param packagePath user package or directory
+    */
+   public void addUserPackage( final String packagePath ) {
+      _userPackages.add( packagePath );
+   }
+
+   /**
     * Load a file with command parameter pairs for building a pipeline
     *
     * @param filePath path to the pipeline command file
@@ -182,7 +190,7 @@ final public class PiperFileReader {
          case "load":
             return loadPipelineFile( parameter );
          case "package":
-            _userPackages.add( parameter );
+            addUserPackage( parameter );
             return true;
          case "set":
             _builder.set( splitParameters( parameter ) );
@@ -325,7 +333,7 @@ final public class PiperFileReader {
     * @param filePath fully-specified or simple path of a piper file
     * @return discovered path for the piper file
     */
-   private String getPiperPath( final String filePath ) throws FileNotFoundException {
+   public String getPiperPath( final String filePath ) throws FileNotFoundException {
       String fullPath = FileLocator.getFullPathQuiet( filePath );
       if ( fullPath != null && !fullPath.isEmpty() ) {
          return fullPath;
