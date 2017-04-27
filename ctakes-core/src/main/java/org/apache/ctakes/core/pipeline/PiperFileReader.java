@@ -196,7 +196,7 @@ final public class PiperFileReader {
             _builder.set( splitParameters( parameter ) );
             return true;
          case "cli":
-            _builder.set( getCliParameters( parameter ) );
+            _builder.setIfEmpty( getCliParameters( parameter ) );
             return true;
          case "reader":
             if ( hasParameters( parameter ) ) {

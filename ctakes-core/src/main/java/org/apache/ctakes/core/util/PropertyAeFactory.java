@@ -58,6 +58,37 @@ public enum PropertyAeFactory {
    }
 
    /**
+    * Add key value pairs to the stored properties
+    *
+    * @param parameters ket value pairs
+    */
+   synchronized public void addIfEmptyParameters( final Object... parameters ) {
+      if ( parameters.length == 0 ) {
+         LOGGER.warn( "No parameters specified." );
+         return;
+      }
+      if ( parameters.length % 2 != 0 ) {
+         LOGGER.error( "Odd number of parameters provided.  Should be key value pairs." );
+         return;
+      }
+      for ( int i = 0; i < parameters.length; i += 2 ) {
+         String name;
+         if ( parameters[ i ] instanceof String ) {
+            name = (String) parameters[ i ];
+         } else {
+            LOGGER.warn( "Parameter " + i + " not a String, using " + parameters[ i ].toString() );
+            name = parameters[ i ].toString();
+         }
+         if ( _properties.containsKey( name ) && parameters[ i + 1 ].toString().isEmpty() ) {
+            LOGGER.info( "Parameter " + name + " has value " + _properties.get( name )
+                  + " ; ignoring empty value" );
+            continue;
+         }
+         _properties.put( name, parameters[ i + 1 ] );
+      }
+   }
+
+   /**
     * @param parameterMap map of parameter names and values
     * @return array of Objects representing name value pairs
     */

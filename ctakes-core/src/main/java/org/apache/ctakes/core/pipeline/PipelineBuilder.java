@@ -73,6 +73,19 @@ final public class PipelineBuilder {
    }
 
    /**
+    * Use of this method is order-specific.  If any given parameter is already set it is ignored.
+    *
+    * @param parameters add ae parameter name value pairs
+    * @return this PipelineBuilder
+    */
+   public PipelineBuilder setIfEmpty( final Object... parameters ) {
+      PropertyAeFactory.getInstance().addIfEmptyParameters( parameters );
+      _pipelineChanged = true;
+      return this;
+   }
+
+
+   /**
     * Use of this method is not order-specific
     *
     * @param description Collection Reader Description to place at the beginning of the pipeline
