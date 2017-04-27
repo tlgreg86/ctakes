@@ -144,6 +144,10 @@ final public class MrconsoParser {
                continue;
             }
             final String text = getToken( tokens, TEXT );
+            if ( !umlsTermUtil.isTextValid( text.toLowerCase() ) ) {
+               tokens = FileUtil.readBsvTokens( reader, mrconsoPath );
+               continue;
+            }
             if ( isPreferredTerm( tokens ) ) {
                concept.setPreferredText( text );
             }
