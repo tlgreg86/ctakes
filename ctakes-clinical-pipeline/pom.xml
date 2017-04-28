@@ -125,12 +125,7 @@
 								<argument />
 							</arguments>
 						</configuration>
-						<dependencies>
-							<dependency>
-								<groupId>gov.nih.nlm.nls.lvg</groupId>
-								<artifactId>lvgdist</artifactId>
-							</dependency>
-						</dependencies>						
+						<dependencies/>
 					</plugin>
 				</plugins>
 			</build>
@@ -170,12 +165,7 @@
 								<argument>javax.swing.plaf.metal.MetalLookAndFeel</argument>
 							</arguments>
 						</configuration>
-						<dependencies>
-							<dependency>
-								<groupId>gov.nih.nlm.nls.lvg</groupId>
-								<artifactId>lvgdist</artifactId>
-							</dependency>
-						</dependencies>
+						<dependencies/>
 					</plugin>
 				</plugins>
 			</build>
