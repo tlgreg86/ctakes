@@ -10,7 +10,7 @@ add ContextDependentTokenizerAnnotator
 addDescription POSTagger
 
 // Change the umls and password parameters below
-set ctakes.umlsuser=seanfinan ctakes.umlspw=Qv6vf2jz
+set ctakes.umlsuser=CHANGE_ME ctakes.umlspw=CHANGE_ME
 
 // Default fast dictionary lookup
 add DefaultJCasTermAnnotator
