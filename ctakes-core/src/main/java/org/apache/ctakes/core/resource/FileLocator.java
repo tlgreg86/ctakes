@@ -146,7 +146,7 @@ final public class FileLocator {
     * @throws FileNotFoundException if the file cannot be found
     */
    static public String getFullPath( final String relativePath ) throws FileNotFoundException {
-      return getFullPathQuiet( FileLocator.class, relativePath );
+      return getFullPath( FileLocator.class, relativePath );
    }
 
    /**
