@@ -91,7 +91,7 @@ final class MainPanel2 extends JPanel {
    private JComponent createWestPanel() {
       final JTable fakeTable = new JTable();
       final JTableHeader fakeHeader = fakeTable.getTableHeader();
-      final Component header = fakeHeader.getDefaultRenderer().getTableCellRendererComponent( null,
+      final Component header = fakeHeader.getDefaultRenderer().getTableCellRendererComponent( fakeTable,
             "Available Pipe Bits", false, false, -1, -1 );
       ((JLabel)header).setHorizontalAlignment( SwingConstants.CENTER );
 
