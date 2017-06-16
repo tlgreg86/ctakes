@@ -26,7 +26,7 @@
          <name>CustomCuiRareWord</name>
          <implementationName>org.apache.ctakes.dictionary.lookup2.dictionary.BsvRareWordDictionary</implementationName>
          <properties>
-            <property key="bsvPath" value="org/apache/ctakes/dictionary/fast/example/custom_cui_bsv.bsv"/>
+            <property key="bsvPath" value="org/apache/ctakes/dictionary/lookup/fast/example/custom_cui_bsv.bsv"/>
          </properties>
       </dictionary>
    </dictionaries>
