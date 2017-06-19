@@ -3,7 +3,11 @@ package org.apache.ctakes.temporal.nn.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ctakes.temporal.utils.TokenPreprocForWord2Vec;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
+import org.apache.ctakes.typesystem.type.syntax.WordToken;
+import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
+import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
@@ -214,26 +218,46 @@ public class ArgContextProvider {
 		List<String> tokens = new ArrayList<>();
 		for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, left, contextSize)) {
 			if(sent.getBegin() <= baseToken.getBegin()) {
-				tokens.add(baseToken.getCoveredText()); 
+				//				if(!(baseToken instanceof NewlineToken)){
+				String stringValue = TokenPreprocForWord2Vec.tokenToString(baseToken);
+				tokens.add(stringValue);//baseToken.getCoveredText()); 
+				//				}
 			}
 		}
 		tokens.add("<" + leftType + ">");
-		tokens.add(left.getCoveredText());
+		//tokens.add(left.getCoveredText());
+		for(BaseToken base : JCasUtil.selectCovered(jCas, BaseToken.class, left)){
+			String stringValue = TokenPreprocForWord2Vec.tokenToString(base);
+			tokens.add(stringValue);
+		}
+
 		tokens.add("</" + leftType + ">");
 		for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, right)) {
-			tokens.add(baseToken.getCoveredText());
+			//			if(!(baseToken instanceof NewlineToken)){
+			String stringValue = TokenPreprocForWord2Vec.tokenToString(baseToken);
+			tokens.add(stringValue);//baseToken.getCoveredText()); 
+			//			}
 		}
 		tokens.add("<" + rightType + ">");
-		tokens.add(right.getCoveredText());
+		//tokens.add(right.getCoveredText());
+		for(BaseToken base : JCasUtil.selectCovered(jCas, BaseToken.class, right)){
+			String stringValue = TokenPreprocForWord2Vec.tokenToString(base);
+			tokens.add(stringValue);
+		}
+
 		tokens.add("</" + rightType + ">");
 		for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, right, contextSize)) {
 			if(baseToken.getEnd() <= sent.getEnd()) {
-				tokens.add(baseToken.getCoveredText());
+				//				if(!(baseToken instanceof NewlineToken)){
+				String stringValue = TokenPreprocForWord2Vec.tokenToString(baseToken);
+				tokens.add(stringValue);//baseToken.getCoveredText()); 
+				//				}
 			}
 		}
 
 		return String.join(" ", tokens).replaceAll("[\r\n]", " ");
 	}
+
 
 	/**
 	 * Print POS tags from left to right.
@@ -251,25 +275,35 @@ public class ArgContextProvider {
 		List<String> tokens = new ArrayList<>();
 		for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, left, contextSize)) {
 			if(sent.getBegin() <= baseToken.getBegin()) {
-				tokens.add(baseToken.getPartOfSpeech()); 
+				if(!baseToken.getCoveredText().equals(" ")){
+					tokens.add(baseToken.getPartOfSpeech());
+				}
 			}
 		}
 		tokens.add("<" + leftType + ">");
 		for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, left)) {
-			tokens.add(baseToken.getPartOfSpeech());
+			if(!(baseToken instanceof NewlineToken)){
+				tokens.add(baseToken.getPartOfSpeech());
+			}
 		}
 		tokens.add("</" + leftType + ">");
 		for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, right)) {
-			tokens.add(baseToken.getPartOfSpeech());
+			if(!(baseToken instanceof NewlineToken)){
+				tokens.add(baseToken.getPartOfSpeech());
+			}
 		}
 		tokens.add("<" + rightType + ">");
 		for(BaseToken baseToken : JCasUtil.selectCovered(jCas, BaseToken.class, right)) {
-			tokens.add(baseToken.getPartOfSpeech());
+			if(!(baseToken instanceof NewlineToken)){
+				tokens.add(baseToken.getPartOfSpeech());
+			}
 		}
 		tokens.add("</" + rightType + ">");
 		for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, right, contextSize)) {
 			if(baseToken.getEnd() <= sent.getEnd()) {
-				tokens.add(baseToken.getPartOfSpeech());
+				if(!(baseToken instanceof NewlineToken)){
+					tokens.add(baseToken.getPartOfSpeech());
+				}
 			}
 		}
 
@@ -361,6 +395,67 @@ public class ArgContextProvider {
 			}
 		}
 		return null;
+	}
+
+	public static String getTokenContext(JCas jCas, Sentence sent, IdentifiedAnnotation left, String leftType,
+			String umlsleft, IdentifiedAnnotation right, String rightType, String umlsright, int contextSize) {
+		List<String> tokens = new ArrayList<>();
+		for(BaseToken baseToken :  JCasUtil.selectPreceding(jCas, BaseToken.class, left, contextSize)) {
+			if(sent.getBegin() <= baseToken.getBegin()) {
+				//				if(!(baseToken instanceof NewlineToken)){
+				tokens.add(baseToken.getCoveredText()); 
+				//				}
+			}
+		}
+		tokens.add("<" + leftType + ">");
+		tokens.add(umlsleft);
+		tokens.add("</" + leftType + ">");
+		//		for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, right)) {
+		////			if(!(baseToken instanceof NewlineToken)){
+		//				tokens.add(baseToken.getCoveredText()); 
+		////			}
+		//		}
+		//find all non-overlapping events between to arguments:
+		List<EventMention> nonOverlapEvents = new ArrayList<>();
+		for(EventMention event : JCasUtil.selectBetween(jCas, EventMention.class, left, right)){
+			int coveringNum = JCasUtil.selectCovering(jCas, EventMention.class, event).size();
+			int coveredWord = JCasUtil.selectCovered(jCas, WordToken.class, event).size();
+			if(coveringNum <=1 && !event.getClass().equals(EventMention.class) && coveredWord > 1){
+				nonOverlapEvents.add(event);
+			}
+		}
+		if(nonOverlapEvents.size()==0){
+			for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, left, right)) {
+				//			if(!(baseToken instanceof NewlineToken)){
+				tokens.add(baseToken.getCoveredText()); 
+				//			}
+			}
+		}else{
+			IdentifiedAnnotation leftentity = left;
+			for(EventMention event : nonOverlapEvents){
+				for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, leftentity, event)) {
+					tokens.add(baseToken.getCoveredText()); 
+				}
+				tokens.add("umls_"+event.getTypeID());
+				leftentity=event;
+			}
+			for(BaseToken baseToken : JCasUtil.selectBetween(jCas, BaseToken.class, leftentity, right)) {
+				tokens.add(baseToken.getCoveredText()); 
+			}
+		}
+
+		tokens.add("<" + rightType + ">");
+		tokens.add(umlsright);
+		tokens.add("</" + rightType + ">");
+		for(BaseToken baseToken : JCasUtil.selectFollowing(jCas, BaseToken.class, right, contextSize)) {
+			if(baseToken.getEnd() <= sent.getEnd()) {
+				//				if(!(baseToken instanceof NewlineToken)){
+				tokens.add(baseToken.getCoveredText()); 
+				//				}
+			}
+		}
+
+		return String.join(" ", tokens).replaceAll("[\r\n]", " ");
 	}
 
 }
