@@ -18,42 +18,35 @@
  */
 package org.apache.ctakes.temporal.data.analysis;
 
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.collect.*;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+import difflib.Chunk;
+import difflib.Delta;
+import difflib.Patch;
+import difflib.myers.Equalizer;
+import difflib.myers.MyersDiff;
+import org.apache.uima.cas.CASException;
+import org.apache.uima.cas.Feature;
+import org.apache.uima.cas.FeatureStructure;
+import org.apache.uima.cas.Type;
+import org.apache.uima.cas.impl.XmiCasDeserializer;
+import org.apache.uima.fit.factory.JCasFactory;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.FSArray;
+import org.apache.uima.jcas.cas.NonEmptyFSList;
+import org.apache.uima.jcas.tcas.Annotation;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
-import org.apache.uima.cas.CASException;
-import org.apache.uima.cas.Feature;
-import org.apache.uima.cas.FeatureStructure;
-import org.apache.uima.cas.Type;
-import org.apache.uima.cas.impl.XmiCasDeserializer;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.FSArray;
-import org.apache.uima.jcas.cas.NonEmptyFSList;
-import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.fit.factory.JCasFactory;
-import org.apache.uima.fit.util.JCasUtil;
-
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
-
-import difflib.Chunk;
-import difflib.Delta;
-import difflib.Patch;
-import difflib.myers.Equalizer;
-import difflib.myers.MyersDiff;
+//import javax.annotation.Nullable;
 
 public class CompareFeatureStructures {
   static interface Options {
@@ -226,7 +219,10 @@ public class CompareFeatureStructures {
       Ordering.natural().<Comparable<?>> lexicographical().onResultOf(
           new Function<FeatureStructure, Iterable<Comparable<?>>>() {
             @Override
-            public Iterable<Comparable<?>> apply(@Nullable FeatureStructure input) {
+            //  All of guava just for two @Nullable?  temporal has about 100 you be outdated errors and warnings.
+            // findbugs is the least of worries.
+//            public Iterable<Comparable<?>> apply(@Nullable FeatureStructure input) {
+            public Iterable<Comparable<?>> apply( FeatureStructure input ) {
               List<Integer> offsets = Lists.newArrayList();
               this.findOffsets(input, offsets);
               List<Comparable<?>> result =

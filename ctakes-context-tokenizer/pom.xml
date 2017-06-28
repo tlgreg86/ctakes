@@ -29,26 +29,30 @@
 		<version>4.0.1-SNAPSHOT</version>
 	</parent>
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-type-system</artifactId>
-		</dependency>
+        <!--  type system is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-type-system</artifactId>-->
+        <!--</dependency>-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-utils</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <!--  utils is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-utils</artifactId>-->
+        <!--</dependency>-->
+        <!--  log4j is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>log4j</groupId>-->
+        <!--<artifactId>log4j</artifactId>-->
+        <!--</dependency>-->
+        <!--  junit is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>junit</groupId>-->
+        <!--<artifactId>junit</artifactId>-->
+        <!--<scope>test</scope>-->
+        <!--</dependency>-->
 	</dependencies>
 </project>

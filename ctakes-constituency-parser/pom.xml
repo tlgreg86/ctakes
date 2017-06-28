@@ -35,31 +35,11 @@
 		</dependency>	 	    
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-type-system</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-utils</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.opennlp</groupId>
 			<artifactId>opennlp-tools</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>jdom</groupId>
-			<artifactId>jdom</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
 		</dependency>
 	</dependencies>
 	<build>
@@ -73,9 +53,10 @@
 				      <goals><goal>generate</goal></goals>
 				      <configuration>
 				        <typeSystemIncludes>
-				          <typeSystemInclude>src/main/resources/org/apache/ctakes/**/types/LabeledTree.xml</typeSystemInclude>				          
+                            <typeSystemInclude>src/main/resources/org/apache/ctakes/**/types/LabeledTree.xml
+                            </typeSystemInclude>
 				        </typeSystemIncludes>
-				        <limitToProject>false</limitToProject>
+                          <limitToProject>true</limitToProject>
 				      </configuration>
 				    </execution>
 				    </executions>

@@ -32,19 +32,22 @@
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-drug-ner-res</artifactId>
-		</dependency>	      
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-type-system</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-utils</artifactId>
-		</dependency>
+        <!--  type system is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-type-system</artifactId>-->
+        <!--</dependency>-->
+        <!--  core is added by lookup, lvg, etc.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-core</artifactId>-->
+        <!--</dependency>-->
+        <!--  utils is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-utils</artifactId>-->
+        <!--</dependency>-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-dictionary-lookup</artifactId>
@@ -57,34 +60,41 @@
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-ne-contexts</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.opennlp</groupId>
-			<artifactId>opennlp-tools</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>jdom</groupId>
-			<artifactId>jdom</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>tw.edu.ntu.csie</groupId>
-			<artifactId>libsvm</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>net.sourceforge.openai</groupId>
-			<artifactId>openaifsm</artifactId>
-		</dependency>	
+        <!--  log4j is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>log4j</groupId>-->
+        <!--<artifactId>log4j</artifactId>-->
+        <!--</dependency>-->
+        <!--  opennlp tools is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.opennlp</groupId>-->
+        <!--<artifactId>opennlp-tools</artifactId>-->
+        <!--</dependency>-->
+        <!--  jdom is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>jdom</groupId>-->
+        <!--<artifactId>jdom</artifactId>-->
+        <!--</dependency>-->
+        <!--  junit is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>junit</groupId>-->
+        <!--<artifactId>junit</artifactId>-->
+        <!--</dependency>-->
+        <!--  libsvm is added by type system.  -->
+        <!--<dependency>-->
+        <!--<groupId>tw.edu.ntu.csie</groupId>-->
+        <!--<artifactId>libsvm</artifactId>-->
+        <!--</dependency>-->
+        <!--  lucene core is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.lucene</groupId>-->
+        <!--<artifactId>lucene-core</artifactId>-->
+        <!--</dependency>-->
+        <!--  openaifsm is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>net.sourceforge.openai</groupId>-->
+        <!--<artifactId>openaifsm</artifactId>-->
+        <!--</dependency>	-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-chunker</artifactId>
@@ -107,7 +117,7 @@
 				        <typeSystemIncludes>
 				          <typeSystemInclude>src/main/resources/org/apache/ctakes/**/types/TypeSystem.xml</typeSystemInclude>				          
 				        </typeSystemIncludes>
-				        <limitToProject>false</limitToProject>
+                          <limitToProject>true</limitToProject>
 				      </configuration>
 				    </execution>
 				    </executions>

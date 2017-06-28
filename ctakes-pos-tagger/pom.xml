@@ -32,42 +32,49 @@
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-pos-tagger-res</artifactId>
-		</dependency>	    
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-type-system</artifactId>
 		</dependency>
+        <!--  type system is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-type-system</artifactId>-->
+        <!--</dependency>-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-utils</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.opennlp</groupId>
-			<artifactId>opennlp-tools</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.opennlp</groupId>
-			<artifactId>opennlp-maxent</artifactId>
-		</dependency>
+        <!--  utils is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-utils</artifactId>-->
+        <!--</dependency>-->
+        <!--  log4j is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>log4j</groupId>-->
+        <!--<artifactId>log4j</artifactId>-->
+        <!--</dependency>-->
+        <!--  opennlp tools is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.opennlp</groupId>-->
+        <!--<artifactId>opennlp-tools</artifactId>-->
+        <!--</dependency>-->
+        <!--  opennlp maxent is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.opennlp</groupId>-->
+        <!--<artifactId>opennlp-maxent</artifactId>-->
+        <!--</dependency>-->
 		<dependency>
 			<groupId>com.googlecode.clearnlp</groupId>
 			<artifactId>clearnlp</artifactId>
-		</dependency>		
-		<dependency>
-			<groupId>jdom</groupId>
-			<artifactId>jdom</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
+        <!--  jdom is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>jdom</groupId>-->
+        <!--<artifactId>jdom</artifactId>-->
+        <!--</dependency>-->
+        <!--  junit is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>junit</groupId>-->
+        <!--<artifactId>junit</artifactId>-->
+        <!--</dependency>-->
 	</dependencies>
 </project>

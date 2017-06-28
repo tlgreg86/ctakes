@@ -32,137 +32,75 @@
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-relation-extractor-res</artifactId>
-		</dependency>	    
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-type-system</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-utils</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-pos-tagger</artifactId>
-		</dependency>
-			<dependency>
-				<groupId>org.cleartk</groupId>
-				<artifactId>cleartk-eval</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.cleartk</groupId>
-				<artifactId>cleartk-ml</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.cleartk</groupId>
-				<artifactId>cleartk-ml-libsvm</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.cleartk</groupId>
-				<artifactId>cleartk-ml-opennlp-maxent</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.cleartk</groupId>
-				<artifactId>cleartk-util</artifactId>
-			</dependency>
-		<dependency>
-			<groupId>com.lexicalscope.jewelcli</groupId>
-			<artifactId>jewelcli</artifactId>
-		</dependency>
-			<dependency>
-				<groupId>commons-io</groupId>
-				<artifactId>commons-io</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>commons-lang</groupId>
-				<artifactId>commons-lang</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>commons-logging</groupId>
-				<artifactId>commons-logging</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>com.google.guava</groupId>
-				<artifactId>guava</artifactId>
-			</dependency>
-			
-			<dependency>
-				<groupId>com.carrotsearch</groupId>
-				<artifactId>hppc</artifactId>
-			</dependency>
-		
-		
-		<dependency>
-            <groupId>jdom</groupId>
-            <artifactId>jdom</artifactId>
         </dependency>
-		
+        <!--  Clinical Pipeline contains ctakes modules that are needed.  -->
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
+			<groupId>org.apache.ctakes</groupId>
+            <artifactId>ctakes-clinical-pipeline</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.opennlp</groupId>
-			<artifactId>opennlp-tools</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.opennlp</groupId>
-			<artifactId>opennlp-maxent</artifactId>
-		</dependency>
-		<dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-        </dependency>
-       	<dependency>
-            <groupId>tw.edu.ntu.csie</groupId>
-            <artifactId>libsvm</artifactId>
-		</dependency>
-       
-       	<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-		</dependency>
-        
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
-	<dependency>
-		<groupId>org.apache.ctakes</groupId>
-		<artifactId>ctakes-context-tokenizer</artifactId>
-	</dependency>
-	<dependency>
-		<groupId>org.apache.ctakes</groupId>
-		<artifactId>ctakes-constituency-parser</artifactId>
-	</dependency>
-	<dependency>
-		<groupId>org.apache.ctakes</groupId>
-		<artifactId>ctakes-ne-contexts</artifactId>
-	</dependency>
-	<dependency>
-		<groupId>org.apache.ctakes</groupId>
-		<artifactId>ctakes-chunker</artifactId>
-	</dependency>
-	<dependency>
-		<groupId>org.apache.ctakes</groupId>
-		<artifactId>ctakes-dependency-parser</artifactId>
-	</dependency>
+        <!--  ctakes-core contains cleartk-ml, -util -->
+        <!--  cleartk-eval is added by assertion.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.cleartk</groupId>-->
+        <!--<artifactId>cleartk-eval</artifactId>-->
+        <!--</dependency>-->
+        <!--  cleartk-ml-libsvm is added by assertion.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.cleartk</groupId>-->
+        <!--<artifactId>cleartk-ml-libsvm</artifactId>-->
+        <!--</dependency>-->
+        <!--  cleartk-ml-opennlp-maxent is added by assertion.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.cleartk</groupId>-->
+        <!--<artifactId>cleartk-ml-opennlp-maxent</artifactId>-->
+        <!--</dependency>-->
+        <!--  commons-lang is added by dependency parser.  -->
+        <!--<dependency>-->
+        <!--<groupId>commons-lang</groupId>-->
+        <!--<artifactId>commons-lang</artifactId>-->
+        <!--</dependency>-->
+        <!--  commons-logging is added by dependency parser.  -->
+        <!--<dependency>-->
+        <!--<groupId>commons-logging</groupId>-->
+        <!--<artifactId>commons-logging</artifactId>-->
+        <!--</dependency>-->
+        <!--  guave is added by core unfortunately.  -->
+        <!--<dependency>-->
+        <!--<groupId>com.google.guava</groupId>-->
+        <!--<artifactId>guava</artifactId>-->
+        <!--</dependency>-->
+        <!--  hppc is added by dependency parser.  -->
+        <!--<dependency>-->
+        <!--<groupId>com.carrotsearch</groupId>-->
+        <!--<artifactId>hppc</artifactId>-->
+        <!--</dependency>-->
+        <!--  ctakes-core contains opennlp-utils, -maxent, jdom  -->
+        <!--  lucene core is added by utils.  -->
+        <!--  lucene-core is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.lucene</groupId>-->
+        <!--<artifactId>lucene-core</artifactId>-->
+        <!--</dependency>-->
+        <!--  libsvm is added by relation extractor.  -->
+        <!--<dependency>-->
+        <!--<groupId>tw.edu.ntu.csie</groupId>-->
+        <!--<artifactId>libsvm</artifactId>-->
+        <!--</dependency>-->
+        <!--  spring core is added by assertion.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.springframework</groupId>-->
+        <!--<artifactId>spring-core</artifactId>-->
+        <!--</dependency>-->
 	<dependency>
 		<groupId>edu.mit</groupId>
 		<artifactId>jwi</artifactId>
 		<version>2.2.3</version>
 	</dependency>
-	<dependency>
-		<groupId>org.apache.uima</groupId>
-		<artifactId>uimafit-core</artifactId>
-	</dependency>
-	<dependency>
-		<groupId>org.cleartk</groupId>
-		<artifactId>cleartk-ml-liblinear</artifactId>
-	</dependency>
+        <!--  ctakes-core contains uimafit-core  -->
+        <!--  cleartk-ml-liblinear is added by assertion  -->
+        <!--<dependency>-->
+        <!--<groupId>org.cleartk</groupId>-->
+        <!--<artifactId>cleartk-ml-liblinear</artifactId>-->
+        <!--</dependency>-->
 	</dependencies>
 </project>

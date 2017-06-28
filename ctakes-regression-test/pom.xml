@@ -10,68 +10,83 @@
   <description>Apache cTAKES Regression-test</description>
   
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-type-system</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-utils</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>jdom</groupId>
-			<artifactId>jdom</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-context-tokenizer</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-preprocessor</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-lvg</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-chunker</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-ne-contexts</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-pos-tagger</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-assertion</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-dependency-parser</artifactId>
-		</dependency>
+        <!--  type system is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-type-system</artifactId>-->
+        <!--</dependency>-->
+        <!--  core is added by everybody.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-core</artifactId>-->
+        <!--</dependency>-->
+        <!--  utils is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-utils</artifactId>-->
+        <!--</dependency>-->
+        <!--  jdom is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>jdom</groupId>-->
+        <!--<artifactId>jdom</artifactId>-->
+        <!--</dependency>-->
+        <!--  junit is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>junit</groupId>-->
+        <!--<artifactId>junit</artifactId>-->
+        <!--</dependency>-->
+        <!--  context tokenizer is added by assertion.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-context-tokenizer</artifactId>-->
+        <!--</dependency>-->
+        <!--  pre-processor is added by clinical pipeline.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-preprocessor</artifactId>-->
+        <!--</dependency>-->
+        <!--  lvg is added by dependency parser.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-lvg</artifactId>-->
+        <!--</dependency>-->
+        <!--  chunker is added by assertion.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-chunker</artifactId>-->
+        <!--</dependency>-->
+        <!--  ne contexts is added by clinical pipeline.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-ne-contexts</artifactId>-->
+        <!--</dependency>-->
+        <!--  pos tagger is added by chunker.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-pos-tagger</artifactId>-->
+        <!--</dependency>-->
+        <!--  assertion is added by clinical pipeline.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-assertion</artifactId>-->
+        <!--</dependency>-->
+        <!--  dependency parser is added by assertion.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-dependency-parser</artifactId>-->
+        <!--</dependency>-->
 		<!--  If clinical-pipeline is a dependency then everything in clinical-pipeline should be removed.
 				This makes maintenance much easier wrt upgraded versions and removed/unused modules (e.g. old lookup).-->
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-clinical-pipeline</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-drug-ner</artifactId>
-		</dependency>		
+        <!--  clinical pipeline is added by relation extractor.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-clinical-pipeline</artifactId>-->
+        <!--</dependency>-->
+        <!--  drug-ner is added by smoking status, side effect.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-drug-ner</artifactId>-->
+        <!--</dependency>		-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-smoking-status</artifactId>
@@ -79,11 +94,12 @@
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-side-effect</artifactId>
-		</dependency>		
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-constituency-parser</artifactId>
-		</dependency>		
+        </dependency>
+        <!--  constituency parser is added by assertion.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-constituency-parser</artifactId>-->
+        <!--</dependency>		-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-coreference</artifactId>

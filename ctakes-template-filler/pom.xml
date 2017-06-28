@@ -30,55 +30,64 @@
 		<version>4.0.1-SNAPSHOT</version>
 	</parent>
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-type-system</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-core</artifactId>
-		</dependency>
+        <!--  type system is added by utils  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-type-system</artifactId>-->
+        <!--</dependency>-->
+        <!--  core is added by everything.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-core</artifactId>-->
+        <!--</dependency>-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-drug-ner</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-drug-ner-res</artifactId>
-		</dependency>
+        <!--  Oh come on ... drug ner and drug ner res?  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-drug-ner-res</artifactId>-->
+        <!--</dependency>-->
 		<!--  If clinical-pipeline is a dependency then everything in clinical-pipeline should be removed.
 				This makes maintenance much easier wrt upgraded versions and removed/unused modules (e.g. old lookup).-->
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-clinical-pipeline</artifactId>
-		</dependency>
+        <!--  clinical pipeline is added by realtion extractor.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-clinical-pipeline</artifactId>-->
+        <!--</dependency>-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-relation-extractor</artifactId>
-		</dependency>	    
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-relation-extractor-res</artifactId>
-		</dependency>	    
-	<dependency>
-		<groupId>org.apache.ctakes</groupId>
-		<artifactId>ctakes-chunker</artifactId>
-	</dependency>
-	<dependency>
-		<groupId>org.apache.ctakes</groupId>
-		<artifactId>ctakes-dictionary-lookup</artifactId>
-	</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-utils</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
+        <!--  Oh come on ... relation extractor and relation extractor res?  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-relation-extractor-res</artifactId>-->
+        <!--</dependency>-->
+        <!--  chunkeris added by assertion.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-chunker</artifactId>-->
+        <!--</dependency>-->
+        <!--  We really need to get rid of dictionary lookup.  -->
+        <!--  dictionary lookup is in drug ner.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-dictionary-lookup</artifactId>-->
+        <!--</dependency>-->
+        <!--  Honestly, I am just tired of writing from where these things come.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-utils</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>log4j</groupId>-->
+        <!--<artifactId>log4j</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>junit</groupId>-->
+        <!--<artifactId>junit</artifactId>-->
+        <!--</dependency>-->
 	</dependencies>
 </project>

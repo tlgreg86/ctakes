@@ -38,23 +38,26 @@
 			<artifactId>mastif-zoner</artifactId>
 			<version>1.4</version>
 		</dependency>
-		<dependency>
-      <groupId>org.apache.uima</groupId>
-      <artifactId>uimaj-core</artifactId>
-		</dependency>
+        <!--  uimaj core is added by core (via utils).  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.uima</groupId>-->
+        <!--<artifactId>uimaj-core</artifactId>-->
+        <!--</dependency>-->
 		<!-- we excluded spring-context uimafit transitive dependency in the parent pom, include it here -->
-		<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context</artifactId>
-		</dependency>
+        <!--  Spring context is added by core (via type system).  -->
+        <!--<dependency>-->
+        <!--<groupId>org.springframework</groupId>-->
+        <!--<artifactId>spring-context</artifactId>-->
+        <!--</dependency>-->
 		<dependency>
       <groupId>org.apache.ctakes</groupId>
       <artifactId>ctakes-core</artifactId>
     </dependency>
-		<dependency>
-			<groupId>org.apache.uima</groupId>
-			<artifactId>uimafit-core</artifactId>
-		</dependency>
+        <!--  uimafit core is added by core (via type system).  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.uima</groupId>-->
+        <!--<artifactId>uimafit-core</artifactId>-->
+        <!--</dependency>-->
 	</dependencies>
 	<build>
 		<plugins>
@@ -67,9 +70,10 @@
 				      <goals><goal>generate</goal></goals>
 				      <configuration>
 				        <typeSystemIncludes>
-				          <typeSystemInclude>src/main/resources/org/apache/ctakes/**/types/TypeSystem.xml</typeSystemInclude>				          
+                            <typeSystemInclude>src/main/resources/org/apache/ctakes/**/types/TypeSystem.xml
+                            </typeSystemInclude>
 				        </typeSystemIncludes>
-				        <limitToProject>false</limitToProject>
+                          <limitToProject>true</limitToProject>
 				      </configuration>
 				    </execution>
 				    </executions>

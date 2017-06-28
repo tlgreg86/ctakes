@@ -34,69 +34,12 @@
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-temporal-res</artifactId>
-		</dependency>	    
-		<dependency>
-			<groupId>org.jdom</groupId>
-			<artifactId>jdom2</artifactId>
-		</dependency>
-        <dependency>
-            <groupId>com.lexicalscope.jewelcli</groupId>
-            <artifactId>jewelcli</artifactId>
         </dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-type-system</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-context-tokenizer</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-pos-tagger</artifactId>
-		</dependency>
-		<!--  If chunker is a dependency then everything in chunker should be removed.  core, type-system, pos-tagger ...
-				This makes maintenance much easier wrt upgraded versions and removed/unused modules (e.g. old lookup).-->
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-chunker</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-dictionary-lookup-fast</artifactId>
-		</dependency>
-			<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-lvg</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-dependency-parser</artifactId>
-		</dependency>
+        <!--  Relation extractor uses clinical-pipeline.  No need to redeclare all those dependencies.  -->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-relation-extractor</artifactId>
 		</dependency>
-    <dependency>
-      <groupId>org.apache.ctakes</groupId>
-      <artifactId>ctakes-constituency-parser</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.cleartk</groupId>
-      <artifactId>cleartk-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.cleartk</groupId>
-      <artifactId>cleartk-ml</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.cleartk</groupId>
-      <artifactId>cleartk-eval</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.cleartk</groupId>
       <artifactId>cleartk-timeml</artifactId>
@@ -104,10 +47,6 @@
 		<dependency>
 			<groupId>org.cleartk</groupId>
 			<artifactId>cleartk-ml-svmlight</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.cleartk</groupId>
-			<artifactId>cleartk-ml-libsvm</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.cleartk</groupId>

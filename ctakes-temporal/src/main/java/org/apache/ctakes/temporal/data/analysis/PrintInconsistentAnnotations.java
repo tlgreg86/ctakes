@@ -18,14 +18,10 @@
  */
 package org.apache.ctakes.temporal.data.analysis;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
+import com.google.common.base.Function;
+import com.google.common.collect.*;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
 import org.apache.ctakes.temporal.eval.CommandLine;
 import org.apache.ctakes.temporal.eval.Evaluation_ImplBase.XMIReader;
 import org.apache.ctakes.temporal.eval.THYMEData;
@@ -42,14 +38,13 @@ import org.cleartk.util.ViewUriUtil;
 import org.cleartk.util.ae.UriToDocumentTextAnnotator;
 import org.cleartk.util.cr.UriCollectionReader;
 
-import com.google.common.base.Function;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
+import java.io.File;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+//import javax.annotation.Nullable;
 
 public class PrintInconsistentAnnotations {
   static interface Options {
@@ -164,7 +159,10 @@ public class PrintInconsistentAnnotations {
           Ordering<EventMention> byBegin =
               Ordering.natural().onResultOf(new Function<EventMention, Integer>() {
                 @Override
-                public Integer apply(@Nullable EventMention event) {
+                // all of guava for two @Nullable ?  temporal has about 100 you be outdated errors and warnings.
+                // findbugs is the least of worries.
+//                public Integer apply(@Nullable EventMention event) {
+                public Integer apply( EventMention event ) {
                   return event.getBegin();
                 }
               });

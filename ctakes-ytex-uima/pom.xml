@@ -125,7 +125,7 @@
 				        <typeSystemIncludes>
 				          <typeSystemInclude>src/main/resources/org/apache/ctakes/**/types/TypeSystem.xml</typeSystemInclude>				          
 				        </typeSystemIncludes>
-				        <limitToProject>false</limitToProject>
+						  <limitToProject>true</limitToProject>
 				      </configuration>
 				    </execution>
 				    </executions>

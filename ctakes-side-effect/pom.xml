@@ -33,15 +33,17 @@
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-side-effect-res</artifactId>
-		</dependency>	    
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-type-system</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-core</artifactId>
-		</dependency>
+        <!--  type system is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-type-system</artifactId>-->
+        <!--</dependency>-->
+        <!--  core is added by everything.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-core</artifactId>-->
+        <!--</dependency>-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-dictionary-lookup</artifactId>
@@ -50,30 +52,36 @@
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-drug-ner</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-utils</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>jdom</groupId>
-			<artifactId>jdom</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
-		<dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-        </dependency>
-       	<dependency>
-            <groupId>tw.edu.ntu.csie</groupId>
-            <artifactId>libsvm</artifactId>
-		</dependency>		
+        <!--  utils is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-utils</artifactId>-->
+        <!--</dependency>-->
+        <!--  log4j is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>log4j</groupId>-->
+        <!--<artifactId>log4j</artifactId>-->
+        <!--</dependency>-->
+        <!--  jdom is added by core.  -->
+        <!--<dependency>-->
+        <!--<groupId>jdom</groupId>-->
+        <!--<artifactId>jdom</artifactId>-->
+        <!--</dependency>-->
+        <!--  junit is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>junit</groupId>-->
+        <!--<artifactId>junit</artifactId>-->
+        <!--</dependency>-->
+        <!--  lucene core is added by utils.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.lucene</groupId>-->
+        <!--<artifactId>lucene-core</artifactId>-->
+        <!--</dependency>-->
+        <!--  libsvm is added by type system.  -->
+        <!--<dependency>-->
+        <!--<groupId>tw.edu.ntu.csie</groupId>-->
+        <!--<artifactId>libsvm</artifactId>-->
+        <!--</dependency>		-->
 	</dependencies>
 	<build>
 		<plugins>
@@ -86,9 +94,10 @@
 				      <goals><goal>generate</goal></goals>
 				      <configuration>
 				        <typeSystemIncludes>
-				          <typeSystemInclude>src/main/resources/org/apache/ctakes/**/types/TypeSystem.xml</typeSystemInclude>				          
+                            <typeSystemInclude>src/main/resources/org/apache/ctakes/**/types/TypeSystem.xml
+                            </typeSystemInclude>
 				        </typeSystemIncludes>
-				        <limitToProject>false</limitToProject>
+                          <limitToProject>true</limitToProject>
 				      </configuration>
 				    </execution>
 				    </executions>
