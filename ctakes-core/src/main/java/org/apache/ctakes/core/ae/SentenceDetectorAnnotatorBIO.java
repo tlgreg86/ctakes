@@ -149,6 +149,12 @@ public class SentenceDetectorAnnotatorBIO extends CleartkAnnotator<String>{
             outcome = "I";
           }else{
             outcome = this.classifier.classify(feats);
+            // This shouldn't be necessary, but if the learning algorithm fails, we need to correct it so
+            // that our accounting works. Only a B or O can follow an O, if classifier predicts "I", switch
+            // it to a "B".
+            if(outcome.equals("I") && prevOutcome.equals("O")){
+              outcome = "B";
+            }
             if(outcome.equals("B")) startInd = casInd;
             else if(outcome.equals("O") && 
                 (prevOutcome.equals("I") || prevOutcome.equals("B"))){
