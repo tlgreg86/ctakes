@@ -27,9 +27,7 @@ import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
-import org.apache.ctakes.coreference.factory.CoreferenceAnnotatorFactory;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
-import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
 import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.postagger.POSTagger;
@@ -63,21 +61,11 @@ final public class ClinicalPipelineFactory {
    private ClinicalPipelineFactory() {
    }
 
+   /**
+    * Now directs to the fast pipeline.
+    */
    public static AnalysisEngineDescription getDefaultPipeline() throws ResourceInitializationException, MalformedURLException{
-      AggregateBuilder builder = new AggregateBuilder();
-      builder.add( getTokenProcessingPipeline() );
-      builder.add( getNpChunkerPipeline() );
-      builder.add( AnalysisEngineFactory.createEngineDescription( ConstituencyParser.class ) );
-      builder.add( UmlsDictionaryLookupAnnotator.createAnnotatorDescription() );
-      builder.add( ClearNLPDependencyParserAE.createAnnotatorDescription() );
-      builder.add( PolarityCleartkAnalysisEngine.createAnnotatorDescription() );
-      builder.add( UncertaintyCleartkAnalysisEngine.createAnnotatorDescription() );
-      builder.add( HistoryCleartkAnalysisEngine.createAnnotatorDescription() );
-      builder.add( ConditionalCleartkAnalysisEngine.createAnnotatorDescription() );
-      builder.add( GenericCleartkAnalysisEngine.createAnnotatorDescription() );
-      builder.add( SubjectCleartkAnalysisEngine.createAnnotatorDescription() );
-
-      return builder.createAggregateDescription();
+      return getFastPipeline();
    }
 
    public static AnalysisEngineDescription getFastPipeline() throws ResourceInitializationException, MalformedURLException {
@@ -130,16 +118,17 @@ final public class ClinicalPipelineFactory {
       builder.add( ChunkAdjuster.createAnnotatorDescription( new String[] { "NP", "PP", "NP" }, 2 ) );
       return builder.createAggregateDescription();
    }
-   
-   public static AnalysisEngineDescription getCoreferencePipeline() throws ResourceInitializationException, MalformedURLException {
-     AggregateBuilder builder = new AggregateBuilder();
-     
-     builder.add(getFastPipeline());
-     builder.add(ConstituencyParser.createAnnotatorDescription());
-     builder.add(CoreferenceAnnotatorFactory.getDefaultCoreferencePipeline());
-     
-     return builder.createAggregateDescription();
-   }
+
+   // This should be in coref.  Coref depends upon clinical, not the other way around.
+//   public static AnalysisEngineDescription getCoreferencePipeline() throws ResourceInitializationException, MalformedURLException {
+//     AggregateBuilder builder = new AggregateBuilder();
+//
+//     builder.add(getFastPipeline());
+//     builder.add(ConstituencyParser.createAnnotatorDescription());
+//     builder.add(CoreferenceAnnotatorFactory.getDefaultCoreferencePipeline());
+//
+//     return builder.createAggregateDescription();
+//   }
 
    public static void main( final String... args ) throws IOException, UIMAException, SAXException {
       // The note is easier to read when sentences are stacked - changed 3/16/2015 spf
