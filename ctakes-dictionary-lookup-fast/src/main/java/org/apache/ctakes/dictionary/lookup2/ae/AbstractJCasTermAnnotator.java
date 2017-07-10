@@ -68,7 +68,7 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
    private final Set<String> _exclusionPartsOfSpeech = new HashSet<>();
 
    @ConfigurationParameter( name = ConfigParameterConstants.PARAM_LOOKUP_XML, mandatory = false,
-         description = ConfigParameterConstants.DESC_LOOKUP_XML, defaultValue = "" )
+         description = ConfigParameterConstants.DESC_LOOKUP_XML, defaultValue = DEFAULT_DICT_DESC_PATH )
    private String _lookupXml;
 
    /**

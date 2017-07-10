@@ -3,8 +3,10 @@ package org.apache.ctakes.gui.pipeline;
 
 import org.apache.ctakes.core.pipeline.PiperFileReader;
 import org.apache.ctakes.core.pipeline.PiperFileRunner;
+import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.gui.component.*;
 import org.apache.ctakes.gui.pipeline.bit.parameter.ParameterCellRenderer;
+import org.apache.ctakes.gui.pipeline.piper.PiperFileView;
 import org.apache.ctakes.gui.pipeline.piper.PiperTextFilter;
 import org.apache.ctakes.gui.util.IconLoader;
 import org.apache.log4j.Logger;
@@ -15,7 +17,6 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.filechooser.FileView;
 import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -37,9 +38,11 @@ import java.util.stream.Collectors;
  * @version %I%
  * @since 4/18/2017
  */
-public class PiperRunnerPanel extends JPanel {
+final public class PiperRunnerPanel extends JPanel {
 
    static private final Logger LOGGER = Logger.getLogger( "PiperRunnerPanel" );
+
+   static private final String CLI_EXTENSION = "piper_cli";
 
    private final JFileChooser _piperChooser = new JFileChooser();
    private final JFileChooser _parmChooser = new JFileChooser();
@@ -56,21 +59,24 @@ public class PiperRunnerPanel extends JPanel {
    private JButton _parmButton;
    private JButton _runButton;
 
-   private final java.util.List<String> _cliNames = new ArrayList<>();
-   private final Map<String, Character> _cliChars = new HashMap<>();
-   private final Map<String,String> _cliValues = new HashMap<>();
-   private final String[] STANDARD_NAMES = { "InputDirectory (-i)", "OutputDirectory (-o)", "SubDirectory (-s)",
-         "LookupXml (-l)", "UMLS Username (--user)", "UMLS Password (--pass)", "XMI Output (--xmiOut)" };
-   private final Map<String,String> _standardChars = new HashMap<>( STANDARD_NAMES.length );
-   private final Map<String,String> _standardValues = new HashMap<>( STANDARD_NAMES.length );
+   private final String[] STANDARD_CHARS = { "i", "o", "s", "l", "-user", "-pass", "-xmiOut" };
+
+   private final Map<String, String> _charToName = new HashMap<>( STANDARD_CHARS.length );
+   private final Map<String, String> _charToValue = new HashMap<>( STANDARD_CHARS.length );
+
+   private final java.util.List<Character> _cliChars = new ArrayList<>();
+   private final Map<Character, String> _cliCharToName = new HashMap<>();
+   private final Map<Character, String> _cliCharToValue = new HashMap<>();
 
 
    PiperRunnerPanel() {
       super( new BorderLayout() );
-      final String[] STANDARD_OPTIONS = { "-i", "-o", "-s", "-l", "--user", "--pass", "--xmiOut" };
-      for ( int i=0; i<STANDARD_NAMES.length; i++ ) {
-         _standardChars.put( STANDARD_NAMES[ i ], STANDARD_OPTIONS[ i ] );
+      final String[] STANDARD_NAMES = { "InputDirectory", "OutputDirectory", "SubDirectory",
+            "LookupXml", "UMLS Username", "UMLS Password", "XMI Output" };
+      for ( int i = 0; i < STANDARD_CHARS.length; i++ ) {
+         _charToName.put( STANDARD_CHARS[ i ], STANDARD_NAMES[ i ] );
       }
+
       final JSplitPane logSplit = new PositionedSplitPane( JSplitPane.VERTICAL_SPLIT );
       logSplit.setTopComponent( createMainPanel() );
       logSplit.setBottomComponent( LoggerPanel.createLoggerPanel() );
@@ -83,7 +89,7 @@ public class PiperRunnerPanel extends JPanel {
 
       _piperChooser.setFileFilter( new FileNameExtensionFilter( "Pipeline Definition (Piper) File", "piper") );
       _piperChooser.setFileView( new PiperFileView() );
-      _parmChooser.setFileFilter( new FileNameExtensionFilter( "Pipeline Definition (Piper) Parameter File", "piper_cli" ) );
+      _parmChooser.setFileFilter( new FileNameExtensionFilter( "Pipeline Definition (Piper) Parameter File", CLI_EXTENSION ) );
       _parmChooser.setFileView( new PiperFileView() );
    }
 
@@ -121,7 +127,7 @@ public class PiperRunnerPanel extends JPanel {
       final JComponent westPanel = createWestPanel();
       final JComponent eastPanel = createEastPanel();
       final JSplitPane mainSplit = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT, westPanel, eastPanel );
-      mainSplit.setDividerLocation( 0.6 );
+      mainSplit.setDividerLocation( 0.5 );
       return mainSplit;
    }
 
@@ -148,7 +154,9 @@ public class PiperRunnerPanel extends JPanel {
       _cliTable.setRowHeight( 20 );
       _cliTable.setAutoResizeMode( JTable.AUTO_RESIZE_LAST_COLUMN );
       _cliTable.getColumnModel().getColumn( 0 ).setPreferredWidth( 100 );
-      _cliTable.getColumnModel().getColumn( 2 ).setMaxWidth( 25 );
+      _cliTable.getColumnModel().getColumn( 0 ).setMaxWidth( 100 );
+      _cliTable.getColumnModel().getColumn( 1 ).setMaxWidth( 50 );
+      _cliTable.getColumnModel().getColumn( 3 ).setMaxWidth( 25 );
       _cliTable.setRowSelectionAllowed( true );
       _cliTable.setCellSelectionEnabled( true );
       _cliTable.setDefaultRenderer( ConfigurationParameter.class, new ParameterCellRenderer() );
@@ -164,15 +172,15 @@ public class PiperRunnerPanel extends JPanel {
 
    // -i, -o, -s, -l --user --pass --xmiOut
    private final class CliOptionModel implements TableModel {
-      private final String[] COLUMN_NAMES = { "Parameter Name", "Value", "" };
-      private final Class<?>[] COLUMN_CLASSES = { String.class, String.class, File.class };
+      private final String[] COLUMN_NAMES = { "Parameter Name", "Option", "Value", "" };
+      private final Class<?>[] COLUMN_CLASSES = { String.class, String.class, String.class, File.class };
       private final EventListenerList _listenerList = new EventListenerList();
       public int getRowCount() {
-         return STANDARD_NAMES.length + _cliNames.size();
+         return STANDARD_CHARS.length + _cliChars.size();
       }
       @Override
       public int getColumnCount() {
-         return 3;
+         return 4;
       }
       @Override
       public String getColumnName( final int column ) {
@@ -185,16 +193,22 @@ public class PiperRunnerPanel extends JPanel {
       @Override
       public Object getValueAt( final int row, final int column ) {
          if ( column == 0 ) {
-            if ( row < STANDARD_NAMES.length ) {
-               return STANDARD_NAMES[ row ];
+            if ( row < STANDARD_CHARS.length ) {
+               return _charToName.get( STANDARD_CHARS[ row ] );
             }
-            return _cliNames.get( row - STANDARD_NAMES.length );
+            final Character c = _cliChars.get( row - STANDARD_CHARS.length );
+            return _cliCharToName.getOrDefault( c, "Unknown Name" );
          } else if ( column == 1 ) {
-            if ( row < STANDARD_NAMES.length ) {
-               return _standardValues.getOrDefault( STANDARD_NAMES[ row ], "" );
+            if ( row < STANDARD_CHARS.length ) {
+               return '-' + STANDARD_CHARS[ row ];
             }
-            return _cliValues.getOrDefault( _cliNames.get( row - STANDARD_NAMES.length ), "" );
+            return '-' + _cliChars.get( row - STANDARD_CHARS.length );
          } else if ( column == 2 ) {
+            if ( row < STANDARD_CHARS.length ) {
+               return _charToValue.getOrDefault( STANDARD_CHARS[ row ], "" );
+            }
+            return _cliCharToValue.getOrDefault( _cliChars.get( row - STANDARD_CHARS.length ), "" );
+         } else if ( column == 3 ) {
             final String path = (String)getValueAt( row, 1 );
             return new File( path );
          }
@@ -206,19 +220,19 @@ public class PiperRunnerPanel extends JPanel {
       }
       @Override
       public void setValueAt( final Object aValue, final int row, final int column ) {
-         if ( column == 1 ) {
-            if ( row < STANDARD_NAMES.length ) {
-               _standardValues.put( STANDARD_NAMES[ row ], (String)aValue );
+         if ( column == 2 ) {
+            if ( row < STANDARD_CHARS.length ) {
+               _charToValue.put( STANDARD_CHARS[ row ], (String) aValue );
             } else {
-               _cliValues.put( _cliNames.get( row - STANDARD_NAMES.length ), (String) aValue );
+               _cliCharToValue.put( _cliChars.get( row - STANDARD_CHARS.length ), (String) aValue );
             }
             fireTableChanged( new TableModelEvent( this, row, row, column ) );
-         } else if ( column == 2 && File.class.isInstance( aValue ) ) {
+         } else if ( column == 3 && File.class.isInstance( aValue ) ) {
             final String path = ((File)aValue).getPath();
-            if ( row < STANDARD_NAMES.length ) {
-               _standardValues.put( STANDARD_NAMES[ row ], path );
+            if ( row < STANDARD_CHARS.length ) {
+               _charToValue.put( STANDARD_CHARS[ row ], path );
             } else {
-               _cliValues.put( _cliNames.get( row - STANDARD_NAMES.length ), path );
+               _cliCharToValue.put( _cliChars.get( row - STANDARD_CHARS.length ), path );
             }
             fireTableChanged( new TableModelEvent( this, row, row, 1 ) );
          }
@@ -255,81 +269,90 @@ public class PiperRunnerPanel extends JPanel {
          if ( option != JFileChooser.APPROVE_OPTION ) {
             return;
          }
-         final PiperFileReader reader = new PiperFileReader();
-         final File file = _piperChooser.getSelectedFile();
-         String text = loadPiperText( reader, file.getPath() );
-          try {
-            _piperDocument.remove( 0, _piperDocument.getLength() );
-            _piperDocument.insertString( 0, text, null );
-         } catch ( BadLocationException blE ) {
-            LOGGER.warn( blE.getMessage() );
-         }
-         _cliNames.clear();
-         _cliChars.clear();
-         _cliValues.clear();
-         if ( !loadPiperCli( reader, text ) ) {
-            error( "Could not load Piper File: " + file.getPath() );
-            return;
-         }
-         _piperPath = file.getPath();
-         _runButton.setEnabled( true );
-         _cliTable.revalidate();
-         _cliTable.repaint();
-      }
-      private String loadPiperText( final PiperFileReader reader, final String filePath ) {
-         LOGGER.info( "Loading Piper File: " + filePath);
-         try {
-            final String loadPath = reader.getPiperPath( filePath );
-            return  Files.lines( Paths.get( loadPath ) ).collect( Collectors.joining( "\n" ) );
-         } catch ( IOException ioE ) {
-            error( ioE.getMessage() );
-            return "";
-         }
-      }
-      private boolean loadPiperCli( final PiperFileReader reader, final String text ) {
-         for ( String line : text.split( "\\n" ) ) {
-            if ( line.startsWith( "cli " ) && line.length() > 5 ) {
-               final String[] allValues = line.substring( 4 ).split( "\\s+" );
-               for ( String allValue : allValues ) {
-                  final String[] values = allValue.split( "=" );
-                  if ( values.length != 2 || values[ 1 ].length() != 1 ) {
-                     error( "Illegal cli values: " + line );
-                     return false;
-                  }
-                  final String name = values[ 0 ] + " (-" + values[ 1 ] + ")";
-                  if ( _cliChars.put( name, values[ 1 ].charAt( 0 ) ) != null ) {
-                     error( "Repeated cli value: " + line );
-                     return false;
-                  }
-                  _cliNames.add( name );
-               }
-            } else if ( line.startsWith( "package " ) && line.length() > 9 ) {
-               final String packagePath = line.substring( 8 );
-               reader.addUserPackage( packagePath );
-            } else if ( line.startsWith( "load " ) && line.length() > 6 ) {
-               final String filePath = line.substring( 5 ).trim();
-               final String subText = loadPiperText( reader, filePath );
-               if ( subText.isEmpty() ) {
-                  error( "Piper File not found: " + filePath );
-                  return false;
-               }
-               if ( !loadPiperCli( reader, subText ) ) {
-                  error( "Could not load Piper File: " + filePath );
-                  return false;
-               }
-            }
-         }
-         return true;
+         loadPiperFile( _piperChooser.getSelectedFile() );
       }
    }
+
+   public void loadPiperFile( final File file ) {
+      loadPiperFile( file.getPath() );
+   }
+
+   public void loadPiperFile( final String path ) {
+      final PiperFileReader reader = new PiperFileReader();
+      String text = loadPiperText( reader, path );
+      try {
+         _piperDocument.remove( 0, _piperDocument.getLength() );
+         _piperDocument.insertString( 0, text, null );
+      } catch ( BadLocationException blE ) {
+         LOGGER.warn( blE.getMessage() );
+      }
+      _cliChars.clear();
+      _cliCharToName.clear();
+      _cliCharToValue.clear();
+      if ( !loadPiperCli( reader, text ) ) {
+         error( "Could not load Piper File: " + path );
+         return;
+      }
+      _piperPath = path;
+      _runButton.setEnabled( true );
+      _cliTable.revalidate();
+      _cliTable.repaint();
+   }
+
+   private String loadPiperText( final PiperFileReader reader, final String filePath ) {
+      LOGGER.info( "Loading Piper File: " + filePath );
+      try {
+         final String loadPath = reader.getPiperPath( filePath );
+         return Files.lines( Paths.get( loadPath ) ).collect( Collectors.joining( "\n" ) );
+      } catch ( IOException ioE ) {
+         error( ioE.getMessage() );
+         return "";
+      }
+   }
+
+   private boolean loadPiperCli( final PiperFileReader reader, final String text ) {
+      for ( String line : text.split( "\\n" ) ) {
+         if ( line.startsWith( "cli " ) && line.length() > 5 ) {
+            final String[] allValues = line.substring( 4 ).split( "\\s+" );
+            for ( String allValue : allValues ) {
+               final String[] values = allValue.split( "=" );
+               if ( values.length != 2 || values[ 1 ].length() != 1 ) {
+                  error( "Illegal cli values: " + line );
+                  return false;
+               }
+               if ( _cliCharToName.put( values[ 1 ].charAt( 0 ), values[ 0 ] ) != null ) {
+                  error( "Repeated cli value: " + line );
+                  return false;
+               }
+               _cliChars.add( values[ 1 ].charAt( 0 ) );
+            }
+         } else if ( line.startsWith( "package " ) && line.length() > 9 ) {
+            final String packagePath = line.substring( 8 );
+            reader.addUserPackage( packagePath );
+         } else if ( line.startsWith( "load " ) && line.length() > 6 ) {
+            final String filePath = line.substring( 5 ).trim();
+            final String subText = loadPiperText( reader, filePath );
+            if ( subText.isEmpty() ) {
+               error( "Piper File not found: " + filePath );
+               return false;
+            }
+            if ( !loadPiperCli( reader, subText ) ) {
+               error( "Could not load Piper File: " + filePath );
+               return false;
+            }
+         }
+      }
+      return true;
+   }
+
 
    private void error( final String error ) {
       LOGGER.error( error );
       JOptionPane.showMessageDialog( this, error, "Piper File Error", JOptionPane.ERROR_MESSAGE );
       _piperPath = "";
-      _cliNames.clear();
       _cliChars.clear();
-      _cliValues.clear();
+      _cliCharToName.clear();
+      _cliCharToValue.clear();
       _runButton.setEnabled( false );
       _cliTable.revalidate();
       _cliTable.repaint();
@@ -343,32 +366,69 @@ public class PiperRunnerPanel extends JPanel {
             return;
          }
          final File file = _parmChooser.getSelectedFile();
-         LOGGER.info( "Loading Piper cli values file: " + file.getPath() );
-         try {
-            Files.lines( Paths.get( file.getPath() ) ).forEach( this::loadValueLine );
-         } catch ( IOException ioE ) {
-            LOGGER.error( ioE.getMessage() );
-         }
-         _cliTable.revalidate();
-         _cliTable.repaint();
+         openParameterFile( file );
       }
-      private void loadValueLine( final String line ) {
-         if ( line.trim().isEmpty() ) {
-            return;
-         }
-         final String[] values = line.trim().split( "=" );
-         if ( values.length != 2 ) {
-            LOGGER.error( "Invalid parameter line: " + line );
-            return;
-         }
-         if ( _standardChars.keySet().contains( values[0] ) ) {
-            _standardValues.put( values[0], values[1] );
-         } else if ( _cliNames.contains( values[0] ) ) {
-            _cliValues.put( values[ 0 ], values[ 1 ] );
+   }
+
+   public void openParameterFile( final File file ) {
+      openParameterFile( file.getPath() );
+   }
+
+   public void openParameterFile( final String path ) {
+      LOGGER.info( "Loading Piper cli values file: " + path );
+      try {
+         final String filePath = FileLocator.getFullPath( path );
+         Files.lines( Paths.get( filePath ) ).forEach( this::loadValueLine );
+      } catch ( IOException ioE ) {
+         LOGGER.error( ioE.getMessage() );
+      }
+      _cliTable.revalidate();
+      _cliTable.repaint();
+   }
+
+   private void loadValueLine( final String line ) {
+      final String trimmed = line.trim();
+      if ( trimmed.isEmpty() || trimmed.startsWith( "//" ) || trimmed.startsWith( "#" ) ) {
+         return;
+      }
+      final String[] values = trimmed.split( "=" );
+      if ( values.length != 2 ) {
+         LOGGER.error( "Invalid parameter line: " + line );
+         return;
+      }
+      if ( values[ 0 ].startsWith( "-" ) ) {
+         final String chars = values[ 0 ].substring( 1 );
+         if ( _charToName.containsKey( chars ) ) {
+            _charToValue.put( chars, values[ 1 ] );
+         } else if ( chars.length() == 1 && _cliChars.contains( chars.charAt( 0 ) ) ) {
+            _cliCharToValue.put( chars.charAt( 0 ), values[ 1 ] );
          } else {
             LOGGER.warn( "Unknown parameter: " + values[0] );
          }
+      } else if ( _charToName.containsValue( values[ 0 ] ) ) {
+         final String chars = getStringKey( _charToName, values[ 0 ] );
+         _charToValue.put( chars, values[ 1 ] );
+      } else if ( _cliCharToName.containsValue( values[ 0 ] ) ) {
+         _cliCharToValue.put( getCharKey( _cliCharToName, values[ 0 ] ), values[ 1 ] );
+      } else {
+         LOGGER.warn( "Unknown parameter: " + values[ 0 ] );
       }
+   }
+
+   private String getStringKey( final Map<String, String> map, final String value ) {
+      return map.entrySet().stream()
+            .filter( e -> value.equals( e.getValue() ) )
+            .map( Map.Entry::getKey )
+            .findAny()
+            .orElse( "" );
+   }
+
+   private Character getCharKey( final Map<Character, String> map, final String value ) {
+      return map.entrySet().stream()
+            .filter( e -> value.equals( e.getValue() ) )
+            .map( Map.Entry::getKey )
+            .findAny()
+            .orElse( ' ' );
    }
 
    private final class SaveParmAction implements ActionListener {
@@ -380,19 +440,20 @@ public class PiperRunnerPanel extends JPanel {
          }
          final File file = _parmChooser.getSelectedFile();
          String path = file.getPath();
-         if ( !path.endsWith( ".piper_cli" ) ) {
-            path += ".piper_cli";
+         if ( !path.endsWith( "." + CLI_EXTENSION ) ) {
+            path += "." + CLI_EXTENSION;
          }
          LOGGER.info( "Saving Piper cli values file: " + path );
-         final Collection<String> lines = Arrays.stream( STANDARD_NAMES )
-               .filter( n -> _standardValues.get( n ) != null )
-               .filter( n -> !_standardValues.get( n ).isEmpty() )
-               .map( n -> n + "=" + _standardValues.get( n ) + "\n" )
+         final Collection<String> lines = Arrays.stream( STANDARD_CHARS )
+               .filter( c -> _charToValue.get( c ) != null )
+               .filter( c -> !_charToValue.get( c ).isEmpty() )
+               .map( c -> "// " + _charToName.get( c ) + "\n-" + c + "=" + _charToValue.get( c ) + "\n" )
                .collect( Collectors.toList() );
-         _cliValues.entrySet().stream()
-               .filter( e -> e.getValue() != null )
-               .filter( e -> !e.getValue().isEmpty() )
-               .forEach( e -> lines.add( e.getKey() + "=" + e.getValue() + "\n" ) );
+         _cliChars.stream()
+               .filter( c -> _cliCharToValue.get( c ) != null )
+               .filter( c -> !_cliCharToValue.get( c ).isEmpty() )
+               .map( c -> "// " + _cliCharToName.get( c ) + "\n-" + c + "=" + _cliCharToValue.get( c ) + "\n" )
+               .forEach( lines::add );
          try {
             Files.write( Paths.get( path ),  lines, StandardOpenOption.CREATE, StandardOpenOption.WRITE );
          } catch ( IOException ioE ) {
@@ -400,7 +461,6 @@ public class PiperRunnerPanel extends JPanel {
          }
       }
    }
-
 
    private final class RunAction implements ActionListener {
       @Override
@@ -424,17 +484,17 @@ public class PiperRunnerPanel extends JPanel {
          final java.util.List<String> args = new ArrayList<>();
          args.add( 0, "-p" );
          args.add( 1, _piperPath );
-         for ( String standard : STANDARD_NAMES ) {
-            final String value = _standardValues.get( standard );
+         for ( String standard : STANDARD_CHARS ) {
+            final String value = _charToValue.get( standard );
             if ( value != null && !value.isEmpty() ) {
-               args.add( _standardChars.get( standard ) );
+               args.add( "-" + standard );
                args.add( value );
             }
          }
-         for ( String cli : _cliNames ) {
-            final String value = _cliValues.get( cli );
+         for ( Character cli : _cliChars ) {
+            final String value = _cliCharToValue.get( cli );
             if ( value != null && !value.isEmpty() ) {
-               args.add( _cliChars.get( cli ) + "" );
+               args.add( "-" + cli );
                args.add( value );
             }
          }
@@ -445,45 +505,6 @@ public class PiperRunnerPanel extends JPanel {
          }
          DisablerPane.getInstance().setVisible( false );
          frame.setCursor( Cursor.getDefaultCursor() );
-      }
-   }
-
-   // TODO refactor ; extract the common inner classes here and in mainpanel2
-   static private final class PiperFileView extends FileView {
-      private Icon _piperIcon = null;
-
-      private PiperFileView() {
-         SwingUtilities.invokeLater( new FileIconLoader() );
-      }
-
-      @Override
-      public String getTypeDescription( final File file ) {
-         final String name = file.getName();
-         if ( name.endsWith( ".piper" ) ) {
-            return "Pipeline Definition (Piper) file.";
-         }
-         return super.getTypeDescription( file );
-      }
-
-      @Override
-      public Icon getIcon( final File file ) {
-         final String name = file.getName();
-         if ( name.endsWith( ".piper" ) && _piperIcon != null ) {
-            return _piperIcon;
-         }
-         return super.getIcon( file );
-      }
-
-      /**
-       * Simple Runnable that loads an icon
-       */
-      private final class FileIconLoader implements Runnable {
-         @Override
-         public void run() {
-            final String dir = "org/apache/ctakes/gui/pipeline/icon/";
-            final String piperPng = "PiperFile.png";
-            _piperIcon = IconLoader.loadIcon( dir + piperPng );
-         }
       }
    }
 

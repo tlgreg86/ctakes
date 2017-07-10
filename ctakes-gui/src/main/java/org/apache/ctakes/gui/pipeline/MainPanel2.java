@@ -8,6 +8,7 @@ import org.apache.ctakes.gui.pipeline.bit.available.AvailablesListModel;
 import org.apache.ctakes.gui.pipeline.bit.info.*;
 import org.apache.ctakes.gui.pipeline.bit.parameter.ParameterHolder;
 import org.apache.ctakes.gui.pipeline.bit.parameter.ParameterTableModel;
+import org.apache.ctakes.gui.pipeline.piper.PiperFileView;
 import org.apache.ctakes.gui.pipeline.piper.PiperTextFilter;
 import org.apache.ctakes.gui.util.IconLoader;
 import org.apache.log4j.Logger;
@@ -16,7 +17,6 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.filechooser.FileView;
 import javax.swing.table.JTableHeader;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -441,44 +441,6 @@ final class MainPanel2 extends JPanel {
       }
    }
 
-
-   static private final class PiperFileView extends FileView {
-      private Icon _piperIcon = null;
-
-      private PiperFileView() {
-         SwingUtilities.invokeLater( new FileIconLoader() );
-      }
-
-      @Override
-      public String getTypeDescription( final File file ) {
-         final String name = file.getName();
-         if ( name.endsWith( ".piper" ) ) {
-            return "Pipeline Definition (Piper) file.";
-         }
-         return super.getTypeDescription( file );
-      }
-
-      @Override
-      public Icon getIcon( final File file ) {
-         final String name = file.getName();
-         if ( name.endsWith( ".piper" ) && _piperIcon != null ) {
-            return _piperIcon;
-         }
-         return super.getIcon( file );
-      }
-
-      /**
-       * Simple Runnable that loads an icon
-       */
-      private final class FileIconLoader implements Runnable {
-         @Override
-         public void run() {
-            final String dir = "org/apache/ctakes/gui/pipeline/icon/";
-            final String piperPng = "PiperFile.png";
-            _piperIcon = IconLoader.loadIcon( dir + piperPng );
-         }
-      }
-   }
 
    private final class CommandIconLoader implements Runnable {
       @Override

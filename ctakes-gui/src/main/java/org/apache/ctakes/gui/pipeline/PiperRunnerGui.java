@@ -1,6 +1,8 @@
 package org.apache.ctakes.gui.pipeline;
 
 
+import com.lexicalscope.jewel.cli.CliFactory;
+import org.apache.ctakes.core.pipeline.CliOptionals;
 import org.apache.ctakes.gui.component.DisablerPane;
 import org.apache.log4j.Logger;
 
@@ -12,9 +14,9 @@ import java.awt.*;
  * @version %I%
  * @since 4/18/2017
  */
-final public class PiperRunner {
+final public class PiperRunnerGui {
 
-   static private final Logger LOGGER = Logger.getLogger( "PiperRunner" );
+   static private final Logger LOGGER = Logger.getLogger( "PiperRunnerGui" );
 
    static private JFrame createFrame() {
       final JFrame frame = new JFrame( "cTAKES Piper File Submitter" );
@@ -33,7 +35,7 @@ final public class PiperRunner {
    }
 
 
-   static private JComponent createMainPanel() {
+   static private PiperRunnerPanel createMainPanel() {
       return new PiperRunnerPanel();
    }
 
@@ -47,7 +49,7 @@ final public class PiperRunner {
          LOGGER.error( multE.getLocalizedMessage() );
       }
       final JFrame frame = createFrame();
-      final JComponent mainPanel = createMainPanel();
+      final PiperRunnerPanel mainPanel = createMainPanel();
       frame.add( mainPanel );
       frame.pack();
       frame.setVisible( true );
@@ -61,6 +63,16 @@ final public class PiperRunner {
       LOGGER.info( "3. Alternatively, load a previously saved piper_cli parameter file." );
       LOGGER.info( "4. Save your Command Line Interface (cli) values to a piper_cli parameter file." );
       LOGGER.info( "5. Run the Pipeline." );
+      // Check for -p and -c specification of piper file and cli parameter file
+      final CliOptionals options = CliFactory.parseArguments( CliOptionals.class, args );
+      final String piperPath = options.getPiperPath();
+      if ( piperPath != null && !piperPath.isEmpty() ) {
+         mainPanel.loadPiperFile( options.getPiperPath() );
+         final String cliPath = options.getOption_c();
+         if ( cliPath != null && !cliPath.isEmpty() ) {
+            mainPanel.openParameterFile( cliPath );
+         }
+      }
    }
 
 }

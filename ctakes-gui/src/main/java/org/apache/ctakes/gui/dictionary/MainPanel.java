@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static org.apache.ctakes.gui.dictionary.DictionaryBuilder.CTAKES_APP_DB_PATH;
+
 /**
  * @author SPF , chip-nlp
  * @version %I%
@@ -207,7 +209,8 @@ final class MainPanel extends JPanel {
          if ( DictionaryBuilder.buildDictionary( __umlsDirPath, __ctakesDirPath, __dictionaryName,
                Collections.singletonList( "ENG" ),
                __wantedSources, __wantedTargets, __wantedTuis ) ) {
-            final String message = "Dictionary " + __dictionaryName + " successfully built in " + __ctakesDirPath;
+            final String message = "Dictionary " + __dictionaryName + " successfully built in " + __ctakesDirPath
+                  + ",  " + CTAKES_APP_DB_PATH;
             LOGGER.info( message );
             JOptionPane
                   .showMessageDialog( MainPanel.this, message, "Dictionary Built", JOptionPane.INFORMATION_MESSAGE );

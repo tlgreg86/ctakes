@@ -24,7 +24,7 @@ final class DictionaryBuilder {
    static private final Logger LOGGER = Logger.getLogger( "DictionaryBuilder" );
 
    static private final String DEFAULT_DATA_DIR = "org/apache/ctakes/gui/dictionary/data/tiny";
-   static private final String CTAKES_APP_DB_PATH = "resources/org/apache/ctakes/dictionary/lookup/fast";
+   static public final String CTAKES_APP_DB_PATH = "resources/org/apache/ctakes/dictionary/lookup/fast";
    static private final String CTAKES_RES_MODULE = "ctakes-dictionary-lookup-fast-res";
    static private final String CTAKES_RES_DB_PATH = CTAKES_RES_MODULE + "/src/main/" + CTAKES_APP_DB_PATH;
    static private final int MIN_CHAR_LENGTH = 2;
