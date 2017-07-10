@@ -88,22 +88,34 @@
         <!--<artifactId>ctakes-drug-ner</artifactId>-->
         <!--</dependency>		-->
 		<dependency>
+			<groupId>org.apache.uima</groupId>
+			<artifactId>uimaj-parent</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.uima</groupId>
+			<artifactId>uimaj-cpe</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ctakes</groupId>
+			<artifactId>ctakes-clinical-pipeline</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-smoking-status</artifactId>
 		</dependency>		
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-side-effect</artifactId>
-        </dependency>
         <!--  constituency parser is added by assertion.  -->
         <!--<dependency>-->
         <!--<groupId>org.apache.ctakes</groupId>-->
         <!--<artifactId>ctakes-constituency-parser</artifactId>-->
         <!--</dependency>		-->
+		<!--
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-coreference</artifactId>
-		</dependency>	
+		</dependency>
+			-->
 		<dependency>
 			<groupId>xmlunit</groupId>
 			<artifactId>xmlunit</artifactId>

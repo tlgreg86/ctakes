@@ -65,7 +65,7 @@
 <import location="../../../ctakes-context-tokenizer/desc/analysis_engine/ContextDependentTokenizerAnnotator.xml"/>
 </delegateAnalysisEngine>
 <delegateAnalysisEngine key="DictionaryLookupAnnotator">
-<import location="../../../ctakes-dictionary-lookup/desc/analysis_engine/DictionaryLookupAnnotator.xml"/>
+<import location="../../../ctakes-dictionary-lookup-fast/desc/analysis_engine/UmlsLookupAnnotator.xml"/>
 </delegateAnalysisEngine>
      <delegateAnalysisEngine key="GenericCleartkAnalysisEngine">
       <import location="../../../ctakes-assertion/desc/analysis_engine/GenericCleartkAnalysisEngine.xml"/>
@@ -83,6 +83,9 @@
      <delegateAnalysisEngine key="UncertaintyCleartkAnalysisEngine">
       <import location="../../../ctakes-assertion/desc/analysis_engine/UncertaintyCleartkAnalysisEngine.xml"/>
      </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="DependencyParser">
+      <import location="../../../ctakes-dependency-parser/desc/analysis_engine/ClearNLPDependencyParserAE.xml" />
+    </delegateAnalysisEngine>
 </delegateAnalysisEngineSpecifiers>
 <analysisEngineMetaData>
 <name>AggregatePlaintextProcessor</name>
@@ -134,6 +137,7 @@ Includes adjusting NP chunks to include NP NP and NP PP NP.</description>
 <node>AdjustNounPhraseToIncludeFollowingPPNP</node>
 <node>LookupWindowAnnotator</node>
 <node>DictionaryLookupAnnotator</node>
+    <node>DependencyParser</node>
        	<node>GenericCleartkAnalysisEngine</node>
 		<node>HistoryCleartkAnalysisEngine</node>
 		<node>PolarityCleartkAnalysisEngine</node>
