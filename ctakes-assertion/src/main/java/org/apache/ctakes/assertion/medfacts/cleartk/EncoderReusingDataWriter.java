@@ -14,8 +14,6 @@ import org.cleartk.ml.encoder.features.FeaturesEncoder;
 import org.cleartk.ml.encoder.outcome.StringToIntegerOutcomeEncoder;
 import org.cleartk.ml.liblinear.LibLinearStringOutcomeDataWriter;
 import org.cleartk.ml.liblinear.encoder.FeatureNodeArrayEncoder;
-import org.cleartk.util.collection.GenericStringMapper;
-import org.cleartk.util.collection.Writable;
 
 public class EncoderReusingDataWriter extends LibLinearStringOutcomeDataWriter {
 
@@ -26,7 +24,12 @@ public class EncoderReusingDataWriter extends LibLinearStringOutcomeDataWriter {
     if(encoderFile.exists()){
       try {
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(encoderFile));
-        this.setFeaturesEncoder(new WritingFeatureNodeArrayEncoder((FeatureNodeArrayEncoder) ois.readObject()));
+        Object encoder = ois.readObject();
+        if(encoder instanceof FeatureNodeArrayEncoder){
+          this.setFeaturesEncoder(new WritingFeatureNodeArrayEncoder((FeatureNodeArrayEncoder) encoder ));
+        }else if(encoder instanceof WritingFeatureNodeArrayEncoder){
+          this.setFeaturesEncoder((WritingFeatureNodeArrayEncoder) encoder);
+        }
         ois.close();
       } catch (ClassNotFoundException | IOException e) {
         e.printStackTrace();
