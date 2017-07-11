@@ -18,14 +18,16 @@
  */
 package org.apache.ctakes.dependency.parser.ae;
 
-import com.googlecode.clearnlp.component.AbstractComponent;
-import com.googlecode.clearnlp.dependency.*;
-import com.googlecode.clearnlp.engine.EngineGetter;
-import com.googlecode.clearnlp.nlp.NLPLib;
-import com.googlecode.clearnlp.reader.AbstractReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
-import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.ListFactory;
+import org.apache.ctakes.dependency.parser.ae.shared.SRLSharedParserModel;
+import org.apache.ctakes.dependency.parser.ae.shared.SRLSharedPredictionModel;
+import org.apache.ctakes.dependency.parser.ae.shared.SRLSharedRoleModel;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
@@ -35,23 +37,28 @@ import org.apache.ctakes.typesystem.type.textsem.SemanticRoleRelation;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
 import org.apache.uima.fit.descriptor.TypeCapability;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.EmptyFSList;
 import org.apache.uima.jcas.cas.FSList;
 import org.apache.uima.jcas.cas.TOP;
+import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import java.io.InputStream;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.googlecode.clearnlp.component.AbstractComponent;
+import com.googlecode.clearnlp.dependency.DEPArc;
+import com.googlecode.clearnlp.dependency.DEPFeat;
+import com.googlecode.clearnlp.dependency.DEPLib;
+import com.googlecode.clearnlp.dependency.DEPNode;
+import com.googlecode.clearnlp.dependency.DEPTree;
+import com.googlecode.clearnlp.reader.AbstractReader;
 
 /**
  *This class provides a UIMA wrapper for the ClearNLP Semantic Role Labeler, which is
@@ -86,45 +93,24 @@ import java.util.Map;
 public class ClearNLPSemanticRoleLabelerAE extends JCasAnnotator_ImplBase {
    final String language = AbstractReader.LANG_EN;
    public Logger logger = Logger.getLogger( getClass().getName() );
-   public static final String DEFAULT_SRL_MODEL_FILE_NAME
-         = "org/apache/ctakes/dependency/parser/models/srl/mayo-en-srl-1.3.0.jar";
-   public static final String DEFAULT_PRED_MODEL_FILE_NAME
-         = "org/apache/ctakes/dependency/parser/models/pred/mayo-en-pred-1.3.0.jar";
-   public static final String DEFAULT_ROLE_MODEL_FILE_NAME
-         = "org/apache/ctakes/dependency/parser/models/role/mayo-en-role-1.3.0.jar";
 
+   public static final String SRL_PRED_MODEL_KEY = "SrlPredModel";
+   @ExternalResource(key = SRL_PRED_MODEL_KEY)
+   private SRLSharedPredictionModel predModel;
 
-   public static final String PARAM_PARSER_MODEL_FILE_NAME = "ParserModelFileName";
-   public static final String PARAM_PRED_MODEL_FILE_NAME = "ParserPredFileName";
-   public static final String PARAM_ROLE_MODEL_FILE_NAME = "ParserRoleFileName";
-
-   protected URI srlModelUri;
-   protected URI srlPredUri;
-   protected URI srlRoleUri;
-
-
-   @ConfigurationParameter(
-         name = PARAM_PARSER_MODEL_FILE_NAME,
-         description = "This parameter provides the file name of the semantic role labeler model required by the factory method provided by ClearNLPUtil.",
-         defaultValue = DEFAULT_SRL_MODEL_FILE_NAME )
-   private String parserModelFileName;
-
-   public static final String PARAM_LEMMATIZER_DATA_FILE = "LemmatizerDataFile";
-
-   @ConfigurationParameter(
-         name = PARAM_PRED_MODEL_FILE_NAME,
-         description = "This parameter provides the file name of the pred model required by the factory method provided by ClearNLPUtil.",
-         defaultValue = DEFAULT_PRED_MODEL_FILE_NAME )
-   private String parserPredFileName;
-
-   @ConfigurationParameter(
-         name = PARAM_ROLE_MODEL_FILE_NAME,
-         description = "This parameter provides the file name of the role model required by the factory method provided by ClearNLPUtil.",
-         defaultValue = DEFAULT_ROLE_MODEL_FILE_NAME )
-   private String parserRoleFileName;
-
-
-   protected AbstractComponent srlabeler;
+   public static final String SRL_PARSER_MODEL_KEY = "SrlParserModel";
+   @ExternalResource(key = SRL_PARSER_MODEL_KEY)
+   private SRLSharedParserModel classifierModel;
+   
+   public static final String SRL_ROLE_MODEL_KEY = "SrlRoleModel";
+   @ExternalResource(key = SRL_ROLE_MODEL_KEY)
+   private SRLSharedRoleModel roleModel;
+   
+   private static ExternalResourceDescription defaultParserResource = null;
+   private static ExternalResourceDescription defaultPredictionResource = null;
+   private static ExternalResourceDescription defaultRoleResource = null;
+   
+   protected AbstractComponent parser;
    protected AbstractComponent identifier;
    protected AbstractComponent classifier;
 
@@ -133,23 +119,11 @@ public class ClearNLPSemanticRoleLabelerAE extends JCasAnnotator_ImplBase {
    public void initialize( UimaContext context ) throws ResourceInitializationException {
       super.initialize( context );
 
+      logger.info("Initializing ClearNLP semantic role labeler");
       try {
-
-         InputStream srlPred = (this.srlPredUri == null)
-                               ? FileLocator.getAsStream( DEFAULT_PRED_MODEL_FILE_NAME )
-                               : FileLocator.getAsStream( parserPredFileName );
-         this.identifier = EngineGetter.getComponent( srlPred, this.language, NLPLib.MODE_PRED );
-
-         InputStream srlRole = (this.srlRoleUri == null)
-                               ? FileLocator.getAsStream( DEFAULT_ROLE_MODEL_FILE_NAME )
-                               : FileLocator.getAsStream( parserRoleFileName );
-         this.classifier = EngineGetter.getComponent( srlRole, this.language, NLPLib.MODE_ROLE );
-
-         InputStream srlModel = (this.srlModelUri == null)
-                                ? FileLocator.getAsStream( DEFAULT_SRL_MODEL_FILE_NAME )
-                                : FileLocator.getAsStream( parserModelFileName );
-         this.srlabeler = EngineGetter.getComponent( srlModel, this.language, NLPLib.MODE_SRL );
-
+         this.identifier = predModel.getComponent(); 
+         this.classifier = roleModel.getComponent();
+         this.parser = classifierModel.getComponent();
       } catch ( Exception e ) {
          throw new ResourceInitializationException( e );
       }
@@ -236,7 +210,7 @@ public class ClearNLPSemanticRoleLabelerAE extends JCasAnnotator_ImplBase {
          // Run the SRL
          identifier.process( tree );
          classifier.process( tree );
-         srlabeler.process( tree );
+         parser.process( tree );
 
 
          // Convert ClearNLP SRL output to CAS types
@@ -331,4 +305,30 @@ public class ClearNLPSemanticRoleLabelerAE extends JCasAnnotator_ImplBase {
       return argument;
    }
 
+   public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
+     if(defaultParserResource == null){
+       defaultParserResource = ExternalResourceFactory.createExternalResourceDescription(
+           SRLSharedParserModel.class, 
+           SRLSharedParserModel.DEFAULT_SRL_MODEL_FILE_NAME);
+     }
+     if(defaultPredictionResource == null){
+       defaultPredictionResource = ExternalResourceFactory.createExternalResourceDescription(
+           SRLSharedPredictionModel.class, 
+           SRLSharedPredictionModel.DEFAULT_PRED_MODEL_FILE_NAME);
+     }
+     if(defaultRoleResource == null){
+       defaultRoleResource = ExternalResourceFactory.createExternalResourceDescription(
+           SRLSharedRoleModel.class, 
+           SRLSharedRoleModel.DEFAULT_ROLE_MODEL_FILE_NAME);
+     }
+     return AnalysisEngineFactory.createEngineDescription(
+         ClearNLPSemanticRoleLabelerAE.class,
+         SRL_PARSER_MODEL_KEY,
+         defaultParserResource,
+         SRL_PRED_MODEL_KEY,
+         defaultPredictionResource,
+         SRL_ROLE_MODEL_KEY,
+         defaultRoleResource);
+
+   }
 }

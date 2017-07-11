@@ -24,6 +24,7 @@ import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.dependency.parser.util.SRLUtility;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngine;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
@@ -110,27 +111,20 @@ public class TestClearNLPAnalysisEngines{
 				);
 		
 		// Load preprocessing pipeline (consists of 
-		AnalysisEngine preprocessingAE = WriteClearNLPDescriptors.getPlaintextAggregateBuilder().createAggregate();
+		AnalysisEngineDescription preprocessingAE = WriteClearNLPDescriptors.getPlaintextAggregateBuilder().createAggregateDescription();
 		
 		// Create dependency parsers analysis engine with the default models
 		// The dummy models from ClearParser haven't been updated to work with ClearNLP.
-		AnalysisEngine ClearNLPDepParser = AnalysisEngineFactory.createEngine(
-				ClearNLPDependencyParserAE.class,
-				typeSystem
-				);
-	
+		AnalysisEngineDescription clearNLPDepParser = ClearNLPDependencyParserAE.createAnnotatorDescription();
 				
 		// Create analysis engine for SRL
-		AnalysisEngine ClearNLPSRL = AnalysisEngineFactory.createEngine(
-				ClearNLPSemanticRoleLabelerAE.class,
-				typeSystem
-				);
+		AnalysisEngineDescription clearNLPSRL = ClearNLPSemanticRoleLabelerAE.createAnnotatorDescription();
 		
-		AnalysisEngine dumpClearNLPOutput = AnalysisEngineFactory.createEngine(
+		AnalysisEngineDescription dumpClearNLPOutput = AnalysisEngineFactory.createEngineDescription(
 				DumpClearNLPOutputAE.class,
 				typeSystem);
 		
-		SimplePipeline.runPipeline(reader1, preprocessingAE, ClearNLPDepParser, ClearNLPSRL, dumpClearNLPOutput);	
+		SimplePipeline.runPipeline(reader1, preprocessingAE, clearNLPDepParser, clearNLPSRL, dumpClearNLPOutput);	
 	}
 	
 }

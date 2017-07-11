@@ -18,16 +18,12 @@
  */
 package org.apache.ctakes.dependency.parser.ae;
 
-import com.googlecode.clearnlp.component.AbstractComponent;
-import com.googlecode.clearnlp.dependency.DEPFeat;
-import com.googlecode.clearnlp.dependency.DEPNode;
-import com.googlecode.clearnlp.dependency.DEPTree;
-import com.googlecode.clearnlp.engine.EngineGetter;
-import com.googlecode.clearnlp.morphology.AbstractMPAnalyzer;
-import com.googlecode.clearnlp.nlp.NLPLib;
-import com.googlecode.clearnlp.reader.AbstractReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
-import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.dependency.parser.ae.shared.DependencySharedModel;
+import org.apache.ctakes.dependency.parser.ae.shared.LemmatizerSharedModel;
 import org.apache.ctakes.dependency.parser.util.ClearDependencyUtility;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -40,16 +36,21 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import java.io.InputStream;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import com.googlecode.clearnlp.component.AbstractComponent;
+import com.googlecode.clearnlp.dependency.DEPFeat;
+import com.googlecode.clearnlp.dependency.DEPNode;
+import com.googlecode.clearnlp.dependency.DEPTree;
+import com.googlecode.clearnlp.morphology.AbstractMPAnalyzer;
+import com.googlecode.clearnlp.reader.AbstractReader;
 
 /**
  * <br>
@@ -86,30 +87,10 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
   final String language = AbstractReader.LANG_EN;
   public Logger logger = Logger.getLogger(getClass().getName());
 
-  // Default model values
-  public static final String DEFAULT_MODEL_FILE_NAME = "org/apache/ctakes/dependency/parser/models/dependency/mayo-en-dep-1.3.0.jar";
-  public static final String ENG_LEMMATIZER_DATA_FILE = "org/apache/ctakes/dependency/parser/models/lemmatizer/dictionary-1.3.1.jar";
-
-
-  // Configuration Parameters 
-  public static final String PARAM_PARSER_MODEL_FILE_NAME = "ParserModelFileName";
-  @ConfigurationParameter(
-		  name = PARAM_PARSER_MODEL_FILE_NAME,
-		  description = "This parameter provides the file name of the dependency parser model required " +
-					      "by the factory method provided by ClearNLPUtil.  If not specified, this " +
-					      "analysis engine will use a default model from the resources directory",
-		  defaultValue = DEFAULT_MODEL_FILE_NAME)
-  protected URI parserModelUri;
-
-  public static final String PARAM_LEMMATIZER_DATA_FILE = "LemmatizerDataFile";
-
-  @ConfigurationParameter(
-      name = PARAM_LEMMATIZER_DATA_FILE,
-      description = "This parameter provides the data file required for the MorphEnAnalyzer. If not "
-          + "specified, this analysis engine will use a default model from the resources directory",
-      defaultValue = ENG_LEMMATIZER_DATA_FILE)
-  protected URI lemmatizerDataFile;
-
+  // single class-based model:
+  private static ExternalResourceDescription defaultParserResource = null;
+  private static ExternalResourceDescription defaultLemmatizerResource = null;
+  
 	public static final String PARAM_USE_LEMMATIZER = "UseLemmatizer";
 	@ConfigurationParameter(
 			name = PARAM_USE_LEMMATIZER,
@@ -117,37 +98,28 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 			description = "If true, use the default ClearNLP lemmatizer, otherwise use lemmas from the BaseToken normalizedToken field")
 	protected boolean useLemmatizer;
 
-
-	protected AbstractComponent parser;
-	protected AbstractMPAnalyzer lemmatizer;
-	//protected boolean useLemmatizer = false;
+  public static final String DEP_MODEL_KEY = "DepModel";
+  @ExternalResource(key = DEP_MODEL_KEY)
+  private DependencySharedModel parserModel;
+  
+  public static final String LEM_MODEL_KEY = "LemmatizerModel";
+  @ExternalResource(key = LEM_MODEL_KEY)
+  private LemmatizerSharedModel lemmatizerModel;
+  
+	protected AbstractComponent parser=null;
+	protected AbstractMPAnalyzer lemmatizer=null;
 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
+		logger.info("Initializing ClearNLP dependency parser with lemmatizer=" + useLemmatizer);
 
-		logger.info("using Morphy analysis? " + useLemmatizer);
-
-		try {
-			if (useLemmatizer) {
-				// Note: If lemmatizer data file is not specified, then use lemmas from the BaseToken normalizedToken field.
-				// Initialize lemmatizer
-				
-                InputStream lemmatizerModel = (this.lemmatizerDataFile == null)
-                        ? FileLocator.getAsStream(ENG_LEMMATIZER_DATA_FILE)
-                        : FileLocator.getAsStream(this.lemmatizerDataFile.getPath());
-                        
-                    this.lemmatizer = EngineGetter.getMPAnalyzer(language, lemmatizerModel);
-			}
-				InputStream parserModel = (this.parserModelUri == null)
-                    ? FileLocator.getAsStream(DEFAULT_MODEL_FILE_NAME)
-                    : FileLocator.getAsStream(this.parserModelUri.getPath());
-                 
-                    this.parser = EngineGetter.getComponent(parserModel, this.language, NLPLib.MODE_DEP);
-
-        } catch (Exception e) {
-            throw new ResourceInitializationException(e);
-        }
+		if (useLemmatizer) {
+		  // Note: If lemmatizer data file is not specified, then use lemmas from the BaseToken normalizedToken field.
+		  // Initialize lemmatizer
+		  this.lemmatizer = lemmatizerModel.getLemmatizerModel();
+		}
+		this.parser = parserModel.getParser();
 	}
 
 	@Override
@@ -178,11 +150,29 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 			ArrayList<ConllDependencyNode> nodes = ClearDependencyUtility.convert( jCas, tree, sentence, printableTokens );
 			DependencyUtility.addToIndexes( jCas, nodes );
 		}
-		
-		
 	}
 	
+	// If someone calls this, they want the default model, lazy initialization of the external resources:
 	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
-	  return AnalysisEngineFactory.createEngineDescription(ClearNLPDependencyParserAE.class);
+	  if(defaultParserResource == null){
+	    defaultParserResource = ExternalResourceFactory.createExternalResourceDescription(
+	        DependencySharedModel.class,
+	        DependencySharedModel.DEFAULT_MODEL_FILE_NAME);
+	  }
+	  if(defaultLemmatizerResource == null){
+	    defaultLemmatizerResource = ExternalResourceFactory.createExternalResourceDescription(
+	        LemmatizerSharedModel.class, 
+	        LemmatizerSharedModel.ENG_LEMMATIZER_DATA_FILE);
+	  }
+	  return createAnnotatorDescription(defaultParserResource, defaultLemmatizerResource);
+	}
+	
+	public static AnalysisEngineDescription createAnnotatorDescription(ExternalResourceDescription parserDesc, ExternalResourceDescription lemmaDesc) throws ResourceInitializationException{
+	  return AnalysisEngineFactory.createEngineDescription(
+	      ClearNLPDependencyParserAE.class, 
+	      DEP_MODEL_KEY, 
+	      parserDesc, 
+	      LEM_MODEL_KEY, 
+	      lemmaDesc);
 	}
 }
