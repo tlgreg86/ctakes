@@ -1,7 +1,6 @@
 package org.apache.ctakes.dependency.parser.ae.shared;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 
 import org.apache.ctakes.core.resource.FileLocator;
@@ -21,21 +20,20 @@ public abstract class SRLSharedModel implements SharedResourceObject {
   @Override
   public void load(DataResource aData) throws ResourceInitializationException {
     URI modelUri = aData.getUri();
-    try{
-      InputStream modelInputStream = (modelUri == null)
-          ? FileLocator.getAsStream( this.getDefaultModel() )
-              : FileLocator.getAsStream( modelUri.toString() );
-          this.component = EngineGetter.getComponent( modelInputStream, this.language, this.getMode() );
-    }catch(IOException e){
-      throw new ResourceInitializationException(e);
-    }
+    this.component = getUriComponent(modelUri.toString(), this.language, this.getMode() );
   }
 
   public AbstractComponent getComponent(){
     return this.component;
   }
   
-  protected abstract String getMode();
-
-  protected abstract String getDefaultModel();
+  public static AbstractComponent getUriComponent(String uri, String lang, String mode) throws ResourceInitializationException{
+    try {
+      return EngineGetter.getComponent( FileLocator.getAsStream(uri), lang, mode );
+    } catch (IOException e) {
+      throw new ResourceInitializationException(e);
+    }
+  }
+  
+  protected abstract String getMode();  
 }

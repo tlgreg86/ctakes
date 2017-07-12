@@ -115,10 +115,14 @@ public class TestClearNLPAnalysisEngines{
 		
 		// Create dependency parsers analysis engine with the default models
 		// The dummy models from ClearParser haven't been updated to work with ClearNLP.
-		AnalysisEngineDescription clearNLPDepParser = ClearNLPDependencyParserAE.createAnnotatorDescription();
-				
+		AnalysisEngineDescription clearNLPDepParser = AnalysisEngineFactory.createEngineDescription(
+		    ClearNLPDependencyParserAE.class,
+		    typeSystem);
+		    
 		// Create analysis engine for SRL
-		AnalysisEngineDescription clearNLPSRL = ClearNLPSemanticRoleLabelerAE.createAnnotatorDescription();
+		AnalysisEngineDescription clearNLPSRL = AnalysisEngineFactory.createEngineDescription(
+		    ClearNLPSemanticRoleLabelerAE.class,
+		    typeSystem);
 		
 		AnalysisEngineDescription dumpClearNLPOutput = AnalysisEngineFactory.createEngineDescription(
 				DumpClearNLPOutputAE.class,
@@ -127,4 +131,33 @@ public class TestClearNLPAnalysisEngines{
 		SimplePipeline.runPipeline(reader1, preprocessingAE, clearNLPDepParser, clearNLPSRL, dumpClearNLPOutput);	
 	}
 	
+	 @Test
+	  public void TestClearNLPPipeLineWithFactoryMethods() throws Exception {
+	    
+	    TypeSystemDescription typeSystem = TypeSystemDescriptionFactory.createTypeSystemDescription();
+	    
+	    CollectionReader reader1 = CollectionReaderFactory.createReader(
+	        FilesCollectionReader.class,
+	        typeSystem,
+	        FilesCollectionReader.PARAM_ROOT_FILE,
+	        INPUT_FILE
+	        );
+	    
+	    // Load preprocessing pipeline (consists of 
+	    AnalysisEngineDescription preprocessingAE = WriteClearNLPDescriptors.getPlaintextAggregateBuilder().createAggregateDescription();
+	    
+	    // Create dependency parsers analysis engine with the default models
+	    // The dummy models from ClearParser haven't been updated to work with ClearNLP.
+	    AnalysisEngineDescription clearNLPDepParser = ClearNLPDependencyParserAE.createAnnotatorDescription();
+	        
+	    // Create analysis engine for SRL
+	    AnalysisEngineDescription clearNLPSRL = 
+	        ClearNLPSemanticRoleLabelerAE.createAnnotatorDescription();
+	    
+	    AnalysisEngineDescription dumpClearNLPOutput = AnalysisEngineFactory.createEngineDescription(
+	        DumpClearNLPOutputAE.class,
+	        typeSystem);
+	    
+	    SimplePipeline.runPipeline(reader1, preprocessingAE, clearNLPDepParser, clearNLPSRL, dumpClearNLPOutput); 
+	  }
 }

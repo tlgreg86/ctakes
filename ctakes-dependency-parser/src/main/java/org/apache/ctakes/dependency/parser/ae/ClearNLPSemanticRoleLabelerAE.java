@@ -95,20 +95,26 @@ public class ClearNLPSemanticRoleLabelerAE extends JCasAnnotator_ImplBase {
    public Logger logger = Logger.getLogger( getClass().getName() );
 
    public static final String SRL_PRED_MODEL_KEY = "SrlPredModel";
-   @ExternalResource(key = SRL_PRED_MODEL_KEY)
-   private SRLSharedPredictionModel predModel;
+   @ExternalResource(key = SRL_PRED_MODEL_KEY, mandatory=false)
+   private SRLSharedPredictionModel predModel=null;
 
    public static final String SRL_PARSER_MODEL_KEY = "SrlParserModel";
-   @ExternalResource(key = SRL_PARSER_MODEL_KEY)
-   private SRLSharedParserModel classifierModel;
+   @ExternalResource(key = SRL_PARSER_MODEL_KEY, mandatory=false)
+   private SRLSharedParserModel parserModel=null;
    
    public static final String SRL_ROLE_MODEL_KEY = "SrlRoleModel";
-   @ExternalResource(key = SRL_ROLE_MODEL_KEY)
-   private SRLSharedRoleModel roleModel;
+   @ExternalResource(key = SRL_ROLE_MODEL_KEY, mandatory=false)
+   private SRLSharedRoleModel roleModel=null;
    
-   private static ExternalResourceDescription defaultParserResource = null;
-   private static ExternalResourceDescription defaultPredictionResource = null;
-   private static ExternalResourceDescription defaultRoleResource = null;
+   private static ExternalResourceDescription defaultParserResource = ExternalResourceFactory.createExternalResourceDescription(
+       SRLSharedParserModel.class, 
+       SRLSharedParserModel.DEFAULT_SRL_MODEL_FILE_NAME);
+   private static ExternalResourceDescription defaultPredictionResource = ExternalResourceFactory.createExternalResourceDescription(
+       SRLSharedPredictionModel.class, 
+       SRLSharedPredictionModel.DEFAULT_PRED_MODEL_FILE_NAME);
+   private static ExternalResourceDescription defaultRoleResource = ExternalResourceFactory.createExternalResourceDescription(
+       SRLSharedRoleModel.class, 
+       SRLSharedRoleModel.DEFAULT_ROLE_MODEL_FILE_NAME);
    
    protected AbstractComponent parser;
    protected AbstractComponent identifier;
@@ -121,9 +127,21 @@ public class ClearNLPSemanticRoleLabelerAE extends JCasAnnotator_ImplBase {
 
       logger.info("Initializing ClearNLP semantic role labeler");
       try {
-         this.identifier = predModel.getComponent(); 
-         this.classifier = roleModel.getComponent();
-         this.parser = classifierModel.getComponent();
+        if(this.predModel == null){
+          this.identifier = SRLSharedPredictionModel.getDefaultModel();
+        }else{
+          this.identifier = predModel.getComponent();
+        }
+        if(this.roleModel == null){
+          this.classifier = SRLSharedRoleModel.getDefaultModel();
+        }else{
+          this.classifier = roleModel.getComponent();
+        }
+        if(this.parserModel == null){
+          this.parser = SRLSharedParserModel.getDefaultModel();
+        }else{
+          this.parser = parserModel.getComponent();
+        }
       } catch ( Exception e ) {
          throw new ResourceInitializationException( e );
       }
@@ -306,21 +324,6 @@ public class ClearNLPSemanticRoleLabelerAE extends JCasAnnotator_ImplBase {
    }
 
    public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
-     if(defaultParserResource == null){
-       defaultParserResource = ExternalResourceFactory.createExternalResourceDescription(
-           SRLSharedParserModel.class, 
-           SRLSharedParserModel.DEFAULT_SRL_MODEL_FILE_NAME);
-     }
-     if(defaultPredictionResource == null){
-       defaultPredictionResource = ExternalResourceFactory.createExternalResourceDescription(
-           SRLSharedPredictionModel.class, 
-           SRLSharedPredictionModel.DEFAULT_PRED_MODEL_FILE_NAME);
-     }
-     if(defaultRoleResource == null){
-       defaultRoleResource = ExternalResourceFactory.createExternalResourceDescription(
-           SRLSharedRoleModel.class, 
-           SRLSharedRoleModel.DEFAULT_ROLE_MODEL_FILE_NAME);
-     }
      return AnalysisEngineFactory.createEngineDescription(
          ClearNLPSemanticRoleLabelerAE.class,
          SRL_PARSER_MODEL_KEY,
@@ -329,6 +332,5 @@ public class ClearNLPSemanticRoleLabelerAE extends JCasAnnotator_ImplBase {
          defaultPredictionResource,
          SRL_ROLE_MODEL_KEY,
          defaultRoleResource);
-
    }
 }

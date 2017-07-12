@@ -18,10 +18,13 @@
  */
 package org.apache.ctakes.dependency.parser.ae;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.dependency.parser.ae.shared.DependencySharedModel;
 import org.apache.ctakes.dependency.parser.ae.shared.LemmatizerSharedModel;
 import org.apache.ctakes.dependency.parser.util.ClearDependencyUtility;
@@ -49,7 +52,9 @@ import com.googlecode.clearnlp.component.AbstractComponent;
 import com.googlecode.clearnlp.dependency.DEPFeat;
 import com.googlecode.clearnlp.dependency.DEPNode;
 import com.googlecode.clearnlp.dependency.DEPTree;
+import com.googlecode.clearnlp.engine.EngineGetter;
 import com.googlecode.clearnlp.morphology.AbstractMPAnalyzer;
+import com.googlecode.clearnlp.nlp.NLPLib;
 import com.googlecode.clearnlp.reader.AbstractReader;
 
 /**
@@ -88,8 +93,12 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
   public Logger logger = Logger.getLogger(getClass().getName());
 
   // single class-based model:
-  private static ExternalResourceDescription defaultParserResource = null;
-  private static ExternalResourceDescription defaultLemmatizerResource = null;
+  private static ExternalResourceDescription defaultParserResource = ExternalResourceFactory.createExternalResourceDescription(
+      DependencySharedModel.class,
+      DependencySharedModel.DEFAULT_MODEL_FILE_NAME);
+  private static ExternalResourceDescription defaultLemmatizerResource = ExternalResourceFactory.createExternalResourceDescription(
+      LemmatizerSharedModel.class, 
+      LemmatizerSharedModel.ENG_LEMMATIZER_DATA_FILE);
   
 	public static final String PARAM_USE_LEMMATIZER = "UseLemmatizer";
 	@ConfigurationParameter(
@@ -99,12 +108,12 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 	protected boolean useLemmatizer;
 
   public static final String DEP_MODEL_KEY = "DepModel";
-  @ExternalResource(key = DEP_MODEL_KEY)
-  private DependencySharedModel parserModel;
+  @ExternalResource(key = DEP_MODEL_KEY, mandatory=false)
+  private DependencySharedModel parserModel=null;
   
   public static final String LEM_MODEL_KEY = "LemmatizerModel";
-  @ExternalResource(key = LEM_MODEL_KEY)
-  private LemmatizerSharedModel lemmatizerModel;
+  @ExternalResource(key = LEM_MODEL_KEY, mandatory=false)
+  private LemmatizerSharedModel lemmatizerModel=null;
   
 	protected AbstractComponent parser=null;
 	protected AbstractMPAnalyzer lemmatizer=null;
@@ -114,16 +123,30 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 		super.initialize(context);
 		logger.info("Initializing ClearNLP dependency parser with lemmatizer=" + useLemmatizer);
 
-		if (useLemmatizer) {
-		  // Note: If lemmatizer data file is not specified, then use lemmas from the BaseToken normalizedToken field.
-		  // Initialize lemmatizer
-		  this.lemmatizer = lemmatizerModel.getLemmatizerModel();
+    if (useLemmatizer) {
+      if(lemmatizerModel == null){
+        try {
+          this.lemmatizer = EngineGetter.getMPAnalyzer(language, FileLocator.getAsStream(LemmatizerSharedModel.ENG_LEMMATIZER_DATA_FILE));
+        } catch (FileNotFoundException e) {
+          e.printStackTrace();
+          throw new ResourceInitializationException(e);
+        }
+      }else{
+        // Note: If lemmatizer data file is not specified, then use lemmas from the BaseToken normalizedToken field.
+        // Initialize lemmatizer
+        this.lemmatizer = lemmatizerModel.getLemmatizerModel();
+      }
 		}
-		this.parser = parserModel.getParser();
+    if(this.parserModel == null){
+      this.parser = DependencySharedModel.getDefaultModel();
+    }else{
+      this.parser = parserModel.getParser();		    
+    }
 	}
 
 	@Override
-	public void process(JCas jCas) throws AnalysisEngineProcessException {
+	public synchronized void process(JCas jCas) throws AnalysisEngineProcessException {
+	  logger.info("Dependency parser starting with thread:" + Thread.currentThread().getName());
 		for (Sentence sentence : JCasUtil.select(jCas, Sentence.class)) {
 			List<BaseToken> printableTokens = new ArrayList<>();
 			for(BaseToken token : JCasUtil.selectCovered(jCas, BaseToken.class, sentence)){
@@ -150,20 +173,11 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 			ArrayList<ConllDependencyNode> nodes = ClearDependencyUtility.convert( jCas, tree, sentence, printableTokens );
 			DependencyUtility.addToIndexes( jCas, nodes );
 		}
+    logger.info("Dependency parser ending with thread:" + Thread.currentThread().getName());
 	}
 	
 	// If someone calls this, they want the default model, lazy initialization of the external resources:
-	public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
-	  if(defaultParserResource == null){
-	    defaultParserResource = ExternalResourceFactory.createExternalResourceDescription(
-	        DependencySharedModel.class,
-	        DependencySharedModel.DEFAULT_MODEL_FILE_NAME);
-	  }
-	  if(defaultLemmatizerResource == null){
-	    defaultLemmatizerResource = ExternalResourceFactory.createExternalResourceDescription(
-	        LemmatizerSharedModel.class, 
-	        LemmatizerSharedModel.ENG_LEMMATIZER_DATA_FILE);
-	  }
+	public static synchronized AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException{
 	  return createAnnotatorDescription(defaultParserResource, defaultLemmatizerResource);
 	}
 	

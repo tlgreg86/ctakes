@@ -39,4 +39,12 @@ public class DependencySharedModel implements SharedResourceObject {
   public AbstractComponent getParser(){
     return parser;
   }
+  
+  public static AbstractComponent getDefaultModel() throws ResourceInitializationException {
+    try{
+      return EngineGetter.getComponent(FileLocator.getAsStream(DEFAULT_MODEL_FILE_NAME), AbstractReader.LANG_EN, NLPLib.MODE_DEP);
+    }catch(IOException e){
+      throw new ResourceInitializationException(e);
+    }
+  }
 }
