@@ -83,6 +83,8 @@ import java.util.List;
 )
 public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
 
+   public final static Object LOCK = new Object();
+   
    final String language = AbstractReader.LANG_EN;
    //  public Logger logger = Logger.getLogger(getClass().getName());
    static private final Logger LOGGER = Logger.getLogger( ClearNLPDependencyParserAE.class.getSimpleName() );
@@ -191,9 +193,11 @@ public class ClearNLPDependencyParserAE extends JCasAnnotator_ImplBase {
          }
 
          // Run parser and convert output back to CAS friendly data types
-         parser.process( tree );
-         ArrayList<ConllDependencyNode> nodes = ClearDependencyUtility.convert( jCas, tree, sentence, printableTokens );
-         DependencyUtility.addToIndexes( jCas, nodes );
+         synchronized(LOCK){
+           parser.process( tree );
+           ArrayList<ConllDependencyNode> nodes = ClearDependencyUtility.convert( jCas, tree, sentence, printableTokens );
+           DependencyUtility.addToIndexes( jCas, nodes );
+         }
       }
       LOGGER.info( "Dependency parser ending with thread:" + Thread.currentThread().getName() );
    }
