@@ -55,6 +55,11 @@ public class StartFinishLogger extends JCasAnnotator_ImplBase {
          throws ResourceInitializationException {
       super.initialize( context );
       _logger = Logger.getLogger( _loggerName );
+      if ( _isStart ) {
+         _logger.info( "Starting initializing" );
+      } else {
+         _logger.info( "Finished initializing" );
+      }
    }
 
    /**

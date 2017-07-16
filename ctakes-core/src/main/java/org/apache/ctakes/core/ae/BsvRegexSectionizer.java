@@ -35,7 +35,8 @@ public class BsvRegexSectionizer extends RegexSectionizer {
 
    @ConfigurationParameter(
          name = SECTION_TYPES_PATH,
-         description = SECTION_TYPES_DESC
+         description = SECTION_TYPES_DESC,
+         defaultValue = "org/apache/ctakes/core/sections/DefaultSectionRegex.bsv"
    )
    private String _sectionTypesPath;
 

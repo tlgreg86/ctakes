@@ -299,6 +299,7 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
             // this tag is for a header, so the following segment has a defined name
             segment.setId( leftTag.__typeName );
             segment.setPreferredText( leftTag.__name );
+            segment.setTagText( jcas.getDocumentText().substring( leftBounds.getValue1(), sectionBegin ) );
          } else {
             // this tag is for a footer or divider line, so the following segment is generic
             segment.setId( DEFAULT_SEGMENT_ID );

@@ -224,6 +224,13 @@ Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.Segment</description>
           <description>preferredText is the normalized/resolved section name.  Normally, this is populated by the Sectionizer and would contain the HL7/CCDA section name.</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
+          <featureDescription>
+              <name>tagText</name>
+              <description>tagText is the unresolved section name; the raw text in the document indicating (tagging) the
+                  section. Basically covered text of the section's tag.
+              </description>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+          </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
@@ -1937,6 +1944,7 @@ This instantiates a manages/treats relation which should be marked as conditiona
           <description/>
           <rangeTypeName>uima.cas.FSList</rangeTypeName>
           <elementType>uima.tcas.Annotation</elementType>
+            <multipleReferencesAllowed>true</multipleReferencesAllowed>
         </featureDescription>
       </features>
     </typeDescription>

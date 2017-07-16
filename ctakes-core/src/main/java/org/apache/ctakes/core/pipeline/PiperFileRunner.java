@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * @author SPF , chip-nlp
@@ -82,15 +81,15 @@ final public class PiperFileRunner {
          }
          // if an xmi output directory was specified but the piper didn't add the xmi writer, add the
          if ( !xmiOutDir.isEmpty() ) {
-            if ( !builder.getAeNames().stream().map( String::toLowerCase )
-                  .anyMatch( n -> n.contains( "xmiwriter" ) ) ) {
+            if ( builder.getAeNames().stream().map( String::toLowerCase )
+                  .noneMatch( n -> n.contains( "xmiwriter" ) ) ) {
                builder.writeXMIs( xmiOutDir );
             }
          }
          // run the pipeline
          builder.run();
       } catch ( UIMAException | IOException multE ) {
-         LOGGER.error( multE.getMessage() );
+         LOGGER.error( multE.getMessage(), multE );
          return false;
       }
       return true;

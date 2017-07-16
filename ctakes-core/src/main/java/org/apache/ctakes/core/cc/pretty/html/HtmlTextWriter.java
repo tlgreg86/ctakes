@@ -1,38 +1,32 @@
 package org.apache.ctakes.core.cc.pretty.html;
 
 
+import org.apache.ctakes.core.cc.AbstractOutputFileWriter;
 import org.apache.ctakes.core.cc.pretty.SemanticGroup;
 import org.apache.ctakes.core.cc.pretty.textspan.DefaultTextSpan;
 import org.apache.ctakes.core.cc.pretty.textspan.TextSpan;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
-import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.OntologyConceptUtil;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
-import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
+import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.CASException;
-import org.apache.uima.cas.text.AnnotationFS;
-import org.apache.uima.fit.component.CasConsumer_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.ctakes.core.config.ConfigParameterConstants.DESC_OUTPUTDIR;
-import static org.apache.ctakes.core.config.ConfigParameterConstants.PARAM_OUTPUTDIR;
 import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
-import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.TEMPORAL_RELATION;
 
 /**
  * @author SPF , chip-nlp
@@ -46,228 +40,249 @@ import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.TEMPORAL_R
       dependencies = { DOCUMENT_ID, SENTENCE, BASE_TOKEN },
       usables = { DOCUMENT_ID_PREFIX, IDENTIFIED_ANNOTATION, EVENT, TIMEX, TEMPORAL_RELATION }
 )
-final public class HtmlTextWriter extends CasConsumer_ImplBase {
+final public class HtmlTextWriter extends AbstractOutputFileWriter {
+
+   static final String TOOL_TIP = "TIP";
+
+   static final String UNCERTAIN_NEGATED = "UNN";
+   static final String NEGATED = "NEG";
+   static final String UNCERTAIN = "UNC";
+   static final String AFFIRMED = "AFF";
 
    static private final Logger LOGGER = Logger.getLogger( "HtmlTextWriter" );
 
 
    static private final String FILE_EXTENSION = ".pretty.html";
+   static private final String CSS_FILENAME = "ctakes.pretty.css";
 
-   @ConfigurationParameter(
-         name = PARAM_OUTPUTDIR,
-         mandatory = false,
-         description = DESC_OUTPUTDIR,
-         defaultValue = ""
-   )
-   private String _outputDirPath;
-
-   /**
-    * @param outputDirectoryPath may be empty or null, in which case the current working directory is used
-    * @throws IllegalArgumentException if the provided path points to a File and not a Directory
-    * @throws SecurityException        if the File System has issues
-    */
-   public void setOutputDirectory( final String outputDirectoryPath ) throws IllegalArgumentException,
-                                                                             SecurityException {
-      // If no outputDir is specified (null or empty) the current working directory will be used.  Else check path.
-      if ( outputDirectoryPath == null || outputDirectoryPath.isEmpty() ) {
-         LOGGER.debug( "No Output Directory Path specified, using current working directory "
-                       + System.getProperty( "user.dir" ) );
-         _outputDirPath = System.getProperty( "user.dir" );
-         return;
-      }
-      String fullDirPath;
-      try {
-         fullDirPath = FileLocator.getFullPath( outputDirectoryPath );
-         final File outputDir = new File( fullDirPath );
-         if ( !outputDir.exists() ) {
-            outputDir.mkdirs();
-         }
-         if ( !outputDir.isDirectory() ) {
-            throw new IllegalArgumentException( outputDirectoryPath + " is not a valid directory path" );
-         }
-      } catch ( FileNotFoundException fnfE ) {
-         throw new IllegalArgumentException( outputDirectoryPath + " is not a valid directory path" );
-      }
-      _outputDirPath = fullDirPath;
-      LOGGER.debug( "Output Directory Path set to " + _outputDirPath );
-   }
+   private final Collection<String> _usedDirectories = new HashSet<>();
 
    /**
     * {@inheritDoc}
     */
    @Override
-   public void process( final CAS aCAS ) throws AnalysisEngineProcessException {
-      try {
-         final JCas jcas = aCAS.getJCas();
-         process( jcas );
-      } catch ( CASException casE ) {
-         throw new AnalysisEngineProcessException( casE );
+   public void writeFile( final JCas jCas,
+                          final String outputDir,
+                          final String documentId,
+                          final String fileName ) throws IOException {
+      if ( _usedDirectories.add( outputDir ) ) {
+         final String cssPath = outputDir + '/' + CSS_FILENAME;
+         CssWriter.writeCssFile( cssPath );
       }
-   }
 
-   /**
-    * Process the jcas and write pretty sentences to file.  Filename is based upon the document id stored in the cas
-    *
-    * @param jcas ye olde ...
-    */
-   public void process( final JCas jcas ) {
-      LOGGER.info( "Starting processing" );
-      final String docId = DocumentIDAnnotationUtil.getDocumentIdForFile( jcas );
-      final File outputFile = new File( _outputDirPath + "/" + docId + FILE_EXTENSION );
-      final String cssPath = _outputDirPath + "/ctakes.pretty.css";
-      try ( final BufferedWriter writer = new BufferedWriter( new FileWriter( outputFile ) ) ) {
-         writer.write( getHeader() );
-         writer.write( getCssLink( "ctakes.pretty.css" ) );
-
-         final Collection<Sentence> sentences = JCasUtil.select( jcas, Sentence.class );
-         for ( Sentence sentence : sentences ) {
-            writeSentence( jcas, sentence, writer );
-         }
-
+      final File htmlFile = new File( outputDir, fileName + FILE_EXTENSION );
+      try ( final BufferedWriter writer = new BufferedWriter( new FileWriter( htmlFile ) ) ) {
+         final String title = DocumentIDAnnotationUtil.getDocumentID( jCas );
+         writer.write( getHeader( title ) );
+         writer.write( getCssLink( CSS_FILENAME ) );
+         writeTitle( title, writer );
+         final Map<Segment, Collection<Sentence>> sectionSentences
+               = JCasUtil.indexCovered( jCas, Segment.class, Sentence.class );
+         final Map<Sentence, Collection<IdentifiedAnnotation>> sentenceAnnotations
+               = JCasUtil.indexCovered( jCas, Sentence.class, IdentifiedAnnotation.class );
+         final Map<Sentence, Collection<BaseToken>> sentenceTokens
+               = JCasUtil.indexCovered( jCas, Sentence.class, BaseToken.class );
+         writeSections( sectionSentences, sentenceAnnotations, sentenceTokens, writer );
+         writeInfoPane( writer );
+         writer.write( startJavascript() );
+         writer.write( getSwapInfoScript() );
+         writer.write( endJavascript() );
          writer.write( getFooter() );
-      } catch ( IOException ioE ) {
-         LOGGER.error( "Could not not write html file " + outputFile.getPath() );
-         LOGGER.error( ioE.getMessage() );
       }
-      CssWriter.writeCssFile( cssPath );
-      LOGGER.info( "Finished processing" );
    }
 
-
    /**
-    * Write a paragraph from the document text
     *
-    * @param jcas      ye olde ...
-    * @param paragraph annotation containing the paragraph
-    * @param writer    writer to which pretty html for the paragraph should be written
-    * @throws IOException if the writer has issues
+    * @param title normally the document title
+    * @return html to set the header
     */
-   static private void writeParagraph( final JCas jcas,
-                                       final AnnotationFS paragraph,
-                                       final BufferedWriter writer ) throws IOException {
-      final String sentenceText = paragraph.getCoveredText().trim();
-      if ( sentenceText.isEmpty() ) {
-         return;
-      }
-      final Map<TextSpan, String> baseTokenMap = createBaseTokenMap( jcas, paragraph );
-      if ( baseTokenMap.isEmpty() ) {
-         return;
-      }
-      final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap = createAnnotationMap( jcas, paragraph );
-      final Map<Integer, String> tags = createTags( annotationMap );
-      final StringBuilder sb = new StringBuilder();
-      for ( Map.Entry<TextSpan, String> entry : baseTokenMap.entrySet() ) {
-         final String beginTag = tags.get( entry.getKey().getBegin() );
-         if ( beginTag != null ) {
-            sb.append( beginTag );
-         }
-         sb.append( entry.getValue() );
-         final String endTag = tags.get( entry.getKey().getEnd() );
-         if ( endTag != null ) {
-            sb.append( endTag );
-         }
-         sb.append( " " );
-      }
-      writer.write( "<p>\n" + sb.toString() + "\n</p>\n" );
+   static private String getHeader( final String title ) {
+      return "<!DOCTYPE html>\n<html>\n<head>\n  <title>" + title + " Output</title>\n</head>\n<body>\n";
    }
 
+   /**
+    * @param filePath path to the css file
+    * @return html to link to css
+    */
+   static private String getCssLink( final String filePath ) {
+      return "<link rel=\"stylesheet\" href=\"" + filePath + "\" type=\"text/css\" media=\"screen\">";
+   }
 
    /**
-    * Write a sentence from the document text
-    *
-    * @param jcas     ye olde ...
-    * @param sentence annotation containing the sentence
-    * @param writer   writer to which pretty text for the sentence should be written
+    * Write html for document title
+    * @param title normally document title, such as filename
+    * @param writer    writer to which pretty html for the section should be written
     * @throws IOException if the writer has issues
     */
-   static private void writeSentence( final JCas jcas,
-                                      final AnnotationFS sentence,
+   static private void writeTitle( final String title, final BufferedWriter writer ) throws IOException {
+      if ( !title.isEmpty() ) {
+         writer.write( "\n<h2>" + title + "</h2>\n" );
+      }
+   }
+
+   /**
+    * write html for all sections (all text) in the document
+    *
+    * @param sectionSentences    map of sections and their contained sentences
+    * @param sentenceAnnotations map of sentences and their contained annotations
+    * @param sentenceTokens      map of sentences and their contained base tokens
+    * @param writer              writer to which pretty html for the section should be written
+    * @throws IOException if the writer has issues
+    */
+   static private void writeSections( final Map<Segment, Collection<Sentence>> sectionSentences,
+                                      final Map<Sentence, Collection<IdentifiedAnnotation>> sentenceAnnotations,
+                                      final Map<Sentence, Collection<BaseToken>> sentenceTokens,
                                       final BufferedWriter writer ) throws IOException {
-      final String sentenceText = sentence.getCoveredText().trim();
-      if ( sentenceText.isEmpty() ) {
+      writer.write( "\n<div id=\"content\">\n" );
+      final List<Segment> sections = new ArrayList<>( sectionSentences.keySet() );
+      sections.sort( Comparator.comparingInt( Segment::getBegin ) );
+      for ( Segment section : sections ) {
+         writeSectionHeader( section, writer );
+         writer.write( "\n<p>\n" );
+         final List<Sentence> sentences = new ArrayList<>( sectionSentences.get( section ) );
+         sentences.sort( Comparator.comparingInt( Sentence::getBegin ) );
+         for ( Sentence sentence : sentences ) {
+            final Collection<IdentifiedAnnotation> annotations = sentenceAnnotations.get( sentence );
+            final Collection<BaseToken> tokens = sentenceTokens.get( sentence );
+            writeSentence( sentence, annotations, tokens, writer );
+         }
+         writer.write( "\n</p>\n" );
+      }
+      writer.write( "\n</div>\n" );
+   }
+
+   /**
+    * write html for section header
+    *
+    * @param section -
+    * @param writer  writer to which pretty html for the section should be written
+    * @throws IOException if the writer has issues
+    */
+   static private void writeSectionHeader( final Segment section, final BufferedWriter writer ) throws IOException {
+      String sectionId = section.getId();
+      if ( sectionId.equals( "SIMPLE_SEGMENT" ) ) {
          return;
       }
-      // Map of TextSpans to their covered text
-      final Map<TextSpan, String> baseTokenMap = createBaseTokenMap( jcas, sentence );
+      final StringBuilder sb = new StringBuilder();
+      sb.append( "\n<h3" );
+      final String sectionTag = section.getTagText();
+      if ( sectionTag != null && !sectionTag.trim().isEmpty() ) {
+         sb.append( " onClick=\"iaf(\'" ).append( sectionTag.trim() ).append( "')\"" );
+      }
+      sb.append( ">" ).append( sectionId );
+      final String sectionName = section.getPreferredText();
+      if ( sectionName != null && !sectionName.trim().isEmpty() && !sectionName.trim().equals( sectionId ) ) {
+         sb.append( " : " ).append( sectionName );
+      }
+      sb.append( "</h3>\n" );
+      writer.write( sb.toString() );
+   }
+
+
+   /**
+    * Write html for a sentence from the document text
+    *
+    * @param sentence sentence of interest
+    * @param annotations identified annotations in the section
+    * @param baseTokens baseTokens in the section
+    * @param writer    writer to which pretty html for the section should be written
+    * @throws IOException if the writer has issues
+    */
+   static private void writeSentence( final Sentence sentence,
+                                      final Collection<IdentifiedAnnotation> annotations,
+                                      final Collection<BaseToken> baseTokens,
+                                      final BufferedWriter writer ) throws IOException {
+      if ( baseTokens.isEmpty() ) {
+         return;
+      }
+      // Because of character substitutions, baseTokens and IdentifiedAnnotations have to be tied by text span
+      final Map<TextSpan, String> baseTokenMap = createBaseTokenMap( sentence, baseTokens );
       if ( baseTokenMap.isEmpty() ) {
          return;
       }
-      // Map of TextSpans to their covered annotations
-      final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap = createAnnotationMap( jcas, sentence );
+      final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap = createAnnotationMap( sentence, annotations );
       final Map<Integer, String> tags = createTags( annotationMap );
       final StringBuilder sb = new StringBuilder();
-      int previousEndIndex = -1;
-      boolean annotation;
+      int previousIndex = -1;
       for ( Map.Entry<TextSpan, String> entry : baseTokenMap.entrySet() ) {
-         annotation = false;
-         final TextSpan textSpan = entry.getKey();
-         if ( textSpan.getBegin() != previousEndIndex ) {
-            // If the previous end index was this begin index then the tag was already written
-            final String beginTag = tags.get( textSpan.getBegin() );
+         final String text = entry.getValue();
+         final int begin = entry.getKey().getBegin();
+         if ( begin != previousIndex ) {
+            final String beginTag = tags.get( begin );
             if ( beginTag != null ) {
                sb.append( beginTag );
-               annotation = true;
             }
          }
-//         if ( annotation ) {
-//            sb.append( "<b>" ).append( entry.getValue().charAt( 0 ) ).append( "</b>" ).append( entry.getValue().substring( 1 ) );
-//         } else {
-         sb.append( entry.getValue() );
-//         }
-         final String endTag = tags.get( textSpan.getEnd() );
+         sb.append( text );
+         final int end = entry.getKey().getEnd();
+         final String endTag = tags.get( end );
          if ( endTag != null ) {
             sb.append( endTag );
          }
          sb.append( " " );
-         previousEndIndex = textSpan.getEnd();
+         previousIndex = end;
       }
-      writer.write( "<div>\n" + sb.toString() + "\n<br></div>\n" );
+      writer.write( sb.toString() + "\n<br>\n" );
    }
 
-
-   static private Map<TextSpan, String> createBaseTokenMap( final JCas jcas, final AnnotationFS sentence ) {
+   /**
+    * removes empty spans and replaces non-html compatible characters with their html ok equivalents
+    *
+    * @param sentence   -
+    * @param baseTokens in the sentence
+    * @return a map of text spans and their contained text
+    */
+   static private Map<TextSpan, String> createBaseTokenMap( final Sentence sentence,
+                                                            final Collection<BaseToken> baseTokens ) {
       final int sentenceBegin = sentence.getBegin();
-      final Collection<BaseToken> baseTokens = JCasUtil.selectCovered( jcas, BaseToken.class, sentence );
       final Map<TextSpan, String> baseItemMap = new LinkedHashMap<>();
       for ( BaseToken baseToken : baseTokens ) {
          final TextSpan textSpan = new DefaultTextSpan( baseToken, sentenceBegin );
          if ( textSpan.getWidth() == 0 ) {
             continue;
          }
-         if ( baseToken instanceof NewlineToken ) {
-            baseItemMap.put( textSpan, " " );
+         String text = baseToken.getCoveredText().trim();
+         if ( text.isEmpty() ) {
             continue;
          }
-         baseItemMap.put( textSpan, baseToken.getCoveredText() );
+         text = text.replaceAll( "'", "&apos;" );
+         text = text.replaceAll( "\"", "&quot;" );
+         text = text.replaceAll( "@", "&amp;" );
+         text = text.replaceAll( "<", "&lt;" );
+         text = text.replaceAll( ">", "&gt;" );
+         baseItemMap.put( textSpan, text );
       }
       return baseItemMap;
    }
 
-   static private Map<TextSpan, Collection<IdentifiedAnnotation>> createAnnotationMap( final JCas jcas,
-                                                                                       final AnnotationFS sentence ) {
+   /**
+    * @param sentence    -
+    * @param annotations annotations within the sentence
+    * @return map of text spans and all annotations within those spans.  Accounts for overlap, etc.
+    */
+   static private Map<TextSpan, Collection<IdentifiedAnnotation>> createAnnotationMap( final Sentence sentence,
+                                                                                       final Collection<IdentifiedAnnotation> annotations ) {
       final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap = new HashMap<>();
       final int sentenceBegin = sentence.getBegin();
-      final Collection<IdentifiedAnnotation> identifiedAnnotations
-            = JCasUtil.selectCovered( jcas, IdentifiedAnnotation.class, sentence );
-      for ( IdentifiedAnnotation annotation : identifiedAnnotations ) {
+      for ( IdentifiedAnnotation annotation : annotations ) {
          final TextSpan textSpan = new DefaultTextSpan( annotation, sentenceBegin );
          if ( textSpan.getWidth() == 0 ) {
             continue;
          }
          final Collection<String> semanticNames = getSemanticNames( annotation );
          if ( !semanticNames.isEmpty() || annotation instanceof TimeMention || annotation instanceof EventMention ) {
-            Collection<IdentifiedAnnotation> annotations = annotationMap.get( textSpan );
-            if ( annotations == null ) {
-               annotations = new ArrayList<>();
-               annotationMap.put( textSpan, annotations );
-            }
-            annotations.add( annotation );
+            annotationMap.putIfAbsent( textSpan, new ArrayList<>() );
+            annotationMap.get( textSpan ).add( annotation );
          }
       }
       return annotationMap;
    }
 
-
+   /**
+    *
+    * @param identifiedAnnotation -
+    * @return all applicable semantic names for the annotation
+    */
    static private Collection<String> getSemanticNames( final IdentifiedAnnotation identifiedAnnotation ) {
       final Collection<UmlsConcept> umlsConcepts = OntologyConceptUtil.getUmlsConcepts( identifiedAnnotation );
       if ( umlsConcepts == null || umlsConcepts.isEmpty() ) {
@@ -287,177 +302,373 @@ final public class HtmlTextWriter extends CasConsumer_ImplBase {
       return semanticList;
    }
 
+   /**
+    * sorts by begins, then by ends if begins are equal
+    */
+   static private class TextSpanComparator implements Comparator<TextSpan> {
+      public int compare( final TextSpan t1, final TextSpan t2 ) {
+         int r = t1.getBegin() - t2.getBegin();
+         if ( r != 0 ) {
+            return r;
+         }
+         return t1.getEnd() - t2.getEnd();
+      }
+   }
 
-   static private Map<Integer, String> createTags(
-         final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap ) {
+   static private final Comparator<TextSpan> TEXT_SPAN_COMPARATOR = new TextSpanComparator();
+
+   /**
+    * Creates map of text span indices and whether each span represents the beginning of one or more annotations,
+    * the inside of two or more overlapping annotations, or the end of two or more overlapping annotations
+    *
+    * @param textSpans -
+    * @return B I E map
+    */
+   static private Map<Integer, Character> createIndexMap( final Collection<TextSpan> textSpans ) {
+      if ( textSpans.isEmpty() ) {
+         return Collections.emptyMap();
+      }
+      final List<TextSpan> spanList = new ArrayList<>( textSpans );
+      spanList.sort( TEXT_SPAN_COMPARATOR );
+      final int spanCount = spanList.size();
+      final int spanCountMinus = spanCount - 1;
+      final Map<Integer, Character> indexMap = new HashMap<>();
+      for ( int i = 0; i < spanCountMinus; i++ ) {
+         final TextSpan textSpan = spanList.get( i );
+         final int begin = textSpan.getBegin();
+         indexMap.putIfAbsent( begin, 'B' );
+         final int end = textSpan.getEnd();
+         indexMap.putIfAbsent( end, 'E' );
+         for ( int j = i + 1; j < spanCount; j++ ) {
+            TextSpan nextSpan = spanList.get( j );
+            if ( nextSpan.getBegin() > end ) {
+               break;
+            }
+            if ( nextSpan.getBegin() > begin ) {
+               indexMap.put( nextSpan.getBegin(), 'I' );
+            }
+            if ( nextSpan.getEnd() < end ) {
+               indexMap.put( nextSpan.getEnd(), 'I' );
+            } else if ( nextSpan.getEnd() > end ) {
+               indexMap.put( end, 'I' );
+            }
+         }
+      }
+      final TextSpan lastSpan = spanList.get( spanCountMinus );
+      indexMap.putIfAbsent( lastSpan.getBegin(), 'B' );
+      indexMap.putIfAbsent( lastSpan.getEnd(), 'E' );
+      return indexMap;
+   }
+
+   /**
+    * @param indexMap map of text span indices and the B I E status of the spans
+    * @return new spans representing the smallest required unique span elements of overlapping spans
+    */
+   static private Collection<TextSpan> createAdjustedSpans( final Map<Integer, Character> indexMap ) {
+      if ( indexMap.isEmpty() ) {
+         return Collections.emptyList();
+      }
+      final List<Integer> indexList = new ArrayList<>( indexMap.keySet() );
+      Collections.sort( indexList );
+      final int indexCount = indexList.size();
+      final Collection<TextSpan> newSpans = new ArrayList<>();
+      Integer index1 = indexList.get( 0 );
+      Character c1 = indexMap.get( index1 );
+      for ( int i = 1; i < indexCount; i++ ) {
+         final Integer index2 = indexList.get( i );
+         final Character c2 = indexMap.get( index2 );
+         if ( c1.equals( 'B' ) || c1.equals( 'I' ) ) {
+            newSpans.add( new DefaultTextSpan( index1, index2 ) );
+         }
+         index1 = index2;
+         c1 = c2;
+      }
+      return newSpans;
+   }
+
+   /**
+    * @param adjustedList  spans representing the smallest required unique span elements of overlapping spans
+    * @param annotationMap map of larger overlapping text spans and their annotations
+    * @return map of all annotations within or overlapping the small span elements
+    */
+   static private Map<TextSpan, Collection<IdentifiedAnnotation>> createAdjustedAnnotations(
+         final List<TextSpan> adjustedList, final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap ) {
+      final List<TextSpan> spanList = new ArrayList<>( annotationMap.keySet() );
+      spanList.sort( TEXT_SPAN_COMPARATOR );
+      final Map<TextSpan, Collection<IdentifiedAnnotation>> spanAnnotations = new HashMap<>( adjustedList.size() );
+      final int spanCount = spanList.size();
+      int previousMatchIndex = 0;
+      for ( TextSpan adjusted : adjustedList ) {
+         boolean matched = false;
+         for ( int i = previousMatchIndex; i < spanCount; i++ ) {
+            final TextSpan annotationsSpan = spanList.get( i );
+            if ( annotationsSpan.overlaps( adjusted ) ) {
+               if ( !matched ) {
+                  previousMatchIndex = i;
+                  matched = true;
+               }
+               spanAnnotations.putIfAbsent( adjusted, new HashSet<>() );
+               spanAnnotations.get( adjusted ).addAll( annotationMap.get( annotationsSpan ) );
+            }
+         }
+      }
+      return spanAnnotations;
+   }
+
+   /**
+    * @param annotationMap map of all annotations within or overlapping the small span elements
+    * @return html for span elements
+    */
+   static private Map<Integer, String> createTags( final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap ) {
       if ( annotationMap.isEmpty() ) {
          return Collections.emptyMap();
       }
-      final Collection<Integer> indices = new HashSet<>();
-      final Map<Integer, Collection<String>> polarities = new HashMap<>();
-      final Map<Integer, Collection<String>> beginClasses = new HashMap<>();
-      final Map<Integer, Collection<String>> endClasses = new HashMap<>();
-      for ( Map.Entry<TextSpan, Collection<IdentifiedAnnotation>> entry : annotationMap.entrySet() ) {
-         final Collection<String> tagClasses = createClasses( entry.getValue() );
-         if ( tagClasses.isEmpty() ) {
+      final Map<Integer, Character> indexMap = createIndexMap( annotationMap.keySet() );
+      final Collection<TextSpan> adjustedSpans = createAdjustedSpans( indexMap );
+      final List<TextSpan> adjustedList = new ArrayList<>( adjustedSpans );
+      adjustedList.sort( TEXT_SPAN_COMPARATOR );
+      final Map<TextSpan, Collection<IdentifiedAnnotation>> adjustedAnnotations
+            = createAdjustedAnnotations( adjustedList, annotationMap );
+
+      final Map<Integer, String> indexTags = new HashMap<>();
+      for ( TextSpan adjustedSpan : adjustedList ) {
+         final StringBuilder sb = new StringBuilder( "<span" );
+         final Collection<IdentifiedAnnotation> annotations = adjustedAnnotations.get( adjustedSpan );
+         if ( annotations.isEmpty() ) {
             continue;
          }
-         final TextSpan textSpan = entry.getKey();
-         indices.add( textSpan.getBegin() );
-         indices.add( textSpan.getEnd() );
-         // add all class tags that begin at this textSpan
-         addAll( beginClasses, textSpan.getBegin(), tagClasses );
-         // add all class tags that end at this text span
-         addAll( endClasses, textSpan.getEnd(), tagClasses );
-         final Collection<String> polarity = createPolarity( entry.getValue() );
-         addAll( polarities, textSpan.getBegin(), polarity );
-         addAll( polarities, textSpan.getEnd(), polarity );
-      }
-      if ( indices.isEmpty() ) {
-         return Collections.emptyMap();
-      }
-      final List<Integer> indexList = new ArrayList<>( indices );
-      Collections.sort( indexList );
-      final Map<Integer, String> tagMap = new HashMap<>();
-      final Collection<String> currentClasses = new HashSet<>();
-      String currentTag = "";
-      for ( Integer index : indexList ) {
-         currentTag = currentClasses.isEmpty() ? "" : "</span>";
-         final Collection<String> enders = endClasses.get( index );
-         if ( enders != null ) {
-            // remove all of the classes that end here
-            currentClasses.removeAll( enders );
-            if ( currentClasses.isEmpty() ) {
-               // all annotations have ended, go to the next index
-               if ( !currentTag.isEmpty() ) {
-                  tagMap.put( index, currentTag );
-               }
-               continue;
-            }
-            final Collection<String> currentPolarity = polarities.get( index );
-            final String polarClasses = String.join( " ", currentPolarity ) + " " + String.join( " ", currentClasses );
-            final String toolTip = currentClasses.isEmpty() ? "" : " data-tooltip=\"" + polarClasses + "\"";
-            // tag for the classes that continue into the next textspan
-            currentTag += "<span class=\"" + polarClasses + "\"" + toolTip + ">";
-            tagMap.put( index, currentTag );
-            continue;
+         final String polarityClasses = createPolaritiesText( annotations );
+         if ( !polarityClasses.isEmpty() ) {
+            sb.append( " class=\"" ).append( polarityClasses ).append( '\"' );
          }
-         final Collection<String> beginners = beginClasses.get( index );
-         if ( beginners != null ) {
-            int size = currentClasses.size();
-            currentClasses.addAll( beginners );
-            if ( currentClasses.size() != size ) {
-               final Collection<String> currentPolarity = polarities.get( index );
-               final String polarClasses = String.join( " ", currentPolarity ) + " " +
-                                           String.join( " ", currentClasses );
-               final String toolTip = currentClasses.isEmpty() ? "" : " data-tooltip=\"" + polarClasses + "\"";
-               // tag for the classes that continue and begin the next textspan
-               currentTag += "<span class=\"" + polarClasses + "\"" + toolTip + ">";
-               tagMap.put( index, currentTag );
-            }
+         final String clickInfo = createClickInfo( annotations );
+         if ( !clickInfo.isEmpty() ) {
+            sb.append( " onClick=\"iaf(\'" ).append( clickInfo ).append( "\')\"" );
          }
+         final String tip = createTipText( annotations );
+         if ( !tip.isEmpty() ) {
+            sb.append( " " + TOOL_TIP + "=\"" ).append( tip ).append( '\"' );
+         }
+         sb.append( '>' );
+
+         final Integer begin = adjustedSpan.getBegin();
+         final String previousTag = indexTags.getOrDefault( begin, "" );
+         indexTags.put( begin, previousTag + sb.toString() );
+         indexTags.put( adjustedSpan.getEnd(), "</span>" );
       }
-      if ( !currentTag.endsWith( "</span>" ) ) {
-         tagMap.put( indexList.get( indexList.size() - 1 ), currentTag + "</span>" );
-      }
-      return tagMap;
+      return indexTags;
    }
 
-
-   static private void addAll( final Map<Integer, Collection<String>> map, final Integer index,
-                               final Collection<String> values ) {
-      // add all class tags that end at this text span
-      Collection<String> set = map.get( index );
-      if ( set == null ) {
-         set = new HashSet<>();
-         map.put( index, set );
+   /**
+    * @param annotations -
+    * @return html with annotation information: polarity, semantic, cui, text, pref text
+    */
+   static private String createClickInfo( final Collection<IdentifiedAnnotation> annotations ) {
+      final Map<String, Map<String, Collection<String>>> polarInfoMap = new HashMap<>();
+      for ( IdentifiedAnnotation annotation : annotations ) {
+         final String polarity = createPolarity( annotation );
+         polarInfoMap.putIfAbsent( polarity, new HashMap<>() );
+         final Map<String, Collection<String>> infoMap = createInfoMap( annotation );
+         for ( Map.Entry<String, Collection<String>> infoEntry : infoMap.entrySet() ) {
+            polarInfoMap.get( polarity ).putIfAbsent( infoEntry.getKey(), new HashSet<>() );
+            polarInfoMap.get( polarity ).get( infoEntry.getKey() ).addAll( infoEntry.getValue() );
+         }
       }
-      set.addAll( values );
+      final List<String> polarities = new ArrayList<>( polarInfoMap.keySet() );
+      Collections.sort( polarities );
+      final StringBuilder sb = new StringBuilder();
+      for ( String polarity : polarities ) {
+         sb.append( polarity ).append( "<br>" );
+         final Map<String, Collection<String>> infoMap = polarInfoMap.get( polarity );
+         final List<String> semantics = new ArrayList<>( infoMap.keySet() );
+         Collections.sort( semantics );
+         for ( String semantic : semantics ) {
+            sb.append( semantic ).append( "<br>" );
+            final List<String> texts = new ArrayList<>( infoMap.get( semantic ) );
+            Collections.sort( texts );
+            for ( String text : texts ) {
+               sb.append( "&nbsp;&nbsp;&nbsp;&nbsp;" ).append( text ).append( "<br>" );
+            }
+         }
+      }
+      return sb.toString();
    }
 
+   /**
+    * @param annotation -
+    * @return map of semantic to pref text
+    */
+   static private Map<String, Collection<String>> createInfoMap( final IdentifiedAnnotation annotation ) {
+      final Collection<UmlsConcept> concepts = OntologyConceptUtil.getUmlsConcepts( annotation );
+      final Map<String, Collection<String>> semanticMap = new HashMap<>();
+      for ( UmlsConcept concept : concepts ) {
+         final String semanticName = getSemanticCode( annotation, concept );
+         semanticMap.putIfAbsent( semanticName, new HashSet<>() );
+         semanticMap.get( semanticName ).add( getPreferredText( annotation, concept ) );
+      }
+      return semanticMap;
+   }
 
-   static private Collection<String> createPolarity( final Collection<IdentifiedAnnotation> annotations ) {
+   /**
+    * @param annotation -
+    * @param concept    -
+    * @return semantic name
+    */
+   static private String getSemanticName( final IdentifiedAnnotation annotation, final UmlsConcept concept ) {
+      final String tui = concept.getTui();
+      final String semanticName = SemanticGroup.getSemanticName( tui );
+      if ( semanticName != null && !semanticName.equals( "Unknown" ) ) {
+         return semanticName;
+      }
+      return annotation.getClass().getSimpleName();
+   }
+
+   /**
+    * @param annotation -
+    * @param concept    -
+    * @return semantic code
+    */
+   static private String getSemanticCode( final IdentifiedAnnotation annotation, final UmlsConcept concept ) {
+      final String tui = concept.getTui();
+      final String semanticCode = SemanticGroup.getSemanticCode( tui );
+      if ( semanticCode != null && !semanticCode.equals( SemanticGroup.UNKNOWN_SEMANTIC_CODE ) ) {
+         return semanticCode;
+      }
+      return annotation.getClass().getSimpleName();
+   }
+
+   /**
+    * @param annotation -
+    * @param concept    -
+    * @return cui and pref text
+    */
+   static private String getPreferredText( final IdentifiedAnnotation annotation, final UmlsConcept concept ) {
+      final String cui = concept.getCui();
+      final String coveredText = annotation.getCoveredText();
+      final String preferredText = concept.getPreferredText();
+      if ( preferredText != null && !preferredText.isEmpty()
+            && !preferredText.equalsIgnoreCase( coveredText )
+            && !coveredText.equalsIgnoreCase( preferredText + 's' ) ) {
+         return cui + " : " + coveredText + " [" + preferredText + "]";
+      }
+      return cui + " : " + coveredText;
+   }
+
+   /**
+    * @param annotations -
+    * @return polarity representation for all provided annotations
+    */
+   static private String createPolaritiesText( final Collection<IdentifiedAnnotation> annotations ) {
       return annotations.stream()
             .map( HtmlTextWriter::createPolarity )
-            .flatMap( Collection::stream )
-            .collect( Collectors.toSet() );
-   }
-
-   static private Collection<String> createPolarity( final IdentifiedAnnotation annotation ) {
-      final Collection<String> tags = new ArrayList<>();
-      if ( annotation.getPolarity() < 0 ) {
-         if ( annotation.getUncertainty() > 0 ) {
-            tags.add( "uncertainnegated" );
-         } else {
-            tags.add( "negated" );
-         }
-      } else if ( annotation.getUncertainty() > 0 ) {
-         tags.add( "uncertain" );
-      } else {
-         tags.add( "affirmed" );
-      }
-      return tags;
-   }
-
-   static private Collection<String> createClasses( final Collection<IdentifiedAnnotation> annotations ) {
-      return annotations.stream()
-            .map( HtmlTextWriter::getSemanticNames )
-            .flatMap( Collection::stream )
             .distinct()
             .sorted()
-            .collect( Collectors.toList() );
+            .collect( Collectors.joining( " " ) );
    }
 
-
-   //   // Can do something like
-//   //    Patient has a <a class="affirmed finding" id="finding1" href="#site9">rash</a> on his <textspan class="anatomy" id="site9">elbow</textspan>.
-//   //  #site9:target { font-weight: bold; }
-//
-//   //  Can change background of b when hovering over a  :
-//   // #a:hover ~ #b {  background: #ccc  }
-//   //   iff b is after a.  Can not change a before b by hovering over b
-
-
-   static private String addBackgroundLink( final String idName, final String color ) {
-      return "onmouseover=\"linkBg(" + idName + "," + color + ")\" onmouseout=\"linkBg(" + idName + ",white)\"";
+   /**
+    *
+    * @param annotation -
+    * @return polarity for a single annotation
+    */
+   static private String createPolarity( final IdentifiedAnnotation annotation ) {
+      if ( annotation.getPolarity() < 0 ) {
+         if ( annotation.getUncertainty() > 0 ) {
+            return UNCERTAIN_NEGATED;
+         } else {
+            return NEGATED;
+         }
+      } else if ( annotation.getUncertainty() > 0 ) {
+         return UNCERTAIN;
+      } else {
+         return AFFIRMED;
+      }
    }
 
-
-   static private String getCssLink( final String filePath ) {
-      return "<link rel=\"stylesheet\" href=\"" + filePath + "\" type=\"text/css\" media=\"screen\">";
+   /**
+    *
+    * @param annotations -
+    * @return semantic names for given annotations
+    */
+   static private String createTipText( final Collection<IdentifiedAnnotation> annotations ) {
+      final Map<String, Integer> semanticCounts = new HashMap<>();
+      for ( IdentifiedAnnotation annotation : annotations ) {
+         final Collection<UmlsConcept> concepts = OntologyConceptUtil.getUmlsConcepts( annotation );
+         for ( UmlsConcept concept : concepts ) {
+            final String semanticName = getSemanticName( annotation, concept );
+            semanticCounts.putIfAbsent( semanticName, 0 );
+            final int count = semanticCounts.get( semanticName );
+            semanticCounts.put( semanticName, count + 1 );
+         }
+      }
+      final List<String> semantics = new ArrayList<>( semanticCounts.keySet() );
+      Collections.sort( semantics );
+      final StringBuilder sb = new StringBuilder();
+      for ( String semanticName : semantics ) {
+         sb.append( semanticName );
+         final int count = semanticCounts.get( semanticName );
+         if ( count > 1 ) {
+            sb.append( '(' ).append( count ).append( ')' );
+         }
+         sb.append( ' ' );
+      }
+      return sb.toString();
    }
 
-
-   static private String getHeader() {
-      return "<!DOCTYPE html>\n" +
-             "<html>\n" +
-             "<body>\n";
+   /**
+    * writes html for right-hand annotation information panel
+    * @param writer    writer to which pretty html for the section should be written
+    * @throws IOException if the writer has issues
+    */
+   static private void writeInfoPane( final BufferedWriter writer ) throws IOException {
+      writer.write( "\n<div id=\"ia\"> Annotation Information </div>\n" );
    }
 
+   /**
+    * A javascript function is used to expand annotation tooltips into formatted html
+    * @return javascript
+    */
+   static private String getSwapInfoScript() {
+      return "  function iaf(txt) {\n" +
+            "    var aff=txt.replace( /" + AFFIRMED + "/g,\"<br><h3>Affirmed</h3>\" );\n" +
+            "    var neg=aff.replace( /" + NEGATED + "/g,\"<br><h3>Negated</h3>\" );\n" +
+            "    var unc=neg.replace( /" + UNCERTAIN + "/g,\"<br><h3>Uncertain</h3>\" );\n" +
+            "    var unn=unc.replace( /" + UNCERTAIN_NEGATED + "/g,\"<br><h3>Uncertain, Negated</h3>\" );\n" +
+            "    var ant=unn.replace( /" + SemanticGroup.ANATOMICAL_SITE.getCode() + "/g,\"<b>Anatomical Site</b>\" );\n" +
+            "    var dis=ant.replace( /" + SemanticGroup.DISORDER.getCode() + "/g,\"<b>Disease/ Disorder</b>\" );\n" +
+            "    var fnd=dis.replace( /" + SemanticGroup.FINDING.getCode() + "/g,\"<b>Sign/ Symptom</b>\" );\n" +
+            "    var prc=fnd.replace( /" + SemanticGroup.PROCEDURE.getCode() + "/g,\"<b>Procedure</b>\" );\n" +
+            "    var drg=prc.replace( /" + SemanticGroup.MEDICATION.getCode() + "/g,\"<b>Medication</b>\" );\n" +
+            "    var unk=drg.replace( /" + SemanticGroup.UNKNOWN_SEMANTIC_CODE + "/g,\"<b>Unknown</b>\" );\n" +
+            "    var prf1=unk.replace( /\\[/g,\"&nbsp;&nbsp;&nbsp;<i>\" );\n" +
+            "    var prf2=prf1.replace( /\\]/g,\"</i>\" );\n" +
+            "    document.getElementById(\"ia\").innerHTML = prf2;\n" +
+            "  }\n";
+   }
+
+   /**
+    *
+    * @return html to write footer
+    */
    static private String getFooter() {
       return "</body>\n" +
              "</html>\n";
    }
 
-
-   // CSS
-
-
-   // javascript
-
+   /**
+    *
+    * @return html to start javascript section
+    */
    static private String startJavascript() {
-      return "<script type=\"text/javascript\">";
+      return "<script type=\"text/javascript\">\n";
    }
 
+   /**
+    *
+    * @return html to end javascript section
+    */
    static private String endJavascript() {
       return "</script>";
    }
-
-   static private String getLinkBackgrounds() {
-      return "  function linkBg(id,color) {\n" +
-             "    document.getElementById(id).style.backgroundColor = color;\n" +
-             "  }\n";
-   }
-
 
 }

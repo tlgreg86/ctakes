@@ -43,10 +43,12 @@
         <!--<groupId>org.apache.ctakes</groupId>-->
         <!--<artifactId>ctakes-core</artifactId>-->
         <!--</dependency>-->
-		<dependency>
-			<groupId>org.apache.ctakes</groupId>
-			<artifactId>ctakes-lvg</artifactId>
-		</dependency>
+        <!--  We need to stop adding entire modules of code, resources and dependencies just for aggregate engines.  -->
+        <!--  LVG is not necessary to run dependency parser.  Only modules absolutely required to run something should be in pom.  -->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.ctakes</groupId>-->
+        <!--<artifactId>ctakes-lvg</artifactId>-->
+        <!--</dependency>-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-pos-tagger</artifactId>

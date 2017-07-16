@@ -24,14 +24,14 @@ import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
-import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
-import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.postagger.POSTagger;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import java.net.MalformedURLException;
+
+//import org.apache.ctakes.lvg.ae.LvgAnnotator;
 
 /**
  * Meant to replace the XML descriptors in the preprocessing pipeline, making it easier
@@ -46,7 +46,7 @@ public class PreprocessingPipeline {
         builder.add(SimpleSegmentAnnotator.createAnnotatorDescription());
         builder.add(SentenceDetector.createAnnotatorDescription());
         builder.add(TokenizerAnnotatorPTB.createAnnotatorDescription());
-        builder.add(LvgAnnotator.createAnnotatorDescription());
+//        builder.add(LvgAnnotator.createAnnotatorDescription());
         builder.add(ContextDependentTokenizerAnnotator.createAnnotatorDescription());
         builder.add(POSTagger.createAnnotatorDescription());
         builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
