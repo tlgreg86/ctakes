@@ -200,16 +200,16 @@ final public class PiperRunnerPanel extends JPanel {
             return _cliCharToName.getOrDefault( c, "Unknown Name" );
          } else if ( column == 1 ) {
             if ( row < STANDARD_CHARS.length ) {
-               return '-' + STANDARD_CHARS[ row ];
+               return "-" + STANDARD_CHARS[ row ];
             }
-            return '-' + _cliChars.get( row - STANDARD_CHARS.length );
+            return "-" + _cliChars.get( row - STANDARD_CHARS.length );
          } else if ( column == 2 ) {
             if ( row < STANDARD_CHARS.length ) {
                return _charToValue.getOrDefault( STANDARD_CHARS[ row ], "" );
             }
             return _cliCharToValue.getOrDefault( _cliChars.get( row - STANDARD_CHARS.length ), "" );
          } else if ( column == 3 ) {
-            final String path = (String)getValueAt( row, 1 );
+            final String path = (String) getValueAt( row, 2 );
             return new File( path );
          }
          return "ERROR";
@@ -234,7 +234,7 @@ final public class PiperRunnerPanel extends JPanel {
             } else {
                _cliCharToValue.put( _cliChars.get( row - STANDARD_CHARS.length ), path );
             }
-            fireTableChanged( new TableModelEvent( this, row, row, 1 ) );
+            fireTableChanged( new TableModelEvent( this, row, row, 2 ) );
          }
       }
       @Override
@@ -279,7 +279,7 @@ final public class PiperRunnerPanel extends JPanel {
 
    public void loadPiperFile( final String path ) {
       final PiperFileReader reader = new PiperFileReader();
-      String text = loadPiperText( reader, path );
+      final String text = loadPiperText( reader, path );
       try {
          _piperDocument.remove( 0, _piperDocument.getLength() );
          _piperDocument.insertString( 0, text, null );

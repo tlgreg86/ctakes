@@ -13,7 +13,8 @@ interface StandardCliOptions {
    @Option(
          shortName = "p",
          longName = "piper",
-         description = "path to the piper file containing commands and parameters for pipeline configuration." )
+         description = "path to the piper file containing commands and parameters for pipeline configuration.",
+         defaultValue = "" )
    String getPiperPath();
 
    @Option(

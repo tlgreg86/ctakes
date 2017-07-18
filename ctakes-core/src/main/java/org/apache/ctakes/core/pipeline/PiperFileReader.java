@@ -10,10 +10,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -74,7 +71,7 @@ final public class PiperFileReader {
              "lvg",
              "necontexts",
              "postagger",
-             "prepropessor",
+         "preprocessor",
              "relationextractor",
              "sideeffect",
              "smokingstatus",
@@ -156,7 +153,7 @@ final public class PiperFileReader {
             line = reader.readLine();
          }
       } catch ( IOException ioE ) {
-         LOGGER.error( "Piper File not found: " + filePath );
+         LOGGER.error( "Could not read piper file: " + filePath );
          return false;
       }
       return true;
@@ -335,6 +332,13 @@ final public class PiperFileReader {
     * @return discovered path for the piper file
     */
    public String getPiperPath( final String filePath ) throws FileNotFoundException {
+      final File piperFile = new File( filePath );
+      if ( piperFile.isAbsolute() ) {
+         final String parentPath = piperFile.getParent();
+         if ( parentPath != null && !parentPath.isEmpty() && !_userPackages.contains( parentPath ) ) {
+            _userPackages.add( parentPath );
+         }
+      }
       String fullPath = FileLocator.getFullPathQuiet( filePath );
       if ( fullPath != null && !fullPath.isEmpty() ) {
          return fullPath;
