@@ -7,8 +7,8 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author SPF , chip-nlp
@@ -29,8 +29,8 @@ final public class IconLoader {
     */
    static public Icon loadIcon( final String filePath, final int iconSize ) {
       try {
-         final File imageFile = FileLocator.locateFile( filePath );
-         final Image image = ImageIO.read( imageFile );
+         final InputStream inputStream = FileLocator.getAsStream( filePath );
+         final Image image = ImageIO.read( inputStream );
          final BufferedImage scaleImage = new BufferedImage( iconSize, iconSize, BufferedImage.TYPE_INT_ARGB );
          final Graphics g = scaleImage.createGraphics();
          g.drawImage( image, 0, 0, iconSize, iconSize, null );
@@ -47,8 +47,8 @@ final public class IconLoader {
     */
    static public Icon loadIcon( final String filePath ) {
       try {
-         final File imageFile = FileLocator.locateFile( filePath );
-         final Image image = ImageIO.read( imageFile );
+         final InputStream inputStream = FileLocator.getAsStream( filePath );
+         final Image image = ImageIO.read( inputStream );
          return new ImageIcon( image );
       } catch ( IOException ioE ) {
          LOGGER.warn( ioE.getMessage() );
