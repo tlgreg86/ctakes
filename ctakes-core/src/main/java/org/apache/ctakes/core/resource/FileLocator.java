@@ -45,6 +45,7 @@ final public class FileLocator {
    }
 
    /**
+    * Attempts to fetch stream through classloader, then through {@link #locateFile(Class, String)}
     * @param location some string representing the full or partial location of a file
     * @return an input stream for the file
     * @throws FileNotFoundException if no file could be found
@@ -54,6 +55,7 @@ final public class FileLocator {
    }
 
    /**
+    * Attempts to fetch stream through classloader, then through {@link #locateFile(Class, String)}
     * @param clazz    some class whose classloader should be used
     * @param location some string representing the full or partial location of a file
     * @return an input stream for the file
@@ -61,18 +63,53 @@ final public class FileLocator {
     */
    public static InputStream getAsStream( final Class<?> clazz, final String location ) throws FileNotFoundException {
       try {
-         //Get from classpath
-         final InputStream is = clazz.getClassLoader().getResourceAsStream( location );
+         final InputStream is = getAsStreamQuiet( clazz, location );
          if ( is != null ) {
             return is;
          }
       } catch ( Exception e ) {
          LOGGER.debug( e.getMessage() );
       }
-      //Try to get from filestream, locating file rigorously
+      //Try to get from file, locating file rigorously
       final File file = locateFile( clazz, location );
       return new FileInputStream( file );
    }
+
+   /**
+    * Fetches stream without logging errors
+    *
+    * @param location some string representing the full or partial location of a file
+    * @return an input stream for the file
+    * @throws FileNotFoundException if no file could be found
+    */
+   public static InputStream getAsStreamQuiet( final String location ) throws FileNotFoundException {
+      return getAsStreamQuiet( FileLocator.class, location );
+   }
+
+   /**
+    * Fetches stream without logging errors
+    *
+    * @param clazz    some class whose classloader should be used
+    * @param location some string representing the full or partial location of a file
+    * @return an input stream for the file
+    * @throws FileNotFoundException if no file could be found
+    */
+   public static InputStream getAsStreamQuiet( final Class<?> clazz, final String location ) throws FileNotFoundException {
+      try {
+         //Get from classpath according to given class
+         InputStream is = clazz.getClassLoader().getResourceAsStream( location );
+         if ( is != null ) {
+            is = clazz.getResourceAsStream( location );
+            if ( is != null ) {
+               return is;
+            }
+         }
+      } catch ( Exception e ) {
+         LOGGER.debug( e.getMessage() );
+      }
+      return null;
+   }
+
 
    /**
     * Where a Stream is usable, use {@link #getAsStream(String)} .
@@ -179,7 +216,7 @@ final public class FileLocator {
       }
       final StringBuilder sb = new StringBuilder();
       sb.append( "Could not find " ).append( relativePath ).append( "\nas absolute or in $CLASSPATH :\n" );
-      final ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+      final ClassLoader classLoader = clazz.getClassLoader();
       final URL[] classpathUrls = ((URLClassLoader)classLoader).getURLs();
       for ( URL url : classpathUrls ) {
          sb.append( url.getFile() ).append( "\n" );
@@ -307,9 +344,12 @@ final public class FileLocator {
    private static File locateOnClasspath( final Class<?> clazz, final String relativePath )
          throws FileNotFoundException, URISyntaxException {
       final ClassLoader classLoader = clazz.getClassLoader();
-      final URL indexUrl = classLoader.getResource( relativePath );
+      URL indexUrl = classLoader.getResource( relativePath );
       if ( indexUrl == null ) {
-         throw new FileNotFoundException( relativePath );
+         indexUrl = clazz.getResource( relativePath );
+         if ( indexUrl == null ) {
+            throw new FileNotFoundException( relativePath );
+         }
       }
       final URI indexUri = new URI( indexUrl.toExternalForm() );
       if ( indexUri.isOpaque() ) {
