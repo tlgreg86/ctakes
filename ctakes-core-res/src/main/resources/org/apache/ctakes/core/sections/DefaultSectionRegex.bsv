@@ -5,7 +5,7 @@ Chief Complaint||^[\t ]*(?:CHIEF|PRIMARY) COMPLAINTS?[\t ]*:?[\t ]*$
 Personal and Social History||^[\t ]*(?:(?:PERSONAL (?:(?:AND )?SOCIAL )?HISTORY)?|(?:(?:PSYCHO)?SOC(?:IAL)? HISTORY)|(?:HISTORY (?:OF )(?:OTHER )?SOCIAL (?:FUNCTIONs?|FACTORS?))|(?:PSO)|(?:P?SHX))[\t ]*:?[\t ]*$
 Review of Systems||^[\t ]*REVIEW OF SYSTEMS?[\t ]*:?[\t ]*$
 Family Medical History||^[\t ]*(?:FAMILY (?:MEDICAL )?HISTORY)|(?:HISTORY (?:OF )?FAMILY MEMBER DISEASES?)|(?:FAM HX)|FH|FMH|FMHX|FHX[\t ]*:?[\t ]*$
-Medications||^[\t ]*(?:CURRENT )?MEDICATION)S?[\t ]*:?[\t ]*$
+Medications||^[\t ]*(?:CURRENT )?MEDICATIONS?[\t ]*:?[\t ]*$
 Allergies||^[\t ]*ALLERGIES[\t ]*:?[\t ]*$
 General Exam||^[\t ]*(?:REVIEW (?:OF )?)?GENERAL (?:PHYSICAL )?(?:EXAM(?:INATION)?|STATUS|APPEARANCE|CONSTITUTIONAL)S?(?: SYMPTOMS?)?[\t ]*:?[\t ]*$
 Vital Signs||^[\t ]*VITAL SIGNS[\t ]*:?[\t ]*$
@@ -41,3 +41,37 @@ Principal Procedures||^[\t ]*(?:PRINCIPAL|PRIMARY) PROCEDURES?[\t ]*:?[\t ]*$
 Psychological Stressors||^[\t ]*(?:PSYCHOLOGICAL )?STRESS(?:ORS?| LEVEL)[\t ]*:?[\t ]*$
 Pathologic Data||^[\t ]*(?:(?:BIOPS(?:Y|IES))|BX|(?:PATHOLOGIC DATA))[\t ]*:?[\t ]*$
 Medication History||^[\t ]*(?:(?:MEDICATION ?(?:TREATMENT|USE)? HISTORY)|(?:HISTORY (?:OF )?MEDICATION ?(?:TREATMENT|USE)?))[\t ]*:?[\t ]*$
+Treatment Goals||^[\t ]*(?:TREATMENT )?GOALS?[\t ]*:?[\t ]*$
+Input Fluids||^[\t ]*INPUT FLUIDS?[\t ]*:?[\t ]*$
+Admission Date||^[\t ]*ADMISSION DATE[\t ]*:?[\t ]*$
+History Source||^[\t ]*(?:HISTORY|HX) (?:SOURCES?|(?:(?:OBTAIN(?:ED)?(?: FROM)?)))[\t ]*:?[\t ]*$
+Current Pregnancy||^[\t ]*CURRENT PREGNANCY[\t ]*:?[\t ]*$
+Special Procedures||^[\t ]*SPECIAL PROCEDURES?[\t ]*:?[\t ]*$
+Operative Findings||^[\t ]*OPERATIVE FINDINGS?[\t ]*:?[\t ]*$
+Fluid Balance||^[\t ]*(?:FLUID BALANCE)|(?:I(?:NPUT)? ?\/? ?O(?:UTPUT)?)[\t ]*:?[\t ]*$
+Blood Pressure||^[\t ]*BLOOD PRESSURE|BP[\t ]*:?[\t ]*$
+Post Procedure Diagnosis||^[\t ]*POST\-?(?:PROCEDURE|OP|OPERATIVE) DIAGNOSIS[\t ]*:?[\t ]*$
+Cancer Risk Factors||^[\t ]*CANCER RISK FACTORS?[\t ]*:?[\t ]*$
+Invasive Diagnostic Procedure History||^[\t ]*INVASIVE DIAGNOSTIC PROCEDURE HISTORY[\t ]*:?[\t ]*$
+Technique||^[\t ]*TECHNIQUE[\t ]*:?[\t ]*$
+Medications By Type||^[\t ]*MEDICATIONS? (?:BY )?TYPE[\t ]*:?[\t ]*$
+Hematologic History||^[\t ]*(?:HEME|HEMATOLOGIC) (?:HISTORY|HX)[\t ]*:?[\t ]*$
+Respiratory Rate||^[\t ]*RESP(?:IRAT(?:ORY|IONS?))?(?: RATE)?[\t ]*:?[\t ]*$
+Attending Addendum||^[\t ]*ATTENDING ADDENDUM[\t ]*:?[\t ]*$
+Microscopic Description||^[\t ]*MICROSCOPIC DESC(?:RIPTION)?[\t ]*:?[\t ]*$
+Substance Abuse Treatment||^[\t ]*(?:TREATMENT (?:FOR|OF)? ?)?(?:SUBSTANCE|DRUG|ALCOHOL) (?:ABUSE|ADDICTION)(?: TREATMENT)?[\t ]*:?[\t ]*$
+Hospital Course||^[\t ]*(?:BRIEF|HISTORY|HX)? ?HOSPITAL COURSE[\t ]*:?[\t ]*$
+Histology Summary||^[\t ]*HISTO(?:LOGY)? (?:TISSUE )?SUMMARY[\t ]*:?[\t ]*$
+Addendum||^[\t ]*ADDEND(?:A|UM)[\t ]*:?[\t ]*$
+Medications at Transfer||^[\t ]*MEDICATIONS?(?: AT)? TRANSFER[\t ]*:?[\t ]*$
+Findings||^[\t ]*(?:DIAGNOSTIC )?(?:INDICATIONS? ?\/? )?FINDINGS?(?: (?:AT )?SURGERY)?[\t ]*:?[\t ]*$
+Instructions||^[\t ]*INSTRUCTIONS?[\t ]*:?[\t ]*$
+Current Antibiotics||^[\t ]*CURRENT ANTIBIOTICS?[\t ]*:?[\t ]*$
+Ethanol Use||^[\t ]*(?:HISTORY (?:OF )?)?(?:ALCOHOL|ETHANOL|ETOH)(?: USE)?[\t ]*:?[\t ]*$
+Maximum Temperature||^[\t ]*MAX(?:IMUM)? TEMP(?:ERATURE)?[\t ]*:?[\t ]*$
+Smoking Use||^[\t ]*(?:SMOKING|CIGAR(?:ETTE)?)(?: USE)?[\t ]*:?[\t ]*$
+Admission Condition||^[\t ]*(?:(?:CONDITION(?:ON |AT )? ADMISSION)|(?:ADMISSION CONDITION))[\t ]*:?[\t ]*$
+
+
+
+
