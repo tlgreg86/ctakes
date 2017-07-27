@@ -168,7 +168,6 @@ final public class FileLocator {
     * @return an input stream for the resource
     */
    static public InputStream getStreamQuiet( final Class<?> clazz, final String location ) {
-      LOGGER.info( "getStreamQuiet " + location );
       final Collection<String> urlPaths = getUrlSearchPaths( location );
       final InputStream stream = urlPaths.stream()
             .map( l -> getStreamOnly( clazz, l ) )
@@ -217,17 +216,14 @@ final public class FileLocator {
     * @return an input stream for the resource
     */
    static private InputStream getStreamOnly( final Class<?> clazz, final String location ) {
-      LOGGER.info( "getStreamOnly " + location );
       try {
          //Get from classpath according to given class
          InputStream stream = clazz.getClassLoader().getResourceAsStream( location );
          if ( stream != null ) {
-            LOGGER.info( "getStreamOnly classloader stream " + location );
             return stream;
          }
          stream = clazz.getResourceAsStream( location );
          if ( stream != null ) {
-            LOGGER.info( "getStreamOnly class stream " + location );
             return stream;
          }
       } catch ( Exception e ) {
@@ -293,7 +289,6 @@ final public class FileLocator {
     * @return an url for the resource
     */
    static public URL getResourceQuiet( final Class<?> clazz, final String location ) {
-      LOGGER.info( "getResourceQuiet " + location );
       final Collection<String> allPaths = getAllSearchPaths( location );
       final File file = allPaths.stream()
             .map( FileLocator::getFileOnly )
@@ -326,11 +321,9 @@ final public class FileLocator {
     * @return an url for the resource
     */
    static private URL getResourceOnly( final Class<?> clazz, final String location ) {
-      LOGGER.info( "getResourceOnly " + location );
       final ClassLoader classLoader = clazz.getClassLoader();
       final URL url = classLoader.getResource( location );
       if ( url != null ) {
-         LOGGER.info( "getResourceOnly classloader " + location );
          LOGGER.debug( location + " found at " + url.toExternalForm() );
          return url;
       }
@@ -406,7 +399,6 @@ final public class FileLocator {
     * @return an file for the resource or null if none is found
     */
    static public File getFileQuiet( final Class<?> clazz, final String location ) {
-      LOGGER.info( "getFileQuiet " + location );
       final Collection<String> allPaths = getAllSearchPaths( location );
       final File file = allPaths.stream()
             .map( FileLocator::getFileOnly )
@@ -450,10 +442,8 @@ final public class FileLocator {
     * @return a discovered file or null
     */
    static private File getFileOnly( final String location ) {
-      LOGGER.info( "getFileOnly " + location );
       File file = new File( location );
       if ( file.exists() ) {
-         LOGGER.info( "getFileOnly file " + file.getPath() );
          return file;
       }
       return null;
@@ -475,7 +465,6 @@ final public class FileLocator {
          try ( InputStream reader = new BufferedInputStream( stream ) ) {
             final File tempFile = File.createTempFile( tempName, null );
             tempFile.deleteOnExit();
-            LOGGER.info( "Copying " + location + " to temporary file " + tempFile.getPath() );
             java.nio.file.Files.copy(
                   reader,
                   tempFile.toPath(),
