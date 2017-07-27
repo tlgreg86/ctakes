@@ -23,8 +23,10 @@ import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -299,11 +301,10 @@ final public class PiperRunnerPanel extends JPanel {
       _cliTable.repaint();
    }
 
-   private String loadPiperText( final PiperFileReader reader, final String filePath ) {
+   private String loadPiperText( final PiperFileReader piperReader, final String filePath ) {
       LOGGER.info( "Loading Piper File: " + filePath );
-      try {
-         final String loadPath = reader.getPiperPath( filePath );
-         return Files.lines( Paths.get( loadPath ) ).collect( Collectors.joining( "\n" ) );
+      try ( BufferedReader reader = piperReader.getPiperReader( filePath ) ) {
+         return reader.lines().collect( Collectors.joining( "\n" ) );
       } catch ( IOException ioE ) {
          error( ioE.getMessage() );
          return "";
@@ -376,9 +377,8 @@ final public class PiperRunnerPanel extends JPanel {
 
    public void openParameterFile( final String path ) {
       LOGGER.info( "Loading Piper cli values file: " + path );
-      try {
-         final String filePath = FileLocator.getFullPath( path );
-         Files.lines( Paths.get( filePath ) ).forEach( this::loadValueLine );
+      try ( final BufferedReader reader = new BufferedReader( new InputStreamReader( FileLocator.getAsStream( path ) ) ) ) {
+         reader.lines().forEachOrdered( this::loadValueLine );
       } catch ( IOException ioE ) {
          LOGGER.error( ioE.getMessage() );
       }
