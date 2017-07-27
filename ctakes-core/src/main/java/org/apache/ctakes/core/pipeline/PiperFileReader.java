@@ -56,25 +56,25 @@ final public class PiperFileReader {
 
    static private final String[] CTAKES_PACKAGES
          = { "core",
-             "assertion",
-             "chunker",
+         "contexttokenizer",
+         "postagger",
+         "chunker",
+         "assertion",
+         "dictionary.lookup2",
              "clinicalpipeline",
          "clinical.pipeline",
          "constituency.parser",
-             "contexttokenizer",
+         "lvg",
+         "relationextractor",
              "coreference",
              "dependency.parser",
-             "dictionary.lookup2",
-             "dictionary.lookup",
              "temporal",
              "drug-ner",
-             "lvg",
              "necontexts",
-             "postagger",
          "preprocessor",
-             "relationextractor",
              "sideeffect",
              "smokingstatus",
+         "dictionary.lookup",
              "template.filler" };
 
    static private final Object[] EMPTY_OBJECT_ARRAY = new Object[ 0 ];
@@ -144,9 +144,7 @@ final public class PiperFileReader {
     * @param filePath path to the pipeline command file
     */
    public boolean loadPipelineFile( final String filePath ) throws UIMAException {
-      try ( final BufferedReader reader
-                  = new BufferedReader( new InputStreamReader(
-            FileLocator.getAsStream( getPiperPath( filePath ) ) ) ) ) {
+      try ( final BufferedReader reader = getPiperReader( filePath ) ) {
          String line = reader.readLine();
          while ( line != null ) {
             parsePipelineLine( line.trim() );
@@ -327,11 +325,62 @@ final public class PiperFileReader {
       return null;
    }
 
+//   /**
+//    * @param filePath fully-specified or simple path of a piper file
+//    * @return discovered path for the piper file
+//    */
+//   public String getPiperPath( final String filePath ) throws FileNotFoundException {
+//      final File piperFile = new File( filePath );
+//      if ( piperFile.isAbsolute() ) {
+//         final String parentPath = piperFile.getParent();
+//         if ( parentPath != null && !parentPath.isEmpty() && !_userPackages.contains( parentPath ) ) {
+//            _userPackages.add( parentPath );
+//         }
+//      }
+//      String fullPath = FileLocator.getFullPathQuiet( filePath );
+//      if ( fullPath != null && !fullPath.isEmpty() ) {
+//         return fullPath;
+//      }
+//      // Check user packages
+//      for ( String packageName : _userPackages ) {
+//         fullPath = FileLocator.getFullPathQuiet( packageName.replace( '.', '/' ) + '/' + filePath );
+//         if ( fullPath != null && !fullPath.isEmpty() ) {
+//            return fullPath;
+//         }
+//         fullPath = FileLocator.getFullPathQuiet( packageName.replace( '.', '/' ) + "/pipeline/" + filePath );
+//         if ( fullPath != null && !fullPath.isEmpty() ) {
+//            return fullPath;
+//         }
+//      }
+//      // Check ctakes packages
+//      for ( String packageName : CTAKES_PACKAGES ) {
+//         fullPath = FileLocator
+//               .getFullPathQuiet( "org/apache/ctakes/" + packageName.replace( '.', '/' ) + '/' + filePath );
+//         if ( fullPath != null && !fullPath.isEmpty() ) {
+//            return fullPath;
+//         }
+//         fullPath = FileLocator
+//               .getFullPathQuiet( "org/apache/ctakes/" + packageName.replace( '.', '/' ) + "/pipeline/" + filePath );
+//         if ( fullPath != null && !fullPath.isEmpty() ) {
+//            return fullPath;
+//         }
+//      }
+//      throw new FileNotFoundException( "No piper file found for " + filePath );
+//   }
+
+   public BufferedReader getPiperReader( final String filePath ) throws FileNotFoundException {
+      final InputStream stream = getPiperStream( filePath );
+      if ( stream == null ) {
+         throw new FileNotFoundException( "No piper file found for " + filePath );
+      }
+      return new BufferedReader( new InputStreamReader( stream ) );
+   }
+
    /**
     * @param filePath fully-specified or simple path of a piper file
     * @return discovered path for the piper file
     */
-   public String getPiperPath( final String filePath ) throws FileNotFoundException {
+   public InputStream getPiperStream( final String filePath ) {
       final File piperFile = new File( filePath );
       if ( piperFile.isAbsolute() ) {
          final String parentPath = piperFile.getParent();
@@ -339,35 +388,34 @@ final public class PiperFileReader {
             _userPackages.add( parentPath );
          }
       }
-      String fullPath = FileLocator.getFullPathQuiet( filePath );
-      if ( fullPath != null && !fullPath.isEmpty() ) {
-         return fullPath;
+      InputStream stream = FileLocator.getStreamQuiet( filePath );
+      if ( stream != null ) {
+         return stream;
       }
       // Check user packages
       for ( String packageName : _userPackages ) {
-         fullPath = FileLocator.getFullPathQuiet( packageName.replace( '.', '/' ) + '/' + filePath );
-         if ( fullPath != null && !fullPath.isEmpty() ) {
-            return fullPath;
+         stream = FileLocator.getStreamQuiet( packageName.replace( '.', '/' ) + '/' + filePath );
+         if ( stream != null ) {
+            return stream;
          }
-         fullPath = FileLocator.getFullPathQuiet( packageName.replace( '.', '/' ) + "/pipeline/" + filePath );
-         if ( fullPath != null && !fullPath.isEmpty() ) {
-            return fullPath;
+         stream = FileLocator.getStreamQuiet( packageName.replace( '.', '/' ) + "/pipeline/" + filePath );
+         if ( stream != null ) {
+            return stream;
          }
       }
       // Check ctakes packages
       for ( String packageName : CTAKES_PACKAGES ) {
-         fullPath = FileLocator
-               .getFullPathQuiet( "org/apache/ctakes/" + packageName.replace( '.', '/' ) + '/' + filePath );
-         if ( fullPath != null && !fullPath.isEmpty() ) {
-            return fullPath;
+         stream = FileLocator.getStreamQuiet( "org/apache/ctakes/" + packageName.replace( '.', '/' ) + '/' + filePath );
+         if ( stream != null ) {
+            return stream;
          }
-         fullPath = FileLocator
-               .getFullPathQuiet( "org/apache/ctakes/" + packageName.replace( '.', '/' ) + "/pipeline/" + filePath );
-         if ( fullPath != null && !fullPath.isEmpty() ) {
-            return fullPath;
+         stream = FileLocator.getStreamQuiet( "org/apache/ctakes/" + packageName.replace( '.', '/' ) + "/pipeline/" + filePath );
+         if ( stream != null ) {
+            return stream;
          }
       }
-      throw new FileNotFoundException( "No piper file found for " + filePath );
+      LOGGER.error( "No piper file found for " + filePath );
+      return null;
    }
 
 

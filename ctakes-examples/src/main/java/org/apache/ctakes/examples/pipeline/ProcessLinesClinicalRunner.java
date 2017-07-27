@@ -43,7 +43,8 @@ final public class ProcessLinesClinicalRunner {
          final PiperFileReader reader = new PiperFileReader();
          final PipelineBuilder builder = reader.getBuilder();
          // Add the Lines from File reader
-         final File inputFile = FileLocator.locateFile( INPUT_FILE_PATH );
+//         final File inputFile = FileLocator.locateFile( INPUT_FILE_PATH );
+         final File inputFile = FileLocator.getFile( INPUT_FILE_PATH );
          builder.reader( LinesFromFileCollectionReader.class,
                LinesFromFileCollectionReader.PARAM_INPUT_FILE_NAME, inputFile.getAbsolutePath() );
          // Add the lines from the piper file

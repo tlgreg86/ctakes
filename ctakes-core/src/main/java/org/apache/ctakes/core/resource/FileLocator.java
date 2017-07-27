@@ -21,10 +21,9 @@ package org.apache.ctakes.core.resource;
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.net.*;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 /**
  * Utility class that attempts to locate files.
@@ -41,174 +40,472 @@ final public class FileLocator {
     */
    static private final String CTAKES_HOME = "CTAKES_HOME";
 
+   private enum TempFileHolder {
+      INSTANCE;
+      private final Map<String, File> __tempFiles = new HashMap<>();
+
+      private void addFile( final String name, final File file ) {
+         __tempFiles.putIfAbsent( name, file );
+      }
+
+      private File getFile( final String name ) {
+         return __tempFiles.get( name );
+      }
+   }
+
    private FileLocator() {
    }
 
    /**
-    * Attempts to fetch stream through classloader, then through {@link #locateFile(Class, String)}
-    * @param location some string representing the full or partial location of a file
-    * @return an input stream for the file
-    * @throws FileNotFoundException if no file could be found
+    *
+    * @param location some absolute or relative resource location
+    * @return a collection containing the location and the location with the prefix resources/
     */
-   public static InputStream getAsStream( final String location ) throws FileNotFoundException {
+   static private Collection<String> getUrlSearchPaths( final String location ) {
+      final Collection<String> paths = new ArrayList<>( 2 );
+      paths.add( location );
+      paths.add( "resources/" + location );
+      return paths;
+   }
+
+   /**
+    * @param location some absolute or relative file location
+    * @return a collection containing the location with prefixes created using the working directory, CTAKES_HOME, ctakes, and resources.
+    * The working directory is traversed backwards to help developers that create projects at upper levels from ctakes.
+    */
+   static private Collection<String> getFileSearchPaths( final String location ) {
+      final Collection<String> paths = new ArrayList<>();
+      final String dir = System.getProperty( "user.dir" );
+      if ( dir != null && !dir.isEmpty() ) {
+         paths.add( dir + "/" + location );
+         paths.add( dir + "/resources/" + location );
+      }
+      final String cTakesHome = System.getenv( CTAKES_HOME );
+      if ( cTakesHome != null && !cTakesHome.isEmpty() ) {
+         paths.add( cTakesHome + "/" + location );
+         paths.add( cTakesHome + "/resources/" + location );
+      }
+      if ( dir != null && !dir.isEmpty() ) {
+         File ancestor = new File( dir );
+         while ( ancestor.getParentFile() != null ) {
+            ancestor = ancestor.getParentFile();
+            paths.add( ancestor + "/" + location );
+            paths.add( ancestor + "/ctakes/" + location );
+            paths.add( ancestor + "/resources/" + location );
+         }
+      }
+      return paths;
+   }
+
+   /**
+    * @param location some absolute or relative resource or file location
+    * @return a collection made from {@link #getUrlSearchPaths(String)} and {@link #getFileSearchPaths(String)}
+    */
+   static private Collection<String> getAllSearchPaths( final String location ) {
+      final Collection<String> locations = new ArrayList<>( getUrlSearchPaths( location ) );
+      locations.addAll( getFileSearchPaths( location ) );
+      return locations;
+   }
+
+   /**
+    * Fetches stream
+    * Search order is by:
+    * 1. By resource stream in classpath
+    * 2. By file on filesystem
+    * 3. By resource url in classpath
+    *
+    * @param location some string representing the full or partial location of a resource
+    * @return an input stream for the resource
+    * @throws FileNotFoundException if no resource could be found
+    */
+   static public InputStream getAsStream( final String location ) throws FileNotFoundException {
       return getAsStream( FileLocator.class, location );
    }
 
    /**
-    * Attempts to fetch stream through classloader, then through {@link #locateFile(Class, String)}
+    * Fetches stream
+    * Search order is by:
+    * 1. By resource stream in classpath
+    * 2. By file on filesystem
+    * 3. By resource url in classpath
+    *
     * @param clazz    some class whose classloader should be used
-    * @param location some string representing the full or partial location of a file
-    * @return an input stream for the file
-    * @throws FileNotFoundException if no file could be found
+    * @param location some string representing the full or partial location of a resource
+    * @return an input stream for the resource
+    * @throws FileNotFoundException if no resource could be found
     */
-   public static InputStream getAsStream( final Class<?> clazz, final String location ) throws FileNotFoundException {
-      try {
-         final InputStream is = getAsStreamQuiet( clazz, location );
-         if ( is != null ) {
-            return is;
-         }
-      } catch ( Exception e ) {
-         LOGGER.debug( e.getMessage() );
+   static public InputStream getAsStream( final Class<?> clazz, final String location ) throws FileNotFoundException {
+      final InputStream stream = getStreamQuiet( clazz, location );
+      if ( stream != null ) {
+         return stream;
       }
-      //Try to get from file, locating file rigorously
-      final File file = locateFile( clazz, location );
-      return new FileInputStream( file );
+      throw new FileNotFoundException( "No stream available for " + location );
    }
 
    /**
-    * Fetches stream without logging errors
+    * Fetches stream without throwing exceptions.
+    * Search order is by:
+    * 1. By resource stream in classpath
+    * 2. By file on filesystem
+    * 3. By resource url in classpath
     *
-    * @param location some string representing the full or partial location of a file
-    * @return an input stream for the file
-    * @throws FileNotFoundException if no file could be found
+    * @param location some string representing the full or partial location of a resource
+    * @return an input stream for the resource
     */
-   public static InputStream getAsStreamQuiet( final String location ) throws FileNotFoundException {
-      return getAsStreamQuiet( FileLocator.class, location );
+   static public InputStream getStreamQuiet( final String location ) {
+      return getStreamQuiet( FileLocator.class, location );
    }
 
    /**
-    * Fetches stream without logging errors
+    * Fetches stream without throwing exceptions.
+    * Search order is by:
+    * 1. By resource stream in classpath
+    * 2. By file on filesystem
+    * 3. By resource url in classpath
     *
     * @param clazz    some class whose classloader should be used
-    * @param location some string representing the full or partial location of a file
-    * @return an input stream for the file
-    * @throws FileNotFoundException if no file could be found
+    * @param location some string representing the full or partial location of a resource
+    * @return an input stream for the resource
     */
-   public static InputStream getAsStreamQuiet( final Class<?> clazz, final String location ) throws FileNotFoundException {
+   static public InputStream getStreamQuiet( final Class<?> clazz, final String location ) {
+      LOGGER.info( "getStreamQuiet " + location );
+      final Collection<String> urlPaths = getUrlSearchPaths( location );
+      final InputStream stream = urlPaths.stream()
+            .map( l -> getStreamOnly( clazz, l ) )
+            .filter( Objects::nonNull )
+            .findFirst()
+            .orElse( null );
+      if ( stream != null ) {
+         return stream;
+      }
+      final Collection<String> allPaths = getAllSearchPaths( location );
+      File file = allPaths.stream()
+            .map( FileLocator::getFileOnly )
+            .filter( Objects::nonNull )
+            .findFirst()
+            .orElse( null );
+      if ( file != null ) {
+         try {
+            return new FileInputStream( file );
+         } catch ( FileNotFoundException fnfE ) {
+            // do nothing
+         }
+      }
+      final URL url = urlPaths.stream()
+            .map( l -> getResourceOnly( clazz, l ) )
+            .filter( Objects::nonNull )
+            .findFirst()
+            .orElse( null );
+      if ( url != null ) {
+         try {
+            final URI indexUri = new URI( url.toExternalForm() );
+            if ( !indexUri.isOpaque() ) {
+               return new FileInputStream( new File( indexUri ) );
+            }
+         } catch ( URISyntaxException | FileNotFoundException multE ) {
+            return null;
+         }
+      }
+      return null;
+   }
+
+   /**
+    * Fetches stream without throwing exceptions only by finding a stream in the classpath
+    *
+    * @param clazz    some class whose classloader should be used
+    * @param location some string representing the full or partial location of a resource
+    * @return an input stream for the resource
+    */
+   static private InputStream getStreamOnly( final Class<?> clazz, final String location ) {
+      LOGGER.info( "getStreamOnly " + location );
       try {
          //Get from classpath according to given class
-         InputStream is = clazz.getClassLoader().getResourceAsStream( location );
-         if ( is != null ) {
-            is = clazz.getResourceAsStream( location );
-            if ( is != null ) {
-               return is;
-            }
+         InputStream stream = clazz.getClassLoader().getResourceAsStream( location );
+         if ( stream != null ) {
+            LOGGER.info( "getStreamOnly classloader stream " + location );
+            return stream;
+         }
+         stream = clazz.getResourceAsStream( location );
+         if ( stream != null ) {
+            LOGGER.info( "getStreamOnly class stream " + location );
+            return stream;
          }
       } catch ( Exception e ) {
-         LOGGER.debug( e.getMessage() );
+         return null;
+      }
+      return null;
+   }
+
+   /**
+    * Fetches resource.
+    * Search order is by:
+    * 1. By file on filesystem
+    * 2. By resource url in classpath
+    *
+    * @param location some string representing the full or partial location of a resource
+    * @return an url for the resource
+    * @throws FileNotFoundException if no resource could be found
+    */
+   static public URL getResource( final String location ) throws FileNotFoundException {
+      return getResource( FileLocator.class, location );
+   }
+
+   /**
+    * Fetches resource.
+    * Search order is by:
+    * 1. By file on filesystem
+    * 2. By resource url in classpath
+    *
+    * @param clazz    some class whose classloader should be used
+    * @param location some string representing the full or partial location of a resource
+    * @return an url for the resource
+    * @throws FileNotFoundException if no resource could be found
+    */
+   static public URL getResource( final Class<?> clazz, final String location ) throws FileNotFoundException {
+      final URL url = getResourceQuiet( clazz, location );
+      if ( url != null ) {
+         return url;
+      }
+      throw new FileNotFoundException( "No Resource at " + location );
+   }
+
+   /**
+    * Fetches resource without throwing exceptions.
+    * Search order is by:
+    * 1. By file on filesystem
+    * 2. By resource url in classpath
+    *
+    * @param location some string representing the full or partial location of a resource
+    * @return an url for the resource
+    */
+   static public URL getResourceQuiet( final String location ) {
+      return getResourceQuiet( FileLocator.class, location );
+   }
+
+   /**
+    * Fetches resource without throwing exceptions.
+    * Search order is by:
+    * 1. By file on filesystem
+    * 2. By resource url in classpath
+    *
+    * @param clazz    some class whose classloader should be used
+    * @param location some string representing the full or partial location of a resource
+    * @return an url for the resource
+    */
+   static public URL getResourceQuiet( final Class<?> clazz, final String location ) {
+      LOGGER.info( "getResourceQuiet " + location );
+      final Collection<String> allPaths = getAllSearchPaths( location );
+      final File file = allPaths.stream()
+            .map( FileLocator::getFileOnly )
+            .filter( Objects::nonNull )
+            .findFirst()
+            .orElse( null );
+      if ( file != null ) {
+         try {
+            return file.toURI().toURL();
+         } catch ( MalformedURLException urlE ) {
+            // do nothing
+         }
+      }
+      final URL url = getUrlSearchPaths( location ).stream()
+            .map( l -> getResourceOnly( clazz, l ) )
+            .filter( Objects::nonNull )
+            .findFirst()
+            .orElse( null );
+      if ( url != null ) {
+         return url;
+      }
+      return null;
+   }
+
+   /**
+    * Fetches resource without throwing exceptions only by finding a resource in the classpath
+    *
+    * @param clazz    some class whose classloader should be used
+    * @param location some string representing the full or partial location of a resource
+    * @return an url for the resource
+    */
+   static private URL getResourceOnly( final Class<?> clazz, final String location ) {
+      LOGGER.info( "getResourceOnly " + location );
+      final ClassLoader classLoader = clazz.getClassLoader();
+      final URL url = classLoader.getResource( location );
+      if ( url != null ) {
+         LOGGER.info( "getResourceOnly classloader " + location );
+         LOGGER.debug( location + " found at " + url.toExternalForm() );
+         return url;
+      }
+      return clazz.getResource( location );
+   }
+
+   /**
+    * Calls {@link #getFile(String)}
+    *
+    * @deprecated use {@link #getFile(String)}
+    */
+   @Deprecated
+   static public File locateFile( final String location ) throws FileNotFoundException {
+      return locateFile( FileLocator.class, location );
+   }
+
+   /**
+    * Calls {@link #getFile(Class, String)}
+    * @deprecated use {@link #getFile(Class, String)}
+    */
+   @Deprecated
+   static public File locateFile( final Class<?> clazz, final String location ) throws FileNotFoundException {
+      return getFile( clazz, location );
+   }
+
+   /**
+    * Fetches file.
+    * Search order is by:
+    * 1. By file on filesystem
+    * 2. By resource url in classpath
+    * 3. By resource stream in classpath
+    * If a stream is found then it is copied to a temporary file and that file is returned.
+    *
+    * @param location some string representing the full or partial location of a resource
+    * @return an file for the resource
+    * @throws FileNotFoundException if a file cannot be found or temporary file created
+    */
+   static public File getFile( final String location ) throws FileNotFoundException {
+      return getFile( FileLocator.class, location );
+   }
+
+   /**
+    * Fetches file.
+    * Search order is by:
+    * 1. By file on filesystem
+    * 2. By resource url in classpath
+    * 3. By resource stream in classpath
+    * If a stream is found then it is copied to a temporary file and that file is returned.
+    *
+    * @param clazz    some class whose classloader should be used
+    * @param location some string representing the full or partial location of a resource
+    * @return an file for the resource
+    * @throws FileNotFoundException if a file cannot be found or temporary file created
+    */
+   static public File getFile( final Class<?> clazz, final String location ) throws FileNotFoundException {
+      final File file = getFileQuiet( clazz, location );
+      if ( file != null ) {
+         return file;
+      }
+      throw new FileNotFoundException( "No File found for " + location );
+   }
+
+   /**
+    * Fetches file without throwing exceptions.
+    * Search order is by:
+    * 1. By file on filesystem
+    * 2. By resource url in classpath
+    * 3. By resource stream in classpath
+    * If a stream is found then it is copied to a temporary file and that file is returned.
+    *
+    * @param clazz    some class whose classloader should be used
+    * @param location some string representing the full or partial location of a resource
+    * @return an file for the resource or null if none is found
+    */
+   static public File getFileQuiet( final Class<?> clazz, final String location ) {
+      LOGGER.info( "getFileQuiet " + location );
+      final Collection<String> allPaths = getAllSearchPaths( location );
+      final File file = allPaths.stream()
+            .map( FileLocator::getFileOnly )
+            .filter( Objects::nonNull )
+            .findFirst()
+            .orElse( null );
+      if ( file != null ) {
+         return file;
+      }
+      final Collection<String> urlPaths = getUrlSearchPaths( location );
+      final URL url = urlPaths.stream()
+            .map( l -> getResourceOnly( clazz, l ) )
+            .filter( Objects::nonNull )
+            .findFirst()
+            .orElse( null );
+      if ( url != null ) {
+         try {
+            final URI uri = new URI( url.toExternalForm() );
+            if ( !uri.isOpaque() ) {
+               return new File( uri );
+            }
+         } catch ( URISyntaxException uriE ) {
+            // do nothing
+         }
+      }
+      final InputStream stream = urlPaths.stream()
+            .map( l -> getStreamOnly( clazz, l ) )
+            .filter( Objects::nonNull )
+            .findFirst()
+            .orElse( null );
+      if ( stream != null ) {
+         return createTempFile( stream, location );
+      }
+      return null;
+   }
+
+   /**
+    * Fetches file without throwing exceptions only by finding an existing file in the filesystem.
+    *
+    * @param location some string representing the full or partial location of a file
+    * @return a discovered file or null
+    */
+   static private File getFileOnly( final String location ) {
+      LOGGER.info( "getFileOnly " + location );
+      File file = new File( location );
+      if ( file.exists() ) {
+         LOGGER.info( "getFileOnly file " + file.getPath() );
+         return file;
       }
       return null;
    }
 
 
    /**
-    * Where a Stream is usable, use {@link #getAsStream(String)} .
-    * Where a path String is usable, use {@link #getFullPath(String)} .
-    *
-    * @param location some string representing the full or partial location of a file
-    * @return a File if successfully located
-    * @throws FileNotFoundException if no file can be located
+    * @param stream   an input stream that exists within the classpath
+    * @param location some originally requested file location
+    * @return a temporary file containing the contents of the stream
     */
-   public static File locateFile( final String location ) throws FileNotFoundException {
-      return locateFile( FileLocator.class, location );
-   }
-
-   /**
-    * Where a Stream is usable, use {@link #getAsStream(String)} .
-    * Where a path String is usable, use {@link #getFullPath(String)} .
-    *
-    * @param clazz some class whose classloader should be used
-    * @param location some string representing the full or partial location of a file
-    * @return a File if successfully located
-    * @throws FileNotFoundException if no file can be located
-    */
-   public static File locateFile( final Class<?> clazz, final String location ) throws FileNotFoundException {
-      final String fullPath = getFullPath( clazz, location );
-      final File file = new File( fullPath );
-      if ( !file.exists() ) {
-         throw new FileNotFoundException( "No File at " + location );
+   static private File createTempFile( final InputStream stream, final String location ) {
+      final String tempName = location.replace( '/', '_' ).replace( '\\', '_' );
+      synchronized (TempFileHolder.INSTANCE) {
+         final File file = TempFileHolder.INSTANCE.getFile( tempName );
+         if ( file != null ) {
+            return file;
+         }
+         try ( InputStream reader = new BufferedInputStream( stream ) ) {
+            final File tempFile = File.createTempFile( tempName, null );
+            tempFile.deleteOnExit();
+            LOGGER.info( "Copying " + location + " to temporary file " + tempFile.getPath() );
+            java.nio.file.Files.copy(
+                  reader,
+                  tempFile.toPath(),
+                  StandardCopyOption.REPLACE_EXISTING );
+            TempFileHolder.INSTANCE.addFile( tempName, tempFile );
+            return TempFileHolder.INSTANCE.getFile( tempName );
+         } catch ( IOException ioE ) {
+            LOGGER.error( ioE.getMessage() );
+         }
       }
-      return file;
-   }
-
-   /**
-    * Logs a debug message before returning the absolute path of a file derived from some relative path
-    *
-    * @param relativePath relative path of some file
-    * @param file         the actual file addressed by relative path
-    * @param locationText description of where file exists relative to relativePath
-    * @return the canonical path of file or the absolute path of file if the canonical cannot be made
-    */
-   static private String createDiscoveredPath( final String relativePath, final File file, final String locationText ) {
-      try {
-         LOGGER.debug( relativePath + " discovered " + locationText + " as: " + file.getCanonicalPath() );
-         return file.getCanonicalPath();
-      } catch ( IOException ioE ) {
-         LOGGER.debug( relativePath + " discovered " + locationText + " as: " + file.getPath() );
-         return file.getPath();
-      }
+      return null;
    }
 
 
    /**
-    * Attempts to discover the real location of a file pointed to by relativePath.
-    * The search will be performed in the following order:
-    * <p>
-    * 1. By checking to see if the provided relative path is actually an absolute path
-    * 2. By checking within the ClassPath
-    * 3. By checking directly under the current working directory
-    * 4. By checking under $CTAKES_HOME
-    * 5. By traversing above the current working directory.  Useful when running under a module directory in an IDE
-    * Example:  cwd = /usr/bin/ctakes/ctakes-module , relativePath = ctakes-other-module/more/file.ext
-    * The directory above cwd /usr/bin/ctakes will be checked for containment of the relative path
-    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
-    * 6. By traversing above the current working directory and under a subdirectory ctakes/
-    * Example: cwd = /usr/bin/my_custom_ctakes/my_ctakes-module , relativePath = ctakes-other-module/more/file.ext
-    * The directory above cwd /usr/bin will be checked for containment of ctakes/ plus the relative path
-    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
-    * </p>
-    *
-    * @param relativePath some relative path to a file
-    * @return the canonical path of the file or the absolute path of the file if the canonical cannot be made
+    * Calls a {@link #getFile(Class, String)} and returns the path of the file or "" if none.
     * @throws FileNotFoundException if the file cannot be found
+    * @deprecated use {@link #getFile(String)} and {@link File#getPath()}
     */
+   @Deprecated
    static public String getFullPath( final String relativePath ) throws FileNotFoundException {
       return getFullPath( FileLocator.class, relativePath );
    }
 
    /**
-    * Attempts to discover the real location of a file pointed to by relativePath.
-    * The search will be performed in the following order:
-    * <p>
-    * 1. By checking to see if the provided relative path is actually an absolute path
-    * 2. By checking within the ClassPath
-    * 3. By checking directly under the current working directory
-    * 4. By checking under $CTAKES_HOME
-    * 5. By traversing above the current working directory.  Useful when running under a module directory in an IDE
-    * Example:  cwd = /usr/bin/ctakes/ctakes-module , relativePath = ctakes-other-module/more/file.ext
-    * The directory above cwd /usr/bin/ctakes will be checked for containment of the relative path
-    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
-    * 6. By traversing above the current working directory and under a subdirectory ctakes/
-    * Example: cwd = /usr/bin/my_custom_ctakes/my_ctakes-module , relativePath = ctakes-other-module/more/file.ext
-    * The directory above cwd /usr/bin will be checked for containment of ctakes/ plus the relative path
-    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
-    * </p>
-    *
-    * @param clazz some class whose classloader should be used
-    * @param relativePath some relative path to a file
-    * @return the canonical path of the file or the absolute path of the file if the canonical cannot be made
+    * Calls a {@link #getFile(Class, String)} and returns the path of the file or "" if none.
     * @throws FileNotFoundException if the file cannot be found
+    * @deprecated use {@link #getFile(Class, String)} and {@link File#getPath()}
     */
+   @Deprecated
    static public String getFullPath( final Class<?> clazz, final String relativePath ) throws FileNotFoundException {
       final String fullPath = getFullPathQuiet( clazz, relativePath );
       if ( fullPath != null && !fullPath.isEmpty() ) {
@@ -231,131 +528,25 @@ final public class FileLocator {
    }
 
    /**
-    * QUIETLY Attempts to discover the real location of a file pointed to by relativePath.
-    * The search will be performed in the following order:
-    * <p>
-    * 1. By checking to see if the provided relative path is actually an absolute path
-    * 2. By checking within the ClassPath
-    * 3. By checking directly under the current working directory
-    * 4. By checking under $CTAKES_HOME
-    * 5. By traversing above the current working directory.  Useful when running under a module directory in an IDE
-    * Example:  cwd = /usr/bin/ctakes/ctakes-module , relativePath = ctakes-other-module/more/file.ext
-    * The directory above cwd /usr/bin/ctakes will be checked for containment of the relative path
-    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
-    * 6. By traversing above the current working directory and under a subdirectory ctakes/
-    * Example: cwd = /usr/bin/my_custom_ctakes/my_ctakes-module , relativePath = ctakes-other-module/more/file.ext
-    * The directory above cwd /usr/bin will be checked for containment of ctakes/ plus the relative path
-    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
-    * </p>
-    *
-    * @param relativePath some relative path to a file
-    * @return the canonical path of the file or the absolute path of the file if the canonical cannot be made
+    * Calls a {@link #getFile(Class, String)} and returns the path of the file or "" if none.
+    * @deprecated use {@link #getFileQuiet(Class, String)} and {@link File#getPath()}
     */
+   @Deprecated
    static public String getFullPathQuiet( final String relativePath ) {
       return getFullPathQuiet( FileLocator.class, relativePath );
    }
 
    /**
-    * QUIETLY Attempts to discover the real location of a file pointed to by relativePath.
-    * The search will be performed in the following order:
-    * <p>
-    * 1. By checking to see if the provided relative path is actually an absolute path
-    * 2. By checking within the ClassPath
-    * 3. By checking directly under the current working directory
-    * 4. By checking under $CTAKES_HOME
-    * 5. By traversing above the current working directory.  Useful when running under a module directory in an IDE
-    * Example:  cwd = /usr/bin/ctakes/ctakes-module , relativePath = ctakes-other-module/more/file.ext
-    * The directory above cwd /usr/bin/ctakes will be checked for containment of the relative path
-    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
-    * 6. By traversing above the current working directory and under a subdirectory ctakes/
-    * Example: cwd = /usr/bin/my_custom_ctakes/my_ctakes-module , relativePath = ctakes-other-module/more/file.ext
-    * The directory above cwd /usr/bin will be checked for containment of ctakes/ plus the relative path
-    * If /usr/bin/ctakes/ctakes-other-module/more/file.txt exists then that is returned
-    * </p>
-    *
-    * @param clazz some class whose classloader should be used
-    * @param relativePath some relative path to a file
-    * @return the canonical path of the file or the absolute path of the file if the canonical cannot be made
+    * Calls a {@link #getFile(Class, String)} and returns the path of the file or "" if none.
+    * @deprecated use {@link #getFileQuiet(Class, String)} and {@link File#getPath()}
     */
+   @Deprecated
    static public String getFullPathQuiet( final Class<?> clazz, final String relativePath ) {
-      File file = new File( relativePath );
-      if ( file.exists() ) {
-         return createDiscoveredPath( relativePath, file, "without adjustment" );
+      final File file = getFileQuiet( clazz, relativePath );
+      if ( file == null ) {
+         return "";
       }
-      // check in the classpath
-      try {
-         file = locateOnClasspath( clazz, relativePath );
-         if ( file.exists() ) {
-            return createDiscoveredPath( relativePath, file, "under Classpath" );
-         }
-      } catch ( FileNotFoundException | URISyntaxException multiE ) {
-         // the locateOnClasspath method throws exceptions if the file isn't found.  Ignore and continue
-      }
-      // check for relative directly under current working directory
-      final String cwd = System.getProperty( "user.dir" );
-      file = new File( cwd, relativePath );
-      if ( file.exists() ) {
-         return createDiscoveredPath( relativePath, file, "under Working Directory" );
-      }
-      // in an ide the resources/ dir may not be in classpath
-      file = new File( cwd, "resources/" + relativePath );
-      if ( file.exists() ) {
-         return createDiscoveredPath( relativePath, file, "under Working Directory resources" );
-      }
-      // Check under the $CTAKES_HOME location  Do this before messing with relative path traversal
-      final String cTakesHome = System.getenv( CTAKES_HOME );
-      if ( cTakesHome != null && !cTakesHome.isEmpty() ) {
-         file = new File( cTakesHome, relativePath );
-         if ( file.exists() ) {
-            return createDiscoveredPath( relativePath, file, "under $CTAKES_HOME" );
-         }
-         // in an ide the resources/ dir may not be in classpath
-         file = new File( cTakesHome, "resources/" + relativePath );
-         if ( file.exists() ) {
-            return createDiscoveredPath( relativePath, file, "under $CTAKES_HOME resources" );
-         }
-      }
-      // Users running projects out of an ide may have the module directory as cwd
-      // OR in a personal project directory parallel to that of the ctakes installation
-      File cwdDerived = new File( cwd );
-      while ( cwdDerived.getParentFile() != null ) {
-         cwdDerived = cwdDerived.getParentFile();
-         file = new File( cwdDerived, relativePath );
-         if ( file.exists() ) {
-            return createDiscoveredPath( relativePath, file, "above Working Directory" );
-         }
-         file = new File( cwdDerived, "ctakes/" + relativePath );
-         if ( file.exists() ) {
-            return createDiscoveredPath( relativePath, file, "above Working Directory /ctakes" );
-         }
-      }
-      return "";
-   }
-
-   /**
-    * Check the java classpath for the presence of a file pointed to by relativePath
-    *
-    * @param clazz some class whose classloader should be used
-    * @param relativePath some relative path to a file
-    * @return a file in the classpath pointed to by relativePath - if found
-    * @throws FileNotFoundException if the file is not found in the classpath
-    * @throws URISyntaxException    if the discovered file cannot be converted into a URI
-    */
-   private static File locateOnClasspath( final Class<?> clazz, final String relativePath )
-         throws FileNotFoundException, URISyntaxException {
-      final ClassLoader classLoader = clazz.getClassLoader();
-      URL indexUrl = classLoader.getResource( relativePath );
-      if ( indexUrl == null ) {
-         indexUrl = clazz.getResource( relativePath );
-         if ( indexUrl == null ) {
-            throw new FileNotFoundException( relativePath );
-         }
-      }
-      final URI indexUri = new URI( indexUrl.toExternalForm() );
-      if ( indexUri.isOpaque() ) {
-         throw new FileNotFoundException( relativePath );
-      }
-      return new File( indexUri );
+      return file.getPath();
    }
 
 

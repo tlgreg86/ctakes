@@ -4,6 +4,7 @@ import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.log4j.Logger;
 
 import java.io.FileNotFoundException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -30,7 +31,9 @@ public enum JdbcConnectionFactory {
    static final private Logger DOT_LOGGER = Logger.getLogger( "ProgressAppender" );
    static final private Logger EOL_LOGGER = Logger.getLogger( "ProgressDone" );
 
-   static private final String HSQL_FILE_PREFIX = "jdbc:hsqldb:file:";
+   static private final String HSQL_PREFIX = "jdbc:hsqldb:";
+   static private final String FILE_PREFIX = "file:";
+   static private final String HSQL_FILE_PREFIX = HSQL_PREFIX + FILE_PREFIX;
    static private final String HSQL_DB_EXT = ".script";
    private final Map<String, Connection> CONNECTIONS = Collections.synchronizedMap( new HashMap<String, Connection>() );
 
@@ -60,7 +63,8 @@ public enum JdbcConnectionFactory {
       String trueJdbcUrl = jdbcUrl;
       if ( jdbcUrl.startsWith( HSQL_FILE_PREFIX ) ) {
          // Hack for hsqldb file needing to be absolute or relative to current working directory
-         trueJdbcUrl = HSQL_FILE_PREFIX + getConnectionUrl( jdbcUrl );
+//         trueJdbcUrl = HSQL_FILE_PREFIX + getConnectionUrl( jdbcUrl );
+         trueJdbcUrl = HSQL_PREFIX + getConnectionUrl( jdbcUrl );
       }
       try {
          // DO NOT use try with resources here.
@@ -106,11 +110,18 @@ public enum JdbcConnectionFactory {
       final String urlDbPath = jdbcUrl.substring( HSQL_FILE_PREFIX.length() );
       final String urlFilePath = urlDbPath + HSQL_DB_EXT;
       try {
-         final String fullPath = FileLocator.getFullPath( urlFilePath );
-         return fullPath.substring( 0, fullPath.length() - HSQL_DB_EXT.length() );
+         final URL url = FileLocator.getResource( urlFilePath );
+         final String urlString = url.toExternalForm();
+         return urlString.substring( 0, urlString.length() - HSQL_DB_EXT.length() );
       } catch ( FileNotFoundException fnfE ) {
          throw new SQLException( "No Hsql DB exists at Url", fnfE );
       }
+//      try {
+//         final String fullPath = FileLocator.getFullPath( urlFilePath );
+//         return fullPath.substring( 0, fullPath.length() - HSQL_DB_EXT.length() );
+//      } catch ( FileNotFoundException fnfE ) {
+//         throw new SQLException( "No Hsql DB exists at Url", fnfE );
+//      }
    }
 
    static private class DotPlotter extends TimerTask {

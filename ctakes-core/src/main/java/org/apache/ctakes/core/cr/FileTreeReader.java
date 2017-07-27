@@ -93,12 +93,11 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
    public void initialize( final UimaContext context ) throws ResourceInitializationException {
       super.initialize( context );
       try {
-         _rootDir = FileLocator.locateFile( _rootDirPath );
+         _rootDir = FileLocator.getFile( _rootDirPath );
       } catch ( FileNotFoundException fnfE ) {
          throw new ResourceInitializationException( fnfE );
       }
       _validExtensions = createValidExtensions( _explicitExtensions );
-
       _currentIndex = 0;
       _files = getDescendentFiles( _rootDir, _validExtensions );
    }
