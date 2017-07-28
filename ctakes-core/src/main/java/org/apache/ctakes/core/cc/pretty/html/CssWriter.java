@@ -141,19 +141,25 @@ final class CssWriter {
             "  overflow: auto;\n" +
             "  background-color: lightgray;\n" +
             "}\n" +
-            "@media screen {\n" +
-            "  body>div#ai {\n" +
-            "    position: fixed;\n" +
-            "  }\n" +
-            "}\n" +
-            "* html body {\n" +
-            "  overflow: hidden;\n" +
-            "} \n" +
-            "* html div#content {\n" +
-            "  width: 80%;\n" +
+            "\ndiv#content {\n" +
+            "  width: 79%;\n" +
             "  height: 100%;\n" +
             "  padding: 10px;\n" +
             "  overflow: auto;\n" +
+//            "}\n" +
+//            "@media screen {\n" +
+//            "  body>div#ai {\n" +
+//            "    position: fixed;\n" +
+//            "  }\n" +
+//            "}\n" +
+//            "* html body {\n" +
+//            "  overflow: hidden;\n" +
+//            "} \n" +
+//            "* html div#content {\n" +
+//            "  width: 79%;\n" +
+//            "  height: 100%;\n" +
+//            "  padding: 10px;\n" +
+//            "  overflow: auto;\n" +
             "}\n";
    }
 
