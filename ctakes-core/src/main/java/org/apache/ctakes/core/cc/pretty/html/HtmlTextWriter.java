@@ -13,6 +13,7 @@ import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
+import org.apache.ctakes.typesystem.type.textspan.ListEntry;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
@@ -76,13 +77,19 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          writer.write( getHeader( title ) );
          writer.write( getCssLink( CSS_FILENAME ) );
          writeTitle( title, writer );
+         final Collection<Segment> sections = JCasUtil.select( jCas, Segment.class );
+         final Map<Segment, Collection<org.apache.ctakes.typesystem.type.textspan.List>> lists
+               = JCasUtil.indexCovered( jCas, Segment.class, org.apache.ctakes.typesystem.type.textspan.List.class );
+         final Map<org.apache.ctakes.typesystem.type.textspan.List, Collection<ListEntry>> listEntries
+               = JCasUtil.indexCovered( jCas, org.apache.ctakes.typesystem.type.textspan.List.class, ListEntry.class );
          final Map<Segment, Collection<Sentence>> sectionSentences
                = JCasUtil.indexCovered( jCas, Segment.class, Sentence.class );
          final Map<Sentence, Collection<IdentifiedAnnotation>> sentenceAnnotations
                = JCasUtil.indexCovered( jCas, Sentence.class, IdentifiedAnnotation.class );
          final Map<Sentence, Collection<BaseToken>> sentenceTokens
                = JCasUtil.indexCovered( jCas, Sentence.class, BaseToken.class );
-         writeSections( sectionSentences, sentenceAnnotations, sentenceTokens, writer );
+//         writeSections( sectionSentences, sentenceAnnotations, sentenceTokens, writer );
+         writeSections( sections, lists, listEntries, sectionSentences, sentenceAnnotations, sentenceTokens, writer );
          writeInfoPane( writer );
          writer.write( startJavascript() );
          writer.write( getSwapInfoScript() );
@@ -152,6 +159,170 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
    }
 
    /**
+    * write html for all sections (all text) in the document
+    *
+    * @param sectionSentences    map of sections and their contained sentences
+    * @param sentenceAnnotations map of sentences and their contained annotations
+    * @param sentenceTokens      map of sentences and their contained base tokens
+    * @param writer              writer to which pretty html for the section should be written
+    * @throws IOException if the writer has issues
+    */
+   static private void writeSections( final Collection<Segment> sectionSet,
+                                      final Map<Segment, Collection<org.apache.ctakes.typesystem.type.textspan.List>> lists,
+                                      final Map<org.apache.ctakes.typesystem.type.textspan.List, Collection<ListEntry>> listEntries,
+                                      final Map<Segment, Collection<Sentence>> sectionSentences,
+                                      final Map<Sentence, Collection<IdentifiedAnnotation>> sentenceAnnotations,
+                                      final Map<Sentence, Collection<BaseToken>> sentenceTokens,
+                                      final BufferedWriter writer ) throws IOException {
+      if ( lists.isEmpty() ) {
+         writeSections( sectionSentences, sentenceAnnotations, sentenceTokens, writer );
+         return;
+      }
+      writer.write( "\n<div id=\"content\">\n" );
+      final List<Segment> sections = new ArrayList<>( sectionSet );
+      sections.sort( Comparator.comparingInt( Segment::getBegin ) );
+      final Map<Integer, Integer> enclosers = new HashMap<>();
+      for ( Map.Entry<org.apache.ctakes.typesystem.type.textspan.List, Collection<ListEntry>> entry : listEntries.entrySet() ) {
+         final int listEnd = entry.getKey().getEnd();
+         entry.getValue().forEach( e -> enclosers.put( e.getBegin(), listEnd ) );
+      }
+      for ( Segment section : sections ) {
+         writeSectionHeader( section, writer );
+         final Collection<Sentence> sentenceSet = sectionSentences.get( section );
+         if ( sentenceSet == null ) {
+            continue;
+         }
+         writer.write( "\n<p>\n" );
+         final List<Sentence> sentences = new ArrayList<>( sentenceSet );
+         sentences.sort( Comparator.comparingInt( Sentence::getBegin ) );
+         int currentEnd = -1;
+         boolean freshEntry = false;
+         for ( Sentence sentence : sentences ) {
+            final Collection<IdentifiedAnnotation> annotations = sentenceAnnotations.get( sentence );
+            final Collection<BaseToken> tokens = sentenceTokens.get( sentence );
+            final Integer end = enclosers.get( sentence.getBegin() );
+            if ( end != null ) {
+               freshEntry = true;
+               if ( currentEnd < 0 ) {
+                  startList( sentence, annotations, tokens, writer );
+                  currentEnd = end;
+               } else {
+                  writeListEntry( sentence, annotations, tokens, writer );
+               }
+            } else {
+               if ( currentEnd >= 0 && sentence.getBegin() > currentEnd ) {
+                  endList( sentence, annotations, tokens, writer );
+                  currentEnd = -1;
+                  freshEntry = false;
+                  continue;
+               }
+               if ( freshEntry ) {
+                  freshEntry = false;
+                  writer.write( "\n<br>\n" );
+               }
+               writeSentence( sentence, annotations, tokens, writer );
+            }
+         }
+         if ( currentEnd >= 0 ) {
+            endList( writer );
+         }
+         writer.write( "\n</p>\n" );
+      }
+      writer.write( "\n</div>\n" );
+   }
+
+   static private String createLineText( final Sentence sentence,
+                                         final Collection<IdentifiedAnnotation> annotations,
+                                         final Map<TextSpan, String> baseTokenMap ) {
+      final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap = createAnnotationMap( sentence, annotations );
+      final Map<Integer, String> tags = createTags( annotationMap );
+      final StringBuilder sb = new StringBuilder();
+      int previousIndex = -1;
+      for ( Map.Entry<TextSpan, String> entry : baseTokenMap.entrySet() ) {
+         final String text = entry.getValue();
+         final int begin = entry.getKey().getBegin();
+         if ( begin != previousIndex ) {
+            final String beginTag = tags.get( begin );
+            if ( beginTag != null ) {
+               sb.append( beginTag );
+            }
+         }
+         sb.append( text );
+         final int end = entry.getKey().getEnd();
+         final String endTag = tags.get( end );
+         if ( endTag != null ) {
+            sb.append( endTag );
+         }
+         sb.append( " " );
+         previousIndex = end;
+      }
+      return sb.toString();
+   }
+
+   static private void startList( final Sentence sentence,
+                                  final Collection<IdentifiedAnnotation> annotations,
+                                  final Collection<BaseToken> baseTokens,
+                                  final BufferedWriter writer ) throws IOException {
+      if ( baseTokens.isEmpty() ) {
+         return;
+      }
+      // Because of character substitutions, baseTokens and IdentifiedAnnotations have to be tied by text span
+      final Map<TextSpan, String> baseTokenMap = createBaseTokenMap( sentence, baseTokens );
+      if ( baseTokenMap.isEmpty() ) {
+         return;
+      }
+      writer.write( "\n<ul>\n<li>" );
+      final String lineText = createLineText( sentence, annotations, baseTokenMap );
+      writer.write( lineText );
+   }
+
+   /**
+    * Write html for a sentence from the document text
+    *
+    * @param sentence    sentence of interest
+    * @param annotations identified annotations in the section
+    * @param baseTokens  baseTokens in the section
+    * @param writer      writer to which pretty html for the section should be written
+    * @throws IOException if the writer has issues
+    */
+   static private void writeListEntry( final Sentence sentence,
+                                       final Collection<IdentifiedAnnotation> annotations,
+                                       final Collection<BaseToken> baseTokens,
+                                       final BufferedWriter writer ) throws IOException {
+      if ( baseTokens.isEmpty() ) {
+         return;
+      }
+      // Because of character substitutions, baseTokens and IdentifiedAnnotations have to be tied by text span
+      final Map<TextSpan, String> baseTokenMap = createBaseTokenMap( sentence, baseTokens );
+      if ( baseTokenMap.isEmpty() ) {
+         return;
+      }
+      writer.write( "</li>\n<li>" );
+      final String lineText = createLineText( sentence, annotations, baseTokenMap );
+      writer.write( lineText );
+   }
+
+   static private void endList( final Sentence sentence,
+                                final Collection<IdentifiedAnnotation> annotations,
+                                final Collection<BaseToken> baseTokens,
+                                final BufferedWriter writer ) throws IOException {
+      if ( baseTokens.isEmpty() ) {
+         return;
+      }
+      // Because of character substitutions, baseTokens and IdentifiedAnnotations have to be tied by text span
+      final Map<TextSpan, String> baseTokenMap = createBaseTokenMap( sentence, baseTokens );
+      if ( baseTokenMap.isEmpty() ) {
+         return;
+      }
+      final String lineText = createLineText( sentence, annotations, baseTokenMap );
+      writer.write( lineText + "</li>\n</ul>\n" );
+   }
+
+   static private void endList( final BufferedWriter writer ) throws IOException {
+      writer.write( "</li>\n</ul>\n" );
+   }
+
+   /**
     * write html for section header
     *
     * @param section -
@@ -200,29 +371,8 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
       if ( baseTokenMap.isEmpty() ) {
          return;
       }
-      final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap = createAnnotationMap( sentence, annotations );
-      final Map<Integer, String> tags = createTags( annotationMap );
-      final StringBuilder sb = new StringBuilder();
-      int previousIndex = -1;
-      for ( Map.Entry<TextSpan, String> entry : baseTokenMap.entrySet() ) {
-         final String text = entry.getValue();
-         final int begin = entry.getKey().getBegin();
-         if ( begin != previousIndex ) {
-            final String beginTag = tags.get( begin );
-            if ( beginTag != null ) {
-               sb.append( beginTag );
-            }
-         }
-         sb.append( text );
-         final int end = entry.getKey().getEnd();
-         final String endTag = tags.get( end );
-         if ( endTag != null ) {
-            sb.append( endTag );
-         }
-         sb.append( " " );
-         previousIndex = end;
-      }
-      writer.write( sb.toString() + "\n<br>\n" );
+      final String lineText = createLineText( sentence, annotations, baseTokenMap );
+      writer.write( lineText + "\n<br>\n" );
    }
 
    /**
@@ -544,7 +694,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
     */
    static private String getPreferredText( final IdentifiedAnnotation annotation, final UmlsConcept concept ) {
       final String cui = concept.getCui();
-      final String coveredText = annotation.getCoveredText();
+      final String coveredText = annotation.getCoveredText().replace( '\r', ' ' ).replace( '\n', ' ' );
       final String preferredText = concept.getPreferredText();
       if ( preferredText != null && !preferredText.isEmpty()
             && !preferredText.equalsIgnoreCase( coveredText )
@@ -640,7 +790,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
             "    var prc=fnd.replace( /" + SemanticGroup.PROCEDURE.getCode() + "/g,\"<b>Procedure</b>\" );\n" +
             "    var drg=prc.replace( /" + SemanticGroup.MEDICATION.getCode() + "/g,\"<b>Medication</b>\" );\n" +
             "    var unk=drg.replace( /" + SemanticGroup.UNKNOWN_SEMANTIC_CODE + "/g,\"<b>Unknown</b>\" );\n" +
-            "    var prf1=unk.replace( /\\[/g,\"&nbsp;&nbsp;&nbsp;<i>\" );\n" +
+            "    var prf1=unk.replace( /\\[/g,\"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>\" );\n" +
             "    var prf2=prf1.replace( /\\]/g,\"</i>\" );\n" +
             "    document.getElementById(\"ia\").innerHTML = prf2;\n" +
             "  }\n";

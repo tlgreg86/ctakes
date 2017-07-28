@@ -282,16 +282,10 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
             // the last segment
             sectionEnd = docText.length();
          }
-         if ( sectionEnd - sectionBegin <= 1 ) {
-            // a length <= 1 means that we have one tag right after another, so the segment is empty
-            continue;
-         }
-         if ( docText.substring( sectionBegin, sectionEnd ).trim().isEmpty() ) {
-            // Section has no text, parsing would be pointless
-            continue;
-         }
-         while ( Character.isWhitespace( docText.charAt( sectionBegin ) ) ) {
-            sectionBegin++;
+         if ( sectionEnd > sectionBegin && !docText.substring( sectionBegin, sectionEnd ).trim().isEmpty() ) {
+            while ( Character.isWhitespace( docText.charAt( sectionBegin ) ) ) {
+               sectionBegin++;
+            }
          }
          final SectionTag leftTag = sectionTags.get( leftBounds );
          final Segment segment = new Segment( jcas, sectionBegin, sectionEnd );
