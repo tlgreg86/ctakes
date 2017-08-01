@@ -39,11 +39,13 @@ final public class FileTreeXmiWriter extends AbstractOutputFileWriter {
    public void writeFile( final JCas jCas, final String outputDir,
                           final String documentId, final String fileName ) throws IOException {
       final File xmiFile = new File( outputDir, fileName + ".xmi" );
+      LOGGER.info( "Writing XMI to " + xmiFile.getPath() + " ..." );
       try {
          writeXmi( jCas.getCas(), xmiFile );
       } catch ( IOException | SAXException multE ) {
          throw new IOException( multE );
       }
+      LOGGER.info( "Finished Writing" );
    }
 
    /**

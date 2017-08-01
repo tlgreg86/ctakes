@@ -72,6 +72,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
       }
 
       final File htmlFile = new File( outputDir, fileName + FILE_EXTENSION );
+      LOGGER.info( "Writing HTML to " + htmlFile.getPath() + " ..." );
       try ( final BufferedWriter writer = new BufferedWriter( new FileWriter( htmlFile ) ) ) {
          final String title = DocumentIDAnnotationUtil.getDocumentID( jCas );
          writer.write( getHeader( title ) );
@@ -96,6 +97,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          writer.write( endJavascript() );
          writer.write( getFooter() );
       }
+      LOGGER.info( "Finished Writing" );
    }
 
    /**

@@ -138,7 +138,7 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
     */
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
-      LOGGER.info( "Starting processing" );
+      LOGGER.info( "Finding Named Entities ..." );
       final JFSIndexRepository indexes = jcas.getJFSIndexRepository();
       final AnnotationIndex<Annotation> lookupWindows = indexes.getAnnotationIndex( _lookupWindowType );
       if ( lookupWindows == null ) {  // I don't trust AnnotationIndex.size(), so don't check
