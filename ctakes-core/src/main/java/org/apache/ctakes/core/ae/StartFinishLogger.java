@@ -37,6 +37,16 @@ public class StartFinishLogger extends JCasAnnotator_ImplBase {
    )
    private String _loggerName;
 
+   public static final String PARAM_LOGGER_TASK = "LOGGER_TASK";
+   static private final String DEFAULT_TASK = "Processing ...";
+   @ConfigurationParameter(
+         name = PARAM_LOGGER_TASK,
+         mandatory = false,
+         description = "provides the descriptive purpose of the Annotator Engine for which start / end logging should be done.",
+         defaultValue = { DEFAULT_TASK }
+   )
+   private String _loggerTask;
+
    public static final String PARAM_IS_START = "IS_START";
    @ConfigurationParameter(
          name = PARAM_IS_START,
@@ -56,10 +66,15 @@ public class StartFinishLogger extends JCasAnnotator_ImplBase {
       super.initialize( context );
       _logger = Logger.getLogger( _loggerName );
       if ( _isStart ) {
-         _logger.info( "Starting initializing" );
+         if ( _loggerTask == null || _loggerTask.equals( DEFAULT_TASK ) ) {
+            _logger.info( "Starting initializing" );
+         } else {
+            _logger.info( "Starting initializing for " + _loggerTask );
+         }
       } else {
          _logger.info( "Finished initializing" );
       }
+
    }
 
    /**
@@ -68,7 +83,11 @@ public class StartFinishLogger extends JCasAnnotator_ImplBase {
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
       if ( _isStart ) {
-         _logger.info( "Starting processing" );
+         if ( _loggerTask == null || _loggerTask.equals( DEFAULT_TASK ) ) {
+            _logger.info( "Starting processing" );
+         } else {
+            _logger.info( _loggerTask );
+         }
       } else {
          _logger.info( "Finished processing" );
       }

@@ -49,7 +49,7 @@ public class ListEntryNegator extends JCasAnnotator_ImplBase {
     */
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
-      LOGGER.info( "Starting Processing" );
+      LOGGER.info( "Adjusting attributes within Lists ..." );
       final Collection<List> lists = JCasUtil.select( jcas, List.class );
       lists.forEach( l -> processList( jcas, l ) );
       LOGGER.info( "Finished Processing" );

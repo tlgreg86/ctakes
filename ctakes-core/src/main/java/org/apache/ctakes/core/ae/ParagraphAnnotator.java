@@ -98,9 +98,9 @@ final public class ParagraphAnnotator extends JCasAnnotator_ImplBase {
     */
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
-      LOGGER.info( "Starting processing" );
+      LOGGER.info( "Annotating Paragraphs ..." );
       if ( _paragraphTypes.isEmpty() ) {
-         LOGGER.info( "Finished processing, no section types defined" );
+         LOGGER.info( "Finished processing, no paragraph types defined" );
          return;
       }
       createParagraphs( jcas );

@@ -133,7 +133,7 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
     */
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
-      LOGGER.info( "Starting processing" );
+      LOGGER.info( "Annotating Sections ..." );
       if ( _sectionTypes.isEmpty() ) {
          LOGGER.info( "Finished processing, no section types defined" );
          return;

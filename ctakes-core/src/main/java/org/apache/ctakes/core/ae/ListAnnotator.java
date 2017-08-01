@@ -111,7 +111,7 @@ final public class ListAnnotator extends JCasAnnotator_ImplBase {
     */
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
-      LOGGER.info( "Starting processing" );
+      LOGGER.info( "Annotating Lists ..." );
       if ( _listTypes.isEmpty() ) {
          LOGGER.info( "Finished processing, no list types defined" );
          return;

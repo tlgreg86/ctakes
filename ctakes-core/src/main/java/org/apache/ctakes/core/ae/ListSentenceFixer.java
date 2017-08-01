@@ -36,7 +36,7 @@ final public class ListSentenceFixer extends JCasAnnotator_ImplBase {
     */
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
-      LOGGER.info( "Starting Processing" );
+      LOGGER.info( "Adjusting Sentences overlapping Lists ..." );
       final Collection<List> lists = JCasUtil.select( jcas, List.class );
       if ( lists == null || lists.isEmpty() ) {
          LOGGER.info( "Finished Processing" );

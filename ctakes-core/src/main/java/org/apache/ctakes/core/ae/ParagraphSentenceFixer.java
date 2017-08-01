@@ -40,7 +40,7 @@ final public class ParagraphSentenceFixer extends JCasAnnotator_ImplBase {
     */
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
-      LOGGER.info( "Starting Processing" );
+      LOGGER.info( "Adjusting Sentences overlapping Paragraphs ..." );
       final Collection<Paragraph> paragraphs = JCasUtil.select( jcas, Paragraph.class );
       if ( paragraphs == null || paragraphs.isEmpty() ) {
          LOGGER.info( "Finished Processing" );
