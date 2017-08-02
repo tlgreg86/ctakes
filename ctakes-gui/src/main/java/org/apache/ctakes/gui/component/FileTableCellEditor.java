@@ -33,6 +33,11 @@ final public class FileTableCellEditor extends AbstractCellEditor
       _button.setToolTipText( "Select File" );
       _button.addActionListener( this );
       _chooser = new JFileChooser();
+      final String cwdPath = System.getProperty( "user.dir" );
+      if ( cwdPath != null && !cwdPath.isEmpty() ) {
+         _chooser.setCurrentDirectory( new File( cwdPath ) );
+      }
+
    }
 
    public JFileChooser getFileChooser() {

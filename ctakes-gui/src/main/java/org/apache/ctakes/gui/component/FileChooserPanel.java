@@ -63,6 +63,10 @@ final public class FileChooserPanel extends JPanel {
          super( "Select " + (selectDir ? "Directory" : "File") );
          __textComponent = textComponent;
          __chooser = new JFileChooser();
+         final String cwdPath = System.getProperty( "user.dir" );
+         if ( cwdPath != null && !cwdPath.isEmpty() ) {
+            __chooser.setCurrentDirectory( new File( cwdPath ) );
+         }
          __chooser.setFileSelectionMode( (selectDir ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_ONLY) );
          __fileChangeListener = dirChangeListener;
       }
