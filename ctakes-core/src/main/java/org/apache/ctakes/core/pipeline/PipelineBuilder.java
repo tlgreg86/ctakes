@@ -106,8 +106,7 @@ final public class PipelineBuilder {
     */
    public PipelineBuilder reader( final Class<? extends CollectionReader> readerClass, final Object... parameters )
          throws UIMAException {
-      reader( CollectionReaderFactory.createReaderDescription( readerClass, parameters ) );
-      _pipelineChanged = true;
+      reader( PropertyAeFactory.getInstance().createReaderDescription( readerClass, parameters ) );
       return this;
    }
 
@@ -120,9 +119,7 @@ final public class PipelineBuilder {
     * @throws UIMAException if the collection reader cannot be created
     */
    public PipelineBuilder readFiles() throws UIMAException {
-      _readerDesc = CollectionReaderFactory.createReaderDescription( FileTreeReader.class );
-      _pipelineChanged = true;
-      return this;
+      return reader( CollectionReaderFactory.createReaderDescription( FileTreeReader.class ) );
    }
 
    /**
@@ -134,11 +131,7 @@ final public class PipelineBuilder {
     * @throws UIMAException if the collection reader cannot be created
     */
    public PipelineBuilder readFiles( final String inputDirectory ) throws UIMAException {
-      _readerDesc = CollectionReaderFactory.createReaderDescription( FileTreeReader.class,
-            ConfigParameterConstants.PARAM_INPUTDIR,
-            inputDirectory );
-      _pipelineChanged = true;
-      return this;
+      return reader( FileTreeReader.class, ConfigParameterConstants.PARAM_INPUTDIR, inputDirectory );
    }
 
    /**
