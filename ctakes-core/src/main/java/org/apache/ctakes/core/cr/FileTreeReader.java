@@ -19,10 +19,13 @@ import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -238,6 +241,68 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
    public void getNext( final JCas jcas ) throws IOException, CollectionException {
       final File file = _files.get( _currentIndex );
       _currentIndex++;
+      String docText = readFile( file );
+      if ( !docText.isEmpty() && !docText.endsWith( "\n" ) ) {
+         // Make sure that we end with a newline
+         docText += "\n";
+      }
+      jcas.setDocumentText( docText );
+      final DocumentID documentId = new DocumentID( jcas );
+      final String id = createDocumentID( file, _validExtensions );
+      documentId.setDocumentID( id );
+      documentId.addToIndexes();
+      final DocumentIdPrefix documentIdPrefix = new DocumentIdPrefix( jcas );
+      final String idPrefix = createDocumentIdPrefix( file, _rootDir );
+      documentIdPrefix.setDocumentIdPrefix( idPrefix );
+      documentIdPrefix.addToIndexes();
+      final DocumentPath documentPath = new DocumentPath( jcas );
+      documentPath.setDocumentPath( file.getAbsolutePath() );
+      documentPath.addToIndexes();
+   }
+
+   /**
+    * Reads file using a Path and stream.  Failing that it calls {@link #readByBuffer(File)}
+    *
+    * @param file file to read
+    * @return text in file
+    * @throws IOException if the file could not be read
+    */
+   private String readFile( final File file ) throws IOException {
+      try {
+         return readByPath( file );
+      } catch ( UncheckedIOException uE ) {
+         // This is a pretty bad way to handle a MalformedInputException, but that can be thrown by the collector
+         // in the stream, and java streams and exceptions do not go well together
+         LOGGER.warn( "Bad characters in " + file.getPath() );
+      }
+      return readByBuffer( file );
+   }
+
+   /**
+    * Reads file using a Path and stream.
+    *
+    * @param file file to read
+    * @return text in file
+    * @throws IOException if the file could not be read
+    */
+   private String readByPath( final File file ) throws IOException {
+      if ( _encoding != null && !_encoding.isEmpty() ) {
+         final Charset charset = Charset.forName( _encoding );
+         return Files.lines( file.toPath(), charset ).collect( Collectors.joining( "\n" ) );
+      } else {
+         return Files.lines( file.toPath() ).collect( Collectors.joining( "\n" ) );
+      }
+   }
+
+
+   /**
+    * Reads file using buffered input stream
+    *
+    * @param file file to read
+    * @return text in file
+    * @throws IOException if the file could not be read
+    */
+   private String readByBuffer( final File file ) throws IOException {
       // Use 8KB as the default buffer size
       byte[] buffer = new byte[ 8192 ];
       final StringBuilder sb = new StringBuilder();
@@ -256,19 +321,7 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
       } catch ( FileNotFoundException fnfE ) {
          throw new IOException( fnfE );
       }
-      // put document text and id annotations in CAS (assume CAS)
-      jcas.setDocumentText( sb.toString() );
-      final DocumentID documentId = new DocumentID( jcas );
-      final String id = createDocumentID( file, _validExtensions );
-      documentId.setDocumentID( id );
-      documentId.addToIndexes();
-      final DocumentIdPrefix documentIdPrefix = new DocumentIdPrefix( jcas );
-      final String idPrefix = createDocumentIdPrefix( file, _rootDir );
-      documentIdPrefix.setDocumentIdPrefix( idPrefix );
-      documentIdPrefix.addToIndexes();
-      final DocumentPath documentPath = new DocumentPath( jcas );
-      documentPath.setDocumentPath( file.getAbsolutePath() );
-      documentPath.addToIndexes();
+      return sb.toString();
    }
 
    /**
