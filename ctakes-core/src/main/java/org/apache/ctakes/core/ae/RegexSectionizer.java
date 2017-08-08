@@ -251,7 +251,7 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
       sectionTags.putAll( dividerLines );
       if ( sectionTags.isEmpty() ) {
          // whole text is simple segment
-         final Segment docSegment = new Segment( jcas, 0, docText.length() - 1 );
+         final Segment docSegment = new Segment( jcas, 0, docText.length() );
          docSegment.setId( DEFAULT_SEGMENT_ID );
          docSegment.setPreferredText( DEFAULT_SEGMENT_ID );
          docSegment.addToIndexes();
