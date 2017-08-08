@@ -5,7 +5,10 @@ import org.apache.log4j.Logger;
 import org.apache.uima.analysis_component.AnalysisComponent;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import java.util.HashMap;
@@ -47,14 +50,7 @@ public enum PropertyAeFactory {
          LOGGER.error( "Odd number of parameters provided.  Should be key value pairs." );
          return;
       }
-      for ( int i = 0; i < parameters.length; i += 2 ) {
-         if ( parameters[ i ] instanceof String ) {
-            _properties.put( (String)parameters[ i ], parameters[ i + 1 ] );
-         } else {
-            LOGGER.warn( "Parameter " + i + " not a String, using " + parameters[ i ].toString() );
-            _properties.put( parameters[ i ].toString(), parameters[ i + 1 ] );
-         }
-      }
+      addToMap( _properties, parameters );
    }
 
    /**
@@ -119,17 +115,22 @@ public enum PropertyAeFactory {
          return parameters;
       }
       final Map<String, Object> parameterMap = new HashMap<>( _properties );
-      for ( int i = 0; i < parameters.length; i += 2 ) {
-         if ( parameters[ i ] instanceof String ) {
-            parameterMap.put( (String)parameters[ i ], parameters[ i + 1 ] );
-         } else {
-            LOGGER.warn( "Parameter " + i + " not a String, using " + parameters[ i ].toString() );
-            parameterMap.put( parameters[ i ].toString(), parameters[ i + 1 ] );
-         }
-      }
+      addToMap( parameterMap, parameters );
       return createParameters( parameterMap );
    }
 
+   /**
+    * @param readerClass Collection Reader class
+    * @param parameters  parameters for the main component
+    * @return Description with specified parameters plus those loaded from properties
+    * @throws ResourceInitializationException if UimaFit has a problem
+    */
+   public CollectionReaderDescription createReaderDescription( final Class<? extends CollectionReader> readerClass,
+                                                               final Object... parameters )
+         throws ResourceInitializationException {
+      final Object[] allParameters = getAllParameters( parameters );
+      return CollectionReaderFactory.createReaderDescription( readerClass, allParameters );
+   }
 
    /**
     * This method should be avoided.  See the bottom of https://uima.apache.org/d/uimafit-current/api/index.html
@@ -198,5 +199,19 @@ public enum PropertyAeFactory {
       return StartFinishLogger.createLoggedDescription( mainDescription );
    }
 
+   /**
+    * @param map        map to hold parameters.
+    * @param parameters Any values already present in map will be overwritten by parameters with same key.
+    */
+   static private void addToMap( final Map<String, Object> map, final Object... parameters ) {
+      for ( int i = 0; i < parameters.length; i += 2 ) {
+         if ( parameters[ i ] instanceof String ) {
+            map.put( (String) parameters[ i ], parameters[ i + 1 ] );
+         } else {
+            LOGGER.warn( "Parameter " + i + " not a String, using " + parameters[ i ].toString() );
+            map.put( parameters[ i ].toString(), parameters[ i + 1 ] );
+         }
+      }
+   }
 
 }
