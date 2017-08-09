@@ -394,6 +394,21 @@ final public class FileLocator {
     * 3. By resource stream in classpath
     * If a stream is found then it is copied to a temporary file and that file is returned.
     *
+    * @param location some string representing the full or partial location of a resource
+    * @return an file for the resource or null if none is found
+    */
+   static public File getFileQuiet( final String location ) {
+      return getFileQuiet( FileLocator.class, location );
+   }
+
+   /**
+    * Fetches file without throwing exceptions.
+    * Search order is by:
+    * 1. By file on filesystem
+    * 2. By resource url in classpath
+    * 3. By resource stream in classpath
+    * If a stream is found then it is copied to a temporary file and that file is returned.
+    *
     * @param clazz    some class whose classloader should be used
     * @param location some string representing the full or partial location of a resource
     * @return an file for the resource or null if none is found

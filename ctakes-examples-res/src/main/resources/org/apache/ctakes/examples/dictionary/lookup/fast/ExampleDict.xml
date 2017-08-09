@@ -24,8 +24,7 @@
     <dictionaries>
         <dictionary>
             <name>ExampleDict</name>
-            <implementationName>org.apache.ctakes.dictionary.lookup2.dictionary.BsvRareWordDictionary
-            </implementationName>
+            <implementationName>org.apache.ctakes.dictionary.lookup2.dictionary.BsvRareWordDictionary</implementationName>
             <properties>
                 <property key="bsvPath" value="org/apache/ctakes/examples/dictionary/lookup/fast/ExampleDict.bsv"/>
             </properties>

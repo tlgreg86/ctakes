@@ -30,7 +30,6 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -176,7 +175,7 @@ final public class DictionaryDescriptorParser {
       final Class[] constructionArgs = { String.class, UimaContext.class, Properties.class };
 
       final String name = getName( "Dictionary Name", dictionaryElement );
-      final String className = dictionaryElement.getChildText( IMPLEMENTATION_KEY );
+      final String className = dictionaryElement.getChildText( IMPLEMENTATION_KEY ).trim();
       final Element propertiesElement = dictionaryElement.getChild( PROPERTIES_KEY );
       final Properties properties = parsePropertiesXml( propertiesElement );
       Class dictionaryClass;
@@ -241,7 +240,7 @@ final public class DictionaryDescriptorParser {
          throws AnnotatorContextException {
       final Class[] constructionArgs = { String.class, UimaContext.class, Properties.class };
       final String name = getName( "Concept Factory Name", conceptFactoryElement );
-      final String className = conceptFactoryElement.getChildText( IMPLEMENTATION_KEY );
+      final String className = conceptFactoryElement.getChildText( IMPLEMENTATION_KEY ).trim();
       final Element propertiesElement = conceptFactoryElement.getChild( PROPERTIES_KEY );
       final Properties properties = parsePropertiesXml( propertiesElement );
       Class conceptFactoryClass;
@@ -310,7 +309,7 @@ final public class DictionaryDescriptorParser {
       Class[] constrArgsConsum = { UimaContext.class, Properties.class, int.class };//ohnlp-Bugs-3296301
       Class[] constrArgsConsumB = { UimaContext.class, Properties.class };
 
-      String consumerClassName = lookupConsumerElement.getChildText( IMPLEMENTATION_KEY );
+      String consumerClassName = lookupConsumerElement.getChildText( IMPLEMENTATION_KEY ).trim();
       Element consumerPropertiesElement = lookupConsumerElement.getChild( PROPERTIES_KEY );
       Properties consumerProperties = parsePropertiesXml( consumerPropertiesElement );
       Class consumerClass;

@@ -382,11 +382,19 @@ final public class PiperFileReader {
     */
    public InputStream getPiperStream( final String filePath ) {
       final File piperFile = new File( filePath );
+      String parentPath = null;
       if ( piperFile.isAbsolute() ) {
-         final String parentPath = piperFile.getParent();
-         if ( parentPath != null && !parentPath.isEmpty() && !_userPackages.contains( parentPath ) ) {
-            _userPackages.add( parentPath );
+         parentPath = piperFile.getParent();
+      } else {
+         try {
+            final File located = FileLocator.getFile( filePath );
+            parentPath = located.getParent();
+         } catch ( FileNotFoundException fnfE ) {
+            // do nothing
          }
+      }
+      if ( parentPath != null && !parentPath.isEmpty() && !_userPackages.contains( parentPath ) ) {
+         _userPackages.add( parentPath );
       }
       InputStream stream = FileLocator.getStreamQuiet( filePath );
       if ( stream != null ) {
