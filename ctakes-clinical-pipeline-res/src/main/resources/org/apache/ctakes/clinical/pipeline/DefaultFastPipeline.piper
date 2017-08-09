@@ -11,7 +11,7 @@ addDescription POSTagger
 load ChunkerSubPipe.piper
 
 // Default fast dictionary lookup
-add DefaultJCasTermAnnotator
+load DictionarySubPipe.piper
 
 // Add Cleartk Entity Attribute annotators
 load AttributeCleartkSubPipe.piper

@@ -63,7 +63,8 @@ public enum UmlsUserApprover {
    static final private Logger LOGGER = Logger.getLogger( "UmlsUserApprover" );
 
    static final private String CHANGEME = "CHANGEME";
-   
+   static final private String CHANGE_ME = "CHANGE_ME";
+
    // cache of valid users
    static private final Collection<String> _validUsers = new ArrayList<>();
 
@@ -84,12 +85,18 @@ public enum UmlsUserApprover {
          vendor = properties.getProperty( VENDOR_PARAM );
       }
       String user = EnvironmentVariable.getEnv( UMLSUSER_PARAM, uimaContext );
-      if ( user == null || user.equals( EnvironmentVariable.NOT_PRESENT ) ) {
-         user = properties.getProperty( USER_PARAM );
+      if ( user == null || user.equals( EnvironmentVariable.NOT_PRESENT ) || user.equals( CHANGEME ) || user.equals( CHANGE_ME ) ) {
+         user = EnvironmentVariable.getEnv( USER_PARAM, uimaContext );
+         if ( user == null || user.equals( EnvironmentVariable.NOT_PRESENT ) || user.equals( CHANGEME ) || user.equals( CHANGE_ME ) ) {
+            user = properties.getProperty( USER_PARAM );
+         }
       }
       String pass = EnvironmentVariable.getEnv( UMLSPW_PARAM, uimaContext );
-      if ( pass == null || pass.equals( EnvironmentVariable.NOT_PRESENT ) ) {
-         pass = properties.getProperty( PASS_PARAM );
+      if ( pass == null || pass.equals( EnvironmentVariable.NOT_PRESENT ) || pass.equals( CHANGEME ) || pass.equals( CHANGE_ME ) ) {
+         pass = EnvironmentVariable.getEnv( PASS_PARAM, uimaContext );
+         if ( pass == null || pass.equals( EnvironmentVariable.NOT_PRESENT ) || pass.equals( CHANGEME ) || pass.equals( CHANGE_ME ) ) {
+            pass = properties.getProperty( PASS_PARAM );
+         }
       }
       return isValidUMLSUser( umlsUrl, vendor, user, pass );
    }
@@ -109,6 +116,19 @@ public enum UmlsUserApprover {
       if ( _validUsers.contains( cacheCode ) ) {
          return true;
       }
+      // Potentially someone could have a user ID of CHANGEME or a password of CHANGEME but don't allow those
+      // to make it easy for us to detect that the user or password was not set correctly.
+      if ( user.equals( CHANGEME ) || user.equals( CHANGE_ME ) ) {
+         LOGGER.info( "Not checking UMLS Account for user " + user + ":" );
+         LOGGER.error( "  User " + user + " not allowed, verify you are setting " + USER_PARAM + " or " + UMLSUSER_PARAM + " properly." );
+         return false;
+      }
+      if ( pass.equals( CHANGEME ) || pass.equals( CHANGE_ME ) ) {
+         LOGGER.info( "Not checking UMLS Account for user " + user + " password " + pass );
+         LOGGER.error( "  Password " + pass + " not allowed, verify you are setting " + PASS_PARAM + " or " + UMLSPW_PARAM + " properly." );
+         return false;
+      }
+
       String data;
       try {
          data = URLEncoder.encode( "licenseCode", "UTF-8" ) + "=" + URLEncoder.encode( vendor, "UTF-8" );
@@ -117,19 +137,6 @@ public enum UmlsUserApprover {
       } catch ( UnsupportedEncodingException unseE ) {
          LOGGER.error( "Could not encode URL for " + user + " with vendor license " + vendor );
          return false;
-      }
-      
-      // Potentially someone could have a user ID of CHANGEME or a password of CHANGEME but don't allow those
-      // to make it easy for us to detect that the user or password was not set correctly.
-      if (user.equals(CHANGEME)) {
-    	  LOGGER.info( "Not checking UMLS Account for user " + user + ":" );
-    	  LOGGER.error("  User " + CHANGEME + " not allowed, verify you are setting " + USER_PARAM + " or " + UMLSUSER_PARAM + " properly.");
-    	  return false;
-      }
-      if (pass.equals(CHANGEME)) {
-    	  LOGGER.info( "Not checking UMLS Account for user " + user + " password " + pass );
-    	  LOGGER.error("  Password " + CHANGEME + " not allowed, verify you are setting " + PASS_PARAM + " or " + UMLSPW_PARAM + " properly.");
-    	  return false;
       }
 
       try ( DotLogger dotter = new DotLogger() ) {

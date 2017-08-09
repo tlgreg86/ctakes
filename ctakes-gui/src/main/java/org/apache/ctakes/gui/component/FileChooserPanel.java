@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 /**
  * @author SPF , chip-nlp
@@ -63,7 +64,10 @@ final public class FileChooserPanel extends JPanel {
          super( "Select " + (selectDir ? "Directory" : "File") );
          __textComponent = textComponent;
          __chooser = new JFileChooser();
-         final String cwdPath = System.getProperty( "user.dir" );
+         String cwdPath = Paths.get( "" ).toAbsolutePath().toFile().getPath();
+         if ( cwdPath.isEmpty() ) {
+            cwdPath = System.getProperty( "user.dir" );
+         }
          if ( cwdPath != null && !cwdPath.isEmpty() ) {
             __chooser.setCurrentDirectory( new File( cwdPath ) );
          }

@@ -59,6 +59,7 @@ final public class PiperFileReader {
          "contexttokenizer",
          "postagger",
          "chunker",
+         "dictionary.lookup.fast",
          "assertion",
          "dictionary.lookup2",
              "clinicalpipeline",

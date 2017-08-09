@@ -44,33 +44,12 @@ final public class PiperFileRunner {
          }
          // set the output directory parameter if needed
          final String outputDir = options.getOutputDirectory();
-         // set the subdirectory parameter if needed
-         final String subDir = options.getSubDirectory();
-         if ( !subDir.isEmpty() ) {
-            builder.set( ConfigParameterConstants.PARAM_SUBDIR, subDir );
-         }
          // if xmi output directory is set but standard output directory is not, use xmi out as standard out
          final String xmiOutDir = options.getXmiOutDirectory();
          if ( !outputDir.isEmpty() ) {
             builder.set( ConfigParameterConstants.PARAM_OUTPUTDIR, outputDir );
          } else if ( !xmiOutDir.isEmpty() ) {
             builder.set( ConfigParameterConstants.PARAM_OUTPUTDIR, xmiOutDir );
-         }
-         // set the dictionary lookup descriptor xml
-         final String lookupXml = options.getLookupXml();
-         if ( !lookupXml.isEmpty() ) {
-            builder.set( ConfigParameterConstants.PARAM_LOOKUP_XML, lookupXml );
-         }
-         // set the umls user and password parameters if needed
-         final String umlsUser = options.getUmlsUserName();
-         if ( !umlsUser.isEmpty() ) {
-            builder.set( "umlsUser", umlsUser );
-            builder.set( "ctakes.umlsuser", umlsUser );
-         }
-         final String umlsPass = options.getUmlsPassword();
-         if ( !umlsPass.isEmpty() ) {
-            builder.set( "umlsPass", umlsPass );
-            builder.set( "ctakes.umlspw", umlsPass );
          }
          // load the piper file
          reader.setCliOptionals( options );

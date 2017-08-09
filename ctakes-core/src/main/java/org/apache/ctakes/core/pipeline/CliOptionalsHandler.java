@@ -23,6 +23,20 @@ final public class CliOptionalsHandler {
     */
    static public String getCliOptionalValue( final CliOptionals optionals, final String optionChar ) {
       switch ( optionChar ) {
+         case "i":
+            return optionals.getInputDirectory();
+         case "o":
+            return optionals.getOutputDirectory();
+         case "s":
+            return optionals.getSubDirectory();
+         case "l":
+            return optionals.getLookupXml();
+         case "user":
+            return optionals.getUmlsUserName();
+         case "pass":
+            return optionals.getUmlsPassword();
+         case "xmiOut":
+            return optionals.getXmiOutDirectory();
          case "a":
             return optionals.getOption_a();
          case "b":

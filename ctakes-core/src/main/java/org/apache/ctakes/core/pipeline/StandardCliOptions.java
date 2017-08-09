@@ -34,7 +34,7 @@ interface StandardCliOptions {
    @Option(
          shortName = "s",
          longName = "subDir",
-         description = "path to a subdirectory for input and/or output.",
+         description = "path to a subdirectory for output files.",
          defaultValue = "" )
    String getSubDirectory();
 

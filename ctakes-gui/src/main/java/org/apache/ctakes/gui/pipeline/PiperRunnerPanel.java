@@ -61,20 +61,25 @@ final public class PiperRunnerPanel extends JPanel {
    private JButton _parmButton;
    private JButton _runButton;
 
-   private final String[] STANDARD_CHARS = { "i", "o", "s", "l", "-user", "-pass", "-xmiOut" };
+   //   private final String[] STANDARD_CHARS = { "i", "o", "s", "l", "-user", "-pass", "-xmiOut" };
+   private final String[] STANDARD_CHARS = { "i", "o" };
+   private final String[] STANDARD_NAMES = { "InputDirectory", "OutputDirectory" };
 
    private final Map<String, String> _charToName = new HashMap<>( STANDARD_CHARS.length );
    private final Map<String, String> _charToValue = new HashMap<>( STANDARD_CHARS.length );
 
-   private final java.util.List<Character> _cliChars = new ArrayList<>();
-   private final Map<Character, String> _cliCharToName = new HashMap<>();
-   private final Map<Character, String> _cliCharToValue = new HashMap<>();
+   //   private final java.util.List<Character> _cliChars = new ArrayList<>();
+//private final Map<Character, String> _cliCharToName = new HashMap<>();
+//   private final Map<Character, String> _cliCharToValue = new HashMap<>();
+   private final java.util.List<String> _cliChars = new ArrayList<>();
+   private final Map<String, String> _cliCharToName = new HashMap<>();
+   private final Map<String, String> _cliCharToValue = new HashMap<>();
 
 
    PiperRunnerPanel() {
       super( new BorderLayout() );
-      final String[] STANDARD_NAMES = { "InputDirectory", "OutputDirectory", "SubDirectory",
-            "LookupXml", "UMLS Username", "UMLS Password", "XMI Output" };
+//      final String[] STANDARD_NAMES = { "InputDirectory", "OutputDirectory", "SubDirectory",
+//            "LookupXml", "UMLS Username", "UMLS Password", "XMI Output" };
       for ( int i = 0; i < STANDARD_CHARS.length; i++ ) {
          _charToName.put( STANDARD_CHARS[ i ], STANDARD_NAMES[ i ] );
       }
@@ -93,6 +98,14 @@ final public class PiperRunnerPanel extends JPanel {
       _piperChooser.setFileView( new PiperFileView() );
       _parmChooser.setFileFilter( new FileNameExtensionFilter( "Pipeline Definition (Piper) Parameter File", CLI_EXTENSION ) );
       _parmChooser.setFileView( new PiperFileView() );
+      String cwdPath = Paths.get( "" ).toAbsolutePath().toFile().getPath();
+      if ( cwdPath.isEmpty() ) {
+         cwdPath = System.getProperty( "user.dir" );
+      }
+      if ( cwdPath != null && !cwdPath.isEmpty() ) {
+         _piperChooser.setCurrentDirectory( new File( cwdPath ) );
+         _parmChooser.setCurrentDirectory( new File( cwdPath ) );
+      }
    }
 
    private JToolBar createToolBar() {
@@ -198,13 +211,18 @@ final public class PiperRunnerPanel extends JPanel {
             if ( row < STANDARD_CHARS.length ) {
                return _charToName.get( STANDARD_CHARS[ row ] );
             }
-            final Character c = _cliChars.get( row - STANDARD_CHARS.length );
+//            final Character c = _cliChars.get( row - STANDARD_CHARS.length );
+            final String c = _cliChars.get( row - STANDARD_CHARS.length );
             return _cliCharToName.getOrDefault( c, "Unknown Name" );
          } else if ( column == 1 ) {
             if ( row < STANDARD_CHARS.length ) {
                return "-" + STANDARD_CHARS[ row ];
             }
-            return "-" + _cliChars.get( row - STANDARD_CHARS.length );
+            final String cliChar = _cliChars.get( row - STANDARD_CHARS.length );
+            if ( cliChar.length() == 1 ) {
+               return "-" + cliChar;
+            }
+            return "--" + cliChar;
          } else if ( column == 2 ) {
             if ( row < STANDARD_CHARS.length ) {
                return _charToValue.getOrDefault( STANDARD_CHARS[ row ], "" );
@@ -291,6 +309,9 @@ final public class PiperRunnerPanel extends JPanel {
       _cliChars.clear();
       _cliCharToName.clear();
       _cliCharToValue.clear();
+      for ( int i = 0; i < STANDARD_CHARS.length; i++ ) {
+         _charToName.put( STANDARD_CHARS[ i ], STANDARD_NAMES[ i ] );
+      }
       if ( !loadPiperCli( reader, text ) ) {
          error( "Could not load Piper File: " + path );
          return;
@@ -317,15 +338,17 @@ final public class PiperRunnerPanel extends JPanel {
             final String[] allValues = line.substring( 4 ).split( "\\s+" );
             for ( String allValue : allValues ) {
                final String[] values = allValue.split( "=" );
-               if ( values.length != 2 || values[ 1 ].length() != 1 ) {
+               if ( values.length != 2 ) {
                   error( "Illegal cli values: " + line );
                   return false;
                }
-               if ( _cliCharToName.put( values[ 1 ].charAt( 0 ), values[ 0 ] ) != null ) {
+//               if ( _cliCharToName.put( values[ 1 ].charAt( 0 ), values[ 0 ] ) != null ) {
+               if ( _cliCharToName.put( values[ 1 ], values[ 0 ] ) != null ) {
                   error( "Repeated cli value: " + line );
                   return false;
                }
-               _cliChars.add( values[ 1 ].charAt( 0 ) );
+//               _cliChars.add( values[ 1 ].charAt( 0 ) );
+               _cliChars.add( values[ 1 ] );
             }
          } else if ( line.startsWith( "package " ) && line.length() > 9 ) {
             final String packagePath = line.substring( 8 );
@@ -354,6 +377,9 @@ final public class PiperRunnerPanel extends JPanel {
       _cliChars.clear();
       _cliCharToName.clear();
       _cliCharToValue.clear();
+      for ( int i = 0; i < STANDARD_CHARS.length; i++ ) {
+         _charToName.put( STANDARD_CHARS[ i ], STANDARD_NAMES[ i ] );
+      }
       _runButton.setEnabled( false );
       _cliTable.revalidate();
       _cliTable.repaint();
@@ -400,8 +426,10 @@ final public class PiperRunnerPanel extends JPanel {
          final String chars = values[ 0 ].substring( 1 );
          if ( _charToName.containsKey( chars ) ) {
             _charToValue.put( chars, values[ 1 ] );
-         } else if ( chars.length() == 1 && _cliChars.contains( chars.charAt( 0 ) ) ) {
-            _cliCharToValue.put( chars.charAt( 0 ), values[ 1 ] );
+//         } else if ( chars.length() == 1 && _cliChars.contains( chars.charAt( 0 ) ) ) {
+//            _cliCharToValue.put( chars.charAt( 0 ), values[ 1 ] );
+         } else if ( _cliChars.contains( chars ) ) {
+            _cliCharToValue.put( chars, values[ 1 ] );
          } else {
             LOGGER.warn( "Unknown parameter: " + values[0] );
          }
@@ -409,6 +437,7 @@ final public class PiperRunnerPanel extends JPanel {
          final String chars = getStringKey( _charToName, values[ 0 ] );
          _charToValue.put( chars, values[ 1 ] );
       } else if ( _cliCharToName.containsValue( values[ 0 ] ) ) {
+//         _cliCharToValue.put( getCharKey( _cliCharToName, values[ 0 ] ), values[ 1 ] );
          _cliCharToValue.put( getCharKey( _cliCharToName, values[ 0 ] ), values[ 1 ] );
       } else {
          LOGGER.warn( "Unknown parameter: " + values[ 0 ] );
@@ -423,12 +452,20 @@ final public class PiperRunnerPanel extends JPanel {
             .orElse( "" );
    }
 
-   private Character getCharKey( final Map<Character, String> map, final String value ) {
+//   private Character getCharKey( final Map<Character, String> map, final String value ) {
+//      return map.entrySet().stream()
+//            .filter( e -> value.equals( e.getValue() ) )
+//            .map( Map.Entry::getKey )
+//            .findAny()
+//            .orElse( ' ' );
+//   }
+
+   private String getCharKey( final Map<String, String> map, final String value ) {
       return map.entrySet().stream()
             .filter( e -> value.equals( e.getValue() ) )
             .map( Map.Entry::getKey )
             .findAny()
-            .orElse( ' ' );
+            .orElse( "" );
    }
 
    private final class SaveParmAction implements ActionListener {
@@ -491,10 +528,15 @@ final public class PiperRunnerPanel extends JPanel {
                args.add( value );
             }
          }
-         for ( Character cli : _cliChars ) {
+//         for ( Character cli : _cliChars ) {
+         for ( String cli : _cliChars ) {
             final String value = _cliCharToValue.get( cli );
             if ( value != null && !value.isEmpty() ) {
-               args.add( "-" + cli );
+               if ( cli.length() == 1 ) {
+                  args.add( "-" + cli );
+               } else {
+                  args.add( "--" + cli );
+               }
                args.add( value );
             }
          }

@@ -30,9 +30,10 @@
   <name>ctakes-examples</name>
   <description>Apache cTAKES Examples</description>
   <dependencies>
+      <!--  coreference module has dependencies on almost everything, use it to maximize example possibilities.  -->
     <dependency>
       <groupId>org.apache.ctakes</groupId>
-      <artifactId>ctakes-clinical-pipeline</artifactId>
+        <artifactId>ctakes-coreference</artifactId>
     </dependency>
      <dependency>
         <groupId>org.apache.ctakes</groupId>
