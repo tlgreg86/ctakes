@@ -4,10 +4,7 @@ import org.apache.ctakes.gui.component.DisablerPane;
 import org.apache.ctakes.gui.component.FileChooserPanel;
 import org.apache.ctakes.gui.component.LoggerPanel;
 import org.apache.ctakes.gui.component.PositionedSplitPane;
-import org.apache.ctakes.gui.dictionary.umls.MrconsoIndex;
-import org.apache.ctakes.gui.dictionary.umls.SourceTableModel;
-import org.apache.ctakes.gui.dictionary.umls.Tui;
-import org.apache.ctakes.gui.dictionary.umls.TuiTableModel;
+import org.apache.ctakes.gui.dictionary.umls.*;
 import org.apache.ctakes.gui.dictionary.util.FileUtil;
 import org.apache.log4j.Logger;
 
@@ -23,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,6 +39,7 @@ final class MainPanel extends JPanel {
    private String _ctakesPath = System.getProperty( "user.dir" );
    private final TuiTableModel _tuiModel = new TuiTableModel();
    private final SourceTableModel _sourceModel = new SourceTableModel();
+   private final LanguageTableModel _languageModel = new LanguageTableModel();
 
    MainPanel() {
       super( new BorderLayout() );
@@ -51,13 +48,18 @@ final class MainPanel extends JPanel {
       sourceDirPanel.add( new FileChooserPanel( "UMLS Installation:", _umlsDirPath, true, new UmlsDirListener() ) );
       add( sourceDirPanel, BorderLayout.NORTH );
 
-      add( createCenterPanel( _sourceModel, _tuiModel ), BorderLayout.CENTER );
+      add( createCenterPanel( _sourceModel, _tuiModel, _languageModel ), BorderLayout.CENTER );
    }
 
-   private JComponent createCenterPanel( final TableModel sourceModel, final TableModel tuiModel ) {
+   private JComponent createCenterPanel( final TableModel sourceModel, final TableModel tuiModel,
+                                         final TableModel languageModel ) {
       final JSplitPane centerSplit = new PositionedSplitPane();
-      centerSplit.setLeftComponent( createSourceTable( sourceModel ) );
-      centerSplit.setRightComponent( createTuiTable( tuiModel ) );
+      final JSplitPane leftSplit = new PositionedSplitPane();
+      leftSplit.setTopComponent( createTable( sourceModel ) );
+      leftSplit.setBottomComponent( createLangTable( languageModel ) );
+      leftSplit.setDividerLocation( 0.8d );
+      centerSplit.setLeftComponent( leftSplit );
+      centerSplit.setRightComponent( createTable( tuiModel ) );
       centerSplit.setDividerLocation( 0.5d );
 
       final JPanel umlsPanel = new JPanel( new BorderLayout() );
@@ -72,26 +74,25 @@ final class MainPanel extends JPanel {
       return logSplit;
    }
 
-   static private JComponent createTuiTable( final TableModel tuiModel ) {
-      final JTable tuiTable = new JTable( tuiModel );
-      tuiTable.setCellSelectionEnabled( false );
-      tuiTable.setShowVerticalLines( false );
-      tuiTable.setAutoCreateRowSorter( true );
-      tuiTable.setAutoResizeMode( JTable.AUTO_RESIZE_LAST_COLUMN );
-      tuiTable.getColumnModel().getColumn( 0 ).setMaxWidth( 50 );
-      tuiTable.getColumnModel().getColumn( 1 ).setMaxWidth( 50 );
-      return new JScrollPane( tuiTable );
+   static private JComponent createTable( final TableModel model ) {
+      final JTable table = new JTable( model );
+      table.setCellSelectionEnabled( false );
+      table.setShowVerticalLines( false );
+      table.setAutoCreateRowSorter( true );
+      table.setAutoResizeMode( JTable.AUTO_RESIZE_LAST_COLUMN );
+      table.getColumnModel().getColumn( 0 ).setMaxWidth( 50 );
+      table.getColumnModel().getColumn( 1 ).setMaxWidth( 50 );
+      return new JScrollPane( table );
    }
 
-   static private JComponent createSourceTable( final TableModel sourceModel ) {
-      final JTable tuiTable = new JTable( sourceModel );
-      tuiTable.setCellSelectionEnabled( false );
-      tuiTable.setShowVerticalLines( false );
-      tuiTable.setAutoCreateRowSorter( true );
-      tuiTable.setAutoResizeMode( JTable.AUTO_RESIZE_LAST_COLUMN );
-      tuiTable.getColumnModel().getColumn( 0 ).setMaxWidth( 50 );
-      tuiTable.getColumnModel().getColumn( 1 ).setMaxWidth( 50 );
-      return new JScrollPane( tuiTable );
+   static private JComponent createLangTable( final TableModel model ) {
+      final JTable table = new JTable( model );
+      table.setCellSelectionEnabled( false );
+      table.setShowVerticalLines( false );
+      table.setAutoCreateRowSorter( true );
+      table.setAutoResizeMode( JTable.AUTO_RESIZE_LAST_COLUMN );
+      table.getColumnModel().getColumn( 0 ).setMaxWidth( 50 );
+      return new JScrollPane( table );
    }
 
    private JComponent createGoPanel() {
@@ -146,6 +147,7 @@ final class MainPanel extends JPanel {
          final String mrConsoPath = mrConso.getPath();
          LOGGER.info( "Parsing vocabulary types from " + mrConsoPath );
          final Collection<String> sources = new HashSet<>();
+         final Collection<String> languages = new HashSet<>();
          try ( final BufferedReader reader = FileUtil.createReader( mrConsoPath ) ) {
             int lineCount = 0;
             java.util.List<String> tokens = FileUtil.readBsvTokens( reader, mrConsoPath );
@@ -153,6 +155,7 @@ final class MainPanel extends JPanel {
                lineCount++;
                if ( tokens.size() > MrconsoIndex.SOURCE._index ) {
                   sources.add( tokens.get( MrconsoIndex.SOURCE._index ) );
+                  languages.add( tokens.get( MrconsoIndex.LANGUAGE._index ) );
                }
                if ( lineCount % 100000 == 0 ) {
                   LOGGER.info( "File Line " + lineCount + "\t Vocabularies " + sources.size() );
@@ -161,6 +164,8 @@ final class MainPanel extends JPanel {
             }
             LOGGER.info( "Parsed " + sources.size() + " vocabulary types" );
             _sourceModel.setSources( sources );
+            LOGGER.info( "Parsed " + languages.size() + " languages" );
+            _languageModel.setLangauges( languages );
          } catch ( IOException ioE ) {
             error( "Vocabulary Parse Error", ioE.getMessage() );
          }
@@ -173,7 +178,7 @@ final class MainPanel extends JPanel {
       final ExecutorService executor = Executors.newSingleThreadExecutor();
       executor.execute( new DictionaryBuildRunner( _umlsDirPath, _ctakesPath, dictionaryName, _sourceModel
             .getWantedSources(),
-            _sourceModel.getWantedTargets(), _tuiModel.getWantedTuis() ) );
+            _sourceModel.getWantedTargets(), _tuiModel.getWantedTuis(), _languageModel.getWantedLanguages() ) );
    }
 
    private void error( final String title, final String message ) {
@@ -189,17 +194,19 @@ final class MainPanel extends JPanel {
       private final Collection<String> __wantedSources;
       private final Collection<String> __wantedTargets;
       private final Collection<Tui> __wantedTuis;
+      private final Collection<String> __wantedLanguages;
 
       private DictionaryBuildRunner( final String umlsDirPath, final String ctakesDirPath, final String dictionaryName,
                                      final Collection<String> wantedSources,
                                      final Collection<String> wantedTargets,
-                                     final Collection<Tui> wantedTuis ) {
+                                     final Collection<Tui> wantedTuis, final Collection<String> wantedLangauges ) {
          __umlsDirPath = umlsDirPath;
          __ctakesDirPath = ctakesDirPath;
          __dictionaryName = dictionaryName;
          __wantedSources = wantedSources;
          __wantedTargets = new ArrayList<>( wantedTargets );
          __wantedTuis = new ArrayList<>( wantedTuis );
+         __wantedLanguages = new ArrayList<>( wantedLangauges );
       }
 
       @Override
@@ -207,7 +214,8 @@ final class MainPanel extends JPanel {
          SwingUtilities.getRoot( MainPanel.this ).setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
          DisablerPane.getInstance().setVisible( true );
          if ( DictionaryBuilder.buildDictionary( __umlsDirPath, __ctakesDirPath, __dictionaryName,
-               Collections.singletonList( "ENG" ),
+//               Collections.singletonList( "ENG" ),
+               __wantedLanguages,
                __wantedSources, __wantedTargets, __wantedTuis ) ) {
             final String message = "Dictionary " + __dictionaryName + " successfully built in " + __ctakesDirPath
                   + ",  " + CTAKES_APP_DB_PATH;

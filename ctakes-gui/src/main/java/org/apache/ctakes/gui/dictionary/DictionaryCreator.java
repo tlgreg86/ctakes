@@ -64,10 +64,12 @@ final public class DictionaryCreator {
       LOGGER.info( "   Once selected, your UMLS database will be parsed for available content." );
       LOGGER.info( "3. Select your desired Vocabulary sources in the left table." );
       LOGGER.info( "   Recommended Vocabulary sources are pre-selected." );
-      LOGGER.info( "4. Select your desired Semantic Types in the right table." );
+      LOGGER.info( "4. Select your desired Languages in the center table." );
+      LOGGER.info( "   English (ENG) is pre-selected if available." );
+      LOGGER.info( "5. Select your desired Semantic Types in the right table." );
       LOGGER.info( "   Recommended Semantic types are pre-selected." );
-      LOGGER.info( "5. Type a name for your dictionary." );
-      LOGGER.info( "6. Click \'Build Dictionary\'" );
+      LOGGER.info( "6. Type a name for your dictionary." );
+      LOGGER.info( "7. Click \'Build Dictionary\'" );
       LOGGER.info( "-  You can resize this log panel by clicking the top and dragging up or down." );
    }
 
