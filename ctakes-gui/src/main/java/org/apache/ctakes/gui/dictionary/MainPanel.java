@@ -268,6 +268,14 @@ final class MainPanel extends JPanel {
             error( "UMLS not yet loaded", "Please specify a UMLS installation." );
             return;
          }
+         if ( _sourceModel.getWantedSources().isEmpty() ) {
+            error( "Vocabularies not selected", "Please specify one or more source vocabularies." );
+            return;
+         }
+         if ( _languageModel.getWantedLanguages().isEmpty() ) {
+            error( "Language not selected", "Please specify one or more languages." );
+            return;
+         }
          final String dictionaryName = __textComponent.getText();
          if ( dictionaryName != null && !dictionaryName.isEmpty() ) {
             buildDictionary( dictionaryName.toLowerCase() );
