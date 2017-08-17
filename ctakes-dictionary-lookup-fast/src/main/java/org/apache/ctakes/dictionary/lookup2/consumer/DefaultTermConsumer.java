@@ -52,11 +52,15 @@ import static org.apache.ctakes.typesystem.type.constants.CONST.*;
 final public class DefaultTermConsumer extends AbstractTermConsumer {
    static private final Logger LOGGER = Logger.getLogger( "DefaultTermConsumer" );
 
+   // case insensitive blacklist
    static private final String BLACKLIST_KEY = "Blacklist";
+   // case sensitive blacklist
+   static private final String CS_BLACKLIST_KEY = "CsBlacklist";
 
    final private UmlsConceptCreator _umlsConceptCreator;
 
    private final CollectionMap<Integer, String, Set<String>> _blacklists = new HashSetMap<>();
+   private final CollectionMap<Integer, String, Set<String>> _csBlacklists = new HashSetMap<>();
 
 
 
@@ -73,14 +77,26 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
          blacklistPath = properties.getProperty( BLACKLIST_KEY );
       }
       if ( blacklistPath != null && !blacklistPath.equals( EnvironmentVariable.NOT_PRESENT ) ) {
-         loadBlacklist( blacklistPath );
+         loadBlacklist( blacklistPath, _blacklists, false );
+      }
+      String csBlacklistPath = EnvironmentVariable.getEnv( CS_BLACKLIST_KEY, uimaContext );
+      if ( csBlacklistPath == null || csBlacklistPath.equals( EnvironmentVariable.NOT_PRESENT ) ) {
+         csBlacklistPath = properties.getProperty( CS_BLACKLIST_KEY );
+      }
+      if ( csBlacklistPath != null && !csBlacklistPath.equals( EnvironmentVariable.NOT_PRESENT ) ) {
+         loadBlacklist( csBlacklistPath, _csBlacklists, true );
       }
    }
 
    /**
+    *
     * @param blacklistPath path to file containing text that should be blacklisted from the dictionary
+    * @param blacklists collection of semantically grouped blacklists
+    * @param caseSensitive use case sensitivity in populating the blacklists
     */
-   private void loadBlacklist( final String blacklistPath ) {
+   private void loadBlacklist( final String blacklistPath,
+                               final CollectionMap<Integer, String, Set<String>> blacklists,
+                               final boolean caseSensitive ) {
       LOGGER.info( "Loading Term Blacklist " + blacklistPath );
       try ( BufferedReader reader = new BufferedReader( new InputStreamReader( FileLocator.getAsStream( blacklistPath ) ) ) ) {
          String line;
@@ -96,7 +112,11 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
                continue;
             }
             final Integer key = attemptParseInt( splits[ 0 ] );
-            _blacklists.placeValue( key, splits[ 1 ].trim().toLowerCase() );
+            if ( caseSensitive ) {
+               blacklists.placeValue( key, splits[ 1 ].trim() );
+            } else {
+               blacklists.placeValue( key, splits[ 1 ].trim().toLowerCase() );
+            }
          }
       } catch ( IOException ioE ) {
          LOGGER.error( "Could not load blacklist " + blacklistPath );
@@ -125,11 +145,9 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
     * @return true if the candidate text is in the blacklist for the semantic type
     */
    private boolean inBlacklist( final int cTakesSemantic, final JCas jCas, final TextSpan textSpan ) {
-      if ( !_blacklists.containsKey( cTakesSemantic ) ) {
-         return false;
-      }
-      final String text = jCas.getDocumentText().substring( textSpan.getStart(), textSpan.getEnd() ).trim().toLowerCase();
-      return _blacklists.containsValue( cTakesSemantic, text );
+      final String text = jCas.getDocumentText().substring( textSpan.getStart(), textSpan.getEnd() ).trim();
+      return _csBlacklists.containsValue( cTakesSemantic, text )
+            || _blacklists.containsValue( cTakesSemantic, text.toLowerCase() );
    }
 
    /**
@@ -229,47 +247,6 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
       }
       return umlsConcepts;
    }
-
-//   static private Collection<UmlsConcept> createUmlsConcepts( final JCas jcas, final String defaultScheme,
-//                                                              final String tui, final Concept concept ) {
-//      final Collection<UmlsConcept> concepts = new ArrayList<>();
-//      for ( String codeName : concept.getCodeNames() ) {
-//         if ( codeName.equals( Concept.TUI ) ) {
-//            continue;
-//         }
-//         final Collection<String> codes = concept.getCodes( codeName );
-//         if ( codes == null || codes.isEmpty() ) {
-//            continue;
-//         }
-//         for ( String code : codes ) {
-//            concepts.add( createUmlsConcept( jcas, codeName, concept.getCui(), tui,
-//                  concept.getPreferredText(), code ) );
-//         }
-//      }
-//      if ( concepts.isEmpty() ) {
-//         concepts.add( createUmlsConcept( jcas, defaultScheme, concept.getCui(), tui,
-//               concept.getPreferredText(), null ) );
-//      }
-//      return concepts;
-//   }
-
-//   static private UmlsConcept createUmlsConcept( final JCas jcas, final String codingScheme,
-//                                                 final String cui, final String tui,
-//                                                 final String preferredText, final String code ) {
-//      final UmlsConcept umlsConcept = new UmlsConcept( jcas );
-//      umlsConcept.setCodingScheme( codingScheme );
-//      umlsConcept.setCui( cui );
-//      if ( tui != null ) {
-//         umlsConcept.setTui( tui );
-//      }
-//      if ( preferredText != null && !preferredText.isEmpty() ) {
-//         umlsConcept.setPreferredText( preferredText );
-//      }
-//      if ( code != null ) {
-//         umlsConcept.setCode( code );
-//      }
-//      return umlsConcept;
-//   }
 
 
    static private UmlsConcept createSimpleUmlsConcept( final JCas jcas, final String codingScheme, final String cui ) {
