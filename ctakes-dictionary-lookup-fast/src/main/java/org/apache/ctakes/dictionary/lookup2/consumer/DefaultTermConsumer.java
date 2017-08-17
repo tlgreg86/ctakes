@@ -18,7 +18,9 @@
  */
 package org.apache.ctakes.dictionary.lookup2.consumer;
 
+import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.collection.CollectionMap;
+import org.apache.ctakes.core.util.collection.HashSetMap;
 import org.apache.ctakes.dictionary.lookup2.concept.Concept;
 import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
 import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
@@ -26,12 +28,17 @@ import org.apache.ctakes.dictionary.lookup2.util.SemanticUtil;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.textsem.*;
+import org.apache.ctakes.utils.env.EnvironmentVariable;
+import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASRuntimeException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 import static org.apache.ctakes.typesystem.type.constants.CONST.*;
@@ -43,8 +50,15 @@ import static org.apache.ctakes.typesystem.type.constants.CONST.*;
  * Date: 1/9/14
  */
 final public class DefaultTermConsumer extends AbstractTermConsumer {
+   static private final Logger LOGGER = Logger.getLogger( "DefaultTermConsumer" );
+
+   static private final String BLACKLIST_KEY = "Blacklist";
 
    final private UmlsConceptCreator _umlsConceptCreator;
+
+   private final CollectionMap<Integer, String, Set<String>> _blacklists = new HashSetMap<>();
+
+
 
    public DefaultTermConsumer( final UimaContext uimaContext, final Properties properties ) {
       this( uimaContext, properties, new DefaultUmlsConceptCreator() );
@@ -54,8 +68,69 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
                                final UmlsConceptCreator umlsConceptCreator ) {
       super( uimaContext, properties );
       _umlsConceptCreator = umlsConceptCreator;
+      String blacklistPath = EnvironmentVariable.getEnv( BLACKLIST_KEY, uimaContext );
+      if ( blacklistPath == null || blacklistPath.equals( EnvironmentVariable.NOT_PRESENT ) ) {
+         blacklistPath = properties.getProperty( BLACKLIST_KEY );
+      }
+      if ( blacklistPath != null && !blacklistPath.equals( EnvironmentVariable.NOT_PRESENT ) ) {
+         loadBlacklist( blacklistPath );
+      }
    }
 
+   /**
+    * @param blacklistPath path to file containing text that should be blacklisted from the dictionary
+    */
+   private void loadBlacklist( final String blacklistPath ) {
+      LOGGER.info( "Loading Term Blacklist " + blacklistPath );
+      try ( BufferedReader reader = new BufferedReader( new InputStreamReader( FileLocator.getAsStream( blacklistPath ) ) ) ) {
+         String line;
+         String[] splits;
+         while ( (line = reader.readLine()) != null ) {
+            line = line.trim();
+            if ( line.isEmpty() || line.startsWith( "//" ) || line.startsWith( "#" ) ) {
+               continue;
+            }
+            splits = line.split( "\\|" );
+            if ( splits.length != 2 ) {
+               LOGGER.warn( "Blacklist line is not correct <semanticType>|<text> format " + line );
+               continue;
+            }
+            final Integer key = attemptParseInt( splits[ 0 ] );
+            _blacklists.placeValue( key, splits[ 1 ].trim().toLowerCase() );
+         }
+      } catch ( IOException ioE ) {
+         LOGGER.error( "Could not load blacklist " + blacklistPath );
+      }
+   }
+
+   /**
+    * Since uimafit parameter values can be integers, check for an integer value
+    *
+    * @param value String value parsed from file
+    * @return the value as an Integer, or the original String if an Integer could not be resolved
+    */
+   static private Integer attemptParseInt( final String value ) {
+      try {
+         return Integer.valueOf( value );
+      } catch ( NumberFormatException nfE ) {
+         return CONST.NE_TYPE_ID_UNKNOWN;
+      }
+   }
+
+   /**
+    *
+    * @param cTakesSemantic semantic code integer
+    * @param jCas ye olde ...
+    * @param textSpan span of candidate text
+    * @return true if the candidate text is in the blacklist for the semantic type
+    */
+   private boolean inBlacklist( final int cTakesSemantic, final JCas jCas, final TextSpan textSpan ) {
+      if ( !_blacklists.containsKey( cTakesSemantic ) ) {
+         return false;
+      }
+      final String text = jCas.getDocumentText().substring( textSpan.getStart(), textSpan.getEnd() ).trim().toLowerCase();
+      return _blacklists.containsValue( cTakesSemantic, text );
+   }
 
    /**
     * {@inheritDoc}
@@ -70,6 +145,9 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
       try {
          for ( Map.Entry<TextSpan, ? extends Collection<Long>> spanCuis : textSpanCuis ) {
             umlsConceptList.clear();
+            if ( inBlacklist( cTakesSemantic, jcas, spanCuis.getKey() ) ) {
+               continue;
+            }
             for ( Long cuiCode : spanCuis.getValue() ) {
                umlsConceptList.addAll(
                      createUmlsConcepts( jcas, codingScheme, cTakesSemantic, cuiCode, cuiConcepts ) );
