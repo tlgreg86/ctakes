@@ -62,7 +62,7 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
    private final CollectionMap<Integer, String, Set<String>> _blacklists = new HashSetMap<>();
    private final CollectionMap<Integer, String, Set<String>> _csBlacklists = new HashSetMap<>();
 
-
+   private boolean _checkBlacklist;
 
    public DefaultTermConsumer( final UimaContext uimaContext, final Properties properties ) {
       this( uimaContext, properties, new DefaultUmlsConceptCreator() );
@@ -86,6 +86,7 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
       if ( csBlacklistPath != null && !csBlacklistPath.equals( EnvironmentVariable.NOT_PRESENT ) ) {
          loadBlacklist( csBlacklistPath, _csBlacklists, true );
       }
+      _checkBlacklist = !_blacklists.isEmpty() || !_csBlacklists.isEmpty();
    }
 
    /**
@@ -145,6 +146,9 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
     * @return true if the candidate text is in the blacklist for the semantic type
     */
    private boolean inBlacklist( final int cTakesSemantic, final JCas jCas, final TextSpan textSpan ) {
+      if ( !_checkBlacklist ) {
+         return false;
+      }
       final String text = jCas.getDocumentText().substring( textSpan.getStart(), textSpan.getEnd() ).trim();
       return _csBlacklists.containsValue( cTakesSemantic, text )
             || _blacklists.containsValue( cTakesSemantic, text.toLowerCase() );
