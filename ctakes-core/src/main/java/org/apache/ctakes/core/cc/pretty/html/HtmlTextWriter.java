@@ -8,6 +8,8 @@ import org.apache.ctakes.core.cc.pretty.textspan.TextSpan;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.OntologyConceptUtil;
+import org.apache.ctakes.typesystem.type.refsem.Event;
+import org.apache.ctakes.typesystem.type.refsem.EventProperties;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
@@ -89,7 +91,6 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
                = JCasUtil.indexCovered( jCas, Sentence.class, IdentifiedAnnotation.class );
          final Map<Sentence, Collection<BaseToken>> sentenceTokens
                = JCasUtil.indexCovered( jCas, Sentence.class, BaseToken.class );
-//         writeSections( sectionSentences, sentenceAnnotations, sentenceTokens, writer );
          writeSections( sections, lists, listEntries, sectionSentences, sentenceAnnotations, sentenceTokens, writer );
          writeInfoPane( writer );
          writer.write( startJavascript() );
@@ -101,7 +102,6 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
    }
 
    /**
-    *
     * @param title normally the document title
     * @return html to set the header
     */
@@ -119,8 +119,9 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
 
    /**
     * Write html for document title
-    * @param title normally document title, such as filename
-    * @param writer    writer to which pretty html for the section should be written
+    *
+    * @param title  normally document title, such as filename
+    * @param writer writer to which pretty html for the section should be written
     * @throws IOException if the writer has issues
     */
    static private void writeTitle( final String title, final BufferedWriter writer ) throws IOException {
@@ -355,10 +356,10 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
    /**
     * Write html for a sentence from the document text
     *
-    * @param sentence sentence of interest
+    * @param sentence    sentence of interest
     * @param annotations identified annotations in the section
-    * @param baseTokens baseTokens in the section
-    * @param writer    writer to which pretty html for the section should be written
+    * @param baseTokens  baseTokens in the section
+    * @param writer      writer to which pretty html for the section should be written
     * @throws IOException if the writer has issues
     */
    static private void writeSentence( final Sentence sentence,
@@ -421,37 +422,13 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          if ( textSpan.getWidth() == 0 ) {
             continue;
          }
-         final Collection<String> semanticNames = getSemanticNames( annotation );
-         if ( !semanticNames.isEmpty() || annotation instanceof TimeMention || annotation instanceof EventMention ) {
+         final Collection<String> semanticNames = SemanticGroup.getSemanticNames( annotation );
+         if ( !semanticNames.isEmpty() ) {
             annotationMap.putIfAbsent( textSpan, new ArrayList<>() );
             annotationMap.get( textSpan ).add( annotation );
          }
       }
       return annotationMap;
-   }
-
-   /**
-    *
-    * @param identifiedAnnotation -
-    * @return all applicable semantic names for the annotation
-    */
-   static private Collection<String> getSemanticNames( final IdentifiedAnnotation identifiedAnnotation ) {
-      final Collection<UmlsConcept> umlsConcepts = OntologyConceptUtil.getUmlsConcepts( identifiedAnnotation );
-      if ( umlsConcepts == null || umlsConcepts.isEmpty() ) {
-         return Collections.emptyList();
-      }
-      final Collection<String> semanticNames = new HashSet<>();
-      for ( UmlsConcept umlsConcept : umlsConcepts ) {
-         final String tui = umlsConcept.getTui();
-         String semanticName = SemanticGroup.getSemanticName( tui );
-         if ( semanticName.equals( "Unknown" ) ) {
-            semanticName = identifiedAnnotation.getClass().getSimpleName();
-         }
-         semanticNames.add( semanticName );
-      }
-      final List<String> semanticList = new ArrayList<>( semanticNames );
-      Collections.sort( semanticList );
-      return semanticList;
    }
 
    /**
@@ -648,62 +625,103 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
 
    /**
     * @param annotation -
-    * @return map of semantic to pref text
+    * @return map of semantic to text for annotations
     */
    static private Map<String, Collection<String>> createInfoMap( final IdentifiedAnnotation annotation ) {
       final Collection<UmlsConcept> concepts = OntologyConceptUtil.getUmlsConcepts( annotation );
       final Map<String, Collection<String>> semanticMap = new HashMap<>();
+      final String coveredText = getCoveredText( annotation );
       for ( UmlsConcept concept : concepts ) {
-         final String semanticName = getSemanticCode( annotation, concept );
-         semanticMap.putIfAbsent( semanticName, new HashSet<>() );
-         semanticMap.get( semanticName ).add( getPreferredText( annotation, concept ) );
+         final String semanticCode = SemanticGroup.getSemanticCode( concept );
+         semanticMap.putIfAbsent( semanticCode, new HashSet<>() );
+         String text = getCodes( concept ) + coveredText + getPreferredText( coveredText, concept );
+         if ( annotation instanceof EventMention ) {
+            text += getDocTimeRel( (EventMention) annotation );
+         }
+         semanticMap.get( semanticCode ).add( text );
+      }
+      if ( concepts.isEmpty() ) {
+         String semanticCode = "";
+         String postText = "";
+         if ( annotation instanceof EventMention ) {
+            semanticCode = SemanticGroup.EVENT_CODE;
+            postText = getDocTimeRel( (EventMention) annotation );
+         } else if ( annotation instanceof TimeMention ) {
+            semanticCode = SemanticGroup.TIMEX_CODE;
+         }
+         if ( !semanticCode.isEmpty() ) {
+            semanticMap.putIfAbsent( semanticCode, new HashSet<>() );
+            semanticMap.get( semanticCode ).add( coveredText + postText );
+         }
       }
       return semanticMap;
    }
 
    /**
-    * @param annotation -
-    * @param concept    -
-    * @return semantic name
+    * @param concept -
+    * @return cui if it exists and any codes if they exist
     */
-   static private String getSemanticName( final IdentifiedAnnotation annotation, final UmlsConcept concept ) {
-      final String tui = concept.getTui();
-      final String semanticName = SemanticGroup.getSemanticName( tui );
-      if ( semanticName != null && !semanticName.equals( "Unknown" ) ) {
-         return semanticName;
-      }
-      return annotation.getClass().getSimpleName();
-   }
-
-   /**
-    * @param annotation -
-    * @param concept    -
-    * @return semantic code
-    */
-   static private String getSemanticCode( final IdentifiedAnnotation annotation, final UmlsConcept concept ) {
-      final String tui = concept.getTui();
-      final String semanticCode = SemanticGroup.getSemanticCode( tui );
-      if ( semanticCode != null && !semanticCode.equals( SemanticGroup.UNKNOWN_SEMANTIC_CODE ) ) {
-         return semanticCode;
-      }
-      return annotation.getClass().getSimpleName();
-   }
-
-   /**
-    * @param annotation -
-    * @param concept    -
-    * @return cui and pref text
-    */
-   static private String getPreferredText( final IdentifiedAnnotation annotation, final UmlsConcept concept ) {
+   static private String getCodes( final UmlsConcept concept ) {
+      String codes = "";
       final String cui = concept.getCui();
-      final String coveredText = annotation.getCoveredText().replace( '\r', ' ' ).replace( '\n', ' ' );
+      if ( cui != null && !cui.isEmpty() ) {
+         codes += cui;
+      }
+      final String code = concept.getCode();
+      if ( code != null && !code.isEmpty() ) {
+         if ( !codes.isEmpty() ) {
+            codes += " ";
+         }
+         codes += code;
+      }
+      if ( !codes.isEmpty() ) {
+         codes += " : ";
+      }
+      return codes;
+   }
+
+   /**
+    * @param annotation -
+    * @return the covered text
+    */
+   static private String getCoveredText( final IdentifiedAnnotation annotation ) {
+      return annotation.getCoveredText().replace( '\r', ' ' ).replace( '\n', ' ' );
+   }
+
+   /**
+    * @param coveredText -
+    * @param concept     -
+    * @return the covered text plus preferred text if it exists and is not equal to the covered text
+    */
+   static private String getPreferredText( final String coveredText, final UmlsConcept concept ) {
       final String preferredText = concept.getPreferredText();
       if ( preferredText != null && !preferredText.isEmpty()
             && !preferredText.equalsIgnoreCase( coveredText )
             && !coveredText.equalsIgnoreCase( preferredText + 's' ) ) {
-         return cui + " : " + coveredText + " [" + preferredText + "]";
+         return " [" + preferredText + "]";
       }
-      return cui + " : " + coveredText;
+      return "";
+   }
+
+
+   /**
+    * @param eventMention -
+    * @return a line of text with doctimerel if available
+    */
+   static private String getDocTimeRel( final EventMention eventMention ) {
+      final Event event = eventMention.getEvent();
+      if ( event == null ) {
+         return "";
+      }
+      final EventProperties eventProperties = event.getProperties();
+      if ( eventProperties == null ) {
+         return "";
+      }
+      final String dtr = eventProperties.getDocTimeRel();
+      if ( dtr == null || dtr.isEmpty() ) {
+         return "";
+      }
+      return " [" + dtr.toLowerCase() + " doc time]";
    }
 
    /**
@@ -719,7 +737,6 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
    }
 
    /**
-    *
     * @param annotation -
     * @return polarity for a single annotation
     */
@@ -738,21 +755,11 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
    }
 
    /**
-    *
     * @param annotations -
-    * @return semantic names for given annotations
+    * @return tooltip text with semantic names for given annotations
     */
    static private String createTipText( final Collection<IdentifiedAnnotation> annotations ) {
-      final Map<String, Integer> semanticCounts = new HashMap<>();
-      for ( IdentifiedAnnotation annotation : annotations ) {
-         final Collection<UmlsConcept> concepts = OntologyConceptUtil.getUmlsConcepts( annotation );
-         for ( UmlsConcept concept : concepts ) {
-            final String semanticName = getSemanticName( annotation, concept );
-            semanticCounts.putIfAbsent( semanticName, 0 );
-            final int count = semanticCounts.get( semanticName );
-            semanticCounts.put( semanticName, count + 1 );
-         }
-      }
+      final Map<String, Integer> semanticCounts = getSemanticCounts( annotations );
       final List<String> semantics = new ArrayList<>( semanticCounts.keySet() );
       Collections.sort( semantics );
       final StringBuilder sb = new StringBuilder();
@@ -765,6 +772,44 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          sb.append( ' ' );
       }
       return sb.toString();
+   }
+
+
+   /**
+    * @param annotations -
+    * @return counts of semantic types for annotations
+    */
+   static private Map<String, Integer> getSemanticCounts( final Collection<IdentifiedAnnotation> annotations ) {
+      // Check concepts with the same cui can have multiple tuis.  This can make it look like there are extra counts.
+      final Collection<String> usedCuis = new HashSet<>();
+      final Map<String, Integer> semanticCounts = new HashMap<>();
+      for ( IdentifiedAnnotation annotation : annotations ) {
+         final Collection<UmlsConcept> concepts = OntologyConceptUtil.getUmlsConcepts( annotation );
+         for ( UmlsConcept concept : concepts ) {
+            if ( !usedCuis.add( concept.getCui() ) ) {
+               continue;
+            }
+            final String semanticName = SemanticGroup.getSemanticName( annotation, concept );
+            semanticCounts.putIfAbsent( semanticName, 0 );
+            final int count = semanticCounts.get( semanticName );
+            semanticCounts.put( semanticName, count + 1 );
+         }
+         usedCuis.clear();
+         if ( concepts.isEmpty() ) {
+            String semanticName = "";
+            if ( annotation instanceof EventMention ) {
+               semanticName = SemanticGroup.EVENT_SEMANTIC;
+            } else if ( annotation instanceof TimeMention ) {
+               semanticName = SemanticGroup.TIMEX_SEMANTIC;
+            }
+            if ( !semanticName.isEmpty() ) {
+               semanticCounts.putIfAbsent( semanticName, 0 );
+               final int count = semanticCounts.get( semanticName );
+               semanticCounts.put( semanticName, count + 1 );
+            }
+         }
+      }
+      return semanticCounts;
    }
 
    /**
@@ -791,7 +836,9 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
             "    var fnd=dis.replace( /" + SemanticGroup.FINDING.getCode() + "/g,\"<b>Sign/ Symptom</b>\" );\n" +
             "    var prc=fnd.replace( /" + SemanticGroup.PROCEDURE.getCode() + "/g,\"<b>Procedure</b>\" );\n" +
             "    var drg=prc.replace( /" + SemanticGroup.MEDICATION.getCode() + "/g,\"<b>Medication</b>\" );\n" +
-            "    var unk=drg.replace( /" + SemanticGroup.UNKNOWN_SEMANTIC_CODE + "/g,\"<b>Unknown</b>\" );\n" +
+            "    var evt=drg.replace( /" + SemanticGroup.EVENT_CODE + "/g,\"<b>Event</b>\" );\n" +
+            "    var tmx=evt.replace( /" + SemanticGroup.TIMEX_CODE + "/g,\"<b>Time</b>\" );\n" +
+            "    var unk=tmx.replace( /" + SemanticGroup.UNKNOWN_SEMANTIC_CODE + "/g,\"<b>Unknown</b>\" );\n" +
             "    var prf1=unk.replace( /\\[/g,\"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>\" );\n" +
             "    var prf2=prf1.replace( /\\]/g,\"</i>\" );\n" +
             "    document.getElementById(\"ia\").innerHTML = prf2;\n" +

@@ -1,7 +1,12 @@
 package org.apache.ctakes.core.cc.pretty;
 
-import java.util.Arrays;
-import java.util.Collection;
+import org.apache.ctakes.core.util.OntologyConceptUtil;
+import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
+import org.apache.ctakes.typesystem.type.textsem.EventMention;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.apache.ctakes.typesystem.type.textsem.TimeMention;
+
+import java.util.*;
 
 /**
  * enumeration of ctakes semantic types:
@@ -22,6 +27,10 @@ public enum SemanticGroup {
 
    static public final String UNKNOWN_SEMANTIC = "Unknown";
    static public final String UNKNOWN_SEMANTIC_CODE = "UNK";
+   static public final String EVENT_SEMANTIC = "Event";
+   static public final String EVENT_CODE = "EVT";
+   static public final String TIMEX_SEMANTIC = "Time";
+   static public final String TIMEX_CODE = "TMX";
    final private String _name;
    final private String _code;
    final private Collection<String> _tuis;
@@ -54,6 +63,48 @@ public enum SemanticGroup {
    }
 
    /**
+    * @param annotation -
+    * @return all applicable semantic names for the annotation
+    */
+   static public Collection<String> getSemanticNames( final IdentifiedAnnotation annotation ) {
+      final Collection<UmlsConcept> umlsConcepts = OntologyConceptUtil.getUmlsConcepts( annotation );
+      if ( umlsConcepts == null || umlsConcepts.isEmpty() ) {
+         if ( annotation instanceof EventMention ) {
+            return Collections.singletonList( EVENT_SEMANTIC );
+         } else if ( annotation instanceof TimeMention ) {
+            return Collections.singletonList( TIMEX_SEMANTIC );
+         }
+         return Collections.emptyList();
+      }
+      final Collection<String> semanticNames = new HashSet<>();
+      for ( UmlsConcept umlsConcept : umlsConcepts ) {
+         semanticNames.add( getSemanticName( annotation, umlsConcept ) );
+      }
+      final List<String> semanticList = new ArrayList<>( semanticNames );
+      Collections.sort( semanticList );
+      return semanticList;
+   }
+
+   /**
+    * @param annotation -
+    * @param concept    -
+    * @return semantic name
+    */
+   static public String getSemanticName( final IdentifiedAnnotation annotation, final UmlsConcept concept ) {
+      final String tui = concept.getTui();
+      final String semanticName = SemanticGroup.getSemanticName( tui );
+      if ( semanticName != null && !semanticName.equals( UNKNOWN_SEMANTIC ) ) {
+         return semanticName;
+      }
+      if ( annotation instanceof EventMention ) {
+         return EVENT_SEMANTIC;
+      } else if ( annotation instanceof TimeMention ) {
+         return TIMEX_SEMANTIC;
+      }
+      return getSimpleName( annotation );
+   }
+
+   /**
     * @param tui a tui of interest
     * @return the name of a Semantic type associated with the tui
     */
@@ -67,6 +118,15 @@ public enum SemanticGroup {
          }
       }
       return UNKNOWN_SEMANTIC;
+   }
+
+   /**
+    * @param concept    -
+    * @return the code of a Semantic type associated with the concept
+    */
+   static public String getSemanticCode( final UmlsConcept concept ) {
+      final String tui = concept.getTui();
+      return getSemanticCode( tui );
    }
 
    /**
@@ -96,6 +156,19 @@ public enum SemanticGroup {
          }
       }
       return UNKNOWN_SEMANTIC;
+   }
+
+   /**
+    *
+    * @param annotation annotation whose name could not be derived by tui
+    * @return the simple class name, with any suffix "Mention" removed
+    */
+   static private String getSimpleName( final IdentifiedAnnotation annotation ) {
+      final String simpleName = annotation.getClass().getSimpleName();
+      if ( simpleName.endsWith( "Mention" ) ) {
+         return simpleName.substring( 0, simpleName.length() - 7 );
+      }
+      return simpleName;
    }
 
 

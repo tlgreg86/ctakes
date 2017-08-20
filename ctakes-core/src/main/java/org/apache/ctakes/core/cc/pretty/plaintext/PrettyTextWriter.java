@@ -86,15 +86,6 @@ final public class PrettyTextWriter {
          outputFile = new File( _outputDirPath, docId + FILE_EXTENSION );
       }
       writeFile( jcas, outputFile.getPath() );
-//      try ( final BufferedWriter writer = new BufferedWriter( new FileWriter( outputFile ) ) ) {
-//         final Collection<Sentence> sentences = JCasUtil.select( jcas, Sentence.class );
-//         for ( Sentence sentence : sentences ) {
-//            writeSentence( jcas, sentence, writer );
-//         }
-//      } catch ( IOException ioE ) {
-//         LOGGER.error( "Could not not write pretty file " + outputFile.getPath() );
-//         LOGGER.error( ioE.getMessage() );
-//      }
       LOGGER.info( "Finished processing" );
    }
 
@@ -206,24 +197,16 @@ final public class PrettyTextWriter {
       final Map<Integer, Collection<ItemCell>> coveringAnnotationMap = new HashMap<>();
       for ( ItemCell itemCell : requiredCells ) {
          final Collection<ItemCell> coveredBaseItems = getCoveredBaseItems( itemCell.getTextSpan(), baseItemMap );
-         Collection<ItemCell> coveringAnnotations = coveringAnnotationMap.get( coveredBaseItems.size() );
-         if ( coveringAnnotations == null ) {
-            coveringAnnotations = new HashSet<>();
-            coveringAnnotationMap.put( coveredBaseItems.size(), coveringAnnotations );
-         }
-         coveringAnnotations.add( itemCell );
+         coveringAnnotationMap.putIfAbsent( coveredBaseItems.size(), new HashSet<>() );
+         coveringAnnotationMap.get( coveredBaseItems.size() ).add( itemCell );
       }
       for ( ItemCell itemCell : eventCells ) {
          if ( usedTextSpans.contains( itemCell.getTextSpan() ) ) {
             continue;
          }
          final Collection<ItemCell> coveredBaseItems = getCoveredBaseItems( itemCell.getTextSpan(), baseItemMap );
-         Collection<ItemCell> coveringAnnotations = coveringAnnotationMap.get( coveredBaseItems.size() );
-         if ( coveringAnnotations == null ) {
-            coveringAnnotations = new HashSet<>();
-            coveringAnnotationMap.put( coveredBaseItems.size(), coveringAnnotations );
-         }
-         coveringAnnotations.add( itemCell );
+         coveringAnnotationMap.putIfAbsent( coveredBaseItems.size(), new HashSet<>() );
+         coveringAnnotationMap.get( coveredBaseItems.size() ).add( itemCell );
       }
       return coveringAnnotationMap;
    }
@@ -421,17 +404,9 @@ final public class PrettyTextWriter {
       final Map<String, Collection<String>> semanticCuis = new HashMap<>();
       for ( UmlsConcept umlsConcept : umlsConcepts ) {
          final String cui = trimTo8( umlsConcept.getCui() );
-         final String tui = umlsConcept.getTui();
-         String semanticName = SemanticGroup.getSemanticName( tui );
-         if ( semanticName.equals( "Unknown" ) ) {
-            semanticName = trimTo8( identifiedAnnotation.getClass().getSimpleName() );
-         }
-         Collection<String> cuis = semanticCuis.get( semanticName );
-         if ( cuis == null ) {
-            cuis = new HashSet<>();
-            semanticCuis.put( semanticName, cuis );
-         }
-         cuis.add( cui );
+         String semanticName = SemanticGroup.getSemanticName( identifiedAnnotation, umlsConcept );
+         semanticCuis.putIfAbsent( semanticName, new HashSet<>() );
+         semanticCuis.get( semanticName ).add( cui );
       }
       return semanticCuis;
    }
