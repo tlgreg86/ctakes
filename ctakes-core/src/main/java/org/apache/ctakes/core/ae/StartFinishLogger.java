@@ -65,7 +65,7 @@ public class StartFinishLogger extends JCasAnnotator_ImplBase {
          throws ResourceInitializationException {
       super.initialize( context );
       _logger = Logger.getLogger( _loggerName );
-      if ( _isStart ) {
+      if ( _isStart != null && _isStart ) {
          if ( _loggerTask == null || _loggerTask.equals( DEFAULT_TASK ) ) {
             _logger.info( "Starting initializing" );
          } else {
@@ -82,14 +82,18 @@ public class StartFinishLogger extends JCasAnnotator_ImplBase {
     */
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
-      if ( _isStart ) {
+      if ( _isStart != null && _isStart ) {
          if ( _loggerTask == null || _loggerTask.equals( DEFAULT_TASK ) ) {
-            _logger.info( "Starting processing" );
+            _logger.info( "Starting processing ..." );
          } else {
-            _logger.info( _loggerTask );
+            _logger.info( _loggerTask + " ..." );
          }
       } else {
-         _logger.info( "Finished processing" );
+         if ( _loggerTask == null || _loggerTask.equals( DEFAULT_TASK ) ) {
+            _logger.info( "Finished processing" );
+         } else {
+            _logger.info( "Finished " + _loggerTask );
+         }
       }
    }
 
