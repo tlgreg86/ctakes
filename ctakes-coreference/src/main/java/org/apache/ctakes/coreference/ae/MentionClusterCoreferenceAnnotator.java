@@ -3,7 +3,6 @@ package org.apache.ctakes.coreference.ae;
 import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
 
 import java.io.File;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterAgreementFeaturesExtractor;
 import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterAttributeFeaturesExtractor;
@@ -33,6 +33,7 @@ import org.apache.ctakes.coreference.ae.pairing.cluster.SentenceDistancePairer;
 import org.apache.ctakes.coreference.util.MarkableUtilities;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
+import org.apache.ctakes.temporal.utils.PatientViewsUtil;
 import org.apache.ctakes.typesystem.type.refsem.AnatomicalSite;
 import org.apache.ctakes.typesystem.type.refsem.DiseaseDisorder;
 import org.apache.ctakes.typesystem.type.refsem.Element;
@@ -55,6 +56,7 @@ import org.apache.ctakes.utils.struct.CounterMap;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.CASException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
@@ -216,135 +218,154 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
   }
   
   @Override
-  public void process(JCas jCas) throws AnalysisEngineProcessException {
-    // lookup from pair of annotations to binary text relation
-    // note: assumes that there will be at most one relation per pair
-    this.resetPairers(jCas);
+  public void process(JCas docCas) throws AnalysisEngineProcessException {
     
-    Map<CollectionTextRelationIdentifiedAnnotationPair, CollectionTextRelationIdentifiedAnnotationRelation> relationLookup;
-    relationLookup = new HashMap<>();
-    if (this.isTraining()) {
-      for (CollectionTextRelation cluster : JCasUtil.select(jCas, CollectionTextRelation.class)) {
-        for(IdentifiedAnnotation mention : JCasUtil.select(cluster.getMembers(), Markable.class)){
-          CollectionTextRelationIdentifiedAnnotationRelation relation = 
-              new CollectionTextRelationIdentifiedAnnotationRelation(jCas);
-          relation.setCluster(cluster);
-          relation.setMention(mention);
-          relation.setCategory("CoreferenceClusterMember");
-          relation.addToIndexes();
-          // The key is a list of args so we can do bi-directional lookup
-          CollectionTextRelationIdentifiedAnnotationPair key = new CollectionTextRelationIdentifiedAnnotationPair(cluster, mention);
-          if(relationLookup.containsKey(key)){
-            String cat = relationLookup.get(key).getCategory();
-            System.err.println("Error in: "+ ViewUriUtil.getURI(jCas).toString());
-            System.err.println("Error! This attempted relation " + relation.getCategory() + " already has a relation " + cat + " at this span: " + mention.getCoveredText());
+    //this.dataWriter.write(new Instance<String>("#DEBUG " + ViewUriUtil.getURI(docCas)));
+    
+    int numDocs;
+    try {
+      numDocs = Integer.valueOf(docCas.getView(PatientViewsUtil.NUM_DOCS_NAME).getDocumentText());
+    } catch (NumberFormatException | CASException e) {
+      e.printStackTrace();
+      throw new AnalysisEngineProcessException(e);
+    }
+    
+    for(int docNum = 0; docNum < numDocs; docNum++){
+      JCas jCas;
+      try {
+        jCas = docCas.getView(PatientViewsUtil.getViewName(docNum));
+      } catch (CASException e) {
+        e.printStackTrace();
+        throw new AnalysisEngineProcessException(e);
+      }
+      // lookup from pair of annotations to binary text relation
+      // note: assumes that there will be at most one relation per pair
+      this.resetPairers(jCas);
+      Map<CollectionTextRelationIdentifiedAnnotationPair, CollectionTextRelationIdentifiedAnnotationRelation> relationLookup;
+      relationLookup = new HashMap<>();
+      if (this.isTraining()) {
+        for (CollectionTextRelation cluster : JCasUtil.select(jCas, CollectionTextRelation.class)) {
+          for(IdentifiedAnnotation mention : JCasUtil.select(cluster.getMembers(), Markable.class)){
+            CollectionTextRelationIdentifiedAnnotationRelation relation = 
+                new CollectionTextRelationIdentifiedAnnotationRelation(jCas);
+            relation.setCluster(cluster);
+            relation.setMention(mention);
+            relation.setCategory("CoreferenceClusterMember");
+            relation.addToIndexes();
+            // The key is a list of args so we can do bi-directional lookup
+            CollectionTextRelationIdentifiedAnnotationPair key = new CollectionTextRelationIdentifiedAnnotationPair(cluster, mention);
+            if(relationLookup.containsKey(key)){
+              String cat = relationLookup.get(key).getCategory();
+              System.err.println("Error in: "+ ViewUriUtil.getURI(jCas).toString());
+              System.err.println("Error! This attempted relation " + relation.getCategory() + " already has a relation " + cat + " at this span: " + mention.getCoveredText());
+            }
+            relationLookup.put(key, relation);
           }
-          relationLookup.put(key, relation);
         }
       }
-    }
 
-    
-    for(Segment segment : JCasUtil.select(jCas, Segment.class)){
-      for(Markable mention : JCasUtil.selectCovered(jCas, Markable.class, segment)){
-//        ConllDependencyNode headNode = DependencyUtility.getNominalHeadNode(jCas, mention);
-        boolean singleton = true;
-        double maxScore = 0.0;
-        CollectionTextRelation maxCluster = null;
-        
-        for(CollectionTextRelationIdentifiedAnnotationPair pair : this.getCandidateRelationArgumentPairs(jCas, mention)){
-          CollectionTextRelation cluster = pair.getCluster();
-          // apply all the feature extractors to extract the list of features
-          List<Feature> features = new ArrayList<>();
-          for (RelationFeaturesExtractor<CollectionTextRelation,IdentifiedAnnotation> extractor : this.relationExtractors) {
-            List<Feature> feats = extractor.extract(jCas, cluster, mention);
-            if (feats != null){
-//              Logger.getRootLogger().info(String.format("For cluster with %d mentions, %d %s features", JCasUtil.select(cluster.getMembers(), Markable.class).size(), feats.size(), extractor.getClass().getSimpleName()));
-              features.addAll(feats);
-            }
-          }
-                 
-          for(FeatureExtractor1<Markable> extractor : this.mentionExtractors){
-            features.addAll(extractor.extract(jCas, mention));
-          }
-          
-          // here is where feature conjunctions can go (dupFeatures)
-          List<Feature> dupFeatures = new ArrayList<>();
-          // sanity check on feature values
-          for (Feature feature : features) {
-            if (feature.getValue() == null) {
-              feature.setValue("NULL");
-              String message = String.format("Null value found in %s from %s", feature, features);
-              System.err.println(message);
-            }            
-          }
-          
-          features.addAll(dupFeatures);
-                   
-          // during training, feed the features to the data writer
-          if (this.isTraining()) {
-            String category = this.getRelationCategory(relationLookup, cluster, mention);
-            if (category == null) {
-              continue;
+
+      for(Segment segment : JCasUtil.select(jCas, Segment.class)){
+        for(Markable mention : JCasUtil.selectCovered(jCas, Markable.class, segment)){
+          //        ConllDependencyNode headNode = DependencyUtility.getNominalHeadNode(jCas, mention);
+          boolean singleton = true;
+          double maxScore = 0.0;
+          CollectionTextRelation maxCluster = null;
+
+          for(CollectionTextRelationIdentifiedAnnotationPair pair : this.getCandidateRelationArgumentPairs(jCas, mention)){
+            CollectionTextRelation cluster = pair.getCluster();
+            // apply all the feature extractors to extract the list of features
+            List<Feature> features = new ArrayList<>();
+            for (RelationFeaturesExtractor<CollectionTextRelation,IdentifiedAnnotation> extractor : this.relationExtractors) {
+              List<Feature> feats = extractor.extract(jCas, cluster, mention);
+              if (feats != null){
+                //              Logger.getRootLogger().info(String.format("For cluster with %d mentions, %d %s features", JCasUtil.select(cluster.getMembers(), Markable.class).size(), feats.size(), extractor.getClass().getSimpleName()));
+                features.addAll(feats);
+              }
             }
 
-            // create a classification instance and write it to the training data
-            this.dataWriter.write(new Instance<>(category, features));
-            if(!category.equals(NO_RELATION_CATEGORY)){
-              singleton = false;
-              break;
+            for(FeatureExtractor1<Markable> extractor : this.mentionExtractors){
+              features.addAll(extractor.extract(jCas, mention));
             }
-          }
 
-          // during classification feed the features to the classifier and create
-          // annotations
-          else {
-            String predictedCategory = this.classify(features);
-            // TODO look at scores in classifier and try best-pair rather than first-pair?
-            Map<String,Double> scores = this.classifier.score(features);
-            
-            // add a relation annotation if a true relation was predicted
-            if (!predictedCategory.equals(NO_RELATION_CATEGORY)) {
-//              Logger.getLogger("MCAnnotator").info(String.format("Making a pair with score %f", scores.get(predictedCategory)));
-              if(greedyFirst){
-                createRelation(jCas, cluster, mention, predictedCategory, scores.get(predictedCategory));
+            // here is where feature conjunctions can go (dupFeatures)
+            List<Feature> dupFeatures = new ArrayList<>();
+            // sanity check on feature values
+            for (Feature feature : features) {
+              if (feature.getValue() == null) {
+                feature.setValue("NULL");
+                String message = String.format("Null value found in %s from %s", feature, features);
+                System.err.println(message);
+              }            
+            }
+
+            features.addAll(dupFeatures);
+
+            // during training, feed the features to the data writer
+            if (this.isTraining()) {
+              String category = this.getRelationCategory(relationLookup, cluster, mention);
+              if (category == null) {
+                continue;
+              }
+
+              // create a classification instance and write it to the training data
+              this.dataWriter.write(new Instance<>(category, features));
+              if(!category.equals(NO_RELATION_CATEGORY)){
                 singleton = false;
-                // break here for "closest-first" greedy decoding strategy (Soon et al., 2001), terminology from Lasalle and Denis (2013),
-                // for "best first" need to keep track of all relations with scores and only keep the highest
                 break;
               }
-              if(scores.get(predictedCategory) > maxScore){
-            	  maxScore = scores.get(predictedCategory);
-            	  maxCluster = cluster;
+            }
+
+            // during classification feed the features to the classifier and create
+            // annotations
+            else {
+              String predictedCategory = this.classify(features);
+              // TODO look at scores in classifier and try best-pair rather than first-pair?
+              Map<String,Double> scores = this.classifier.score(features);
+
+              // add a relation annotation if a true relation was predicted
+              if (!predictedCategory.equals(NO_RELATION_CATEGORY)) {
+                //              Logger.getLogger("MCAnnotator").info(String.format("Making a pair with score %f", scores.get(predictedCategory)));
+                if(greedyFirst){
+                  createRelation(jCas, cluster, mention, predictedCategory, scores.get(predictedCategory));
+                  singleton = false;
+                  // break here for "closest-first" greedy decoding strategy (Soon et al., 2001), terminology from Lasalle and Denis (2013),
+                  // for "best first" need to keep track of all relations with scores and only keep the highest
+                  break;
+                }
+                if(scores.get(predictedCategory) > maxScore){
+                  maxScore = scores.get(predictedCategory);
+                  maxCluster = cluster;
+                }
               }
             }
           }
-        }
-        if(!this.isTraining() && !greedyFirst && maxCluster != null){
-          // make a link with the max cluster
-          createRelation(jCas, maxCluster, mention, "CoreferenceClusterMember", maxScore);
-        }
-                       
-        // if we got this far and never matched up the markable then add it to list.
-        // do this even during training -- adds non-chain markables to antecedent list which will be seen during testing.
-        if(singleton){
-          // make the markable it's own cluster:
-          CollectionTextRelation chain = new CollectionTextRelation(jCas);
-          chain.setCategory("Identity");
-          NonEmptyFSList list = new NonEmptyFSList(jCas);
-          list.setHead(mention);
-          list.setTail(new EmptyFSList(jCas));
-          chain.setMembers(list);
-          chain.addToIndexes();
-          list.addToIndexes();
-          list.getTail().addToIndexes();
+          if(!this.isTraining() && !greedyFirst && maxCluster != null){
+            // make a link with the max cluster
+            createRelation(jCas, maxCluster, mention, "CoreferenceClusterMember", maxScore);
+          }
+
+          // if we got this far and never matched up the markable then add it to list.
+          // do this even during training -- adds non-chain markables to antecedent list which will be seen during testing.
+          if(singleton){
+            // make the markable it's own cluster:
+            CollectionTextRelation chain = new CollectionTextRelation(jCas);
+            chain.setCategory("Identity");
+            NonEmptyFSList list = new NonEmptyFSList(jCas);
+            list.setHead(mention);
+            list.setTail(new EmptyFSList(jCas));
+            chain.setMembers(list);
+            chain.addToIndexes();
+            list.addToIndexes();
+            list.getTail().addToIndexes();
+          }
         }
       }
+
+      removeSingletonClusters(jCas);
+
+      createEventClusters(jCas);
     }
-    
-    removeSingletonClusters(jCas);
-    
-    createEventClusters(jCas);
   }
   
  

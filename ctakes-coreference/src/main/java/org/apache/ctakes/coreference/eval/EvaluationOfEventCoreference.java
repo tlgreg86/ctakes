@@ -1,48 +1,82 @@
 package org.apache.ctakes.coreference.eval;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
-import org.apache.ctakes.assertion.medfacts.cleartk.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.ctakes.assertion.medfacts.cleartk.GenericCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.HistoryCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.SubjectCleartkAnalysisEngine;
+import org.apache.ctakes.assertion.medfacts.cleartk.UncertaintyCleartkAnalysisEngine;
 import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.ListFactory;
-import org.apache.ctakes.coreference.ae.*;
+import org.apache.ctakes.coreference.ae.CoreferenceChainScoringOutput;
+import org.apache.ctakes.coreference.ae.DeterministicMarkableAnnotator;
+import org.apache.ctakes.coreference.ae.EventCoreferenceAnnotator;
+import org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator;
+import org.apache.ctakes.coreference.ae.MarkableSalienceAnnotator;
+import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator;
+import org.apache.ctakes.coreference.ae.MentionClusterRankingCoreferenceAnnotator;
+import org.apache.ctakes.coreference.ae.PersonChainAnnotator;
 import org.apache.ctakes.coreference.factory.CoreferenceAnnotatorFactory;
+import org.apache.ctakes.coreference.flow.CoreferenceFlowController;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.ae.BackwardsTimeAnnotator;
 import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
+import org.apache.ctakes.temporal.ae.ThymePatientViewAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase;
+import org.apache.ctakes.temporal.utils.PatientViewsUtil;
 import org.apache.ctakes.typesystem.type.constants.CONST;
-import org.apache.ctakes.typesystem.type.relation.*;
+import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
+import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
+import org.apache.ctakes.typesystem.type.relation.CoreferenceRelation;
+import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
+import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.syntax.WordToken;
-import org.apache.ctakes.typesystem.type.textsem.*;
+import org.apache.ctakes.typesystem.type.textsem.DiseaseDisorderMention;
+import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.apache.ctakes.typesystem.type.textsem.Markable;
+import org.apache.ctakes.typesystem.type.textsem.ProcedureMention;
+import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
 import org.apache.ctakes.typesystem.type.textspan.Paragraph;
 import org.apache.ctakes.utils.distsem.WordEmbeddings;
 import org.apache.ctakes.utils.distsem.WordVector;
 import org.apache.ctakes.utils.distsem.WordVectorReader;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.analysis_engine.metadata.FixedFlow;
-import org.apache.uima.analysis_engine.metadata.FlowConstraints;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.NoOpAnnotator;
 import org.apache.uima.fit.component.ViewCreatorAnnotator;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AggregateBuilder;
@@ -51,7 +85,7 @@ import org.apache.uima.fit.factory.FlowControllerFactory;
 import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
-import org.apache.uima.flow.*;
+import org.apache.uima.flow.FlowControllerDescription;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.FSList;
@@ -63,6 +97,8 @@ import org.apache.uima.util.CasCopier;
 import org.apache.uima.util.FileUtils;
 import org.cleartk.eval.AnnotationStatistics;
 import org.cleartk.ml.CleartkAnnotator;
+import org.cleartk.ml.CleartkProcessingException;
+import org.cleartk.ml.Instance;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.JarClassifierBuilder;
@@ -71,13 +107,14 @@ import org.cleartk.ml.svmlight.rank.SvmLightRankDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
 import org.cleartk.util.ViewUriUtil;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+
+import de.bwaldvogel.liblinear.FeatureNode;
 
 public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_ImplBase {
  
@@ -117,9 +154,9 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
   private static final int NUM_SAMPLES = 0;
   private static final double DROPOUT_RATE = 0.1;
   
-  protected static ParameterSettings pairwiseParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, COREF_PAIRS_DOWNSAMPLE, "tk",
+  protected static ParameterSettings pairwiseParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, COREF_PAIRS_DOWNSAMPLE, "linear",
       1.0, 1.0, "linear", ComboOperator.SUM, 0.1, 0.5);
-  protected static ParameterSettings clusterParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, COREF_CLUSTER_DOWNSAMPLE, "tk",
+  protected static ParameterSettings clusterParams = new ParameterSettings(DEFAULT_BOTH_DIRECTIONS, COREF_CLUSTER_DOWNSAMPLE, "linear",
       1.0, 1.0, "linear", ComboOperator.SUM, 0.1, 0.5);
   
   private static String goldOut = "";
@@ -176,13 +213,12 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     if(options.getUseExternalScorer() && !options.getSkipTest()){
       Pattern patt = Pattern.compile("(?:Coreference|BLANC): Recall: \\([^\\)]*\\) (\\S+)%.*Precision: \\([^\\)]*\\) (\\S+)%.*F1: (\\S+)%");
       Runtime runtime = Runtime.getRuntime();
-      Process p = runtime.exec(new String[]{
-          "perl",
-          options.getScorerPath(),
-          "all",
-          options.getOutputDirectory() + goldOut,
-          options.getOutputDirectory() + systemOut,
-          "none"});
+      String cmd = String.format("perl %s all %s %s none", 
+          options.getScorerPath(), 
+          options.getOutputDirectory() + File.separator + goldOut, 
+          options.getOutputDirectory() + File.separator + systemOut);
+      System.out.println("Running official scoring tool with command: " + cmd);
+      Process p = runtime.exec(cmd.split(" "));
       BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
       String line, metric=null;
       System.out.println(String.format("%10s%7s%7s%7s", "Metric", "Rec", "Prec", "F1"));
@@ -235,43 +271,69 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     if(skipTrain) return;
     if(this.evalType == EVAL_SYSTEM.BASELINE || this.evalType == EVAL_SYSTEM.PERSON_ONLY) return;
     if(!skipWrite){
-      AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DocumentIDPrinter.class));
-      aggregateBuilder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());
-      aggregateBuilder.add(UncertaintyCleartkAnalysisEngine.createAnnotatorDescription());
-      aggregateBuilder.add(GenericCleartkAnalysisEngine.createAnnotatorDescription());
-      aggregateBuilder.add(HistoryCleartkAnalysisEngine.createAnnotatorDescription());
-      aggregateBuilder.add(SubjectCleartkAnalysisEngine.createAnnotatorDescription());
+//      ExternalResourceDescription depParserExtDesc = ExternalResourceFactory.createExternalResourceDescription(DependencySharedModel.class,
+//          DependencySharedModel.DEFAULT_MODEL_FILE_NAME);
 
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ViewCreatorAnnotator.class, ViewCreatorAnnotator.PARAM_VIEW_NAME, "Baseline"));
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphAnnotator.class));
-//      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphVectorAnnotator.class));
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RelationPropagator.class));
-      aggregateBuilder.add(EventAnnotator.createAnnotatorDescription());
-      aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
-      aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
-      if(this.goldMarkables){
-        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyGoldMarkablesInChains.class));
-      }else{
-        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DeterministicMarkableAnnotator.class));
-        //    aggregateBuilder.add(CopyFromGold.getDescription(/*Markable.class,*/ CoreferenceRelation.class, CollectionTextRelation.class));
-        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemovePersonMarkables.class));
+      // need this mapping for the document-aware coref module to map all gold views to system views during training.
+      AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
+      aggregateBuilder.add("Patient id printer", AnalysisEngineFactory.createEngineDescription(DocumentIDPrinter.class));
+      for(int viewNum = 0; viewNum < MAX_DOC_VIEWS; viewNum++){
+        String viewName = PatientViewsUtil.getViewName(viewNum);
+        String goldViewName = PatientViewsUtil.getGoldViewName(viewNum);
+        String uriViewName = PatientViewsUtil.getUriViewName(viewNum);
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(NewDocSentinelAnnotator.class));
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DocumentIDPrinter.class), CAS.NAME_DEFAULT_SOFA, viewName, "UriView", uriViewName);
+        aggregateBuilder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+        aggregateBuilder.add(UncertaintyCleartkAnalysisEngine.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+        aggregateBuilder.add(GenericCleartkAnalysisEngine.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+        aggregateBuilder.add(HistoryCleartkAnalysisEngine.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+        aggregateBuilder.add(SubjectCleartkAnalysisEngine.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ViewCreatorAnnotator.class, ViewCreatorAnnotator.PARAM_VIEW_NAME, "Baseline"));
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphAnnotator.class), CAS.NAME_DEFAULT_SOFA, viewName);
+        //      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphVectorAnnotator.class));
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RelationPropagator.class), CAS.NAME_DEFAULT_SOFA, viewName);
+        aggregateBuilder.add(EventAnnotator.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+        aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"), CAS.NAME_DEFAULT_SOFA, viewName);
+        aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"), CAS.NAME_DEFAULT_SOFA, viewName);
+        if(this.goldMarkables){
+          aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyGoldMarkablesInChains.class), CAS.NAME_DEFAULT_SOFA, viewName);
+        }else{
+          aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DeterministicMarkableAnnotator.class), CAS.NAME_DEFAULT_SOFA, viewName);
+          //    aggregateBuilder.add(CopyFromGold.getDescription(/*Markable.class,*/ CoreferenceRelation.class, CollectionTextRelation.class));
+          aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemovePersonMarkables.class), CAS.NAME_DEFAULT_SOFA, viewName);
+        }
+        // MarkableHeadTreeCreator creates a cache of mappings from Markables to dependency heads since so many feature extractors use that information
+        // major speedup
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(MarkableHeadTreeCreator.class), CAS.NAME_DEFAULT_SOFA, viewName);
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyCoreferenceRelations.class, CopyCoreferenceRelations.PARAM_GOLD_VIEW, goldViewName),
+            CAS.NAME_DEFAULT_SOFA, viewName);
+        aggregateBuilder.add(MarkableSalienceAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/salience/model.jar"), CAS.NAME_DEFAULT_SOFA, viewName);
+        if(this.evalType == EVAL_SYSTEM.MENTION_PAIR){
+          aggregateBuilder.add(EventCoreferenceAnnotator.createDataWriterDescription(
+              //        TKSVMlightStringOutcomeDataWriter.class,
+              FlushingDataWriter.class,
+              //            LibSvmStringOutcomeDataWriter.class,
+              //            TkLibSvmStringOutcomeDataWriter.class,
+              directory,
+              params.probabilityOfKeepingANegativeExample
+              ), CAS.NAME_DEFAULT_SOFA, viewName);
+        }else if(this.evalType == EVAL_SYSTEM.MENTION_CLUSTER){
+            // Do nothing here but need to catch this case so we can log a warning if it is another type we don't recognize.
+        }else if(this.evalType == EVAL_SYSTEM.CLUSTER_RANK){
+          // TODO
+          aggregateBuilder.add(MentionClusterRankingCoreferenceAnnotator.createDataWriterDescription(
+              SvmLightRankDataWriter.class, 
+              directory, 
+              params.probabilityOfKeepingANegativeExample), CAS.NAME_DEFAULT_SOFA, viewName);
+        }else{
+          logger.warn("Encountered a training configuration taht does not add an annotator: " + this.evalType);
+        }
+        Logger.getLogger(EventCoreferenceAnnotator.class).setLevel(Level.WARN);
       }
-      // MarkableHeadTreeCreator creates a cache of mappings from Markables to dependency heads since so many feature extractors use that information
-      // major speedup
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(MarkableHeadTreeCreator.class));
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyCoreferenceRelations.class, CopyCoreferenceRelations.PARAM_GOLD_VIEW, GOLD_VIEW_NAME));
-      aggregateBuilder.add(MarkableSalienceAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/salience/model.jar"));
-      if(this.evalType == EVAL_SYSTEM.MENTION_PAIR){
-        aggregateBuilder.add(EventCoreferenceAnnotator.createDataWriterDescription(
-            //        TKSVMlightStringOutcomeDataWriter.class,
-                    LibLinearStringOutcomeDataWriter.class,
-//            LibSvmStringOutcomeDataWriter.class,
-//            TkLibSvmStringOutcomeDataWriter.class,
-            directory,
-            params.probabilityOfKeepingANegativeExample
-            ));
-      }else if(this.evalType == EVAL_SYSTEM.MENTION_CLUSTER){
+      
+      // If we are using mention-cluster algorithm, it is aware of multiple documents so we only have to call it once.
+      if(this.evalType == EVAL_SYSTEM.MENTION_CLUSTER){
         AnalysisEngineDescription aed = AnalysisEngineFactory.createEngineDescription(
             MentionClusterCoreferenceAnnotator.class,
             CleartkAnnotator.PARAM_IS_TRAINING,
@@ -279,49 +341,39 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
             MentionClusterCoreferenceAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
             params.probabilityOfKeepingANegativeExample,
             DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
-            LibLinearStringOutcomeDataWriter.class,
+            FlushingDataWriter.class,
             DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
             directory);        
         aggregateBuilder.add(aed);
-        for(int i = 0; i < NUM_SAMPLES; i++){
-          // after each iteration, remove the gold chains in the system view and re-copy over gold chains with some variation:
-          aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveAllCoreferenceAnnotations.class));
-          aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyCoreferenceRelations.class, CopyCoreferenceRelations.PARAM_GOLD_VIEW, GOLD_VIEW_NAME, CopyCoreferenceRelations.PARAM_DROP_ELEMENTS, true));          
-
-          aed = AnalysisEngineFactory.createEngineDescription(
-              MentionClusterCoreferenceAnnotator.class,
-              CleartkAnnotator.PARAM_IS_TRAINING,
-              true,
-              MentionClusterCoreferenceAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
-              params.probabilityOfKeepingANegativeExample,
-              MentionClusterCoreferenceAnnotator.PARAM_USE_EXISTING_ENCODERS,
-              true,
-              DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
-              LibLinearStringOutcomeDataWriter.class,
-              DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
-              directory);
-              
-          aggregateBuilder.add(aed);
-          
-        }
-      }else if(this.evalType == EVAL_SYSTEM.CLUSTER_RANK){
-        // TODO
-        aggregateBuilder.add(MentionClusterRankingCoreferenceAnnotator.createDataWriterDescription(
-            SvmLightRankDataWriter.class, 
-            directory, 
-            params.probabilityOfKeepingANegativeExample));
-      }else{
-        logger.warn("Encountered a training configuration taht does not add an annotator: " + this.evalType);
+        // TODO - this never helped, so not sure it's worth keeping around, but now it is broken by document-aware stuff, so uncommenting for now. 
+//        for(int i = 0; i < NUM_SAMPLES; i++){
+//          // after each iteration, remove the gold chains in the system view and re-copy over gold chains with some variation:
+//          aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemoveAllCoreferenceAnnotations.class), CAS.NAME_DEFAULT_SOFA, viewName);
+//          // FIXME (same way as above TODO)
+//          aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyCoreferenceRelations.class, CopyCoreferenceRelations.PARAM_GOLD_VIEW, goldViewName, CopyCoreferenceRelations.PARAM_DROP_ELEMENTS, true),
+//              CAS.NAME_DEFAULT_SOFA, viewName);          
+//
+//          aed = AnalysisEngineFactory.createEngineDescription(
+//              MentionClusterCoreferenceAnnotator.class,
+//              CleartkAnnotator.PARAM_IS_TRAINING,
+//              true,
+//              MentionClusterCoreferenceAnnotator.PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE,
+//              params.probabilityOfKeepingANegativeExample,
+//              MentionClusterCoreferenceAnnotator.PARAM_USE_EXISTING_ENCODERS,
+//              true,
+//              DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
+//              FlushingDataWriter.class,
+//              DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
+//              directory);
+//
+//          aggregateBuilder.add(aed);
+//        }
       }
-      Logger.getLogger(EventCoreferenceAnnotator.class).setLevel(Level.WARN);
-      // create gold chains for writing out which we can then use for our scoring tool
-      //    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
-      //        CoreferenceChainScoringOutput.PARAM_OUTPUT_DIR,
-      //        this.outputDirectory + "train"));
-      FlowControllerDescription corefFlowControl = FlowControllerFactory.createFlowControllerDescription(CorefEvalFlowController.class);
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(EndDocsSentinelAnnotator.class));
+      FlowControllerDescription corefFlowControl = FlowControllerFactory.createFlowControllerDescription(CoreferenceFlowController.class);
       aggregateBuilder.setFlowControllerDescription(corefFlowControl);
-
-      SimplePipeline.runPipeline(collectionReader, aggregateBuilder.createAggregate());
+      AnalysisEngineDescription aed = aggregateBuilder.createAggregateDescription();
+      SimplePipeline.runPipeline(collectionReader, AnalysisEngineFactory.createEngine(aed));
     }
     String[] optArray;
 
@@ -350,58 +402,97 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
   protected AnnotationStatistics<String> test(
       CollectionReader collectionReader, File directory) throws Exception {
     AnnotationStatistics<String> corefStats = new AnnotationStatistics<>();
+    AnnotationStatistics<String> mentionStats = new AnnotationStatistics<>();
+    
     if(this.skipTest){
       logger.info("Skipping test");
       return corefStats;
     }
     AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
-    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DocumentIDPrinter.class));
-    aggregateBuilder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());
-    aggregateBuilder.add(UncertaintyCleartkAnalysisEngine.createAnnotatorDescription());
-    aggregateBuilder.add(GenericCleartkAnalysisEngine.createAnnotatorDescription());
-    aggregateBuilder.add(HistoryCleartkAnalysisEngine.createAnnotatorDescription());
-    aggregateBuilder.add(SubjectCleartkAnalysisEngine.createAnnotatorDescription());
-    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphAnnotator.class));
-//    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphVectorAnnotator.class));
-    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RelationPropagator.class));
-    aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
-    aggregateBuilder.add(EventAnnotator.createAnnotatorDescription());
-    aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
-    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
-          ConfigParameterConstants.PARAM_OUTPUTDIR,
-        this.outputDirectory + goldOut,
-        CoreferenceChainScoringOutput.PARAM_GOLD_VIEW_NAME,
-        GOLD_VIEW_NAME));
-    if(this.goldMarkables){
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyGoldMarkablesInChains.class)); //CopyFromGold.getDescription(Markable.class));
-    }else{
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DeterministicMarkableAnnotator.class));
-      //    aggregateBuilder.add(CopyFromGold.getDescription(/*Markable.class,*/ CoreferenceRelation.class, CollectionTextRelation.class));
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemovePersonMarkables.class));
+    aggregateBuilder.add("Patient id printer", AnalysisEngineFactory.createEngineDescription(DocumentIDPrinter.class));
+    for(int viewNum = 0; viewNum < MAX_DOC_VIEWS; viewNum++){
+//      AggregateBuilder singleNoteBuilder = new AggregateBuilder();
+      String viewName = PatientViewsUtil.getViewName(viewNum);
+      String goldViewName = PatientViewsUtil.getGoldViewName(viewNum);
+      String uriViewName = PatientViewsUtil.getUriViewName(viewNum);
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(NewDocSentinelAnnotator.class));
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DocumentIDPrinter.class), CAS.NAME_DEFAULT_SOFA, viewName, "UriView", uriViewName);
+      aggregateBuilder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+      aggregateBuilder.add(UncertaintyCleartkAnalysisEngine.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+      aggregateBuilder.add(GenericCleartkAnalysisEngine.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+      aggregateBuilder.add(HistoryCleartkAnalysisEngine.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+      aggregateBuilder.add(SubjectCleartkAnalysisEngine.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphAnnotator.class), CAS.NAME_DEFAULT_SOFA, viewName);
+      //    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphVectorAnnotator.class));
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RelationPropagator.class), CAS.NAME_DEFAULT_SOFA, viewName);
+      aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"), CAS.NAME_DEFAULT_SOFA, viewName);
+      aggregateBuilder.add(EventAnnotator.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+      aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"), CAS.NAME_DEFAULT_SOFA, viewName);
+//      singleNoteBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
+//          ConfigParameterConstants.PARAM_OUTPUTDIR,
+//          this.outputDirectory + File.separator + goldOut,
+//          CoreferenceChainScoringOutput.PARAM_GOLD_VIEW_NAME,
+//          goldViewName),
+//          CAS.NAME_DEFAULT_SOFA,
+//          viewName);
+      if(this.goldMarkables){
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyGoldMarkablesInChains.class),
+            CAS.NAME_DEFAULT_SOFA,
+            viewName,
+            GOLD_VIEW_NAME,
+            goldViewName); //CopyFromGold.getDescription(Markable.class));
+      }else{
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DeterministicMarkableAnnotator.class), CAS.NAME_DEFAULT_SOFA, viewName);
+        //    aggregateBuilder.add(CopyFromGold.getDescription(/*Markable.class,*/ CoreferenceRelation.class, CollectionTextRelation.class));
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemovePersonMarkables.class), CAS.NAME_DEFAULT_SOFA, viewName);
+      }
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(MarkableHeadTreeCreator.class), CAS.NAME_DEFAULT_SOFA, viewName);
+      aggregateBuilder.add(MarkableSalienceAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/salience/model.jar"), CAS.NAME_DEFAULT_SOFA, viewName);
+      if(this.evalType == EVAL_SYSTEM.MENTION_PAIR){
+        aggregateBuilder.add(EventCoreferenceAnnotator.createAnnotatorDescription(directory.getAbsolutePath() + File.separator + "model.jar"), CAS.NAME_DEFAULT_SOFA, viewName);
+      }else if(this.evalType == EVAL_SYSTEM.MENTION_CLUSTER){
+        // Do nothing but we still need this here so the else clause works right
+//        singleNoteBuilder.add(MentionClusterCoreferenceAnnotator.createAnnotatorDescription(directory.getAbsolutePath() + File.separator + "model.jar"), CAS.NAME_DEFAULT_SOFA, viewName);
+      }else if(this.evalType == EVAL_SYSTEM.CLUSTER_RANK){
+        aggregateBuilder.add(MentionClusterRankingCoreferenceAnnotator.createAnnotatorDescription(directory.getAbsolutePath() + File.separator + "model.jar"), CAS.NAME_DEFAULT_SOFA, viewName);
+      }else if(this.evalType == EVAL_SYSTEM.BASELINE){
+        aggregateBuilder.add(CoreferenceAnnotatorFactory.getLegacyCoreferencePipeline(), CAS.NAME_DEFAULT_SOFA, viewName);
+      }else{
+        logger.info("Running an evaluation that does not add an annotator: " + this.evalType);
+      }
+      //    aggregateBuilder.add(CoreferenceChainAnnotator.createAnnotatorDescription());
+      if(!this.goldMarkables){
+        aggregateBuilder.add(PersonChainAnnotator.createAnnotatorDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+      }
+//      singleNoteBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
+//          ConfigParameterConstants.PARAM_OUTPUTDIR,
+//          this.outputDirectory + File.separator + systemOut), CAS.NAME_DEFAULT_SOFA, viewName);
+      
+//      aggregateBuilder.add(singleNoteBuilder.createAggregateDescription());
     }
-    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(MarkableHeadTreeCreator.class));
-    aggregateBuilder.add(MarkableSalienceAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/salience/model.jar"));
-    if(this.evalType == EVAL_SYSTEM.MENTION_PAIR){
-      aggregateBuilder.add(EventCoreferenceAnnotator.createAnnotatorDescription(directory.getAbsolutePath() + File.separator + "model.jar"));
-    }else if(this.evalType == EVAL_SYSTEM.MENTION_CLUSTER){
-//      aggregateBuilder.add(EventCoreferenceAnnotator.createScoringAnnotatorDescription("/org/apache/ctakes/coreference/mention-pair" + File.separator + "model.jar"));
-      aggregateBuilder.add(MentionClusterCoreferenceAnnotator.createAnnotatorDescription(directory.getAbsolutePath() + File.separator + "model.jar"));
-    }else if(this.evalType == EVAL_SYSTEM.CLUSTER_RANK){
-      aggregateBuilder.add(MentionClusterRankingCoreferenceAnnotator.createAnnotatorDescription(directory.getAbsolutePath() + File.separator + "model.jar"));
-    }else if(this.evalType == EVAL_SYSTEM.BASELINE){
-      aggregateBuilder.add(CoreferenceAnnotatorFactory.getLegacyCoreferencePipeline());
-    }else{
-      logger.info("Running an evaluation that does not add an annotator: " + this.evalType);
-    }
-//    aggregateBuilder.add(CoreferenceChainAnnotator.createAnnotatorDescription());
-    if(!this.goldMarkables){
-      aggregateBuilder.add(PersonChainAnnotator.createAnnotatorDescription());
-    }
-    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
-        ConfigParameterConstants.PARAM_OUTPUTDIR,
-        this.outputDirectory + systemOut));
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(EndDocsSentinelAnnotator.class));
+    
+    aggregateBuilder.add(MentionClusterCoreferenceAnnotator.createAnnotatorDescription(directory.getAbsolutePath() + File.separator + "model.jar"));
 
-    FlowControllerDescription corefFlowControl = FlowControllerFactory.createFlowControllerDescription(CorefEvalFlowController.class);
+    for(int viewNum = 0; viewNum < MAX_DOC_VIEWS; viewNum++){
+      String viewName = PatientViewsUtil.getViewName(viewNum);
+      String goldViewName = PatientViewsUtil.getGoldViewName(viewNum);
+
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(NewDocSentinelAnnotator.class));
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
+          ConfigParameterConstants.PARAM_OUTPUTDIR,
+          this.outputDirectory + File.separator + goldOut,
+          CoreferenceChainScoringOutput.PARAM_GOLD_VIEW_NAME,
+          goldViewName),
+          CAS.NAME_DEFAULT_SOFA,
+          viewName);
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
+          ConfigParameterConstants.PARAM_OUTPUTDIR,
+          this.outputDirectory + File.separator + systemOut), CAS.NAME_DEFAULT_SOFA, viewName);
+    }
+    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(EndDocsSentinelAnnotator.class));
+
+    FlowControllerDescription corefFlowControl = FlowControllerFactory.createFlowControllerDescription(CoreferenceFlowController.class);
     aggregateBuilder.setFlowControllerDescription(corefFlowControl);
 //    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(XMIWriter.class));
     Function<CoreferenceRelation, ?> getSpan = new Function<CoreferenceRelation, HashableArguments>() {
@@ -416,49 +507,103 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     };
      
 
-    for(Iterator<JCas> casIter =new JCasIterator(collectionReader, aggregateBuilder.createAggregate()); casIter.hasNext();){
+    for(Iterator<JCas> casIter = new JCasIterator(collectionReader, aggregateBuilder.createAggregate()); casIter.hasNext();){
       JCas jCas = casIter.next();
-      JCas goldView = jCas.getView(GOLD_VIEW_NAME);
-      JCas systemView = jCas.getView(CAS.NAME_DEFAULT_SOFA);
-      Collection<CoreferenceRelation> goldRelations = JCasUtil.select(
-          goldView,
-          CoreferenceRelation.class);
-      Collection<CoreferenceRelation> systemRelations = JCasUtil.select(
-          systemView,
-          CoreferenceRelation.class);
-      corefStats.add(goldRelations, systemRelations, getSpan, getOutcome);
-      if(this.printErrors){
-        Map<HashableArguments, BinaryTextRelation> goldMap = Maps.newHashMap();
-        for (BinaryTextRelation relation : goldRelations) {
-          goldMap.put(new HashableArguments(relation), relation);
-        }
-        Map<HashableArguments, BinaryTextRelation> systemMap = Maps.newHashMap();
-        for (BinaryTextRelation relation : systemRelations) {
-          systemMap.put(new HashableArguments(relation), relation);
-        }
-        Set<HashableArguments> all = Sets.union(goldMap.keySet(), systemMap.keySet());
-        List<HashableArguments> sorted = Lists.newArrayList(all);
-        Collections.sort(sorted);
-        for (HashableArguments key : sorted) {
-          BinaryTextRelation goldRelation = goldMap.get(key);
-          BinaryTextRelation systemRelation = systemMap.get(key);
-          if (goldRelation == null) {
-            System.out.println("System added: " + formatRelation(systemRelation));
-          } else if (systemRelation == null) {
-            System.out.println("System dropped: " + formatRelation(goldRelation));
-          } else if (!systemRelation.getCategory().equals(goldRelation.getCategory())) {
-            String label = systemRelation.getCategory();
-            System.out.printf("System labeled %s for %s\n", label, formatRelation(goldRelation));
-          } else{
-            System.out.println("Nailed it! " + formatRelation(systemRelation));
+      int numDocs = Integer.valueOf(jCas.getView(PatientViewsUtil.NUM_DOCS_NAME).getDocumentText());
+      for(int viewNum = 0; viewNum < numDocs; viewNum++){
+        JCas goldView = jCas.getView(PatientViewsUtil.getGoldViewName(viewNum));
+        JCas systemView = jCas.getView(PatientViewsUtil.getViewName(viewNum));
+        Collection<CoreferenceRelation> goldRelations = JCasUtil.select(
+            goldView,
+            CoreferenceRelation.class);
+        Collection<CoreferenceRelation> systemRelations = JCasUtil.select(
+            systemView,
+            CoreferenceRelation.class);
+        corefStats.add(goldRelations, systemRelations, getSpan, getOutcome);
+        mentionStats.add(JCasUtil.select(goldView,  Markable.class), JCasUtil.select(systemView, Markable.class));
+
+        if(this.printErrors){
+          Map<HashableArguments, BinaryTextRelation> goldMap = Maps.newHashMap();
+          for (BinaryTextRelation relation : goldRelations) {
+            goldMap.put(new HashableArguments(relation), relation);
+          }
+          Map<HashableArguments, BinaryTextRelation> systemMap = Maps.newHashMap();
+          for (BinaryTextRelation relation : systemRelations) {
+            systemMap.put(new HashableArguments(relation), relation);
+          }
+          Set<HashableArguments> all = Sets.union(goldMap.keySet(), systemMap.keySet());
+          List<HashableArguments> sorted = Lists.newArrayList(all);
+          Collections.sort(sorted);
+          for (HashableArguments key : sorted) {
+            BinaryTextRelation goldRelation = goldMap.get(key);
+            BinaryTextRelation systemRelation = systemMap.get(key);
+            if (goldRelation == null) {
+              System.out.println("System added: " + formatRelation(systemRelation));
+            } else if (systemRelation == null) {
+              System.out.println("System dropped: " + formatRelation(goldRelation));
+            } else if (!systemRelation.getCategory().equals(goldRelation.getCategory())) {
+              String label = systemRelation.getCategory();
+              System.out.printf("System labeled %s for %s\n", label, formatRelation(goldRelation));
+            } else{
+              System.out.println("Nailed it! " + formatRelation(systemRelation));
+            }
           }
         }
       }
     }
-
+    System.out.println(String.format("P=%f, R=%f, F=%f", mentionStats.precision(), mentionStats.recall(), mentionStats.f1()));
     return corefStats;
   }
   
+  protected AggregateBuilder getXMIWritingPreprocessorAggregateBuilder()
+      throws Exception {
+    
+    AggregateBuilder preprocess = new AggregateBuilder();
+    
+    // create URI views for each note:
+    preprocess.add(AnalysisEngineFactory.createEngineDescription( ThymePatientViewAnnotator.class));
+    
+    // Then run the preprocessing engine on all views
+    for(int i = 0; i < MAX_DOC_VIEWS; i++){
+      String uriName = PatientViewsUtil.getUriViewName(i);
+      String viewName = PatientViewsUtil.getViewName(i);
+      String goldViewName = PatientViewsUtil.getGoldViewName(i);
+      preprocess.add(AnalysisEngineFactory.createEngineDescription(NewDocSentinelAnnotator.class));
+      preprocess.add(AnalysisEngineFactory.createEngineDescription( UriToDocumentTextAnnotatorCtakes.class), CAS.NAME_DEFAULT_SOFA, viewName, ViewUriUtil.URI, uriName);
+      preprocess.add(getLinguisticProcessingDescription(), CAS.NAME_DEFAULT_SOFA, viewName);
+      // Mapping explanation: Grab the text from the specific document URI and write to the gold view for this document
+      preprocess.add(getGoldWritingAggregate(goldViewName), GOLD_VIEW_NAME, goldViewName, ViewUriUtil.URI, uriName, CAS.NAME_DEFAULT_SOFA, viewName);
+    }
+    
+    preprocess.add(AnalysisEngineFactory.createEngineDescription(EndDocsSentinelAnnotator.class));
+    
+    // write out the CAS after all the above annotations
+    preprocess.add( AnalysisEngineFactory.createEngineDescription(
+        XMIWriter.class,
+        XMIWriter.PARAM_XMI_DIRECTORY,
+        this.xmiDirectory ) );
+
+    preprocess.setFlowControllerDescription(FlowControllerFactory.createFlowControllerDescription(CoreferenceFlowController.class));
+    return preprocess;
+  }
+  
+  protected AggregateBuilder getXMIReadingPreprocessorAggregateBuilder() throws UIMAException {
+    AggregateBuilder aggregateBuilder = new AggregateBuilder();
+    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
+        XMIReader.class,
+        XMIReader.PARAM_XMI_DIRECTORY,
+        this.xmiDirectory ) );
+    return aggregateBuilder;
+  }
+
+  public static class NewDocSentinelAnnotator extends NoOpAnnotator {
+    // Purposefully empty; doesn't do anything
+  }
+  
+  public static class EndDocsSentinelAnnotator extends NoOpAnnotator {
+    // Purposefully empty; doesn't do anything
+  }
+
   public static class AnnotationComparator implements Comparator<Annotation> {
 
     @Override
@@ -481,7 +626,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
       String docId = DocumentIDAnnotationUtil.getDocumentID(jCas);
-      if(docId == DocumentIDAnnotationUtil.NO_DOCUMENT_ID){
+      if(docId.startsWith(DocumentIDAnnotationUtil.NO_DOCUMENT_ID)){
         docId = new File(ViewUriUtil.getURI(jCas)).getName();
       }
       logger.info(String.format("Processing %s\n", docId));
@@ -676,7 +821,8 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         dependencies = { PipeBitInfo.TypeProduct.MARKABLE, PipeBitInfo.TypeProduct.COREFERENCE_RELATION }
   )
   public static class CopyCoreferenceRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
-
+    // TODO - make document aware for mention-cluster coreference? Not as easy as relation remover because this should work for
+    // non-document-aware annotators.
     public static final String PARAM_GOLD_VIEW = "GoldViewName";
     @ConfigurationParameter(name=PARAM_GOLD_VIEW, mandatory=true, description="View containing gold standard annotations")
     private String goldViewName;
@@ -822,6 +968,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
   }
   
   public static class RemoveAllCoreferenceAnnotations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+    // TODO - make document aware so it can run with mention-cluster as intended
     @Override
     public void process(JCas jcas) throws AnalysisEngineProcessException {
       List<CollectionTextRelation> chains = new ArrayList<>(JCasUtil.select(jcas, CollectionTextRelation.class));
@@ -879,71 +1026,30 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     } 
   }
   
-  /* This flow control section borrows from the UIMA implementation of FixedFlowController
-   * and its internal Flow object. Simple change to check if there are any gold
-   * coref annotations inside the cas, and if not skip out so we don't waste
-   * time running coref code on those (since we're not going to print out the answers
-   * anyways)
-   */
-  public static class CorefEvalFlowController extends org.apache.uima.flow.JCasFlowController_ImplBase {
-    List<String> mSequence;
+  public static class FlushingDataWriter extends LibLinearStringOutcomeDataWriter {
 
-    
-    @Override
-    public void initialize(FlowControllerContext context)
-        throws ResourceInitializationException {
-      super.initialize(context);
-      
-      FlowConstraints flowConstraints = context.getAggregateMetadata().getFlowConstraints();
-      mSequence = new ArrayList<>();
-      if (flowConstraints instanceof FixedFlow) {
-        String[] sequence = ((FixedFlow) flowConstraints).getFixedFlow();
-        mSequence.addAll(Arrays.asList(sequence));
-      } else {
-        throw new ResourceInitializationException(ResourceInitializationException.FLOW_CONTROLLER_REQUIRES_FLOW_CONSTRAINTS,
-                new Object[]{this.getClass().getName(), "fixedFlow", context.getAggregateMetadata().getSourceUrlString()});
-      }
-    }
-
-    @Override
-    public Flow computeFlow(JCas jcas) throws AnalysisEngineProcessException {
-      return new CorefEvalFlow(jcas, 0);
+    public FlushingDataWriter(File outputDirectory)
+        throws FileNotFoundException {
+      super(outputDirectory);
     }
     
-    class CorefEvalFlow extends JCasFlow_ImplBase {
-
-      private JCas jcas;
-      private int currentStep;
-
-      public CorefEvalFlow(JCas jcas, int step){
-        this.jcas = jcas;
-        this.currentStep = step;
-      }
-
-      @Override
-      public Step next() {
-        // if we are past the last annotator finish
-        if (currentStep >= mSequence.size()) {
-          return new FinalStep();
-        }
-
-        // if we have gold standard relations, continue
-        if(currentStep > 0 && mSequence.get(currentStep-1).equals(DocumentIDPrinter.class.getName())){
-          JCas goldView;
-          try {
-            goldView = jcas.getView(GOLD_VIEW_NAME);
-            if(JCasUtil.select(goldView, CoreferenceRelation.class).size() == 0){
-              System.out.println("Skipping this document with no coreference relations.");
-              return new FinalStep();
-            }
-          } catch (CASException e) {
-            // no need to stop flow -- just go ahead to default simple step.
-            e.printStackTrace();
-          }
-        }
-        
-        // otherwise finish
-        return new SimpleStep(mSequence.get(currentStep++));
+    @Override
+    protected void writeEncoded(FeatureNode[] features, Integer outcome)
+        throws CleartkProcessingException {
+      //        this.trainingDataWriter.println("# Writing instance:");
+      super.writeEncoded(features, outcome);
+      //        this.trainingDataWriter.println("# Instance written");
+      this.trainingDataWriter.flush();
+    }
+    
+    @Override
+    public void write(Instance<String> instance)
+        throws CleartkProcessingException {
+      if(instance.getOutcome().startsWith("#DEBUG")){
+        this.trainingDataWriter.println(instance.getOutcome());
+        this.trainingDataWriter.flush();
+      }else{
+        super.write(instance);
       }
     }
   }
