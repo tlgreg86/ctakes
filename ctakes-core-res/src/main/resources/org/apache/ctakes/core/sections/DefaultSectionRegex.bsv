@@ -1,9 +1,8 @@
-Physical Examination||^[\t ]*PHYSICAL EXAMINATION[\t ]*:?[\t ]*$
 History of Present Illness||^[\t ]*(?:HISTORY OF (?:THE )?(?:PRESENT |PHYSICAL )?ILLNESS)(?: \(HPI(?:, PROBLEM BY PROBLEM)?\))?[\t ]*:?[\t ]*$
 Past Medical History||^[\t ]*(?:(?:HISTORY OF (?:THE )?PAST ILLNESS)|(?:PAST MEDICAL HISTORY))[\t ]*:?[\t ]*$
 Chief Complaint||^[\t ]*(?:CHIEF|PRIMARY) COMPLAINTS?[\t ]*:?[\t ]*$
 Personal and Social History||^[\t ]*(?:(?:PERSONAL (?:(?:AND )?SOCIAL )?HISTORY)|(?:(?:PSYCHO)?SOC(?:IAL)? HISTORY)|(?:HISTORY (?:OF )(?:OTHER )?SOCIAL (?:FUNCTIONs?|FACTORS?))|(?:PSO)|(?:P?SHX))[\t ]*:?[\t ]*$
-Review of Systems||^[\t ]*REVIEW OF SYSTEMS?[\t ]*:?[\t ]*$
+Review of Systems||^[\t ]*[\w]* ?(?:(?:REVIEW (?:OF )?SYSTEMS?)|(?:SYSTEMS? REVIEW)|(?:ROS))[\t ]*:?[\t ]*$
 Family Medical History||^[\t ]*(?:FAMILY (?:MEDICAL )?HISTORY)|(?:HISTORY (?:OF )?FAMILY MEMBER DISEASES?)|(?:FAM HX)|FH|FMH|FMHX|FHX[\t ]*:?[\t ]*$
 Medications||^[\t ]*(?:CURRENT )?MEDICATIONS?[\t ]*:?[\t ]*$
 Allergies||^[\t ]*ALLERGIES[\t ]*:?[\t ]*$
@@ -29,7 +28,6 @@ Body Surface Area||^[\t ]*(?:(?:BODY SURFACE AREA)|BSA)[\t ]*:?[\t ]*$
 Discharge Condition||^[\t ]*(?:(?:DISCHARGE CONDITION)|(?:CONDITION (?:(?:AT|ON) )?DISCHARGE))[\t ]*:?[\t ]*$
 Diagnosis at Death||^[\t ]*(?:(?:DIAGNOSIS|DX|CAUSE) (?:AT |OF )?DEATH)|COD[\t ]*:?[\t ]*$
 Adverse Reactions||^[\t ]*(?:HISTORY (?:OF )?)?(?:(?:ALLERG(?:Y|IES)(?:(?:\/| AND )?ADVERSE REACTIONS?)?)|(?:ADVERSE REACTIONS?(?:(?:\/| AND )?ALLERG(?:Y|IES)?)?))( DISORDERS?)?(?: HISTORY)?[\t ]*:?[\t ]*$
-Review of Systems||^[\t ]*[\w]* ?(?:(?:REVIEW (?:OF )?SYSTEMS?)|(?:SYSTEMS? REVIEW)|(?:ROS))[\t ]*:?[\t ]*$
 Emergency Department Course||^[\t ]*(?:EMERGENCY|ED) (?:DEPARTMENT|ROOM) (?:COURSE|MANAGEMENT)[\t ]*:?[\t ]*$
 Consultation Attending||^[\t ]*CONSULTATION ATTENDING[\t ]*:?[\t ]*$
 Body Length||^[\t ]*(?:BODY )?LENGTH[\t ]*:?[\t ]*$
@@ -49,7 +47,7 @@ Current Pregnancy||^[\t ]*CURRENT PREGNANCY[\t ]*:?[\t ]*$
 Special Procedures||^[\t ]*SPECIAL PROCEDURES?[\t ]*:?[\t ]*$
 Operative Findings||^[\t ]*OPERATIVE FINDINGS?[\t ]*:?[\t ]*$
 Fluid Balance||^[\t ]*(?:FLUID BALANCE)|(?:I(?:NPUT)? ?\/? ?O(?:UTPUT)?)[\t ]*:?[\t ]*$
-Blood Pressure||^[\t ]*BLOOD PRESSURE|BP[\t ]*:?[\t ]*$
+Blood Pressure||^[\t ]*(?:BLOOD PRESSURE|BP)[\t ]*:?[\t ]*$
 Post Procedure Diagnosis||^[\t ]*POST\-?(?:PROCEDURE|OP|OPERATIVE) DIAGNOSIS[\t ]*:?[\t ]*$
 Cancer Risk Factors||^[\t ]*CANCER RISK FACTORS?[\t ]*:?[\t ]*$
 Invasive Diagnostic Procedure History||^[\t ]*INVASIVE DIAGNOSTIC PROCEDURE HISTORY[\t ]*:?[\t ]*$
@@ -72,6 +70,9 @@ Maximum Temperature||^[\t ]*MAX(?:IMUM)? TEMP(?:ERATURE)?[\t ]*:?[\t ]*$
 Smoking Use||^[\t ]*(?:SMOKING|CIGAR(?:ETTE)?)(?: USE)?[\t ]*:?[\t ]*$
 Admission Condition||^[\t ]*(?:(?:CONDITION(?:ON |AT )? ADMISSION)|(?:ADMISSION CONDITION))[\t ]*:?[\t ]*$
 
-
-
-
+// The following are incomplete
+Other Systems Reviewed||^[\t ]*OTHER SYSTEMS REVIEWED[\t ]*:?[\t ]*$
+Objective||^[\t ]*OBJECTIVE[\t ]*:?[\t ]*$
+Impression||^[\t ]*IMPRESSION[\t ]*:?[\t ]*$
+Diagnoses||^[\t ]*DIAGNOSES[\t ]*:?[\t ]*$
+Plan||^[\t ]*PLAN[\t ]*:?[\t ]*$
