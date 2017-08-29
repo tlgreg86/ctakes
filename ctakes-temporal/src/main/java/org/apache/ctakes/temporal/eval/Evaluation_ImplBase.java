@@ -18,9 +18,41 @@
  */
 package org.apache.ctakes.temporal.eval;
 
-import com.google.common.collect.Lists;
-import com.google.common.io.CharStreams;
-import com.lexicalscope.jewel.cli.Option;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.ctakes.chunker.ae.Chunker;
 import org.apache.ctakes.chunker.ae.DefaultChunkCreator;
 import org.apache.ctakes.chunker.ae.adjuster.ChunkAdjuster;
@@ -41,6 +73,7 @@ import org.apache.ctakes.temporal.ae.THYMEAnaforaXMLReader;
 import org.apache.ctakes.temporal.ae.THYMEKnowtatorXMLReader;
 import org.apache.ctakes.temporal.ae.THYMETreebankReader;
 import org.apache.ctakes.temporal.duration.Utils;
+import org.apache.ctakes.temporal.utils.PatientViewsUtil;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -91,19 +124,9 @@ import org.w3c.dom.Element;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.common.collect.Lists;
+import com.google.common.io.CharStreams;
+import com.lexicalscope.jewel.cli.Option;
 
 //import org.apache.ctakes.core.cleartk.ae.SentenceDetectorAnnotator;
 //import org.threeten.bp.temporal.TemporalUnit;
@@ -122,8 +145,10 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 	public static final String GOLD_VIEW_NAME = "GoldView";
 
 	public static final String PROB_VIEW_NAME = "ProbView";
+	
+	public static final int MAX_DOC_VIEWS = 3;
 
-	public enum XMLFormat {Knowtator, Anafora, I2B2}
+	public enum XMLFormat {Knowtator, Anafora, I2B2, AnaforaCoref}
 
 	public enum Subcorpus {Colon, Brain, DeepPhe}
 
@@ -346,6 +371,22 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 					}
 				}
 			}
+		} else if ( this.xmlFormat == XMLFormat.AnaforaCoref){
+      Set<String> ids = new HashSet<>();
+      for ( Integer set : patientSets ) {
+        if ( this.subcorpus == Subcorpus.Colon ) {
+          ids.add( String.format( "ID%03d", set ) );
+        } else {
+          LOGGER.warn("No coreference annotations exist for this corpus!");
+        }
+      }
+      for(File dir : this.xmlDirectory.listFiles() ){
+        if(dir.isDirectory()){
+          if(ids.contains(dir.getName())){
+            files.add(dir);
+          }
+        }
+      }
 		} else if ( this.xmlFormat == XMLFormat.I2B2 ) {
 			File trainDir = new File( this.xmlDirectory, "training" );
 			File testDir = new File( this.xmlDirectory, "test" );
@@ -424,6 +465,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 
 	protected AggregateBuilder getXMIReadingPreprocessorAggregateBuilder() throws UIMAException {
 		AggregateBuilder aggregateBuilder = new AggregateBuilder();
+		// TODO: Is this necessary? Doesn't the default view have the text populated in the xmis?
 		aggregateBuilder.add( UriToDocumentTextAnnotator.getDescription() );
 		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
 				XMIReader.class,
@@ -436,137 +478,9 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 			throws Exception {
 		AggregateBuilder aggregateBuilder = new AggregateBuilder();
 		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( UriToDocumentTextAnnotatorCtakes.class ) );
-
-		// read manual annotations into gold view
-		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
-				ViewCreatorAnnotator.class,
-				ViewCreatorAnnotator.PARAM_VIEW_NAME,
-				GOLD_VIEW_NAME ) );
-		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
-				ViewTextCopierAnnotator.class,
-				ViewTextCopierAnnotator.PARAM_SOURCE_VIEW_NAME,
-				CAS.NAME_DEFAULT_SOFA,
-				ViewTextCopierAnnotator.PARAM_DESTINATION_VIEW_NAME,
-				GOLD_VIEW_NAME ) );
-		switch ( this.xmlFormat ) {
-		case Anafora:
-			if(this.subcorpus == Subcorpus.DeepPhe){
-				aggregateBuilder.add(
-						AnalysisEngineFactory.createEngineDescription(THYMEAnaforaXMLReader.class,
-								THYMEAnaforaXMLReader.PARAM_ANAFORA_DIRECTORY,
-								this.xmlDirectory,
-								THYMEAnaforaXMLReader.PARAM_ANAFORA_XML_SUFFIXES,
-								new String[]{} ),
-								CAS.NAME_DEFAULT_SOFA,
-								GOLD_VIEW_NAME );
-			}else{
-				aggregateBuilder.add(
-						THYMEAnaforaXMLReader.getDescription( this.xmlDirectory ),
-						CAS.NAME_DEFAULT_SOFA,
-						GOLD_VIEW_NAME );
-			}
-			break;
-		case Knowtator:
-			aggregateBuilder.add(
-					THYMEKnowtatorXMLReader.getDescription( this.xmlDirectory ),
-					CAS.NAME_DEFAULT_SOFA,
-					GOLD_VIEW_NAME );
-			break;
-		case I2B2:
-			aggregateBuilder.add(
-					I2B2TemporalXMLReader.getDescription( this.xmlDirectory ),
-					CAS.NAME_DEFAULT_SOFA,
-					GOLD_VIEW_NAME );
-			break;
-		}
-
-		// identify segments
-		if(this.subcorpus == Subcorpus.DeepPhe){
-			aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PittHeaderAnnotator.class));
-		}else{
-			aggregateBuilder
-			.add( AnalysisEngineFactory.createEngineDescription( SegmentsFromBracketedSectionTagsAnnotator.class ) );
-		}
-		// identify sentences
-		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
-				SentenceDetector.class,
-				SentenceDetector.SD_MODEL_FILE_PARAM,
-				"org/apache/ctakes/core/sentdetect/sd-med-model.zip" ) );
-		//      aggregateBuilder.add(SentenceDetectorAnnotatorBIO.getDescription(FileLocator.locateFile("org/apache/ctakes/core/sentdetect/model.jar").getPath()));
-
-		// identify tokens
-		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( TokenizerAnnotatorPTB.class ) );
-		// merge some tokens
-		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( ContextDependentTokenizerAnnotator.class ) );
-
-		// identify part-of-speech tags
-		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
-				POSTagger.class,
-				TypeSystemDescriptionFactory.createTypeSystemDescription(),
-				TypePrioritiesFactory.createTypePriorities( Segment.class, Sentence.class, BaseToken.class ),
-				POSTagger.POS_MODEL_FILE_PARAM,
-				"org/apache/ctakes/postagger/models/mayo-pos.zip" ) );
-
-		// identify chunks
-		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
-				Chunker.class,
-				Chunker.CHUNKER_MODEL_FILE_PARAM,
-				FileLocator.locateFile( "org/apache/ctakes/chunker/models/chunker-model.zip" ),
-				Chunker.CHUNKER_CREATOR_CLASS_PARAM,
-				DefaultChunkCreator.class ) );
-
-		// identify UMLS named entities
-
-		// adjust NP in NP NP to span both
-		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
-				ChunkAdjuster.class,
-				ChunkAdjuster.PARAM_CHUNK_PATTERN,
-				new String[] { "NP", "NP" },
-				ChunkAdjuster.PARAM_EXTEND_TO_INCLUDE_TOKEN,
-				1 ) );
-		// adjust NP in NP PP NP to span all three
-		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
-				ChunkAdjuster.class,
-				ChunkAdjuster.PARAM_CHUNK_PATTERN,
-				new String[] { "NP", "PP", "NP" },
-				ChunkAdjuster.PARAM_EXTEND_TO_INCLUDE_TOKEN,
-				2 ) );
-		// add lookup windows for each NP
-		aggregateBuilder
-		.add( AnalysisEngineFactory.createEngineDescription( CopyNPChunksToLookupWindowAnnotations.class ) );
-		// maximize lookup windows
-		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
-				OverlapAnnotator.class,
-				"A_ObjectClass",
-				LookupWindowAnnotation.class,
-				"B_ObjectClass",
-				LookupWindowAnnotation.class,
-				"OverlapType",
-				"A_ENV_B",
-				"ActionType",
-				"DELETE",
-				"DeleteAction",
-				new String[] { "selector=B" } ) );
-		// add UMLS on top of lookup windows
-		aggregateBuilder.add( LvgAnnotator.createAnnotatorDescription() );
-		aggregateBuilder.add( DefaultJCasTermAnnotator.createAnnotatorDescription() );
-
-		// add dependency parser
-		aggregateBuilder.add( ClearNLPDependencyParserAE.createAnnotatorDescription() );
-
-		// add semantic role labeler
-		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( ClearNLPSemanticRoleLabelerAE.class ) );
-
-		// add gold standard parses to gold view, and adjust gold view to correct a few annotation mis-steps
-		if ( this.treebankDirectory != null ) {
-			aggregateBuilder.add( THYMETreebankReader.getDescription( this.treebankDirectory ) );
-			aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( TimexAnnotationCorrector.class ) );
-		} else {
-			// add ctakes constituency parses to system view
-			aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( ConstituencyParser.class,
-					ConstituencyParser.PARAM_MODEL_FILENAME,
-					"org/apache/ctakes/constituency/parser/models/thyme.bin" ) );
-		}
+		aggregateBuilder.add( getGoldWritingAggregate() );
+		aggregateBuilder.add( getLinguisticProcessingDescription() );
+		
 		// write out the CAS after all the above annotations
 		aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
 				XMIWriter.class,
@@ -576,6 +490,151 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		return aggregateBuilder;
 	}
 
+	protected AnalysisEngineDescription getGoldWritingAggregate() throws Exception {
+	  return getGoldWritingAggregate(GOLD_VIEW_NAME);
+	}
+	
+	protected AnalysisEngineDescription getGoldWritingAggregate(String goldViewName) throws Exception {
+    AggregateBuilder aggregateBuilder = new AggregateBuilder();
+    // read manual annotations into gold view
+    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
+        ViewCreatorAnnotator.class,
+        ViewCreatorAnnotator.PARAM_VIEW_NAME,
+        goldViewName ) );
+    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
+        ViewTextCopierAnnotator.class,
+        ViewTextCopierAnnotator.PARAM_SOURCE_VIEW_NAME,
+        CAS.NAME_DEFAULT_SOFA,
+        ViewTextCopierAnnotator.PARAM_DESTINATION_VIEW_NAME,
+        goldViewName ) );
+    switch ( this.xmlFormat ) {
+    case AnaforaCoref:
+    case Anafora:
+      if(this.subcorpus == Subcorpus.DeepPhe){
+        aggregateBuilder.add(
+            AnalysisEngineFactory.createEngineDescription(THYMEAnaforaXMLReader.class,
+                THYMEAnaforaXMLReader.PARAM_ANAFORA_DIRECTORY,
+                this.xmlDirectory,
+                THYMEAnaforaXMLReader.PARAM_ANAFORA_XML_SUFFIXES,
+                new String[]{} ),
+                CAS.NAME_DEFAULT_SOFA,
+                goldViewName );
+      }else{
+        aggregateBuilder.add(
+            THYMEAnaforaXMLReader.getDescription( this.xmlDirectory ),
+            CAS.NAME_DEFAULT_SOFA,
+            goldViewName );
+      }
+      break;
+    case Knowtator:
+      aggregateBuilder.add(
+          THYMEKnowtatorXMLReader.getDescription( this.xmlDirectory ),
+          CAS.NAME_DEFAULT_SOFA,
+          goldViewName );
+      break;
+    case I2B2:
+      aggregateBuilder.add(
+          I2B2TemporalXMLReader.getDescription( this.xmlDirectory ),
+          CAS.NAME_DEFAULT_SOFA,
+          goldViewName );
+      break;
+    }
+    return aggregateBuilder.createAggregateDescription();
+	}
+	
+	protected AnalysisEngineDescription getLinguisticProcessingDescription() throws Exception{
+	  AggregateBuilder aggregateBuilder = new AggregateBuilder();
+    // identify segments
+    if(this.subcorpus == Subcorpus.DeepPhe){
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PittHeaderAnnotator.class));
+    }else{
+      aggregateBuilder
+      .add( AnalysisEngineFactory.createEngineDescription( SegmentsFromBracketedSectionTagsAnnotator.class ) );
+    }
+    // identify sentences
+    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
+        SentenceDetector.class,
+        SentenceDetector.SD_MODEL_FILE_PARAM,
+        "org/apache/ctakes/core/sentdetect/sd-med-model.zip" ) );
+    //      aggregateBuilder.add(SentenceDetectorAnnotatorBIO.getDescription(FileLocator.locateFile("org/apache/ctakes/core/sentdetect/model.jar").getPath()));
+
+    // identify tokens
+    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( TokenizerAnnotatorPTB.class ) );
+    // merge some tokens
+    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( ContextDependentTokenizerAnnotator.class ) );
+
+    // identify part-of-speech tags
+    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
+        POSTagger.class,
+        TypeSystemDescriptionFactory.createTypeSystemDescription(),
+        TypePrioritiesFactory.createTypePriorities( Segment.class, Sentence.class, BaseToken.class ),
+        POSTagger.POS_MODEL_FILE_PARAM,
+        "org/apache/ctakes/postagger/models/mayo-pos.zip" ) );
+
+    // identify chunks
+    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
+        Chunker.class,
+        Chunker.CHUNKER_MODEL_FILE_PARAM,
+        FileLocator.locateFile( "org/apache/ctakes/chunker/models/chunker-model.zip" ),
+        Chunker.CHUNKER_CREATOR_CLASS_PARAM,
+        DefaultChunkCreator.class ) );
+
+    // identify UMLS named entities
+
+    // adjust NP in NP NP to span both
+    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
+        ChunkAdjuster.class,
+        ChunkAdjuster.PARAM_CHUNK_PATTERN,
+        new String[] { "NP", "NP" },
+        ChunkAdjuster.PARAM_EXTEND_TO_INCLUDE_TOKEN,
+        1 ) );
+    // adjust NP in NP PP NP to span all three
+    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
+        ChunkAdjuster.class,
+        ChunkAdjuster.PARAM_CHUNK_PATTERN,
+        new String[] { "NP", "PP", "NP" },
+        ChunkAdjuster.PARAM_EXTEND_TO_INCLUDE_TOKEN,
+        2 ) );
+    // add lookup windows for each NP
+    aggregateBuilder
+    .add( AnalysisEngineFactory.createEngineDescription( CopyNPChunksToLookupWindowAnnotations.class ) );
+    // maximize lookup windows
+    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription(
+        OverlapAnnotator.class,
+        "A_ObjectClass",
+        LookupWindowAnnotation.class,
+        "B_ObjectClass",
+        LookupWindowAnnotation.class,
+        "OverlapType",
+        "A_ENV_B",
+        "ActionType",
+        "DELETE",
+        "DeleteAction",
+        new String[] { "selector=B" } ) );
+    // add UMLS on top of lookup windows
+    aggregateBuilder.add( LvgAnnotator.createAnnotatorDescription() );
+    aggregateBuilder.add( DefaultJCasTermAnnotator.createAnnotatorDescription() );
+
+    // add dependency parser
+    aggregateBuilder.add( ClearNLPDependencyParserAE.createAnnotatorDescription() );
+
+    // add semantic role labeler
+//    aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( ClearNLPSemanticRoleLabelerAE.class ) );
+
+    // add gold standard parses to gold view, and adjust gold view to correct a few annotation mis-steps
+    if ( this.treebankDirectory != null ) {
+      aggregateBuilder.add( THYMETreebankReader.getDescription( this.treebankDirectory ) );
+      aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( TimexAnnotationCorrector.class ) );
+    } else {
+      // add ctakes constituency parses to system view
+      aggregateBuilder.add( AnalysisEngineFactory.createEngineDescription( ConstituencyParser.class,
+          ConstituencyParser.PARAM_MODEL_FILENAME,
+          "org/apache/ctakes/constituency/parser/models/thyme.bin" ) );
+    }
+	  
+	  return aggregateBuilder.createAggregateDescription();
+	}
+	
 	public static <T extends Annotation> List<T> selectExact( JCas jCas, Class<T> annotationClass, Segment segment ) {
 		List<T> annotations = Lists.newArrayList();
 		for ( T annotation : JCasUtil.selectCovered( jCas, annotationClass, segment ) ) {
@@ -945,15 +1004,14 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 		public void process( JCas jCas ) throws AnalysisEngineProcessException {
 			URI uri = ViewUriUtil.getURI( jCas );
 			String content;
-
 			try {
-				content = CharStreams.toString( new InputStreamReader( uri.toURL().openStream() ) );
-				content = content.replace( (char)0xc, ' ' );
-				jCas.setSofaDataString( content, "text/plain" );
+			  content = CharStreams.toString( new InputStreamReader( uri.toURL().openStream() ) );
+			  content = content.replace( (char)0xc, ' ' );
+			  jCas.setSofaDataString( content, "text/plain" );
 			} catch ( MalformedURLException e ) {
-				throw new AnalysisEngineProcessException( e );
+			  throw new AnalysisEngineProcessException( e );
 			} catch ( IOException e ) {
-				throw new AnalysisEngineProcessException( e );
+			  throw new AnalysisEngineProcessException( e );
 			}
 		}
 	}
