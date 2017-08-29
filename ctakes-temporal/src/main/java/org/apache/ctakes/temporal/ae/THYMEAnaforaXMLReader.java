@@ -21,9 +21,11 @@ package org.apache.ctakes.temporal.ae;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
@@ -48,6 +50,7 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.EmptyFSList;
 import org.apache.uima.jcas.cas.FSArray;
+import org.apache.uima.jcas.cas.FSList;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -178,10 +181,10 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           }
           int spanBegin = Integer.parseInt(beginEndStrings[0]);
           int spanEnd = Integer.parseInt(beginEndStrings[1]);
-          if (spanBegin < begin) {
+          if (spanBegin < begin && spanBegin >= 0) {
             begin = spanBegin;
           }
-          if (spanEnd > end) {
+          if (spanEnd > end && spanEnd < docLen) {
             end = spanEnd;
           }
         }
@@ -308,41 +311,53 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           addRelation(jCas, relation, sourceID, targetID, alinkType, idToAnnotation, id);
 
         } else if (type.equals("Identical")) {
-          CollectionTextRelation chain = new CollectionTextRelation(jCas);
+          // Build list of Markables from FirstInstance and Coreferring_String annotations:
           String mention = removeSingleChildText(propertiesElem, "FirstInstance", id);
-          NonEmptyFSList list = new NonEmptyFSList(jCas);
-          NonEmptyFSList root = list;
+          List<Markable> markables = new ArrayList<>();
           Markable antecedent, anaphor;
           antecedent = (Markable) idToAnnotation.get(mention);
-          list.setHead(antecedent);
+          if(antecedent != null){
+            markables.add(antecedent);
+          }else{
+            error("Null markable as FirstInstance", id);
+          }
           List<Element> corefs = propertiesElem.getChildren("Coreferring_String");
-//          while((mention = removeSingleChildText(propertiesElem, "Coreferring_String", id)) != null){
           for(Element coref : corefs){
             mention = coref.getText();
-            NonEmptyFSList child = new NonEmptyFSList(jCas);
             anaphor = (Markable) idToAnnotation.get(mention);
-            child.setHead(anaphor);
+            if(anaphor != null){
+              markables.add(anaphor);
+            }else{
+              error("Null markable as Coreferring_String", id);
+            }
+          }
+          // Iterate over markable list creating binary coref relations:
+          for(int antInd = 0; antInd < markables.size()-1; antInd++){
+            int anaInd = antInd + 1;
+            // create set of binary relations from chain elements:
             CoreferenceRelation pair = new CoreferenceRelation(jCas);
             pair.setCategory("Identity");
             RelationArgument arg1 = new RelationArgument(jCas);
-            arg1.setArgument(antecedent);
+            arg1.setArgument(markables.get(antInd));
             arg1.setRole("antecedent");
             pair.setArg1(arg1);
             RelationArgument arg2 = new RelationArgument(jCas);
-            arg2.setArgument(anaphor);
+            arg2.setArgument(markables.get(anaInd));
             arg2.setRole("anaphor");
             pair.setArg2(arg2);
             pair.addToIndexes();
-            list.setTail(child);
-            list = child;
-            antecedent = anaphor;
+          }
+          // Create FSList from markable list and add to collection text relation:
+          if(markables.size() > 1){
+            CollectionTextRelation chain = new CollectionTextRelation(jCas);
+            FSList list = ListFactory.buildList(jCas, markables);
+            list.addToIndexes();
+            chain.setMembers(list);
+            chain.addToIndexes();
+          }else{
+            error("Coreference chain of length <= 1", id);
           }
           propertiesElem.removeChildren("Coreferring_String");
-          EmptyFSList tail = new EmptyFSList(jCas);
-          list.setTail(tail);
-          root.addToIndexes();
-          chain.setMembers(root);
-          chain.addToIndexes();
         } else if (type.equals("Set/Subset")){
           error("This reader has not implemented reading of Set/Subset relations yet", id);
           
