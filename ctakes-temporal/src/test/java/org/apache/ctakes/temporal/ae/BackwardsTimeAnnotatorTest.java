@@ -46,7 +46,7 @@ public class BackwardsTimeAnnotatorTest extends TemporalTest_ImplBase {
 	public void testPipeline() throws UIMAException, IOException {
 
 		String note = "The patient is a 55-year-old man referred by Dr. Good for recently diagnosed colorectal cancer.  "
-				+ "The patient was well till 6 months ago, when he started having a little blood with stool.";
+				+ "The patient was well until 6 months ago, when he started having a little blood with stool.";
 		JCas jcas = JCasFactory.createJCas();
 		jcas.setDocumentText(note);
 
@@ -74,13 +74,14 @@ public class BackwardsTimeAnnotatorTest extends TemporalTest_ImplBase {
 
 		ArrayList<String> temp = new ArrayList<>();
 		for (TimeMention mention : mentions) {
-			LOGGER.info("Event: " + mention.getCoveredText());
+			LOGGER.info("Time: " + mention.getCoveredText());
+			LOGGER.info("Time class: " + mention.getTimeClass());
 			//LOGGER.info("Time: " + mention.getTime().getNormalizedForm());
 			temp.add(mention.getCoveredText());
 		}
 		assertEquals(2, temp.size());
 		assertTrue(temp.contains("recently"));
-		assertTrue(temp.contains("6 months ago"));
+		assertTrue(temp.contains("until 6 months ago"));
 	}
 
 }

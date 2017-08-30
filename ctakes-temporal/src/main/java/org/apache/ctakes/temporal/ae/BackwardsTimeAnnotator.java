@@ -152,7 +152,7 @@ public class BackwardsTimeAnnotator extends TemporalEntityAnnotator_ImplBase {
     super.initialize(context);
 
     // define chunking
-    this.timeChunking = new BioChunking<BaseToken, TimeMention>(BaseToken.class, TimeMention.class);
+    this.timeChunking = new BioChunking<BaseToken, TimeMention>(BaseToken.class, TimeMention.class, "timeClass");
 
     CombinedExtractor1<BaseToken> allExtractors = new CombinedExtractor1<>(
         new CoveredTextExtractor<BaseToken>(),
