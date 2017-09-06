@@ -184,11 +184,11 @@ public class THYMEAnaforaXMLReader extends JCasAnnotator_ImplBase {
           if (spanBegin < begin && spanBegin >= 0) {
             begin = spanBegin;
           }
-          if (spanEnd > end && spanEnd < docLen) {
+          if (spanEnd > end && spanEnd <= docLen) {
             end = spanEnd;
           }
         }
-        if(begin < 0 || end >= docLen){
+        if(begin < 0 || end > docLen){
           error("Illegal begin or end boundary", id);
           continue;
         }
