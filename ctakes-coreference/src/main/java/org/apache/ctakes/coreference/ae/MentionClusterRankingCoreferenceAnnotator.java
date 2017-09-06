@@ -1,30 +1,9 @@
 package org.apache.ctakes.coreference.ae;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.ListFactory;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterAgreementFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterAttributeFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterDepHeadExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterDistSemExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterMentionFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterSalienceFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterSectionFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterSemTypeDepPrefsFeatureExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterStackFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterStringFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterUMLSFeatureExtractor;
+import org.apache.ctakes.coreference.ae.features.cluster.*;
+import org.apache.ctakes.coreference.util.ClusterMentionFetcher;
 import org.apache.ctakes.coreference.util.ClusterUtils;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
@@ -61,11 +40,15 @@ import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.cleartk.ml.svmlight.rank.QidInstance;
-import org.cleartk.util.ViewUriUtil;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
-import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.COREFERENCE_RELATION;
-import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.MARKABLE;
+import static org.apache.ctakes.coreference.util.ClusterMentionFetcher.CollectionTextRelationIdentifiedAnnotationPair;
+
+// TODO Consolidate all of the duplicate code in the coref module
 
 @PipeBitInfo(
       name = "Coreference (Cluster Rank)",
@@ -343,18 +326,9 @@ public class MentionClusterRankingCoreferenceAnnotator extends CleartkAnnotator<
     }
     String head = headNode.getCoveredText().toLowerCase();
     if(headWordMarkables.containsKey(head)){
-      Set<Markable> headSet = headWordMarkables.get(head);
-      for(CollectionTextRelation cluster : JCasUtil.select(jcas, CollectionTextRelation.class)){
-        Annotation mostRecent = ClusterUtils.getMostRecent((NonEmptyFSList)cluster.getMembers(), mention);
-        if(mostRecent == null) continue;
-        for(Markable m : JCasUtil.select(cluster.getMembers(), Markable.class)){
-          if(headSet.contains(mostRecent)){
-            pairs.add(new CollectionTextRelationIdentifiedAnnotationPair(cluster, mention));
-            break;
-          }
-          if(m == mostRecent) break;
-        }
-      }      
+      final Set<Markable> headSet = headWordMarkables.get( head );
+
+      ClusterMentionFetcher.populatePairs( jcas, mention, headSet, pairs );
     }
     
     return pairs;
@@ -370,31 +344,17 @@ public class MentionClusterRankingCoreferenceAnnotator extends CleartkAnnotator<
 //    pairScores = getMarkablePairScores(jCas);
     
     Map<CollectionTextRelationIdentifiedAnnotationPair, CollectionTextRelationIdentifiedAnnotationRelation> relationLookup;
-    relationLookup = new HashMap<>();
     if (this.isTraining()) {
-      for (CollectionTextRelation cluster : JCasUtil.select(jCas, CollectionTextRelation.class)) {
-        for(IdentifiedAnnotation mention : JCasUtil.select(cluster.getMembers(), Markable.class)){
-          CollectionTextRelationIdentifiedAnnotationRelation relation = 
-              new CollectionTextRelationIdentifiedAnnotationRelation(jCas);
-          relation.setCluster(cluster);
-          relation.setMention(mention);
-          relation.setCategory("CoreferenceClusterMember");
-          relation.addToIndexes();
-          // The key is a list of args so we can do bi-directional lookup
-          CollectionTextRelationIdentifiedAnnotationPair key = new CollectionTextRelationIdentifiedAnnotationPair(cluster, mention);
-          if(relationLookup.containsKey(key)){
-            String cat = relationLookup.get(key).getCategory();
-            System.err.println("Error in: "+ ViewUriUtil.getURI(jCas).toString());
-            System.err.println("Error! This attempted relation " + relation.getCategory() + " already has a relation " + cat + " at this span: " + mention.getCoveredText());
-          }
-          relationLookup.put(key, relation);
-        }
-      }
+      relationLookup = ClusterMentionFetcher.getPairRelations( jCas );
+    } else {
+      relationLookup = new HashMap<>();
     }
+    final Map<Segment, Collection<Markable>> segmentMarkables = JCasUtil.indexCovered( jCas, Segment.class, Markable.class );
 
-    
-    for(Segment segment : JCasUtil.select(jCas, Segment.class)){
-      for(Markable mention : JCasUtil.selectCovered(jCas, Markable.class, segment)){
+//    for(Segment segment : JCasUtil.select(jCas, Segment.class)){
+//      for(Markable mention : JCasUtil.selectCovered(jCas, Markable.class, segment)){
+    for ( Collection<Markable> markables : segmentMarkables.values() ) {
+      for ( Markable mention : markables ) {
         ConllDependencyNode headNode = DependencyUtility.getNominalHeadNode(jCas, mention);
         String mentionText = mention.getCoveredText().toLowerCase();
         boolean singleton = true;
@@ -573,10 +533,10 @@ public class MentionClusterRankingCoreferenceAnnotator extends CleartkAnnotator<
    * 
    * @param jCas
    *          - JCas object, needed to create new UIMA types
-   * @param arg1
-   *          - First argument to relation
-   * @param arg2
-   *          - Second argument to relation
+  //   * @param arg1
+  //   *          - First argument to relation
+  //   * @param arg2
+  //   *          - Second argument to relation
    * @param predictedCategory
    *          - Name of relation
    */
@@ -665,35 +625,35 @@ public class MentionClusterRankingCoreferenceAnnotator extends CleartkAnnotator<
     }
     return scoreMap;
   }
-  
-  public static class CollectionTextRelationIdentifiedAnnotationPair {
-    private final CollectionTextRelation cluster;
-    private final IdentifiedAnnotation mention;
-    
-    public CollectionTextRelationIdentifiedAnnotationPair(CollectionTextRelation cluster, IdentifiedAnnotation mention){
-      this.cluster = cluster;
-      this.mention = mention;
-    }
-    
-    public final CollectionTextRelation getCluster(){
-      return this.cluster;
-    }
-    
-    public final IdentifiedAnnotation getMention(){
-      return this.mention;
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-      CollectionTextRelationIdentifiedAnnotationPair other = (CollectionTextRelationIdentifiedAnnotationPair) obj;
-      return (this.cluster == other.cluster &&
-          this.mention == other.mention);
-    }
-    
-    @Override
-    public int hashCode() {
-      return 31*cluster.hashCode() + (mention==null ? 0 : mention.hashCode());
-    }
-  }
+
+//  public static class CollectionTextRelationIdentifiedAnnotationPair {
+//    private final CollectionTextRelation cluster;
+//    private final IdentifiedAnnotation mention;
+//
+//    public CollectionTextRelationIdentifiedAnnotationPair(CollectionTextRelation cluster, IdentifiedAnnotation mention){
+//      this.cluster = cluster;
+//      this.mention = mention;
+//    }
+//
+//    public final CollectionTextRelation getCluster(){
+//      return this.cluster;
+//    }
+//
+//    public final IdentifiedAnnotation getMention(){
+//      return this.mention;
+//    }
+//
+//    @Override
+//    public boolean equals(Object obj) {
+//      CollectionTextRelationIdentifiedAnnotationPair other = (CollectionTextRelationIdentifiedAnnotationPair) obj;
+//      return (this.cluster == other.cluster &&
+//          this.mention == other.mention);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//      return 31*cluster.hashCode() + (mention==null ? 0 : mention.hashCode());
+//    }
+//  }
 
 }

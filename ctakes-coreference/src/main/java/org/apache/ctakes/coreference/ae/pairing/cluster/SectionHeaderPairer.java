@@ -1,10 +1,6 @@
 package org.apache.ctakes.coreference.ae.pairing.cluster;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.ctakes.coreference.ae.EventCoreferenceAnnotator;
-import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator.CollectionTextRelationIdentifiedAnnotationPair;
 import org.apache.ctakes.coreference.util.ClusterUtils;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -15,6 +11,14 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.tcas.Annotation;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.apache.ctakes.coreference.util.ClusterMentionFetcher.CollectionTextRelationIdentifiedAnnotationPair;
+
+//import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator.CollectionTextRelationIdentifiedAnnotationPair;
+
 
 public class SectionHeaderPairer extends ClusterMentionPairer_ImplBase {
 

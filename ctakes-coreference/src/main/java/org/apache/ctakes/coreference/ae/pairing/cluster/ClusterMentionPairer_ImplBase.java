@@ -1,6 +1,6 @@
 package org.apache.ctakes.coreference.ae.pairing.cluster;
 
-import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator.CollectionTextRelationIdentifiedAnnotationPair;
+//import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator.CollectionTextRelationIdentifiedAnnotationPair;
 import org.apache.ctakes.coreference.ae.pairing.AnnotationPairer;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
@@ -14,6 +14,7 @@ import org.apache.uima.jcas.tcas.Annotation;
 import java.util.*;
 
 import static org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator.getKey;
+import static org.apache.ctakes.coreference.util.ClusterMentionFetcher.CollectionTextRelationIdentifiedAnnotationPair;
 
 //import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 

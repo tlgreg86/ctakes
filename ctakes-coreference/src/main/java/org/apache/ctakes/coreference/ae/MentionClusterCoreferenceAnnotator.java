@@ -1,58 +1,23 @@
 package org.apache.ctakes.coreference.ae;
 
-import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
-import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
+import org.apache.ctakes.core.util.DotLogger;
 import org.apache.ctakes.core.util.ListFactory;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterAgreementFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterAttributeFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterDepHeadExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterSalienceFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterSectionFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterSemTypeDepPrefsFeatureExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterStackFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterStringFeaturesExtractor;
-import org.apache.ctakes.coreference.ae.features.cluster.MentionClusterUMLSFeatureExtractor;
-import org.apache.ctakes.coreference.ae.pairing.cluster.ClusterMentionPairer_ImplBase;
-import org.apache.ctakes.coreference.ae.pairing.cluster.ClusterPairer;
-import org.apache.ctakes.coreference.ae.pairing.cluster.HeadwordPairer;
-import org.apache.ctakes.coreference.ae.pairing.cluster.SectionHeaderPairer;
-import org.apache.ctakes.coreference.ae.pairing.cluster.SentenceDistancePairer;
+import org.apache.ctakes.coreference.ae.features.cluster.*;
+import org.apache.ctakes.coreference.ae.pairing.cluster.*;
+import org.apache.ctakes.coreference.util.ClusterMentionFetcher;
 import org.apache.ctakes.coreference.util.MarkableUtilities;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
 import org.apache.ctakes.temporal.utils.PatientViewsUtil;
-import org.apache.ctakes.typesystem.type.refsem.AnatomicalSite;
-import org.apache.ctakes.typesystem.type.refsem.DiseaseDisorder;
-import org.apache.ctakes.typesystem.type.refsem.Element;
-import org.apache.ctakes.typesystem.type.refsem.Event;
-import org.apache.ctakes.typesystem.type.refsem.Medication;
-import org.apache.ctakes.typesystem.type.refsem.Procedure;
-import org.apache.ctakes.typesystem.type.refsem.SignSymptom;
+import org.apache.ctakes.typesystem.type.refsem.*;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelationIdentifiedAnnotationRelation;
 import org.apache.ctakes.typesystem.type.relation.CoreferenceRelation;
-import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
-import org.apache.ctakes.typesystem.type.textsem.DiseaseDisorderMention;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.Markable;
-import org.apache.ctakes.typesystem.type.textsem.MedicationMention;
-import org.apache.ctakes.typesystem.type.textsem.ProcedureMention;
-import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
+import org.apache.ctakes.typesystem.type.textsem.*;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.utils.struct.CounterMap;
+import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -65,16 +30,23 @@ import org.apache.uima.jcas.cas.EmptyFSList;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.ml.CleartkAnnotator;
-import org.cleartk.ml.CleartkProcessingException;
-import org.cleartk.ml.DataWriter;
-import org.cleartk.ml.Feature;
-import org.cleartk.ml.Instance;
+import org.cleartk.ml.*;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
-import org.cleartk.util.ViewUriUtil;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
+import static org.apache.ctakes.coreference.util.ClusterMentionFetcher.CollectionTextRelationIdentifiedAnnotationPair;
+
+
+
 @PipeBitInfo(
 	      name = "Coreference (Clusters)",
 	      description = "Coreference annotator using mention-synchronous paradigm.",
@@ -82,6 +54,8 @@ import org.cleartk.util.ViewUriUtil;
    	      products = { COREFERENCE_RELATION }
 	)
 public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String> {
+  static private final Logger LOGGER = Logger.getLogger( MentionClusterCoreferenceAnnotator.class.getSimpleName() );
+
   public static final String NO_RELATION_CATEGORY = "-NONE-";
   public static final String PARAM_PROBABILITY_OF_KEEPING_A_NEGATIVE_EXAMPLE =
       "ProbabilityOfKeepingANegativeExample";
@@ -96,7 +70,15 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
       mandatory=false,
       description = "Whether to use encoders in output directory during data writing; if we are making multiple calls")
   private boolean useExistingEncoders=false;
-      
+
+  public static final String PARAM_SINGLE_DOCUMENT = "SingleDocument";
+  @ConfigurationParameter(
+        name = PARAM_SINGLE_DOCUMENT,
+        mandatory = false,
+        description = "Specify that coreferences should be sought for a single document.",
+        defaultValue = "true" )
+  private boolean singleDocument;
+
   protected Random coin = new Random(0);
 
   boolean greedyFirst = true;
@@ -218,154 +200,157 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
   }
   
   @Override
-  public void process(JCas docCas) throws AnalysisEngineProcessException {
-    
+  public void process( final JCas jCas ) throws AnalysisEngineProcessException {
+
     //this.dataWriter.write(new Instance<String>("#DEBUG " + ViewUriUtil.getURI(docCas)));
-    
+    LOGGER.info( "Finding Coreferences ..." );
+
+    if ( singleDocument ) {
+      processDocument( jCas );
+      LOGGER.info( "Finished." );
+      return;
+    }
+
     int numDocs;
     try {
-      numDocs = Integer.valueOf(docCas.getView(PatientViewsUtil.NUM_DOCS_NAME).getDocumentText());
-    } catch (NumberFormatException | CASException e) {
+      numDocs = Integer.valueOf( jCas.getView( PatientViewsUtil.NUM_DOCS_NAME ).getDocumentText() );
+    } catch ( NumberFormatException | CASException e ) {
+      // TODO remove stack trace when ready
       e.printStackTrace();
-      throw new AnalysisEngineProcessException(e);
+      throw new AnalysisEngineProcessException( e );
     }
-    
-    for(int docNum = 0; docNum < numDocs; docNum++){
-      JCas jCas;
-      try {
-        jCas = docCas.getView(PatientViewsUtil.getViewName(docNum));
-      } catch (CASException e) {
-        e.printStackTrace();
-        throw new AnalysisEngineProcessException(e);
-      }
-      // lookup from pair of annotations to binary text relation
-      // note: assumes that there will be at most one relation per pair
-      this.resetPairers(jCas);
-      Map<CollectionTextRelationIdentifiedAnnotationPair, CollectionTextRelationIdentifiedAnnotationRelation> relationLookup;
-      relationLookup = new HashMap<>();
-      if (this.isTraining()) {
-        for (CollectionTextRelation cluster : JCasUtil.select(jCas, CollectionTextRelation.class)) {
-          for(IdentifiedAnnotation mention : JCasUtil.select(cluster.getMembers(), Markable.class)){
-            CollectionTextRelationIdentifiedAnnotationRelation relation = 
-                new CollectionTextRelationIdentifiedAnnotationRelation(jCas);
-            relation.setCluster(cluster);
-            relation.setMention(mention);
-            relation.setCategory("CoreferenceClusterMember");
-            relation.addToIndexes();
-            // The key is a list of args so we can do bi-directional lookup
-            CollectionTextRelationIdentifiedAnnotationPair key = new CollectionTextRelationIdentifiedAnnotationPair(cluster, mention);
-            if(relationLookup.containsKey(key)){
-              String cat = relationLookup.get(key).getCategory();
-              System.err.println("Error in: "+ ViewUriUtil.getURI(jCas).toString());
-              System.err.println("Error! This attempted relation " + relation.getCategory() + " already has a relation " + cat + " at this span: " + mention.getCoveredText());
-            }
-            relationLookup.put(key, relation);
-          }
+    try ( DotLogger dotter = new DotLogger() ) {
+      for ( int docNum = 0; docNum < numDocs; docNum++ ) {
+        JCas docCas;
+        try {
+          docCas = jCas.getView( PatientViewsUtil.getViewName( docNum ) );
+        } catch ( CASException casE ) {
+          // TODO remove stack trace when ready
+          casE.printStackTrace();
+          throw new AnalysisEngineProcessException( casE );
         }
+        processDocument( docCas );
       }
+    } catch ( IOException ioE ) {
+      LOGGER.error( ioE.getMessage() );
+    }
+    LOGGER.info( "Finished." );
+  }
+
+  private void processDocument( final JCas jCas ) throws AnalysisEngineProcessException {
+    // lookup from pair of annotations to binary text relation
+    // note: assumes that there will be at most one relation per pair
+    this.resetPairers( jCas );
+    Map<CollectionTextRelationIdentifiedAnnotationPair, CollectionTextRelationIdentifiedAnnotationRelation>
+          relationLookup;
+    if ( this.isTraining() ) {
+      relationLookup = ClusterMentionFetcher.getPairRelations( jCas );
+    } else {
+      relationLookup = new HashMap<>();
+    }
 
 
-      for(Segment segment : JCasUtil.select(jCas, Segment.class)){
-        for(Markable mention : JCasUtil.selectCovered(jCas, Markable.class, segment)){
-          //        ConllDependencyNode headNode = DependencyUtility.getNominalHeadNode(jCas, mention);
-          boolean singleton = true;
-          double maxScore = 0.0;
-          CollectionTextRelation maxCluster = null;
+    for ( Segment segment : JCasUtil.select( jCas, Segment.class ) ) {
+      for ( Markable mention : JCasUtil.selectCovered( jCas, Markable.class, segment ) ) {
+        //        ConllDependencyNode headNode = DependencyUtility.getNominalHeadNode(jCas, mention);
+        boolean singleton = true;
+        double maxScore = 0.0;
+        CollectionTextRelation maxCluster = null;
 
-          for(CollectionTextRelationIdentifiedAnnotationPair pair : this.getCandidateRelationArgumentPairs(jCas, mention)){
-            CollectionTextRelation cluster = pair.getCluster();
-            // apply all the feature extractors to extract the list of features
-            List<Feature> features = new ArrayList<>();
-            for (RelationFeaturesExtractor<CollectionTextRelation,IdentifiedAnnotation> extractor : this.relationExtractors) {
-              List<Feature> feats = extractor.extract(jCas, cluster, mention);
-              if (feats != null){
-                //              Logger.getRootLogger().info(String.format("For cluster with %d mentions, %d %s features", JCasUtil.select(cluster.getMembers(), Markable.class).size(), feats.size(), extractor.getClass().getSimpleName()));
-                features.addAll(feats);
-              }
+        for ( CollectionTextRelationIdentifiedAnnotationPair pair : this.getCandidateRelationArgumentPairs( jCas, mention ) ) {
+          CollectionTextRelation cluster = pair.getCluster();
+          // apply all the feature extractors to extract the list of features
+          List<Feature> features = new ArrayList<>();
+          for ( RelationFeaturesExtractor<CollectionTextRelation, IdentifiedAnnotation> extractor : this.relationExtractors ) {
+            List<Feature> feats = extractor.extract( jCas, cluster, mention );
+            if ( feats != null ) {
+              //              Logger.getRootLogger().info(String.format("For cluster with %d mentions, %d %s features", JCasUtil.select(cluster.getMembers(), Markable.class).size(), feats.size(), extractor.getClass().getSimpleName()));
+              features.addAll( feats );
+            }
+          }
+
+          for ( FeatureExtractor1<Markable> extractor : this.mentionExtractors ) {
+            features.addAll( extractor.extract( jCas, mention ) );
+          }
+
+          // here is where feature conjunctions can go (dupFeatures)
+          List<Feature> dupFeatures = new ArrayList<>();
+          // sanity check on feature values
+          for ( Feature feature : features ) {
+            if ( feature.getValue() == null ) {
+              feature.setValue( "NULL" );
+              String message = String.format( "Null value found in %s from %s", feature, features );
+              System.err.println( message );
+            }
+          }
+
+          features.addAll( dupFeatures );
+
+          // during training, feed the features to the data writer
+          if ( this.isTraining() ) {
+            String category = this.getRelationCategory( relationLookup, cluster, mention );
+            if ( category == null ) {
+              continue;
             }
 
-            for(FeatureExtractor1<Markable> extractor : this.mentionExtractors){
-              features.addAll(extractor.extract(jCas, mention));
+            // create a classification instance and write it to the training data
+            this.dataWriter.write( new Instance<>( category, features ) );
+            if ( !category.equals( NO_RELATION_CATEGORY ) ) {
+              singleton = false;
+              break;
             }
+          }
 
-            // here is where feature conjunctions can go (dupFeatures)
-            List<Feature> dupFeatures = new ArrayList<>();
-            // sanity check on feature values
-            for (Feature feature : features) {
-              if (feature.getValue() == null) {
-                feature.setValue("NULL");
-                String message = String.format("Null value found in %s from %s", feature, features);
-                System.err.println(message);
-              }            
-            }
+          // during classification feed the features to the classifier and create
+          // annotations
+          else {
+            String predictedCategory = this.classify( features );
+            // TODO look at scores in classifier and try best-pair rather than first-pair?
+            Map<String, Double> scores = this.classifier.score( features );
 
-            features.addAll(dupFeatures);
-
-            // during training, feed the features to the data writer
-            if (this.isTraining()) {
-              String category = this.getRelationCategory(relationLookup, cluster, mention);
-              if (category == null) {
-                continue;
-              }
-
-              // create a classification instance and write it to the training data
-              this.dataWriter.write(new Instance<>(category, features));
-              if(!category.equals(NO_RELATION_CATEGORY)){
+            // add a relation annotation if a true relation was predicted
+            if ( !predictedCategory.equals( NO_RELATION_CATEGORY ) ) {
+              //              Logger.getLogger("MCAnnotator").info(String.format("Making a pair with score %f", scores.get(predictedCategory)));
+              if ( greedyFirst ) {
+                createRelation( jCas, cluster, mention, predictedCategory, scores.get( predictedCategory ) );
                 singleton = false;
+                // break here for "closest-first" greedy decoding strategy (Soon et al., 2001), terminology from Lasalle and Denis (2013),
+                // for "best first" need to keep track of all relations with scores and only keep the highest
                 break;
               }
-            }
-
-            // during classification feed the features to the classifier and create
-            // annotations
-            else {
-              String predictedCategory = this.classify(features);
-              // TODO look at scores in classifier and try best-pair rather than first-pair?
-              Map<String,Double> scores = this.classifier.score(features);
-
-              // add a relation annotation if a true relation was predicted
-              if (!predictedCategory.equals(NO_RELATION_CATEGORY)) {
-                //              Logger.getLogger("MCAnnotator").info(String.format("Making a pair with score %f", scores.get(predictedCategory)));
-                if(greedyFirst){
-                  createRelation(jCas, cluster, mention, predictedCategory, scores.get(predictedCategory));
-                  singleton = false;
-                  // break here for "closest-first" greedy decoding strategy (Soon et al., 2001), terminology from Lasalle and Denis (2013),
-                  // for "best first" need to keep track of all relations with scores and only keep the highest
-                  break;
-                }
-                if(scores.get(predictedCategory) > maxScore){
-                  maxScore = scores.get(predictedCategory);
-                  maxCluster = cluster;
-                }
+              if ( scores.get( predictedCategory ) > maxScore ) {
+                maxScore = scores.get( predictedCategory );
+                maxCluster = cluster;
               }
             }
           }
-          if(!this.isTraining() && !greedyFirst && maxCluster != null){
-            // make a link with the max cluster
-            createRelation(jCas, maxCluster, mention, "CoreferenceClusterMember", maxScore);
-          }
+        }
+        if ( !this.isTraining() && !greedyFirst && maxCluster != null ) {
+          // make a link with the max cluster
+          createRelation( jCas, maxCluster, mention, "CoreferenceClusterMember", maxScore );
+        }
 
-          // if we got this far and never matched up the markable then add it to list.
-          // do this even during training -- adds non-chain markables to antecedent list which will be seen during testing.
-          if(singleton){
-            // make the markable it's own cluster:
-            CollectionTextRelation chain = new CollectionTextRelation(jCas);
-            chain.setCategory("Identity");
-            NonEmptyFSList list = new NonEmptyFSList(jCas);
-            list.setHead(mention);
-            list.setTail(new EmptyFSList(jCas));
-            chain.setMembers(list);
-            chain.addToIndexes();
-            list.addToIndexes();
-            list.getTail().addToIndexes();
-          }
+        // if we got this far and never matched up the markable then add it to list.
+        // do this even during training -- adds non-chain markables to antecedent list which will be seen during testing.
+        if ( singleton ) {
+          // make the markable it's own cluster:
+          CollectionTextRelation chain = new CollectionTextRelation( jCas );
+          chain.setCategory( "Identity" );
+          NonEmptyFSList list = new NonEmptyFSList( jCas );
+          list.setHead( mention );
+          list.setTail( new EmptyFSList( jCas ) );
+          chain.setMembers( list );
+          chain.addToIndexes();
+          list.addToIndexes();
+          list.getTail().addToIndexes();
         }
       }
-
-      removeSingletonClusters(jCas);
-
-      createEventClusters(jCas);
     }
+
+    removeSingletonClusters( jCas );
+
+    createEventClusters( jCas );
+
   }
   
  
@@ -413,10 +398,10 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
    * 
    * @param jCas
    *          - JCas object, needed to create new UIMA types
-   * @param arg1
-   *          - First argument to relation
-   * @param arg2
-   *          - Second argument to relation
+  //   * @param arg1
+  //   *          - First argument to relation
+  //   * @param arg2
+  //   *          - Second argument to relation
    * @param predictedCategory
    *          - Name of relation
    */
@@ -570,35 +555,35 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
     }
     return scoreMap;
   }
-  
-  public static class CollectionTextRelationIdentifiedAnnotationPair {
-    private final CollectionTextRelation cluster;
-    private final IdentifiedAnnotation mention;
-    
-    public CollectionTextRelationIdentifiedAnnotationPair(CollectionTextRelation cluster, IdentifiedAnnotation mention){
-      this.cluster = cluster;
-      this.mention = mention;
-    }
-    
-    public final CollectionTextRelation getCluster(){
-      return this.cluster;
-    }
-    
-    public final IdentifiedAnnotation getMention(){
-      return this.mention;
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-      CollectionTextRelationIdentifiedAnnotationPair other = (CollectionTextRelationIdentifiedAnnotationPair) obj;
-      return (this.cluster == other.cluster &&
-          this.mention == other.mention);
-    }
-    
-    @Override
-    public int hashCode() {
-      return 31*cluster.hashCode() + (mention==null ? 0 : mention.hashCode());
-    }
-  }
+
+//  public static class CollectionTextRelationIdentifiedAnnotationPair {
+//    private final CollectionTextRelation cluster;
+//    private final IdentifiedAnnotation mention;
+//
+//    public CollectionTextRelationIdentifiedAnnotationPair(CollectionTextRelation cluster, IdentifiedAnnotation mention){
+//      this.cluster = cluster;
+//      this.mention = mention;
+//    }
+//
+//    public final CollectionTextRelation getCluster(){
+//      return this.cluster;
+//    }
+//
+//    public final IdentifiedAnnotation getMention(){
+//      return this.mention;
+//    }
+//
+//    @Override
+//    public boolean equals(Object obj) {
+//      CollectionTextRelationIdentifiedAnnotationPair other = (CollectionTextRelationIdentifiedAnnotationPair) obj;
+//      return (this.cluster == other.cluster &&
+//          this.mention == other.mention);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//      return 31*cluster.hashCode() + (mention==null ? 0 : mention.hashCode());
+//    }
+//  }
 
 }

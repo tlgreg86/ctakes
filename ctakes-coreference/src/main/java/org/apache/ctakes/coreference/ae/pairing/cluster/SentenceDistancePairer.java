@@ -1,11 +1,6 @@
 package org.apache.ctakes.coreference.ae.pairing.cluster;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.ctakes.coreference.ae.EventCoreferenceAnnotator;
-import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator.CollectionTextRelationIdentifiedAnnotationPair;
 import org.apache.ctakes.coreference.util.ClusterUtils;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
@@ -16,6 +11,14 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.tcas.Annotation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static org.apache.ctakes.coreference.util.ClusterMentionFetcher.CollectionTextRelationIdentifiedAnnotationPair;
+
+//import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator.CollectionTextRelationIdentifiedAnnotationPair;
 
 public class SentenceDistancePairer extends ClusterMentionPairer_ImplBase {
 
@@ -31,7 +34,7 @@ public class SentenceDistancePairer extends ClusterMentionPairer_ImplBase {
    * the mention and the latest element of the cluster.
    */
   @Override
-  public List<CollectionTextRelationIdentifiedAnnotationPair> getPairs(JCas jcas, Markable mention){
+  public List<CollectionTextRelationIdentifiedAnnotationPair> getPairs( JCas jcas, Markable mention ) {
     List<CollectionTextRelationIdentifiedAnnotationPair> pairs = new ArrayList<>();
     Set<String> bestAnaTypes = getBestEnt(jcas, (Markable) mention);
     
