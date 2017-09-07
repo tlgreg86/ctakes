@@ -57,6 +57,18 @@ final public class RegexSpanFinder implements Closeable {
    }
 
    /**
+    * Uses the default timeout of 1000 milliseconds
+    *
+    * @param regex         regular expression
+    * @param flags         pattern flags; CASE_INSENSITIVE, etc.
+    * @param timeoutMillis milliseconds at which the regex match should abort, between 100 and 10000
+    * @throws IllegalArgumentException if the regular expression is null or malformed
+    */
+   public RegexSpanFinder( final String regex, final int flags, final int timeoutMillis ) throws IllegalArgumentException {
+      this( Pattern.compile( regex, flags ), timeoutMillis );
+   }
+
+   /**
     * @param regex         regular expression
     * @param timeoutMillis milliseconds at which the regex match should abort, between 100 and 10000
     * @throws IllegalArgumentException if the regular expression is null or malformed
