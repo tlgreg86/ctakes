@@ -1,23 +1,23 @@
-History of Present Illness||^[\t ]*(?:HISTORY OF (?:THE )?(?:PRESENT |PHYSICAL )?ILLNESS)(?: \(HPI(?:, PROBLEM BY PROBLEM)?\))?[\t ]*:?[\t ]*$
+History of Present Illness||^[\t ]*(?:(?:CC\/HPI:)|(?:S:)|(?:(?:HISTORY OF (?:THE )?(?:PRESENT |PHYSICAL )?ILLNESS)(?: \(HPI(?:, PROBLEM BY PROBLEM)?\))?[\t ]*:?))[\t ]*$
 Past Medical History||^[\t ]*(?:(?:HISTORY OF (?:THE )?PAST ILLNESS)|(?:PAST MEDICAL HISTORY))[\t ]*:?[\t ]*$
 Chief Complaint||^[\t ]*(?:CHIEF|PRIMARY) COMPLAINTS?[\t ]*:?[\t ]*$
 Personal and Social History||^[\t ]*(?:(?:PERSONAL (?:(?:AND )?SOCIAL )?HISTORY)|(?:(?:PSYCHO)?SOC(?:IAL)? HISTORY)|(?:HISTORY (?:OF )(?:OTHER )?SOCIAL (?:FUNCTIONs?|FACTORS?))|(?:PSO)|(?:P?SHX))[\t ]*:?[\t ]*$
-Review of Systems||^[\t ]*[\w]* ?(?:(?:REVIEW (?:OF )?SYSTEMS?)|(?:SYSTEMS? REVIEW)|(?:ROS))[\t ]*:?[\t ]*$
+Review of Systems||^[\t ]*(?:(?:ROS:)|(?:(?:REVIEW (?:OF )?SYSTEMS?)|(?:SYSTEMS? REVIEW)[\t ]*:?))[\t ]*$
 Family Medical History||^[\t ]*(?:FAMILY (?:MEDICAL )?HISTORY)|(?:HISTORY (?:OF )?FAMILY MEMBER DISEASES?)|(?:FAM HX)|FH|FMH|FMHX|FHX[\t ]*:?[\t ]*$
 Medications||^[\t ]*(?:CURRENT )?MEDICATIONS?[\t ]*:?[\t ]*$
 Allergies||^[\t ]*ALLERGIES[\t ]*:?[\t ]*$
-General Exam||^[\t ]*(?:REVIEW (?:OF )?)?GENERAL (?:PHYSICAL )?(?:EXAM(?:INATION)?|STATUS|APPEARANCE|CONSTITUTIONAL)S?(?: SYMPTOMS?)?[\t ]*:?[\t ]*$
+General Exam||^[\t ]*(?:(?:PE:)|(?:O:)|(?:(?:REVIEW (?:OF )?)?(?:GENERAL(?: PHYSICAL)?|PHYSICAL) (?:EXAM(?:INATION)?|STATUS|APPEARANCE|CONSTITUTIONAL)S?(?: SYMPTOMS?)?[\t ]*:?))[\t ]*$
 Vital Signs||^[\t ]*VITAL(?:S|(?: (?:SIGNS|NOTES)))[\t ]*:?[\t ]*$
 Identifying Data||^[\t ]*IDENTIFYING DATA[\t ]*:?[\t ]*$
 Clinical History||^[\t ]*CLINICAL HISTORY[\t ]*:?[\t ]*$
 Current Health||^[\t ]*CURRENT HEALTH(?: STATUS)?[\t ]*:?[\t ]*$
 Narrative History||^[\t ]*NARRATIVE HISTORY[\t ]*:?[\t ]*$
-Analysis of Problem||^[\t ]*ANALYSIS (?:OF )?(?:ADMIT(?:TING)? |IDENTIF(?:Y|IED) )?PROBLEMS?[\t ]*:?[\t ]*$
+Analysis of Problem||^[\t ]*(?:(?:A\/P:)|(?:ANALYSIS (?:OF )?(?:ADMIT(?:TING)? |IDENTIF(?:Y|IED) )?PROBLEMS?[\t ]*:?))[\t ]*$
 Telemetry||^[\t ]*TELE(?:METRY)?[\t ]*:?[\t ]*$
 Technical Comment||^[\t ]*TECHNICAL COMMENT[\t ]*:?[\t ]*$
 Discharge Activity||^[\t ]*DISCHARGE ACTIVITY[\t ]*:?[\t ]*$
 Occupational Environmental History||^[\t ]*OCCUPATION(?:AL)? ENVIRONMENT(?:AL)? HISTORY[\t ]*:?[\t ]*$
-Immunosuppressants Medications||^[\t ]*(?:CYTOTOXIC )?IMMUNOSUPPRESSANTS? MEDICATIONS?(?: ADMINISTRATION HISTORY)?[\t ]*:?[\t ]*$
+Immunosuppressants Medications||^[\t ]*(?:CYTOTOXIC )?IMMUN(?:OSUPPRESSANT|IZATION)S?(?: MEDICATIONS?)?(?: ADMINISTRATION HISTORY)?[\t ]*:?[\t ]*$
 Medications Outside Hospital||^[\t ]*MEDICATIONS? (?:AT )?OUTSIDE HOSPITAL[\t ]*:?[\t ]*$
 Reason for Consult||^[\t ]*REASON (?:FOR )?(?:CONSULT(?:ATION)?|REFERRAL)(?: ?\/? ?QUESTIONS?)?[\t ]*:?[\t ]*$
 Problem List||^[\t ]*(?:SIGNIFICANT )?PROBLEMS?(?: LIST)?[\t ]*:?[\t ]*$
@@ -75,4 +75,7 @@ Other Systems Reviewed||^[\t ]*OTHER SYSTEMS REVIEWED[\t ]*:?[\t ]*$
 Objective||^[\t ]*OBJECTIVE[\t ]*:?[\t ]*$
 Impression||^[\t ]*IMPRESSION[\t ]*:?[\t ]*$
 Diagnoses||^[\t ]*DIAGNOSES[\t ]*:?[\t ]*$
-Plan||^[\t ]*PLAN[\t ]*:?[\t ]*$
+Plan||^[\t ]*(?:ASSESSMENT AND )?PLAN[\t ]*:?[\t ]*$
+Labs||^[\t ]*LABS?\/(?:ANC(?:ILLARY)?|STUDIES)[\t ]*:?[\t ]*$
+Diet||^[\t ]*DIET[\t ]*:?[\t ]*$
+Vaccinations||^[\t ]*VACCINATIONS?[\t ]*:?[\t ]*$
