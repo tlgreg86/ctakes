@@ -1,6 +1,7 @@
 package org.apache.ctakes.examples.ae;
 
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.util.Pair;
 import org.apache.ctakes.core.util.regex.RegexSpanFinder;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.log4j.Logger;
@@ -11,6 +12,7 @@ import org.apache.uima.jcas.JCas;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -26,12 +28,17 @@ final public class RegexBpFinder extends JCasAnnotator_ImplBase {
 
    static private final Logger LOGGER = Logger.getLogger( "RegexBpFinder" );
 
-   static private final Collection<String> BP_SECTIONS = Arrays.asList( "Vital Signs", "General Exam", "Objective" );
+   static private final Collection<String> BP_SECTIONS = Arrays.asList( "Vital Signs", "General Exam", "Objective", "SIMPLE_SEGMENT" );
    static private final String BP_TRIGGER = "\\bB\\/?P(?:\\s*:)?\\s+";
+   static private final String VIT_BP_TRIGGER = "^VITS?:\\s+";
+
    static private final String BP_VALUES = "\\d{2,3} ?\\/ ?\\d{2,3}\\b";
 
-   static private final RegexSpanFinder REGEX_SPAN_FINDER
+   static private final RegexSpanFinder BP_SPAN_FINDER
          = new RegexSpanFinder( BP_TRIGGER + BP_VALUES );
+
+   static private final RegexSpanFinder VIT_SPAN_FINDER
+         = new RegexSpanFinder( VIT_BP_TRIGGER, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE, 1000 );
 
    /**
     * {@inheritDoc}
@@ -52,9 +59,24 @@ final public class RegexBpFinder extends JCasAnnotator_ImplBase {
 
 
    static private void logBloodPressure( final Segment section ) {
-      final String text = section.getCoveredText();
-      // Find text spans with blood pressure values
-      final Collection<String> values = REGEX_SPAN_FINDER.findSpans( text ).stream()
+      final String sectionText = section.getCoveredText();
+      if ( !section.getId().equals( "SIMPLE_SEGMENT" ) ) {
+         logBloodPressure( sectionText );
+         return;
+      }
+      final Collection<Pair<Integer>> spans = VIT_SPAN_FINDER.findSpans( sectionText );
+      for ( Pair<Integer> span : spans ) {
+         final int eol = sectionText.indexOf( '\n', span.getValue2() );
+         if ( eol < 0 ) {
+            break;
+         }
+         final String text = sectionText.substring( span.getValue2(), eol );
+         logBloodPressure( text );
+      }
+   }
+
+   static private void logBloodPressure( final String text ) {
+      final Collection<String> values = BP_SPAN_FINDER.findSpans( text ).stream()
             // switch from spans to text
             .map( p -> text.substring( p.getValue1(), p.getValue2() ) )
             // get rid of the bp trigger word
@@ -73,7 +95,8 @@ final public class RegexBpFinder extends JCasAnnotator_ImplBase {
     */
    @Override
    public void collectionProcessComplete() throws org.apache.uima.analysis_engine.AnalysisEngineProcessException {
-      REGEX_SPAN_FINDER.close();
+      BP_SPAN_FINDER.close();
+      VIT_SPAN_FINDER.close();
       super.collectionProcessComplete();
    }
 
