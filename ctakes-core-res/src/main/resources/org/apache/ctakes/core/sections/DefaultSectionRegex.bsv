@@ -7,7 +7,7 @@ Family Medical History||^[\t ]*(?:FAMILY (?:MEDICAL )?HISTORY)|(?:HISTORY (?:OF 
 Medications||^[\t ]*(?:CURRENT )?MEDICATIONS?[\t ]*:?[\t ]*$
 Allergies||^[\t ]*ALLERGIES[\t ]*:?[\t ]*$
 General Exam||^[\t ]*(?:REVIEW (?:OF )?)?GENERAL (?:PHYSICAL )?(?:EXAM(?:INATION)?|STATUS|APPEARANCE|CONSTITUTIONAL)S?(?: SYMPTOMS?)?[\t ]*:?[\t ]*$
-Vital Signs||^[\t ]*VITAL SIGNS[\t ]*:?[\t ]*$
+Vital Signs||^[\t ]*VITAL(?:S|(?: (?:SIGNS|NOTES)))[\t ]*:?[\t ]*$
 Identifying Data||^[\t ]*IDENTIFYING DATA[\t ]*:?[\t ]*$
 Clinical History||^[\t ]*CLINICAL HISTORY[\t ]*:?[\t ]*$
 Current Health||^[\t ]*CURRENT HEALTH(?: STATUS)?[\t ]*:?[\t ]*$
