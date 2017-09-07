@@ -9,6 +9,7 @@ import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -25,8 +26,8 @@ final public class RegexBpFinder extends JCasAnnotator_ImplBase {
 
    static private final Logger LOGGER = Logger.getLogger( "RegexBpFinder" );
 
-   static private final String BP_SECTION = "Vital Signs";
-   static private final String BP_TRIGGER = "BP(?:\\s*:)?\\s+";
+   static private final Collection<String> BP_SECTIONS = Arrays.asList( "Vital Signs", "General Exam", "Objective" );
+   static private final String BP_TRIGGER = "\\bB\\/?P(?:\\s*:)?\\s+";
    static private final String BP_VALUES = "\\d{2,3} ?\\/ ?\\d{2,3}\\b";
 
    static private final RegexSpanFinder REGEX_SPAN_FINDER
@@ -42,7 +43,7 @@ final public class RegexBpFinder extends JCasAnnotator_ImplBase {
       // Get the sections
       JCasUtil.select( jCas, Segment.class ).stream()
             // filter by sections with the id "Vital Signs"
-            .filter( s -> s.getId().equalsIgnoreCase( BP_SECTION ) )
+            .filter( s -> BP_SECTIONS.contains( s.getId() ) )
             // find blood pressure values
             .forEach( RegexBpFinder::logBloodPressure );
 
