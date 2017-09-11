@@ -8,6 +8,7 @@ import org.apache.ctakes.typesystem.type.structured.DocumentIdPrefix;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
+import org.apache.ctakes.typesystem.type.syntax.TerminalTreebankNode;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.ctakes.typesystem.type.textsem.SemanticRoleRelation;
@@ -62,6 +63,7 @@ public @interface PipeBitInfo {
       DEGREE_RELATION( DegreeOfTextRelation.class ),
       TEMPORAL_RELATION( TemporalTextRelation.class ),
       DEPENDENCY_NODE( ConllDependencyNode.class ),
+      TREE_NODE( TerminalTreebankNode.class ),
       MARKABLE( Markable.class ),
       COREFERENCE_RELATION( CoreferenceRelation.class );
 

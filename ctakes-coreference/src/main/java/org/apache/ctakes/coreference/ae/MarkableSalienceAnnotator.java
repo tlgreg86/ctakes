@@ -1,10 +1,5 @@
 package org.apache.ctakes.coreference.ae;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.coreference.ae.features.salience.ClinicalFeatureExtractor;
 import org.apache.ctakes.coreference.ae.features.salience.GrammaticalRoleFeatureExtractor;
@@ -26,6 +21,11 @@ import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @PipeBitInfo(
       name = "Markable Salience Annotator",
@@ -90,7 +90,7 @@ public class MarkableSalienceAnnotator extends CleartkAnnotator<Boolean> {
       }else{
         Map<Boolean,Double> outcomes = this.classifier.score(features);
         markable.setConfidence(outcomes.get(true).floatValue());
-      }      
+      }
     }
   }
 }

@@ -249,9 +249,10 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
       relationLookup = new HashMap<>();
     }
 
-
-    for ( Segment segment : JCasUtil.select( jCas, Segment.class ) ) {
-      for ( Markable mention : JCasUtil.selectCovered( jCas, Markable.class, segment ) ) {
+     final Map<Segment, Collection<Markable>> segmentMarkables = JCasUtil.indexCovered( jCas, Segment.class, Markable.class );
+     for ( Collection<Markable> markables : segmentMarkables.values() ) {
+        for ( Markable mention : markables ) {
+//System.out.println( "MCCA Markable: " + mention.getCoveredText() + " :" + mention.getBegin() + "," + mention.getEnd() );
         //        ConllDependencyNode headNode = DependencyUtility.getNominalHeadNode(jCas, mention);
         boolean singleton = true;
         double maxScore = 0.0;
@@ -259,6 +260,7 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
 
         for ( CollectionTextRelationIdentifiedAnnotationPair pair : this.getCandidateRelationArgumentPairs( jCas, mention ) ) {
           CollectionTextRelation cluster = pair.getCluster();
+//System.out.println( "   MCCA Pair Cluster: " + pair.getCluster().getCategory() );
           // apply all the feature extractors to extract the list of features
           List<Feature> features = new ArrayList<>();
           for ( RelationFeaturesExtractor<CollectionTextRelation, IdentifiedAnnotation> extractor : this.relationExtractors ) {
@@ -266,6 +268,8 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
             if ( feats != null ) {
               //              Logger.getRootLogger().info(String.format("For cluster with %d mentions, %d %s features", JCasUtil.select(cluster.getMembers(), Markable.class).size(), feats.size(), extractor.getClass().getSimpleName()));
               features.addAll( feats );
+//System.out.println( "      MCCA Extract: " + extractor.getClass().getSimpleName() + "   Features:");
+//feats.forEach( f -> System.out.println( "         " + f.toString() ) );
             }
           }
 
@@ -305,9 +309,10 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
           // annotations
           else {
             String predictedCategory = this.classify( features );
+//System.out.println( "      MCCA Predicted Category: " + predictedCategory + "    Scores:" );
             // TODO look at scores in classifier and try best-pair rather than first-pair?
             Map<String, Double> scores = this.classifier.score( features );
-
+//scores.forEach( (k,v) -> System.out.println( "         " + k + " = " + v ) );
             // add a relation annotation if a true relation was predicted
             if ( !predictedCategory.equals( NO_RELATION_CATEGORY ) ) {
               //              Logger.getLogger("MCAnnotator").info(String.format("Making a pair with score %f", scores.get(predictedCategory)));
@@ -438,7 +443,6 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
     // do that by finding the head of the markable, then finding the identifiedannotations that cover it:
     
     Map<Markable, List<IdentifiedAnnotation>> markable2annotations = MarkableUtilities.indexCoveringUmlsAnnotations(jCas);
-
     for(CollectionTextRelation cluster : JCasUtil.select(jCas, CollectionTextRelation.class)){
       CounterMap<Class<? extends IdentifiedAnnotation>> headCounts = new CounterMap<>();
       List<Markable> memberList = new ArrayList<>(JCasUtil.select(cluster.getMembers(), Markable.class));

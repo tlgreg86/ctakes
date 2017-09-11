@@ -18,14 +18,7 @@
  */
 package org.apache.ctakes.coreference.factory;
 
-import org.apache.ctakes.coreference.ae.DeterministicMarkableAnnotator;
-import org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator;
-import org.apache.ctakes.coreference.ae.MarkableSalienceAnnotator;
-import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator;
-import org.apache.ctakes.coreference.ae.MipacqMarkableCreator;
-import org.apache.ctakes.coreference.ae.MipacqMarkableExpander;
-import org.apache.ctakes.coreference.ae.MipacqMarkablePairGenerator;
-import org.apache.ctakes.coreference.ae.MipacqSvmChainCreator;
+import org.apache.ctakes.coreference.ae.*;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
@@ -54,7 +47,7 @@ public class CoreferenceAnnotatorFactory {
   public static AnalysisEngineDescription getMentionClusterCoreferenceDescription() throws ResourceInitializationException {
     AggregateBuilder builder = new AggregateBuilder();
 
-    // Add markables using syntax: (nouns and pronouns)
+     // Add markables using syntax: (nouns and pronouns)   ; requires TerminalTreeBankNodes (from ConstituencyParser)
     builder.add(AnalysisEngineFactory.createEngineDescription(DeterministicMarkableAnnotator.class));
 
     builder.add(getMentionClusterResolverDescription());

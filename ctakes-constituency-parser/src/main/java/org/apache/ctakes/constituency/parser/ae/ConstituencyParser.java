@@ -38,7 +38,8 @@ import java.io.FileNotFoundException;
 @PipeBitInfo(
       name = "Constituency Parser",
       description = ".",
-      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.SENTENCE }
+      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.SENTENCE },
+      products = { PipeBitInfo.TypeProduct.TREE_NODE }
 )
 public class ConstituencyParser extends JCasAnnotator_ImplBase {
 	public static final String PARAM_MODEL_FILENAME = "MODEL_FILENAME";
