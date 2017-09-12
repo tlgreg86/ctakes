@@ -7,6 +7,7 @@ import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * enumeration of ctakes semantic types:
@@ -118,6 +119,20 @@ public enum SemanticGroup {
          }
       }
       return UNKNOWN_SEMANTIC;
+   }
+
+   /**
+    * @param annotations -
+    * @return all semantic codes for the annotations
+    */
+   static public Collection<String> getSemanticCodes( final Collection<IdentifiedAnnotation> annotations ) {
+      return annotations.stream()
+            .map( OntologyConceptUtil::getUmlsConcepts )
+            .flatMap( Collection::stream )
+            .map( SemanticGroup::getSemanticCode )
+            .distinct()
+            .sorted()
+            .collect( Collectors.toList() );
    }
 
    /**

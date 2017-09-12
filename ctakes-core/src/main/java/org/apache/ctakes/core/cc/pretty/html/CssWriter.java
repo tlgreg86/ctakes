@@ -1,6 +1,7 @@
 package org.apache.ctakes.core.cc.pretty.html;
 
 
+import org.apache.ctakes.core.cc.pretty.SemanticGroup;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedWriter;
@@ -31,16 +32,18 @@ final class CssWriter {
       outputFile.getParentFile().mkdirs();
       try ( final BufferedWriter writer = new BufferedWriter( new FileWriter( outputFile ) ) ) {
 //         writer.write( setBody() );
+         writer.write( setUnderline( GENERIC, "gray", "solid", "0.10" ) );
          writer.write( setUnderline( AFFIRMED, "green", "solid", "0.15" ) );
          writer.write( setUnderline( UNCERTAIN, "gold", "dotted", "0.16" ) );
          writer.write( setUnderline( NEGATED, "red", "dashed", "0.16" ) );
          writer.write( setUnderline( UNCERTAIN_NEGATED, "orange", "dashed", "0.16" ) );
 
-//         writer.write( setColor( "Anatomy", "gray" ) );
-//         writer.write( setColor( "Disorder", "black" ) );
-//         writer.write( setColor( "Finding", "magenta" ) );
-//         writer.write( setColor( "Drug", "red" ) );
-//         writer.write( setColor( "Procedure", "blue" ) );
+         writer.write( setSuperColor( SemanticGroup.FINDING.getCode(), "magenta" ) );
+         writer.write( setSuperColor( SemanticGroup.DISORDER.getCode(), "black" ) );
+         writer.write( setSuperColor( SemanticGroup.MEDICATION.getCode(), "red" ) );
+         writer.write( setSuperColor( SemanticGroup.PROCEDURE.getCode(), "blue" ) );
+         writer.write( setSuperColor( SemanticGroup.ANATOMICAL_SITE.getCode(), "gray" ) );
+         writer.write( setSuperColor( SemanticGroup.UNKNOWN_SEMANTIC_CODE, "gray" ) );
          writer.write( getToolTipCss() );
          writer.write( getRightDivCss() );
       } catch ( IOException ioE ) {
@@ -53,10 +56,6 @@ final class CssWriter {
    static private String setBody() {
       return "\nbody {\n" +
              "  margin: 20px;\n" +
-//            "  background-color: white;\n" +
-//             "}\n" +
-//             "\ndiv {\n" +
-//             "  margin-bottom: 0.4em;\n" +
             "}\n";
    }
 
@@ -71,10 +70,9 @@ final class CssWriter {
              "}\n";
    }
 
-   static private String setColor( final String className, final String color ) {
-      return "\n." + className + "::first-letter {\n" +
+   static private String setSuperColor( final String className, final String color ) {
+      return "\n." + className + " {\n" +
             "  color: " + color + ";\n" +
-//             "  font-weight: bold;\n" +
             "}\n";
    }
 
@@ -146,47 +144,8 @@ final class CssWriter {
             "  height: 100%;\n" +
             "  padding: 10px;\n" +
             "  overflow: auto;\n" +
-//            "}\n" +
-//            "@media screen {\n" +
-//            "  body>div#ai {\n" +
-//            "    position: fixed;\n" +
-//            "  }\n" +
-//            "}\n" +
-//            "* html body {\n" +
-//            "  overflow: hidden;\n" +
-//            "} \n" +
-//            "* html div#content {\n" +
-//            "  width: 79%;\n" +
-//            "  height: 100%;\n" +
-//            "  padding: 10px;\n" +
-//            "  overflow: auto;\n" +
             "}\n";
    }
-
-   /////  TODO drawing code for semantic type asterisk
-//   [data-tooltip]:after {
-//      position: absolute;
-//      bottom: 150%;
-//      left: 50%;
-//      margin-left: -5px;
-//      width: 0;
-//      border-top: 5px solid #000;
-//      border-top: 5px solid hsla(0, 0%, 20%, 0.9);
-//      border-right: 5px solid transparent;
-//      border-left: 5px solid transparent;
-//      content: " ";
-//      font-size: 0;
-//      line-height: 0;
-//   }
-
-
-//   static private String getAsterisk( final String className, final String color, final String xOffset, final String yOffset ) {
-//      return "\n." + className + " {\n" +
-//             "  position: relative;\n" +
-//             "  display: inline-block " + color + ";\n" +
-//             "  border-bottom: " + size + "em " + dashType + " " + color + ";\n" +
-//             "}\n";
-//   }
 
 
 }

@@ -12,6 +12,7 @@ import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
+import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -20,8 +21,11 @@ import org.apache.ctakes.typesystem.type.textspan.ListEntry;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
+import org.apache.uima.fit.util.FSCollectionFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.FSList;
+import org.apache.uima.jcas.tcas.Annotation;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,6 +34,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.apache.ctakes.core.cc.pretty.SemanticGroup.UNKNOWN_SEMANTIC_CODE;
 import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
 
 /**
@@ -52,6 +57,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
    static final String NEGATED = "NEG_";
    static final String UNCERTAIN = "UNC_";
    static final String AFFIRMED = "AFF_";
+   static final String GENERIC = "GNR_";
    static private final String SPACER = "SPC_";
    static private final String NEWLINE = "NL_";
 
@@ -97,14 +103,43 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          final Map<Sentence, Collection<BaseToken>> sentenceTokens
                = JCasUtil.indexCovered( jCas, Sentence.class, BaseToken.class );
          final Collection<BinaryTextRelation> relations = JCasUtil.select( jCas, BinaryTextRelation.class );
-         writeSections( sections, lists, listEntries, sectionSentences, sentenceAnnotations, sentenceTokens, relations, writer );
+         final Collection<CollectionTextRelation> corefRelations = JCasUtil.select( jCas, CollectionTextRelation.class );
+         final Map<Integer, Collection<Integer>> corefEnds = createCorefEnds( corefRelations );
+
+         writeSections( sections, lists, listEntries, sectionSentences, sentenceAnnotations, sentenceTokens, relations, corefEnds, writer );
          writeInfoPane( writer );
          writer.write( startJavascript() );
          writer.write( getSwapInfoScript() );
+         if ( !corefRelations.isEmpty() ) {
+            writeCorefInfos( corefRelations, writer );
+         }
          writer.write( endJavascript() );
          writer.write( getFooter() );
       }
       LOGGER.info( "Finished Writing" );
+   }
+
+   /**
+    * @param corefRelations coreference chains
+    * @return a map of markable text span ends to chain numbers
+    */
+   static private Map<Integer, Collection<Integer>> createCorefEnds( final Collection<CollectionTextRelation> corefRelations ) {
+      if ( corefRelations == null || corefRelations.isEmpty() ) {
+         return Collections.emptyMap();
+      }
+      final Map<Integer, Collection<Integer>> corefEnds = new HashMap<>();
+      int index = 1;
+      for ( CollectionTextRelation corefRelation : corefRelations ) {
+         final FSList chainHead = corefRelation.getMembers();
+         final Collection<IdentifiedAnnotation> markables
+               = FSCollectionFactory.create( chainHead, IdentifiedAnnotation.class );
+         for ( IdentifiedAnnotation markable : markables ) {
+            corefEnds.putIfAbsent( markable.getEnd(), new ArrayList<>() );
+            corefEnds.get( markable.getEnd() ).add( index );
+         }
+         index++;
+      }
+      return corefEnds;
    }
 
    /**
@@ -143,6 +178,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
     * @param sentenceAnnotations map of sentences and their contained annotations
     * @param sentenceTokens      map of sentences and their contained base tokens
     * @param relations           all relations
+    * @param corefEnds           map of text span ends to coreference chain indices
     * @param writer              writer to which pretty html for the section should be written
     * @throws IOException if the writer has issues
     */
@@ -150,6 +186,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
                                       final Map<Sentence, Collection<IdentifiedAnnotation>> sentenceAnnotations,
                                       final Map<Sentence, Collection<BaseToken>> sentenceTokens,
                                       final Collection<BinaryTextRelation> relations,
+                                      final Map<Integer, Collection<Integer>> corefEnds,
                                       final BufferedWriter writer ) throws IOException {
       writer.write( "\n<div id=\"content\">\n" );
       final List<Segment> sections = new ArrayList<>( sectionSentences.keySet() );
@@ -162,7 +199,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          for ( Sentence sentence : sentences ) {
             final Collection<IdentifiedAnnotation> annotations = sentenceAnnotations.get( sentence );
             final Collection<BaseToken> tokens = sentenceTokens.get( sentence );
-            writeSentence( sentence, annotations, tokens, relations, writer );
+            writeSentence( sentence, annotations, tokens, relations, corefEnds, writer );
          }
          writer.write( "\n</p>\n" );
       }
@@ -176,6 +213,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
     * @param sentenceAnnotations map of sentences and their contained annotations
     * @param sentenceTokens      map of sentences and their contained base tokens
     * @param relations           all relations
+    * @param corefEnds           map of text span ends to coreference chain indices
     * @param writer              writer to which pretty html for the section should be written
     * @throws IOException if the writer has issues
     */
@@ -186,9 +224,10 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
                                       final Map<Sentence, Collection<IdentifiedAnnotation>> sentenceAnnotations,
                                       final Map<Sentence, Collection<BaseToken>> sentenceTokens,
                                       final Collection<BinaryTextRelation> relations,
+                                      final Map<Integer, Collection<Integer>> corefEnds,
                                       final BufferedWriter writer ) throws IOException {
       if ( lists.isEmpty() ) {
-         writeSections( sectionSentences, sentenceAnnotations, sentenceTokens, relations, writer );
+         writeSections( sectionSentences, sentenceAnnotations, sentenceTokens, relations, corefEnds, writer );
          return;
       }
       writer.write( "\n<div id=\"content\">\n" );
@@ -217,14 +256,14 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
             if ( end != null ) {
                freshEntry = true;
                if ( currentEnd < 0 ) {
-                  startList( sentence, annotations, tokens, relations, writer );
+                  startList( sentence, annotations, tokens, relations, corefEnds, writer );
                   currentEnd = end;
                } else {
-                  writeListEntry( sentence, annotations, tokens, relations, writer );
+                  writeListEntry( sentence, annotations, tokens, relations, corefEnds, writer );
                }
             } else {
                if ( currentEnd >= 0 && sentence.getBegin() > currentEnd ) {
-                  endList( sentence, annotations, tokens, relations, writer );
+                  endList( sentence, annotations, tokens, relations, corefEnds, writer );
                   currentEnd = -1;
                   freshEntry = false;
                   continue;
@@ -233,7 +272,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
                   freshEntry = false;
                   writer.write( "\n<br>\n" );
                }
-               writeSentence( sentence, annotations, tokens, relations, writer );
+               writeSentence( sentence, annotations, tokens, relations, corefEnds, writer );
             }
          }
          if ( currentEnd >= 0 ) {
@@ -244,12 +283,22 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
       writer.write( "\n</div>\n" );
    }
 
+   /**
+    *
+    * @param sentence    sentence of interest
+    * @param annotations identified annotations in the section
+    * @param baseTokenMap  baseTokens in the section
+    * @param relations   all relations
+    * @param corefEnds           map of text span ends to coreference chain indices
+    * @return marked up text
+    */
    static private String createLineText( final Sentence sentence,
                                          final Collection<IdentifiedAnnotation> annotations,
                                          final Map<TextSpan, String> baseTokenMap,
-                                         final Collection<BinaryTextRelation> relations ) {
+                                         final Collection<BinaryTextRelation> relations,
+                                         final Map<Integer, Collection<Integer>> corefEnds ) {
       final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap = createAnnotationMap( sentence, annotations );
-      final Map<Integer, String> tags = createTags( annotationMap, relations );
+      final Map<Integer, String> tags = createTags( sentence.getBegin(), annotationMap, relations, corefEnds );
       final StringBuilder sb = new StringBuilder();
       int previousIndex = -1;
       for ( Map.Entry<TextSpan, String> entry : baseTokenMap.entrySet() ) {
@@ -277,6 +326,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
                                   final Collection<IdentifiedAnnotation> annotations,
                                   final Collection<BaseToken> baseTokens,
                                   final Collection<BinaryTextRelation> relations,
+                                  final Map<Integer, Collection<Integer>> corefEnds,
                                   final BufferedWriter writer ) throws IOException {
       if ( baseTokens.isEmpty() ) {
          return;
@@ -287,7 +337,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          return;
       }
       writer.write( "\n<ul>\n<li>" );
-      final String lineText = createLineText( sentence, annotations, baseTokenMap, relations );
+      final String lineText = createLineText( sentence, annotations, baseTokenMap, relations, corefEnds );
       writer.write( lineText );
    }
 
@@ -305,6 +355,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
                                        final Collection<IdentifiedAnnotation> annotations,
                                        final Collection<BaseToken> baseTokens,
                                        final Collection<BinaryTextRelation> relations,
+                                       final Map<Integer, Collection<Integer>> corefEnds,
                                        final BufferedWriter writer ) throws IOException {
       if ( baseTokens.isEmpty() ) {
          return;
@@ -315,7 +366,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          return;
       }
       writer.write( "</li>\n<li>" );
-      final String lineText = createLineText( sentence, annotations, baseTokenMap, relations );
+      final String lineText = createLineText( sentence, annotations, baseTokenMap, relations, corefEnds );
       writer.write( lineText );
    }
 
@@ -323,6 +374,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
                                 final Collection<IdentifiedAnnotation> annotations,
                                 final Collection<BaseToken> baseTokens,
                                 final Collection<BinaryTextRelation> relations,
+                                final Map<Integer, Collection<Integer>> corefEnds,
                                 final BufferedWriter writer ) throws IOException {
       if ( baseTokens.isEmpty() ) {
          return;
@@ -332,7 +384,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
       if ( baseTokenMap.isEmpty() ) {
          return;
       }
-      final String lineText = createLineText( sentence, annotations, baseTokenMap, relations );
+      final String lineText = createLineText( sentence, annotations, baseTokenMap, relations, corefEnds );
       writer.write( lineText + "</li>\n</ul>\n" );
    }
 
@@ -375,6 +427,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
     * @param annotations identified annotations in the section
     * @param baseTokens  baseTokens in the section
     * @param relations all relations
+    * @param corefEnds           map of text span ends to coreference chain indices
     * @param writer      writer to which pretty html for the section should be written
     * @throws IOException if the writer has issues
     */
@@ -382,6 +435,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
                                       final Collection<IdentifiedAnnotation> annotations,
                                       final Collection<BaseToken> baseTokens,
                                       final Collection<BinaryTextRelation> relations,
+                                      final Map<Integer, Collection<Integer>> corefEnds,
                                       final BufferedWriter writer ) throws IOException {
       if ( baseTokens.isEmpty() ) {
          return;
@@ -391,7 +445,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
       if ( baseTokenMap.isEmpty() ) {
          return;
       }
-      final String lineText = createLineText( sentence, annotations, baseTokenMap, relations );
+      final String lineText = createLineText( sentence, annotations, baseTokenMap, relations, corefEnds );
       writer.write( lineText + "\n<br>\n" );
    }
 
@@ -562,11 +616,16 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
    }
 
    /**
+    * @param sentenceBegin begin offset of sentence
     * @param annotationMap map of all annotations within or overlapping the small span elements
+    * @param relations all relations
+    * @param corefEnds           map of text span ends to coreference chain indices
     * @return html for span elements
     */
-   static private Map<Integer, String> createTags( final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap,
-                                                   final Collection<BinaryTextRelation> relations ) {
+   static private Map<Integer, String> createTags( final int sentenceBegin,
+                                                   final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap,
+                                                   final Collection<BinaryTextRelation> relations,
+                                                   final Map<Integer, Collection<Integer>> corefEnds ) {
       if ( annotationMap.isEmpty() ) {
          return Collections.emptyMap();
       }
@@ -598,10 +657,37 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          }
          sb.append( '>' );
 
+         // coref chain
+         final StringBuilder sb2 = new StringBuilder();
+         final Collection<IdentifiedAnnotation> endAnnotations = annotations.stream()
+               .filter( a -> a.getEnd() == (sentenceBegin + adjustedSpan.getEnd()) )
+               .collect( Collectors.toSet() );
+         final Collection<String> semanticCodes = SemanticGroup.getSemanticCodes( endAnnotations );
+         final Collection<Integer> chains = corefEnds.get( sentenceBegin + adjustedSpan.getEnd() );
+         if ( chains != null && !chains.isEmpty() ) {
+            String semantic = semanticCodes.stream().findAny().orElse( UNKNOWN_SEMANTIC_CODE );
+            if ( endAnnotations.size() != annotations.size() ) {
+               semantic += " " + polarityClasses;
+            }
+            for ( Integer chain : chains ) {
+               sb2.append( "<span class=\"" ).append( semantic ).append( "\"" );
+               sb2.append( " onClick=\"crf" ).append( chain ).append( "()\">" );
+               sb2.append( "<sup>" ).append( chain ).append( "</sup></span>" );
+            }
+         } else {
+            for ( String semantic : semanticCodes ) {
+               sb2.append( "<span class=\"" ).append( semantic );
+               if ( endAnnotations.size() != annotations.size() ) {
+                  sb2.append( " " ).append( polarityClasses );
+               }
+               sb2.append( "\"><sup>" ).append( "&bull;" ).append( "</sup></span>" );
+            }
+         }
+
          final Integer begin = adjustedSpan.getBegin();
          final String previousTag = indexTags.getOrDefault( begin, "" );
          indexTags.put( begin, previousTag + sb.toString() );
-         indexTags.put( adjustedSpan.getEnd(), "</span>" );
+         indexTags.put( adjustedSpan.getEnd(), "</span>" + sb2.toString() );
       }
       return indexTags;
    }
@@ -640,6 +726,22 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          }
       }
       return sb.toString();
+   }
+
+   static private String getSemanticColor( final String semanticCode ) {
+      switch ( semanticCode ) {
+         case "ANT":
+            return "gray";
+         case "DIS":
+            return "black";
+         case "FND":
+            return "magenta";
+         case "PRC":
+            return "blue";
+         case "DRG":
+            return "red";
+      }
+      return "gray";
    }
 
    /**
@@ -758,6 +860,9 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
     * @return polarity for a single annotation
     */
    static private String createPolarity( final IdentifiedAnnotation annotation ) {
+      if ( annotation instanceof TimeMention ) {
+         return GENERIC;
+      }
       if ( annotation.getPolarity() < 0 ) {
          if ( annotation.getUncertainty() > 0 ) {
             return UNCERTAIN_NEGATED;
@@ -850,6 +955,31 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
     */
    static private void writeInfoPane( final BufferedWriter writer ) throws IOException {
       writer.write( "\n<div id=\"ia\"> Annotation Information </div>\n" );
+   }
+
+   /**
+    * @param corefRelations -
+    * @param writer    writer to which pretty html for the section should be written
+    * @throws IOException if the writer has issues
+    */
+   static private void writeCorefInfos( final Collection<CollectionTextRelation> corefRelations, final BufferedWriter writer ) throws IOException {
+      if ( corefRelations == null || corefRelations.isEmpty() ) {
+         return;
+      }
+      int index = 1;
+      for ( CollectionTextRelation corefRelation : corefRelations ) {
+         final FSList chainHead = corefRelation.getMembers();
+         final Collection<IdentifiedAnnotation> markables
+               = FSCollectionFactory.create( chainHead, IdentifiedAnnotation.class );
+         final String text = markables.stream()
+               .sorted( Comparator.comparing( Annotation::getBegin ) )
+               .map( IdentifiedAnnotation::getCoveredText )
+               .collect( Collectors.joining( "<br>" ) );
+         writer.write( "  function crf" + index + "() {\n" );
+         writer.write( "    document.getElementById(\"ia\").innerHTML = \"<br><h3>Coreference Chain</h3>" + text + "\";\n" );
+         writer.write( "  }\n" );
+         index++;
+      }
    }
 
    /**
