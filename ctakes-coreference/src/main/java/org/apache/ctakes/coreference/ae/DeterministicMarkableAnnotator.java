@@ -26,8 +26,7 @@ import static org.apache.ctakes.dependency.parser.util.DependencyUtility.*;
 
 @PipeBitInfo(
       name = "Markable Annotator (Deterministic)",
-      description = "Annotates Markables for use by Coreference Annotators." +
-            " degree_of type and a single modifier.",
+      description = "Annotates Markables for use by Coreference Annotators.",
       dependencies = { SECTION, SENTENCE,
             IDENTIFIED_ANNOTATION, DEPENDENCY_NODE,
             TREE_NODE, TIMEX },

@@ -31,6 +31,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +52,12 @@ import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
       usables = { DOCUMENT_ID_PREFIX, IDENTIFIED_ANNOTATION, EVENT, TIMEX, TEMPORAL_RELATION }
 )
 final public class HtmlTextWriter extends AbstractOutputFileWriter {
+
+   // TODO https://www.w3schools.com/howto/howto_css_switch.asp
+   // TODO https://www.w3schools.com/html/tryit.asp?filename=tryhtml_layout_flexbox
+   // TODO https://www.w3schools.com/html/html5_new_elements.asp
+
+
 
    static final String TOOL_TIP = "TIP";
 
@@ -104,6 +112,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
                = JCasUtil.indexCovered( jCas, Sentence.class, BaseToken.class );
          final Collection<BinaryTextRelation> relations = JCasUtil.select( jCas, BinaryTextRelation.class );
          final Collection<CollectionTextRelation> corefRelations = JCasUtil.select( jCas, CollectionTextRelation.class );
+
          final Map<Integer, Collection<Integer>> corefEnds = createCorefEnds( corefRelations );
 
          writeSections( sections, lists, listEntries, sectionSentences, sentenceAnnotations, sentenceTokens, relations, corefEnds, writer );
@@ -147,7 +156,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
     * @return html to set the header
     */
    static private String getHeader( final String title ) {
-      return "<!DOCTYPE html>\n<html>\n<head>\n  <title>" + title + " Output</title>\n</head>\n<body>\n";
+      return "<!DOCTYPE html>\n<html>\n<head>\n  <title>" + getSafeText( title ) + " Output</title>\n</head>\n<body>\n";
    }
 
    /**
@@ -159,7 +168,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
    }
 
    /**
-    * Write html for document title
+    * Write html for document title and job completion time for document
     *
     * @param title  normally document title, such as filename
     * @param writer writer to which pretty html for the section should be written
@@ -167,8 +176,11 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
     */
    static private void writeTitle( final String title, final BufferedWriter writer ) throws IOException {
       if ( !title.isEmpty() ) {
-         writer.write( "\n<h2>" + title + "</h2>\n" );
+         writer.write( "\n<h2>" + getSafeText( title ) + "</h2>\n " );
       }
+      final LocalDateTime time = LocalDateTime.now();
+      final DateTimeFormatter formatter = DateTimeFormatter.ofPattern( "L dd yyyy, HH:mm:ss" );
+      writer.write( "<i>Text processing finished on: " + formatter.format( time ) + "</i>\n<hr>\n" );
    }
 
    /**
@@ -406,14 +418,14 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
       }
       final StringBuilder sb = new StringBuilder();
       sb.append( "\n<h3" );
-      final String sectionTag = section.getTagText();
+      final String sectionTag = getSafeText( section.getTagText() );
       if ( sectionTag != null && !sectionTag.trim().isEmpty() ) {
          sb.append( " onClick=\"iaf(\'" ).append( sectionTag.trim() ).append( "')\"" );
       }
-      sb.append( ">" ).append( sectionId );
+      sb.append( ">" ).append( getSafeText( sectionId ) );
       final String sectionName = section.getPreferredText();
       if ( sectionName != null && !sectionName.trim().isEmpty() && !sectionName.trim().equals( sectionId ) ) {
-         sb.append( " : " ).append( sectionName );
+         sb.append( " : " ).append( getSafeText( sectionName ) );
       }
       sb.append( "</h3>\n" );
       writer.write( sb.toString() );
@@ -465,18 +477,32 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          if ( textSpan.getWidth() == 0 ) {
             continue;
          }
-         String text = baseToken.getCoveredText().trim();
+         String text = getSafeText( baseToken );
          if ( text.isEmpty() ) {
             continue;
          }
-         text = text.replaceAll( "'", "&apos;" );
-         text = text.replaceAll( "\"", "&quot;" );
-         text = text.replaceAll( "@", "&amp;" );
-         text = text.replaceAll( "<", "&lt;" );
-         text = text.replaceAll( ">", "&gt;" );
          baseItemMap.put( textSpan, text );
       }
       return baseItemMap;
+   }
+
+   static private String getSafeText( final Annotation annotation ) {
+      if ( annotation == null ) {
+         return "";
+      }
+      return getSafeText( annotation.getCoveredText().trim() );
+   }
+
+   static private String getSafeText( final String text ) {
+      if ( text.isEmpty() ) {
+         return "";
+      }
+      String safeText = text.replaceAll( "'", "&apos;" );
+      safeText = safeText.replaceAll( "\"", "&quot;" );
+      safeText = safeText.replaceAll( "@", "&amp;" );
+      safeText = safeText.replaceAll( "<", "&lt;" );
+      safeText = safeText.replaceAll( ">", "&gt;" );
+      return safeText;
    }
 
    /**
@@ -728,22 +754,6 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
       return sb.toString();
    }
 
-   static private String getSemanticColor( final String semanticCode ) {
-      switch ( semanticCode ) {
-         case "ANT":
-            return "gray";
-         case "DIS":
-            return "black";
-         case "FND":
-            return "magenta";
-         case "PRC":
-            return "blue";
-         case "DRG":
-            return "red";
-      }
-      return "gray";
-   }
-
    /**
     * @param annotation -
     * @return map of semantic to text for annotations
@@ -753,11 +763,12 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
       final Collection<UmlsConcept> concepts = OntologyConceptUtil.getUmlsConcepts( annotation );
       final Map<String, Collection<String>> semanticMap = new HashMap<>();
       final String coveredText = getCoveredText( annotation );
+      final String safeText = getSafeText( coveredText );
       final String relationText = getRelationText( annotation, relations );
       for ( UmlsConcept concept : concepts ) {
          final String semanticCode = SemanticGroup.getSemanticCode( concept );
          semanticMap.putIfAbsent( semanticCode, new HashSet<>() );
-         String text = coveredText + NEWLINE + getCodes( concept ) + getPreferredText( coveredText, concept ) + relationText;
+         String text = safeText + NEWLINE + getCodes( concept ) + getPreferredText( coveredText, concept ) + relationText;
          if ( annotation instanceof EventMention ) {
             text += getDocTimeRel( (EventMention) annotation );
          }
@@ -774,7 +785,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          }
          if ( !semanticCode.isEmpty() ) {
             semanticMap.putIfAbsent( semanticCode, new HashSet<>() );
-            semanticMap.get( semanticCode ).add( coveredText + NEWLINE + postText + relationText );
+            semanticMap.get( semanticCode ).add( safeText + NEWLINE + postText + relationText );
          }
       }
       return semanticMap;
@@ -817,7 +828,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
             && !preferredText.equalsIgnoreCase( coveredText )
             && !preferredText.equalsIgnoreCase( coveredText + 's' )
             && !coveredText.equalsIgnoreCase( preferredText + 's' ) ) {
-         return SPACER + "[" + preferredText + "]" + NEWLINE;
+         return SPACER + "[" + getSafeText( preferredText ) + "]" + NEWLINE;
       }
       return "";
    }
@@ -904,9 +915,9 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
 
    static private String getRelationText( final IdentifiedAnnotation annotation, final BinaryTextRelation relation ) {
       if ( relation.getArg1().getArgument().equals( annotation ) ) {
-         return SPACER + "[" + relation.getCategory() + "] " + relation.getArg2().getArgument().getCoveredText() + NEWLINE;
+         return SPACER + "[" + relation.getCategory() + "] " + getSafeText( relation.getArg2().getArgument() ) + NEWLINE;
       } else if ( relation.getArg2().getArgument().equals( annotation ) ) {
-         return SPACER + "[" + relation.getCategory() + "] " + relation.getArg1().getArgument().getCoveredText() + NEWLINE;
+         return SPACER + getSafeText( relation.getArg1().getArgument() ) + " [" + relation.getCategory() + "]" + NEWLINE;
       }
       return "";
    }
@@ -972,8 +983,8 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
          final Collection<IdentifiedAnnotation> markables
                = FSCollectionFactory.create( chainHead, IdentifiedAnnotation.class );
          final String text = markables.stream()
-               .sorted( Comparator.comparing( Annotation::getBegin ) )
-               .map( IdentifiedAnnotation::getCoveredText )
+               .sorted( Comparator.comparingInt( Annotation::getBegin ) )
+               .map( HtmlTextWriter::getSafeText )
                .collect( Collectors.joining( "<br>" ) );
          writer.write( "  function crf" + index + "() {\n" );
          writer.write( "    document.getElementById(\"ia\").innerHTML = \"<br><h3>Coreference Chain</h3>" + text + "\";\n" );

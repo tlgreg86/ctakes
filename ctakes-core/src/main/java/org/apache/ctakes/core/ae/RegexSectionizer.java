@@ -143,6 +143,8 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
       if ( headerTags.isEmpty() ) {
          LOGGER.debug( "No section headers found" );
       }
+      final Collection<Pair<Integer>> subsumedTags = getSubsumedBounds( headerTags.keySet() );
+      headerTags.keySet().removeAll( subsumedTags );
       final Map<Pair<Integer>, SectionTag> footerTags = findFooterTags( docText );
       final Map<Pair<Integer>, SectionTag> dividerLines = new HashMap<>();
       if ( _tagDividers ) {
@@ -150,6 +152,91 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
       }
       createSegments( jcas, headerTags, footerTags, dividerLines );
       LOGGER.info( "Finished processing" );
+   }
+
+
+   /**
+    * return subsumed bounds:
+    * |=============|
+    * |xxxxxxxx|
+    * |xxxx|
+    * |===============|
+    * |================|
+    * |xxxxxxxx|
+    */
+   // Todo make TextSpanUtil
+   static private Collection<Pair<Integer>> getSubsumedBounds( final Collection<Pair<Integer>> bounds ) {
+      final List<Pair<Integer>> boundsList = new ArrayList<>( bounds );
+      final Collection<Pair<Integer>> subsumedBounds = new HashSet<>();
+      for ( int i = 0; i < boundsList.size() - 1; i++ ) {
+         final Pair<Integer> pairI = boundsList.get( i );
+         for ( int j = i + 1; j < boundsList.size(); j++ ) {
+            final Pair<Integer> pairJ = boundsList.get( j );
+            if ( pairI.getValue1() <= pairJ.getValue1() && pairJ.getValue2() <= pairI.getValue2() ) {
+               subsumedBounds.add( pairJ );
+            } else if ( pairJ.getValue1() <= pairI.getValue1() && pairI.getValue2() <= pairJ.getValue2() ) {
+               subsumedBounds.add( pairI );
+            }
+         }
+      }
+      return subsumedBounds;
+   }
+
+   /**
+    * return latter overlapped bounds:
+    * |=============|
+    * |xxxxxxxx|
+    * |xxxx|
+    * |xxxxxxxxxxxxxx|
+    * |xxxxxxxxxxxxxxx|
+    * |xxxxxxx|
+    */
+   // Todo make TextSpanUtil
+   static private Collection<Pair<Integer>> getOverlappedBounds( final Collection<Pair<Integer>> bounds ) {
+      final List<Pair<Integer>> boundsList = new ArrayList<>( bounds );
+      final Collection<Pair<Integer>> overlappedBounds = new HashSet<>();
+      for ( int i = 0; i < boundsList.size() - 1; i++ ) {
+         final Pair<Integer> pairI = boundsList.get( i );
+         for ( int j = i + 1; j < boundsList.size(); j++ ) {
+            final Pair<Integer> pairJ = boundsList.get( j );
+            if ( pairI.getValue1() <= pairJ.getValue1() && pairJ.getValue1() <= pairI.getValue2() ) {
+               overlappedBounds.add( pairJ );
+            } else if ( pairJ.getValue1() <= pairI.getValue1() && pairI.getValue1() <= pairJ.getValue2() ) {
+               overlappedBounds.add( pairI );
+            }
+         }
+      }
+      return overlappedBounds;
+   }
+
+   /**
+    * Sorts by first offset, longer bounds first, removing subsumed and latter overlapped bounds:
+    * |=============|
+    * |xxxxxxxx|
+    * |xxxx|
+    * |xxxxxxxxxxxxxx|
+    * |xxxxxxxxxxxxxxx|
+    * |========|
+    */
+   // Todo make TextSpanUtil
+   static private List<Pair<Integer>> sortAndTrimBounds( final Collection<Pair<Integer>> bounds ) {
+      final List<Pair<Integer>> boundsList = new ArrayList<>( bounds );
+      boundsList.sort( new PairIntSorter() );
+      final Collection<Pair<Integer>> removalBounds = new HashSet<>();
+      for ( int i = 0; i < boundsList.size() - 1; i++ ) {
+         final Pair<Integer> pairI = boundsList.get( i );
+         for ( int j = i + 1; j < boundsList.size(); j++ ) {
+            final Pair<Integer> pairJ = boundsList.get( j );
+            if ( pairJ.getValue1() > pairI.getValue2() ) {
+               // pairJ after pairI.  Move on to next pairI
+               break;
+            }
+            // PairI subsumes or overlaps pairJ.  Remove pairJ.
+            removalBounds.add( pairJ );
+         }
+      }
+      boundsList.removeAll( removalBounds );
+      return boundsList;
    }
 
 
@@ -257,7 +344,8 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
          docSegment.addToIndexes();
          return;
       }
-      final List<Pair<Integer>> boundsList = createBoundsList( sectionTags.keySet() );
+//      final List<Pair<Integer>> boundsList = createBoundsList( sectionTags.keySet() );
+      final List<Pair<Integer>> boundsList = sortAndTrimBounds( sectionTags.keySet() );
       Pair<Integer> leftBounds = boundsList.get( 0 );
       int sectionEnd;
       if ( leftBounds.getValue1() > 0 ) {
@@ -303,7 +391,7 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
       }
    }
 
-
+   // Todo make TextSpanUtil
    static private List<Pair<Integer>> createBoundsList( final Collection<Pair<Integer>> bounds ) {
       final List<Pair<Integer>> boundsList = new ArrayList<>( bounds );
       boundsList.sort( ( p1, p2 ) -> p1.getValue1() - p2.getValue2() );
@@ -351,6 +439,26 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
          return finder.findSpans( docText ).stream().collect( Collectors.toMap( Function.identity(), lineDividerTag ) );
       } catch ( IllegalArgumentException iaE ) {
          return Collections.emptyMap();
+      }
+   }
+
+
+   /**
+    * Sorts by first offset, longer bounds first:
+    *   |=============|
+    *      |========|
+    *      |====|
+    *        |==============|
+    *                |==============|
+    *                     |========|
+    */
+   static private final class PairIntSorter implements Comparator<Pair<Integer>> {
+      public int compare( final Pair<Integer> p1, final Pair<Integer> p2 ) {
+         final int start = p1.getValue1() - p2.getValue1();
+         if ( start != 0 ) {
+            return start;
+         }
+         return p2.getValue2() - p1.getValue2();
       }
    }
 

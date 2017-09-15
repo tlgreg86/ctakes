@@ -79,3 +79,6 @@ Plan||^[\t ]*(?:ASSESSMENT AND )?PLAN[\t ]*:?[\t ]*$
 Labs||^[\t ]*LABS?\/(?:ANC(?:ILLARY)?|STUDIES)[\t ]*:?[\t ]*$
 Diet||^[\t ]*DIET[\t ]*:?[\t ]*$
 Vaccinations||^[\t ]*VACCINATIONS?[\t ]*:?[\t ]*$
+
+// The following are not clinical document sections, but allow skipping of unwanted text
+XML||\A<\?xml (?:[^>]*>)*
