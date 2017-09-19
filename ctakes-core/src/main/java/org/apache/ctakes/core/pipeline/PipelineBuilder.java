@@ -20,6 +20,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,9 +39,12 @@ final public class PipelineBuilder {
 
    private CollectionReaderDescription _readerDesc;
    private final List<String> _aeNameList;
+   private final List<String[]> _aeViewList;
    private final List<AnalysisEngineDescription> _descList;
    private final List<String> _aeEndNameList;
+   private final List<String[]> _aeEndViewList;
    private final List<AnalysisEngineDescription> _descEndList;
+
    // Allow the pipeline to be changed even after it has been built once.
    private AnalysisEngineDescription _analysisEngineDesc;
    private boolean _pipelineChanged;
@@ -48,15 +52,19 @@ final public class PipelineBuilder {
 
    public PipelineBuilder() {
       _aeNameList = new ArrayList<>();
+      _aeViewList = new ArrayList<>();
       _descList = new ArrayList<>();
       _aeEndNameList = new ArrayList<>();
+      _aeEndViewList = new ArrayList<>();
       _descEndList = new ArrayList<>();
    }
 
    public void clear() {
       _aeNameList.clear();
+      _aeViewList.clear();
       _descList.clear();
       _aeEndNameList.clear();
+      _aeEndViewList.clear();
       _descEndList.clear();
    }
 
@@ -145,14 +153,28 @@ final public class PipelineBuilder {
    /**
     * Use of this method is order-specific.
     *
+    * @param component ae or cc component class to add to the pipeline
+    * @return this PipelineBuilder
+    * @throws ResourceInitializationException if the component cannot be created
+    */
+   public PipelineBuilder add( final Class<? extends AnalysisComponent> component ) throws ResourceInitializationException {
+      return add( component, Collections.emptyList() );
+   }
+
+   /**
+    * Use of this method is order-specific.
+    *
     * @param component  ae or cc component class to add to the pipeline
+    * @param views cas views to use for the component
     * @param parameters ae or cc parameter name value pairs.  May be empty.
     * @return this PipelineBuilder
     * @throws ResourceInitializationException if the component cannot be created
     */
    public PipelineBuilder add( final Class<? extends AnalysisComponent> component,
+                               final Collection<String> views,
                                final Object... parameters ) throws ResourceInitializationException {
       _aeNameList.add( component.getName() );
+      _aeViewList.add( toStringArray( views ) );
       _descList.add( PropertyAeFactory.getInstance().createDescription( component, parameters ) );
       _pipelineChanged = true;
       return this;
@@ -163,13 +185,16 @@ final public class PipelineBuilder {
     * Use of this method is order-specific.
     *
     * @param component  ae or cc component class to add to the pipeline
+    * @param views cas views to use for the component
     * @param parameters ae or cc parameter name value pairs.  May be empty.
     * @return this PipelineBuilder
     * @throws ResourceInitializationException if the component cannot be created
     */
    public PipelineBuilder addLogged( final Class<? extends AnalysisComponent> component,
+                                     final Collection<String> views,
                                      final Object... parameters ) throws ResourceInitializationException {
       _aeNameList.add( component.getName() );
+      _aeViewList.add( toStringArray( views ) );
       _descList.add( PropertyAeFactory.getInstance().createLoggedDescription( component, parameters ) );
       _pipelineChanged = true;
       return this;
@@ -182,7 +207,20 @@ final public class PipelineBuilder {
     * @return this PipelineBuilder
     */
    public PipelineBuilder addDescription( final AnalysisEngineDescription description ) {
+      return addDescription( description, Collections.emptyList() );
+   }
+
+   /**
+    * Use of this method is order-specific.
+    *
+    * @param description ae or cc component class description to add to the pipeline
+    * @param views       cas views to use for the component
+    * @return this PipelineBuilder
+    */
+   public PipelineBuilder addDescription( final AnalysisEngineDescription description,
+                                          final Collection<String> views ) {
       _aeNameList.add( description.getAnnotatorImplementationName() );
+      _aeViewList.add( toStringArray( views ) );
       _descList.add( description );
       _pipelineChanged = true;
       return this;
@@ -192,13 +230,16 @@ final public class PipelineBuilder {
     * Adds an ae or cc component t othe very end of the pipeline.  Use of this method is order-specific.
     *
     * @param component  ae or cc component class to add to the end of the pipeline
+    * @param views cas views to use for the component
     * @param parameters ae or cc parameter name value pairs.  May be empty.
     * @return this PipelineBuilder
     * @throws ResourceInitializationException if the component cannot be created
     */
    public PipelineBuilder addLast( final Class<? extends AnalysisComponent> component,
+                                   final Collection<String> views,
                                    final Object... parameters ) throws ResourceInitializationException {
       _aeEndNameList.add( component.getName() );
+      _aeEndViewList.add( toStringArray( views ) );
       _descEndList.add( PropertyAeFactory.getInstance().createDescription( component, parameters ) );
       _pipelineChanged = true;
       return this;
@@ -247,7 +288,7 @@ final public class PipelineBuilder {
     * @throws ResourceInitializationException if the Xmi writer engine cannot be created
     */
    public PipelineBuilder writeXMIs() throws ResourceInitializationException {
-      return addLast( FileTreeXmiWriter.class );
+      return addLast( FileTreeXmiWriter.class, Collections.emptyList() );
    }
 
    /**
@@ -259,7 +300,8 @@ final public class PipelineBuilder {
     * @throws ResourceInitializationException if the Xmi writer engine cannot be created
     */
    public PipelineBuilder writeXMIs( final String outputDirectory ) throws ResourceInitializationException {
-      return addLast( FileTreeXmiWriter.class, ConfigParameterConstants.PARAM_OUTPUTDIR, outputDirectory );
+      return addLast( FileTreeXmiWriter.class, Collections.emptyList(),
+            ConfigParameterConstants.PARAM_OUTPUTDIR, outputDirectory );
    }
 
    /**
@@ -273,8 +315,14 @@ final public class PipelineBuilder {
    public PipelineBuilder build() throws IOException, UIMAException {
       if ( _analysisEngineDesc == null || _pipelineChanged ) {
          final AggregateBuilder builder = new AggregateBuilder();
-         _descList.forEach( builder::add );
-         _descEndList.forEach( builder::add );
+         for ( int i = 0; i < _descList.size(); i++ ) {
+            builder.add( _descList.get( i ), _aeViewList.get( i ) );
+         }
+         for ( int i = 0; i < _descEndList.size(); i++ ) {
+            builder.add( _descEndList.get( i ), _aeEndViewList.get( i ) );
+         }
+//         _descList.forEach( builder::add );
+//         _descEndList.forEach( builder::add );
          _analysisEngineDesc = builder.createAggregateDescription();
       }
       _pipelineChanged = false;
@@ -330,6 +378,10 @@ final public class PipelineBuilder {
    public AnalysisEngineDescription getAnalysisEngineDesc() throws IOException, UIMAException {
       build();
       return _analysisEngineDesc;
+   }
+
+   static private String[] toStringArray( final Collection<String> things ) {
+      return new ArrayList<>( things ).toArray( new String[ things.size() ] );
    }
 
 }

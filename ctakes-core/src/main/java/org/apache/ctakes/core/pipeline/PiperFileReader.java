@@ -13,9 +13,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,6 +52,8 @@ final public class PiperFileReader {
 
    static private final Logger LOGGER = Logger.getLogger( "PiperFileReader" );
 
+   static public final String AE_VIEW_NAMES = "AeViews";
+
    static private final String[] CTAKES_PACKAGES
          = { "core",
          "contexttokenizer",
@@ -87,6 +87,7 @@ final public class PiperFileReader {
    static private final Pattern QUOTE_VALUE_PATTERN = Pattern.compile( "(?:[^\"=\\s]+)|(?:\"[^\"=\\r\\n]+\")" );
    static private final Pattern NAME_VALUE_PATTERN = Pattern
          .compile( "[^\"\\s=]+=(?:(?:[^\"=\\s]+)|(?:\"[^\"=\\r\\n]+\"))" );
+   static private final Pattern VIEWS_PATTERN = Pattern.compile( AE_VIEW_NAMES + "=[^\\s]+" );
 
    private PipelineBuilder _builder;
 
@@ -180,78 +181,82 @@ final public class PiperFileReader {
    /**
     * @param command   specified by first word in the file line
     * @param parameter specified by second word in the file line
+    * @return true if the command and parameters are valid
     * @throws UIMAException if the command could not be executed
     */
    private boolean addToPipeline( final String command, final String parameter ) throws UIMAException {
+      final Collection<String> viewSpecs = getViewSpecs( parameter );
+      final Collection<String> views = getViews( viewSpecs );
+      final String info = removeViewSpecs( parameter, viewSpecs );
       switch ( command ) {
          case "load":
-            return loadPipelineFile( parameter );
+            return loadPipelineFile( info );
          case "package":
-            addUserPackage( parameter );
+            addUserPackage( info );
             return true;
          case "set":
-            _builder.set( splitParameters( parameter ) );
+            _builder.set( splitParameters( info ) );
             return true;
          case "cli":
-            _builder.setIfEmpty( getCliParameters( parameter ) );
+            _builder.setIfEmpty( getCliParameters( info ) );
             return true;
          case "reader":
-            if ( hasParameters( parameter ) ) {
-               final String[] component_parameters = splitFromParameters( parameter );
+            if ( hasParameters( info ) ) {
+               final String[] component_parameters = splitFromParameters( info );
                final String component = component_parameters[ 0 ];
                final Object[] parameters = splitParameters( component_parameters[ 1 ] );
                _builder.reader( getReaderClass( component ), parameters );
             } else {
-               _builder.reader( getReaderClass( parameter ) );
+               _builder.reader( getReaderClass( info ) );
             }
             return true;
          case "readFiles":
-            if ( parameter.isEmpty() ) {
+            if ( info.isEmpty() ) {
                _builder.readFiles();
             } else {
-               _builder.readFiles( parameter );
+               _builder.readFiles( info );
             }
             return true;
          case "add":
-            if ( hasParameters( parameter ) ) {
-               final String[] component_parameters = splitFromParameters( parameter );
+            if ( hasParameters( info ) ) {
+               final String[] component_parameters = splitFromParameters( info );
                final String component = component_parameters[ 0 ];
                final Object[] parameters = splitParameters( component_parameters[ 1 ] );
-               _builder.add( getComponentClass( component ), parameters );
+               _builder.add( getComponentClass( component ), views, parameters );
             } else {
-               _builder.add( getComponentClass( parameter ) );
+               _builder.add( getComponentClass( info ), views );
             }
             return true;
          case "addLogged":
-            if ( hasParameters( parameter ) ) {
-               final String[] component_parameters = splitFromParameters( parameter );
+            if ( hasParameters( info ) ) {
+               final String[] component_parameters = splitFromParameters( info );
                final String component = component_parameters[ 0 ];
                final Object[] parameters = splitParameters( component_parameters[ 1 ] );
-               _builder.addLogged( getComponentClass( component ), parameters );
+               _builder.addLogged( getComponentClass( component ), views, parameters );
             } else {
-               _builder.addLogged( getComponentClass( parameter ) );
+               _builder.addLogged( getComponentClass( info ), views );
             }
             return true;
          case "addDescription":
-            if ( hasParameters( parameter ) ) {
-               final String[] descriptor_parameters = splitFromParameters( parameter );
+            if ( hasParameters( info ) ) {
+               final String[] descriptor_parameters = splitFromParameters( info );
                final String component = descriptor_parameters[ 0 ];
                final Object[] values = splitDescriptorValues( descriptor_parameters[ 1 ] );
                final AnalysisEngineDescription description = createDescription( component, values );
-               _builder.addDescription( description );
+               _builder.addDescription( description, views );
             } else {
-               final AnalysisEngineDescription description = createDescription( parameter );
-               _builder.addDescription( description );
+               final AnalysisEngineDescription description = createDescription( info );
+               _builder.addDescription( description, views );
             }
             return true;
          case "addLast":
-            if ( hasParameters( parameter ) ) {
-               final String[] component_parameters = splitFromParameters( parameter );
+            if ( hasParameters( info ) ) {
+               final String[] component_parameters = splitFromParameters( info );
                final String component = component_parameters[ 0 ];
                final Object[] parameters = splitParameters( component_parameters[ 1 ] );
-               _builder.addLast( getComponentClass( component ), parameters );
+               _builder.addLast( getComponentClass( component ), views, parameters );
             } else {
-               _builder.addLast( getComponentClass( parameter ) );
+               _builder.addLast( getComponentClass( info ), views );
             }
             return true;
          case "collectCuis":
@@ -261,10 +266,10 @@ final public class PiperFileReader {
             _builder.collectEntities();
             return true;
          case "writeXmis":
-            if ( parameter.isEmpty() ) {
+            if ( info.isEmpty() ) {
                _builder.writeXMIs();
             } else {
-               _builder.writeXMIs( parameter );
+               _builder.writeXMIs( info );
             }
             return true;
          default:
@@ -325,49 +330,6 @@ final public class PiperFileReader {
       }
       return null;
    }
-
-//   /**
-//    * @param filePath fully-specified or simple path of a piper file
-//    * @return discovered path for the piper file
-//    */
-//   public String getPiperPath( final String filePath ) throws FileNotFoundException {
-//      final File piperFile = new File( filePath );
-//      if ( piperFile.isAbsolute() ) {
-//         final String parentPath = piperFile.getParent();
-//         if ( parentPath != null && !parentPath.isEmpty() && !_userPackages.contains( parentPath ) ) {
-//            _userPackages.add( parentPath );
-//         }
-//      }
-//      String fullPath = FileLocator.getFullPathQuiet( filePath );
-//      if ( fullPath != null && !fullPath.isEmpty() ) {
-//         return fullPath;
-//      }
-//      // Check user packages
-//      for ( String packageName : _userPackages ) {
-//         fullPath = FileLocator.getFullPathQuiet( packageName.replace( '.', '/' ) + '/' + filePath );
-//         if ( fullPath != null && !fullPath.isEmpty() ) {
-//            return fullPath;
-//         }
-//         fullPath = FileLocator.getFullPathQuiet( packageName.replace( '.', '/' ) + "/pipeline/" + filePath );
-//         if ( fullPath != null && !fullPath.isEmpty() ) {
-//            return fullPath;
-//         }
-//      }
-//      // Check ctakes packages
-//      for ( String packageName : CTAKES_PACKAGES ) {
-//         fullPath = FileLocator
-//               .getFullPathQuiet( "org/apache/ctakes/" + packageName.replace( '.', '/' ) + '/' + filePath );
-//         if ( fullPath != null && !fullPath.isEmpty() ) {
-//            return fullPath;
-//         }
-//         fullPath = FileLocator
-//               .getFullPathQuiet( "org/apache/ctakes/" + packageName.replace( '.', '/' ) + "/pipeline/" + filePath );
-//         if ( fullPath != null && !fullPath.isEmpty() ) {
-//            return fullPath;
-//         }
-//      }
-//      throw new FileNotFoundException( "No piper file found for " + filePath );
-//   }
 
    public BufferedReader getPiperReader( final String filePath ) throws FileNotFoundException {
       final InputStream stream = getPiperStream( filePath );
@@ -668,6 +630,51 @@ final public class PiperFileReader {
       return keysAndValues;
    }
 
+   /**
+    * @param text -
+    * @return any specifications of views
+    */
+   static private Collection<String> getViewSpecs( final String text ) {
+      final Matcher matcher = VIEWS_PATTERN.matcher( text );
+      final Collection<String> viewSpecs = new ArrayList<>();
+      while ( matcher.find() ) {
+         viewSpecs.add( text.substring( matcher.start(), matcher.end() ) );
+      }
+      return viewSpecs;
+   }
+
+   /**
+    * @param text      -
+    * @param viewSpecs -
+    * @return the text with all viewSpec texts removed
+    */
+   static private String removeViewSpecs( final String text, final Collection<String> viewSpecs ) {
+      if ( viewSpecs.isEmpty() ) {
+         return text;
+      }
+      String viewless = text;
+      for ( String viewSpec : viewSpecs ) {
+         viewless = viewless.replace( viewSpec, " " );
+      }
+      return viewless;
+   }
+
+   /**
+    * @param viewSpecs -
+    * @return views listed in view specs
+    */
+   static private Collection<String> getViews( final Collection<String> viewSpecs ) {
+      if ( viewSpecs.isEmpty() ) {
+         return Collections.emptyList();
+      }
+      final Collection<String> views = new HashSet<>();
+      for ( String viewSpec : viewSpecs ) {
+         String viewText = viewSpec.substring( AE_VIEW_NAMES.length() + 1 );
+         viewText = viewText.replace( "\"", "" );
+         views.addAll( Arrays.asList( viewText.split( "," ) ) );
+      }
+      return views;
+   }
 
    static private Object[] splitDescriptorValues( final String text ) {
       final Matcher matcher = QUOTE_VALUE_PATTERN.matcher( text );
