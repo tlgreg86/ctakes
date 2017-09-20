@@ -670,7 +670,6 @@ final public class PiperFileReader {
       final Collection<String> views = new HashSet<>();
       for ( String viewSpec : viewSpecs ) {
          String viewText = viewSpec.substring( AE_VIEW_NAMES.length() + 1 );
-         viewText = viewText.replace( "\"", "" );
          views.addAll( Arrays.asList( viewText.split( "," ) ) );
       }
       return views;
