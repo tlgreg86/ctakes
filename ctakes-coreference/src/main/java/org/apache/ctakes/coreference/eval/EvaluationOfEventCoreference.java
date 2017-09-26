@@ -63,6 +63,7 @@ import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.ctakes.typesystem.type.textsem.ProcedureMention;
 import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
 import org.apache.ctakes.typesystem.type.textspan.Paragraph;
+import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.utils.distsem.WordEmbeddings;
 import org.apache.ctakes.utils.distsem.WordVector;
 import org.apache.ctakes.utils.distsem.WordVectorReader;
@@ -308,6 +309,9 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(MarkableHeadTreeCreator.class), CAS.NAME_DEFAULT_SOFA, viewName);
         aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyCoreferenceRelations.class, CopyCoreferenceRelations.PARAM_GOLD_VIEW, goldViewName),
             CAS.NAME_DEFAULT_SOFA, viewName);
+        // the coreference module uses segments to index markables, but we don't have them in the gold standard.
+        aggregateBuilder.add(CopyFromSystem.getDescription(Segment.class), CAS.NAME_DEFAULT_SOFA, viewName, GOLD_VIEW_NAME, goldViewName);
+
         aggregateBuilder.add(MarkableSalienceAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/salience/model.jar"), CAS.NAME_DEFAULT_SOFA, viewName);
         if(this.evalType == EVAL_SYSTEM.MENTION_PAIR){
           aggregateBuilder.add(EventCoreferenceAnnotator.createDataWriterDescription(
@@ -343,7 +347,9 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
             DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
             FlushingDataWriter.class,
             DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
-            directory);        
+            directory,
+            MentionClusterCoreferenceAnnotator.PARAM_SINGLE_DOCUMENT,
+            false);
         aggregateBuilder.add(aed);
         // TODO - this never helped, so not sure it's worth keeping around, but now it is broken by document-aware stuff, so uncommenting for now. 
 //        for(int i = 0; i < NUM_SAMPLES; i++){
@@ -364,7 +370,9 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
 //              DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
 //              FlushingDataWriter.class,
 //              DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
-//              directory);
+//              directory,
+//              MentionClusterCoreferenceAnnotator.PARAM_SINGLE_DOCUMENT,
+//              false);
 //
 //          aggregateBuilder.add(aed);
 //        }
@@ -472,7 +480,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     }
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(EndDocsSentinelAnnotator.class));
     
-    aggregateBuilder.add(MentionClusterCoreferenceAnnotator.createAnnotatorDescription(directory.getAbsolutePath() + File.separator + "model.jar"));
+    aggregateBuilder.add(MentionClusterCoreferenceAnnotator.createMultidocAnnotatorDescription(directory.getAbsolutePath() + File.separator + "model.jar"));
 
     for(int viewNum = 0; viewNum < MAX_DOC_VIEWS; viewNum++){
       String viewName = PatientViewsUtil.getViewName(viewNum);
@@ -1027,6 +1035,8 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
   }
   
   public static class FlushingDataWriter extends LibLinearStringOutcomeDataWriter {
+
+    int numChains = 0;
 
     public FlushingDataWriter(File outputDirectory)
         throws FileNotFoundException {

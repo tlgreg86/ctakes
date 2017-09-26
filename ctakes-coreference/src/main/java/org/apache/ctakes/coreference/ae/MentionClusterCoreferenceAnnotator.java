@@ -98,7 +98,9 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
         DefaultDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
         dataWriterClass,
         DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
-        outputDirectory);
+        outputDirectory,
+        MentionClusterCoreferenceAnnotator.PARAM_SINGLE_DOCUMENT,
+        false);
   }
 
   public static AnalysisEngineDescription createAnnotatorDescription(
@@ -109,6 +111,18 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
         false,
         GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
         modelPath);
+  }
+
+  public static AnalysisEngineDescription createMultidocAnnotatorDescription(
+          String modelPath) throws ResourceInitializationException {
+    return AnalysisEngineFactory.createEngineDescription(
+            MentionClusterCoreferenceAnnotator.class,
+            CleartkAnnotator.PARAM_IS_TRAINING,
+            false,
+            GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+            modelPath,
+            MentionClusterCoreferenceAnnotator.PARAM_SINGLE_DOCUMENT,
+            false);
   }
 
   private List<RelationFeaturesExtractor<CollectionTextRelation,IdentifiedAnnotation>> relationExtractors = this.getFeatureExtractors();
@@ -168,6 +182,7 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
     pairers.add(new SectionHeaderPairer(sentDist));
     pairers.add(new ClusterPairer(Integer.MAX_VALUE));
     pairers.add(new HeadwordPairer());
+    pairers.add(new PreviousDocumentPairer());
     return pairers;
   }
   

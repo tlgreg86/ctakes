@@ -1,5 +1,6 @@
 package org.apache.ctakes.coreference.util;
 
+import org.apache.ctakes.temporal.utils.PatientViewsUtil;
 import org.apache.uima.jcas.cas.NonEmptyFSList;
 import org.apache.uima.jcas.tcas.Annotation;
 
@@ -9,7 +10,7 @@ public class ClusterUtils {
     Annotation annot = (Annotation) cur.getHead();
     
     // check if the focus annotation is before any of the list elements
-    if(annot.getEnd() > focus.getEnd()) return null;
+    if(PatientViewsUtil.isSameDocument(annot, focus) && annot.getEnd() > focus.getEnd()) return null;
     
     while(cur.getTail() instanceof NonEmptyFSList){
       cur = (NonEmptyFSList) cur.getTail();

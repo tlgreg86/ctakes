@@ -86,6 +86,7 @@ public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
   
   @Override
   public void process(JCas jCas) throws AnalysisEngineProcessException {
+    String myView = jCas.getViewName();
     File filename = new File(ViewUriUtil.getURI(jCas));
     JCas chainsCas = null;
     try {
@@ -132,6 +133,9 @@ public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
         members = ((NonEmptyFSList)members).getTail();
         System.out.print("Mention: " + mention.getCoveredText().replace("\n", "<CR>"));
         System.out.print(" (" + mention.getBegin() + ", " + mention.getEnd() + ")");
+        if(!isGold && !mention.getView().getViewName().equals(myView)){
+          System.out.print("[DOC:" + mention.getView().getViewName() + "]");
+        }
         System.out.print("  ----->    ");
       }
       System.out.println();
