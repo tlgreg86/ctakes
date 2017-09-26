@@ -48,6 +48,10 @@ public enum UmlsUserApprover {
       return INSTANCE;
    }
 
+   // cli, matches new
+   static private final String USER_CLI = "--user";
+   static private final String PASS_CLI = "--pass";
+
    // properties, matches new
    public final static String URL_PARAM = "umlsUrl";
    public final static String VENDOR_PARAM = "umlsVendor";
@@ -112,6 +116,16 @@ public enum UmlsUserApprover {
     */
    public boolean isValidUMLSUser( final String umlsUrl, final String vendor,
                                    final String user, final String pass ) {
+      if ( user == null || user.trim().isEmpty() ) {
+         LOGGER.error( "No UMLS username specified." );
+         logCheckUser();
+         return false;
+      }
+      if ( pass == null || pass.trim().isEmpty() ) {
+         LOGGER.error( "No UMLS username specified." );
+         logCheckPass();
+         return false;
+      }
       final String cacheCode = umlsUrl + vendor + user + pass;
       if ( _validUsers.contains( cacheCode ) ) {
          return true;
@@ -119,13 +133,13 @@ public enum UmlsUserApprover {
       // Potentially someone could have a user ID of CHANGEME or a password of CHANGEME but don't allow those
       // to make it easy for us to detect that the user or password was not set correctly.
       if ( user.equals( CHANGEME ) || user.equals( CHANGE_ME ) ) {
-         LOGGER.info( "Not checking UMLS Account for user " + user + ":" );
-         LOGGER.error( "  User " + user + " not allowed, verify you are setting " + USER_PARAM + " or " + UMLSUSER_PARAM + " properly." );
+         LOGGER.error( "  User " + user + " not allowed.  It is a placeholder reminder." );
+         logCheckUser();
          return false;
       }
       if ( pass.equals( CHANGEME ) || pass.equals( CHANGE_ME ) ) {
-         LOGGER.info( "Not checking UMLS Account for user " + user + " password " + pass );
-         LOGGER.error( "  Password " + pass + " not allowed, verify you are setting " + PASS_PARAM + " or " + UMLSPW_PARAM + " properly." );
+         LOGGER.error( "  Password " + pass + " not allowed.  It is a placeholder reminder." );
+         logCheckPass();
          return false;
       }
 
@@ -140,7 +154,7 @@ public enum UmlsUserApprover {
       }
 
       try ( DotLogger dotter = new DotLogger() ) {
-         LOGGER.info( "Checking UMLS Account at " + umlsUrl + " for user " + user + ":" );
+         LOGGER.info( "Checking UMLS Account at " + umlsUrl + ":" );
          final URL url = new URL( umlsUrl );
          final URLConnection connection = url.openConnection();
          connection.setDoOutput( true );
@@ -161,10 +175,12 @@ public enum UmlsUserApprover {
          writer.close();
          reader.close();
          if ( isValidUser ) {
-            LOGGER.info( "  UMLS Account at " + umlsUrl + " for user " + user + " has been validated" );
+            LOGGER.info( "  UMLS Account has been validated" );
             _validUsers.add( cacheCode );
          } else {
-            LOGGER.error( "  UMLS Account at " + umlsUrl + " is not valid for user " + user + " with " + pass );
+            LOGGER.error( "  UMLS Account at " + umlsUrl + " is not valid." );
+            logCheckUser();
+            logCheckPass();
          }
          return isValidUser;
       } catch ( IOException ioE ) {
@@ -173,5 +189,17 @@ public enum UmlsUserApprover {
       }
    }
 
+
+   static private void logCheckUser() {
+      LOGGER.error( "   Verify that you are setting command-line option " + USER_CLI
+            + " or ctakes property " + USER_PARAM
+            + " or environment variable " + UMLSUSER_PARAM + " properly." );
+   }
+
+   static private void logCheckPass() {
+      LOGGER.error( "   Verify that you are setting command-line option " + PASS_CLI
+            + " or ctakes property " + PASS_PARAM
+            + " or environment variable " + UMLSPW_PARAM + " properly." );
+   }
 
 }
