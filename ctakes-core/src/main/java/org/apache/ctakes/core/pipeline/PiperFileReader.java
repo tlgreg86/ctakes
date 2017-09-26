@@ -349,12 +349,14 @@ final public class PiperFileReader {
       if ( piperFile.isAbsolute() ) {
          parentPath = piperFile.getParent();
       } else {
-         try {
-            final File located = FileLocator.getFile( filePath );
+//         try {
+         final File located = FileLocator.getFileQuiet( filePath );
+         if ( located != null ) {
             parentPath = located.getParent();
-         } catch ( FileNotFoundException fnfE ) {
-            // do nothing
          }
+//         } catch ( FileNotFoundException fnfE ) {
+            // do nothing
+//         }
       }
       if ( parentPath != null && !parentPath.isEmpty() && !_userPackages.contains( parentPath ) ) {
          _userPackages.add( parentPath );
@@ -384,6 +386,9 @@ final public class PiperFileReader {
          if ( stream != null ) {
             return stream;
          }
+      }
+      if ( !filePath.toLowerCase().endsWith( ".piper" ) ) {
+         return getPiperStream( filePath + ".piper" );
       }
       LOGGER.error( "No piper file found for " + filePath );
       return null;

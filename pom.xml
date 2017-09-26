@@ -140,6 +140,7 @@
 		<module>ctakes-ytex-web</module>
 		<module>ctakes-dictionary-lookup-fast</module>
 		<module>ctakes-dictionary-lookup-fast-res</module>
+        <module>ctakes-scaleout</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -667,9 +668,16 @@
 				<groupId>org.apache.ctakes</groupId>
 				<artifactId>
 					ctakes-distribution
-				</artifactId>
-				<version>${ctakes.version}</version>
-			</dependency>
+                </artifactId>
+                <version>${ctakes.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ctakes</groupId>
+                <artifactId>
+                    ctakes-scaleout
+                </artifactId>
+                <version>${ctakes.version}</version>
+            </dependency>
 		</dependencies>
 	</dependencyManagement>
 	<build>
