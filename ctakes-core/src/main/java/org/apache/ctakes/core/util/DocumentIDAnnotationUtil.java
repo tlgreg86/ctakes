@@ -19,14 +19,15 @@
 package org.apache.ctakes.core.util;
 
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
+import org.apache.ctakes.typesystem.type.structured.DocumentIdPrefix;
 import org.apache.log4j.Logger;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.CASRuntimeException;
-import org.apache.uima.cas.FSIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.JFSIndexRepository;
-import org.apache.uima.jcas.cas.TOP;
 
+import java.util.Collection;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -36,6 +37,7 @@ final public class DocumentIDAnnotationUtil {
 
    // Added for CTAKES-365
    static public final String NO_DOCUMENT_ID = "UnknownDocument";
+   static public final String NO_DOCUMENT_ID_PREFIX = "UnknownDocumentPrefix";
 
    static private final Logger LOGGER = Logger.getLogger( "DocumentIDAnnotationUtil" );
 
@@ -61,21 +63,18 @@ final public class DocumentIDAnnotationUtil {
          LOGGER.debug( "NULL CAS" );
          return NO_DOCUMENT_ID;
       }
-      // todo - improve the FS handling
-      final JFSIndexRepository indexes = jcas.getJFSIndexRepository();
-      final FSIterator<TOP> documentIDIterator = indexes.getAllIndexedFS( DocumentID.type );
-      if ( documentIDIterator == null || !documentIDIterator.hasNext() ) {
-         LOGGER.warn( "Unable to find DocumentIDAnnotation" );
+      final Collection<DocumentID> idSet = JCasUtil.select( jcas, DocumentID.class );
+      final DocumentID id = idSet.stream().filter( Objects::nonNull ).findAny().orElse( null );
+      if ( id == null ) {
          return createDocumentId( jcas );
       }
-      final DocumentID documentIDAnnotation = (DocumentID)documentIDIterator.next();
       try {
-         return documentIDAnnotation.getDocumentID();
+         return id.getDocumentID();
       } catch ( CASRuntimeException casRTE ) {
          final String newId = NO_DOCUMENT_ID + _noDocIdIndex;
          _noDocIdIndex++;
          LOGGER.warn( "document Id Annotation does not have the id feature set, setting to " + newId, casRTE );
-         documentIDAnnotation.setDocumentID( newId );
+         id.setDocumentID( newId );
          return newId;
       }
    }
@@ -93,7 +92,7 @@ final public class DocumentIDAnnotationUtil {
          LOGGER.debug( "Checking document Id for initial view" );
          try {
             final JCas viewJcas = startingJcas.getView( "_InitialView" );
-            documentID = DocumentIDAnnotationUtil.getDocumentID( viewJcas );
+            documentID = getDocumentID( viewJcas );
          } catch ( CASException | CASRuntimeException casE ) {
             LOGGER.warn( casE.getMessage() );
             documentID = NO_DOCUMENT_ID;
@@ -102,7 +101,7 @@ final public class DocumentIDAnnotationUtil {
             LOGGER.debug( "Checking document Id for plaintext view" );
             try {
                final JCas viewJcas = startingJcas.getView( "plaintext" );
-               documentID = DocumentIDAnnotationUtil.getDocumentID( viewJcas );
+               documentID = getDocumentID( viewJcas );
             } catch ( CASException | CASRuntimeException casE ) {
                LOGGER.warn( casE.getMessage() );
                documentID = NO_DOCUMENT_ID;
@@ -156,6 +155,34 @@ final public class DocumentIDAnnotationUtil {
       documentIDAnnotation.setDocumentID( newId );
       documentIDAnnotation.addToIndexes();
       return newId;
+   }
+
+   /**
+    * Check the jcas for a document id prefix.  Unlike {@link #getDeepDocumentId(JCas)},
+    * this method does not progress into deeper jcas layers/views.
+    *
+    * @param jcas ye olde ...
+    * @return the document id prefix contained in the type "DocumentIdPrefix" or {@link #NO_DOCUMENT_ID}
+    */
+   public static String getDocumentIdPrefix( final JCas jcas ) {
+      if ( jcas == null ) {
+         // could throw an IllegalArgumentException,
+         // but a caller might be providing a null view, so a graceful handling is better
+         LOGGER.debug( "NULL CAS" );
+         return NO_DOCUMENT_ID_PREFIX;
+      }
+      final Collection<DocumentIdPrefix> prefices = JCasUtil.select( jcas, DocumentIdPrefix.class );
+      final DocumentIdPrefix prefix = prefices.stream().filter( Objects::nonNull ).findAny().orElse( null );
+      if ( prefix == null ) {
+         LOGGER.debug( "No document id prefix information for " + getDocumentID( jcas ) );
+         return NO_DOCUMENT_ID_PREFIX;
+      }
+      try {
+         return prefix.getDocumentIdPrefix();
+      } catch ( CASRuntimeException casRTE ) {
+         LOGGER.debug( "No document id prefix information for " + getDocumentID( jcas ) );
+         return NO_DOCUMENT_ID_PREFIX;
+      }
    }
 
 }

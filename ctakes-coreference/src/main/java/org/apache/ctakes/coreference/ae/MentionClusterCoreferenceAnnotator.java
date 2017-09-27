@@ -1,5 +1,6 @@
 package org.apache.ctakes.coreference.ae;
 
+import org.apache.ctakes.core.patient.PatientViewUtil;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DotLogger;
 import org.apache.ctakes.core.util.ListFactory;
@@ -213,7 +214,32 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
       classDataWriter = this.dataWriter;
     }
   }
-  
+
+  public void notYetProcess( final JCas jCas ) throws AnalysisEngineProcessException {
+    //this.dataWriter.write(new Instance<String>("#DEBUG " + ViewUriUtil.getURI(docCas)));
+    LOGGER.info( "Finding Coreferences ..." );
+
+    // It is possible that the cas for an entire patient has been passed through.  Try to process all documents.
+    final Collection<JCas> docViews = PatientViewUtil.getDocumentViews( jCas );
+    if ( docViews.isEmpty() ) {
+      // There is only one document in the cas - the default
+      processDocument( jCas );
+      LOGGER.info( "Finished." );
+      return;
+    }
+    try ( DotLogger dotter = new DotLogger() ) {
+      for ( JCas view : docViews ) {
+        processDocument( view );
+      }
+    } catch ( IOException ioE ) {
+      LOGGER.error( ioE.getMessage() );
+    }
+    LOGGER.info( "Finished." );
+  }
+
+
+
+
   @Override
   public void process( final JCas jCas ) throws AnalysisEngineProcessException {
 
