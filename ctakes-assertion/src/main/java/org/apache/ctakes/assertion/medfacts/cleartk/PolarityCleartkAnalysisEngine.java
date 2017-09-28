@@ -63,13 +63,17 @@ public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngin
 			this.entityFeatureExtractors = new ArrayList<>();
 		}
 		
+		if(featConfig == FEATURE_CONFIG.NO_TOK){
+		  this.tokenCleartkExtractors = new ArrayList<>();
+		}
+		
 		// polarity keyword list:
 		if(featConfig != FEATURE_CONFIG.NO_SEM){
 		  this.entityFeatureExtractors.add(new ContextWordWindowExtractor("org/apache/ctakes/assertion/models/polarity.txt"));
-		}		
+		}
 		
 		// stk frags feature:
-		if(featConfig == FEATURE_CONFIG.STK_FRAGS || featConfig == FEATURE_CONFIG.ALL_SYN){
+		if(featConfig == FEATURE_CONFIG.STK_FRAGS || featConfig == FEATURE_CONFIG.ALL_SYN || featConfig == FEATURE_CONFIG.NO_TOK){
 //		  this.entityFeatureExtractors.add(new AboveLeftFragmentExtractor("AL_Polarity","org/apache/ctakes/assertion/models/jbi_paper_polarity_sems_frags.txt"));
 		  this.entityFeatureExtractors.add(new AboveLeftFragmentExtractor("AL_Polarity","org/apache/ctakes/assertion/models/sharpPolarityFrags.txt"));
 //		  this.entityFeatureExtractors.add(new ConceptModifierPETFragmentExtractor("NegRel", "org/apache/ctakes/assertion/models/polarityRelnFragsStrat.txt"));
@@ -80,7 +84,7 @@ public class PolarityCleartkAnalysisEngine extends AssertionCleartkAnalysisEngin
 //		  this.entityFeatureExtractors.add(new DependencyWordsFragmentExtractor("DW_Polarity", "org/apache/ctakes/assertion/models/jbi_paper_polarity_dw_frags.txt"));		  
 		}
 
-		if(featConfig == FEATURE_CONFIG.DEP_REGEX || featConfig == FEATURE_CONFIG.DEP_REGEX_FRAGS || featConfig == FEATURE_CONFIG.ALL_SYN){
+		if(featConfig == FEATURE_CONFIG.DEP_REGEX || featConfig == FEATURE_CONFIG.DEP_REGEX_FRAGS || featConfig == FEATURE_CONFIG.ALL_SYN || featConfig == FEATURE_CONFIG.NO_TOK){
 	    // dep regex feature:
 		  this.entityFeatureExtractors.add(new NegationDependencyFeatureExtractor());
 		}

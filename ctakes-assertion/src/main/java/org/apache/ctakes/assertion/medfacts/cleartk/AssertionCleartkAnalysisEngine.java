@@ -58,6 +58,7 @@ import org.cleartk.ml.TreeFeature;
 import org.cleartk.ml.feature.extractor.CleartkExtractor;
 import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
+import org.cleartk.ml.feature.extractor.TypePathExtractor;
 import org.cleartk.ml.feature.function.FeatureFunctionExtractor;
 //import org.chboston.cnlp.ctakes.relationextractor.ae.ModifierExtractorAnnotator;
 
@@ -71,7 +72,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
   Logger logger = Logger.getLogger(AssertionCleartkAnalysisEngine.class);
 
   public static final String PARAM_GOLD_VIEW_NAME = "GoldViewName";
-  public enum FEATURE_CONFIG {NO_SEM, NO_SYN, STK, STK_FRAGS, PTK, PTK_FRAGS, DEP_REGEX, DEP_REGEX_FRAGS, ALL_SYN}
+  public enum FEATURE_CONFIG {NO_SEM, NO_SYN, STK, STK_FRAGS, PTK, PTK_FRAGS, DEP_REGEX, DEP_REGEX_FRAGS, ALL_SYN, VECTORS, NO_TOK}
 	
   public static int relationId; // counter for error logging
 
@@ -175,8 +176,9 @@ public abstract class AssertionCleartkAnalysisEngine extends
   protected List<FeatureExtractor1<IdentifiedAnnotation>> entityTreeExtractors;
   protected CleartkExtractor<IdentifiedAnnotation,BaseToken> cuePhraseInWindowExtractor;
   
-  protected List<FeatureFunctionExtractor<IdentifiedAnnotation>> featureFunctionExtractors;
-  protected FedaFeatureFunction ffDomainAdaptor;
+
+  protected List<FeatureFunctionExtractor<IdentifiedAnnotation>> featureFunctionExtractors = new ArrayList<>();
+  protected FedaFeatureFunction ffDomainAdaptor=null;
   
   protected FeatureSelection<String> featureSelection;
   
@@ -190,7 +192,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
   @SuppressWarnings("deprecation")
   public void initialize(UimaContext context) throws ResourceInitializationException {
     super.initialize(context);
-    
+
     // Re-process the "directory" string for domains that were used in the data
     if (null != fileDomainMap) {
     	String[] dirs = fileDomainMap.split("[;:]");
@@ -244,17 +246,17 @@ public abstract class AssertionCleartkAnalysisEngine extends
             new CleartkExtractor.Bag(new CleartkExtractor.Following(10))
     				);
     
-//    CleartkExtractor posExtraction1 = 
-//    		new CleartkExtractor(
-//    				BaseToken.class,
-//    				new TypePathExtractor(BaseToken.class, "partOfSpeech"),
-//    				new CleartkExtractor.LastCovered(2),
-//    				new CleartkExtractor.Preceding(3),
-//    				new CleartkExtractor.Following(2)
-//    				);
+    CleartkExtractor<IdentifiedAnnotation,BaseToken> posExtraction1 = 
+    		new CleartkExtractor<>(
+    				BaseToken.class,
+    				new TypePathExtractor<>(BaseToken.class, "partOfSpeech"),
+    				new CleartkExtractor.LastCovered(2),
+    				new CleartkExtractor.Preceding(3),
+    				new CleartkExtractor.Following(2)
+    				);
 
     this.tokenCleartkExtractors.add(tokenExtraction1);
-    //this.tokenCleartkExtractors.add(posExtraction1);
+//    this.tokenCleartkExtractors.add(posExtraction1);
     
 //    this.contextFeatureExtractors.add(new CleartkExtractor(IdentifiedAnnotation.class,
 //        new CoveredTextExtractor(),
@@ -275,6 +277,8 @@ public abstract class AssertionCleartkAnalysisEngine extends
 //           new TypePathExtractor(AssertionCuePhraseAnnotation.class, "cuePhraseAssertionFamily")
 //          );
     
+    // Commented out by TM because it is never actually used:
+/*    
     cuePhraseInWindowExtractor = new CleartkExtractor<>(
         BaseToken.class,
         new CoveredTextExtractor<BaseToken>(),
@@ -288,7 +292,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
 //          new CleartkExtractor.Bag(new CleartkExtractor.Preceding(10)),
 //          new CleartkExtractor.Bag(new CleartkExtractor.Following(10))
           );
-
+*/
     if (!fileToDomain.isEmpty()) {
     	// set up FeatureFunction for all the laggard, non-Extractor features
     	ffDomainAdaptor = new FedaFeatureFunction( new ArrayList<>(new HashSet<>(fileToDomain.values())) );
@@ -301,22 +305,30 @@ public abstract class AssertionCleartkAnalysisEngine extends
   {
     String documentId = DocumentIDAnnotationUtil.getDocumentID(jCas);
     String domainId = "";
-    
-    
+    String domainFeature = null;
+
+    if(this.featureFunctionExtractors.size() <= 0){
+      this.ffDomainAdaptor = null;
+    }
+
     if (documentId != null)
     {
       logger.debug("processing next doc: " + documentId);
 
       // set the domain to be FeatureFunction'ed into all extractors
-      if (!fileToDomain.isEmpty()) {
+      if (!fileToDomain.isEmpty() && ffDomainAdaptor != null) {
     	  domainId = fileToDomain.get(documentId);
     	  ffDomainAdaptor.setDomain(domainId); // if domain is not found, no warning -- just considers general domain
+      }else if(!fileToDomain.isEmpty()){
+        domainFeature = fileToDomain.get(documentId);
       }
+      
     } else
     {
       logger.debug("processing next doc (doc id is null)");
     }
     
+
     this.lastLabel = "<BEGIN>";
     
 //    // get gold standard relation instances during testing for error analysis
@@ -371,6 +383,11 @@ public abstract class AssertionCleartkAnalysisEngine extends
       }
       Instance<String> instance = new Instance<>();
       
+      if(domainFeature != null){
+        instance.add(new Feature("Domain", domainFeature));
+      }else{
+        System.err.println("This document has no domain feature: " + documentId);
+      }
 //      // extract all features that require only the entity mention annotation
 //      instance.addAll(tokenFeatureExtractor.extract(jCas, entityMention));
 
@@ -485,7 +502,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
 //      {
 //        instance.addAll(zoneFeatures);
 //      }
-      
+
       List<Feature> feats = instance.getFeatures();
 //      List<Feature> lcFeats = new ArrayList<Feature>();
       
@@ -503,6 +520,7 @@ public abstract class AssertionCleartkAnalysisEngine extends
     		  instance.addAll(extractor.extract(jCas, entityOrEventMention));
     	  }
       }
+      
       
       // grab the output label
       setClassLabel(entityOrEventMention, instance);

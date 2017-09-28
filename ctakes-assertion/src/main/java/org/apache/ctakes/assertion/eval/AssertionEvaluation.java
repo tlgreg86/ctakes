@@ -40,7 +40,6 @@ import org.apache.ctakes.assertion.medfacts.cleartk.AlternateCuePhraseAnnotator;
 import org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.AssertionCleartkAnalysisEngine.FEATURE_CONFIG;
 import org.apache.ctakes.assertion.medfacts.cleartk.ConditionalCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.EncoderReusingDataWriter;
 import org.apache.ctakes.assertion.medfacts.cleartk.GenericCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.HistoryCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
@@ -360,8 +359,7 @@ private static Logger logger = Logger.getLogger(AssertionEvaluation.class);
 //        dw = TKLibSvmStringOutcomeDataWriter.class;
       throw new UnsupportedOperationException("This requires cleartk-2.0 which");
     }
-//    dw = LibLinearStringOutcomeDataWriter.class;
-    dw = EncoderReusingDataWriter.class;
+    dw = LibLinearStringOutcomeDataWriter.class;
     
     AssertionEvaluation evaluation = new AssertionEvaluation(
         modelsDir,
