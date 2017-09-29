@@ -57,6 +57,7 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
     *
     * @param tableName older values, actually table type declaration (snomedtable, icd9table, icd10table)
     * @return snomedcttable for snomedtable, icd9cmtable and icd10pcstable, otherwise the provided table name
+    * @deprecated In a future release (2 from now = 3.2.5) these -correction- methods should be removed
     */
    static private String adjustOldTableName( final String tableName ) {
       if ( tableName.equalsIgnoreCase( "SNOMEDTABLE" ) ) {
@@ -74,6 +75,7 @@ public class JdbcConceptFactory extends AbstractConceptFactory {
     *
     * @param typeOrOldName older values, actually table names (snomedct, rxnorm, icd9cm, icd10pcs)
     * @return long for snomedct, text for rxnorm, icd9cm and icd10pcs, otherwise the provided value class type
+    * @deprecated In a future release (2 from now = 3.2.5) these -correction- methods should be removed
     */
    static private String adjustOldTableClass( final String typeOrOldName ) {
       if ( typeOrOldName.equalsIgnoreCase( "SNOMEDCT" ) ) {

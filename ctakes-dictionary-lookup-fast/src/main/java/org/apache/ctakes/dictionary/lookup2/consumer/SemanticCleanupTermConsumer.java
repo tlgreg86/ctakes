@@ -88,9 +88,14 @@ public class SemanticCleanupTermConsumer extends AbstractTermConsumer {
          final CollectionMap<TextSpan, Long, ? extends Collection<Long>> findingSpanCuis
                = groupedSemanticCuis.get( CONST.NE_TYPE_ID_FINDING );
          final Collection<TextSpan> findingSpans = new ArrayList<>( findingSpanCuis.keySet() );
-         findingSpans.stream()
-               .filter( fs -> !preciseTerms.containsKey( fs ) )
-               .forEach( findingSpanCuis::remove );
+//         findingSpans.stream()
+//               .filter( fs -> !preciseTerms.containsKey( fs ) )
+//               .forEach( findingSpanCuis::remove );
+         for ( TextSpan span : findingSpans ) {
+            if ( !preciseTerms.containsKey( span ) ) {
+               findingSpanCuis.remove( span );
+            }
+         }
       }
       for ( Map.Entry<Integer, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> group : groupedSemanticCuis
             .entrySet() ) {

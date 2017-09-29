@@ -21,8 +21,8 @@ package org.apache.ctakes.dictionary.lookup2.ae;
 import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary;
 import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
+import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 
 import java.util.Collection;
 import java.util.Map;
@@ -36,25 +36,34 @@ import java.util.Map;
  */
 public interface WindowProcessor {
 
-   /**
-    * Some windows should be skipped entirely, such as "[section *]"
-    *
-    * @param window annotation in which to search for terms
-    * @return true if window should be processed, false if it should not
-    */
-   boolean isWindowOk( Annotation window );
+//   /**
+//    * Some windows should be skipped entirely, such as "[section *]"
+//    *
+//    * @param window annotation in which to search for terms
+//    * @return true if window should be processed, false if it should not
+//    */
+//   boolean isWindowOk( Annotation window );
 
+
+//   /**
+//    * Processes a window of annotations for dictionary terms
+//    *
+//    * @param jcas            -
+//    * @param window          annotation in which to search for terms
+//    * @param dictionaryTerms map of entity types and terms for those types in the window
+//    */
+//   void processWindow( JCas jcas,
+//                       Annotation window,
+//                       Map<RareWordDictionary, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> dictionaryTerms );
 
    /**
     * Processes a window of annotations for dictionary terms
     *
     * @param jcas            -
-    * @param window          annotation in which to search for terms
+    * @param windowBaseTokens baseTokens in window in which to search for terms
     * @param dictionaryTerms map of entity types and terms for those types in the window
     */
-   void processWindow( JCas jcas,
-                       Annotation window,
-                       Map<RareWordDictionary, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> dictionaryTerms );
-
+   public void processWindow( final JCas jcas, final Collection<BaseToken> windowBaseTokens,
+                              final Map<RareWordDictionary, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> dictionaryTerms );
 
 }

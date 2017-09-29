@@ -21,7 +21,6 @@ package org.apache.ctakes.dictionary.lookup2.ae;
 import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.fsm.token.NumberToken;
 import org.apache.ctakes.core.resource.FileLocator;
-import org.apache.ctakes.core.util.JCasUtil;
 import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.core.util.collection.HashSetMap;
 import org.apache.ctakes.dictionary.lookup2.concept.Concept;
@@ -36,12 +35,9 @@ import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorContextException;
-import org.apache.uima.cas.text.AnnotationFS;
-import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 
@@ -63,7 +59,8 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
    // LOG4J logger based on interface name
    final static private Logger LOGGER = Logger.getLogger( "AbstractJCasTermAnnotator" );
 
-   private int _lookupWindowType;
+   //   private int _lookupWindowType;
+   private Class<? extends Annotation> _lookupClass;
    private DictionarySpec _dictionarySpec;
    private final Set<String> _exclusionPartsOfSpeech = new HashSet<>();
 
@@ -100,8 +97,20 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
    @Override
    public void initialize( final UimaContext uimaContext ) throws ResourceInitializationException {
       super.initialize( uimaContext );
+      try {
+         final Class<?> windowClass = Class.forName( _windowClassName );
+         if ( !Annotation.class.isAssignableFrom( windowClass ) ) {
+            LOGGER.error( "Lookup Window Class " + _windowClassName + " not found" );
+            throw new ResourceInitializationException( new ClassNotFoundException() );
+         }
+         _lookupClass = (Class<? extends Annotation>) windowClass;
+      } catch ( ClassNotFoundException cnfE ) {
+         LOGGER.error( "Lookup Window Class " + _windowClassName + " not found" );
+         throw new ResourceInitializationException( cnfE );
+      }
+
       LOGGER.info( "Using dictionary lookup window type: " + _windowClassName );
-      _lookupWindowType = JCasUtil.getType( _windowClassName );
+//      _lookupWindowType = JCasUtil.getType( _windowClassName );
       final String[] tagArr = _exclusionPosTags.split( "," );
       for ( String tag : tagArr ) {
          _exclusionPartsOfSpeech.add( tag.toUpperCase() );
@@ -139,11 +148,12 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
    @Override
    public void process( final JCas jcas ) throws AnalysisEngineProcessException {
       LOGGER.info( "Finding Named Entities ..." );
-      final JFSIndexRepository indexes = jcas.getJFSIndexRepository();
-      final AnnotationIndex<Annotation> lookupWindows = indexes.getAnnotationIndex( _lookupWindowType );
-      if ( lookupWindows == null ) {  // I don't trust AnnotationIndex.size(), so don't check
-         return;
-      }
+//      final JFSIndexRepository indexes = jcas.getJFSIndexRepository();
+//      final AnnotationIndex<Annotation> lookupWindows = indexes.getAnnotationIndex( _lookupWindowType );
+//      if ( lookupWindows == null ) {  // I don't trust AnnotationIndex.size(), so don't check
+//         return;
+//      }
+      final Map<Annotation, Collection<BaseToken>> windowTokens = org.apache.uima.fit.util.JCasUtil.indexCovered( jcas, _lookupClass, BaseToken.class );
       final Map<RareWordDictionary, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> dictionaryTermsMap
             = new HashMap<>( getDictionaries().size() );
       for ( RareWordDictionary dictionary : getDictionaries() ) {
@@ -151,10 +161,15 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
          dictionaryTermsMap.put( dictionary, textSpanCuis );
       }
       try {
-         for ( Object window : lookupWindows ) {
-            if ( isWindowOk( (Annotation)window ) ) {
-               processWindow( jcas, (Annotation)window, dictionaryTermsMap );
-            }
+//         for ( Object window : lookupWindows ) {
+//            if ( isWindowOk( (Annotation)window ) ) {
+//               processWindow( jcas, (Annotation)window, dictionaryTermsMap );
+//            }
+//         }
+         for ( Map.Entry<Annotation, Collection<BaseToken>> entry : windowTokens.entrySet() ) {
+//            if ( isWindowOk( entry.getKey() ) ) {
+            processWindow( jcas, entry.getValue(), dictionaryTermsMap );
+//            }
          }
       } catch ( ArrayIndexOutOfBoundsException iobE ) {
          // JCasHashMap will throw this every once in a while.  Assume the windows are done and move on
@@ -192,30 +207,42 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
       return _dictionarySpec.getDictionaries();
    }
 
+//   /**
+//    * Skip windows that are section headers/footers.  Kludge, but worth doing
+//    *  read these string values as parameters from uimaContext ?
+//    * {@inheritDoc}
+//    */
+//   @Override
+//   public boolean isWindowOk( final Annotation window ) {
+//      final String coveredText = window.getCoveredText();
+//      return !coveredText.equals( "section id" )
+//             && !coveredText.startsWith( "[start section id" )
+//             && !coveredText.startsWith( "[end section id" )
+//             && !coveredText.startsWith( "[meta rev_" );
+//   }
+
+
+//   /**
+//    * {@inheritDoc}
+//    */
+//   @Override
+//   public void processWindow( final JCas jcas, final Annotation window,
+//                              final Map<RareWordDictionary, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> dictionaryTerms ) {
+//      final List<FastLookupToken> allTokens = new ArrayList<>();
+//      final List<Integer> lookupTokenIndices = new ArrayList<>();
+//      getAnnotationsInWindow( jcas, window, allTokens, lookupTokenIndices );
+//      findTerms( getDictionaries(), allTokens, lookupTokenIndices, dictionaryTerms );
+//   }
+
    /**
-    * Skip windows that are section headers/footers.  Kludge, but worth doing
-    * todo read these string values as parameters from uimaContext
     * {@inheritDoc}
     */
    @Override
-   public boolean isWindowOk( final Annotation window ) {
-      final String coveredText = window.getCoveredText();
-      return !coveredText.equals( "section id" )
-             && !coveredText.startsWith( "[start section id" )
-             && !coveredText.startsWith( "[end section id" )
-             && !coveredText.startsWith( "[meta rev_" );
-   }
-
-
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public void processWindow( final JCas jcas, final Annotation window,
+   public void processWindow( final JCas jcas, final Collection<BaseToken> windowBaseTokens,
                               final Map<RareWordDictionary, CollectionMap<TextSpan, Long, ? extends Collection<Long>>> dictionaryTerms ) {
       final List<FastLookupToken> allTokens = new ArrayList<>();
       final List<Integer> lookupTokenIndices = new ArrayList<>();
-      getAnnotationsInWindow( jcas, window, allTokens, lookupTokenIndices );
+      getAnnotationsInWindow( jcas, windowBaseTokens, allTokens, lookupTokenIndices );
       findTerms( getDictionaries(), allTokens, lookupTokenIndices, dictionaryTerms );
    }
 
@@ -238,28 +265,63 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
    }
 
 
+//   /**
+//    * For the given lookup window fills two collections with 1) All tokens in the window,
+//    * and 2) indexes of tokens in the window to be used for lookup
+//    *
+//    * @param jcas               -
+//    * @param window             annotation lookup window
+//    * @param allTokens          filled with all tokens, including punctuation, etc.
+//    * @param lookupTokenIndices filled with indices of tokens to use for lookup
+//    */
+//   protected void getAnnotationsInWindow( final JCas jcas, final AnnotationFS window,
+//                                          final List<FastLookupToken> allTokens,
+//                                          final Collection<Integer> lookupTokenIndices ) {
+//      final List<BaseToken> allBaseTokens = org.apache.uima.fit.util.JCasUtil
+//            .selectCovered( jcas, BaseToken.class, window );
+//      for ( BaseToken baseToken : allBaseTokens ) {
+//         if ( baseToken instanceof NewlineToken ) {
+//            continue;
+//         }
+//         final boolean isNonLookup = baseToken instanceof PunctuationToken
+//                                     || baseToken instanceof NumberToken
+//                                     || baseToken instanceof ContractionToken
+//                                     || baseToken instanceof SymbolToken;
+//         // We are only interested in tokens that are -words-
+//         if ( !isNonLookup ) {
+//            // POS exclusion logic for first word lookup
+//            final String partOfSpeech = baseToken.getPartOfSpeech();
+//            if ( partOfSpeech == null || !_exclusionPartsOfSpeech.contains( partOfSpeech ) ) {
+//               lookupTokenIndices.add( allTokens.size() );
+//            }
+//         }
+//         final FastLookupToken lookupToken = new FastLookupToken( baseToken );
+//         allTokens.add( lookupToken );
+//      }
+//   }
+
    /**
     * For the given lookup window fills two collections with 1) All tokens in the window,
     * and 2) indexes of tokens in the window to be used for lookup
     *
     * @param jcas               -
-    * @param window             annotation lookup window
+    * @param windowBaseTokens baseTokens in window in which to search for terms
     * @param allTokens          filled with all tokens, including punctuation, etc.
     * @param lookupTokenIndices filled with indices of tokens to use for lookup
     */
-   protected void getAnnotationsInWindow( final JCas jcas, final AnnotationFS window,
+   protected void getAnnotationsInWindow( final JCas jcas, final Collection<BaseToken> windowBaseTokens,
                                           final List<FastLookupToken> allTokens,
                                           final Collection<Integer> lookupTokenIndices ) {
-      final List<BaseToken> allBaseTokens = org.apache.uima.fit.util.JCasUtil
-            .selectCovered( jcas, BaseToken.class, window );
-      for ( BaseToken baseToken : allBaseTokens ) {
+//      final List<BaseToken> allBaseTokens = org.apache.uima.fit.util.JCasUtil
+//            .selectCovered( jcas, BaseToken.class, window );
+      for ( BaseToken baseToken : windowBaseTokens ) {
          if ( baseToken instanceof NewlineToken ) {
             continue;
          }
          final boolean isNonLookup = baseToken instanceof PunctuationToken
-                                     || baseToken instanceof NumberToken
-                                     || baseToken instanceof ContractionToken
-                                     || baseToken instanceof SymbolToken;
+               || baseToken instanceof NumberToken
+               || baseToken instanceof ContractionToken
+               || baseToken instanceof SymbolToken;
          // We are only interested in tokens that are -words-
          if ( !isNonLookup ) {
             // POS exclusion logic for first word lookup
@@ -272,7 +334,6 @@ abstract public class AbstractJCasTermAnnotator extends JCasAnnotator_ImplBase
          allTokens.add( lookupToken );
       }
    }
-
 
    static protected int parseInt( final Object value, final String name, final int defaultValue ) {
       if ( value instanceof Integer ) {

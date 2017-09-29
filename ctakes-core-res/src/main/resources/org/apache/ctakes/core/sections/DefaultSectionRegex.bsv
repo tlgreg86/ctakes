@@ -1,7 +1,7 @@
 History of Present Illness||^[\t ]*(?:(?:CC\/HPI:)|(?:S:)|(?:(?:HISTORY OF (?:THE )?(?:PRESENT |PHYSICAL )?ILLNESS)(?: \(HPI(?:, PROBLEM BY PROBLEM)?\))?[\t ]*:?))[\t ]*$
 Past Medical History||^[\t ]*(?:(?:HISTORY OF (?:THE )?PAST ILLNESS)|(?:PAST MEDICAL HISTORY))[\t ]*:?[\t ]*$
 Chief Complaint||^[\t ]*(?:CHIEF|PRIMARY) COMPLAINTS?[\t ]*:?[\t ]*$
-Personal and Social History||^[\t ]*(?:(?:PERSONAL (?:(?:AND )?SOCIAL )?HISTORY)|(?:(?:PSYCHO)?SOC(?:IAL)? HISTORY)|(?:HISTORY (?:OF )(?:OTHER )?SOCIAL (?:FUNCTIONs?|FACTORS?))|(?:PSO)|(?:P?SHX))[\t ]*:?[\t ]*$
+Patient History||^[\t ]*(?:(?:(?:PERSONAL|PATIENT) (?:(?:AND )?SOCIAL )?HISTORY)|(?:(?:PSYCHO)?SOC(?:IAL)? HISTORY)|(?:HISTORY (?:OF )(?:OTHER )?SOCIAL (?:FUNCTIONs?|FACTORS?))|(?:PSO)|(?:P?SHX))[\t ]*:?[\t ]*$
 Review of Systems||^[\t ]*(?:(?:ROS:)|(?:(?:REVIEW (?:OF )?SYSTEMS?)|(?:SYSTEMS? REVIEW)[\t ]*:?))[\t ]*$
 Family Medical History||^[\t ]*(?:FAMILY (?:MEDICAL )?HISTORY)|(?:HISTORY (?:OF )?FAMILY MEMBER DISEASES?)|(?:FAM HX)|FH|FMH|FMHX|FHX[\t ]*:?[\t ]*$
 Medications||^[\t ]*(?:CURRENT )?MEDICATIONS?[\t ]*:?[\t ]*$
@@ -49,6 +49,7 @@ Operative Findings||^[\t ]*OPERATIVE FINDINGS?[\t ]*:?[\t ]*$
 Fluid Balance||^[\t ]*(?:FLUID BALANCE)|(?:I(?:NPUT)? ?\/? ?O(?:UTPUT)?)[\t ]*:?[\t ]*$
 Blood Pressure||^[\t ]*(?:BLOOD PRESSURE|BP)[\t ]*:?[\t ]*$
 Post Procedure Diagnosis||^[\t ]*POST\-?(?:PROCEDURE|OP|OPERATIVE) DIAGNOSIS[\t ]*:?[\t ]*$
+Final Diagnosis||^[\t ]*FINAL DIAGNOSIS[\t ]*:?[\t ]*$
 Cancer Risk Factors||^[\t ]*CANCER RISK FACTORS?[\t ]*:?[\t ]*$
 Invasive Diagnostic Procedure History||^[\t ]*INVASIVE DIAGNOSTIC PROCEDURE HISTORY[\t ]*:?[\t ]*$
 Technique||^[\t ]*TECHNIQUE[\t ]*:?[\t ]*$
@@ -56,6 +57,7 @@ Medications By Type||^[\t ]*MEDICATIONS? (?:BY )?TYPE[\t ]*:?[\t ]*$
 Hematologic History||^[\t ]*(?:HEME|HEMATOLOGIC) (?:HISTORY|HX)[\t ]*:?[\t ]*$
 Respiratory Rate||^[\t ]*RESP(?:IRAT(?:ORY|IONS?))?(?: RATE)?[\t ]*:?[\t ]*$
 Attending Addendum||^[\t ]*ATTENDING ADDENDUM[\t ]*:?[\t ]*$
+Gross Description||^[\t ]*GROSS DESC(?:RIPTION)?[\t ]*:?[\t ]*$
 Microscopic Description||^[\t ]*MICROSCOPIC DESC(?:RIPTION)?[\t ]*:?[\t ]*$
 Substance Abuse Treatment||^[\t ]*(?:TREATMENT (?:FOR|OF)? ?)?(?:SUBSTANCE|DRUG|ALCOHOL) (?:ABUSE|ADDICTION)(?: TREATMENT)?[\t ]*:?[\t ]*$
 Hospital Course||^[\t ]*(?:BRIEF|HISTORY|HX)? ?HOSPITAL COURSE[\t ]*:?[\t ]*$
@@ -74,7 +76,7 @@ Admission Condition||^[\t ]*(?:(?:CONDITION(?:ON |AT )? ADMISSION)|(?:ADMISSION 
 Other Systems Reviewed||^[\t ]*OTHER SYSTEMS REVIEWED[\t ]*:?[\t ]*$
 Objective||^[\t ]*OBJECTIVE[\t ]*:?[\t ]*$
 Impression||^[\t ]*IMPRESSION[\t ]*:?[\t ]*$
-Diagnoses||^[\t ]*DIAGNOSES[\t ]*:?[\t ]*$
+Diagnosis||^[\t ]*DIAGNOS(?:I|E)S[\t ]*:?[\t ]*$
 Plan||^[\t ]*(?:ASSESSMENT AND )?PLAN[\t ]*:?[\t ]*$
 Labs||^[\t ]*LABS?\/(?:ANC(?:ILLARY)?|STUDIES)[\t ]*:?[\t ]*$
 Diet||^[\t ]*DIET[\t ]*:?[\t ]*$

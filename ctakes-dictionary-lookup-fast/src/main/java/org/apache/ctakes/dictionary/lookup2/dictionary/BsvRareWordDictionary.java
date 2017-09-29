@@ -19,10 +19,10 @@
 package org.apache.ctakes.dictionary.lookup2.dictionary;
 
 import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.core.util.StringUtil;
 import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
 import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
-import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 
@@ -120,7 +120,8 @@ final public class BsvRareWordDictionary implements RareWordDictionary {
                line = reader.readLine();
                continue;
             }
-            final String[] columns = LookupUtil.fastSplit( line, '|' );
+//            final String[] columns = LookupUtil.fastSplit( line, '|' );
+            final String[] columns = StringUtil.fastSplit( line, '|' );
             final CuiTerm cuiTerm = createCuiTuiTerm( columns );
             if ( cuiTerm != null ) {
                cuiTerms.add( cuiTerm );

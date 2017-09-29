@@ -1,10 +1,10 @@
 package org.apache.ctakes.dictionary.lookup2.concept;
 
 import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.core.util.StringUtil;
 import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.core.util.collection.HashSetMap;
 import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
-import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
 import org.apache.ctakes.dictionary.lookup2.util.TuiCodeUtil;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
@@ -101,7 +101,8 @@ final public class BsvConceptFactory implements ConceptFactory {
                line = reader.readLine();
                continue;
             }
-            final String[] columns = LookupUtil.fastSplit( line, '|' );
+//            final String[] columns = LookupUtil.fastSplit( line, '|' );
+            final String[] columns = StringUtil.fastSplit( line, '|' );
             final CuiTuiTerm cuiTuiTerm = createCuiTuiTerm( columns );
             if ( cuiTuiTerm != null ) {
                cuiTuiTerms.add( cuiTuiTerm );

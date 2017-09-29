@@ -13,7 +13,9 @@ import java.io.InputStream;
  * @author SPF , chip-nlp
  * @version %I%
  * @since 9/23/2014
+ * @deprecated
  */
+@Deprecated
 final public class DictionaryLookupFactory {
 
    private DictionaryLookupFactory() {

@@ -38,6 +38,7 @@ final public class PipelineBuilder {
    static private final Logger LOGGER = Logger.getLogger( "PipelineBuilder" );
 
    private CollectionReaderDescription _readerDesc;
+   // TODO replace pairs of 3 lists with 2 instances of a single class.  Put a build() (sub) method in class?
    private final List<String> _aeNameList;
    private final List<String[]> _aeViewList;
    private final List<AnalysisEngineDescription> _descList;

@@ -25,12 +25,13 @@ import java.util.List;
  * Author: SPF
  * Affiliation: CHIP-NLP
  * Date: 12/16/13
+ * @deprecated use core.util.StringUtil
  */
+@Deprecated
 final public class LookupUtil {
 
    private LookupUtil() {
    }
-
 
    /**
     * Splits a string using a character.  Faster than String.split( regex )

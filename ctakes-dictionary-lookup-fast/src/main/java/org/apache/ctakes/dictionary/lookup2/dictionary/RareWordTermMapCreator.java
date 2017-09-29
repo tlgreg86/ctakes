@@ -18,11 +18,11 @@
  */
 package org.apache.ctakes.dictionary.lookup2.dictionary;
 
+import org.apache.ctakes.core.util.StringUtil;
 import org.apache.ctakes.core.util.collection.ArrayListMap;
 import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.term.RareWordTerm;
 import org.apache.ctakes.dictionary.lookup2.util.CuiCodeUtil;
-import org.apache.ctakes.dictionary.lookup2.util.LookupUtil;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -180,7 +180,8 @@ final public class RareWordTermMapCreator {
    static private Map<String, Integer> createTokenCountMap( final Iterable<CuiTerm> cuiTerms ) {
       final Map<String, Integer> tokenCountMap = new HashMap<>();
       for ( CuiTerm cuiTerm : cuiTerms ) {
-         final String[] tokens = LookupUtil.fastSplit( cuiTerm.getTerm(), ' ' );
+//         final String[] tokens = LookupUtil.fastSplit( cuiTerm.getTerm(), ' ' );
+         final String[] tokens = StringUtil.fastSplit( cuiTerm.getTerm(), ' ' );
          for ( String token : tokens ) {
             if ( isRarableToken( token ) ) {
                // Don't bother to store counts for single-character tokens
@@ -196,7 +197,8 @@ final public class RareWordTermMapCreator {
    }
 
    static private String getRareWord( final String tokenizedTerm, final Map<String, Integer> tokenCountMap ) {
-      final String[] tokens = LookupUtil.fastSplit( tokenizedTerm, ' ' );
+//      final String[] tokens = LookupUtil.fastSplit( tokenizedTerm, ' ' );
+      final String[] tokens = StringUtil.fastSplit( tokenizedTerm, ' ' );
       if ( tokens.length == 1 ) {
          return tokens[ 0 ];
       }
@@ -233,7 +235,8 @@ final public class RareWordTermMapCreator {
 
    static private int getWordIndex( final String tokenizedTerm, final String word ) {
       int index = 0;
-      final String[] tokens = LookupUtil.fastSplit( tokenizedTerm, ' ' );
+//      final String[] tokens = LookupUtil.fastSplit( tokenizedTerm, ' ' );
+      final String[] tokens = StringUtil.fastSplit( tokenizedTerm, ' ' );
       for ( String token : tokens ) {
          if ( token.equals( word ) ) {
             return index;
@@ -244,7 +247,8 @@ final public class RareWordTermMapCreator {
    }
 
    static private int getTokenCount( final String tokenizedTerm ) {
-      return LookupUtil.fastSplit( tokenizedTerm, ' ' ).length;
+//      return LookupUtil.fastSplit( tokenizedTerm, ' ' ).length;
+      return StringUtil.fastSplit( tokenizedTerm, ' ' ).length;
    }
 
 
@@ -277,6 +281,7 @@ final public class RareWordTermMapCreator {
       return sb.toString();
    }
 
+   // TODO should this be exactly the same as getTokens in TextTokenizer (dictionary gui code)  ? probably ...
    static private List<String> getTokens( final String word ) {
       final List<String> tokens = new ArrayList<>();
       final StringBuilder sb = new StringBuilder();
@@ -293,7 +298,7 @@ final public class RareWordTermMapCreator {
             continue;
          }
          if ( (c == '\'' && isOwnerApostrophe( word, i + 1 ))
-              || (c == '.' && isNumberDecimal( word, i + 1 )) ) {
+               || (c == '.' && isNumberDecimal( word, i + 1 )) ) {
             // what follows is an 's or .# so add the preceding and move on
             if ( sb.length() != 0 ) {
                tokens.add( sb.toString() );
@@ -340,16 +345,23 @@ final public class RareWordTermMapCreator {
    }
 
    static private String getNextCharTerm( final String word ) {
-      final StringBuilder sb = new StringBuilder();
+//      final StringBuilder sb = new StringBuilder();
       final int count = word.length();
+//      for ( int i = 0; i < count; i++ ) {
+//         final char c = word.charAt( i );
+//         if ( !Character.isLetterOrDigit( c ) ) {
+//            return sb.toString();
+//         }
+//         sb.append( c );
+//      }
+//      return sb.toString();
       for ( int i = 0; i < count; i++ ) {
          final char c = word.charAt( i );
          if ( !Character.isLetterOrDigit( c ) ) {
-            return sb.toString();
+            return word.substring( 0, i );
          }
-         sb.append( c );
       }
-      return sb.toString();
+      return word;
    }
 
 
