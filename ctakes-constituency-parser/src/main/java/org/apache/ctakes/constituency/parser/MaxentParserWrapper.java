@@ -24,17 +24,21 @@ import opennlp.tools.parser.ParserModel;
 import opennlp.tools.parser.chunking.Parser;
 import org.apache.ctakes.constituency.parser.util.TreeUtils;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
+import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.TopTreebankNode;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FSIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 public class MaxentParserWrapper implements ParserWrapper {
 
@@ -72,13 +76,17 @@ public class MaxentParserWrapper implements ParserWrapper {
       logger.info( "Started processing: " + docId );
       // iterate over sentences
 		Parse parse = null;
-      final Collection<Sentence> allSentences = org.apache.uima.fit.util.JCasUtil.select( jcas, Sentence.class );
-      for ( Sentence sentence : allSentences ) {
+//      final Collection<Sentence> allSentences = org.apache.uima.fit.util.JCasUtil.select( jcas, Sentence.class );
+//      for ( Sentence sentence : allSentences ) {
+      final Map<Sentence, Collection<BaseToken>> sentenceTokenMap = JCasUtil.indexCovered( jcas, Sentence.class, BaseToken.class );
+      for ( Map.Entry<Sentence, Collection<BaseToken>> sentenceTokens : sentenceTokenMap.entrySet() ) {
+         final Sentence sentence = sentenceTokens.getKey();
          final String text = sentence.getCoveredText();
          if ( text.isEmpty() || isBorderOnly( text ) ) {
             continue;
          }
-         final FSArray terminalArray = TreeUtils.getTerminals( jcas, sentence );
+//         final FSArray terminalArray = TreeUtils.getTerminals( jcas, sentence );
+         final FSArray terminalArray = TreeUtils.getTerminals( jcas, new ArrayList<>( sentenceTokens.getValue() ) );
          final String tokenString = TreeUtils.getSplitSentence( terminalArray );
          if ( tokenString.isEmpty() ) {
             parse = null;

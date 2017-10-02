@@ -6,6 +6,7 @@ import org.apache.ctakes.coreference.ae.features.salience.GrammaticalRoleFeature
 import org.apache.ctakes.coreference.ae.features.salience.MorphosyntacticFeatureExtractor;
 import org.apache.ctakes.coreference.ae.features.salience.SemanticEnvironmentFeatureExtractor;
 import org.apache.ctakes.typesystem.type.textsem.Markable;
+import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -37,6 +38,8 @@ import java.util.Map;
 )
 public class MarkableSalienceAnnotator extends CleartkAnnotator<Boolean> {
 
+  static private final Logger LOGGER = Logger.getLogger( "MarkableSalienceAnnotator" );
+
   List<FeatureExtractor1<Markable>> extractors = new ArrayList<>();
   
   public static AnalysisEngineDescription createDataWriterDescription(
@@ -62,19 +65,20 @@ public class MarkableSalienceAnnotator extends CleartkAnnotator<Boolean> {
   }
   
   @Override
-  public void initialize(UimaContext context)
-      throws ResourceInitializationException {
-    super.initialize(context);
-    
-    extractors.add(new MorphosyntacticFeatureExtractor());
-    extractors.add(new GrammaticalRoleFeatureExtractor());
-    extractors.add(new SemanticEnvironmentFeatureExtractor());
-    extractors.add(new ClinicalFeatureExtractor());
+  public void initialize( final UimaContext context ) throws ResourceInitializationException {
+    LOGGER.info( "Initializing ..." );
+    super.initialize( context );
+
+    extractors.add( new MorphosyntacticFeatureExtractor() );
+    extractors.add( new GrammaticalRoleFeatureExtractor() );
+    extractors.add( new SemanticEnvironmentFeatureExtractor() );
+    extractors.add( new ClinicalFeatureExtractor() );
+    LOGGER.info( "Finished." );
   }
   
   @Override
   public void process(JCas jcas) throws AnalysisEngineProcessException {
-    
+    LOGGER.info( "Processing ..." );
     for(Markable markable : JCasUtil.select(jcas, Markable.class)){
       boolean outcome;
       List<Feature> features = new ArrayList<>();
@@ -92,5 +96,6 @@ public class MarkableSalienceAnnotator extends CleartkAnnotator<Boolean> {
         markable.setConfidence(outcomes.get(true).floatValue());
       }
     }
+    LOGGER.info( "Finished." );
   }
 }

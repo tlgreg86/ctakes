@@ -205,14 +205,16 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
   }
    
   @Override
-  public void initialize(UimaContext context) throws ResourceInitializationException {
-    super.initialize(context);
-    
-    if(this.useExistingEncoders && classDataWriter != null){
+  public void initialize( final UimaContext context ) throws ResourceInitializationException {
+    LOGGER.info( "Initializing ..." );
+    super.initialize( context );
+
+    if ( this.useExistingEncoders && classDataWriter != null ) {
       this.dataWriter = classDataWriter;
-    }else if(this.isTraining()){
+    } else if ( this.isTraining() ) {
       classDataWriter = this.dataWriter;
     }
+    LOGGER.info( "Finished." );
   }
 
   public void notYetProcess( final JCas jCas ) throws AnalysisEngineProcessException {

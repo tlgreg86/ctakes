@@ -22,6 +22,7 @@ import org.apache.ctakes.constituency.parser.MaxentParserWrapper;
 import org.apache.ctakes.constituency.parser.ParserWrapper;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
+import org.apache.ctakes.core.util.DotLogger;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -32,13 +33,13 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 
 @PipeBitInfo(
       name = "Constituency Parser",
-      description = ".",
-      dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.SENTENCE },
+		description = "Adds Terminal Treebank Nodes, necessary for Coreference Markables.",
+		dependencies = { PipeBitInfo.TypeProduct.DOCUMENT_ID, PipeBitInfo.TypeProduct.SENTENCE },
       products = { PipeBitInfo.TypeProduct.TREE_NODE }
 )
 public class ConstituencyParser extends JCasAnnotator_ImplBase {
@@ -49,24 +50,24 @@ public class ConstituencyParser extends JCasAnnotator_ImplBase {
 			description = "File containing the opennlp-trained parser model",
 			mandatory = false,
 			defaultValue = "org/apache/ctakes/constituency/parser/models/sharpacq-3.1.bin"
-	) private String modelFilename;
+	)
+	private String modelFilename;
 	
 	
 	private ParserWrapper parser = null;
 	private Logger logger = Logger.getLogger(this.getClass());
 
 	@Override
-	public void initialize(UimaContext aContext)
-			throws ResourceInitializationException {
-		super.initialize(aContext);
-		try {
-			logger.info("Initializing parser...");		
-			parser = new MaxentParserWrapper(FileLocator.getAsStream(modelFilename));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			logger.error("Error reading parser model file/directory: " + e.getMessage());
-			throw new ResourceInitializationException(e);
+	public void initialize( final UimaContext aContext ) throws ResourceInitializationException {
+		super.initialize( aContext );
+		logger.info( "Initializing ..." );
+		try ( DotLogger dotter = new DotLogger() ) {
+			parser = new MaxentParserWrapper( FileLocator.getAsStream( modelFilename ) );
+		} catch ( IOException ioE ) {
+			logger.error( "Error reading parser model file/directory: " + ioE.getMessage() );
+			throw new ResourceInitializationException( ioE );
 		}
+		logger.info( "Finished." );
 	}
 
 

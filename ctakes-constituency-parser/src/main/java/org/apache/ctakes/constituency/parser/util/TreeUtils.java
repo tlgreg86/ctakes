@@ -287,36 +287,45 @@ final public class TreeUtils {
    public static FSArray getTerminals( final JCas jcas, final Sentence sentence ) {
       final List<BaseToken> baseTokens = org.apache.uima.fit.util.JCasUtil
             .selectCovered( jcas, BaseToken.class, sentence );
-      final List<BaseToken> wordList = new ArrayList<>();
-      for ( BaseToken baseToken : baseTokens ) {
-         if ( !(baseToken instanceof NewlineToken) ) {
-            wordList.add( baseToken );
-         }
-      }
-      final FSArray terminals = new FSArray( jcas, wordList.size() );
-      int termIndex = 0;
-      for ( BaseToken word : wordList ) {
-         final TerminalTreebankNode ttn = new TerminalTreebankNode( jcas, word.getBegin(), word.getEnd() );
-         ttn.setChildren( null );
-         ttn.setIndex( termIndex );
-         ttn.setTokenIndex( termIndex );
-         ttn.setLeaf( true );
-         ttn.setNodeTags( null );
-         final String wordText = word.getCoveredText();
-         if ( word instanceof PunctuationToken && BRACKET_MAP.containsKey( wordText ) ) {
-            ttn.setNodeValue( BRACKET_MAP.get( wordText ) );
-         } else {
-            ttn.setNodeValue( wordText );
-         }
+		return getTerminals( jcas, baseTokens );
+	}
+
+	/**
+	 * @param jcas       ye olde ...
+	 * @param baseTokens base tokens in a window (usually sentence)
+	 * @return terminals for the sentence
+	 */
+	public static FSArray getTerminals( final JCas jcas, final List<BaseToken> baseTokens ) {
+		final List<BaseToken> wordList = new ArrayList<>();
+		for ( BaseToken baseToken : baseTokens ) {
+			if ( !(baseToken instanceof NewlineToken) ) {
+				wordList.add( baseToken );
+			}
+		}
+		final FSArray terminals = new FSArray( jcas, wordList.size() );
+		int termIndex = 0;
+		for ( BaseToken word : wordList ) {
+			final TerminalTreebankNode ttn = new TerminalTreebankNode( jcas, word.getBegin(), word.getEnd() );
+			ttn.setChildren( null );
+			ttn.setIndex( termIndex );
+			ttn.setTokenIndex( termIndex );
+			ttn.setLeaf( true );
+			ttn.setNodeTags( null );
+			final String wordText = word.getCoveredText();
+			if ( word instanceof PunctuationToken && BRACKET_MAP.containsKey( wordText ) ) {
+				ttn.setNodeValue( BRACKET_MAP.get( wordText ) );
+			} else {
+				ttn.setNodeValue( wordText );
+			}
 //			ttn.addToIndexes();
-         terminals.set( termIndex, ttn );
-         termIndex++;
-      }
-      return terminals;
-   }
+			terminals.set( termIndex, ttn );
+			termIndex++;
+		}
+		return terminals;
+	}
 
 
-   public static String getSplitSentence( final FSArray terminalArray ) {
+	public static String getSplitSentence( final FSArray terminalArray ) {
 //		int offset = 0;  // what was this for?
       final StringBuilder sb = new StringBuilder();
       for ( int i = 0; i < terminalArray.size(); i++ ) {
