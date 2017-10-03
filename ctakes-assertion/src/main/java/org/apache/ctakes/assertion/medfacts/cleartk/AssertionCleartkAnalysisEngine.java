@@ -385,8 +385,6 @@ public abstract class AssertionCleartkAnalysisEngine extends
       
       if(domainFeature != null){
         instance.add(new Feature("Domain", domainFeature));
-      }else{
-        System.err.println("This document has no domain feature: " + documentId);
       }
 //      // extract all features that require only the entity mention annotation
 //      instance.addAll(tokenFeatureExtractor.extract(jCas, entityMention));
