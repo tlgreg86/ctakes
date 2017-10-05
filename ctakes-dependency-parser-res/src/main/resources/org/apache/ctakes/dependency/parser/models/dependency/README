@@ -2,11 +2,7 @@
 additional models
 #################
 
-There is an additional model available from the ClearTK downloads page:
-
-https://code.google.com/p/clearnlp/
-
-and is called mayo-en-dep-1.3.0.jar.  This model is built from
+This model is built from
 both the training data and development data from the CoNLL 2009 shared task (see
 links above).  This model was provided by Jinho Choi.
 
