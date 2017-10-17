@@ -300,9 +300,12 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
         boolean singleton = true;
         double maxScore = 0.0;
         CollectionTextRelation maxCluster = null;
+        String mentionView = mention.getView().getViewName();
 
         for ( CollectionTextRelationIdentifiedAnnotationPair pair : this.getCandidateRelationArgumentPairs( jCas, mention ) ) {
           CollectionTextRelation cluster = pair.getCluster();
+          Markable firstElement = JCasUtil.select(cluster.getMembers(), Markable.class).iterator().next();
+          String clusterHeadView = firstElement.getView().getViewName();
 //System.out.println( "   MCCA Pair Cluster: " + pair.getCluster().getCategory() );
           // apply all the feature extractors to extract the list of features
           List<Feature> features = new ArrayList<>();
@@ -362,6 +365,9 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
               if ( greedyFirst ) {
                 createRelation( jCas, cluster, mention, predictedCategory, scores.get( predictedCategory ) );
                 singleton = false;
+                if(!clusterHeadView.equals(mentionView)){
+                  LOGGER.info("Linking new mention to cluster with elements from previous document");
+                }
                 // break here for "closest-first" greedy decoding strategy (Soon et al., 2001), terminology from Lasalle and Denis (2013),
                 // for "best first" need to keep track of all relations with scores and only keep the highest
                 break;
