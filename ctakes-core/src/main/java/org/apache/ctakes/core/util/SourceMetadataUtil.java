@@ -3,12 +3,13 @@ package org.apache.ctakes.core.util;
 import org.apache.ctakes.typesystem.type.structured.Metadata;
 import org.apache.ctakes.typesystem.type.structured.SourceData;
 import org.apache.log4j.Logger;
-import org.apache.uima.cas.FSIterator;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.resource.ResourceProcessException;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Utility class with convenience methods for a few commonly-used JCas Metadata types that are begged of the source
@@ -21,18 +22,32 @@ final public class SourceMetadataUtil {
 
    static private final Logger LOGGER = Logger.getLogger( "SourceMetadataUtil" );
 
+   static public final String UNKNOWN_PATIENT = "UnknownPatient";
+   static public final long UNKNOWN_PATIENT_NUM = -1;
+
    private SourceMetadataUtil() {
    }
 
+   /**
+    * @param jcas ye olde jay-cas
+    * @return the patient identifier for the source or {@link #UNKNOWN_PATIENT}
+    */
+   static public String getPatientIdentifier( final JCas jcas ) {
+      final Metadata metadata = getMetadata( jcas );
+      if ( metadata == null ) {
+         return UNKNOWN_PATIENT;
+      }
+      return metadata.getPatientIdentifier();
+   }
 
    /**
     * @param jcas ye olde jay-cas
-    * @return the patient id for the source or -1 if one is not found
+    * @return the patient id for the source or {@link #UNKNOWN_PATIENT_NUM} if one is not found
     */
    static public long getPatientNum( final JCas jcas ) {
       final Metadata metadata = getMetadata( jcas );
       if ( metadata == null ) {
-         return -1;
+         return UNKNOWN_PATIENT_NUM;
       }
       return metadata.getPatientID();
    }
@@ -42,12 +57,11 @@ final public class SourceMetadataUtil {
     * @return the Metadata for the given jcas or null if one is not found
     */
    static private Metadata getMetadata( final JCas jcas ) {
-      // TODO I really dislike this index-everything-to-java1 paradigm
-      final FSIterator<TOP> itr = jcas.getJFSIndexRepository().getAllIndexedFS( Metadata.type );
-      if ( itr == null || !itr.hasNext() ) {
+      final Collection<Metadata> metadatas = JCasUtil.select( jcas, Metadata.class );
+      if ( metadatas == null || metadatas.isEmpty() ) {
          return null;
       }
-      return (Metadata)itr.next();
+      return new ArrayList<>( metadatas ).get( 0 );
    }
 
    /**
