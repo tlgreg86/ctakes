@@ -1484,9 +1484,14 @@ This instantiates a manages/treats relation which should be marked as conditiona
       <description>Structured data that captures information about the document, patient, or context of the clinical text.</description>
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
+          <featureDescription>
+              <name>patientIdentifier</name>
+              <description>Represents a text identifier for the patient.</description>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+          </featureDescription>
         <featureDescription>
           <name>patientID</name>
-          <description/>
+            <description>patientID is a simple long. Could be renamed to patientNum.</description>
           <rangeTypeName>uima.cas.Long</rangeTypeName>
         </featureDescription>
         <featureDescription>
