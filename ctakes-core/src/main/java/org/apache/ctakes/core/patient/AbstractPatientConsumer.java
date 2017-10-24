@@ -7,6 +7,8 @@ import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 
+import java.util.Collection;
+
 
 /**
  * Extend this annotator to consume a patient cas once the current patient name has changed.
@@ -29,14 +31,12 @@ abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase {
    @ConfigurationParameter(
          name = REMOVE_PATIENT,
          description = "The Patient Consumer should remove the patient from the cache when finished.",
-         defaultValue = "false"
+         defaultValue = "true"
    )
    private boolean _removePatient;
 
    private final String _action;
    private final Logger _logger;
-
-   private String _consumerPatient;
 
    protected AbstractPatientConsumer( final String aeName, final String action ) {
       _action = action;
@@ -47,24 +47,14 @@ abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase {
     * {@inheritDoc}
     */
    @Override
-   final public void process( final JCas jCas ) throws AnalysisEngineProcessException {
-      final String storePatient = PatientNoteStore.getInstance().getCurrentPatientName();
-      if ( storePatient == null ) {
-         return;
+   public void process( final JCas jCas ) throws AnalysisEngineProcessException {
+      final Collection<String> completedPatientIds = PatientNoteStore.getInstance().getCompletedPatientIds();
+      for ( String id : completedPatientIds ) {
+         process( id );
+         if ( _removePatient ) {
+            PatientNoteStore.getInstance().removePatient( id );
+         }
       }
-      if ( _consumerPatient == null ) {
-         _consumerPatient = storePatient;
-         return;
-      }
-      if ( _consumerPatient.equals( storePatient ) ) {
-         return;
-      }
-      // The storePatient is not the current patient in this consumer, so process the consumer patient.
-      process( _consumerPatient );
-      if ( _removePatient ) {
-         PatientNoteStore.getInstance().removePatientCas( _consumerPatient );
-      }
-      _consumerPatient = storePatient;
    }
 
    /**
@@ -73,7 +63,13 @@ abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase {
    @Override
    final public void collectionProcessComplete() throws AnalysisEngineProcessException {
       super.collectionProcessComplete();
-      process( _consumerPatient );
+      final Collection<String> allPatientIds = PatientNoteStore.getInstance().getPatientIds();
+      for ( String id : allPatientIds ) {
+         process( id );
+         if ( _removePatient ) {
+            PatientNoteStore.getInstance().removePatient( id );
+         }
+      }
    }
 
    /**

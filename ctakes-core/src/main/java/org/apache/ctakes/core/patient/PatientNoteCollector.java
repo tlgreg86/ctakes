@@ -8,8 +8,8 @@ import org.apache.uima.jcas.JCas;
 
 /**
  * Sends document cas to the {@link PatientNoteStore} to be cached
- * using the {@link PatientNoteStore#getDefaultPatientName(JCas)}
- * and {@link PatientNoteStore#getDefaultDocumentName(JCas)}
+ * using the {@link PatientNoteStore#getDefaultPatientId(JCas)}
+ * and {@link PatientNoteStore#getDefaultDocumentId(JCas)}
  *
  * @author SPF , chip-nlp
  * @version %I%
@@ -31,8 +31,8 @@ final public class PatientNoteCollector extends JCasAnnotator_ImplBase {
     */
    @Override
    public void process( final JCas jCas ) throws AnalysisEngineProcessException {
-      LOGGER.info( "Caching Document " + PatientNoteStore.getInstance().getDefaultDocumentName( jCas )
-            + " into Patient " + PatientNoteStore.getInstance().getDefaultPatientName( jCas ) + " ..." );
+      LOGGER.info( "Caching Document " + PatientNoteStore.getInstance().getDefaultDocumentId( jCas )
+            + " into Patient " + PatientNoteStore.getInstance().getDefaultPatientId( jCas ) + " ..." );
 
       PatientNoteStore.getInstance().addDocument( jCas );
 

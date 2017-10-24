@@ -24,8 +24,8 @@ final public class PatientViewUtil {
 
    static public final String DEFAULT_VIEW = "_InitialView";
    static public final String GOLD_PREFIX = "GoldView";
-   static final Predicate<String> isNameGold = s -> s.startsWith( GOLD_PREFIX );
-   static final Predicate<JCas> isCasGold = c -> c.getViewName().startsWith( GOLD_PREFIX );
+   static private final Predicate<String> isNameGold = s -> s.startsWith( GOLD_PREFIX );
+   static private final Predicate<JCas> isCasGold = c -> c.getViewName().startsWith( GOLD_PREFIX );
 
    static private final Logger LOGGER = Logger.getLogger( "PatientViewUtil" );
 
