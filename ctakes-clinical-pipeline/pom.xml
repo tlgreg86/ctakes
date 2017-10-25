@@ -24,57 +24,22 @@
             <groupId>org.apache.ctakes</groupId>
             <artifactId>ctakes-dictionary-lookup-fast</artifactId>
         </dependency>
-        <!--  Context Tokenizer added by Assertion.  -->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.ctakes</groupId>-->
-        <!--<artifactId>ctakes-context-tokenizer</artifactId>-->
-        <!--</dependency>-->
-        <!--  Preprocessor not used by default pipeline.  -->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-preprocessor</artifactId>
 		</dependency>
-        <!--  LVG not used by default pipeline.  -->
-        <!--  LVG added by Assertion.  -->
         <dependency>
             <groupId>org.apache.ctakes</groupId>
             <artifactId>ctakes-lvg</artifactId>
         </dependency>
-        <!--  Chunker added by Assertion.  -->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.ctakes</groupId>-->
-        <!--<artifactId>ctakes-chunker</artifactId>-->
-        <!--</dependency>-->
-        <!--  NE contexts not used by default pipeline, can switch out for assertion.  -->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-ne-contexts</artifactId>
 		</dependency>
-        <!--  POS Tagger added by Assertion (via dependency parser) and by Chunker.  -->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.ctakes</groupId>-->
-        <!--<artifactId>ctakes-pos-tagger</artifactId>-->
-        <!--</dependency>-->
-        <!--  Drug NER not used by default pipeline.  -->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.ctakes</groupId>-->
-        <!--<artifactId>ctakes-drug-ner</artifactId>-->
-        <!--</dependency>		-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-assertion</artifactId>
 		</dependency>
-        <!--  Dependency parser added by Assertion.  -->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.ctakes</groupId>-->
-        <!--<artifactId>ctakes-dependency-parser</artifactId>-->
-        <!--</dependency>-->
-        <!--  ytex should depend upon ctakes-clinical-pipeline , not the other way around.  -->
-        <!--  Constituency parser added by Assertion.  -->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.ctakes</groupId>-->
-        <!--<artifactId>ctakes-constituency-parser</artifactId>-->
-        <!--</dependency>-->
 		<dependency>
 			<groupId>org.apache.ctakes</groupId>
 			<artifactId>ctakes-clinical-pipeline-res</artifactId>
@@ -88,6 +53,13 @@
 					<name>runCPE</name>
 				</property>
 			</activation>
+			<!--  ctakes does NOT require the uimaj tools, but the cpe profile does  -->
+			<dependencies>
+				<dependency>
+					<groupId>org.apache.uima</groupId>
+					<artifactId>uimaj-tools</artifactId>
+				</dependency>
+			</dependencies>
 			<build>
 				<plugins>
 					<plugin>
@@ -124,6 +96,13 @@
 					<name>runCVD</name>
 				</property>
 			</activation>
+			<!--  ctakes does NOT require the uimaj tools, but the cvd profile does  -->
+			<dependencies>
+				<dependency>
+					<groupId>org.apache.uima</groupId>
+					<artifactId>uimaj-tools</artifactId>
+				</dependency>
+			</dependencies>
 			<build>
 				<plugins>
 					<plugin>
