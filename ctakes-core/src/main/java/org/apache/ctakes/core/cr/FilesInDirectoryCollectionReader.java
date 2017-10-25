@@ -110,7 +110,7 @@ public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase
       final String inputDirPath = (String)getConfigParameterValue( ConfigParameterConstants.PARAM_INPUTDIR );
       File directory;
       try {
-			directory = FileLocator.locateFile( inputDirPath );
+			directory = FileLocator.getFile( inputDirPath );
 		} catch ( IOException ioE ) {
 			throw new ResourceInitializationException(
 					ResourceConfigurationException.DIRECTORY_NOT_FOUND,
@@ -227,13 +227,6 @@ public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase
 		    documentIDAnnotation.setDocumentID(docID);
 		    documentIDAnnotation.addToIndexes();
 
-	      	//if there's a CAS Initializer, call it	
-			if (getCasInitializer() != null)
-			{
-				getCasInitializer().initializeCas(fileReader, aCAS);	
-			}
-			else  //No CAS Initializer, so read file and set document text ourselves
-			{				
 				byte[] contents = new byte[(int)file.length() ];
 				fileInputStream.read( contents );   
 				String text;
@@ -247,9 +240,8 @@ public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase
 				}
 				//put document in CAS (assume CAS)
 				jcas.setDocumentText(text);
-			}
-	   
-		    //set language if it was explicitly specified as a configuration parameter
+
+			 //set language if it was explicitly specified as a configuration parameter
 		    if (iv_language != null)
 		    {
 		//      ((DocumentAnnotation)jcas.getDocumentAnnotationFs()).setLanguage(iv_language);
