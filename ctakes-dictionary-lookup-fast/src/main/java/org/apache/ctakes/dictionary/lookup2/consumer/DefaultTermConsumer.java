@@ -112,11 +112,15 @@ final public class DefaultTermConsumer extends AbstractTermConsumer {
                LOGGER.warn( "Blacklist line is not correct <semanticType>|<text> format " + line );
                continue;
             }
-            final Integer key = attemptParseInt( splits[ 0 ] );
-            if ( caseSensitive ) {
-               blacklists.placeValue( key, splits[ 1 ].trim() );
-            } else {
-               blacklists.placeValue( key, splits[ 1 ].trim().toLowerCase() );
+            final String[] keys = splits[ 0 ].split( "," );
+            final String text = splits[ 1 ].trim();
+            for ( String key : keys ) {
+               final Integer num = attemptParseInt( key.trim() );
+               if ( caseSensitive ) {
+                  blacklists.placeValue( num, text );
+               } else {
+                  blacklists.placeValue( num, text.toLowerCase() );
+               }
             }
          }
       } catch ( IOException ioE ) {
