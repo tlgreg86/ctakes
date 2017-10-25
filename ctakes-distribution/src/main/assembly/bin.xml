@@ -69,8 +69,6 @@
 	        	<!-- exclude assertion and lvg - they still need to be unpacked and not read from classpath yet -->
 	        	<exclude>org.apache.ctakes:ctakes-assertion-res</exclude>
 	        	<exclude>org.apache.ctakes:ctakes-lvg-res</exclude>
-               <!-- Exclude fast-res - it should be unpacked in the resources directory -->
-               <exclude>org.apache.ctakes:ctakes-dictionary-lookup-fast-res</exclude>
                <!-- exclude non-asf compliant dependencies used by ytex -->
 				<exclude>org.hibernate:*</exclude>
 				<exclude>nz.ac.waikato.cms.weka:*</exclude>
