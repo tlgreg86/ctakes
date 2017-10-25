@@ -31,7 +31,7 @@
    <description>Resources Project for ctakes-dictionary-lookup-fast</description>
    <dependencies>
       <dependency>
-         <!--  TODO  -->
+         <!--  TODO  :  update per release  -->
          <groupId>net.sourceforge.ctakesresources</groupId>
          <artifactId>ctakes-resources-sno_rx</artifactId>
          <version>4.0.0</version>
@@ -77,6 +77,7 @@
                      are not jar'd and included in the bin distro
                      by default please download them from SF if needed.
                    -->
+                  <include>**/*.piper</include>
                   <include>**/*.class</include>
                   <include>**/types/*.xml</include>
                   <include>**/META-INF/**</include>
