@@ -154,7 +154,8 @@ final public class PiperFileReader {
          }
       } catch ( IOException ioE ) {
          LOGGER.error( "Could not read piper file: " + filePath );
-         return false;
+//         return false;
+         throw new UIMAException( ioE );
       }
       return true;
    }

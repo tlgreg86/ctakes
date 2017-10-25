@@ -6,7 +6,10 @@ import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Paths;
 
 /**
  * @author SPF , chip-nlp
@@ -68,7 +71,16 @@ final public class PiperFileRunner {
          // run the pipeline
          builder.run();
       } catch ( UIMAException | IOException multE ) {
-         LOGGER.error( multE.getMessage(), multE );
+         LOGGER.error( multE.getMessage() );
+         final String logPath = Paths.get( "cTAKES.error.log" ).toFile().getAbsolutePath();
+         try {
+            final PrintStream stream = new PrintStream( logPath );
+            multE.printStackTrace( stream );
+            LOGGER.info( "For more information please see log file " + logPath );
+         } catch ( FileNotFoundException fnfE ) {
+            LOGGER.warn( "Could not write to log file " + logPath );
+            multE.printStackTrace();
+         }
          return false;
       }
       return true;
