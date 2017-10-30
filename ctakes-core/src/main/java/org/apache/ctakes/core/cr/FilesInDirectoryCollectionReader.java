@@ -110,7 +110,7 @@ public class FilesInDirectoryCollectionReader extends CollectionReader_ImplBase
       final String inputDirPath = (String)getConfigParameterValue( ConfigParameterConstants.PARAM_INPUTDIR );
       File directory;
       try {
-			directory = FileLocator.getFile( inputDirPath );
+			directory = FileLocator.locateFile( inputDirPath );
 		} catch ( IOException ioE ) {
 			throw new ResourceInitializationException(
 					ResourceConfigurationException.DIRECTORY_NOT_FOUND,
