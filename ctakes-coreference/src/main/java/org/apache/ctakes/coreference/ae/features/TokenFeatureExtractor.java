@@ -1,24 +1,26 @@
 package org.apache.ctakes.coreference.ae.features;
 
-import static org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator.getKey;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.ctakes.coreference.util.MarkableCacheRelationExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-import org.apache.ctakes.utils.struct.MapFactory;
+import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.Feature;
 
-public class TokenFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation> {
+public class TokenFeatureExtractor implements RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>, MarkableCacheRelationExtractor {
+
+	private Map<Markable,ConllDependencyNode> cache = null;
 
 	@Override
 	public List<Feature> extract(JCas jCas, IdentifiedAnnotation arg1,
@@ -36,7 +38,7 @@ public class TokenFeatureExtractor implements RelationFeaturesExtractor<Identifi
 		feats.add(new Feature("TOKEN_DEF1", isDefinite(s1)));
 		feats.add(new Feature("TOKEN_DEF2", isDefinite(s2)));
 		feats.add(new Feature("TOKEN_NUMAGREE",
-				numberSingular(jCas, arg1, s1) == numberSingular(jCas, arg2, s2)));
+				numberSingular(jCas, arg1, s1, cache.get((Markable)arg1)) == numberSingular(jCas, arg2, s2, cache.get((Markable)arg2))));
 
 		String gen1 = getGender(s1);
 		String gen2 = getGender(s2);
@@ -102,8 +104,7 @@ public class TokenFeatureExtractor implements RelationFeaturesExtractor<Identifi
 
 	// FYI - old code used treebanknode types and found head using head rules filled in by the parser
 	// not sure if there is an appreciable difference...
-	public static boolean numberSingular(JCas jcas, Annotation arg, String s1){
-    ConllDependencyNode head = MapFactory.get(getKey(jcas), arg);
+	public static boolean numberSingular(JCas jcas, Annotation arg, String s1, ConllDependencyNode head){
 //		List<BaseToken> tokens = new ArrayList<>(JCasUtil.selectCovered(BaseToken.class, arg));
 //		for (int i = tokens.size()-1; i >=0; i--){
 //			BaseToken t = tokens.get(i);
@@ -165,5 +166,10 @@ public class TokenFeatureExtractor implements RelationFeaturesExtractor<Identifi
 	
 	public static boolean isHistory(IdentifiedAnnotation mention){
 	  return mention.getHistoryOf() == CONST.NE_HISTORY_OF_PRESENT;
+	}
+
+	@Override
+	public void setCache(Map<Markable, ConllDependencyNode> cache) {
+		this.cache = cache;
 	}
 }

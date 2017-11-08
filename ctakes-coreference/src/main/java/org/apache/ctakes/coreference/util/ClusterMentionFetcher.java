@@ -50,7 +50,7 @@ final public class ClusterMentionFetcher {
             final CollectionTextRelationIdentifiedAnnotationPair key = new CollectionTextRelationIdentifiedAnnotationPair( cluster, mention );
             if ( relationLookup.containsKey( key ) ) {
                String category = relationLookup.get( key ).getCategory();
-               System.err.println( "Error in: " + ViewUriUtil.getURI( jCas ).toString() );
+               //System.err.println( "Error in: " + ViewUriUtil.getURI( jCas ).toString() );
                System.err.println( "Error! This attempted relation " + relation.getCategory() + " already has a relation " + category + " at this span: " + mention.getCoveredText() );
             }
             relationLookup.put( key, relation );

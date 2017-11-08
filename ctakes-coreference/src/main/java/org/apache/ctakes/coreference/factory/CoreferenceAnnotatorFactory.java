@@ -31,9 +31,6 @@ public class CoreferenceAnnotatorFactory {
   public static AnalysisEngineDescription getMentionClusterResolverDescription() throws ResourceInitializationException{
     AggregateBuilder builder = new AggregateBuilder();
     
-    // Creates a data structure that maps from markables to dependency head nodes that is used in multiple feature extractors
-    builder.add(AnalysisEngineFactory.createEngineDescription(MarkableHeadTreeCreator.class));
-    
     // annotate every markable for "salience": how important is it to the discourse in context
     builder.add(MarkableSalienceAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/salience/model.jar"));
     

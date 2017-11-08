@@ -11,7 +11,6 @@ import java.util.List;
 import org.apache.ctakes.constituency.parser.util.TreeUtils;
 import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
-import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -20,7 +19,6 @@ import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
-import org.apache.uima.cas.CASRuntimeException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
@@ -36,88 +34,36 @@ import org.cleartk.util.ViewUriUtil;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 
-@PipeBitInfo(
-      name = "Coreference Score Writer",
-      description = "Writes scores of system coreference chains compared to chains in a Gold View.",
-      role = PipeBitInfo.Role.SPECIAL,
-      dependencies = { PipeBitInfo.TypeProduct.MARKABLE, PipeBitInfo.TypeProduct.COREFERENCE_RELATION }
-)
-public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
-  @ConfigurationParameter(
-      name = ConfigParameterConstants.PARAM_OUTPUTDIR,
-      mandatory = true,
-      description = "Name of chain file in CoNLL format"
-      )
-  private String outputFilename;
+public class CoreferenceChainCoNLLWriter {
   private PrintWriter out = null;
   private PrintWriter icOut = null;
-  
-  public static final String PARAM_GOLD_VIEW_NAME = "GoldViewName";
-  @ConfigurationParameter(
-      name = PARAM_GOLD_VIEW_NAME,
-      mandatory = false,
-      description = "Name of gold view in jcas"
-      )
-  private String goldViewName = null;
-  boolean isGold;
-  
-  private int docNum = 0;
-  
-  @Override
-  public void initialize(final UimaContext context) throws ResourceInitializationException{
-    super.initialize(context);
-    
-    try {
-      out = new PrintWriter(outputFilename);
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-      throw new ResourceInitializationException(e);
-    }
-    
-    if(goldViewName != null) isGold = true;
-    else{
-      isGold = false;
-      try {
-        icOut = new PrintWriter(outputFilename + ".icarus");
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-        throw new ResourceInitializationException(e);
-      }
-    }
+  int docNum=0;
+
+  public CoreferenceChainCoNLLWriter(String outputFile) throws FileNotFoundException {
+    out = new PrintWriter(outputFile);
   }
   
-  @Override
-  public void process(JCas jCas) throws AnalysisEngineProcessException {
+  public void writeCas(JCas jCas) throws AnalysisEngineProcessException {
     String myView = jCas.getViewName();
-    File filename = null;
-    try{
-      filename = new File(ViewUriUtil.getURI(jCas));
-    }catch(Exception e){
-      filename = new File(DocumentIDAnnotationUtil.getDocumentID(jCas));
-    }
-
-    JCas chainsCas = null;
-    try {
-       chainsCas = goldViewName != null ? jCas.getView(goldViewName) : jCas;
-    } catch (CASRuntimeException|CASException e) {
-      try{
-        chainsCas = goldViewName != null ? jCas.getView(goldViewName + "_" + filename) : jCas;
-      } catch (CASException e2) {
-        e.printStackTrace();
-        throw new AnalysisEngineProcessException(e2);
-      }
-    }
+    File filename = new File(ViewUriUtil.getURI(jCas));
+//    JCas chainsCas = null;
+//    try {
+//       chainsCas = goldViewName != null ? jCas.getView(goldViewName) : jCas;
+//    } catch (CASException e) {
+//      e.printStackTrace();
+//      throw new AnalysisEngineProcessException(e);
+//    }
     int chainNum = 1;
     HashMap<Annotation, Integer> ent2chain = new HashMap<>();
     
-    if(isGold) System.out.println("\nGold chains:");
-    else{
-      icOut.println(String.format("#begin document (%s); part 000", filename.getPath()));
-      System.out.println("\nSystem chains:");
-    }
+//    if(isGold) System.out.println("\nGold chains:");
+//    else{
+//      icOut.println(String.format("#begin document (%s); part 000", filename.getPath()));
+//      System.out.println("\nChains:");
+//    }
     
     
-    Collection<CollectionTextRelation> rels = JCasUtil.select(chainsCas, CollectionTextRelation.class);
+    Collection<CollectionTextRelation> rels = JCasUtil.select(jCas, CollectionTextRelation.class);
     if(rels.size() == 0){
       return;
     }
@@ -145,7 +91,7 @@ public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
         members = ((NonEmptyFSList)members).getTail();
         System.out.print("Mention: " + mention.getCoveredText().replace("\n", "<CR>"));
         System.out.print(" (" + mention.getBegin() + ", " + mention.getEnd() + ")");
-        if(!isGold && !mention.getView().getViewName().equals(myView)){
+        if(!mention.getView().getViewName().equals(myView)){
           System.out.print("[DOC:" + mention.getView().getViewName() + "]");
         }
         System.out.print("  ----->    ");
@@ -185,7 +131,7 @@ public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
       if(token.getCoveredText().length() > 1 && token.getCoveredText().endsWith(".")){
         lastInd = token.getEnd()-1;
       }
-      List<Markable> markables = new ArrayList<>(JCasUtil.selectCovering(chainsCas, Markable.class, token.getBegin(), lastInd));
+      List<Markable> markables = new ArrayList<>(JCasUtil.selectCovering(jCas, Markable.class, token.getBegin(), lastInd));
       List<Annotation> startMention = new ArrayList<>();
       Multiset<Integer> endMention = HashMultiset.create();
       List<Integer> wholeMention = new ArrayList<>();
@@ -208,9 +154,9 @@ public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
             endMention.add(ent2chain.get(markable));
           }
           
-          if(!isGold){
-            icOut.println(String.format("%d-%d-%d\n", sentId, markable.getBegin(), markable.getEnd()));
-          }
+//          if(!isGold){
+//            icOut.println(String.format("%d-%d-%d\n", sentId, markable.getBegin(), markable.getEnd()));
+//          }
         }
       }
 
@@ -310,9 +256,9 @@ public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
         sentId++;
       }
     }
-    if(!isGold){
-      icOut.println("#end document");
-    }
+//    if(!isGold){
+//      icOut.println("#end document");
+//    }
     out.println("#end document " + filename.getPath());
     out.flush();
     docNum++;

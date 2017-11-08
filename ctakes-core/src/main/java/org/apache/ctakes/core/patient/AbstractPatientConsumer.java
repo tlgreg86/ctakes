@@ -61,7 +61,7 @@ abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase {
     * {@inheritDoc}
     */
    @Override
-   final public void collectionProcessComplete() throws AnalysisEngineProcessException {
+   public void collectionProcessComplete() throws AnalysisEngineProcessException {
       super.collectionProcessComplete();
       final Collection<String> allPatientIds = PatientNoteStore.getInstance().getPatientIds();
       for ( String id : allPatientIds ) {

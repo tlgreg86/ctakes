@@ -7,10 +7,13 @@ import static org.apache.ctakes.coreference.ae.features.TokenFeatureExtractor.nu
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ctakes.core.util.ListIterable;
+import org.apache.ctakes.coreference.util.MarkableCacheRelationExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
+import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -19,17 +22,22 @@ import org.cleartk.ml.Feature;
 import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
-public class MentionClusterAgreementFeaturesExtractor implements RelationFeaturesExtractor<CollectionTextRelation,IdentifiedAnnotation>, FeatureExtractor1<Markable> {
+public class MentionClusterAgreementFeaturesExtractor implements RelationFeaturesExtractor<CollectionTextRelation,IdentifiedAnnotation>, FeatureExtractor1<Markable>, MarkableCacheRelationExtractor {
+
+  private Map<Markable, ConllDependencyNode> cache = null;
 
   public List<Feature> extract(JCas jCas, CollectionTextRelation cluster,
       IdentifiedAnnotation mention) throws AnalysisEngineProcessException {
+    if(cache == null){
+      throw new RuntimeException("This extractor requires a call to setCache()");
+    }
     List<Feature> features = new ArrayList<>();
     
     String s = mention.getCoveredText().toLowerCase();
     boolean isDem = isDemonstrative(s);
     boolean isDef = isDefinite(s);
     String gender = getGender(s);
-    boolean singular = numberSingular(jCas, mention, s);
+    boolean singular = numberSingular(jCas, mention, s, cache.get(mention));
 
     boolean matchDem = false;
     boolean matchDef = false;
@@ -55,7 +63,7 @@ public class MentionClusterAgreementFeaturesExtractor implements RelationFeature
       if(!matchGender && getGender(m).equals(gender)){
         matchGender = true;
       }
-      if(!matchNumber && numberSingular(jCas, member, m) == singular){
+      if(!matchNumber && numberSingular(jCas, member, m, cache.get(member)) == singular){
         matchNumber = true;
       }
     }
@@ -70,6 +78,9 @@ public class MentionClusterAgreementFeaturesExtractor implements RelationFeature
 
   @Override
   public List<Feature> extract(JCas jCas, Markable mention) throws CleartkExtractorException {
+    if(cache == null){
+      throw new RuntimeException("This extractor requires a call to setCache()");
+    }
     List<Feature> features = new ArrayList<>();
 
     String s = mention.getCoveredText().toLowerCase();
@@ -82,9 +93,16 @@ public class MentionClusterAgreementFeaturesExtractor implements RelationFeature
     String gender = getGender(s);
     features.add(new Feature("MC_MENTION_GENDER", gender));
 
-    boolean singular = numberSingular(jCas, mention, s);
+    boolean singular = numberSingular(jCas, mention, s, cache.get(mention));
     features.add(new Feature("MC_MENTION_NUMBER", singular));
 
     return features;
   }
+
+  @Override
+  public void setCache(Map<Markable, ConllDependencyNode> cache) {
+    this.cache = cache;
+  }
+
+
 }

@@ -1,6 +1,5 @@
 package org.apache.ctakes.coreference.ae.features.cluster;
 
-import static org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator.getKey;
 import static org.apache.ctakes.coreference.ae.features.StringMatchingFeatureExtractor.contentWords;
 import static org.apache.ctakes.coreference.ae.features.StringMatchingFeatureExtractor.endMatch;
 import static org.apache.ctakes.coreference.ae.features.StringMatchingFeatureExtractor.soonMatch;
@@ -11,25 +10,33 @@ import static org.apache.ctakes.coreference.ae.features.StringMatchingFeatureExt
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.ctakes.core.util.ListIterable;
 import org.apache.ctakes.coreference.ae.features.StringMatchingFeatureExtractor;
+import org.apache.ctakes.coreference.util.MarkableCacheRelationExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
+import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.ctakes.utils.struct.CounterMap;
-import org.apache.ctakes.utils.struct.MapFactory;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.cleartk.ml.Feature;
 
 public class MentionClusterStringFeaturesExtractor implements
-    RelationFeaturesExtractor<CollectionTextRelation, IdentifiedAnnotation> {
+    RelationFeaturesExtractor<CollectionTextRelation, IdentifiedAnnotation>,
+        MarkableCacheRelationExtractor{
+
+  private Map<Markable, ConllDependencyNode> cache = null;
 
   public List<Feature> extract(JCas jCas, CollectionTextRelation cluster,
       IdentifiedAnnotation mention) throws AnalysisEngineProcessException {
+    if(cache == null){
+      throw new RuntimeException("This extractor requires a cached Markable->ConllDependencyNode map to be set with setCache()");
+    }
     List<Feature> feats = new ArrayList<>();
     CounterMap<String> featCounts = new CounterMap<>();
     
@@ -38,7 +45,7 @@ public class MentionClusterStringFeaturesExtractor implements
     String m = mention.getCoveredText();
     Set<String> mentionWords = contentWords(mention);
     Set<String> nonHeadMentionWords = new HashSet<>(mentionWords);
-    ConllDependencyNode mentionHead = MapFactory.get(getKey(jCas), mention);
+    ConllDependencyNode mentionHead = cache.get(mention);
     
     String mentionHeadString = null;
     if(mentionHead != null){
@@ -62,7 +69,7 @@ public class MentionClusterStringFeaturesExtractor implements
         String s = member.getCoveredText();
         Set<String> memberWords = contentWords(member);
         Set<String> nonHeadMemberWords = new HashSet<>(memberWords);
-        ConllDependencyNode memberHead = MapFactory.get(getKey(jCas), member);
+        ConllDependencyNode memberHead = cache.get(member);
         String memberHeadString = null;
         if(memberHead != null){
           memberHeadString = memberHead.getCoveredText().toLowerCase();
@@ -110,4 +117,8 @@ public class MentionClusterStringFeaturesExtractor implements
     return count;
   }
 
+  @Override
+  public void setCache(Map<Markable, ConllDependencyNode> cache) {
+    this.cache = cache;
+  }
 }

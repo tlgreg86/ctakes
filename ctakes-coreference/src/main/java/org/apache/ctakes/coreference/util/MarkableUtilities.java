@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
@@ -35,7 +34,6 @@ import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.ctakes.typesystem.type.textsem.MedicationMention;
 import org.apache.ctakes.typesystem.type.textsem.ProcedureMention;
 import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
-import org.apache.ctakes.utils.struct.MapFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
@@ -57,7 +55,7 @@ public class MarkableUtilities {
       List<Markable> memberList = new ArrayList<>(JCasUtil.select(cluster.getMembers(), Markable.class));
       for(Markable member : memberList){
         map.put(member, new ArrayList<>());
-        ConllDependencyNode head = MapFactory.get(MarkableHeadTreeCreator.getKey(jCas), member);
+        ConllDependencyNode head = DependencyUtility.getNominalHeadNode(jCas, member);
 
         for(IdentifiedAnnotation covering : dep2event.get(head)){
           if(isUmlsAnnotation(covering) && head == DependencyUtility.getNominalHeadNode(jCas, covering)){

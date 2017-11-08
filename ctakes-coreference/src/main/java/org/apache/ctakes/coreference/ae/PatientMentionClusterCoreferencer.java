@@ -74,5 +74,9 @@ public class PatientMentionClusterCoreferencer extends AbstractPatientConsumer {
       _delegate.process( patientJcas );
    }
 
-
+   @Override
+   public void collectionProcessComplete() throws AnalysisEngineProcessException {
+      super.collectionProcessComplete();
+      _delegate.collectionProcessComplete();
+   }
 }

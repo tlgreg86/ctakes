@@ -1,6 +1,5 @@
 package org.apache.ctakes.coreference.ae.features.cluster;
 
-import static org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator.getKey;
 import static org.apache.ctakes.coreference.ae.features.UMLSFeatureExtractor.alias;
 import static org.apache.ctakes.coreference.ae.features.UMLSFeatureExtractor.getDocId;
 
@@ -12,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ctakes.core.util.ListIterable;
+import org.apache.ctakes.coreference.util.HashableMarkable;
+import org.apache.ctakes.coreference.util.MarkableCacheRelationExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
@@ -20,7 +21,6 @@ import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.Markable;
-import org.apache.ctakes.utils.struct.MapFactory;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
@@ -30,14 +30,21 @@ import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
 public class MentionClusterUMLSFeatureExtractor implements
-    RelationFeaturesExtractor<CollectionTextRelation, IdentifiedAnnotation>, FeatureExtractor1<Markable> {
+    RelationFeaturesExtractor<CollectionTextRelation, IdentifiedAnnotation>, FeatureExtractor1<Markable>,
+        MarkableCacheRelationExtractor{
 
   String docId = null;
   Map<ConllDependencyNode,Collection<IdentifiedAnnotation>> coveringMap = null;
+  Map<Markable, ConllDependencyNode> cache = null;
 
   @Override
   public List<Feature> extract(JCas jCas, CollectionTextRelation cluster,
       IdentifiedAnnotation mention) throws AnalysisEngineProcessException {
+
+    if(cache == null){
+      throw new RuntimeException("This extractor requires a Markable cache.");
+    }
+
     List<Feature> feats = new ArrayList<>();
     Set<String> trueFeats = new HashSet<>();
     
@@ -46,7 +53,7 @@ public class MentionClusterUMLSFeatureExtractor implements
       coveringMap = JCasUtil.indexCovering(jCas, ConllDependencyNode.class, IdentifiedAnnotation.class);
     }
     
-    ConllDependencyNode head = MapFactory.get(getKey(jCas), mention);
+    ConllDependencyNode head = cache.get(mention);
     
     if(head != null){
       List<IdentifiedAnnotation> rmList = new ArrayList<>();
@@ -63,7 +70,7 @@ public class MentionClusterUMLSFeatureExtractor implements
       
       Set<IdentifiedAnnotation> clusterEnts = new HashSet<>();
       for(Markable member : new ListIterable<Markable>(cluster.getMembers())){
-        ConllDependencyNode memberHead = MapFactory.get(getKey(jCas), member);
+        ConllDependencyNode memberHead = cache.get(member);
         rmList.clear();
         // get the named entities covering this cluster member:
         List<IdentifiedAnnotation> ents2 = new ArrayList<>(coveringMap.get(memberHead)); //JCasUtil.selectCovering(jCas, IdentifiedAnnotation.class, head2.getBegin(), head2.getEnd());
@@ -189,7 +196,7 @@ public class MentionClusterUMLSFeatureExtractor implements
         coveringMap = JCasUtil.indexCovering(jCas, ConllDependencyNode.class, IdentifiedAnnotation.class);
     }
     
-    ConllDependencyNode head = MapFactory.get(getKey(jCas), mention);
+    ConllDependencyNode head = cache.get(mention);
 
     List<IdentifiedAnnotation> rmList = new ArrayList<>();
     // get the entities covering this markable:
@@ -215,4 +222,8 @@ public class MentionClusterUMLSFeatureExtractor implements
     return feats;
   }
 
+  @Override
+  public void setCache(Map<Markable, ConllDependencyNode> cache) {
+    this.cache = cache;
+  }
 }

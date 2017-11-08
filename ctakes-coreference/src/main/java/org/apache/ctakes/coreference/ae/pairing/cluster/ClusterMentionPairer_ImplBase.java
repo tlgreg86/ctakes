@@ -2,25 +2,26 @@ package org.apache.ctakes.coreference.ae.pairing.cluster;
 
 //import org.apache.ctakes.coreference.ae.MentionClusterCoreferenceAnnotator.CollectionTextRelationIdentifiedAnnotationPair;
 import org.apache.ctakes.coreference.ae.pairing.AnnotationPairer;
+import org.apache.ctakes.coreference.util.MarkableCacheRelationExtractor;
+import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.Markable;
-import org.apache.ctakes.utils.struct.MapFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
 import java.util.*;
 
-import static org.apache.ctakes.coreference.ae.MarkableHeadTreeCreator.getKey;
 import static org.apache.ctakes.coreference.util.ClusterMentionFetcher.CollectionTextRelationIdentifiedAnnotationPair;
 
 //import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 
-public abstract class ClusterMentionPairer_ImplBase implements AnnotationPairer<Markable, CollectionTextRelationIdentifiedAnnotationPair> {
+public abstract class ClusterMentionPairer_ImplBase implements AnnotationPairer<Markable, CollectionTextRelationIdentifiedAnnotationPair>, MarkableCacheRelationExtractor {
   public abstract List<CollectionTextRelationIdentifiedAnnotationPair> getPairs(JCas jcas, Markable m);
   private Map<ConllDependencyNode,Collection<IdentifiedAnnotation>> nodeEntMap = null;
+  private Map<Markable,ConllDependencyNode> cache = null;
 
   @Override
   public void reset(JCas jcas){
@@ -39,7 +40,7 @@ public abstract class ClusterMentionPairer_ImplBase implements AnnotationPairer<
     Set<String> bestEnts = new HashSet<>();
     IdentifiedAnnotation bestEnt = null;
     Set<IdentifiedAnnotation> otherBestEnts = new HashSet<>();
-    ConllDependencyNode head = MapFactory.get(getKey(jcas), markable);
+    ConllDependencyNode head = cache.get(markable);
     if ( head == null ) {
       return Collections.emptySet();
     }
@@ -47,7 +48,7 @@ public abstract class ClusterMentionPairer_ImplBase implements AnnotationPairer<
     Collection<IdentifiedAnnotation> coveringEnts = nodeEntMap.get(head);
     for(IdentifiedAnnotation ent : coveringEnts){
       if(ent.getOntologyConceptArr() == null) continue; // skip non-umls entities.
-      ConllDependencyNode entHead = MapFactory.get(getKey(jcas), ent);
+      ConllDependencyNode entHead = DependencyUtility.getNominalHeadNode(jcas, ent);
       if(entHead == head){
         if(bestEnt == null){
           bestEnt = ent;
@@ -73,5 +74,10 @@ public abstract class ClusterMentionPairer_ImplBase implements AnnotationPairer<
 
   protected static final boolean dominates(Annotation arg1, Annotation arg2) {
     return (arg1.getBegin() <= arg2.getBegin() && arg1.getEnd() >= arg2.getEnd());
+  }
+
+  @Override
+  public void setCache(Map<Markable,ConllDependencyNode> cache){
+    this.cache = cache;
   }
 }
