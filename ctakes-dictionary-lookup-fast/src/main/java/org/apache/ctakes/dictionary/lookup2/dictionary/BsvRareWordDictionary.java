@@ -116,7 +116,7 @@ final public class BsvRareWordDictionary implements RareWordDictionary {
                   = new BufferedReader( new InputStreamReader( FileLocator.getAsStream( bsvFilePath ) ) ) ) {
          String line = reader.readLine();
          while ( line != null ) {
-            if ( line.startsWith( "//" ) || line.startsWith( "#" ) ) {
+            if ( line.isEmpty() || line.startsWith( "//" ) || line.startsWith( "#" ) ) {
                line = reader.readLine();
                continue;
             }
