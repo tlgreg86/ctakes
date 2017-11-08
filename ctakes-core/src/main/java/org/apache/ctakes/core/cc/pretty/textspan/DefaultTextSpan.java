@@ -67,6 +67,14 @@ public final class DefaultTextSpan implements TextSpan {
    }
 
    /**
+    * {@inheritDoc}
+    */
+   @Override
+   public boolean contains( TextSpan textSpan ) {
+      return _begin <= textSpan.getBegin() && textSpan.getEnd() <= _end;
+   }
+
+   /**
     * @return a representation of the text span offsets as: begin,end
     */
    @Override

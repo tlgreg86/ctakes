@@ -2,6 +2,7 @@ package org.apache.ctakes.core.cc.pretty;
 
 import org.apache.ctakes.core.util.OntologyConceptUtil;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
+import org.apache.ctakes.typesystem.type.textsem.EntityMention;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
  * anatomical site, disease/disorder, finding (sign/symptom), test/procedure, and medication
  */
 public enum SemanticGroup {
+   /////////  TODO
    ////////////////////////////  Similar is in org.apache.ctakes.dictionary.lookup2.util.SemanticUtil
    ////////////////////////////  and should be moved to core if this new class is taken up
    // cTakes types
@@ -32,6 +34,8 @@ public enum SemanticGroup {
    static public final String EVENT_CODE = "EVT";
    static public final String TIMEX_SEMANTIC = "Time";
    static public final String TIMEX_CODE = "TMX";
+   static public final String ENTITY_SEMANTIC = "Entity";
+   static public final String ENTITY_CODE = "ENT";
    final private String _name;
    final private String _code;
    final private Collection<String> _tuis;
@@ -74,6 +78,8 @@ public enum SemanticGroup {
             return Collections.singletonList( EVENT_SEMANTIC );
          } else if ( annotation instanceof TimeMention ) {
             return Collections.singletonList( TIMEX_SEMANTIC );
+         } else if ( annotation instanceof EntityMention ) {
+            return Collections.singletonList( ENTITY_SEMANTIC );
          }
          return Collections.emptyList();
       }
@@ -101,6 +107,8 @@ public enum SemanticGroup {
          return EVENT_SEMANTIC;
       } else if ( annotation instanceof TimeMention ) {
          return TIMEX_SEMANTIC;
+      } else if ( annotation instanceof EntityMention ) {
+         return ENTITY_SEMANTIC;
       }
       return getSimpleName( annotation );
    }
@@ -126,13 +134,30 @@ public enum SemanticGroup {
     * @return all semantic codes for the annotations
     */
    static public Collection<String> getSemanticCodes( final Collection<IdentifiedAnnotation> annotations ) {
-      return annotations.stream()
+      if ( annotations == null || annotations.isEmpty() ) {
+         return Collections.emptyList();
+      }
+      final Collection<String> umlsCodes = annotations.stream()
             .map( OntologyConceptUtil::getUmlsConcepts )
             .flatMap( Collection::stream )
             .map( SemanticGroup::getSemanticCode )
             .distinct()
             .sorted()
             .collect( Collectors.toList() );
+      if ( umlsCodes != null && !umlsCodes.isEmpty() ) {
+         return umlsCodes;
+      }
+      for ( IdentifiedAnnotation annotation : annotations ) {
+         final Class<? extends IdentifiedAnnotation> clazz = annotation.getClass();
+         if ( clazz.equals( EventMention.class ) ) {
+            return Collections.singletonList( EVENT_CODE );
+         } else if ( clazz.equals( TimeMention.class ) ) {
+            return Collections.singletonList( TIMEX_CODE );
+         } else if ( clazz.equals( EntityMention.class ) ) {
+            return Collections.singletonList( ENTITY_CODE );
+         }
+      }
+      return Collections.emptyList();
    }
 
    /**

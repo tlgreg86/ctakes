@@ -157,14 +157,9 @@ public class PropertyTextWriter {
             continue;
          }
          usedCuis.add( umlsConcept.getCui() );
-         final String tui = umlsConcept.getTui();
-         final String semanticName = SemanticGroup.getSemanticName( tui );
-         Collection<UmlsConcept> concepts = semanticConcepts.get( semanticName );
-         if ( concepts == null ) {
-            concepts = new HashSet<>();
-            semanticConcepts.put( semanticName, concepts );
-         }
-         concepts.add( umlsConcept );
+         final String semanticName = SemanticGroup.getSemanticName( identifiedAnnotation, umlsConcept );
+         semanticConcepts.putIfAbsent( semanticName, new HashSet<>() );
+         semanticConcepts.get( semanticName ).add( umlsConcept );
       }
       return semanticConcepts;
    }

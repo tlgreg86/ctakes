@@ -28,4 +28,10 @@ public interface TextSpan {
     */
    boolean overlaps( TextSpan textSpan );
 
+   /**
+    * @param textSpan another text span
+    * @return true if this text span contains the other
+    */
+   boolean contains( TextSpan textSpan );
+
 }
