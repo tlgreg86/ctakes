@@ -19,14 +19,11 @@ package org.apache.ctakes.temporal.ae;
  * under the License.
  */
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
+import com.google.common.base.Predicate;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.temporal.ae.feature.ChunkingExtractor;
 import org.apache.ctakes.temporal.ae.feature.PredicateArgumentExtractor;
@@ -54,24 +51,22 @@ import org.cleartk.ml.CleartkAnnotator;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.Instance;
 import org.cleartk.ml.chunking.BioChunking;
-import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.*;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
 import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
-import org.cleartk.ml.feature.extractor.CombinedExtractor1;
-import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
-import org.cleartk.ml.feature.extractor.FeatureExtractor1;
-import org.cleartk.ml.feature.extractor.TypePathExtractor;
 import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction;
 import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction.PatternType;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 @PipeBitInfo(
       name = "Event Annotator",
@@ -246,10 +241,9 @@ public class EventAnnotator extends TemporalEntityAnnotator_ImplBase {
         	BaseToken lastToken = tokens.get(tokens.size() - 1);
             String value = String.format("%s_%s", entity.getClass().getSimpleName(), entity.getTypeID());
             endOfEntityFeatures.put(lastToken, new Feature("EndOf", value));
-        }       
+        }
       }
     }
-
     Random rand = new Random();
     
     //TRY SMOTE algorithm here to generate more minority class samples

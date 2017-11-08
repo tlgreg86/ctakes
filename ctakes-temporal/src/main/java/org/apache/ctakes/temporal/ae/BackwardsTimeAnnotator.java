@@ -20,12 +20,14 @@ package org.apache.ctakes.temporal.ae;
 
 import com.google.common.collect.Lists;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.util.DotLogger;
 import org.apache.ctakes.temporal.ae.feature.ParseSpanFeatureExtractor;
 import org.apache.ctakes.temporal.ae.feature.TimeWordTypeExtractor;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -51,6 +53,7 @@ import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +67,8 @@ import java.util.List;
       products = { PipeBitInfo.TypeProduct.TIMEX }
 )
 public class BackwardsTimeAnnotator extends TemporalEntityAnnotator_ImplBase {
+
+   static private final Logger LOGGER = Logger.getLogger( "BackwardsTimeAnnotator" );
 
   public static final String PARAM_TIMEX_VIEW = "TimexView";
   @ConfigurationParameter(
@@ -149,33 +154,39 @@ public class BackwardsTimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 
   @Override
   public void initialize(UimaContext context) throws ResourceInitializationException {
-    super.initialize(context);
+     LOGGER.info( "Initializing ..." );
+     try ( DotLogger dotter = new DotLogger() ) {
+        super.initialize( context );
 
-    // define chunking
-    this.timeChunking = new BioChunking<BaseToken, TimeMention>(BaseToken.class, TimeMention.class, "timeClass");
+        // define chunking
+        this.timeChunking = new BioChunking<BaseToken, TimeMention>(BaseToken.class, TimeMention.class, "timeClass");
 
-    CombinedExtractor1<BaseToken> allExtractors = new CombinedExtractor1<>(
-        new CoveredTextExtractor<BaseToken>(),
-        CharacterCategoryPatternFunction.<BaseToken>createExtractor(PatternType.REPEATS_MERGED),
-        CharacterCategoryPatternFunction.<BaseToken>createExtractor(PatternType.ONE_PER_CHAR),
-        new TypePathExtractor<>(BaseToken.class, "partOfSpeech"),
-        new TimeWordTypeExtractor<BaseToken>());
+        CombinedExtractor1<BaseToken> allExtractors = new CombinedExtractor1<>(
+              new CoveredTextExtractor<BaseToken>(),
+              CharacterCategoryPatternFunction.<BaseToken>createExtractor(PatternType.REPEATS_MERGED),
+              CharacterCategoryPatternFunction.<BaseToken>createExtractor(PatternType.ONE_PER_CHAR),
+              new TypePathExtractor<>(BaseToken.class, "partOfSpeech"),
+              new TimeWordTypeExtractor<BaseToken>());
 
 //    CombinedExtractor1 parseExtractors = new CombinedExtractor(
 //        new ParseSpanFeatureExtractor()
 //        );
-    this.tokenFeatureExtractors = new ArrayList<FeatureExtractor1>();
-    this.tokenFeatureExtractors.add(allExtractors);
+        this.tokenFeatureExtractors = new ArrayList<FeatureExtractor1>();
+        this.tokenFeatureExtractors.add(allExtractors);
 
-    this.contextFeatureExtractors = new ArrayList<CleartkExtractor>();
-    this.contextFeatureExtractors.add(new CleartkExtractor(
-        BaseToken.class,
-        allExtractors,
-        new Preceding(3),
-        new Following(3)));
+        this.contextFeatureExtractors = new ArrayList<CleartkExtractor>();
+        this.contextFeatureExtractors.add(new CleartkExtractor(
+              BaseToken.class,
+              allExtractors,
+              new Preceding(3),
+              new Following(3)));
 //    this.parseFeatureExtractors = new ArrayList<ParseSpanFeatureExtractor>();
 //    this.parseFeatureExtractors.add(new ParseSpanFeatureExtractor());
-    parseExtractor = new ParseSpanFeatureExtractor();
+        parseExtractor = new ParseSpanFeatureExtractor();
+     } catch ( IOException ioE ) {
+        throw new ResourceInitializationException( ioE );
+     }
+     LOGGER.info( "Finished." );
   }
 
   @Override

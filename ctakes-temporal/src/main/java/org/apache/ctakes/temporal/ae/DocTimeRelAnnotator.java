@@ -18,32 +18,16 @@
  */
 package org.apache.ctakes.temporal.ae;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-//import java.io.IOException;
-import java.util.List;
-//import java.util.Map;
-import java.util.Map;
-
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
-import org.apache.ctakes.temporal.ae.feature.ClosestVerbExtractor;
-import org.apache.ctakes.temporal.ae.feature.ContinuousTextExtractor;
-import org.apache.ctakes.temporal.ae.feature.CoveredTextToValuesExtractor;
-import org.apache.ctakes.temporal.ae.feature.DateAndMeasurementExtractor;
-import org.apache.ctakes.temporal.ae.feature.EventPropertyExtractor;
-import org.apache.ctakes.temporal.ae.feature.NearbyVerbTenseXExtractor;
-import org.apache.ctakes.temporal.ae.feature.SectionHeaderExtractor;
-import org.apache.ctakes.temporal.ae.feature.TimeXExtractor;
-import org.apache.ctakes.temporal.ae.feature.UmlsSingleFeatureExtractor;
-import org.apache.ctakes.temporal.ae.feature.duration.DurationExpectationFeatureExtractor;
+import org.apache.ctakes.core.util.DotLogger;
+import org.apache.ctakes.temporal.ae.feature.*;
 import org.apache.ctakes.temporal.utils.SoftMaxUtil;
 import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
-//import org.apache.ctakes.temporal.ae.feature.duration.DurationExpectationFeatureExtractor;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -57,24 +41,23 @@ import org.cleartk.ml.CleartkAnnotator;
 import org.cleartk.ml.DataWriter;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.Instance;
-import org.cleartk.ml.feature.extractor.CleartkExtractor;
-import org.cleartk.ml.feature.extractor.CleartkExtractor.Bag;
-import org.cleartk.ml.feature.extractor.CleartkExtractor.Covered;
-import org.cleartk.ml.feature.extractor.CleartkExtractor.FirstCovered;
-import org.cleartk.ml.feature.extractor.CleartkExtractor.Following;
-import org.cleartk.ml.feature.extractor.CleartkExtractor.LastCovered;
-import org.cleartk.ml.feature.extractor.CleartkExtractor.Preceding;
+import org.cleartk.ml.feature.extractor.*;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.*;
 import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction;
 import org.cleartk.ml.feature.function.CharacterCategoryPatternFunction.PatternType;
-import org.cleartk.ml.feature.extractor.CleartkExtractorException;
-import org.cleartk.ml.feature.extractor.CombinedExtractor1;
-import org.cleartk.ml.feature.extractor.CoveredTextExtractor;
-import org.cleartk.ml.feature.extractor.TypePathExtractor;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 
-import com.google.common.base.Charsets;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+//import java.io.IOException;
+//import java.util.Map;
+//import org.apache.ctakes.temporal.ae.feature.duration.DurationExpectationFeatureExtractor;
 
 //import com.google.common.base.Charsets;
 
@@ -85,6 +68,8 @@ import com.google.common.base.Charsets;
 				PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION, PipeBitInfo.TypeProduct.EVENT }
 )
 public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
+
+   static private final Logger LOGGER = Logger.getLogger( "DocTimeRelAnnotator" );
 
 	public static AnalysisEngineDescription createDataWriterDescription(
 			Class<? extends DataWriter<String>> dataWriterClass,
@@ -147,55 +132,61 @@ public class DocTimeRelAnnotator extends CleartkAnnotator<String> {
 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
-		super.initialize(context);
-		CombinedExtractor1<BaseToken> baseExtractor = new CombinedExtractor1<>(
-				new CoveredTextExtractor<BaseToken>(),
-				CharacterCategoryPatternFunction.<BaseToken>createExtractor(PatternType.ONE_PER_CHAR),
-				new TypePathExtractor<>(BaseToken.class, "partOfSpeech"));
-		this.contextExtractor = new CleartkExtractor<>(
-				BaseToken.class,
-				baseExtractor,
-				new Preceding(3),
-				new FirstCovered(1),
-				new LastCovered(1),
-				new Bag(new Covered()),
-				new Following(3));
-		final String vectorFile = "org/apache/ctakes/temporal/mimic_vectors.txt";
-		final String vectorFile2 = "org/apache/ctakes/temporal/thyme_word2vec_mapped_50.vec";
-		try {
-			this.continuousText = new ContinuousTextExtractor(vectorFile);
-			this.continuousText2 = new ContinuousTextExtractor(vectorFile2);
-		} catch (CleartkExtractorException e) {
-			System.err.println("cannot find file: "+ vectorFile);
-			e.printStackTrace();
-		}
-		this.tokenVectorContext = new CleartkExtractor<>(
-				BaseToken.class,
-				continuousText,      
-				new Preceding(5),
-				new Covered(),
-				new Following(5));
-		this.tokenVectorContext2 = new CleartkExtractor<>(
-				BaseToken.class,
-				continuousText2,  
-				new Covered());
-		this.sectionIDExtractor = new SectionHeaderExtractor();
-		this.closestVerbExtractor = new ClosestVerbExtractor();
-		this.timeXExtractor = new TimeXExtractor();
-		this.genericExtractor = new EventPropertyExtractor();
-//		this.umlsExtractor = new UmlsSingleFeatureExtractor();
-		this.verbTensePatternExtractor = new NearbyVerbTenseXExtractor();
+      LOGGER.info( "Initializing ..." );
+      try ( DotLogger dotter = new DotLogger() ) {
+         super.initialize( context );
+         CombinedExtractor1<BaseToken> baseExtractor = new CombinedExtractor1<>(
+               new CoveredTextExtractor<BaseToken>(),
+               CharacterCategoryPatternFunction.<BaseToken>createExtractor( PatternType.ONE_PER_CHAR ),
+               new TypePathExtractor<>( BaseToken.class, "partOfSpeech" ) );
+         this.contextExtractor = new CleartkExtractor<>(
+               BaseToken.class,
+               baseExtractor,
+               new Preceding( 3 ),
+               new FirstCovered( 1 ),
+               new LastCovered( 1 ),
+               new Bag( new Covered() ),
+               new Following( 3 ) );
+         final String vectorFile = "org/apache/ctakes/temporal/mimic_vectors.txt";
+         final String vectorFile2 = "org/apache/ctakes/temporal/thyme_word2vec_mapped_50.vec";
+         try {
+            this.continuousText = new ContinuousTextExtractor( vectorFile );
+            this.continuousText2 = new ContinuousTextExtractor( vectorFile2 );
+         } catch ( CleartkExtractorException e ) {
+            System.err.println( "cannot find file: " + vectorFile );
+            e.printStackTrace();
+         }
+         this.tokenVectorContext = new CleartkExtractor<>(
+               BaseToken.class,
+               continuousText,
+               new Preceding( 5 ),
+               new Covered(),
+               new Following( 5 ) );
+         this.tokenVectorContext2 = new CleartkExtractor<>(
+               BaseToken.class,
+               continuousText2,
+               new Covered() );
+         this.sectionIDExtractor = new SectionHeaderExtractor();
+         this.closestVerbExtractor = new ClosestVerbExtractor();
+         this.timeXExtractor = new TimeXExtractor();
+         this.genericExtractor = new EventPropertyExtractor();
+         //		this.umlsExtractor = new UmlsSingleFeatureExtractor();
+         this.verbTensePatternExtractor = new NearbyVerbTenseXExtractor();
 
-		this.dateExtractor = new DateAndMeasurementExtractor();
-		
-//		try {
-//			Map<String, double[]> word_disSem = CoveredTextToValuesExtractor.parseTextDoublesMap(new File("src/main/resources/embeddings.size25.txt"), Charsets.UTF_8);
-//			this.disSemExtractor = new CoveredTextToValuesExtractor("DisSemFeat", word_disSem);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		this.durationExtractor = new DurationExpectationFeatureExtractor();
-	}
+         this.dateExtractor = new DateAndMeasurementExtractor();
+
+         //		try {
+         //			Map<String, double[]> word_disSem = CoveredTextToValuesExtractor.parseTextDoublesMap(new File("src/main/resources/embeddings.size25.txt"), Charsets.UTF_8);
+         //			this.disSemExtractor = new CoveredTextToValuesExtractor("DisSemFeat", word_disSem);
+         //		} catch (IOException e) {
+         //			e.printStackTrace();
+         //		}
+         //		this.durationExtractor = new DurationExpectationFeatureExtractor();
+      } catch ( IOException ioE ) {
+         throw new ResourceInitializationException( ioE );
+      }
+      LOGGER.info( "Finished." );
+   }
 
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {

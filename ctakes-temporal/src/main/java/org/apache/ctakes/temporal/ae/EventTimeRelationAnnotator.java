@@ -18,41 +18,14 @@
  */
 package org.apache.ctakes.temporal.ae;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.Lists;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.util.DotLogger;
 import org.apache.ctakes.relationextractor.ae.RelationExtractorAnnotator;
 import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.relationextractor.ae.features.TokenFeaturesExtractor;
-import org.apache.ctakes.temporal.ae.feature.CheckSpecialWordRelationExtractor;
-import org.apache.ctakes.temporal.ae.feature.ConjunctionRelationFeaturesExtractor;
-import org.apache.ctakes.temporal.ae.feature.DependencyFeatureExtractor;
-import org.apache.ctakes.temporal.ae.feature.DependencyPathFeaturesExtractor;
-import org.apache.ctakes.temporal.ae.feature.EventArgumentPropertyExtractor;
-//import org.apache.ctakes.temporal.ae.feature.EventIndexOfSameSentenceRelationFeaturesExtractor;
-//import org.apache.ctakes.temporal.ae.feature.EventPositionRelationFeaturesExtractor;
-//import org.apache.ctakes.temporal.ae.feature.EventTimeRelationFeatureExtractor;
-import org.apache.ctakes.temporal.ae.feature.NearbyVerbTenseRelationExtractor;
-import org.apache.ctakes.temporal.ae.feature.NearestFlagFeatureExtractor;
-import org.apache.ctakes.temporal.ae.feature.NumberOfEventTimeBetweenCandidatesExtractor;
-import org.apache.ctakes.temporal.ae.feature.OverlappedHeadFeaturesExtractor;
-//import org.apache.ctakes.temporal.ae.feature.SRLRelationFeaturesExtractor;
-//import org.apache.ctakes.temporal.ae.feature.SectionHeaderRelationExtractor;
-import org.apache.ctakes.temporal.ae.feature.TemporalAttributeFeatureExtractor;
-import org.apache.ctakes.temporal.ae.feature.TemporalPETFlatExtractor;
-//import org.apache.ctakes.temporal.ae.feature.TimeWordTypeRelationExtractor;
-import org.apache.ctakes.temporal.ae.feature.TimeXPropertyRelationFeaturesExtractor;
-import org.apache.ctakes.temporal.ae.feature.TimeXRelationFeaturesExtractor;
-//import org.apache.ctakes.temporal.ae.feature.UnexpandedTokenFeaturesExtractor;
-//import org.apache.ctakes.temporal.ae.feature.TemporalAttributeFeatureExtractor;
-//import org.apache.ctakes.temporal.ae.feature.treekernel.EventTimeFlatTreeFeatureExtractor;
-//import org.apache.ctakes.temporal.ae.feature.treekernel.EventVerbRelationTreeExtractor;
-//import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPETExtractor;
-//import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPathExtractor;
+import org.apache.ctakes.temporal.ae.feature.*;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
@@ -60,7 +33,11 @@ import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.log4j.Logger;
+import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -69,10 +46,25 @@ import org.cleartk.ml.DataWriter;
 import org.cleartk.ml.jar.DefaultDataWriterFactory;
 import org.cleartk.ml.jar.DirectoryDataWriterFactory;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.util.JCasUtil;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+//import org.apache.ctakes.temporal.ae.feature.EventIndexOfSameSentenceRelationFeaturesExtractor;
+//import org.apache.ctakes.temporal.ae.feature.EventPositionRelationFeaturesExtractor;
+//import org.apache.ctakes.temporal.ae.feature.EventTimeRelationFeatureExtractor;
+//import org.apache.ctakes.temporal.ae.feature.SRLRelationFeaturesExtractor;
+//import org.apache.ctakes.temporal.ae.feature.SectionHeaderRelationExtractor;
+//import org.apache.ctakes.temporal.ae.feature.TimeWordTypeRelationExtractor;
+//import org.apache.ctakes.temporal.ae.feature.UnexpandedTokenFeaturesExtractor;
+//import org.apache.ctakes.temporal.ae.feature.TemporalAttributeFeatureExtractor;
+//import org.apache.ctakes.temporal.ae.feature.treekernel.EventTimeFlatTreeFeatureExtractor;
+//import org.apache.ctakes.temporal.ae.feature.treekernel.EventVerbRelationTreeExtractor;
+//import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPETExtractor;
+//import org.apache.ctakes.temporal.ae.feature.treekernel.TemporalPathExtractor;
 
 @PipeBitInfo(
 		name = "E-T TLinker",
@@ -82,6 +74,8 @@ import com.google.common.collect.Lists;
 		products = { PipeBitInfo.TypeProduct.TEMPORAL_RELATION }
 )
 public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
+
+   static private final Logger LOGGER = Logger.getLogger( "EventTimeRelationAnnotator" );
 
 	public static AnalysisEngineDescription createDataWriterDescription(
 			Class<? extends DataWriter<String>> dataWriterClass,
@@ -124,6 +118,17 @@ public class EventTimeRelationAnnotator extends RelationExtractorAnnotator {
 				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 				new File(modelDirectory, "model.jar"));
 	}
+
+   @Override
+   public void initialize( final UimaContext context ) throws ResourceInitializationException {
+      LOGGER.info( "Initializing ..." );
+      try ( DotLogger dotter = new DotLogger() ) {
+         super.initialize( context );
+      } catch ( IOException ioE ) {
+         throw new ResourceInitializationException( ioE );
+      }
+      LOGGER.info( "Finished." );
+   }
 
 	@Override
 	protected List<RelationFeaturesExtractor<IdentifiedAnnotation,IdentifiedAnnotation>> getFeatureExtractors() {

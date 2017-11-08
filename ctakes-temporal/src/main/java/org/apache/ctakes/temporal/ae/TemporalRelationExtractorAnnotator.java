@@ -21,31 +21,15 @@ package org.apache.ctakes.temporal.ae;
 //import java.io.File; //for normalization
 //import java.io.IOException;//for normalization
 //import java.net.URI;//for normalization
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
-import org.apache.ctakes.relationextractor.ae.features.DependencyPathFeaturesExtractor;
-import org.apache.ctakes.relationextractor.ae.features.DependencyTreeFeaturesExtractor;
-import org.apache.ctakes.relationextractor.ae.features.NamedEntityFeaturesExtractor;
-import org.apache.ctakes.relationextractor.ae.features.PartOfSpeechFeaturesExtractor;
-import org.apache.ctakes.relationextractor.ae.features.PhraseChunkingExtractor;
-import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
-import org.apache.ctakes.relationextractor.ae.features.TokenFeaturesExtractor;
-//import org.apache.ctakes.temporal.ae.feature.selection.ZscoreNormalizationExtractor;//for normalization
-import org.apache.ctakes.temporal.utils.SoftMaxUtil;
+import com.google.common.collect.Lists;
+import org.apache.ctakes.relationextractor.ae.features.*;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
 import org.apache.uima.UimaContext;
 import org.apache.uima.UimaContextAdmin;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.CASException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
@@ -59,7 +43,10 @@ import org.cleartk.ml.Instance;
 import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.cleartk.util.ViewUriUtil;
 
-import com.google.common.collect.Lists;
+import java.net.URL;
+import java.util.*;
+
+//import org.apache.ctakes.temporal.ae.feature.selection.ZscoreNormalizationExtractor;//for normalization
 
 public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotator<String> {
 
@@ -160,7 +147,8 @@ public abstract class TemporalRelationExtractorAnnotator extends CleartkAnnotato
 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
-		allowClassifierModelOnClasspath(context);
+
+      allowClassifierModelOnClasspath(context);
 		super.initialize(context);
 		//		minmaxExtractor = createMinMaxNormalizationExtractor();
 		/**for normalization
