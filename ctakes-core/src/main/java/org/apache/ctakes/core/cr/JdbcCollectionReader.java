@@ -30,7 +30,10 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -268,17 +271,9 @@ public class JdbcCollectionReader extends CollectionReader_ImplBase
 
             try
             {
-                // if there's a CAS Initializer, call it
-                if (getCasInitializer() != null)
-                {
-                    Reader reader = new StringReader(document);
-                    getCasInitializer().initializeCas(reader, cas);
-                } else
-                {
-                    // No CAS Initiliazer, so set document text ourselves.
+               // No CAS Initiliazer, so set document text ourselves.
                     // put document in CAS (assume CAS)
                     cas.getJCas().setDocumentText(document);
-                }
 
                 DocumentID docIdAnnot = new DocumentID(cas
                         .getJCas());

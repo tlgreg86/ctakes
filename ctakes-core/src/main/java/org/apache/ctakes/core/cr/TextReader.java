@@ -19,9 +19,9 @@
 package org.apache.ctakes.core.cr;
 
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.resource.FileReadWriteUtil;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.uima.UimaContext;
-import org.apache.uima.collection.CasInitializer;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -30,7 +30,8 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -51,68 +52,41 @@ public class TextReader extends JCasCollectionReader_ImplBase {
       name = PARAM_FILES,
       mandatory = true,
       description = "The text files to be loaded")
-  private List<File> files;
+  private List<File> _files;
 
-  private Iterator<File> filesIter;
+   private Iterator<File> _filesIter;
 
-  private int completed;
+   private int _completed;
 
   @Override
-  public void initialize(UimaContext context) throws ResourceInitializationException {
-    super.initialize(context);
-    this.filesIter = files.iterator();
-    this.completed = 0;
+  public void initialize( final UimaContext context ) throws ResourceInitializationException {
+     super.initialize( context );
+     _filesIter = _files.iterator();
+     _completed = 0;
   }
 
   @Override
   public Progress[] getProgress() {
-    return new Progress[] { new ProgressImpl(this.completed, this.files.size(), Progress.ENTITIES) };
+     return new Progress[]{ new ProgressImpl( _completed, _files.size(), Progress.ENTITIES ) };
   }
 
   @Override
   public boolean hasNext() throws IOException, CollectionException {
-    return this.filesIter.hasNext();
+     return _filesIter.hasNext();
   }
 
   @Override
   public void getNext(JCas jCas) throws IOException, CollectionException {
-    File currentFile = this.filesIter.next();
-    String filename = currentFile.getName();
-    FileInputStream fileInputStream = new FileInputStream(currentFile);
-    InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-    
-    CasInitializer casInitializer = getCasInitializer();
+     final File currentFile = _filesIter.next();
+     final String filename = currentFile.getName();
+     final String text = FileReadWriteUtil.readText( filename );
+     jCas.setDocumentText( text );
 
-    if (casInitializer != null)
-    {
-      casInitializer.initializeCas(bufferedReader, jCas.getCas());  
-    }
-    else  //No CAS Initializer, so read file and set document text ourselves
-    {       
-      try
-      {
-        byte[] contents = new byte[(int)currentFile.length() ];
-        fileInputStream.read( contents );   
-        String text;
-        text = new String(contents); 
-        //put document in CAS (assume CAS)
-        jCas.setDocumentText(text);
-      }
-      finally
-      {
-        if (fileInputStream != null)
-          fileInputStream.close();
-      }  
-        
-    }
-
-    DocumentID documentIDAnnotation = new DocumentID(jCas);
-    documentIDAnnotation.setDocumentID(filename);
+     final DocumentID documentIDAnnotation = new DocumentID( jCas );
+     documentIDAnnotation.setDocumentID( filename );
     documentIDAnnotation.addToIndexes();
 
-    
-    this.completed += 1;
+     _completed++;
   }
 
   

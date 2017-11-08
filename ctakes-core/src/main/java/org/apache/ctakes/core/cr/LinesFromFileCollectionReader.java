@@ -30,7 +30,9 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -173,19 +175,9 @@ public class LinesFromFileCollectionReader extends CollectionReader_ImplBase {
 		  	iv_logger.debug("id="+id);
 		  	iv_logger.debug("text="+text);
 		  	
-			//if there's a CAS Initializer, call it	
-			if (getCasInitializer() != null)
-			{
-				Reader reader = new StringReader(text);
-				getCasInitializer().initializeCas(reader, cas);
-				reader.close();
-			}
-			else  //No CAS Initiliazer, so read file and set document text ourselves
-			{				
 				jcas.setDocumentText(text);
-			}
-		   
-		    //set language if it was explicitly specified as a configuration parameter
+
+          //set language if it was explicitly specified as a configuration parameter
 		    if (iv_language != null)
 		    {
 //		      ((DocumentAnnotation)jcas.getDocumentAnnotationFs()).setLanguage(iv_language);

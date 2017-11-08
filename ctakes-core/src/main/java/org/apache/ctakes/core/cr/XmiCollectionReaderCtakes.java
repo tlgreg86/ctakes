@@ -58,8 +58,8 @@ public class XmiCollectionReaderCtakes extends CollectionReader_ImplBase {
   public static final String PARAM_FAILUNKNOWN = "FailOnUnknownType";
 
   private Boolean mFailOnUnknownType;
-  
-  private ArrayList mFiles;
+
+   private ArrayList<File> mFiles;
 
   private int mCurrentIndex;
 
@@ -82,8 +82,11 @@ public class XmiCollectionReaderCtakes extends CollectionReader_ImplBase {
     }
 
     // get list of .xmi files in the specified directory
-    mFiles = new ArrayList();
+     mFiles = new ArrayList<>();
     File[] files = directory.listFiles();
+     if ( files == null ) {
+        return;
+     }
     for (int i = 0; i < files.length; i++) {
       if (!files[i].isDirectory() && files[i].getName().endsWith(".xmi")) {
         mFiles.add(files[i]);
