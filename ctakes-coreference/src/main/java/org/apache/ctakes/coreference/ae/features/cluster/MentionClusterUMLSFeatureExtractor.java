@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ctakes.core.util.ListIterable;
-import org.apache.ctakes.coreference.util.HashableMarkable;
 import org.apache.ctakes.coreference.util.MarkableCacheRelationExtractor;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
