@@ -27,6 +27,7 @@ import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.patient.AbstractPatientConsumer;
 import org.apache.ctakes.core.patient.PatientNoteCollector;
 import org.apache.ctakes.core.patient.PatientNoteStore;
+import org.apache.ctakes.core.patient.PatientViewUtil;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
@@ -1027,7 +1028,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     @Override
     protected void processPatientCas(JCas patientJcas) throws AnalysisEngineProcessException {
 //      scorer.process(patientJcas);
-      for(JCas docView : notes.getDocumentViews(notes.getPreviousPatientName())){
+      for(JCas docView : PatientViewUtil.getDocumentViews(patientJcas)){
         scorer.process(docView);
       }
     }
@@ -1073,7 +1074,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
 
     @Override
     protected void processPatientCas(JCas patientJcas) throws AnalysisEngineProcessException {
-      for(JCas docView : notes.getDocumentViews(notes.getPreviousPatientName())){
+      for(JCas docView : PatientViewUtil.getDocumentViews(patientJcas)){
         delegate.process(docView);
       }
     }

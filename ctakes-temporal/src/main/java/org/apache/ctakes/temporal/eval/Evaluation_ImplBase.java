@@ -61,6 +61,7 @@ import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
 import org.apache.ctakes.core.ae.OverlapAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
+import org.apache.ctakes.core.patient.PatientNoteStore;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
@@ -87,6 +88,7 @@ import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.LookupWindowAnnotation;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.ctakes.utils.struct.CounterMap;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
@@ -127,6 +129,7 @@ import org.xml.sax.SAXException;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.lexicalscope.jewel.cli.Option;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 //import org.apache.ctakes.core.cleartk.ae.SentenceDetectorAnnotator;
 //import org.threeten.bp.temporal.TemporalUnit;
@@ -437,23 +440,19 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 	protected CollectionReader getCollectionReader( List<Integer> patientSets ) throws Exception {
 		List<File> collectedFiles = this.getFilesFor( patientSets );
 		Collections.sort(collectedFiles);
-		//      for(File file : collectedFiles){
-		//    	  System.err.println(file.getName());
-		//      }
-		/**
-       if(isTraining){
-       final Collection<File> filesToRemove = new HashSet<>();
-       for ( File xmiFile : collectedFiles ) {
-       String fname =  xmiFile.getName();
-       if(this.badNotes.contains(fname)){
-       LOGGER.error("Find Bad XMI file: "+fname);
-       filesToRemove.add( xmiFile );
-       }
-       }
-       collectedFiles.removeAll( filesToRemove );
-       }
-       isTraining = false;
-		 */
+
+		CounterMap<String> docCounts = new CounterMap<>();
+		for(File f : collectedFiles){
+			String ptidPrefix = null;
+			if(this.subcorpus == Subcorpus.Colon || this.subcorpus == Subcorpus.Brain){
+				ptidPrefix = f.getName().split("_")[0];
+			}else{
+				throw new UnsupportedOperationException("No prefix extraction method implemented in Evaluation_ImplBase collection reader getter.");
+			}
+			docCounts.add(ptidPrefix);
+		}
+		docCounts.forEach((k,v) -> PatientNoteStore.getInstance().setDocCount(k, v));
+
 		return UriCollectionReader.getCollectionReaderFromFiles( collectedFiles );
 	}
 

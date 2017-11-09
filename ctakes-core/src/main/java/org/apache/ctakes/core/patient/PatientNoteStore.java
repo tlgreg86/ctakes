@@ -55,7 +55,7 @@ public enum PatientNoteStore {
     */
    synchronized public Collection<String> getCompletedPatientIds() {
       return _wantedDocCounts.entrySet().stream()
-            .filter( e -> _storedDocCounts.get( e.getKey() ).equals( e.getValue() ) )
+            .filter( e -> _storedDocCounts.getOrDefault( e.getKey(), 0 ).equals( e.getValue() ) )
             .map( Map.Entry::getKey )
             .collect( Collectors.toList() );
    }
