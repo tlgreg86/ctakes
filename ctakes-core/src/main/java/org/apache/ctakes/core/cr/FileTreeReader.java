@@ -83,9 +83,12 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
    private String[] _explicitExtensions;
 
    /**
-    * Name of optional configuration parameter that specifies the extensions
-    * of the files that the collection reader will read.  Values for this
-    * parameter should not begin with a dot <code>'.'</code>.
+    * The patient id for each note is set using a directory name.
+    * By default this is the directory directly under the root directory (PatientLevel=1).
+    * This is appropriate for files such as in rootDir=data/, file in data/patientA/Text1.txt
+    * It can be set to use directory names at any level below.
+    * For instance, using PatientLevel=2 for rootDir=data/, file in data/hospitalX/patientA/Text1.txt
+    * In this manner the notes for the same patient from several sites can be properly collated.
     */
    public static final String PATIENT_LEVEL = "PatientLevel";
    @ConfigurationParameter(
@@ -115,8 +118,16 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
       }
       _validExtensions = createValidExtensions( _explicitExtensions );
       _currentIndex = 0;
-      _files = getDescendentFiles( _rootDir, _validExtensions, 0 );
-      _patientDocCounts.forEach( ( k, v ) -> PatientNoteStore.getInstance().setDocCount( k, v ) );
+      if ( _rootDir.isFile() ) {
+         // does not check for valid extensions.  With one file just trust the user.
+         _files = Collections.singletonList( _rootDir );
+         final String patient = _rootDir.getParentFile().getName();
+         PatientNoteStore.getInstance().setDocCount( patient, 1 );
+      } else {
+         // gather all of the files and set the document counts per patient.
+         _files = getDescendentFiles( _rootDir, _validExtensions, 0 );
+         _patientDocCounts.forEach( ( k, v ) -> PatientNoteStore.getInstance().setDocCount( k, v ) );
+      }
    }
 
    /**
