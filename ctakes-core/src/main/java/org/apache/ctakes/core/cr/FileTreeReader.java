@@ -24,6 +24,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -301,7 +302,7 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
    private String readFile( final File file ) throws IOException {
       try {
          return readByPath( file );
-      } catch ( UncheckedIOException uE ) {
+      } catch ( IOException ioE ) {
          // This is a pretty bad way to handle a MalformedInputException, but that can be thrown by the collector
          // in the stream, and java streams and exceptions do not go well together
          LOGGER.warn( "Bad characters in " + file.getPath() );
@@ -319,9 +320,13 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
    private String readByPath( final File file ) throws IOException {
       if ( _encoding != null && !_encoding.isEmpty() ) {
          final Charset charset = Charset.forName( _encoding );
-         return Files.lines( file.toPath(), charset ).collect( Collectors.joining( "\n" ) );
+         try ( Stream<String> stream = Files.lines( file.toPath(), charset ) ) {
+            return stream.collect( Collectors.joining( "\n" ) );
+         }
       } else {
-         return Files.lines( file.toPath() ).collect( Collectors.joining( "\n" ) );
+         try ( Stream<String> stream = Files.lines( file.toPath() ) ) {
+            return stream.collect( Collectors.joining( "\n" ) );
+         }
       }
    }
 
