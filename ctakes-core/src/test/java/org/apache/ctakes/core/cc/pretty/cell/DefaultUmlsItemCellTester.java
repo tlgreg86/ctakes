@@ -2,8 +2,8 @@ package org.apache.ctakes.core.cc.pretty.cell;
 
 
 import org.apache.ctakes.core.cc.pretty.SemanticGroup;
-import org.apache.ctakes.core.cc.pretty.textspan.DefaultTextSpan;
-import org.apache.ctakes.core.cc.pretty.textspan.TextSpan;
+import org.apache.ctakes.core.util.textspan.DefaultTextSpan;
+import org.apache.ctakes.core.util.textspan.TextSpan;
 import org.junit.Test;
 
 import java.util.*;

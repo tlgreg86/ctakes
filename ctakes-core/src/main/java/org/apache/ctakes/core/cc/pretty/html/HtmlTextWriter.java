@@ -3,11 +3,11 @@ package org.apache.ctakes.core.cc.pretty.html;
 
 import org.apache.ctakes.core.cc.AbstractOutputFileWriter;
 import org.apache.ctakes.core.cc.pretty.SemanticGroup;
-import org.apache.ctakes.core.cc.pretty.textspan.DefaultTextSpan;
-import org.apache.ctakes.core.cc.pretty.textspan.TextSpan;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.OntologyConceptUtil;
+import org.apache.ctakes.core.util.textspan.DefaultTextSpan;
+import org.apache.ctakes.core.util.textspan.TextSpan;
 import org.apache.ctakes.typesystem.type.refsem.Event;
 import org.apache.ctakes.typesystem.type.refsem.EventProperties;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;

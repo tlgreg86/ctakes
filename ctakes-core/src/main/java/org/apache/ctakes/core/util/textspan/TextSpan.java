@@ -1,4 +1,4 @@
-package org.apache.ctakes.core.cc.pretty.textspan;
+package org.apache.ctakes.core.util.textspan;
 
 /**
  * @author SPF , chip-nlp

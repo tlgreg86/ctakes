@@ -2,7 +2,7 @@ package org.apache.ctakes.core.cc.pretty.row;
 
 import org.apache.ctakes.core.cc.pretty.cell.ItemCell;
 import org.apache.ctakes.core.cc.pretty.cell.UmlsItemCell;
-import org.apache.ctakes.core.cc.pretty.textspan.TextSpan;
+import org.apache.ctakes.core.util.textspan.TextSpan;
 
 import java.util.Arrays;
 import java.util.Collection;

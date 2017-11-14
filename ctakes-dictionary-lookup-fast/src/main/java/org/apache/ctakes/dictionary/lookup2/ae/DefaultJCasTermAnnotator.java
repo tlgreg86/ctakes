@@ -18,6 +18,7 @@
  */
 package org.apache.ctakes.dictionary.lookup2.ae;
 
+import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.collection.CollectionMap;
 import org.apache.ctakes.dictionary.lookup2.dictionary.RareWordDictionary;
@@ -120,7 +121,7 @@ final public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
    static public AnalysisEngineDescription createAnnotatorDescription( final String descriptorPath )
          throws ResourceInitializationException {
       return AnalysisEngineFactory.createEngineDescription( DefaultJCasTermAnnotator.class,
-            DICTIONARY_DESCRIPTOR_KEY, descriptorPath );
+            ConfigParameterConstants.PARAM_LOOKUP_XML, descriptorPath );
    }
 
 }
