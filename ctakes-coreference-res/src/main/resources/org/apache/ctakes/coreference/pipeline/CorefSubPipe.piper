@@ -6,6 +6,5 @@
 add ConstituencyParser
 
 add DeterministicMarkableAnnotator
-add MarkableHeadTreeCreator
 addDescription MarkableSalienceAnnotator /org/apache/ctakes/temporal/ae/salience/model.jar
 addDescription MentionClusterCoreferenceAnnotator /org/apache/ctakes/coreference/models/mention-cluster/model.jar
