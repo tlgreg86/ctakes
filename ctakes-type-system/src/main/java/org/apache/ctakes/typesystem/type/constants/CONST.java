@@ -42,8 +42,9 @@ public class CONST {
 	
 	public static final int NE_DISCOVERY_TECH_DICT_LOOKUP = 1;
 	public static final int NE_DISCOVERY_TECH_GOLD_ANNOTATION = 2;
-	
-	public static final int NE_POLARITY_NEGATION_ABSENT = 1;
+   public static final int NE_DISCOVERY_TECH_EXPLICIT_AE = 3;
+
+   public static final int NE_POLARITY_NEGATION_ABSENT = 1;
 	public static final int NE_POLARITY_NEGATION_PRESENT = -1;
 	
 	public static final int NE_UNCERTAINTY_PRESENT = 1;
