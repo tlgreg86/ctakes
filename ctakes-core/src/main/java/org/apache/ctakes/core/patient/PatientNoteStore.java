@@ -33,18 +33,15 @@ public enum PatientNoteStore {
    static private final Logger LOGGER = Logger.getLogger( "PatientNoteStore" );
 
    private final Map<String, JCas> _patientMap;
-   private final Map<String, Collection<StoreViewInfo>> _patientViewInfo;
+   private final Map<String, Collection<ViewInfo>> _patientViewInfos;
    private final Map<String, Integer> _wantedDocCounts;
-
-   private String _currentPatientName;
-   private String _previousPatientName;
 
    /**
     * private
     */
    PatientNoteStore() {
       _patientMap = new HashMap<>();
-      _patientViewInfo = new HashMap<>();
+      _patientViewInfos = new HashMap<>();
       _wantedDocCounts = new HashMap<>();
    }
 
@@ -65,7 +62,7 @@ public enum PatientNoteStore {
     */
    synchronized public Collection<String> getStoredDocIds( final String patientId ) {
       return getViewInfos( patientId ).stream()
-            .map( StoreViewInfo::getDocId )
+            .map( ViewInfo::getDocId )
             .sorted()
             .collect( Collectors.toList() );
    }
@@ -78,7 +75,7 @@ public enum PatientNoteStore {
    synchronized public Collection<String> getStoredViewNames( final String patientId, final String docId ) {
       return getViewInfos( patientId ).stream()
             .filter( vi -> vi.getDocId().equals( docId ) )
-            .map( StoreViewInfo::getViewName )
+            .map( ViewInfo::getViewName )
             .sorted()
             .collect( Collectors.toList() );
    }
@@ -240,13 +237,13 @@ public enum PatientNoteStore {
       // Cache view into patient using encoded view name
       LOGGER.info( "Caching view for" + patientId + " " + docId + " " + sourceViewName
             + (sourceViewName.equals( storeViewName ) ? "" : " as " + storeViewName) + " ..." );
-      final StoreViewInfo storeViewInfo = new StoreViewInfo( patientId, docId, storeViewName );
+      final ViewInfo viewInfo = new ViewInfo( patientId, docId, storeViewName );
       try {
          final JCas sourceView = sourceCas.getView( sourceViewName );
          final CasCopier copier = new CasCopier( sourceCas.getCas(), patientCas.getCas() );
-         copier.copyCasView( sourceView.getCas(), storeViewInfo.getViewName(), true );
-         _patientViewInfo.putIfAbsent( patientId, new ArrayList<>() );
-         _patientViewInfo.get( patientId ).add( storeViewInfo );
+         copier.copyCasView( sourceView.getCas(), viewInfo.getViewName(), true );
+         _patientViewInfos.putIfAbsent( patientId, new ArrayList<>() );
+         _patientViewInfos.get( patientId ).add( viewInfo );
       } catch ( CASException | CASRuntimeException casE ) {
          LOGGER.error( casE.getMessage() );
       }
@@ -266,9 +263,9 @@ public enum PatientNoteStore {
          LOGGER.warn( "No patient with id " + patientId );
          return null;
       }
-      final StoreViewInfo storeViewInfo = new StoreViewInfo( patientId, docId, viewName );
+      final ViewInfo viewInfo = new ViewInfo( patientId, docId, viewName );
       try {
-         return patientCas.getView( storeViewInfo.getStoreViewCode() );
+         return patientCas.getView( viewInfo.getViewCode() );
       } catch ( CASException casE ) {
          LOGGER.error( casE.getMessage() );
       }
@@ -290,7 +287,7 @@ public enum PatientNoteStore {
       final Map<String, JCas> viewMap = new HashMap<>();
       try {
          for ( String viewName : viewNames ) {
-            final StoreViewInfo viewInfo = new StoreViewInfo( viewName );
+            final ViewInfo viewInfo = new ViewInfo( viewName );
             viewMap.put( viewInfo.getViewName(), patientCas.getView( viewName ) );
          }
       } catch ( CASException casE ) {
@@ -319,7 +316,7 @@ public enum PatientNoteStore {
     */
    synchronized public void removePatient( final String patientId ) {
       _patientMap.remove( patientId );
-      _patientViewInfo.remove( patientId );
+      _patientViewInfos.remove( patientId );
       _wantedDocCounts.remove( patientId );
    }
 
@@ -327,33 +324,33 @@ public enum PatientNoteStore {
 
    /**
     * @param patientId -
-    * @return
+    * @return all encoded
     */
-   synchronized private Collection<StoreViewInfo> getViewInfos( final String patientId ) {
-      final Collection<StoreViewInfo> storeViewInfos = _patientViewInfo.get( patientId );
-      if ( storeViewInfos == null ) {
+   synchronized private Collection<ViewInfo> getViewInfos( final String patientId ) {
+      final Collection<ViewInfo> viewInfos = _patientViewInfos.get( patientId );
+      if ( viewInfos == null ) {
          LOGGER.debug( "No patient with id " + patientId );
          return Collections.emptyList();
       }
-      return storeViewInfos;
+      return viewInfos;
    }
 
    /**
     * Used to map pid, docId, view names to views for each patient.
     */
    @Immutable
-   static private final class StoreViewInfo {
+   static private final class ViewInfo {
       private final String _pid;
       private final String _docId;
       private final String _viewName;
 
-      private StoreViewInfo( final String storeViewCode ) {
-         this( getId( storeViewCode, "pid" ),
-               getId( storeViewCode, "docId" ),
-               getId( storeViewCode, "viewName" ) );
+      private ViewInfo( final String viewCode ) {
+         this( getId( viewCode, "pid" ),
+               getId( viewCode, "docId" ),
+               getId( viewCode, "viewName" ) );
       }
 
-      private StoreViewInfo( final String pid, final String docId, final String viewName ) {
+      private ViewInfo( final String pid, final String docId, final String viewName ) {
          _pid = pid;
          _docId = docId;
          _viewName = viewName;
@@ -371,30 +368,30 @@ public enum PatientNoteStore {
          return _viewName;
       }
 
-      public String getStoreViewCode() {
+      public String getViewCode() {
          return "<pid>" + _pid + "</pid><docId>" + _docId + "</docId><viewName>" + _viewName + "</viewName>";
       }
 
       @Override
       public boolean equals( final Object object ) {
-         return object instanceof StoreViewInfo && ((StoreViewInfo) object).getStoreViewCode().equals( getStoreViewCode() );
+         return object instanceof ViewInfo && ((ViewInfo) object).getViewCode().equals( getViewCode() );
       }
 
       @Override
       public int hashCode() {
-         return getStoreViewCode().hashCode();
+         return getViewCode().hashCode();
       }
 
-      static private String getId( final String storeViewCode, final String tag ) {
-         final int i1 = storeViewCode.indexOf( "<" + tag + ">" );
+      static private String getId( final String viewCode, final String tag ) {
+         final int i1 = viewCode.indexOf( "<" + tag + ">" );
          if ( i1 < 0 ) {
-            return storeViewCode;
+            return viewCode;
          }
-         final int i2 = storeViewCode.indexOf( "</" + tag + ">" );
+         final int i2 = viewCode.indexOf( "</" + tag + ">" );
          if ( i2 < 0 ) {
-            return storeViewCode;
+            return viewCode;
          }
-         return storeViewCode.substring( i1 + 2 + tag.length(), i2 );
+         return viewCode.substring( i1 + 2 + tag.length(), i2 );
       }
    }
 
