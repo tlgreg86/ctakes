@@ -312,6 +312,13 @@ public enum PatientNoteStore {
    /////////////////    patient cleanup - careful !   ///////////////
 
    /**
+    * @param patientId -
+    */
+   synchronized public JCas getFullPatientCas( final String patientId ) {
+      return _patientMap.get( patientId );
+   }
+
+   /**
     * @param patientId identifier of patient to remove from cache
     */
    synchronized public void removePatient( final String patientId ) {

@@ -63,7 +63,7 @@ abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase {
    @Override
    public void collectionProcessComplete() throws AnalysisEngineProcessException {
       super.collectionProcessComplete();
-      final Collection<String> allPatientIds = PatientNoteStore.getInstance().getPatientIds();
+      final Collection<String> allPatientIds = PatientNoteStore.getInstance().getStoredPatientIds();
       for ( String id : allPatientIds ) {
          process( id );
          if ( _removePatient ) {
@@ -84,7 +84,7 @@ abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase {
       }
       _logger.info( _action + " for patient " + patientName + " ..." );
 
-      processPatientCas( PatientNoteStore.getInstance().getPatientCas( patientName ) );
+      processPatientCas( PatientNoteStore.getInstance().getFullPatientCas( patientName ) );
 
       _logger.info( "Finished." );
    }

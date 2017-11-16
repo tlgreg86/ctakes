@@ -18,41 +18,9 @@
  */
 package org.apache.ctakes.temporal.eval;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.apache.commons.io.FileUtils;
+import com.google.common.collect.Lists;
+import com.google.common.io.CharStreams;
+import com.lexicalscope.jewel.cli.Option;
 import org.apache.ctakes.chunker.ae.Chunker;
 import org.apache.ctakes.chunker.ae.DefaultChunkCreator;
 import org.apache.ctakes.chunker.ae.adjuster.ChunkAdjuster;
@@ -65,7 +33,6 @@ import org.apache.ctakes.core.patient.PatientNoteStore;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
-import org.apache.ctakes.dependency.parser.ae.ClearNLPSemanticRoleLabelerAE;
 import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.postagger.POSTagger;
@@ -74,7 +41,6 @@ import org.apache.ctakes.temporal.ae.THYMEAnaforaXMLReader;
 import org.apache.ctakes.temporal.ae.THYMEKnowtatorXMLReader;
 import org.apache.ctakes.temporal.ae.THYMETreebankReader;
 import org.apache.ctakes.temporal.duration.Utils;
-import org.apache.ctakes.temporal.utils.PatientViewsUtil;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.relation.TemporalTextRelation;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
@@ -126,10 +92,19 @@ import org.w3c.dom.Element;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.Lists;
-import com.google.common.io.CharStreams;
-import com.lexicalscope.jewel.cli.Option;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 //import org.apache.ctakes.core.cleartk.ae.SentenceDetectorAnnotator;
 //import org.threeten.bp.temporal.TemporalUnit;
@@ -451,7 +426,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 			}
 			docCounts.add(ptidPrefix);
 		}
-		docCounts.forEach((k,v) -> PatientNoteStore.getInstance().setDocCount(k, v));
+		docCounts.forEach( ( k, v ) -> PatientNoteStore.getInstance().setWantedDocCount( k, v ) );
 
 		return UriCollectionReader.getCollectionReaderFromFiles( collectedFiles );
 	}

@@ -34,7 +34,7 @@ final public class PatientNoteCollector extends JCasAnnotator_ImplBase {
       LOGGER.info( "Caching Document " + PatientNoteStore.getInstance().getDefaultDocumentId( jCas )
             + " into Patient " + PatientNoteStore.getInstance().getDefaultPatientId( jCas ) + " ..." );
 
-      PatientNoteStore.getInstance().addDocument( jCas );
+      PatientNoteStore.getInstance().storeAllViews( jCas );
 
       LOGGER.info( "Finished." );
    }

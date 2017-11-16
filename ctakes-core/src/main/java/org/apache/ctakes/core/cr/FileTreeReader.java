@@ -123,11 +123,11 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
          // does not check for valid extensions.  With one file just trust the user.
          _files = Collections.singletonList( _rootDir );
          final String patient = _rootDir.getParentFile().getName();
-         PatientNoteStore.getInstance().setDocCount( patient, 1 );
+         PatientNoteStore.getInstance().setWantedDocCount( patient, 1 );
       } else {
          // gather all of the files and set the document counts per patient.
          _files = getDescendentFiles( _rootDir, _validExtensions, 0 );
-         _patientDocCounts.forEach( ( k, v ) -> PatientNoteStore.getInstance().setDocCount( k, v ) );
+         _patientDocCounts.forEach( ( k, v ) -> PatientNoteStore.getInstance().setWantedDocCount( k, v ) );
       }
    }
 
