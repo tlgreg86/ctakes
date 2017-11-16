@@ -18,6 +18,9 @@
  */
 package org.apache.ctakes.regression.test;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.ctakes.core.ae.UmlsEnvironmentConfiguration;
+import org.apache.ctakes.utils.env.EnvironmentVariable;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.cas.CAS;
@@ -28,9 +31,7 @@ import org.apache.uima.collection.metadata.CpeDescription;
 import org.apache.uima.util.XMLInputSource;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.IgnoreTextAndAttributeValuesDifferenceListener;
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.*;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -44,48 +45,53 @@ import java.util.List;
 /**
  * Runs a full pipeline and compares the xml output to ensure all annotators
  * work together in harmony.
- * 
+ *
  * This is designed to run all CPE's inside the
  * desc/collection_processing_engine Directory. So any new pipeline added there
  * will automatically be run and tested as long as they put the generated output
  * to expectedoutput/{nameofcpe}
- * 
+ *
  * The Apache cTAKES Release Manager should ensure that at a min this test
  * passes before releasing.
- * 
+ *
  * If there are new modules, be sure to add the desc here. If there are changes,
  * after it's been manually reviewed, re-record the expected output and put them
  * in output folder.
- * 
+ *
  * This also tests the UMLS annotator(s) so be sure to download the UMLS
  * Resources per README and add the jvm params -Dctakes.umlsuser=
  * -Dctakes.umlspw= parameters before running
- * 
+ *
  */
-public class RegressionPipelineTest extends XMLTestCase {
+public class RegressionPipelineTest {
 
+	static Logger logger = Logger.getLogger(RegressionPipelineTest.class.getName());
+
+	// MAX timeout for the CPE
 	private static final int MAX_TIMEOUT_MS = 60 * 60 * 1000; // 60 mins
-	// LOG4J logger based on class name
-	Logger logger = Logger.getLogger(getClass().getName());
-	private static final File CPEDIR = new File(
-			"desc/collection_processing_engine");
-	int num_cpe = 0;
+	// TODO: consider refactor
+	private int num_cpe = 0;
 
+	private static final Boolean hasUMLSCredentials() {
+		return EnvironmentVariable.getEnv(UmlsEnvironmentConfiguration.USER.toString()) != null;
+	}
+
+	@BeforeClass
+	public static void beforeClass() {
+		Assume.assumeTrue( hasUMLSCredentials() );
+	}
 
 	@Test
 	public void testCPE() throws Exception {
 		long started = System.currentTimeMillis();
-		File[] listOfFiles = CPEDIR.listFiles();
+		File directoryCPE = new File("desc/collection_processing_engine");
+		File[] listOfFiles = directoryCPE.listFiles();
 		for (File file : listOfFiles) {
 
 			if (file.isFile()) {
 				num_cpe++;
-				File generated = new File("testdata/generatedoutput/"
-						+ file.getName().substring(0,
-								file.getName().indexOf(".")));
-				File expected = new File("testdata/expectedoutput/"
-						+ file.getName().substring(0,
-								file.getName().indexOf(".")));
+				File generated = new File(String.format("testdata/generatedoutput/%s", FilenameUtils.removeExtension(file.getName())));
+				File expected = new File(String.format("testdata/expectedoutput/%s", FilenameUtils.removeExtension(file.getName())));
 
 				logger.info("Creating directory: " + generated);
 
@@ -100,8 +106,7 @@ public class RegressionPipelineTest extends XMLTestCase {
 				CollectionProcessingEngine mCPE = UIMAFramework
 						.produceCollectionProcessingEngine(cpeDesc);
 				// Create and register a Status Callback Listener
-				mCPE.addStatusCallbackListener(new StatusCallbackListenerImpl(
-						expected, generated));
+				mCPE.addStatusCallbackListener(new RegressionPipelineTest.StatusCallbackListenerImpl(expected, generated));
 				mCPE.process();
 			}
 		}
@@ -109,8 +114,7 @@ public class RegressionPipelineTest extends XMLTestCase {
 		// Before comparing.
 		while (num_cpe > 0) {
 			if (System.currentTimeMillis() - started >= MAX_TIMEOUT_MS) {
-				Assert.assertEquals("Timed out:", "Regression CPE test timed out after "
-						+ MAX_TIMEOUT_MS + " ms");
+				Assert.assertEquals("Timed out:", String.format("Regression CPE test timed out after %d ms", MAX_TIMEOUT_MS));
 			}
 			Thread.sleep(1000);
 		}
@@ -144,16 +148,15 @@ public class RegressionPipelineTest extends XMLTestCase {
 				// myDiff.overrideElementQualifier(new
 				// ElementNameAndAttributeQualifier("id"));
 				myDiff.overrideDifferenceListener(new IgnoreTextAndAttributeValuesDifferenceListener());
-				assertTrue("Verifying Test Output: " + file.getName() + myDiff,
-						myDiff.similar());
+				Assert.assertTrue(String.format("Verifying Test Output: %s%s", file.getName(), myDiff), myDiff.similar());
 			}
 		}
 	}
 
 	/**
 	 * Callback Listener. Receives event notifications from CPE.
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	class StatusCallbackListenerImpl implements StatusCallbackListener {
 		int entityCount = 0;
@@ -168,7 +171,7 @@ public class RegressionPipelineTest extends XMLTestCase {
 
 		/**
 		 * Called when the initialization is completed.
-		 * 
+		 *
 		 * @see org.apache.uima.collection.processing.StatusCallbackListener#initializationComplete()
 		 */
 		public void initializationComplete() {
@@ -177,9 +180,9 @@ public class RegressionPipelineTest extends XMLTestCase {
 
 		/**
 		 * Called when the batchProcessing is completed.
-		 * 
+		 *
 		 * @see org.apache.uima.collection.processing.StatusCallbackListener#batchProcessComplete()
-		 * 
+		 *
 		 */
 		public void batchProcessComplete() {
 			logger.info("Completed " + entityCount + " documents");
@@ -188,7 +191,7 @@ public class RegressionPipelineTest extends XMLTestCase {
 
 		/**
 		 * Called when the collection processing is completed.
-		 * 
+		 *
 		 * @see org.apache.uima.collection.processing.StatusCallbackListener#collectionProcessComplete()
 		 */
 		public void collectionProcessComplete() {
@@ -206,7 +209,7 @@ public class RegressionPipelineTest extends XMLTestCase {
 
 		/**
 		 * Called when the CPM is paused.
-		 * 
+		 *
 		 * @see org.apache.uima.collection.processing.StatusCallbackListener#paused()
 		 */
 		public void paused() {
@@ -215,7 +218,7 @@ public class RegressionPipelineTest extends XMLTestCase {
 
 		/**
 		 * Called when the CPM is resumed after a pause.
-		 * 
+		 *
 		 * @see org.apache.uima.collection.processing.StatusCallbackListener#resumed()
 		 */
 		public void resumed() {
@@ -224,7 +227,7 @@ public class RegressionPipelineTest extends XMLTestCase {
 
 		/**
 		 * Called when the CPM is stopped abruptly due to errors.
-		 * 
+		 *
 		 * @see org.apache.uima.collection.processing.StatusCallbackListener#aborted()
 		 */
 		public void aborted() {
@@ -234,7 +237,7 @@ public class RegressionPipelineTest extends XMLTestCase {
 		/**
 		 * Called when the processing of a Document is completed. <br>
 		 * The process status can be looked at and corresponding actions taken.
-		 * 
+		 *
 		 * @param aCas
 		 *            CAS corresponding to the completed processing
 		 * @param aStatus
