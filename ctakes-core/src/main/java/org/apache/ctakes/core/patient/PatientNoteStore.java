@@ -11,6 +11,7 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.util.CasCopier;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,41 +33,82 @@ public enum PatientNoteStore {
    static private final Logger LOGGER = Logger.getLogger( "PatientNoteStore" );
 
    private final Map<String, JCas> _patientMap;
+   private final Map<String, Collection<StoreViewInfo>> _patientViewInfo;
    private final Map<String, Integer> _wantedDocCounts;
-   private final Map<String, Integer> _storedDocCounts;
+
    private String _currentPatientName;
    private String _previousPatientName;
 
+   /**
+    * private
+    */
    PatientNoteStore() {
       _patientMap = new HashMap<>();
+      _patientViewInfo = new HashMap<>();
       _wantedDocCounts = new HashMap<>();
-      _storedDocCounts = new HashMap<>();
+   }
+
+   /////////////////    Get available patient, document, view names   ///////////////
+
+   /**
+    * @return identifiers for all stored patients
+    */
+   synchronized public Collection<String> getStoredPatientIds() {
+      return _patientMap.keySet().stream()
+            .sorted()
+            .collect( Collectors.toList() );
    }
 
    /**
-    * @return all patient identifiers in the cache
+    * @param patientId -
+    * @return identifiers for all stored documents for the given patient
     */
-   synchronized public Collection<String> getPatientIds() {
-      return Collections.unmodifiableList( new ArrayList<>( _patientMap.keySet() ) );
+   synchronized public Collection<String> getStoredDocIds( final String patientId ) {
+      return getViewInfos( patientId ).stream()
+            .map( StoreViewInfo::getDocId )
+            .sorted()
+            .collect( Collectors.toList() );
    }
+
+   /**
+    * @param patientId -
+    * @param docId     -
+    * @return names for all stored views for the given patient and document
+    */
+   synchronized public Collection<String> getStoredViewNames( final String patientId, final String docId ) {
+      return getViewInfos( patientId ).stream()
+            .filter( vi -> vi.getDocId().equals( docId ) )
+            .map( StoreViewInfo::getViewName )
+            .sorted()
+            .collect( Collectors.toList() );
+   }
+
+   /////////////////    Completion Information    ///////////////
 
    /**
     * @return all completed patient identifiers in the cache
     */
    synchronized public Collection<String> getCompletedPatientIds() {
-      return _wantedDocCounts.entrySet().stream()
-            .filter( e -> _storedDocCounts.getOrDefault( e.getKey(), 0 ).equals( e.getValue() ) )
-            .map( Map.Entry::getKey )
+      return getStoredPatientIds().stream()
+            .filter( pid -> getWantedDocCount( pid ) == getStoredDocCount( pid ) )
+            .sorted()
             .collect( Collectors.toList() );
    }
 
+   /**
+    * @param patientId -
+    * @return number of documents for the patient that have been completed and stored in the cache
+    */
+   synchronized public int getStoredDocCount( final String patientId ) {
+      return getStoredDocIds( patientId ).size();
+   }
 
    /**
     *
     * @param patientId -
     * @return number of documents that exist for the patient or -1 if unknown
     */
-   synchronized public int getDocCount( final String patientId ) {
+   synchronized public int getWantedDocCount( final String patientId ) {
       return _wantedDocCounts.getOrDefault( patientId, -1 );
    }
 
@@ -75,27 +117,18 @@ public enum PatientNoteStore {
     * @param patientId -
     * @param count number of documents that exist for the patient
     */
-   synchronized public void setDocCount( final String patientId, final int count ) {
+   synchronized public void setWantedDocCount( final String patientId, final int count ) {
       _wantedDocCounts.put( patientId, count );
    }
 
-   /**
-    * @param patientId -
-    * @return number of documents for the patient that have been completed and stored in the cache
-    */
-   synchronized public int getCompletedDocCount( final String patientId ) {
-      return _storedDocCounts.getOrDefault( patientId, 0 );
-   }
+   /////////////////    Get default patient, document names   ///////////////
 
    /**
-    * @return the default identifier for a view of the document.  {@link DocumentIDAnnotationUtil#getDocumentID(JCas)}
-    */
-   public String getDefaultDocumentId( final JCas viewCas ) {
-      return DocumentIDAnnotationUtil.getDocumentID( viewCas );
-   }
-
-   /**
-    * @return the default identifier for a view of the document's patient.  {@link DocumentIDAnnotationUtil#getDocumentIdPrefix(JCas)}
+    * @return the default identifier for a view of the document's patient.
+    * If it has been set in the document metadata then that is used,
+    * otherwise it will come from the document's parent directory.
+    * @see SourceMetadataUtil#getPatientIdentifier(JCas)
+    * @see DocumentIDAnnotationUtil#getDocumentIdPrefix(JCas)
     */
    public String getDefaultPatientId( final JCas viewCas ) {
       final String patientIdentifier = SourceMetadataUtil.getPatientIdentifier( viewCas );
@@ -106,45 +139,92 @@ public enum PatientNoteStore {
    }
 
    /**
-    * @param goldCas ye olde containing the gold in the default view
+    * @return the default identifier for a view of the document.
+    * @see DocumentIDAnnotationUtil#getDocumentID(JCas)
     */
-   synchronized public void addGoldView( final JCas goldCas ) {
-      final int goldCount = getGoldViewNames( getDefaultPatientId( goldCas ) ).size();
-      addGoldView( "" + (goldCount + 1), goldCas );
+   public String getDefaultDocumentId( final JCas viewCas ) {
+      return DocumentIDAnnotationUtil.getDocumentID( viewCas );
+   }
+
+   /////////////////    Store Views   ///////////////
+
+   /**
+    * Store all views in the source cas.  Patient Id and Document Id will be determined from the source cas.
+    * @param sourceCas source (document) cas
+    */
+   synchronized public void storeAllViews( final JCas sourceCas ) {
+      PatientViewUtil.getAllViewNames( sourceCas ).forEach( n -> storeView( n, sourceCas ) );
    }
 
    /**
-    * @param goldName name to use for the cached gold view
-    * @param goldCas  ye olde containing the document in the default view
+    * Store all views in the source cas.
+    * @param patientId -
+    * @param docId -
+    * @param sourceCas source (document) cas
     */
-   synchronized public void addGoldView( final String goldName, final JCas goldCas ) {
-      addDocument( PatientViewUtil.GOLD_PREFIX + "_" + goldName, goldCas );
+   synchronized public void storeAllViews( final String patientId, final String docId, final JCas sourceCas ) {
+      PatientViewUtil.getAllViewNames( sourceCas ).forEach( n -> storeView( patientId, docId, n, sourceCas ) );
    }
 
    /**
-    * @param documentCas ye olde containing the document in the default view
+    * Store the primary view under some different name.  Patient Id and Document Id will be determined from the source cas.
+    * @param storeViewName the name to use to store the primary view
+    * @param sourceCas source (document) cas
     */
-   synchronized public void addDocument( final JCas documentCas ) {
-      addDocument( getDefaultDocumentId( documentCas ), documentCas );
+   synchronized public void storePrimaryAsView( final String storeViewName, final JCas sourceCas ) {
+      storePrimaryAsView( getDefaultPatientId( sourceCas ), getDefaultDocumentId( sourceCas ),
+            storeViewName, sourceCas );
    }
 
    /**
-    * @param viewName    name to use for the cached document view
-    * @param documentCas ye olde containing the document in the default view
+    * Store the primary view under some different name.
+    * @param patientId -
+    * @param docId -
+    * @param storeViewName the name to use to store the primary view
+    * @param sourceCas source (document) cas
     */
-   synchronized public void addDocument( final String viewName, final JCas documentCas ) {
-      addDocument( getDefaultPatientId( documentCas ), viewName, documentCas );
+   synchronized public void storePrimaryAsView( final String patientId, final String docId, final String storeViewName,
+                                                final JCas sourceCas ) {
+      storeView( patientId, docId, storeViewName, PatientViewUtil.DEFAULT_VIEW, sourceCas );
    }
 
    /**
-    * @param patientId name to use for the cached patient cas
-    * @param viewName    name to use for the cached document view
-    * @param documentCas ye olde containing the document in the default view
+    * Store some single view with its own name.  Patient Id and Document Id will be determined from the source cas.
+    *
+    * @param sourceViewName the name of the view in the source cas
+    * @param sourceCas      source (document) cas
     */
-   synchronized public void addDocument( final String patientId, final String viewName, final JCas documentCas ) {
-      if ( !patientId.equals( _currentPatientName ) ) {
-         _previousPatientName = _currentPatientName;
-         _currentPatientName = patientId;
+   synchronized public void storeView( final String sourceViewName, final JCas sourceCas ) {
+      storeView( getDefaultPatientId( sourceCas ), getDefaultDocumentId( sourceCas ),
+            sourceViewName, sourceViewName, sourceCas );
+   }
+
+   /**
+    * Explicitly store some single view with its own name.
+    *
+    * @param patientId      -
+    * @param docId          -
+    * @param sourceViewName the name of the view in the source cas
+    * @param sourceCas      source (document) cas
+    */
+   synchronized public void storeView( final String patientId, final String docId, final String sourceViewName, final JCas sourceCas ) {
+      storeView( patientId, docId, sourceViewName, sourceViewName, sourceCas );
+   }
+
+   /**
+    * Explicitly store some single view under a different name.
+    *
+    * @param patientId      -
+    * @param docId          -
+    * @param storeViewName  the name to use to store the view
+    * @param sourceViewName the name of the view in the source cas
+    * @param sourceCas      source (document) cas
+    */
+   synchronized public void storeView( final String patientId, final String docId, final String storeViewName,
+                                       final String sourceViewName, final JCas sourceCas ) {
+      if ( getStoredViewNames( patientId, docId ).contains( storeViewName ) ) {
+         LOGGER.warn( "View already stored as " + patientId + " " + docId + " " + storeViewName );
+         LOGGER.warn( "Previously stored view will be replaced." );
       }
       // don't use putIfAbsent or computeIfAbsent to better handle exceptions and lazy instantiation
       JCas patientCas = _patientMap.get( patientId );
@@ -157,104 +237,166 @@ public enum PatientNoteStore {
             return;
          }
       }
-      LOGGER.info( "Caching " + viewName + " for patient " + patientId + " ..." );
+      // Cache view into patient using encoded view name
+      LOGGER.info( "Caching view for" + patientId + " " + docId + " " + sourceViewName
+            + (sourceViewName.equals( storeViewName ) ? "" : " as " + storeViewName) + " ..." );
+      final StoreViewInfo storeViewInfo = new StoreViewInfo( patientId, docId, storeViewName );
       try {
-         final JCas mainView = documentCas.getView( PatientViewUtil.DEFAULT_VIEW );
-         final CasCopier copier = new CasCopier( documentCas.getCas(), patientCas.getCas() );
-         copier.copyCasView( mainView.getCas(), viewName, true );
-         final int stored = _storedDocCounts.getOrDefault( patientId, 0 );
-         _storedDocCounts.put( patientId, stored + 1 );
+         final JCas sourceView = sourceCas.getView( sourceViewName );
+         final CasCopier copier = new CasCopier( sourceCas.getCas(), patientCas.getCas() );
+         copier.copyCasView( sourceView.getCas(), storeViewInfo.getViewName(), true );
+         _patientViewInfo.putIfAbsent( patientId, new ArrayList<>() );
+         _patientViewInfo.get( patientId ).add( storeViewInfo );
       } catch ( CASException | CASRuntimeException casE ) {
          LOGGER.error( casE.getMessage() );
       }
    }
 
+   /////////////////    view fetchers   ///////////////
+
    /**
-    * @param patientId identifier of patient
-    * @return cached cas representing patient with documents and gold as views, or null if none
+    * @param patientId -
+    * @param docId -
+    * @param viewName -
+    * @return Stored view for the parameters
     */
-   synchronized public JCas getPatientCas( final String patientId ) {
-      return _patientMap.get( patientId );
+   synchronized public JCas getStoredView( final String patientId, final String docId, final String viewName ) {
+      final JCas patientCas = _patientMap.get( patientId );
+      if ( patientCas == null ) {
+         LOGGER.warn( "No patient with id " + patientId );
+         return null;
+      }
+      final StoreViewInfo storeViewInfo = new StoreViewInfo( patientId, docId, viewName );
+      try {
+         return patientCas.getView( storeViewInfo.getStoreViewCode() );
+      } catch ( CASException casE ) {
+         LOGGER.error( casE.getMessage() );
+      }
+      return null;
    }
+
+   /**
+    * @param patientId -
+    * @param docId     -
+    * @return Map of ViewNames to Views
+    */
+   synchronized public Map<String, JCas> getStoredViews( final String patientId, final String docId ) {
+      final JCas patientCas = _patientMap.get( patientId );
+      if ( patientCas == null ) {
+         LOGGER.warn( "No patient with id " + patientId );
+         return null;
+      }
+      final Collection<String> viewNames = getStoredViewNames( patientId, docId );
+      final Map<String, JCas> viewMap = new HashMap<>();
+      try {
+         for ( String viewName : viewNames ) {
+            final StoreViewInfo viewInfo = new StoreViewInfo( viewName );
+            viewMap.put( viewInfo.getViewName(), patientCas.getView( viewName ) );
+         }
+      } catch ( CASException casE ) {
+         LOGGER.error( casE.getMessage() );
+      }
+      return viewMap;
+   }
+
+   /**
+    * @param patientId -
+    * @return Map of docIds to Map of ViewNames to Views
+    */
+   synchronized public Map<String, Map<String, JCas>> getStoredViews( final String patientId ) {
+      final Map<String, Map<String, JCas>> viewMap = new HashMap<>();
+      final Collection<String> docIds = getStoredDocIds( patientId );
+      for ( String docId : docIds ) {
+         viewMap.put( docId, getStoredViews( patientId, docId ) );
+      }
+      return viewMap;
+   }
+
+   /////////////////    patient cleanup - careful !   ///////////////
 
    /**
     * @param patientId identifier of patient to remove from cache
     */
    synchronized public void removePatient( final String patientId ) {
       _patientMap.remove( patientId );
+      _patientViewInfo.remove( patientId );
       _wantedDocCounts.remove( patientId );
    }
 
+   /////////////////    Encoding for cached patient view names   ///////////////
+
    /**
-    * @param patientId identifier of patient
-    * @return All views, including gold and default
+    * @param patientId -
+    * @return
     */
-   synchronized public Collection<JCas> getAllViews( final String patientId ) {
-      final JCas patientCas = getPatientCas( patientId );
-      if ( patientCas == null ) {
+   synchronized private Collection<StoreViewInfo> getViewInfos( final String patientId ) {
+      final Collection<StoreViewInfo> storeViewInfos = _patientViewInfo.get( patientId );
+      if ( storeViewInfos == null ) {
+         LOGGER.debug( "No patient with id " + patientId );
          return Collections.emptyList();
       }
-      return PatientViewUtil.getAllViews( patientCas );
+      return storeViewInfos;
    }
 
    /**
-    * @param patientId identifier of patient
-    * @return All document views, which are views that are not the default and not gold
+    * Used to map pid, docId, view names to views for each patient.
     */
-   synchronized public Collection<JCas> getDocumentViews( final String patientId ) {
-      final JCas patientCas = getPatientCas( patientId );
-      if ( patientCas == null ) {
-         return Collections.emptyList();
+   @Immutable
+   static private final class StoreViewInfo {
+      private final String _pid;
+      private final String _docId;
+      private final String _viewName;
+
+      private StoreViewInfo( final String storeViewCode ) {
+         this( getId( storeViewCode, "pid" ),
+               getId( storeViewCode, "docId" ),
+               getId( storeViewCode, "viewName" ) );
       }
-      return PatientViewUtil.getDocumentViews( patientCas );
+
+      private StoreViewInfo( final String pid, final String docId, final String viewName ) {
+         _pid = pid;
+         _docId = docId;
+         _viewName = viewName;
+      }
+
+      public String getPid() {
+         return _pid;
+      }
+
+      public String getDocId() {
+         return _docId;
+      }
+
+      public String getViewName() {
+         return _viewName;
+      }
+
+      public String getStoreViewCode() {
+         return "<pid>" + _pid + "</pid><docId>" + _docId + "</docId><viewName>" + _viewName + "</viewName>";
+      }
+
+      @Override
+      public boolean equals( final Object object ) {
+         return object instanceof StoreViewInfo && ((StoreViewInfo) object).getStoreViewCode().equals( getStoreViewCode() );
+      }
+
+      @Override
+      public int hashCode() {
+         return getStoreViewCode().hashCode();
+      }
+
+      static private String getId( final String storeViewCode, final String tag ) {
+         final int i1 = storeViewCode.indexOf( "<" + tag + ">" );
+         if ( i1 < 0 ) {
+            return storeViewCode;
+         }
+         final int i2 = storeViewCode.indexOf( "</" + tag + ">" );
+         if ( i2 < 0 ) {
+            return storeViewCode;
+         }
+         return storeViewCode.substring( i1 + 2 + tag.length(), i2 );
+      }
    }
 
-   /**
-    * @param patientId identifier of patient
-    * @return All gold views, which are views with the prefix {@link PatientViewUtil#GOLD_PREFIX}
-    */
-   synchronized public Collection<JCas> getGoldViews( final String patientId ) {
-      final JCas patientCas = getPatientCas( patientId );
-      if ( patientCas == null ) {
-         return Collections.emptyList();
-      }
-      return PatientViewUtil.getGoldViews( patientCas );
-   }
-
-   /**
-    * @param patientId identifier of patient
-    * @return Names of all views, including gold and default
-    */
-   synchronized public Collection<String> getAllViewNames( final String patientId ) {
-      final JCas patientCas = getPatientCas( patientId );
-      if ( patientCas == null ) {
-         return Collections.emptyList();
-      }
-      return PatientViewUtil.getAllViewNames( patientCas );
-   }
-
-   /**
-    * @param patientId identifier of patient
-    * @return Names of all document views, which are views that are not the default and not gold
-    */
-   synchronized public Collection<String> getDocumentViewNames( final String patientId ) {
-      final JCas patientCas = getPatientCas( patientId );
-      if ( patientCas == null ) {
-         return Collections.emptyList();
-      }
-      return PatientViewUtil.getDocumentViewNames( patientCas );
-   }
-
-   /**
-    * @param patientId identifier of patient
-    * @return Names of all gold views, which are views with the prefix {@link PatientViewUtil#GOLD_PREFIX}
-    */
-   synchronized public Collection<String> getGoldViewNames( final String patientId ) {
-      final JCas patientCas = getPatientCas( patientId );
-      if ( patientCas == null ) {
-         return Collections.emptyList();
-      }
-      return PatientViewUtil.getGoldViewNames( patientCas );
-   }
 
 }
