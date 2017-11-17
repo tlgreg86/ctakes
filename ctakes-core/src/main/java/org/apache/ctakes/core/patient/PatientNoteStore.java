@@ -241,7 +241,7 @@ public enum PatientNoteStore {
       try {
          final JCas sourceView = sourceCas.getView( sourceViewName );
          final CasCopier copier = new CasCopier( sourceCas.getCas(), patientCas.getCas() );
-         copier.copyCasView( sourceView.getCas(), viewInfo.getViewName(), true );
+         copier.copyCasView( sourceView.getCas(), viewInfo.getViewCode(), true );
          _patientViewInfos.putIfAbsent( patientId, new ArrayList<>() );
          _patientViewInfos.get( patientId ).add( viewInfo );
       } catch ( CASException | CASRuntimeException casE ) {
