@@ -213,7 +213,7 @@ public class GoldEntityAndAttributeReader extends JCasAnnotator_ImplBase {
 		// if this is an attribute id
 		else if (attrPtr.containsKey(id)) {
 			if ( !attrPtr.get(id).role.equals("Related_to_CU") 
-					& !attrPtr.get(id).role.equals("Argument_CU") )
+					&& !attrPtr.get(id).role.equals("Argument_CU") )
 				getLeafAttributes(attrPtr.get(id).value, mentionAttr, attrPtr, attrs, output);
 		} else if (attrs.containsKey(id)){
 			if ( !attrs.get(id).role.equals("Related_to_CU") 
