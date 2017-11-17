@@ -1,8 +1,6 @@
 package org.apache.ctakes.coreference.ae;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,13 +43,20 @@ import com.google.common.collect.Multiset;
 public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
   @ConfigurationParameter(
       name = ConfigParameterConstants.PARAM_OUTPUTDIR,
-      mandatory = true,
       description = "Name of chain file in CoNLL format"
       )
+  private String outputDir=null;
   private String outputFilename;
   private PrintWriter out = null;
   private PrintWriter icOut = null;
-  
+
+  public static final String PARAM_CONFIG = "Config";
+  @ConfigurationParameter(
+      name = PARAM_CONFIG,
+      description = "Descriptive string representing configuration of this run"
+  )
+  private String configName=null;
+
   public static final String PARAM_GOLD_VIEW_NAME = "GoldViewName";
   @ConfigurationParameter(
       name = PARAM_GOLD_VIEW_NAME,
@@ -60,29 +65,37 @@ public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
       )
   private String goldViewName = null;
   boolean isGold;
+
+  public static final String PARAM_APPEND = "Append";
+  @ConfigurationParameter(
+      name = PARAM_APPEND,
+      description = "Whether output should be appended or newly created"
+  )
+  private boolean append = false;
   
   private int docNum = 0;
   
   @Override
   public void initialize(final UimaContext context) throws ResourceInitializationException{
     super.initialize(context);
-    
-    try {
-      out = new PrintWriter(outputFilename);
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-      throw new ResourceInitializationException(e);
-    }
-    
+
     if(goldViewName != null) isGold = true;
     else{
       isGold = false;
       try {
-        icOut = new PrintWriter(outputFilename + ".icarus");
-      } catch (FileNotFoundException e) {
+        icOut = new PrintWriter(new FileWriter(outputFilename + ".icarus", append));
+      } catch (IOException e) {
         e.printStackTrace();
         throw new ResourceInitializationException(e);
       }
+    }
+
+    outputFilename = new File(this.outputDir, (isGold ? "gold" : "system")+"."+configName+".conll").getAbsolutePath();
+    try {
+      out = new PrintWriter(new FileWriter(outputFilename, append));
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new ResourceInitializationException(e);
     }
   }
   

@@ -64,6 +64,7 @@ public enum PatientNoteStore {
       return getViewInfos( patientId ).stream()
             .map( ViewInfo::getDocId )
             .sorted()
+            .distinct()
             .collect( Collectors.toList() );
    }
 
@@ -307,6 +308,17 @@ public enum PatientNoteStore {
          viewMap.put( docId, getStoredViews( patientId, docId ) );
       }
       return viewMap;
+   }
+
+   /**
+    * @param patientId - Stored patient ID
+    * @param docId - Stored document ID
+    * @param viewName - View name in original document CAS
+    * @return String representing view name in patient CAS
+    */
+   synchronized public String getInternalViewname( final String patientId, final String docId, final String viewName){
+      ViewInfo viewInfo = new ViewInfo(patientId, docId, viewName);
+      return viewInfo.getViewCode();
    }
 
    /////////////////    patient cleanup - careful !   ///////////////

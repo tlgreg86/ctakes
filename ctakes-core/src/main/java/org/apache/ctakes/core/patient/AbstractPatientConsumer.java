@@ -26,7 +26,7 @@ import java.util.Collection;
 )
 abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase {
 
-   static private final String REMOVE_PATIENT = "RemovePatient";
+   static public final String REMOVE_PATIENT = "RemovePatient";
 
    @ConfigurationParameter(
          name = REMOVE_PATIENT,

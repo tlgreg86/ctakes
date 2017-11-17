@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jdk.internal.org.objectweb.asm.commons.AnalyzerAdapter;
 import org.apache.ctakes.assertion.medfacts.cleartk.GenericCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.HistoryCleartkAnalysisEngine;
 import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
@@ -78,12 +79,14 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.component.NoOpAnnotator;
 import org.apache.uima.fit.component.ViewCreatorAnnotator;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.FlowControllerFactory;
+import org.apache.uima.fit.factory.UimaContextFactory;
 import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
@@ -409,29 +412,25 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
       //    aggregateBuilder.add(CopyFromGold.getDescription(/*Markable.class,*/ CoreferenceRelation.class, CollectionTextRelation.class));
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemovePersonMarkables.class));
     }
-//    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(MarkableHeadTreeCreator.class));
     aggregateBuilder.add(MarkableSalienceAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/salience/model.jar"));
     if(this.evalType == EVAL_SYSTEM.MENTION_CLUSTER) {
       // Do nothing but we still need this here so the else clause works right
-//        singleNoteBuilder.add(MentionClusterCoreferenceAnnotator.createAnnotatorDescription(directory.getAbsolutePath() + File.separator + "model.jar"), CAS.NAME_DEFAULT_SOFA, viewName);
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PatientNoteCollector.class));
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PatientNoteCollector.class), CAS.NAME_DEFAULT_SOFA, GOLD_VIEW_NAME);
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(EvaluationPatientNoteCollector.class));
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PatientMentionClusterCoreferencer.class,
               CleartkAnnotator.PARAM_IS_TRAINING,
               false,
               GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
               directory.getAbsolutePath() + File.separator + "model.jar",
               MentionClusterCoreferenceAnnotator.PARAM_SINGLE_DOCUMENT,
+              false,
+              AbstractPatientConsumer.REMOVE_PATIENT,
               false));
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PatientPersonChainAnnotator.class));
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PatientPersonChainAnnotator.class, AbstractPatientConsumer.REMOVE_PATIENT, false));
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PatientScoringWriter.class,
               ConfigParameterConstants.PARAM_OUTPUTDIR,
-              this.outputDirectory + File.separator + goldOut,
-              CoreferenceChainScoringOutput.PARAM_GOLD_VIEW_NAME,
-              GOLD_VIEW_NAME));
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PatientScoringWriter.class,
-              ConfigParameterConstants.PARAM_OUTPUTDIR,
-              this.outputDirectory + File.separator + systemOut));
+              this.outputDirectory,
+              CoreferenceChainScoringOutput.PARAM_CONFIG,
+              config));
     }else{
       if(!this.goldMarkables){
         aggregateBuilder.add(PersonChainAnnotator.createAnnotatorDescription());
@@ -446,20 +445,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         logger.info("Running an evaluation that does not add an annotator: " + this.evalType);
       }
     }
-    //    aggregateBuilder.add(CoreferenceChainAnnotator.createAnnotatorDescription());
 
-//    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
-//        ConfigParameterConstants.PARAM_OUTPUTDIR,
-//        this.outputDirectory + File.separator + goldOut,
-//            CoreferenceChainScoringOutput.PARAM_GOLD_VIEW_NAME,
-//            GOLD_VIEW_NAME));
-//    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
-//        ConfigParameterConstants.PARAM_OUTPUTDIR,
-//        this.outputDirectory + File.separator + systemOut));
-
-//    FlowControllerDescription corefFlowControl = FlowControllerFactory.createFlowControllerDescription(CoreferenceFlowController.class);
-//    aggregateBuilder.setFlowControllerDescription(corefFlowControl);
-//    aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(XMIWriter.class));
     Function<CoreferenceRelation, ?> getSpan = new Function<CoreferenceRelation, HashableArguments>() {
       public HashableArguments apply(CoreferenceRelation relation) {
         return new HashableArguments(relation);
@@ -521,9 +507,6 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     
     AggregateBuilder preprocess = new AggregateBuilder();
     
-    // create URI views for each note:
-//    preprocess.add(AnalysisEngineFactory.createEngineDescription( ThymePatientViewAnnotator.class));
-    
     // Then run the preprocessing engine on all views
     preprocess.add(AnalysisEngineFactory.createEngineDescription( UriToDocumentTextAnnotatorCtakes.class ));
     preprocess.add(AnalysisEngineFactory.createEngineDescription(DocumentIdFromURI.class));
@@ -538,7 +521,6 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         XMIWriter.PARAM_XMI_DIRECTORY,
         this.xmiDirectory ) );
 
-//    preprocess.setFlowControllerDescription(FlowControllerFactory.createFlowControllerDescription(CoreferenceFlowController.class));
     return preprocess;
   }
   
@@ -981,6 +963,28 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     } 
   }
 
+  public static class EvaluationPatientNoteCollector extends JCasAnnotator_ImplBase {
+
+    private final Logger LOGGER = Logger.getLogger( "EvaluationPatientNoteCollector" );
+
+    /**
+     * Adds the primary view of this cas to a cache of views for patients.
+     * See {@link PatientNoteStore}
+     * {@inheritDoc}
+     */
+    @Override
+    public void process( final JCas jCas ) throws AnalysisEngineProcessException {
+      LOGGER.info( "Caching Document " + PatientNoteStore.getInstance().getDefaultDocumentId( jCas )
+              + " into Patient " + PatientNoteStore.getInstance().getDefaultPatientId( jCas ) + " ..." );
+
+      PatientNoteStore.getInstance().storeAllViews(PatientNoteStore.getInstance().getDefaultPatientId(jCas),
+              PatientNoteStore.getInstance().getDefaultDocumentId(jCas),
+              jCas);
+
+      LOGGER.info( "Finished." );
+    }
+  }
+
   public static class DocumentIdFromURI extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
     @Override
     public void process(JCas docCas) throws AnalysisEngineProcessException {
@@ -1011,25 +1015,47 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
 
   public static class PatientScoringWriter extends AbstractPatientConsumer {
 
-    private CoreferenceChainScoringOutput scorer = null;
     private PatientNoteStore notes = PatientNoteStore.INSTANCE;
+    private Object[] sysParams, goldParams;
+    private boolean append = false;
 
     public PatientScoringWriter(){
       super("PatientScoringWriter", "Writes conll output that can be used in standard scoring scripts.");
-      scorer = new CoreferenceChainScoringOutput();
-    }
-
-    @Override
-    public void collectionProcessComplete() throws AnalysisEngineProcessException {
-      super.collectionProcessComplete();
-      scorer.collectionProcessComplete();
     }
 
     @Override
     protected void processPatientCas(JCas patientJcas) throws AnalysisEngineProcessException {
-//      scorer.process(patientJcas);
-      for(JCas docView : PatientViewUtil.getDocumentViews(patientJcas)){
-        scorer.process(docView);
+
+      AggregateBuilder agg = new AggregateBuilder();
+      AnalysisEngineDescription aed = null;
+
+      try {
+        for(JCas docView : PatientViewUtil.getAllViews(patientJcas)){
+          if(docView.getViewName().equals(CAS.NAME_DEFAULT_SOFA) || !docView.getViewName().contains("Initial")) {
+            continue;
+          }
+          String pid = PatientNoteStore.getInstance().getDefaultPatientId(docView);
+          String docId = PatientNoteStore.getInstance().getDefaultDocumentId(docView);
+          sysParams[sysParams.length-2] = goldParams[goldParams.length-2] = CoreferenceChainScoringOutput.PARAM_APPEND;
+          sysParams[sysParams.length-1] = goldParams[goldParams.length-1] = append;
+          aed = AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
+                  goldParams);
+          agg.add(aed,
+                  CAS.NAME_DEFAULT_SOFA,
+                  PatientNoteStore.getInstance().getInternalViewname(pid,docId,CAS.NAME_DEFAULT_SOFA),
+                  GOLD_VIEW_NAME,
+                  PatientNoteStore.getInstance().getInternalViewname(pid,docId,GOLD_VIEW_NAME));
+
+          aed = AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
+                  sysParams);
+          agg.add(aed,
+                  CAS.NAME_DEFAULT_SOFA,
+                  PatientNoteStore.getInstance().getInternalViewname(pid,docId,CAS.NAME_DEFAULT_SOFA));
+          append=true;
+        }
+        SimplePipeline.runPipeline(patientJcas, agg.createAggregateDescription());
+      }catch(ResourceInitializationException e){
+        throw new AnalysisEngineProcessException(e);
       }
     }
 
@@ -1040,27 +1066,15 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     @Override
     public void initialize( final UimaContext context ) throws ResourceInitializationException {
       super.initialize( context );
-      scorer.initialize( context );
-    }
-
-    /**
-     * Call destroy on super and the delegate
-     * {@inheritDoc}
-     */
-    @Override
-    public void destroy() {
-      super.destroy();
-      scorer.destroy();
-    }
-
-    /**
-     * Set the resultSpecification in this and the delegate to the same object
-     * {@inheritDoc}
-     */
-    @Override
-    public void setResultSpecification( final ResultSpecification resultSpecification ) {
-      super.setResultSpecification( resultSpecification );
-      scorer.setResultSpecification( resultSpecification );
+      String[] paramNames = context.getConfigParameterNames();
+      sysParams = new Object[(paramNames.length+1) * 2];
+      goldParams = new Object[(paramNames.length+2) * 2];
+      for(int i = 0; i < paramNames.length; i++){
+        goldParams[2*i] = sysParams[2*i] = paramNames[i];
+        goldParams[2*i+1] = sysParams[2*i+1] = context.getConfigParameterValue(paramNames[i]);
+      }
+      goldParams[goldParams.length-4] = CoreferenceChainScoringOutput.PARAM_GOLD_VIEW_NAME;
+      goldParams[goldParams.length-3] = GOLD_VIEW_NAME;
     }
   }
 
