@@ -31,7 +31,11 @@
   <description>Apache cTAKES Examples</description>
   <dependencies>
       <!--  coreference module has dependencies on almost everything, use it to maximize example possibilities.  -->
-    <dependency>
+      <dependency>
+          <groupId>org.apache.ctakes</groupId>
+          <artifactId>ctakes-gui</artifactId>
+      </dependency>
+      <dependency>
       <groupId>org.apache.ctakes</groupId>
         <artifactId>ctakes-coreference</artifactId>
     </dependency>
@@ -53,4 +57,44 @@
      	<version>2.3.0</version>
      </dependency>
   </dependencies>
+    <profiles>
+        <profile>
+            <id>runPiperGui</id>
+            <activation>
+                <property>
+                    <name>runPiperGui</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <!-- depends on other modules being on classpath -->
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <executable>java</executable>
+                            <includeProjectDependencies>true</includeProjectDependencies>
+                            <includePluginDependencies>true</includePluginDependencies>
+                            <workingDirectory>${project.parent.basedir}</workingDirectory>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>-Xmx3G</argument>
+                                <argument>org.apache.ctakes.gui.pipeline.PiperRunnerGui</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
