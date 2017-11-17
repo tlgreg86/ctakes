@@ -55,15 +55,16 @@ public class RelationInfo {
    */
   @Override
   public boolean equals(Object object) {
-  	
-  	boolean isEqual = false;
-  			
-  	if(this.getClass() == object.getClass()) {
-  		RelationInfo relationInfo = (RelationInfo) object;
-  		isEqual = (this.id1.equals(relationInfo.id1) && this.id2.equals(relationInfo.id2));
-  	}
-  	
-  	return isEqual;
+	if (this == object) {
+	  return true;
+	}
+	if (object == null || getClass() != object.getClass()) {
+	  return false;
+	}
+
+	final RelationInfo that = (RelationInfo) object;
+  	return  this.id1.equals(that.id1) &&
+		    this.id2.equals(that.id2);
   }
   
   /*

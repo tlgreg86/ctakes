@@ -469,13 +469,19 @@ public class AnnotationStatisticsCompact<OUTCOME_TYPE extends Comparable<? super
       return Objects.hashCode(this.begin, this.end);
     }
 
+    // TODO: use consistent naming convention (obj vs o vs object) in equals
     @Override
     public boolean equals(Object obj) {
-      if (!this.getClass().equals(obj.getClass())) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
         return false;
       }
-      Span that = (Span) obj;
-      return this.begin == that.begin && this.end == that.end;
+
+      final Span that = (Span) obj;
+      return  this.begin == that.begin &&
+              this.end == that.end;
     }
 
     @Override
