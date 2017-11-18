@@ -128,7 +128,7 @@ public enum PatientNoteStore {
     * @see SourceMetadataUtil#getPatientIdentifier(JCas)
     * @see DocumentIDAnnotationUtil#getDocumentIdPrefix(JCas)
     */
-   public String getDefaultPatientId( final JCas viewCas ) {
+   static public String getDefaultPatientId( final JCas viewCas ) {
       final String patientIdentifier = SourceMetadataUtil.getPatientIdentifier( viewCas );
       if ( patientIdentifier != null && !patientIdentifier.isEmpty() && !patientIdentifier.equals( SourceMetadataUtil.UNKNOWN_PATIENT ) ) {
          return patientIdentifier;
@@ -140,7 +140,7 @@ public enum PatientNoteStore {
     * @return the default identifier for a view of the document.
     * @see DocumentIDAnnotationUtil#getDocumentID(JCas)
     */
-   public String getDefaultDocumentId( final JCas viewCas ) {
+   static public String getDefaultDocumentId( final JCas viewCas ) {
       return DocumentIDAnnotationUtil.getDocumentID( viewCas );
    }
 
@@ -316,8 +316,8 @@ public enum PatientNoteStore {
     * @param viewName - View name in original document CAS
     * @return String representing view name in patient CAS
     */
-   synchronized public String getInternalViewname( final String patientId, final String docId, final String viewName){
-      ViewInfo viewInfo = new ViewInfo(patientId, docId, viewName);
+   static public String getInternalViewname( final String patientId, final String docId, final String viewName ) {
+      final ViewInfo viewInfo = new ViewInfo( patientId, docId, viewName );
       return viewInfo.getViewCode();
    }
 

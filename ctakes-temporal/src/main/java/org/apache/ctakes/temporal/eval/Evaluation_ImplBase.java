@@ -426,7 +426,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 			}
 			docCounts.add(ptidPrefix);
 		}
-		docCounts.forEach( ( k, v ) -> PatientNoteStore.getInstance().setWantedDocCount( k, v ) );
+      docCounts.forEach( PatientNoteStore.getInstance()::setWantedDocCount );
 
 		return UriCollectionReader.getCollectionReaderFromFiles( collectedFiles );
 	}

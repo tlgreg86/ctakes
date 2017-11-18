@@ -1,28 +1,13 @@
 package org.apache.ctakes.coreference.eval;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.ctakes.assertion.medfacts.cleartk.GenericCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.HistoryCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.PolarityCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.SubjectCleartkAnalysisEngine;
-import org.apache.ctakes.assertion.medfacts.cleartk.UncertaintyCleartkAnalysisEngine;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.Option;
+import de.bwaldvogel.liblinear.FeatureNode;
+import org.apache.ctakes.assertion.medfacts.cleartk.*;
 import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.patient.AbstractPatientConsumer;
 import org.apache.ctakes.core.patient.PatientNoteCollector;
@@ -42,22 +27,14 @@ import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase;
 import org.apache.ctakes.typesystem.type.constants.CONST;
-import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
-import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
-import org.apache.ctakes.typesystem.type.relation.CoreferenceRelation;
-import org.apache.ctakes.typesystem.type.relation.LocationOfTextRelation;
-import org.apache.ctakes.typesystem.type.relation.RelationArgument;
+import org.apache.ctakes.typesystem.type.relation.*;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.structured.DocumentIdPrefix;
 import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.syntax.NewlineToken;
 import org.apache.ctakes.typesystem.type.syntax.WordToken;
-import org.apache.ctakes.typesystem.type.textsem.DiseaseDisorderMention;
-import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.Markable;
-import org.apache.ctakes.typesystem.type.textsem.ProcedureMention;
-import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
+import org.apache.ctakes.typesystem.type.textsem.*;
 import org.apache.ctakes.typesystem.type.textspan.Paragraph;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.ctakes.utils.distsem.WordEmbeddings;
@@ -104,14 +81,10 @@ import org.cleartk.ml.svmlight.rank.SvmLightRankDataWriter;
 import org.cleartk.ml.tksvmlight.model.CompositeKernel.ComboOperator;
 import org.cleartk.util.ViewUriUtil;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.Option;
-
-import de.bwaldvogel.liblinear.FeatureNode;
+import java.io.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_ImplBase {
  
@@ -965,11 +938,11 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
      */
     @Override
     public void process( final JCas jCas ) throws AnalysisEngineProcessException {
-      LOGGER.info( "Caching Document " + PatientNoteStore.getInstance().getDefaultDocumentId( jCas )
-              + " into Patient " + PatientNoteStore.getInstance().getDefaultPatientId( jCas ) + " ..." );
+       LOGGER.info( "Caching Document " + PatientNoteStore.getDefaultDocumentId( jCas )
+             + " into Patient " + PatientNoteStore.getDefaultPatientId( jCas ) + " ..." );
 
-      PatientNoteStore.getInstance().storeAllViews(PatientNoteStore.getInstance().getDefaultPatientId(jCas),
-              PatientNoteStore.getInstance().getDefaultDocumentId(jCas),
+       PatientNoteStore.getInstance().storeAllViews( PatientNoteStore.getDefaultPatientId( jCas ),
+             PatientNoteStore.getDefaultDocumentId( jCas ),
               jCas);
 
       LOGGER.info( "Finished." );
@@ -1025,23 +998,23 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
           if(docView.getViewName().equals(CAS.NAME_DEFAULT_SOFA) || !docView.getViewName().contains("Initial")) {
             continue;
           }
-          String pid = PatientNoteStore.getInstance().getDefaultPatientId(docView);
-          String docId = PatientNoteStore.getInstance().getDefaultDocumentId(docView);
+           String pid = PatientNoteStore.getDefaultPatientId( docView );
+           String docId = PatientNoteStore.getDefaultDocumentId( docView );
           sysParams[sysParams.length-2] = goldParams[goldParams.length-2] = CoreferenceChainScoringOutput.PARAM_APPEND;
           sysParams[sysParams.length-1] = goldParams[goldParams.length-1] = append;
           aed = AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
                   goldParams);
           agg.add(aed,
                   CAS.NAME_DEFAULT_SOFA,
-                  PatientNoteStore.getInstance().getInternalViewname(pid,docId,CAS.NAME_DEFAULT_SOFA),
+                PatientNoteStore.getInternalViewname( pid, docId, CAS.NAME_DEFAULT_SOFA ),
                   GOLD_VIEW_NAME,
-                  PatientNoteStore.getInstance().getInternalViewname(pid,docId,GOLD_VIEW_NAME));
+                PatientNoteStore.getInternalViewname( pid, docId, GOLD_VIEW_NAME ) );
 
           aed = AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
                   sysParams);
           agg.add(aed,
                   CAS.NAME_DEFAULT_SOFA,
-                  PatientNoteStore.getInstance().getInternalViewname(pid,docId,CAS.NAME_DEFAULT_SOFA));
+                PatientNoteStore.getInternalViewname( pid, docId, CAS.NAME_DEFAULT_SOFA ) );
           append=true;
         }
         SimplePipeline.runPipeline(patientJcas, agg.createAggregateDescription());
