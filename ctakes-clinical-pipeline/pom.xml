@@ -65,19 +65,7 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
-						<version>${exec-maven-plugin.version}</version>
-						<executions>
-							<execution>
-								<!-- depends on other modules being on classpath -->
-								<phase>compile</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-							</execution>
-						</executions>
 						<configuration>
-							<includeProjectDependencies>true</includeProjectDependencies>
-							<includePluginDependencies>true</includePluginDependencies>						
 							<mainClass>org.apache.uima.tools.cpm.CpmFrame</mainClass>
 							<arguments>
 								<argument />
@@ -108,20 +96,7 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
-						<version>${exec-maven-plugin.version}</version>
-						<executions>
-							<execution>
-								<!-- depends on other modules being on classpath -->
-								<phase>compile</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-							</execution>
-						</executions>
 						<configuration>
-							<includeProjectDependencies>true</includeProjectDependencies>
-							<includePluginDependencies>true</includePluginDependencies>
-
 							<mainClass>org.apache.uima.tools.cvd.CVD</mainClass>
 							<!-- Have to specify at least one parameter otherwise, CVD thinks 
 								it's an invalid param because MVN passes null when joining to the mvn thread -->
