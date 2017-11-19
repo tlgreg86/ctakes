@@ -22,7 +22,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>ctakes-assertion</artifactId>
-	<name>Apache cTAKES Assertion</name>
+	<name>Apache cTAKES Assertion</name>	
 	<parent>
 		<groupId>org.apache.ctakes</groupId>
 		<artifactId>ctakes</artifactId>
@@ -103,12 +103,12 @@
         <!--</dependency>-->
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
+			<artifactId>spring-core</artifactId>			
 		</dependency>
 		<!-- we excluded spring-context uimafit transitive dependency in the parent pom, include it here -->
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
+			<artifactId>spring-context</artifactId>			
 		</dependency>
 
 		<dependency>

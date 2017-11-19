@@ -33,7 +33,8 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
+
 
 public class DocumentSearchServiceImpl implements DocumentSearchService,
 		InitializingBean {
@@ -54,8 +55,8 @@ public class DocumentSearchServiceImpl implements DocumentSearchService,
 	}
 	private static final Log log = LogFactory
 			.getLog(DocumentSearchServiceImpl.class);
-	private DataSource dataSource;
-	private SimpleJdbcTemplate jdbcTemplate;
+	private DataSource dataSource;	
+	private JdbcTemplate jdbcTemplate;
 	private String query;
 
 	private Properties searchProperties;
@@ -185,8 +186,8 @@ public class DocumentSearchServiceImpl implements DocumentSearchService,
 	}
 
 	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-		this.jdbcTemplate = new SimpleJdbcTemplate(dataSource);
+		this.dataSource = dataSource;		
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
 
 	public void setSearchProperties(Properties searchProperties) {

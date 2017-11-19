@@ -55,7 +55,6 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -243,8 +242,7 @@ public class CorpusKernelEvaluatorImpl implements CorpusKernelEvaluator {
 
 	private double param1 = 0;
 
-	private String param2 = DBUtil.getEmptyString();
-	private SimpleJdbcTemplate simpleJdbcTemplate;
+	private String param2 = DBUtil.getEmptyString();	
 	private PlatformTransactionManager transactionManager;
 	private TreeMappingInfo treeMappingInfo;
 	private TransactionTemplate txTemplate;
@@ -458,8 +456,7 @@ public class CorpusKernelEvaluatorImpl implements CorpusKernelEvaluator {
 
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
-		this.simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);
+		this.jdbcTemplate = new JdbcTemplate(dataSource);		
 	}
 
 	public void setExperiment(String experiment) {
