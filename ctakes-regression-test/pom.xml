@@ -13,7 +13,6 @@
 		<dependency>
 			<groupId>org.apache.uima</groupId>
 			<artifactId>uimaj-cpe</artifactId>
-			<version>2.9.0</version>
 		</dependency>
 		<!--  Allow for use of example notes, example dictionaries, example models ...  -->
 		<dependency>
