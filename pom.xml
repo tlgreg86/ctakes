@@ -238,12 +238,17 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.uima</groupId>
-				<artifactId>uimaj-tools</artifactId>
+				<artifactId>uimaj-cpe</artifactId>
 				<version>${uimaj.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.uima</groupId>
 				<artifactId>uimaj-document-annotation</artifactId>
+				<version>${uimaj.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.uima</groupId>
+				<artifactId>uimaj-tools</artifactId>
 				<version>${uimaj.version}</version>
 			</dependency>
 			<dependency>
