@@ -40,7 +40,7 @@ import org.apache.uima.resource.ResourceInitializationException;
  */
 public abstract class NamedEntityContextAnalyzer implements ContextAnalyzer {
 
-	private Logger iv_logger = Logger.getLogger(getClass().getName());
+	private static final Logger logger = Logger.getLogger(NamedEntityContextAnalyzer.class);
 
 	private Set<String> _boundaryWordSet;
 
@@ -49,7 +49,7 @@ public abstract class NamedEntityContextAnalyzer implements ContextAnalyzer {
 	}
 
 	private void initBoundaryData() {
-		iv_logger.info("initBoundaryData() called for ContextInitializer");
+		logger.info("initBoundaryData() called for ContextInitializer");
 		_boundaryWordSet = new HashSet<String>();
 		_boundaryWordSet.add("but");
 		_boundaryWordSet.add("however");

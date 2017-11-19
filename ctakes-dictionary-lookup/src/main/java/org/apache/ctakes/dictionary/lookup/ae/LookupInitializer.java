@@ -34,10 +34,6 @@ import org.apache.uima.jcas.tcas.Annotation;
 /**
  * Defines how to initialize the LookupAnnotator.
  * 
- * NOTE: Constructor for implementation will be passed 2 arguments
- * 1.) AnnotatorContext for accessing external resources
- * 2.) Properties object for customization purposes.
- * 
  * @author Mayo Clinic
  */
 public interface LookupInitializer
@@ -54,8 +50,7 @@ public interface LookupInitializer
      * @return Iterator over LookupToken objects.
      * @throws AnnotatorInitializationException
      */
-    public Iterator<LookupToken> getLookupTokenIterator(JCas jcas)
-            throws AnnotatorInitializationException;
+    public Iterator<LookupToken> getLookupTokenIterator(JCas jcas) throws AnnotatorInitializationException;
 
     /**
      * Gets an iteration of windows. A window is used to scope which LookupToken

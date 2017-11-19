@@ -32,17 +32,9 @@ import java.util.Set;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.analysis_engine.ResultSpecification;
-import org.apache.uima.analysis_engine.annotator.AnnotatorConfigurationException;
-import org.apache.uima.analysis_engine.annotator.AnnotatorContext;
-import org.apache.uima.analysis_engine.annotator.AnnotatorContextException;
-import org.apache.uima.analysis_engine.annotator.AnnotatorInitializationException;
-import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
-import org.apache.uima.analysis_engine.annotator.JTextAnnotator_ImplBase;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.resource.ResourceInitializationException;
-
 
 import org.apache.ctakes.core.resource.FileResource;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;

@@ -224,15 +224,13 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	 * Performs initialization logic. This implementation just reads values for
 	 * the configuration parameters.
 	 * 
-	 * @see org.apache.uima.analysis_engine.annotator.BaseAnnotator#initialize(AnnotatorContext)
+	 * @see JCasAnnotator_ImplBase#initialize(UimaContext)
 	 */
 	@Override
-  public void initialize(UimaContext aContext)
-			throws ResourceInitializationException {
+  public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 
 		configInit();
-
 		try {
 			lvgCmd = lvgResource.getLvg();
 
@@ -250,7 +248,6 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 					logger.info("Loaded " + lemmaCacheMap.size() + " entries");
 				}
 			}
-
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}

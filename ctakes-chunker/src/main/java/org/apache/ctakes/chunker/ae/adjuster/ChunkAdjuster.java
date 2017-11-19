@@ -103,11 +103,10 @@ public class ChunkAdjuster extends JCasAnnotator_ImplBase {
 	 * the configuration parameters. This method is not invoked for every
 	 * document processed.
 	 *
-	 //	 * @see org.apache.uima.analysis_engine.annotator.BaseAnnotator#initialize(AnnotatorContext)
+	 * @see org.apache.uima.fit.component.JCasAnnotator_ImplBase#initialize(UimaContext)
 	 */
 	@Override
-  public void initialize(UimaContext aContext)
-			throws ResourceInitializationException {
+  public void initialize(UimaContext aContext) throws ResourceInitializationException {
 
 		super.initialize(aContext);
 
