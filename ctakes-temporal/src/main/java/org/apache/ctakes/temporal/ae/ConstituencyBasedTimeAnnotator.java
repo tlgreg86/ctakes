@@ -64,8 +64,7 @@ import java.util.*;
       dependencies = { PipeBitInfo.TypeProduct.SECTION, PipeBitInfo.TypeProduct.BASE_TOKEN,
                        PipeBitInfo.TypeProduct.TIMEX }
 )
-public class ConstituencyBasedTimeAnnotator extends
-TemporalEntityAnnotator_ImplBase {
+public class ConstituencyBasedTimeAnnotator extends TemporalEntityAnnotator_ImplBase {
 
   private static final String NON_MENTION = "NON_TIME_MENTION";
   private static final String MENTION = "TIME_MENTION";
