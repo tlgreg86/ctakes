@@ -24,7 +24,6 @@ import org.apache.ctakes.dictionary.lookup.DictionaryException;
 import org.apache.ctakes.dictionary.lookup.MetaDataHit;
 import org.apache.ctakes.dictionary.lookup.lucene.LuceneDictionaryImpl;
 import org.apache.log4j.Logger;
-import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.FSDirectory;
@@ -92,7 +91,7 @@ public class UmlsToSnomedLuceneConsumerImpl extends UmlsToSnomedConsumerImpl {
          // For the sample dictionary, we use the following lucene index.
          //indexPath = "lookup/snomed-like_codes_sample";
 
-         indexReader = DirectoryReader.open( FSDirectory.open( indexDir ) );
+         indexReader = IndexReader.open( FSDirectory.open( indexDir ) );
 
          IndexSearcher indexSearcher = new IndexSearcher( indexReader );
          String lookupFieldName = props.getProperty( CUI_MAPPING_PRP_KEY );

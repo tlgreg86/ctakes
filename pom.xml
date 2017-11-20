@@ -553,16 +553,12 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
-				<artifactId>
-					ctakes-assertion-zoner
-				</artifactId>
+				<artifactId>ctakes-assertion-zoner</artifactId>
 				<version>${ctakes.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.ctakes</groupId>
-				<artifactId>
-					ctakes-assertion-zoner-res
-				</artifactId>
+				<artifactId>ctakes-assertion-zoner-res</artifactId>
 				<version>${ctakes.version}</version>
 			</dependency>
 			<dependency>
@@ -851,8 +847,8 @@
 						    <additionalClasspathElement>ctakes-assertion-res/src/main/resources</additionalClasspathElement>						    
 						    <additionalClasspathElement>ctakes-assertion-zoner-res/src/main/resources</additionalClasspathElement>
 						    <additionalClasspathElement>ctakes-chunker-res/src/main/resources</additionalClasspathElement>
-                     <additionalClasspathElement>ctakes-clinical-pipeline-res/src/main/resources</additionalClasspathElement>
-                     <additionalClasspathElement>ctakes-constituency-parser-res/src/main/resources</additionalClasspathElement>
+                     		<additionalClasspathElement>ctakes-clinical-pipeline-res/src/main/resources</additionalClasspathElement>
+                     		<additionalClasspathElement>ctakes-constituency-parser-res/src/main/resources</additionalClasspathElement>
 						    <additionalClasspathElement>ctakes-core-res/src/main/resources</additionalClasspathElement>
 						    <additionalClasspathElement>ctakes-coreference-res/src/main/resources</additionalClasspathElement>
 						    <additionalClasspathElement>ctakes-dependency-parser-res/src/main/resources</additionalClasspathElement>	
