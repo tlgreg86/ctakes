@@ -51,7 +51,7 @@ public class CreateLuceneIndexForExampleDrugs {
 
 		// Name of the lucene index directory to be created 
 		File indexDir = new File("C:/general_workspace/ctakes-dictionary-lookup/resources/lookup/drug_index");//C:/temp/lucene/" + "drug-index";
-		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_30);
+		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
 		boolean createFlag = true;
 
 		IndexWriter writer = new IndexWriter(FSDirectory.open(indexDir), analyzer, createFlag, IndexWriter.MaxFieldLength.LIMITED);
@@ -74,16 +74,21 @@ public class CreateLuceneIndexForExampleDrugs {
 				System.out.println("s= " + s);			
 			}
 			Document document = new Document();
-			document.add(new Field("UNIQUE_DOCUMENT_IDENTIFIER_FIELD", t[i], Field.Store.YES,
-					Field.Index.NO));i++;//Field.Keyword("UNIQUE_DOCUMENT_IDENTIFIER_FIELD", t[i])); i++;
-			document.add(new Field("code", t[i], Field.Store.YES,
-					Field.Index.NO));i++;//Field.Keyword("code", t[i])); i++;
-			document.add(new Field("codeTokenized", t[i], Field.Store.YES,
-					Field.Index.ANALYZED));i++;//Field.Text("codeTokenized", t[i])); i++;
-			document.add(new Field("first_word", t[i], Field.Store.YES,
-					Field.Index.ANALYZED));i++;//Field.Text("first_word", t[i])); i++;
-			document.add(new Field("preferred_designation", t[i], Field.Store.YES,
-					Field.Index.ANALYZED));i++;//Field.Text("preferred_designation", t[i])); i++;
+			//Field.Keyword("UNIQUE_DOCUMENT_IDENTIFIER_FIELD", t[i])); i++;
+			document.add(new Field("UNIQUE_DOCUMENT_IDENTIFIER_FIELD", t[i], Field.Store.YES, Field.Index.NO));
+			i++;
+			//Field.Keyword("code", t[i])); i++;
+			document.add(new Field("code", t[i], Field.Store.YES, Field.Index.NO));
+			i++;
+			//Field.Text("codeTokenized", t[i])); i++;
+			document.add(new Field("codeTokenized", t[i], Field.Store.YES, Field.Index.ANALYZED));
+			i++;
+			//Field.Text("first_word", t[i])); i++;
+			document.add(new Field("first_word", t[i], Field.Store.YES, Field.Index.ANALYZED));
+			i++;
+			//Field.Text("preferred_designation", t[i])); i++;
+			document.add(new Field("preferred_designation", t[i], Field.Store.YES, Field.Index.ANALYZED));
+			i++;
 			tcount++;
 			writer.addDocument(document);
 		}

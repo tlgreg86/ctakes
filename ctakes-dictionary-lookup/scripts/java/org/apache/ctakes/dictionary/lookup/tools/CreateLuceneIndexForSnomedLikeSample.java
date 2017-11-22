@@ -65,8 +65,8 @@ public class CreateLuceneIndexForSnomedLikeSample {
 		File indexDir = new File("C:/temp/lucene/" + "snomed-like_sample"); // lookup by first_word, results contain UMLS CUIs
 		File indexDir2 = new File("C:/temp/lucene/" + "snomed-like_codes_sample"); // for getting snomed codes for a CUI
 		
-		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_30);
-		Analyzer analyzer2 = new StandardAnalyzer(Version.LUCENE_30);
+		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
+		Analyzer analyzer2 = new StandardAnalyzer(Version.LUCENE_40);
 		boolean createFlag = true;
 
 		IndexWriter writer = new IndexWriter(FSDirectory.open(indexDir), analyzer, createFlag, IndexWriter.MaxFieldLength.LIMITED);
@@ -87,29 +87,29 @@ public class CreateLuceneIndexForSnomedLikeSample {
 				System.out.println("s= " + s);
 			}
 			Document document = new Document();
-			document.add(new Field("UNIQUE_DOCUMENT_IDENTIFIER_FIELD", t[i], Field.Store.YES,
-					Field.Index.NO));//Field.Keyword("UNIQUE_DOCUMENT_IDENTIFIER_FIELD", t[i]));
+			//Field.Keyword("UNIQUE_DOCUMENT_IDENTIFIER_FIELD", t[i]));
+			document.add(new Field("UNIQUE_DOCUMENT_IDENTIFIER_FIELD", t[i], Field.Store.YES, Field.Index.NO));
 			i++;
-			document.add(new Field("cui", t[i], Field.Store.YES,
-					Field.Index.NO));//Field.Keyword("cui", t[i]));
+			//Field.Keyword("cui", t[i]));
+			document.add(new Field("cui", t[i], Field.Store.YES, Field.Index.NO));
 			i++;
-			document.add(new Field("first_word", t[i], Field.Store.YES,
-					Field.Index.ANALYZED));//Field.Text("first_word", t[i]));
+			//Field.Text("first_word", t[i]));
+			document.add(new Field("first_word", t[i], Field.Store.YES, Field.Index.ANALYZED));
 			i++;
-			document.add(new Field("text", t[i], Field.Store.YES,
-					Field.Index.ANALYZED));//Field.Text("text", t[i]));
+			//Field.Text("text", t[i]));
+			document.add(new Field("text", t[i], Field.Store.YES, Field.Index.ANALYZED));
 			i++;
-			document.add(new Field("oid", t[i], Field.Store.YES,
-					Field.Index.ANALYZED));//Field.Text("oid", t[i]));
+			//Field.Text("oid", t[i]));
+			document.add(new Field("oid", t[i], Field.Store.YES, Field.Index.ANALYZED));
 			i++;
-			document.add(new Field("oui", t[i], Field.Store.YES,
-					Field.Index.ANALYZED));//Field.Text("oui", t[i]));
+			//Field.Text("oui", t[i]));
+			document.add(new Field("oui", t[i], Field.Store.YES, Field.Index.ANALYZED));
 			i++;
-			document.add(new Field("termStatus", t[i], Field.Store.YES,
-					Field.Index.ANALYZED));//Field.Text("termStatus", t[i]));
+			//Field.Text("termStatus", t[i]));
+			document.add(new Field("termStatus", t[i], Field.Store.YES, Field.Index.ANALYZED));
 			i++;
-			document.add(new Field("tui", t[i], Field.Store.YES,
-					Field.Index.ANALYZED));//Field.Text("tui", t[i]));
+			//Field.Text("tui", t[i]));
+			document.add(new Field("tui", t[i], Field.Store.YES, Field.Index.ANALYZED));
 			i++;
 
 			tcount++;
@@ -136,17 +136,17 @@ public class CreateLuceneIndexForSnomedLikeSample {
 				System.out.println("s= " + s);
 			}
 			Document document = new Document();
-			document.add(new Field("UNIQUE_DOCUMENT_IDENTIFIER_FIELD", t[i], Field.Store.YES,
-					Field.Index.NO));//Field.Keyword("UNIQUE_DOCUMENT_IDENTIFIER_FIELD", t[i]));
+			//Field.Keyword("UNIQUE_DOCUMENT_IDENTIFIER_FIELD", t[i]));
+			document.add(new Field("UNIQUE_DOCUMENT_IDENTIFIER_FIELD", t[i], Field.Store.YES, Field.Index.NO));
 			i++;
-			document.add(new Field("cui", t[i], Field.Store.YES,
-					Field.Index.NOT_ANALYZED)); // allow upper case input on search
+			// allow upper case input on search
+			document.add(new Field("cui", t[i], Field.Store.YES, Field.Index.NOT_ANALYZED));
 			i++;
-			document.add(new Field("code", t[i], Field.Store.YES,
-					Field.Index.ANALYZED));//Field.Text("code", t[i]));
+			//Field.Text("code", t[i]));
+			document.add(new Field("code", t[i], Field.Store.YES, Field.Index.ANALYZED));
 			i++;
-			document.add(new Field("termStatus", t[i], Field.Store.YES,
-					Field.Index.ANALYZED));//Field.Text("termStatus", t[i]));
+			//Field.Text("termStatus", t[i]));
+			document.add(new Field("termStatus", t[i], Field.Store.YES, Field.Index.ANALYZED));
 			i++;
 
 			tcount++;

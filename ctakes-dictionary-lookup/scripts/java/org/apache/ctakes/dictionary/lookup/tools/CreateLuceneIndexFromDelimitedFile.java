@@ -85,7 +85,7 @@ public class CreateLuceneIndexFromDelimitedFile {
 	 */
 	public CreateLuceneIndexFromDelimitedFile(TokenizerPTB tokenizer)
 			throws Exception {
-		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_30);
+		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
 		String defaultLoc = new File(directoryOfDelimitedFiles)
 				.getAbsolutePath();
 		boolean error = false;

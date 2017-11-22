@@ -115,27 +115,6 @@ public class WikiIndex {
   	return articleTitles;
   }
   
-//  	Document doc = indexSearcher.doc(scoreDoc.doc);
-//  	String redirectTitle = doc.get("redirect"); 
-//  	
-//  	// check if there is a redirect
-//  	if(redirectTitle == null) {
-//  		return scoreDoc; 
-//  	} else {
-//			QueryParser redirectQueryParser = new QueryParser(Version.LUCENE_30, "title", standardAnalyzer);
-//			
-//			String redirectTitleNoUnderscores = redirectTitle.replaceAll("_", " ");
-//			String redirectTitleQuoted = '"' + redirectTitleNoUnderscores + '"';
-//			String redirectTitleEscaped = QueryParser.escape(redirectTitleQuoted);
-//			Query redirectQuery  = redirectQueryParser.parse(redirectTitleEscaped);
-//			
-//			ScoreDoc[] redirectScoreDocs = indexSearcher.search(redirectQuery, null, 1).scoreDocs; 
-//			ScoreDoc redirectScoreDoc = redirectScoreDocs[0];
-//			
-//			return redirectScoreDoc;
-//  	}
-//  }
-  
   /**
    * Send two queries to the index.
    * For each query, form a tfidf vector that represents N top matching documents.
@@ -287,7 +266,7 @@ public class WikiIndex {
   		return scoreDoc; 
   	}
   	
-  	QueryParser redirectQueryParser = new QueryParser(Version.LUCENE_30, "title", standardAnalyzer);
+  	QueryParser redirectQueryParser = new QueryParser(Version.LUCENE_40, "title", standardAnalyzer);
 
   	String redirectTitleNoUnderscores = redirectTitle.replaceAll("_", " ");
   	String redirectTitleQuoted = '"' + redirectTitleNoUnderscores + '"';
