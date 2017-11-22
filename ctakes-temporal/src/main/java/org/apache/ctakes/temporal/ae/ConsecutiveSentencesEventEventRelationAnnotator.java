@@ -47,7 +47,7 @@ public class ConsecutiveSentencesEventEventRelationAnnotator extends RelationExt
 			Class<? extends DataWriter<String>> dataWriterClass,
 					File outputDirectory,
 					double probabilityOfKeepingANegativeExample) throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				ConsecutiveSentencesEventEventRelationAnnotator.class,
 				CleartkAnnotator.PARAM_IS_TRAINING,
 				true,
@@ -62,7 +62,7 @@ public class ConsecutiveSentencesEventEventRelationAnnotator extends RelationExt
 
 	public static AnalysisEngineDescription createAnnotatorDescription(File modelDirectory)
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(
+		return AnalysisEngineFactory.createEngineDescription(
 				ConsecutiveSentencesEventEventRelationAnnotator.class,
 				CleartkAnnotator.PARAM_IS_TRAINING,
 				false,
