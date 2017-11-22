@@ -19,8 +19,6 @@
 package org.apache.ctakes.ytex;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
@@ -33,33 +31,27 @@ import org.apache.ctakes.ytex.kernel.metric.ConceptPairSimilarity;
 import org.apache.ctakes.ytex.kernel.metric.ConceptSimilarityService;
 import org.apache.ctakes.ytex.kernel.metric.ConceptSimilarityService.SimilarityMetricEnum;
 import org.apache.ctakes.ytex.kernel.model.ConceptGraph;
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.util.Assert;
+
+import static org.junit.Assert.*;
 
 public class ConceptDaoTest {
 	ConceptDao conceptDao;
 	ApplicationContext appCtx;
 
+	static private final Logger LOGGER = Logger.getLogger(ConceptDaoTest.class);
+
 	@Before
 	public void setUp() throws Exception {
-		// ClassLoader cl = ClassLoader.getSystemClassLoader();
-		//
-		// URL[] urls = ((URLClassLoader)cl).getURLs();
-		//
-		// for(URL url: urls){
-		// System.out.println(url.getFile());
-		// }
-		// URL is =
-		// this.getClass().getClassLoader().getResource("org/apache/ctakes/ytex/kernelBeanRefContext.xml");
-		// System.out.println(is);
 		appCtx = (ApplicationContext) ContextSingletonBeanFactoryLocator
-				.getInstance(
-						"classpath*:org/apache/ctakes/ytex/kernelBeanRefContext.xml")
+				.getInstance("classpath*:org/apache/ctakes/ytex/kernelBeanRefContext.xml")
 				.useBeanFactory("kernelApplicationContext").getFactory();
 		conceptDao = appCtx.getBean(ConceptDao.class);
 		JdbcTemplate jdbcTemplate = new JdbcTemplate();
@@ -70,8 +62,7 @@ public class ConceptDaoTest {
 		if ("hsql".equals(dbtype) || "mysql".equals(dbtype))
 			jdbcTemplate.execute("drop table if exists test_concepts");
 		if ("mssql".equals(dbtype))
-			jdbcTemplate
-					.execute("if exists(select * from sys.objects where object_id = object_id('test_concepts')) drop table test_concepts");
+			jdbcTemplate.execute("if exists(select * from sys.objects where object_id = object_id('test_concepts')) drop table test_concepts");
 		if ("orcl".equals(dbtype)) {
 			// just try dropping the table, catch exception and hope all is well
 			try {
@@ -80,26 +71,19 @@ public class ConceptDaoTest {
 
 			}
 		}
-		jdbcTemplate
-				.execute("create table test_concepts(parent varchar(20), child varchar(20))");
-		jdbcTemplate
-				.execute("insert into test_concepts values ('root', 'animal')");
-		jdbcTemplate
-				.execute("insert into test_concepts values ('animal', 'vertebrate')");
-		jdbcTemplate
-				.execute("insert into test_concepts values ('vertebrate', 'cat')");
-		jdbcTemplate
-				.execute("insert into test_concepts values ('vertebrate', 'dog')");
-		jdbcTemplate
-				.execute("insert into test_concepts values ('root', 'bacteria')");
-		jdbcTemplate
-				.execute("insert into test_concepts values ('bacteria', 'e coli')");
-		System.out.println("Create concept graph");
+		jdbcTemplate.execute("create table test_concepts(parent varchar(20), child varchar(20))");
+		jdbcTemplate.execute("insert into test_concepts values ('root', 'animal')");
+		jdbcTemplate.execute("insert into test_concepts values ('animal', 'vertebrate')");
+		jdbcTemplate.execute("insert into test_concepts values ('vertebrate', 'cat')");
+		jdbcTemplate.execute("insert into test_concepts values ('vertebrate', 'dog')");
+		jdbcTemplate.execute("insert into test_concepts values ('root', 'bacteria')");
+		jdbcTemplate.execute("insert into test_concepts values ('bacteria', 'e coli')");
+		LOGGER.info("Create concept graph");
 		conceptDao.createConceptGraph(null, "test",
 				"select child, parent from test_concepts", true,
 				Collections.EMPTY_SET);
 		ConceptGraph cg = conceptDao.getConceptGraph("test");
-		Assert.notNull(cg);
+		assertNotNull(cg);
 		((ConfigurableApplicationContext) appCtx).close();
 	}
 
@@ -124,10 +108,8 @@ public class ConceptDaoTest {
 				Arrays.asList(SimilarityMetricEnum.PATH,
 						SimilarityMetricEnum.INTRINSIC_PATH), "dog", "e coli",
 				null, false);
-		Assert.isTrue(simDogCat.getSimilarities().get(0) > simDogEColi
-				.getSimilarities().get(0));
-		Assert.isTrue(simDogCat.getSimilarities().get(1) > simDogEColi
-				.getSimilarities().get(1));
+		assertTrue(simDogCat.getSimilarities().get(0) > simDogEColi.getSimilarities().get(0));
+		assertTrue(simDogCat.getSimilarities().get(1) > simDogEColi.getSimilarities().get(1));
 	}
 
 }
