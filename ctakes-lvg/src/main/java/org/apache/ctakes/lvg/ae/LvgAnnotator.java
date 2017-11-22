@@ -117,7 +117,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	@ConfigurationParameter(
 	    name = PARAM_LEMMA_CACHE_FILE_LOCATION,
 	    mandatory = false,
-	    defaultValue = "/org/apache/ctakes/lvg/2005_lemma.voc",
+	    defaultValue = "org/apache/ctakes/lvg/2005_lemma.voc",
 	    description = "Path to lemma cache file -- if useLemmaCache and postLemmas are true"
 	    )
   private String lemmaCacheFileLocation=null;
@@ -176,7 +176,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 	@ConfigurationParameter(
 	    name = PARAM_CMD_CACHE_FILE,
 	    mandatory = false,
-	    defaultValue = "/org/apache/ctakes/lvg/2005_norm.voc",
+	    defaultValue = "org/apache/ctakes/lvg/2005_norm.voc",
 	    description = "File with stored cache of canonical forms"
 	    )
   private String cmdCacheFileLocation;
