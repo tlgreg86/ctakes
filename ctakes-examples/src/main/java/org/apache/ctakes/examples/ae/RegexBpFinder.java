@@ -10,6 +10,7 @@ import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Pattern;
@@ -34,11 +35,6 @@ final public class RegexBpFinder extends JCasAnnotator_ImplBase {
 
    static private final String BP_VALUES = "\\d{2,3} ?\\/ ?\\d{2,3}\\b";
 
-   static private final RegexSpanFinder BP_SPAN_FINDER
-         = new RegexSpanFinder( BP_TRIGGER + BP_VALUES );
-
-   static private final RegexSpanFinder VIT_SPAN_FINDER
-         = new RegexSpanFinder( VIT_BP_TRIGGER, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE, 1000 );
 
    /**
     * {@inheritDoc}
@@ -64,7 +60,12 @@ final public class RegexBpFinder extends JCasAnnotator_ImplBase {
          logBloodPressure( sectionText );
          return;
       }
-      final Collection<Pair<Integer>> spans = VIT_SPAN_FINDER.findSpans( sectionText );
+      Collection<Pair<Integer>> spans = new ArrayList<>();
+      try ( RegexSpanFinder finder = new RegexSpanFinder( VIT_BP_TRIGGER, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE, 1000 ) ) {
+         spans.addAll( finder.findSpans( sectionText ) );
+      } catch ( IllegalArgumentException iaE ) {
+         LOGGER.error( iaE.getMessage() );
+      }
       for ( Pair<Integer> span : spans ) {
          final int eol = sectionText.indexOf( '\n', span.getValue2() );
          if ( eol < 0 ) {
@@ -76,7 +77,13 @@ final public class RegexBpFinder extends JCasAnnotator_ImplBase {
    }
 
    static private void logBloodPressure( final String text ) {
-      final Collection<String> values = BP_SPAN_FINDER.findSpans( text ).stream()
+      Collection<Pair<Integer>> spans = new ArrayList<>();
+      try ( RegexSpanFinder finder = new RegexSpanFinder( BP_TRIGGER + BP_VALUES ) ) {
+         spans.addAll( finder.findSpans( text ) );
+      } catch ( IllegalArgumentException iaE ) {
+         LOGGER.error( iaE.getMessage() );
+      }
+      final Collection<String> values = spans.stream()
             // switch from spans to text
             .map( p -> text.substring( p.getValue1(), p.getValue2() ) )
             // get rid of the bp trigger word
@@ -89,16 +96,5 @@ final public class RegexBpFinder extends JCasAnnotator_ImplBase {
          values.forEach( LOGGER::info );
       }
    }
-
-   /**
-    * Close the RegexSpanFinder when the run is complete, otherwise a thread will wait forever
-    */
-   @Override
-   public void collectionProcessComplete() throws org.apache.uima.analysis_engine.AnalysisEngineProcessException {
-      BP_SPAN_FINDER.close();
-      VIT_SPAN_FINDER.close();
-      super.collectionProcessComplete();
-   }
-
 
 }
