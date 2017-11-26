@@ -1,6 +1,7 @@
 package org.apache.ctakes.gui.pipeline;
 
 
+import org.apache.ctakes.core.pipeline.PipeBitLocator;
 import org.apache.ctakes.core.pipeline.PiperFileReader;
 import org.apache.ctakes.core.pipeline.PiperFileRunner;
 import org.apache.ctakes.core.resource.FileLocator;
@@ -352,7 +353,7 @@ final public class PiperRunnerPanel extends JPanel {
             }
          } else if ( line.startsWith( "package " ) && line.length() > 9 ) {
             final String packagePath = line.substring( 8 );
-            reader.addUserPackage( packagePath );
+            PipeBitLocator.getInstance().addUserPackage( packagePath );
          } else if ( line.startsWith( "load " ) && line.length() > 6 ) {
             final String filePath = line.substring( 5 ).trim();
             final String subText = loadPiperText( reader, filePath );
