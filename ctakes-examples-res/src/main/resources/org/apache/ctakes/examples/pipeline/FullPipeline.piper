@@ -1,6 +1,6 @@
 
 // Advanced Tokenization: Regex sectionization, BIO Sentence Detector (lumper), Paragraphs, Lists
-load AdvancedTokenizerPipeline
+load FullTokenizerPipeline
 // OR use the standard tokenizer pipeline:
 //load DefaultTokenizerPipeline
 

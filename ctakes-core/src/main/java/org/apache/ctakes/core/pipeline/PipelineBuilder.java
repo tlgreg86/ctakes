@@ -54,9 +54,6 @@ final public class PipelineBuilder {
    private AnalysisEngineDescription _analysisEngineDesc;
    private boolean _pipelineChanged;
    private int _threadCount = 1;
-//    Full Pipeline, single: 5.53/4.19  4.53/4.03  4.56/4.06  4:45/4.03
-//    Full Pipeline, 2 proc: 5.23/3.16  3.59/2.55  4.01/2.55  4.00/2.55
-//    Full Pipeline, 3 proc: 4:20/2.49  3:49/2:44  3.46/2.36  3.44/2.43
 
    public PipelineBuilder() {
       _aeNameList = new ArrayList<>();
