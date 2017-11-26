@@ -46,7 +46,7 @@ History Source||^[\t ]*(?:HISTORY|HX) (?:SOURCES?|(?:(?:OBTAIN(?:ED)?(?: FROM)?)
 Current Pregnancy||^[\t ]*CURRENT PREGNANCY[\t ]*:?[\t ]*$
 Special Procedures||^[\t ]*SPECIAL PROCEDURES?[\t ]*:?[\t ]*$
 Operative Findings||^[\t ]*OPERATIVE FINDINGS?[\t ]*:?[\t ]*$
-Fluid Balance||^[\t ]*(?:FLUID BALANCE)|(?:I(?:NPUT)? ?\/? ?O(?:UTPUT)?)[\t ]*:?[\t ]*$
+Fluid Balance||^[\t ]*(?:(?:FLUID BALANCE)|(?:I(?:NPUT)? ?\/? ?O(?:UTPUT)?))[\t ]*:?[\t ]*$
 Blood Pressure||^[\t ]*(?:BLOOD PRESSURE|BP)[\t ]*:?[\t ]*$
 Post Procedure Diagnosis||^[\t ]*POST\-?(?:PROCEDURE|OP|OPERATIVE) DIAGNOSIS[\t ]*:?[\t ]*$
 Final Diagnosis||^[\t ]*FINAL DIAGNOSIS[\t ]*:?[\t ]*$

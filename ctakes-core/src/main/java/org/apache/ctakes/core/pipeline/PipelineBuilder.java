@@ -9,14 +9,18 @@ import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_component.AnalysisComponent;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.collection.metadata.CpeDescriptorException;
+import org.apache.uima.fit.cpe.CpeBuilder;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,7 +53,10 @@ final public class PipelineBuilder {
    // Allow the pipeline to be changed even after it has been built once.
    private AnalysisEngineDescription _analysisEngineDesc;
    private boolean _pipelineChanged;
-
+   private int _threadCount = 1;
+//    Full Pipeline, single: 5.53/4.19  4.53/4.03  4.56/4.06  4:45/4.03
+//    Full Pipeline, 2 proc: 5.23/3.16  3.59/2.55  4.01/2.55  4.00/2.55
+//    Full Pipeline, 3 proc: 4:20/2.49  3:49/2:44  3.46/2.36  3.44/2.43
 
    public PipelineBuilder() {
       _aeNameList = new ArrayList<>();
@@ -58,6 +65,7 @@ final public class PipelineBuilder {
       _aeEndNameList = new ArrayList<>();
       _aeEndViewList = new ArrayList<>();
       _descEndList = new ArrayList<>();
+      _threadCount = 1;
    }
 
    public void clear() {
@@ -67,6 +75,7 @@ final public class PipelineBuilder {
       _aeEndNameList.clear();
       _aeEndViewList.clear();
       _descEndList.clear();
+      _threadCount = 1;
    }
 
    /**
@@ -305,6 +314,25 @@ final public class PipelineBuilder {
             ConfigParameterConstants.PARAM_OUTPUTDIR, outputDirectory );
    }
 
+   public PipelineBuilder threads( final int threadCount ) {
+      if ( threadCount <= 1 ) {
+         if ( threadCount < 1 ) {
+            LOGGER.warn( "Thread count (" + threadCount + ") cannot be below 1.  Using 1 thread for processing." );
+         }
+         _threadCount = 1;
+         return this;
+      }
+      final int coreCount = Runtime.getRuntime().availableProcessors();
+      if ( threadCount > coreCount ) {
+         LOGGER.warn( "Thread count (" + threadCount + ") is greater than core count ("
+               + coreCount + ").  Using core count for processing." );
+         _threadCount = coreCount;
+         return this;
+      }
+      _threadCount = threadCount;
+      return this;
+   }
+
    /**
     * Initialize a pipeline that can be used repeatedly using {@link #run} and {@link #run(String)}.
     * A pipeline can be extended between builds, but the full pipeline will be rebuilt on each call.
@@ -322,8 +350,6 @@ final public class PipelineBuilder {
          for ( int i = 0; i < _descEndList.size(); i++ ) {
             builder.add( _descEndList.get( i ), _aeEndViewList.get( i ) );
          }
-//         _descList.forEach( builder::add );
-//         _descEndList.forEach( builder::add );
          _analysisEngineDesc = builder.createAggregateDescription();
       }
       _pipelineChanged = false;
@@ -345,7 +371,21 @@ final public class PipelineBuilder {
          return this;
       }
       build();
-      SimplePipeline.runPipeline( _readerDesc, _analysisEngineDesc );
+      if ( _threadCount == 1 ) {
+         SimplePipeline.runPipeline( _readerDesc, _analysisEngineDesc );
+      } else {
+         final CpeBuilder cpeBuilder = new CpeBuilder();
+         try {
+            cpeBuilder.setReader( _readerDesc );
+            cpeBuilder.setAnalysisEngine( _analysisEngineDesc );
+            cpeBuilder.setMaxProcessingUnitThreadCount( _threadCount );
+            final CollectionProcessingEngine cpe = cpeBuilder.createCpe( null );
+            cpe.process();
+         } catch ( CpeDescriptorException | SAXException multE ) {
+            LOGGER.error( multE.getMessage(), multE );
+            throw new UIMAException( multE );
+         }
+      }
       return this;
    }
 

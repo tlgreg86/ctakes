@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -83,7 +84,7 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
    static private final String CSS_FILENAME = "ctakes.pretty.css";
    static private final String JS_FILENAME = "ctakes.pretty.js";
 
-   private final Collection<String> _usedDirectories = new HashSet<>();
+   static private final Collection<String> _usedDirectories = ConcurrentHashMap.newKeySet();
 
    /**
     * {@inheritDoc}
@@ -93,13 +94,14 @@ final public class HtmlTextWriter extends AbstractOutputFileWriter {
                           final String outputDir,
                           final String documentId,
                           final String fileName ) throws IOException {
-      if ( _usedDirectories.add( outputDir ) ) {
-         final String cssPath = outputDir + '/' + CSS_FILENAME;
-         CssWriter.writeCssFile( cssPath );
-         final String jsPath = outputDir + '/' + JS_FILENAME;
-         JsWriter.writeJsFile( jsPath );
+      synchronized (_usedDirectories) {
+         if ( _usedDirectories.add( outputDir ) ) {
+            final String cssPath = outputDir + '/' + CSS_FILENAME;
+            CssWriter.writeCssFile( cssPath );
+            final String jsPath = outputDir + '/' + JS_FILENAME;
+            JsWriter.writeJsFile( jsPath );
+         }
       }
-
       final File htmlFile = new File( outputDir, fileName + FILE_EXTENSION );
       LOGGER.info( "Writing HTML to " + htmlFile.getPath() + " ..." );
       try ( final BufferedWriter writer = new BufferedWriter( new FileWriter( htmlFile ) ) ) {

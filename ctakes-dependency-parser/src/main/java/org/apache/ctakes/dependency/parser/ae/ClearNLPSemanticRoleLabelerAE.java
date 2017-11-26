@@ -18,11 +18,9 @@
  */
 package org.apache.ctakes.dependency.parser.ae;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.googlecode.clearnlp.component.AbstractComponent;
+import com.googlecode.clearnlp.dependency.*;
+import com.googlecode.clearnlp.reader.AbstractReader;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.dependency.parser.ae.shared.SRLSharedParserModel;
@@ -52,13 +50,10 @@ import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import com.googlecode.clearnlp.component.AbstractComponent;
-import com.googlecode.clearnlp.dependency.DEPArc;
-import com.googlecode.clearnlp.dependency.DEPFeat;
-import com.googlecode.clearnlp.dependency.DEPLib;
-import com.googlecode.clearnlp.dependency.DEPNode;
-import com.googlecode.clearnlp.dependency.DEPTree;
-import com.googlecode.clearnlp.reader.AbstractReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *This class provides a UIMA wrapper for the ClearNLP Semantic Role Labeler, which is
@@ -105,14 +100,14 @@ public class ClearNLPSemanticRoleLabelerAE extends JCasAnnotator_ImplBase {
    public static final String SRL_ROLE_MODEL_KEY = "SrlRoleModel";
    @ExternalResource(key = SRL_ROLE_MODEL_KEY, mandatory=false)
    private SRLSharedRoleModel roleModel=null;
-   
-   private static ExternalResourceDescription defaultParserResource = ExternalResourceFactory.createExternalResourceDescription(
+
+   protected static ExternalResourceDescription defaultParserResource = ExternalResourceFactory.createExternalResourceDescription(
        SRLSharedParserModel.class, 
        SRLSharedParserModel.DEFAULT_SRL_MODEL_FILE_NAME);
-   private static ExternalResourceDescription defaultPredictionResource = ExternalResourceFactory.createExternalResourceDescription(
+   protected static ExternalResourceDescription defaultPredictionResource = ExternalResourceFactory.createExternalResourceDescription(
        SRLSharedPredictionModel.class, 
        SRLSharedPredictionModel.DEFAULT_PRED_MODEL_FILE_NAME);
-   private static ExternalResourceDescription defaultRoleResource = ExternalResourceFactory.createExternalResourceDescription(
+   protected static ExternalResourceDescription defaultRoleResource = ExternalResourceFactory.createExternalResourceDescription(
        SRLSharedRoleModel.class, 
        SRLSharedRoleModel.DEFAULT_ROLE_MODEL_FILE_NAME);
    

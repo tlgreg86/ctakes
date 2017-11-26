@@ -21,6 +21,9 @@ import org.apache.uima.util.ProgressImpl;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -300,6 +303,7 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
     * @throws IOException if the file could not be read
     */
    private String readFile( final File file ) throws IOException {
+      LOGGER.info( "Reading " + file.getPath() );
       try {
          return readByPath( file );
       } catch ( IOException ioE ) {
@@ -324,12 +328,19 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
             return stream.collect( Collectors.joining( "\n" ) );
          }
       } else {
-         try ( Stream<String> stream = Files.lines( file.toPath() ) ) {
-            return stream.collect( Collectors.joining( "\n" ) );
-         }
+         return safeReadByPath( file );
+//         try ( Stream<String> stream = Files.lines( file.toPath() ) ) {
+//            return stream.collect( Collectors.joining( "\n" ) );
+//         }
       }
    }
 
+   static private String safeReadByPath( final File file ) throws IOException {
+      final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder().onMalformedInput( CodingErrorAction.IGNORE );
+      try ( BufferedReader reader = new BufferedReader( new InputStreamReader( Files.newInputStream( file.toPath() ), decoder ) ) ) {
+         return reader.lines().collect( Collectors.joining( "\n" ) );
+      }
+   }
 
    /**
     * Reads file using buffered input stream

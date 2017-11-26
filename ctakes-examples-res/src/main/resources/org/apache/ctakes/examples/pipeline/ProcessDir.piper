@@ -14,7 +14,8 @@ addDescription POSTagger
 //addDescription LvgAnnotator
 addDescription ThreadSafeLvg
 
-add DefaultJCasTermAnnotator
+// Default fast dictionary lookup
+load DictionarySubPipe.piper
 
 // Add Named Entity Context Entity Attribute annotators
 load NeContextsSubPipe.piper

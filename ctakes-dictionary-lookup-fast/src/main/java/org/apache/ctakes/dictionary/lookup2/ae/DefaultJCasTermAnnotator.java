@@ -45,7 +45,7 @@ import java.util.List;
       dependencies = { PipeBitInfo.TypeProduct.SENTENCE, PipeBitInfo.TypeProduct.BASE_TOKEN },
       products = PipeBitInfo.TypeProduct.IDENTIFIED_ANNOTATION
 )
-final public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
+public class DefaultJCasTermAnnotator extends AbstractJCasTermAnnotator {
 
    /**
     * {@inheritDoc}

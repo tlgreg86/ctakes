@@ -44,7 +44,7 @@ public class BsvRegexSectionizer extends RegexSectionizer {
     * {@inheritDoc}
     */
    @Override
-   protected void loadSections() throws ResourceInitializationException {
+   synchronized protected void loadSections() throws ResourceInitializationException {
       if ( _sectionTypesPath == null ) {
          LOGGER.error( "No " + SECTION_TYPES_DESC );
          return;

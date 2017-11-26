@@ -13,7 +13,7 @@ addDescription POSTagger
 set ctakes.umlsuser=CHANGE_ME ctakes.umlspw=CHANGE_ME
 
 // Default fast dictionary lookup
-add DefaultJCasTermAnnotator
+load DictionarySubPipe.piper
 
 // Collect discovered UMLS Concept Unique Identifiers (CUI) for post-run information
 collectCuis

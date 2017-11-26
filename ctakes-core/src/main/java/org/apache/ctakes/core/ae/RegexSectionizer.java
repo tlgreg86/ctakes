@@ -15,7 +15,6 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,7 +49,7 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
    static private final String DEFAULT_SEGMENT_ID = "SIMPLE_SEGMENT";
    static private final String SECTION_NAME_EX = "SECTION_NAME";
    static public final String DIVIDER_LINE_NAME = "DIVIDER_LINE";
-   static private final Pattern DIVIDER_LINE_PATTERN = Pattern.compile( "^[_\\-=]{4,}\\r?\\n" );
+   static private final Pattern DIVIDER_LINE_PATTERN = Pattern.compile( "^[\\t ]*[_\\-=]{4,}[\\t ]*$" );
 
    private enum TagType {
       HEADER, FOOTER, DIVIDER
@@ -108,8 +107,9 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
    }
 
 
-   // ugly, and I wouldn't normally do this, but ...
-   static private final Map<String, SectionType> _sectionTypes = new ConcurrentHashMap<>();
+   static private final Object SECTION_TYPE_LOCK = new Object();
+   static private final Map<String, SectionType> _sectionTypes = new HashMap<>();
+   static private volatile boolean _sectionsLoaded = false;
 
    static protected void addSectionType( final SectionType sectionType ) {
       _sectionTypes.put( sectionType.__name, sectionType );
@@ -125,7 +125,12 @@ abstract public class RegexSectionizer extends JCasAnnotator_ImplBase {
    @Override
    public void initialize( final UimaContext context ) throws ResourceInitializationException {
       super.initialize( context );
-      loadSections();
+      synchronized (SECTION_TYPE_LOCK) {
+         if ( !_sectionsLoaded ) {
+            loadSections();
+            _sectionsLoaded = true;
+         }
+      }
    }
 
    /**
