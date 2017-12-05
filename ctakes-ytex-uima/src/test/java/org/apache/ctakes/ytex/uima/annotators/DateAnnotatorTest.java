@@ -24,12 +24,16 @@ import org.apache.ctakes.ytex.uima.types.Date;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.text.AnnotationIndex;
+import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.junit.Assert;
+import org.apache.uima.resource.metadata.Import;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.apache.uima.resource.metadata.impl.Import_impl;
+import org.apache.uima.resource.metadata.impl.TypeSystemDescription_impl;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.apache.uima.fit.factory.JCasFactory;
-import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.net.URL;
 import java.text.ParseException;
@@ -44,6 +48,35 @@ import static org.junit.Assert.*;
 public class DateAnnotatorTest {
 
 	private final static Logger LOGGER = Logger.getLogger(DateAnnotatorTest.class);
+	private final static String TYPESYSTEM_DESCRIPTOR_RESOURCE = "org/apache/ctakes/ytex/types/TypeSystem.xml";
+
+	private static URL urlTypeSystem;
+
+	@BeforeClass
+	public static void setUp() {
+		urlTypeSystem = DateAnnotatorTest.class.getClassLoader().getResource(TYPESYSTEM_DESCRIPTOR_RESOURCE);
+	}
+
+	@Test
+	public void testCorrectLoadForTypeSystemResource() {
+		assertNotNull("Expecting a valid resource file URL", urlTypeSystem);
+		assertFalse(urlTypeSystem.getPath().isEmpty());
+		assertTrue(urlTypeSystem.getPath().endsWith(TYPESYSTEM_DESCRIPTOR_RESOURCE));
+	}
+
+	@Test
+	public void testLoadForDefaultYtexTypeSystemDescriptor() {
+		TypeSystemDescription typeSystem = new TypeSystemDescription_impl();
+		assertNotNull("Wasn't able to create a type system", typeSystem);
+
+		Import imp = new Import_impl();
+		assertNotNull("Wasn't able to create a default org.apache.uima.resource.metadata.Import", imp);
+		imp.setLocation(urlTypeSystem.getPath());
+		assertEquals("Import.getLocation() is different the the one used for Import.setLocation()", urlTypeSystem.getPath(), imp.getLocation());
+
+		typeSystem.setImports(new Import[]{ imp });
+		assertEquals("Expected only 1 Import", 1, typeSystem.getImports().length);
+	}
 
 	/**
 	 * Verify that date parsing with a manually created date works
@@ -51,7 +84,7 @@ public class DateAnnotatorTest {
 	 */
 	@Test
 	public void testParseDate() throws UIMAException {
-		URL urlTypeSystem = getClass().getClassLoader().getResource("org/apache/ctakes/ytex/types/TypeSystem.xml");
+		LOGGER.info("creating JCas from: " + urlTypeSystem.getPath());
 	    JCas jCas = JCasFactory.createJCasFromPath(urlTypeSystem.getPath());
 
 	    java.util.Date  dtExpected = new java.util.Date();
