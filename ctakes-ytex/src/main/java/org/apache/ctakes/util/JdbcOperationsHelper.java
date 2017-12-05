@@ -18,21 +18,21 @@ public abstract class JdbcOperationsHelper {
 	 *
 	 * @param jdbc
 	 * @param dbEngineType
-	 * @param sqlTableName
+	 * @param tableName
 	 */
-	protected final void dropTableIfExist(JdbcOperations jdbc, final String dbEngineType, final String sqlTableName) {
+	protected final void dropTableIfExist(JdbcOperations jdbc, final String dbEngineType, final String tableName) {
 		// TODO: consider refactor using JOOQ
 		String sqlStatement = "";
 		switch (dbEngineType.toLowerCase()) {
 			case "hsql":
 			case "mysql":
-				sqlStatement = String.format("DROP TABLE IF EXISTS %s", sqlTableName);
+				sqlStatement = String.format("DROP TABLE IF EXISTS %s", tableName);
 				break;
 			case "mssql":
-				sqlStatement = String.format("IF EXISTS(SELECT * FROM sys.objects WHERE object_id = object_id('%s')) DROP TABLE %s", sqlTableName);
+				sqlStatement = String.format("IF EXISTS(SELECT * FROM sys.objects WHERE object_id = object_id('%s')) DROP TABLE %s", tableName);
 				break;
 			case "orcl":
-				sqlStatement = String.format("DROP TABLE %s", sqlTableName);
+				sqlStatement = String.format("DROP TABLE %s", tableName);
 				break;
 			default:
 				LOGGER.warn(String.format("unsupported DB engine type: %s", dbEngineType));
@@ -42,7 +42,7 @@ public abstract class JdbcOperationsHelper {
 			try {
 				jdbc.execute(sqlStatement);
 			} catch (DataAccessException e) {
-				LOGGER.warn("couldn't drop table test_concepts. Maybe it doesn't even exists", e);
+				LOGGER.warn(String.format("couldn't drop table %s. Maybe it doesn't even exists", tableName), e);
 			}
 		}
 	}
