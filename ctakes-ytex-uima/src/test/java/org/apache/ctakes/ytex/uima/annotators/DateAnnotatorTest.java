@@ -20,9 +20,12 @@ package org.apache.ctakes.ytex.uima.annotators;
 
 import com.ibm.icu.text.SimpleDateFormat;
 import org.apache.ctakes.typesystem.type.textsem.DateAnnotation;
+import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.ctakes.ytex.uima.types.Date;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
+import org.apache.uima.cas.FSIndex;
+import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.jcas.JCas;
@@ -121,8 +124,15 @@ public class DateAnnotatorTest {
 	    DateAnnotator dateAnnotator = new DateAnnotator();
 	    dateAnnotator.dateType = Date.class.getName();
 	    dateAnnotator.process(jCas);
+
+	    LOGGER.info(String.format("Using org.apache.ctakes.ytex.uima.types.Date.type: %d", Date.type));
 	    AnnotationIndex<Annotation> ytexDates = jCas.getAnnotationIndex(Date.type);
-	    assertTrue(ytexDates.iterator().hasNext());
+		for (FSIterator<Annotation> it = ytexDates.iterator(); it.hasNext(); ) {
+			Annotation a = it.next();
+			LOGGER.info(String.format("[%s]", a));
+		}
+		LOGGER.info(String.format("ytexDates.size: %d", ytexDates.size()));
+		assertEquals("Expecting ytexDates to have 2 elements", 2, ytexDates.size());
 
 	    // return the parsed
 	    String sParsed = ((Date)ytexDates.iterator().next()).getDate();
@@ -130,7 +140,7 @@ public class DateAnnotatorTest {
 		LOGGER.info(String.format("date from annotation: %s", sParsed));
 		java.util.Date dtParsed = null;
 	    try {
-		    dtParsed = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(sParsed);
+		    dtParsed = new SimpleDateFormat(DateAnnotator.DATE_FORMAT).parse(sParsed);
 	    } catch (ParseException e) {
 		    assertFalse("Expected a real java.util.Date object", true);
 	    }
