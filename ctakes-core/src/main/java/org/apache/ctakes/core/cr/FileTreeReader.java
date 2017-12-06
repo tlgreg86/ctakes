@@ -87,6 +87,18 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
    private String[] _explicitExtensions;
 
    /**
+    * Name of configuration parameter that must be set to false to remove windows \r characters
+    */
+   public static final String PARAM_KEEP_CR = "KeepCR";
+   @ConfigurationParameter(
+         name = PARAM_KEEP_CR,
+         description = "Keep windows-format carriage return characters at line endings." +
+               "  This will only keep existing characters, it will not add them.",
+         mandatory = false
+   )
+   private boolean _keepCrChar = true;
+
+   /**
     * The patient id for each note is set using a directory name.
     * By default this is the directory directly under the root directory (PatientLevel=1).
     * This is appropriate for files such as in rootDir=data/, file in data/patientA/Text1.txt
@@ -304,12 +316,14 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
     */
    private String readFile( final File file ) throws IOException {
       LOGGER.info( "Reading " + file.getPath() );
-      try {
-         return readByPath( file );
-      } catch ( IOException ioE ) {
-         // This is a pretty bad way to handle a MalformedInputException, but that can be thrown by the collector
-         // in the stream, and java streams and exceptions do not go well together
-         LOGGER.warn( "Bad characters in " + file.getPath() );
+      if ( !_keepCrChar ) {
+         try {
+            return readByPath( file );
+         } catch ( IOException ioE ) {
+            // This is a pretty bad way to handle a MalformedInputException, but that can be thrown by the collector
+            // in the stream, and java streams and exceptions do not go well together
+            LOGGER.warn( "Bad characters in " + file.getPath() );
+         }
       }
       return readByBuffer( file );
    }
@@ -329,9 +343,6 @@ final public class FileTreeReader extends JCasCollectionReader_ImplBase {
          }
       } else {
          return safeReadByPath( file );
-//         try ( Stream<String> stream = Files.lines( file.toPath() ) ) {
-//            return stream.collect( Collectors.joining( "\n" ) );
-//         }
       }
    }
 
