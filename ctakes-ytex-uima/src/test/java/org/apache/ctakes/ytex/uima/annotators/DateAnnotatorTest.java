@@ -31,7 +31,6 @@ import org.apache.uima.resource.metadata.Import;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.resource.metadata.impl.Import_impl;
 import org.apache.uima.resource.metadata.impl.TypeSystemDescription_impl;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -50,18 +49,21 @@ public class DateAnnotatorTest {
 	private final static Logger LOGGER = Logger.getLogger(DateAnnotatorTest.class);
 	private final static String TYPESYSTEM_DESCRIPTOR_RESOURCE = "org/apache/ctakes/ytex/types/TypeSystem.xml";
 
-	private static URL urlTypeSystem;
+	private static URL TYPESYSTEM_URL = null;
 
 	@BeforeClass
 	public static void setUp() {
-		urlTypeSystem = DateAnnotatorTest.class.getClassLoader().getResource(TYPESYSTEM_DESCRIPTOR_RESOURCE);
+		TYPESYSTEM_URL = DateAnnotatorTest.class.getClassLoader().getResource(TYPESYSTEM_DESCRIPTOR_RESOURCE);
 	}
 
+	/**
+	 * Tests the URL of the TypeSystem.xml or null if no resource with this name is found
+	 */
 	@Test
 	public void testCorrectLoadForTypeSystemResource() {
-		assertNotNull("Expecting a valid resource file URL", urlTypeSystem);
-		assertFalse(urlTypeSystem.getPath().isEmpty());
-		assertTrue(urlTypeSystem.getPath().endsWith(TYPESYSTEM_DESCRIPTOR_RESOURCE));
+		assertNotNull("Expecting a valid resource file URL", TYPESYSTEM_URL);
+		assertFalse(TYPESYSTEM_URL.getPath().isEmpty());
+		assertTrue(TYPESYSTEM_URL.getPath().endsWith(TYPESYSTEM_DESCRIPTOR_RESOURCE));
 	}
 
 	@Test
@@ -71,26 +73,44 @@ public class DateAnnotatorTest {
 
 		Import imp = new Import_impl();
 		assertNotNull("Wasn't able to create a default org.apache.uima.resource.metadata.Import", imp);
-		imp.setLocation(urlTypeSystem.getPath());
-		assertEquals("Import.getLocation() is different the the one used for Import.setLocation()", urlTypeSystem.getPath(), imp.getLocation());
+		imp.setLocation(TYPESYSTEM_URL.getPath());
+		assertEquals("Import.getLocation() is different the the one used for Import.setLocation()", TYPESYSTEM_URL.getPath(), imp.getLocation());
 
 		typeSystem.setImports(new Import[]{ imp });
 		assertEquals("Expected only 1 Import", 1, typeSystem.getImports().length);
 	}
 
 	/**
+	 * Verify that we can craete a JCas. Previously we had many issues related to DateAnnotatorTest
+	 *
+	 * See: CTAKES-415
+	 */
+	@Test
+	public void testCreateJCasFromPath() {
+		LOGGER.info("creating JCas from: " + TYPESYSTEM_URL.getPath());
+		try {
+			JCas jCas = JCasFactory.createJCasFromPath(TYPESYSTEM_URL.getPath());
+			assertNotNull("Expecting a valid JCas object", jCas);
+		} catch (UIMAException e) {
+			LOGGER.error(String.format("Could not create JCas from %s", TYPESYSTEM_URL.getPath()), e);
+			assertNull(String.format("JCas couldn't be initialized from %s", TYPESYSTEM_URL.getPath()), e);
+		}
+	}
+
+	/**
 	 * Verify that date parsing with a manually created date works
+	 *
 	 * @throws UIMAException
 	 */
 	@Test
 	public void testParseDate() throws UIMAException {
-		LOGGER.info("creating JCas from: " + urlTypeSystem.getPath());
-	    JCas jCas = JCasFactory.createJCasFromPath(urlTypeSystem.getPath());
+	    JCas jCas = JCasFactory.createJCasFromPath(TYPESYSTEM_URL.getPath());
+	    assertNotNull("Expecting a valid JCas object (second time loaded)", jCas);
 
 	    java.util.Date  dtExpected = new java.util.Date();
 	    String sExpected = dtExpected.toString();
-
 	    LOGGER.info(String.format("date to be annotated: %s", sExpected));
+
 	    jCas.setDocumentText(sExpected);
 
 	    // create the annotation
@@ -112,10 +132,10 @@ public class DateAnnotatorTest {
 	    try {
 		    dtParsed = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(sParsed);
 	    } catch (ParseException e) {
-	    	assertFalse("Expected a real java.util.Date object", true);
+		    assertFalse("Expected a real java.util.Date object", true);
 	    }
-	    // java.util.Date.equals is not advised. Comparing Date.getTime ignores the miliseconds.
-		assertNotNull("Expected a not NULL java.util.Date object", dtParsed);
+	    // java.util.Date.equals is not advised. Comparing Date.getTime and ignoring miliseconds difference.
+	    assertNotNull("Expected a not NULL java.util.Date object", dtParsed);
 	    assertTrue("Expected what we converted .toString to be parsed",
 			       (dtExpected.getTime() - dtParsed.getTime()) < 1000 /*1 second*/);
 	}
