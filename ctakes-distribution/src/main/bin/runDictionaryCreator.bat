@@ -49,7 +49,7 @@ if exist "%JAVA_HOME%\bin\java.exe" set PATH=%JAVA_HOME%\bin;%PATH%
 
 cd %CTAKES_HOME%
 
-java  -cp "%CTAKES_HOME%\desc\;%CTAKES_HOME%\resources\;%CTAKES_HOME%\lib\*"  -Dlog4j.configuration=file:\%CTAKES_HOME%\config\log4j.xml  -Xms512M -Xmx3g  org.apache.ctakes.gui.dictionary.DictionaryCreator
+java  -cp "%CTAKES_HOME%\desc\;%CTAKES_HOME%\resources\;%CTAKES_HOME%\lib\*"  -Dlog4j.configuration="file:\%CTAKES_HOME%\config\log4j.xml"  -Xms512M -Xmx3g  org.apache.ctakes.gui.dictionary.DictionaryCreator
   
 cd %CURRENT_DIR%
 :end

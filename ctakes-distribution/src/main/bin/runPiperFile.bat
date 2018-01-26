@@ -61,7 +61,7 @@ if exist "%JAVA_HOME%\bin\java.exe" set PATH=%JAVA_HOME%\bin;%PATH%
 
 cd %CTAKES_HOME%
 set CLASS_PATH=%CTAKES_HOME%\desc\;%CTAKES_HOME%\resources\;%CTAKES_HOME%\lib\*
-set LOG4J_PARM=-Dlog4j.configuration=file:\%CTAKES_HOME%\config\log4j.xml
+set LOG4J_PARM=-Dlog4j.configuration="file:\%CTAKES_HOME%\config\log4j.xml"
 set PIPE_RUNNER=org.apache.ctakes.core.pipeline.PiperFileRunner
 java -cp "%CLASS_PATH%" %LOG4J_PARM% -Xms512M -Xmx3g %PIPE_RUNNER% %*
 cd %CURRENT_DIR%
