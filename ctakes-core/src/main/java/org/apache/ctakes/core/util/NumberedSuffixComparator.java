@@ -14,7 +14,7 @@ import java.util.Comparator;
  * @since 8/25/2017
  */
 public class NumberedSuffixComparator implements Comparator<String> {
-   static private final Logger LOGGER = Logger.getLogger( "TextNumberComparator" );
+   static private final Logger LOGGER = Logger.getLogger( "NumberedSuffixComparator" );
 
    /**
     * {@inheritDoc}
