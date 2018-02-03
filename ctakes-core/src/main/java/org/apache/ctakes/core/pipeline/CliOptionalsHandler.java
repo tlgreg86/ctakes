@@ -37,6 +37,8 @@ final public class CliOptionalsHandler {
             return optionals.getUmlsPassword();
          case "xmiOut":
             return optionals.getXmiOutDirectory();
+         case "htmlOut":
+            return optionals.getHtmlOutDirectory();
          case "a":
             return optionals.getOption_a();
          case "b":

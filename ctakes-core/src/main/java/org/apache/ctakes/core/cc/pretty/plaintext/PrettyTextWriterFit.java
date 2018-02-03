@@ -2,7 +2,7 @@ package org.apache.ctakes.core.cc.pretty.plaintext;
 
 //import org.apache.log4j.Logger;
 
-import org.apache.ctakes.core.cc.AbstractOutputFileWriter;
+import org.apache.ctakes.core.cc.AbstractJCasFileWriter;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.uima.UimaContext;
 import org.apache.uima.jcas.JCas;
@@ -32,7 +32,7 @@ import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
       dependencies = { DOCUMENT_ID, SENTENCE, BASE_TOKEN },
       usables = { DOCUMENT_ID_PREFIX, IDENTIFIED_ANNOTATION, EVENT, TIMEX, TEMPORAL_RELATION }
 )
-final public class PrettyTextWriterFit extends AbstractOutputFileWriter {
+final public class PrettyTextWriterFit extends AbstractJCasFileWriter {
 
 
    // delegate

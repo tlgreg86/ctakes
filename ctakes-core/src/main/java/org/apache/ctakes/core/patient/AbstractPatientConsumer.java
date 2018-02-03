@@ -1,6 +1,8 @@
 package org.apache.ctakes.core.patient;
 
+import org.apache.ctakes.core.ae.NamedEngine;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
+import org.apache.ctakes.core.util.SourceMetadataUtil;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
@@ -24,7 +26,7 @@ import java.util.Collection;
       name = "AbstractPatientConsumer",
       description = "Abstract Engine to take action on a patient level instead of document level.", role = PipeBitInfo.Role.ANNOTATOR
 )
-abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase {
+abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase implements NamedEngine {
 
    static public final String REMOVE_PATIENT = "RemovePatient";
 
@@ -41,6 +43,7 @@ abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase {
    protected AbstractPatientConsumer( final String aeName, final String action ) {
       _action = action;
       _logger = Logger.getLogger( aeName );
+      PatientNoteStore.getInstance().registerEngine( getEngineName() );
    }
 
    /**
@@ -48,13 +51,7 @@ abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase {
     */
    @Override
    public void process( final JCas jCas ) throws AnalysisEngineProcessException {
-      final Collection<String> completedPatientIds = PatientNoteStore.getInstance().getCompletedPatientIds();
-      for ( String id : completedPatientIds ) {
-         process( id );
-         if ( _removePatient ) {
-            PatientNoteStore.getInstance().removePatient( id );
-         }
-      }
+      processPatients();
    }
 
    /**
@@ -63,30 +60,16 @@ abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase {
    @Override
    public void collectionProcessComplete() throws AnalysisEngineProcessException {
       super.collectionProcessComplete();
-      final Collection<String> allPatientIds = PatientNoteStore.getInstance().getStoredPatientIds();
-      for ( String id : allPatientIds ) {
-         process( id );
-         if ( _removePatient ) {
-            PatientNoteStore.getInstance().removePatient( id );
-         }
-      }
+      processPatients();
    }
 
-   /**
-    * Logs start and finish and calls {@link #processPatientCas(JCas)}.
-    *
-    * @param patientName -
-    * @throws AnalysisEngineProcessException if subclass has a problem processing.
-    */
-   private void process( final String patientName ) throws AnalysisEngineProcessException {
-      if ( patientName == null ) {
-         return;
+   protected void processPatients() throws AnalysisEngineProcessException {
+      final Collection<JCas> completedCases = PatientNoteStore.getInstance().popPatientCases( getEngineName() );
+      for ( JCas patientCas : completedCases ) {
+         final String patientName = SourceMetadataUtil.getPatientIdentifier( patientCas );
+         _logger.info( _action + " for patient " + patientName + " ..." );
+         processPatientCas( patientCas );
       }
-      _logger.info( _action + " for patient " + patientName + " ..." );
-
-      processPatientCas( PatientNoteStore.getInstance().getFullPatientCas( patientName ) );
-
-      _logger.info( "Finished." );
    }
 
    /**

@@ -32,6 +32,8 @@ public enum PatientNoteStore {
 
    static private final Logger LOGGER = Logger.getLogger( "PatientNoteStore" );
 
+   private final Collection<String> _registeredEngines;
+   private final Map<String, Collection<String>> _enginesRun;
    private final Map<String, JCas> _patientMap;
    private final Map<String, Collection<ViewInfo>> _patientViewInfos;
    private final Map<String, Integer> _wantedDocCounts;
@@ -40,6 +42,8 @@ public enum PatientNoteStore {
     * private
     */
    PatientNoteStore() {
+      _registeredEngines = new HashSet<>();
+      _enginesRun = new HashMap<>();
       _patientMap = new HashMap<>();
       _patientViewInfos = new HashMap<>();
       _wantedDocCounts = new HashMap<>();
@@ -47,9 +51,15 @@ public enum PatientNoteStore {
 
    /////////////////    Get available patient, document, view names   ///////////////
 
+   synchronized public void registerEngine( final String engineName ) {
+      _registeredEngines.add( engineName );
+   }
+
    /**
+    * @deprecated use pop methods
     * @return identifiers for all stored patients
     */
+   @Deprecated
    synchronized public Collection<String> getStoredPatientIds() {
       return _patientMap.keySet().stream()
             .sorted()
@@ -324,11 +334,67 @@ public enum PatientNoteStore {
    /////////////////    patient cleanup - careful !   ///////////////
 
    /**
+    * Use popPatientCas instead to automate cleanup
     * @param patientId -
     */
    synchronized public JCas getFullPatientCas( final String patientId ) {
       return _patientMap.get( patientId );
    }
+
+   /**
+    * @param engineName engine requesting a completed patient jcas
+    * @return a patient jcas or null if none is available for the given engine
+    */
+   synchronized public JCas popPatientCas( final String engineName ) {
+      if ( !_registeredEngines.contains( engineName ) ) {
+         throw new IllegalArgumentException( "Engine not registered to use patients " + engineName );
+      }
+      final Collection<String> completedPatientIds = getCompletedPatientIds();
+      for ( String patientId : completedPatientIds ) {
+         final JCas patientCas = popPatientCas( patientId, engineName );
+         if ( patientCas != null ) {
+            return patientCas;
+         }
+      }
+      return null;
+   }
+
+   /**
+    * @param engineName engine requesting a completed patient jcas
+    * @return a patient jcas or null if none is available for the given engine
+    */
+   synchronized public Collection<JCas> popPatientCases( final String engineName ) {
+      if ( !_registeredEngines.contains( engineName ) ) {
+         throw new IllegalArgumentException( "Engine not registered to use patients " + engineName );
+      }
+      final Collection<String> completedPatientIds = new ArrayList<>( getCompletedPatientIds() );
+      return completedPatientIds.stream()
+                                .map( id -> popPatientCas( id, engineName ) )
+                                .filter( Objects::nonNull )
+                                .collect( Collectors.toList() );
+   }
+
+   /**
+    * @param patientId  -
+    * @param engineName engine requesting a completed patient jcas
+    * @return the patient jcas for the patient id or null if it isn't available for the given engine
+    */
+   synchronized public JCas popPatientCas( final String patientId, final String engineName ) {
+      if ( !_registeredEngines.contains( engineName ) ) {
+         throw new IllegalArgumentException( "Engine not registered to use patients " + engineName );
+      }
+      final Collection<String> enginesRun = _enginesRun.computeIfAbsent( patientId, n -> new HashSet<>() );
+      final boolean newRun = enginesRun.add( engineName );
+      if ( !newRun ) {
+         return null;
+      }
+      final JCas patientCas = _patientMap.get( patientId );
+      if ( enginesRun.size() == _registeredEngines.size() ) {
+         removePatient( patientId );
+      }
+      return patientCas;
+   }
+
 
    /**
     * @param patientId identifier of patient to remove from cache

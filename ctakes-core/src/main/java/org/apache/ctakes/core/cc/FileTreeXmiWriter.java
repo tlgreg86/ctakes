@@ -28,7 +28,7 @@ import java.io.*;
       usables = { PipeBitInfo.TypeProduct.DOCUMENT_ID_PREFIX }
 )
 // TODO Create and extend AbstractInputFileReader  a'la the abstract writer
-final public class FileTreeXmiWriter extends AbstractOutputFileWriter {
+final public class FileTreeXmiWriter extends AbstractJCasFileWriter {
 
    static private final Logger LOGGER = Logger.getLogger( "FileTreeXmiWriter" );
 

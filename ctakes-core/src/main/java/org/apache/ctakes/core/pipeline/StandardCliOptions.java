@@ -45,6 +45,12 @@ interface StandardCliOptions {
    String getXmiOutDirectory();
 
    @Option(
+         longName = "htmlOut",
+         description = "path to the directory where html files are to be written.  Adds HtmlWriter to pipeline.",
+         defaultValue = "" )
+   String getHtmlOutDirectory();
+
+   @Option(
          shortName = "l",
          longName = "lookupXml",
          description = "path to the xml file containing information for dictionary lookup configuration.",

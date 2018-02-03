@@ -49,10 +49,14 @@ final public class PiperFileRunner {
          final String outputDir = options.getOutputDirectory();
          // if xmi output directory is set but standard output directory is not, use xmi out as standard out
          final String xmiOutDir = options.getXmiOutDirectory();
+         // if html output directory is set but standard output directory is not, use html out as standard out
+         final String htmlOutDir = options.getHtmlOutDirectory();
          if ( !outputDir.isEmpty() ) {
             builder.set( ConfigParameterConstants.PARAM_OUTPUTDIR, outputDir );
          } else if ( !xmiOutDir.isEmpty() ) {
             builder.set( ConfigParameterConstants.PARAM_OUTPUTDIR, xmiOutDir );
+         } else if ( !htmlOutDir.isEmpty() ) {
+            builder.set( ConfigParameterConstants.PARAM_OUTPUTDIR, htmlOutDir );
          }
          // load the piper file
          reader.setCliOptionals( options );
@@ -66,6 +70,12 @@ final public class PiperFileRunner {
             if ( builder.getAeNames().stream().map( String::toLowerCase )
                   .noneMatch( n -> n.contains( "xmiwriter" ) ) ) {
                builder.writeXMIs( xmiOutDir );
+            }
+         }
+         if ( !htmlOutDir.isEmpty() ) {
+            if ( builder.getAeNames().stream().map( String::toLowerCase )
+                        .noneMatch( n -> n.contains( "htmlwriter" ) ) ) {
+               builder.writeHtml( htmlOutDir );
             }
          }
          // run the pipeline

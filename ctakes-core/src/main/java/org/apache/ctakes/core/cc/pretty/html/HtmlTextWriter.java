@@ -1,7 +1,7 @@
 package org.apache.ctakes.core.cc.pretty.html;
 
 
-import org.apache.ctakes.core.cc.AbstractOutputFileWriter;
+import org.apache.ctakes.core.cc.AbstractJCasFileWriter;
 import org.apache.ctakes.core.cc.pretty.SemanticGroup;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
@@ -53,7 +53,7 @@ import static org.apache.ctakes.core.pipeline.PipeBitInfo.TypeProduct.*;
       dependencies = { DOCUMENT_ID, SENTENCE, BASE_TOKEN },
       usables = { DOCUMENT_ID_PREFIX, IDENTIFIED_ANNOTATION, EVENT, TIMEX, TEMPORAL_RELATION }
 )
-final public class HtmlTextWriter extends AbstractOutputFileWriter {
+final public class HtmlTextWriter extends AbstractJCasFileWriter {
 
    // TODO https://www.w3schools.com/howto/howto_css_switch.asp
    // TODO https://www.w3schools.com/html/tryit.asp?filename=tryhtml_layout_flexbox

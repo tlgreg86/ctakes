@@ -2,6 +2,7 @@ package org.apache.ctakes.core.pipeline;
 
 
 import org.apache.ctakes.core.cc.FileTreeXmiWriter;
+import org.apache.ctakes.core.cc.pretty.html.HtmlTextWriter;
 import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.cr.FileTreeReader;
 import org.apache.ctakes.core.util.PropertyAeFactory;
@@ -308,6 +309,31 @@ final public class PipelineBuilder {
     */
    public PipelineBuilder writeXMIs( final String outputDirectory ) throws ResourceInitializationException {
       return addLast( FileTreeXmiWriter.class, Collections.emptyList(),
+            ConfigParameterConstants.PARAM_OUTPUTDIR, outputDirectory );
+   }
+
+   /**
+    * Adds ae that writes an html file at the end of the pipeline.
+    * Relies upon {@link ConfigParameterConstants#PARAM_OUTPUTDIR} having been specified
+    * Use of this method is order-specific.
+    *
+    * @return this PipelineBuilder
+    * @throws ResourceInitializationException if the html writer engine cannot be created
+    */
+   public PipelineBuilder writeHtml() throws ResourceInitializationException {
+      return addLast( HtmlTextWriter.class, Collections.emptyList() );
+   }
+
+   /**
+    * Adds ae that writes an html file at the end of the pipeline.
+    * Use of this method is order-specific.
+    *
+    * @param outputDirectory directory in which html files should be written
+    * @return this PipelineBuilder
+    * @throws ResourceInitializationException if the html writer engine cannot be created
+    */
+   public PipelineBuilder writeHtml( final String outputDirectory ) throws ResourceInitializationException {
+      return addLast( HtmlTextWriter.class, Collections.emptyList(),
             ConfigParameterConstants.PARAM_OUTPUTDIR, outputDirectory );
    }
 

@@ -240,6 +240,13 @@ final public class PiperFileReader {
                _builder.writeXMIs( info );
             }
             return true;
+         case "writeHtml":
+            if ( info.isEmpty() ) {
+               _builder.writeHtml();
+            } else {
+               _builder.writeHtml( info );
+            }
+            return true;
          default:
             LOGGER.error( "Unknown Piper Command: " + command );
             return false;
