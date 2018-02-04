@@ -3,6 +3,8 @@ package org.apache.ctakes.core.patient;
 
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.SourceMetadataUtil;
+import org.apache.ctakes.typesystem.type.structured.DocumentIdPrefix;
+import org.apache.ctakes.typesystem.type.structured.Metadata;
 import org.apache.log4j.Logger;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CASException;
@@ -239,6 +241,7 @@ public enum PatientNoteStore {
       if ( patientCas == null ) {
          try {
             patientCas = JCasFactory.createJCas();
+            setPatientId( patientCas, patientId );
             _patientMap.put( patientId, patientCas );
          } catch ( UIMAException uE ) {
             LOGGER.error( uE.getMessage() );
@@ -258,6 +261,20 @@ public enum PatientNoteStore {
       } catch ( CASException | CASRuntimeException casE ) {
          LOGGER.error( casE.getMessage() );
       }
+   }
+
+   /**
+    * Make sure the patient cas contains its patient id
+    *
+    * @param jCas      -
+    * @param patientId -
+    */
+   static private void setPatientId( final JCas jCas, final String patientId ) {
+      final DocumentIdPrefix documentIdPrefix = new DocumentIdPrefix( jCas );
+      documentIdPrefix.setDocumentIdPrefix( patientId );
+      documentIdPrefix.addToIndexes();
+      final Metadata metadata = SourceMetadataUtil.getOrCreateMetadata( jCas );
+      metadata.setPatientIdentifier( patientId );
    }
 
    /////////////////    view fetchers   ///////////////

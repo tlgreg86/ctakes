@@ -56,12 +56,26 @@ final public class SourceMetadataUtil {
     * @param jcas ye olde jay-cas
     * @return the Metadata for the given jcas or null if one is not found
     */
-   static private Metadata getMetadata( final JCas jcas ) {
+   static public Metadata getMetadata( final JCas jcas ) {
       final Collection<Metadata> metadatas = JCasUtil.select( jcas, Metadata.class );
       if ( metadatas == null || metadatas.isEmpty() ) {
          return null;
       }
       return new ArrayList<>( metadatas ).get( 0 );
+   }
+
+   /**
+    * @param jCas ye olde jay-cas
+    * @return the Metadata for the given jcas
+    */
+   static public Metadata getOrCreateMetadata( final JCas jCas ) {
+      final Metadata metadata = getMetadata( jCas );
+      if ( metadata != null ) {
+         return metadata;
+      }
+      final Metadata newMetadata = new Metadata( jCas );
+      newMetadata.addToIndexes();
+      return newMetadata;
    }
 
    /**
@@ -76,6 +90,21 @@ final public class SourceMetadataUtil {
          return null;
       }
       return metadata.getSourceData();
+   }
+
+   /**
+    * @param jCas ye olde jay-cas
+    * @return the metadata for the source associated with the jcas
+    */
+   static public SourceData getOrCreateSourceData( final JCas jCas ) {
+      final SourceData sourceData = getSourceData( jCas );
+      if ( sourceData != null ) {
+         return sourceData;
+      }
+      final Metadata metadata = getOrCreateMetadata( jCas );
+      final SourceData newSourceData = new SourceData( jCas );
+      metadata.setSourceData( newSourceData );
+      return newSourceData;
    }
 
    /**
