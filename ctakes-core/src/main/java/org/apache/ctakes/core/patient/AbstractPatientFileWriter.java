@@ -28,7 +28,7 @@ abstract public class AbstractPatientFileWriter
 
    private final Collection<JCas> _patientCases = new HashSet<>();
 
-   protected void AbstractFileWriter() {
+   protected void AbstractPatientFileWriter() {
       PatientNoteStore.getInstance().registerEngine( getEngineName() );
    }
 
