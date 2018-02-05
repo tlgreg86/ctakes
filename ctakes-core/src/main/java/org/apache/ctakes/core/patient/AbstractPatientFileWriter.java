@@ -24,6 +24,8 @@ abstract public class AbstractPatientFileWriter
 
    static private final Logger LOGGER = Logger.getLogger( "AbstractPatientFileWriter" );
 
+   static private final Object DATA_LOCK = new Object();
+
    private final Collection<JCas> _patientCases = new HashSet<>();
 
    protected void AbstractFileWriter() {
@@ -67,15 +69,20 @@ abstract public class AbstractPatientFileWriter
    }
 
    /**
+    * Write any remaining patient information
     * {@inheritDoc}
     */
    @Override
    public void collectionProcessComplete() throws AnalysisEngineProcessException {
       super.collectionProcessComplete();
       final String outputDir = getOutputDirectory( null, getRootDirectory(), "" );
-      createData( null );
       try {
-         writeFile( getData(), outputDir, "", "" );
+         synchronized ( DATA_LOCK ) {
+            createData( null );
+            final Collection<JCas> data = getData();
+            writeFile( data, outputDir, "", "" );
+            writeComplete( data );
+         }
       } catch ( IOException ioE ) {
          throw new AnalysisEngineProcessException( ioE );
       }
