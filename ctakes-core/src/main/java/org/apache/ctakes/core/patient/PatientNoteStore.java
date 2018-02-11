@@ -34,6 +34,8 @@ public enum PatientNoteStore {
 
    static private final Logger LOGGER = Logger.getLogger( "PatientNoteStore" );
 
+   static private final String GENERIC_PATIENT = "Generic";
+
    private final Collection<String> _registeredEngines;
    private final Map<String, Collection<String>> _enginesRun;
    private final Map<String, JCas> _patientMap;
@@ -145,7 +147,7 @@ public enum PatientNoteStore {
       if ( patientIdentifier != null && !patientIdentifier.isEmpty() && !patientIdentifier.equals( SourceMetadataUtil.UNKNOWN_PATIENT ) ) {
          return patientIdentifier;
       }
-      return DocumentIDAnnotationUtil.getDocumentIdPrefix( viewCas );
+      return GENERIC_PATIENT;
    }
 
    /**

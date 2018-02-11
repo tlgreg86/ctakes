@@ -34,10 +34,17 @@ final public class SourceMetadataUtil {
     */
    static public String getPatientIdentifier( final JCas jcas ) {
       final Metadata metadata = getMetadata( jcas );
-      if ( metadata == null ) {
-         return UNKNOWN_PATIENT;
+      if ( metadata != null ) {
+         final String patientId = metadata.getPatientIdentifier();
+         if ( patientId != null && !patientId.isEmpty() ) {
+            return patientId;
+         }
       }
-      return metadata.getPatientIdentifier();
+      final String docPrefix = DocumentIDAnnotationUtil.getDocumentIdPrefix( jcas );
+      if ( docPrefix != null && !docPrefix.isEmpty() ) {
+         return docPrefix;
+      }
+      return UNKNOWN_PATIENT;
    }
 
    /**
