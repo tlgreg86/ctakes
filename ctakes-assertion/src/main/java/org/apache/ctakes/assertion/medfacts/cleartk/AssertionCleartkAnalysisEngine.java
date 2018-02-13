@@ -359,19 +359,19 @@ public abstract class AssertionCleartkAnalysisEngine extends
       // generate a list of training instances for each sentence in the document
       // Use an indexed map.  This is faster than calling select and then selectCovering within a loop.
       final Map<Sentence, Collection<Annotation>> sentenceAnnotationMap
-            = JCasUtil.indexCovered( jCas, Sentence.class, Annotation.class );
+            = JCasUtil.indexCovered( annotationView, Sentence.class, Annotation.class );
       // Faster than calling JCasUtil methods for each which has to iterate through the full cas each time.
       final Collection<IdentifiedAnnotation> entities = new ArrayList<>();
       final Collection<AssertionCuePhraseAnnotation> cues = new ArrayList<>();
       final Collection<BaseToken> baseTokens = new ArrayList<>();
-      for ( Map.Entry<Sentence, Collection<Annotation>> sentenceAnnotations : sentenceAnnotationMap.entrySet() ) {
-         final Sentence coveringSent = sentenceAnnotations.getKey();
+      for(Sentence coveringSent : JCasUtil.select(annotationView, Sentence.class)){
+         Collection<Annotation> coveredAnnotations = sentenceAnnotationMap.get(coveringSent);
          // Sort Annotations into *Mention, assertion cues and BaseTokens in one loop.
          // Faster than calling JCasUtil methods for each which has to iterate through the full cas each time.
          entities.clear();
          cues.clear();
          baseTokens.clear();
-         for ( Annotation annotation : sentenceAnnotations.getValue() ) {
+         for ( Annotation annotation : coveredAnnotations ) {
             if ( annotation instanceof EventMention || annotation instanceof EntityMention ) {
                entities.add( (IdentifiedAnnotation)annotation );
             } else if ( annotation instanceof AssertionCuePhraseAnnotation ) {
