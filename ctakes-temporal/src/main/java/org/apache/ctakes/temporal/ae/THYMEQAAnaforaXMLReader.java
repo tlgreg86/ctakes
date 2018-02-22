@@ -111,6 +111,7 @@ public class THYMEQAAnaforaXMLReader extends THYMEAnaforaXMLReader {
 
     	// TODO -- need mapping from id to relation
       Map<String, Annotation> idToAnnotation = Maps.newHashMap();
+      Map<String, BinaryTextRelation> idToRelation = Maps.newHashMap();
       for (Element entityElem : annotationsElem.getChildren("entity")) {
         String id = removeSingleChildText(entityElem, "id", null);
         Element spanElem = removeSingleChild(entityElem, "span", id);
@@ -214,6 +215,7 @@ public class THYMEQAAnaforaXMLReader extends THYMEAnaforaXMLReader {
           TemporalTextRelation relation = new TemporalTextRelation(jCas);
           relation.setId(curRelId++);
           addRelation(jCas, relation, sourceID, targetID, tlinkType, idToAnnotation, id);
+          idToRelation.put(id, relation);
 
         } else if (type.equals("ALINK")) {
           String sourceID = removeSingleChildText(propertiesElem, "Source", id);
@@ -221,6 +223,7 @@ public class THYMEQAAnaforaXMLReader extends THYMEAnaforaXMLReader {
           String alinkType = removeSingleChildText(propertiesElem, "Type", id);
           AspectualTextRelation relation = new AspectualTextRelation(jCas);
           addRelation(jCas, relation, sourceID, targetID, alinkType, idToAnnotation, id);
+          idToRelation.put(id, relation);
 
         } else if (type.equals("Question")){
         	String questionText = removeSingleChildText(propertiesElem, "Question", id);
@@ -260,6 +263,12 @@ public class THYMEQAAnaforaXMLReader extends THYMEAnaforaXMLReader {
         List<TOP> answerList = new ArrayList<>();
       	for(String id : questionRelations.get(question)){
       		TOP answer = idToAnnotation.get(id);
+      		if(answer == null){
+      			answer = idToRelation.get(id);
+      			if(answer == null){
+      				LOGGER.error("cannot find answer for id: " + id);
+      			}
+      		}
       		answerList.add(answer);
       	}
       	qaRel.setMembers(ListFactory.buildList(jCas, answerList));
