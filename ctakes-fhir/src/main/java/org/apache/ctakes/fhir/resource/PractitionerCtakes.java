@@ -1,13 +1,9 @@
 package org.apache.ctakes.fhir.resource;
 
 
-import org.hl7.fhir.dstu3.model.ContactPoint;
-import org.hl7.fhir.dstu3.model.HumanName;
+import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Reference;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * https://www.hl7.org/fhir/practitioner.html
@@ -17,49 +13,76 @@ import java.net.UnknownHostException;
  * @version %I%
  * @since 12/25/2017
  */
-public enum PractitionerCtakes {
+public enum PractitionerCtakes implements FhirPractitioner {
    INSTANCE;
 
-   static private final String CTAKES_VERSION = "4_0_1";
-
-   /**
-    * @return Practitioner representing ctakes as the creator/extractor of data
-    */
-   static public Practitioner getPractitioner() {
-      return INSTANCE._ctakes;
+   static public PractitionerCtakes getInstance() {
+      return INSTANCE;
    }
 
-   /**
-    * @return Reference to a Practitioner representing ctakes as the creator/extractor of data
-    */
-   static public Reference getPractitionerReference() {
-      return INSTANCE._ctakesReference;
+   @Override
+   public String getName() {
+      return "cTAKES";
+   }
+
+   @Override
+   public String getFamilyName() {
+      return "Apache";
+   }
+
+   @Override
+   public String getVersion() {
+      return "4_0_1";
+   }
+
+   @Override
+   public String getContactEmail() {
+      return "dev@ctakes.apache.org";
    }
 
    final private Practitioner _ctakes;
    final private Reference _ctakesReference;
 
+   final private Organization _apache;
+   final private Reference _apacheReference;
+
    PractitionerCtakes() {
-      final HumanName name = new HumanName();
-      name.setUse( HumanName.NameUse.OFFICIAL );
-      name.setFamily( "Apache" );
-      name.addGiven( "cTAKES" );
-      final ContactPoint devlist = new ContactPoint();
-      devlist.setSystem( ContactPoint.ContactPointSystem.EMAIL );
-      devlist.setValue( "dev@ctakes.apache.org" );
-      devlist.setUse( ContactPoint.ContactPointUse.WORK );
-      _ctakes = new Practitioner();
-      String hostname = "UnknownHost";
-      try {
-         hostname = InetAddress.getLocalHost().getHostName();
-      } catch ( UnknownHostException uhE ) {
-         hostname = "UnknownHost";
-      }
-      _ctakes.setId( "Apache_cTAKES_" + CTAKES_VERSION + "_" + hostname );
-      _ctakes.setActive( true );
-      _ctakes.addName( name );
-      _ctakes.addTelecom( devlist );
+      _ctakes = createPractitioner();
       _ctakesReference = new Reference( _ctakes );
+      _apache = createOrganization();
+      _apacheReference = new Reference( _apache );
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public Practitioner getPractitioner() {
+      return _ctakes;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public Reference getPractitionerReference() {
+      return _ctakesReference;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public Organization getOrganization() {
+      return _apache;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public Reference getOrganizationReference() {
+      return _apacheReference;
    }
 
 }

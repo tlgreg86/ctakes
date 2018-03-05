@@ -1,7 +1,7 @@
 package org.apache.ctakes.fhir.resource;
 
-import org.apache.ctakes.fhir.cc.FhirElementFactory;
-import org.apache.ctakes.fhir.util.NoteSpecs;
+import org.apache.ctakes.fhir.element.FhirElementFactory;
+import org.apache.ctakes.fhir.util.FhirNoteSpecs;
 import org.apache.log4j.Logger;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.TOP;
@@ -28,7 +28,8 @@ final public class BundleCreator implements FhirResourceCreator<TOP, Bundle> {
     * {@inheritDoc}
     */
    @Override
-   public Bundle createResource( final JCas jCas, final TOP nullified, final NoteSpecs noteSpecs ) {
+   public Bundle createResource( final JCas jCas, final TOP nullified, final FhirPractitioner practitioner,
+                                 final FhirNoteSpecs noteSpecs ) {
       final Bundle bundle = new Bundle();
       final String noteTime = DATE_FORMAT.format( new Date() );
       bundle.setId( FhirElementFactory.createId( jCas, CTAKES_BUNDLE_ID, noteTime ) );

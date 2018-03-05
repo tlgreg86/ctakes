@@ -34,7 +34,15 @@ public class CONST {
 	public static final int NE_TYPE_ID_DEVICE = 8;
 	public static final int NE_TYPE_ID_LAB = 9;
 	public static final int NE_TYPE_ID_PHENOMENA = 10;
-	
+
+   static public final int NE_TYPE_ID_SUBJECT_MODIFIER = 1001;
+   static public final int NE_TYPE_ID_PERSON_TITLE = 1002;
+   static public final int NE_TYPE_ID_GENERIC_EVENT = 1003;
+   static public final int NE_TYPE_ID_GENERIC_ENTITY = 1004;
+   static public final int NE_TYPE_ID_TIME_MENTION = 1005;
+   static public final int NE_TYPE_ID_GENERIC_MODIFIER = 1006;
+   static public final int NE_TYPE_ID_LAB_VALUE_MODIFIER = 1007;
+
 	public static final int MODIFIER_TYPE_ID_UNKNOWN = 0;
 	public static final int MODIFIER_TYPE_ID_COURSE_CLASS = 1;
 	public static final int MODIFIER_TYPE_ID_SEVERITY_CLASS = 2;

@@ -1,6 +1,6 @@
 package org.apache.ctakes.fhir.resource;
 
-import org.apache.ctakes.fhir.util.NoteSpecs;
+import org.apache.ctakes.fhir.util.FhirNoteSpecs;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.TOP;
 import org.hl7.fhir.dstu3.model.Resource;
@@ -12,6 +12,6 @@ import org.hl7.fhir.dstu3.model.Resource;
  */
 public interface FhirResourceCreator<T extends TOP, R extends Resource> {
 
-   R createResource( final JCas jCas, final T top, final NoteSpecs noteSpecs );
+   R createResource( final JCas jCas, final T top, final FhirPractitioner practitioner, final FhirNoteSpecs noteSpecs );
 
 }

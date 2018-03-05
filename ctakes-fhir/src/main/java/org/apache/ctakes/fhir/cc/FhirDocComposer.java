@@ -2,8 +2,9 @@ package org.apache.ctakes.fhir.cc;
 
 
 import org.apache.ctakes.core.util.EssentialAnnotationUtil;
+import org.apache.ctakes.fhir.element.FhirElementFactory;
 import org.apache.ctakes.fhir.resource.*;
-import org.apache.ctakes.fhir.util.NoteSpecs;
+import org.apache.ctakes.fhir.util.FhirNoteSpecs;
 import org.apache.ctakes.typesystem.type.relation.BinaryTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -12,10 +13,7 @@ import org.apache.log4j.Logger;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.hl7.fhir.dstu3.model.Basic;
-import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Reference;
-import org.hl7.fhir.dstu3.model.Resource;
+import org.hl7.fhir.dstu3.model.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Creates a complete fhir bundle for a note.
  * @author SPF , chip-nlp
  * @version %I%
  * @since 12/15/2017
@@ -36,25 +35,33 @@ final public class FhirDocComposer {
    private FhirDocComposer() {
    }
 
-
-   static public Bundle composeDocFhir( final JCas jCas ) {
-      final NoteSpecs noteSpecs = new NoteSpecs( jCas );
+   /**
+    * @param jCas         ye olde ...
+    * @param practitioner fhir practitioner.  Usually the default "ctakes" practitioner.
+    * @return a complete fhir bundle for a note.
+    */
+   static public Bundle composeDocFhir( final JCas jCas, final FhirPractitioner practitioner ) {
+      final FhirNoteSpecs noteSpecs = new FhirNoteSpecs( jCas );
       // creators
+      final CompositionCreator compositionCreator = new CompositionCreator();
+      final FhirResourceCreator<Segment, Basic> sectionCreator = new SectionBasicCreator();
       final FhirResourceCreator<IdentifiedAnnotation, Basic> iaCreator = new IdentifiedAnnotationBasicCreator();
       final FhirResourceCreator<Annotation, Basic> aCreator = new AnnotationBasicCreator();
-      final FhirResourceCreator<Segment, Basic> sectionCreator = new SectionBasicCreator();
       // essential types
       final Map<Segment, Collection<IdentifiedAnnotation>> sectionAnnotationMap
             = JCasUtil.indexCovered( jCas, Segment.class, IdentifiedAnnotation.class );
       final Collection<Basic> sections = new ArrayList<>( sectionAnnotationMap.size() );
-      final Map<IdentifiedAnnotation, Collection<Integer>> markableCorefs = EssentialAnnotationUtil.createMarkableCorefs( jCas );
-      final Collection<IdentifiedAnnotation> requiredAnnotations = EssentialAnnotationUtil.getRequiredAnnotations( jCas, markableCorefs );
+      final Map<IdentifiedAnnotation, Collection<Integer>> markableCorefs = EssentialAnnotationUtil.createMarkableCorefs(
+            jCas );
+      final Collection<IdentifiedAnnotation> requiredAnnotations = EssentialAnnotationUtil.getRequiredAnnotations( jCas,
+            markableCorefs );
       // Create map of annotations to Fhir Basics.
       final Map<IdentifiedAnnotation, Basic> annotationBasics = new HashMap<>();
       for ( Map.Entry<Segment, Collection<IdentifiedAnnotation>> sectionAnnotations : sectionAnnotationMap.entrySet() ) {
          final Segment segment = sectionAnnotations.getKey();
          final String segmentId = segment.getId();
-         final Basic section = sectionCreator.createResource( jCas, sectionAnnotations.getKey(), noteSpecs );
+         final Basic section = sectionCreator.createResource( jCas, sectionAnnotations.getKey(), practitioner,
+               noteSpecs );
          if ( !segmentId.isEmpty() && !segmentId.equals( SIMPLE_SECTION ) ) {
             sections.add( section );
          }
@@ -63,7 +70,7 @@ final public class FhirDocComposer {
             if ( !requiredAnnotations.contains( annotation ) ) {
                continue;
             }
-            final Basic basic = iaCreator.createResource( jCas, annotation, noteSpecs );
+            final Basic basic = iaCreator.createResource( jCas, annotation, practitioner, noteSpecs );
             if ( !segmentId.isEmpty() && !segmentId.equals( SIMPLE_SECTION ) ) {
                basic.addExtension( FhirElementFactory.createSectionExtension( sectionRef ) );
             }
@@ -77,11 +84,13 @@ final public class FhirDocComposer {
          }
       }
       // Add relations as reference extensions.
-      final Map<org.apache.uima.jcas.tcas.Annotation, Basic> simpleAnnotationBasics = new HashMap<>();
-      addRelations( jCas, noteSpecs, aCreator, annotationBasics, simpleAnnotationBasics );
+      final Map<Annotation, Basic> simpleAnnotationBasics = new HashMap<>();
+      addRelations( jCas, practitioner, noteSpecs, aCreator, annotationBasics, simpleAnnotationBasics );
       // Create a Bundle
-      final Bundle bundle = new BundleCreator().createResource( jCas, null, noteSpecs );
-      bundle.addEntry( new Bundle.BundleEntryComponent().setResource( PractitionerCtakes.getPractitioner() ) );
+      final Composition composition = compositionCreator.createResource( jCas, null, practitioner, noteSpecs );
+      final Bundle bundle = new BundleCreator().createResource( jCas, null, practitioner, noteSpecs );
+      bundle.addEntry( new Bundle.BundleEntryComponent().setResource( composition ) );
+      bundle.addEntry( new Bundle.BundleEntryComponent().setResource( practitioner.getPractitioner() ) );
       addBundleResources( bundle, noteSpecs.getSubjects() );
       addBundleResources( bundle, sections );
       addBundleResources( bundle, annotationBasics.values() );
@@ -89,51 +98,77 @@ final public class FhirDocComposer {
       return bundle;
    }
 
+   /**
+    * Add all of the given resources to the given bundle.
+    *
+    * @param bundle    -
+    * @param resources -
+    */
    static private void addBundleResources( final Bundle bundle, final Collection<? extends Resource> resources ) {
       resources.stream()
             .map( r -> new Bundle.BundleEntryComponent().setResource( r ) )
             .forEach( bundle::addEntry );
    }
 
+   /**
+    * Link fhir object ids according to ctakes relations.
+    * @param jCas ye olde ...
+    * @param practitioner -
+    * @param noteSpecs -
+    * @param aCreator -
+    * @param annotationBasics -
+    * @param simpleBasics -
+    */
    static private void addRelations( final JCas jCas,
-                                     final NoteSpecs noteSpecs,
+                                     final FhirPractitioner practitioner,
+                                     final FhirNoteSpecs noteSpecs,
                                      final FhirResourceCreator<Annotation, Basic> aCreator,
                                      final Map<IdentifiedAnnotation, Basic> annotationBasics,
-                                     final Map<org.apache.uima.jcas.tcas.Annotation, Basic> simpleBasics ) {
+                                     final Map<Annotation, Basic> simpleBasics ) {
       final Collection<BinaryTextRelation> relations = JCasUtil.select( jCas, BinaryTextRelation.class );
       for ( BinaryTextRelation relation : relations ) {
          final RelationArgument arg1 = relation.getArg1();
-         final org.apache.uima.jcas.tcas.Annotation source = arg1.getArgument();
+         final Annotation source = arg1.getArgument();
          Basic basicSource;
          if ( source instanceof IdentifiedAnnotation ) {
-            basicSource = annotationBasics.get( (IdentifiedAnnotation) source );
+            basicSource = annotationBasics.get( (IdentifiedAnnotation)source );
          } else {
-            basicSource = getSimpleBasic( jCas, source, noteSpecs, aCreator, simpleBasics );
+            basicSource = getSimpleBasic( jCas, source, practitioner, noteSpecs, aCreator, simpleBasics );
          }
          final RelationArgument arg2 = relation.getArg2();
-         final org.apache.uima.jcas.tcas.Annotation target = arg2.getArgument();
+         final Annotation target = arg2.getArgument();
          Basic basicTarget;
          if ( target instanceof IdentifiedAnnotation ) {
-            basicTarget = annotationBasics.get( (IdentifiedAnnotation) target );
+            basicTarget = annotationBasics.get( (IdentifiedAnnotation)target );
          } else {
-            basicTarget = getSimpleBasic( jCas, target, noteSpecs, aCreator, simpleBasics );
+            basicTarget = getSimpleBasic( jCas, target, practitioner, noteSpecs, aCreator, simpleBasics );
          }
          final String type = relation.getCategory();
          basicSource.addExtension( FhirElementFactory.createRelation( type, basicTarget ) );
       }
    }
 
-
+   /**
+    *
+    * @param jCas ye olde ...
+    * @param annotation -
+    * @param practitioner -
+    * @param noteSpecs -
+    * @param aCreator -
+    * @param simpleBasics -
+    * @return fhir Basic object for the given annotation.
+    */
    static private Basic getSimpleBasic( final JCas jCas,
-                                        final org.apache.uima.jcas.tcas.Annotation annotation,
-                                        final NoteSpecs noteSpecs,
+                                        final Annotation annotation,
+                                        final FhirPractitioner practitioner,
+                                        final FhirNoteSpecs noteSpecs,
                                         final FhirResourceCreator<Annotation, Basic> aCreator,
-                                        final Map<org.apache.uima.jcas.tcas.Annotation, Basic> simpleBasics ) {
+                                        final Map<Annotation, Basic> simpleBasics ) {
       final Basic basic = simpleBasics.get( annotation );
       if ( basic != null ) {
          return basic;
       }
-      final Basic newBasic = aCreator.createResource( jCas, annotation, noteSpecs );
+      final Basic newBasic = aCreator.createResource( jCas, annotation, practitioner, noteSpecs );
       simpleBasics.put( annotation, newBasic );
       return newBasic;
    }

@@ -1,7 +1,7 @@
 package org.apache.ctakes.fhir.resource;
 
-import org.apache.ctakes.fhir.cc.FhirElementFactory;
-import org.apache.ctakes.fhir.util.NoteSpecs;
+import org.apache.ctakes.fhir.element.FhirElementFactory;
+import org.apache.ctakes.fhir.util.FhirNoteSpecs;
 import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -22,19 +22,22 @@ final public class IdentifiedAnnotationBasicCreator implements FhirResourceCreat
 
    static private final Logger LOGGER = Logger.getLogger( "IdentifiedAnnotationBasicCreator" );
 
-   static private final String GENERIC_EXT = "generic";
-   static private final String UNCERTAIN_EXT = "uncertain";
-   static private final String NEGATED_EXT = "negated";
-   static private final String HISTORIC_EXT = "historic";
+   static public final String ID_NAME_IDENTIFIED_ANNOTATION = "IdentifiedAnnotation";
+
+   static public final String GENERIC_EXT = "generic";
+   static public final String UNCERTAIN_EXT = "uncertain";
+   static public final String NEGATED_EXT = "negated";
+   static public final String HISTORIC_EXT = "historic";
 
    /**
     * {@inheritDoc}
     */
    @Override
-   public Basic createResource( final JCas jCas, final IdentifiedAnnotation annotation, final NoteSpecs noteSpecs ) {
+   public Basic createResource( final JCas jCas, final IdentifiedAnnotation annotation,
+                                final FhirPractitioner practitioner, final FhirNoteSpecs noteSpecs ) {
       final Basic basic = new Basic();
       // The 'id' is name of the Resource type (class).  e.g. DiseaseDisorderMention
-      basic.setId( FhirElementFactory.createId( jCas, annotation ) );
+      basic.setId( FhirElementFactory.createId( jCas, ID_NAME_IDENTIFIED_ANNOTATION, annotation.hashCode() ) );
       // The 'code' is the full ontology concept array: cuis, snomeds, urls, preferred text, PLUS covered text.
       basic.setCode( FhirElementFactory.createPrimaryCode( annotation ) );
       // Add Subject reference.
@@ -42,7 +45,7 @@ final public class IdentifiedAnnotationBasicCreator implements FhirResourceCreat
       // Add Creation Date as now.
       basic.setCreated( new Date() );
       // Add Author (ctakes).
-      basic.setAuthor( PractitionerCtakes.getPractitionerReference() );
+      basic.setAuthor( practitioner.getPractitionerReference() );
       // Add text span as an extension.
       basic.addExtension( FhirElementFactory.createSpanBegin( annotation ) );
       basic.addExtension( FhirElementFactory.createSpanEnd( annotation ) );

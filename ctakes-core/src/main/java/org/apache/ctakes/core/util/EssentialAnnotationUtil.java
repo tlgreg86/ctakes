@@ -7,6 +7,7 @@ import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.relation.RelationArgument;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.textsem.*;
+import org.apache.ctakes.typesystem.type.textspan.Segment;
 import org.apache.log4j.Logger;
 import org.apache.uima.fit.util.FSCollectionFactory;
 import org.apache.uima.fit.util.JCasUtil;
@@ -35,8 +36,10 @@ final public class EssentialAnnotationUtil {
          || TimeMention.class.isInstance( a )
          || EntityMention.class.isInstance( a );
 
-   static public Collection<IdentifiedAnnotation> getEssentialAnnotations( final Collection<IdentifiedAnnotation> annotations ) {
-      return annotations.stream().filter( ESSENTIALS ).collect( Collectors.toList() );
+   static private Collection<IdentifiedAnnotation> getEssentialAnnotations( final Collection<IdentifiedAnnotation> annotations ) {
+      return annotations.stream()
+            .filter( ESSENTIALS )
+            .collect( Collectors.toList() );
    }
 
    static private void cullToEssentialAnnotations( final Collection<Collection<IdentifiedAnnotation>> annotationCollections ) {
@@ -61,16 +64,25 @@ final public class EssentialAnnotationUtil {
 
    static public Collection<IdentifiedAnnotation> getRequiredAnnotations( final JCas jCas,
                                                                           final Map<IdentifiedAnnotation, Collection<Integer>> corefIndexed ) {
-      final Collection<IdentifiedAnnotation> allAnnotations = JCasUtil.select( jCas, IdentifiedAnnotation.class );
+      return getRequiredAnnotations( jCas, JCasUtil.select( jCas, IdentifiedAnnotation.class ), corefIndexed );
+   }
+
+   static public Collection<IdentifiedAnnotation> getRequiredAnnotations( final JCas jCas,
+                                                                          final Collection<IdentifiedAnnotation> allAnnotations,
+                                                                          final Map<IdentifiedAnnotation, Collection<Integer>> corefIndexed ) {
+      return getRequiredAnnotations( allAnnotations, corefIndexed, JCasUtil.select( jCas, BinaryTextRelation.class ) );
+   }
+
+   static public Collection<IdentifiedAnnotation> getRequiredAnnotations( final Collection<IdentifiedAnnotation> allAnnotations,
+                                                                          final Map<IdentifiedAnnotation, Collection<Integer>> corefIndexed,
+                                                                          final Collection<BinaryTextRelation> relations ) {
       final Collection<IdentifiedAnnotation> essentialAnnotations = getEssentialAnnotations( allAnnotations );
       // Collection of annotations required to cover all umls annotations, relations, coreferences
       final Collection<IdentifiedAnnotation> requiredAnnotations = new HashSet<>( essentialAnnotations );
       requiredAnnotations.addAll( corefIndexed.keySet() );
-      final Collection<BinaryTextRelation> relations = JCasUtil.select( jCas, BinaryTextRelation.class );
       requiredAnnotations.addAll( getRelationAnnotations( relations ) );
       return requiredAnnotations;
    }
-
 
    /**
     * @param jCas ye olde ...
@@ -86,8 +98,9 @@ final public class EssentialAnnotationUtil {
     * @param corefs coreference chains
     * @return a map of markables to indexed chain numbers
     */
-   static public Map<IdentifiedAnnotation, Collection<Integer>> createMarkableCorefs( final Collection<CollectionTextRelation> corefs,
-                                                                                      final Map<Markable, IdentifiedAnnotation> markableAnnotations ) {
+   static public Map<IdentifiedAnnotation, Collection<Integer>> createMarkableCorefs(
+         final Collection<CollectionTextRelation> corefs,
+         final Map<Markable, IdentifiedAnnotation> markableAnnotations ) {
       if ( corefs == null || corefs.isEmpty() ) {
          return Collections.emptyMap();
       }
@@ -99,7 +112,8 @@ final public class EssentialAnnotationUtil {
          for ( Markable markable : markables ) {
             final IdentifiedAnnotation annotation = markableAnnotations.get( markable );
             corefMarkables.putIfAbsent( annotation, new ArrayList<>() );
-            corefMarkables.get( annotation ).add( index );
+            corefMarkables.get( annotation )
+                  .add( index );
          }
          index++;
       }
@@ -113,8 +127,8 @@ final public class EssentialAnnotationUtil {
     * @param corefs -
     * @return map of markable to identified annotation
     */
-   static private Map<Markable, IdentifiedAnnotation> mapMarkableAnnotations( final JCas jCas,
-                                                                              final Collection<CollectionTextRelation> corefs ) {
+   static private Map<Markable, IdentifiedAnnotation> mapMarkableAnnotations(
+         final JCas jCas, final Collection<CollectionTextRelation> corefs ) {
       if ( corefs == null || corefs.isEmpty() ) {
          return Collections.emptyMap();
       }
@@ -131,9 +145,10 @@ final public class EssentialAnnotationUtil {
                continue;
             }
             final ConllDependencyNode headNode = getNominalHeadNode( new ArrayList<>( nodes ) );
-            final Collection<IdentifiedAnnotation> allAnnotations = nodeAnnotations.get( headNode );
-            final Collection<IdentifiedAnnotation> essentialAnnotations = getEssentialAnnotations( allAnnotations );
-            final Collection<IdentifiedAnnotation> nonEssentialAnnotations = getNonEssentialAnnotations( allAnnotations, essentialAnnotations );
+            final Collection<IdentifiedAnnotation> headNodeAnnotations = nodeAnnotations.get( headNode );
+            final Collection<IdentifiedAnnotation> essentialAnnotations = getEssentialAnnotations( headNodeAnnotations );
+            final Collection<IdentifiedAnnotation> nonEssentialAnnotations = getNonEssentialAnnotations( headNodeAnnotations,
+                  essentialAnnotations );
 
             IdentifiedAnnotation bestAnnotation = null;
             int bestLength = Integer.MAX_VALUE;
@@ -180,7 +195,8 @@ final public class EssentialAnnotationUtil {
 
       // Remove root from consideration
       for ( int i = 0; i < anodes.size(); i++ ) {
-         if ( anodes.get( i ).getId() == 0 ) {
+         if ( anodes.get( i )
+               .getId() == 0 ) {
             anodes.remove( i );
          }
       }
@@ -189,7 +205,10 @@ final public class EssentialAnnotationUtil {
       for ( int id1 = 0; id1 < anodes.size(); id1++ ) {
          for ( int id2 = 0; id2 < anodes.size(); id2++ ) {
             // no head-dependency relationship between id1 and id2
-            if ( id1 == id2 || anodes.get( id1 ).getId() != anodes.get( id2 ).getHead().getId() ) {
+            if ( id1 == id2 || anodes.get( id1 )
+                  .getId() != anodes.get( id2 )
+                  .getHead()
+                  .getId() ) {
                matrixofheads[ id2 ][ id1 ] = false;
             }
             // a match
@@ -224,7 +243,8 @@ final public class EssentialAnnotationUtil {
       if ( outnodes.isEmpty() ) {
          // pick a noun from the left, if there is one
          for ( int i = 0; i < anodes.size(); i++ ) {
-            if ( Pattern.matches( "N..?", anodes.get( i ).getPostag() ) ) {
+            if ( Pattern.matches( "N..?", anodes.get( i )
+                  .getPostag() ) ) {
                return anodes.get( i );
             }
          }
@@ -235,7 +255,8 @@ final public class EssentialAnnotationUtil {
       else {
          // pick a noun from the left, if there is one
          for ( int i = 0; i < outnodes.size(); i++ ) {
-            if ( Pattern.matches( "N..?", outnodes.get( i ).getPostag() ) ) {
+            if ( Pattern.matches( "N..?", outnodes.get( i )
+                  .getPostag() ) ) {
                return outnodes.get( i );
             }
          }
@@ -245,7 +266,8 @@ final public class EssentialAnnotationUtil {
    }
 
 
-   static public Collection<IdentifiedAnnotation> getRelationAnnotations( final Collection<BinaryTextRelation> relations ) {
+   static public Collection<IdentifiedAnnotation> getRelationAnnotations(
+         final Collection<BinaryTextRelation> relations ) {
       final Collection<IdentifiedAnnotation> relationAnnotations = new HashSet<>();
       for ( BinaryTextRelation relation : relations ) {
          IdentifiedAnnotation sourceIA;
@@ -274,7 +296,8 @@ final public class EssentialAnnotationUtil {
 
 
    // The assumption is that any given span can only have one exact EventMention.
-   static private Collection<IdentifiedAnnotation> getEventMentions( final Collection<IdentifiedAnnotation> annotations ) {
+   static private Collection<IdentifiedAnnotation> getEventMentions(
+         final Collection<IdentifiedAnnotation> annotations ) {
       return annotations.stream()
             .filter( a -> EventMention.class.equals( a.getClass() ) )
             .collect( Collectors.toList() );
@@ -284,7 +307,8 @@ final public class EssentialAnnotationUtil {
     * @param annotationMap -
     * @return map of umls annotations to events
     */
-   static private Map<IdentifiedAnnotation, Collection<IdentifiedAnnotation>> getAnnotationEvents( final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap ) {
+   static private Map<IdentifiedAnnotation, Collection<IdentifiedAnnotation>> getAnnotationEvents(
+         final Map<TextSpan, Collection<IdentifiedAnnotation>> annotationMap ) {
       final Map<IdentifiedAnnotation, Collection<IdentifiedAnnotation>> annotationEvents = new HashMap<>();
       final Map<TextSpan, Collection<IdentifiedAnnotation>> unusedEvents = new HashMap<>();
       for ( Map.Entry<TextSpan, Collection<IdentifiedAnnotation>> entry : annotationMap.entrySet() ) {
@@ -316,7 +340,8 @@ final public class EssentialAnnotationUtil {
          TextSpan usedEventSpan = null;
          for ( Map.Entry<TextSpan, Collection<IdentifiedAnnotation>> unusedEvent : unusedEvents.entrySet() ) {
             if ( !span.equals( unusedEvent.getKey() ) && span.contains( unusedEvent.getKey() ) ) {
-               entry.getValue().stream()
+               entry.getValue()
+                     .stream()
                      .filter( EventMention.class::isInstance )
                      .forEach( a -> annotationEvents.put( a, unusedEvent.getValue() ) );
                usedEventSpan = unusedEvent.getKey();
@@ -331,13 +356,36 @@ final public class EssentialAnnotationUtil {
             }
          }
       }
-      usedEvents.forEach( ( s, e ) -> annotationMap.get( s ).remove( e ) );
-      final Collection<TextSpan> emptySpans = annotationMap.entrySet().stream()
-            .filter( e -> e.getValue().isEmpty() )
+      usedEvents.forEach( ( s, e ) -> annotationMap.get( s )
+            .remove( e ) );
+      final Collection<TextSpan> emptySpans = annotationMap.entrySet()
+            .stream()
+            .filter( e -> e.getValue()
+                  .isEmpty() )
             .map( Map.Entry::getKey )
             .collect( Collectors.toList() );
-      annotationMap.keySet().removeAll( emptySpans );
+      annotationMap.keySet()
+            .removeAll( emptySpans );
       return annotationEvents;
+   }
+
+   static private String createSectionName( final Segment section ) {
+      final String sectionPref = section.getPreferredText();
+      final String sectionId = section.getId();
+      if ( sectionId != null && !sectionId.isEmpty() && !sectionId.equals( sectionPref ) ) {
+         if ( sectionPref == null || sectionPref.isEmpty() ) {
+            return sectionId;
+         }
+         return sectionPref + " " + sectionId;
+      }
+      if ( sectionPref != null && !sectionPref.isEmpty() ) {
+         return sectionPref;
+      }
+      final String tagText = section.getTagText();
+      if ( tagText == null || tagText.isEmpty() ) {
+         return "Unknown Section";
+      }
+      return tagText;
    }
 
 
