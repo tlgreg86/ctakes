@@ -31,6 +31,8 @@ final public class EssentialAnnotationUtil {
    private EssentialAnnotationUtil() {
    }
 
+   static private final Pattern N_DOT_PATTERN = Pattern.compile( "N..?" );
+
    static private final java.util.function.Predicate<Annotation> ESSENTIALS
          = a -> EventMention.class.isInstance( a )
          || TimeMention.class.isInstance( a )
@@ -205,16 +207,10 @@ final public class EssentialAnnotationUtil {
       for ( int id1 = 0; id1 < anodes.size(); id1++ ) {
          for ( int id2 = 0; id2 < anodes.size(); id2++ ) {
             // no head-dependency relationship between id1 and id2
-            if ( id1 == id2 || anodes.get( id1 )
-                  .getId() != anodes.get( id2 )
-                  .getHead()
-                  .getId() ) {
-               matrixofheads[ id2 ][ id1 ] = false;
-            }
-            // a match
-            else {
-               matrixofheads[ id2 ][ id1 ] = true;
-            }
+            matrixofheads[ id2 ][ id1 ]
+                  = id1 != id2
+                    && anodes.get( id2 ).getHead() != null
+                    && anodes.get( id1 ).getId() == anodes.get( id2 ).getHead().getId();
          }
       }
 
@@ -243,8 +239,8 @@ final public class EssentialAnnotationUtil {
       if ( outnodes.isEmpty() ) {
          // pick a noun from the left, if there is one
          for ( int i = 0; i < anodes.size(); i++ ) {
-            if ( Pattern.matches( "N..?", anodes.get( i )
-                  .getPostag() ) ) {
+            if ( anodes.get( i ) != null && anodes.get( i ).getPostag() != null
+                 && N_DOT_PATTERN.matcher( anodes.get( i ).getPostag() ).matches() ) {
                return anodes.get( i );
             }
          }
@@ -255,8 +251,8 @@ final public class EssentialAnnotationUtil {
       else {
          // pick a noun from the left, if there is one
          for ( int i = 0; i < outnodes.size(); i++ ) {
-            if ( Pattern.matches( "N..?", outnodes.get( i )
-                  .getPostag() ) ) {
+            if ( outnodes.get( i ) != null && outnodes.get( i ).getPostag() != null
+                 && N_DOT_PATTERN.matcher( outnodes.get( i ).getPostag() ).matches() ) {
                return outnodes.get( i );
             }
          }

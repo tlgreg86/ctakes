@@ -39,6 +39,8 @@ public abstract class DependencyUtility {
 
 	public static Logger logger = Logger.getLogger("org.apache.ctakes.dependency.parser.util.DependencyUtility");
 
+	static private final Pattern N_DOT_PATTERN = Pattern.compile( "N..?" );
+
 	public static void addToIndexes( JCas jcas, ArrayList<ConllDependencyNode> nodes ) {
 		for (int i=0; i<nodes.size(); i++) {
 			// Enter UIMA nodes into index
@@ -133,9 +135,13 @@ public abstract class DependencyUtility {
 		for (int id1=0; id1<anodes.size(); id1++) {
 			for (int id2=0; id2<anodes.size(); id2++) {
 				// no head-dependency relationship between id1 and id2
+//				matrixofheads[ id2 ][ id1 ]
+//						= id1 != id2
+//						  && anodes.get( id2 ).getHead() != null
+//						  && anodes.get( id1 ).getId() == anodes.get( id2 ).getHead().getId();
 				if (id1==id2 || anodes.get(id1).getId()!=anodes.get(id2).getHead().getId()) {
 					matrixofheads[id2][id1]=false;
-				} 
+				}
 				// a match
 				else {
 					matrixofheads[id2][id1]=true;
@@ -168,7 +174,9 @@ public abstract class DependencyUtility {
 		if (outnodes.isEmpty()) {
 			// pick a noun from the left, if there is one
 			for (int i=0; i<anodes.size(); i++) {
-				if (Pattern.matches("N..?", anodes.get(i).getPostag())) {
+				if ( anodes.get( i ) != null && anodes.get( i ).getPostag() != null
+					  && N_DOT_PATTERN.matcher( anodes.get( i ).getPostag() ).matches() ) {
+//					if (Pattern.matches("N..?", anodes.get(i).getPostag())) {
 					return anodes.get(i);
 				}
 			}
@@ -179,7 +187,9 @@ public abstract class DependencyUtility {
 		else {
 			// pick a noun from the left, if there is one
 			for (int i=0; i<outnodes.size(); i++) {
-				if (Pattern.matches("N..?", outnodes.get(i).getPostag())) {
+				if ( outnodes.get( i ) != null && outnodes.get( i ).getPostag() != null
+					  && N_DOT_PATTERN.matcher( outnodes.get( i ).getPostag() ).matches() ) {
+//				if (Pattern.matches("N..?", outnodes.get(i).getPostag())) {
 					return outnodes.get(i);
 				}
 			}
