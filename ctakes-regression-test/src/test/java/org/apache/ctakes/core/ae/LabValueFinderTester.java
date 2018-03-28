@@ -42,6 +42,13 @@ public class LabValueFinderTester {
    static private AnalysisEngineDescription defaultLabAnnotator;
    static private AnalysisEngineDescription sameLineLabAnnotator;
 
+   /**
+    * If you choose to test with the default ctakes dictionary, use the second DefaultJCasTermAnnotator with
+    * UMLS credentials.  Also, uncomment the PARAM_USE_DRUGS lines in descriptor creation as many a "Lab"
+    * is represented by a medication in traditional ctakes.
+    *
+    * @throws UIMAException -
+    */
    @BeforeClass
    public static void setUpBeforeClass() throws UIMAException {
       simpleSegmentator = SimpleSegmentAnnotator.createAnnotatorDescription();
@@ -53,10 +60,17 @@ public class LabValueFinderTester {
       builder.add( AnalysisEngineFactory.createEngineDescription( ContextDependentTokenizerAnnotator.class ) );
       builder.add( AnalysisEngineFactory.createEngineDescription( POSTagger.class ) );
       builder.add( DefaultJCasTermAnnotator.createAnnotatorDescription( DICT_DESC_PATH ) );
+//      builder.add( AnalysisEngineFactory.createEngineDescription( DefaultJCasTermAnnotator.class,
+//            UmlsUserApprover.USER_PARAM, "UMLS_USER",
+//            UmlsUserApprover.PASS_PARAM, "UMLS_PASS" ) );
       midPipeline = builder.createAggregateDescription();
 
-      defaultLabAnnotator = LabValueFinder.createAnnotatorDescription( PARAM_ALL_SECTIONS, "false" );
-      sameLineLabAnnotator = LabValueFinder.createAnnotatorDescription( LabValueFinder.PARAM_MAX_NEWLINES, 1, PARAM_ALL_SECTIONS, "false" );
+      defaultLabAnnotator = LabValueFinder.createAnnotatorDescription(
+//            LabValueFinder.PARAM_USE_DRUGS, "true",
+            PARAM_ALL_SECTIONS, "false" );
+      sameLineLabAnnotator = LabValueFinder.createAnnotatorDescription(
+//            LabValueFinder.PARAM_USE_DRUGS, "true",
+            LabValueFinder.PARAM_MAX_NEWLINES, 1, PARAM_ALL_SECTIONS, "false" );
 //      LabValueFinder.LOGGER.setLevel( Level.DEBUG );
    }
 

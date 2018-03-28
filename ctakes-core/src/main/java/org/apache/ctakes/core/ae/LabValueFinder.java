@@ -52,6 +52,7 @@ final public class LabValueFinder extends JCasAnnotator_ImplBase {
    public static final int DEFAULT_MAX_LINE_COUNT = 2;
    public static final String PARAM_LAB_TUIS = "labTUIs";
    public static final String PARAM_LAB_X_CUIS = "excludeCUIs";
+   public static final String PARAM_USE_DRUGS = "useDrugs";
 
    static private final String[] REQUIRED_SECTIONS = { "2.16.840.1.113883.10.20.22.2.3.1" };
    static private final String[] REQUIRED_VALUE_WORDS = { "positive", "negative", "elevated", "normal", "increased", "decreased" };
@@ -105,6 +106,13 @@ final public class LabValueFinder extends JCasAnnotator_ImplBase {
    private String[] _excludeCuis;
    private Collection<String> excludeCuis;
 
+   @ConfigurationParameter( name = PARAM_USE_DRUGS,
+         description = "Use Medications in addition to Labs.",
+         defaultValue = "false",
+         mandatory = false )
+   private String _useDrugsText;
+   private boolean _useDrugs;
+
    /**
     * {@inheritDoc}
     */
@@ -119,6 +127,7 @@ final public class LabValueFinder extends JCasAnnotator_ImplBase {
       valueWords = gatherParameters( REQUIRED_VALUE_WORDS, _valueWords );
       labTuis = gatherParameters( REQUIRED_LAB_TUIS, _labTuis );
       excludeCuis = gatherParameters( REQUIRED_EXCLUDE_CUIS, _excludeCuis );
+      _useDrugs = Boolean.parseBoolean( _useDrugsText );
 
       LOGGER.debug( PARAM_MAX_NEWLINES + " = " + maxLineCount );
       LOGGER.info( labTuis.size() + " lab TUIs: " + labTuis.toString() );
@@ -171,7 +180,7 @@ final public class LabValueFinder extends JCasAnnotator_ImplBase {
     * @return Existing and extracted LabMentions in the segment.
     */
    private List<LabMention> annotateMentions( final JCas jCas, final Segment segment ) {
-      final List<LabMention> labMentions = new ArrayList<>();
+      final List<LabMention> unvaluedLabMentions = new ArrayList<>();
       for ( IdentifiedAnnotation annotation : JCasUtil.selectCovered( jCas, IdentifiedAnnotation.class, segment ) ) {
          // first check to see if the annotation is a lab mention.
          if ( LabMention.class.isInstance( annotation ) ) {
@@ -185,10 +194,18 @@ final public class LabValueFinder extends JCasAnnotator_ImplBase {
                initValueRelation( jCas, (LabMention) annotation );
             }
             // add the LabMention and move on.
-            labMentions.add( (LabMention) annotation );
+            unvaluedLabMentions.add( (LabMention)annotation );
             continue;
          }
          // Annotation was not a LabMention, but check to see if any part of it can be.
+         if ( _useDrugs && MedicationMention.class.isInstance( annotation ) ) {
+            LOGGER.info( "Using Drug " + annotation.getCoveredText() );
+            // We have valid lab concepts in the annotation.  Create an overlapping LabMention with those concepts.
+            final LabMention lab = createLabMention( jCas,
+                  OntologyConceptUtil.getUmlsConcepts( annotation ), annotation.getBegin(), annotation.getEnd() );
+            unvaluedLabMentions.add( lab );
+         }
+         // Check using hardcoded extra concept types.
          final Collection<UmlsConcept> validConcepts
                = OntologyConceptUtil.getUmlsConceptStream( annotation )
                .filter( c -> labTuis.contains( c.getTui() ) )
@@ -198,9 +215,9 @@ final public class LabValueFinder extends JCasAnnotator_ImplBase {
          }
          // We have valid lab concepts in the annotation.  Create an overlapping LabMention with those concepts.
          final LabMention lab = createLabMention( jCas, validConcepts, annotation.getBegin(), annotation.getEnd() );
-         labMentions.add( lab );
+         unvaluedLabMentions.add( lab );
       }
-      return labMentions;
+      return unvaluedLabMentions;
    }
 
    /**
