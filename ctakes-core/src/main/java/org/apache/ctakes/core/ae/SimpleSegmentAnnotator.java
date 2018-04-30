@@ -67,6 +67,7 @@ public class SimpleSegmentAnnotator extends JCasAnnotator_ImplBase {
 		}
 		segment.setEnd(jCas.getDocumentText().length());
 		segment.setId(segmentId);
+      segment.setPreferredText( segmentId );
 		segment.addToIndexes();
 	}
 	
