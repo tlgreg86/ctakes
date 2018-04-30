@@ -65,7 +65,13 @@ public enum PatientNoteStore {
     * @param engineName name of engine that consumes patients
     */
    synchronized public void registerEngine( final String engineName ) {
-      _registeredEngines.add( engineName );
+      if ( !_registeredEngines.add( engineName ) ) {
+         throw new IllegalArgumentException( engineName
+                                             + " already Registered!  To add an engine twice, please use the parameter "
+                                             + AbstractPatientConsumer.ENGINE_NAME
+                                             + " to specify unique names" +
+                                             " OR if you are developing the engine override getEngineName() method." );
+      }
    }
 
    /**
