@@ -32,8 +32,16 @@ public class PatientMentionClusterCoreferencer extends AbstractPatientConsumer {
     */
    @Override
    public void initialize( final UimaContext context ) throws ResourceInitializationException {
-      super.initialize( context );
       _delegate.initialize( context );
+      super.initialize( context );
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public String getEngineName() {
+      return _delegate.getEngineName();
    }
 
    /**

@@ -1,6 +1,7 @@
 package org.apache.ctakes.core.patient;
 
 
+import org.apache.ctakes.core.ae.NamedEngine;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
 import org.apache.ctakes.core.util.SourceMetadataUtil;
 import org.apache.ctakes.typesystem.type.structured.DocumentIdPrefix;
@@ -36,10 +37,15 @@ public enum PatientNoteStore {
 
    static private final String GENERIC_PATIENT = "Generic";
 
+   // Collection of annotation engines (by some id) that consume patients
    private final Collection<String> _registeredEngines;
+   // Map of Patient Name (id) to registered engines that have already consumed the patient
    private final Map<String, Collection<String>> _enginesRun;
+   // Map of patient id to patient jcas
    private final Map<String, JCas> _patientMap;
+   // Map of Patient Name (id) to ViewInfo objects - metadata for jCas views
    private final Map<String, Collection<ViewInfo>> _patientViewInfos;
+   // Map of Patient Name (id) to document count for that patient.  Required to remove cached patient after last pop()
    private final Map<String, Integer> _wantedDocCounts;
 
    /**
@@ -55,8 +61,19 @@ public enum PatientNoteStore {
 
    /////////////////    Get available patient, document, view names   ///////////////
 
+   /**
+    * @param engineName name of engine that consumes patients
+    */
    synchronized public void registerEngine( final String engineName ) {
       _registeredEngines.add( engineName );
+   }
+
+   /**
+    *
+    * @param namedEngine engine that consumes patients
+    */
+   synchronized public void registerEngine( final NamedEngine namedEngine ) {
+      registerEngine( namedEngine.getEngineName() );
    }
 
    /**
@@ -66,8 +83,8 @@ public enum PatientNoteStore {
    @Deprecated
    synchronized public Collection<String> getStoredPatientIds() {
       return _patientMap.keySet().stream()
-            .sorted()
-            .collect( Collectors.toList() );
+                        .sorted()
+                        .collect( Collectors.toList() );
    }
 
    /**

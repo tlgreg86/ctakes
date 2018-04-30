@@ -4,10 +4,12 @@ import org.apache.ctakes.core.ae.NamedEngine;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.SourceMetadataUtil;
 import org.apache.log4j.Logger;
+import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
 
 import java.util.Collection;
 
@@ -24,7 +26,8 @@ import java.util.Collection;
  */
 @PipeBitInfo(
       name = "AbstractPatientConsumer",
-      description = "Abstract Engine to take action on a patient level instead of document level.", role = PipeBitInfo.Role.ANNOTATOR
+      description = "Abstract Engine to take action on a patient level instead of document level.",
+      role = PipeBitInfo.Role.ANNOTATOR
 )
 abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase implements NamedEngine {
 
@@ -43,6 +46,14 @@ abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase imp
    protected AbstractPatientConsumer( final String aeName, final String action ) {
       _action = action;
       _logger = Logger.getLogger( aeName );
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void initialize( final UimaContext context ) throws ResourceInitializationException {
+      super.initialize( context );
       PatientNoteStore.getInstance().registerEngine( getEngineName() );
    }
 

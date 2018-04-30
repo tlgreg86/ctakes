@@ -1,5 +1,6 @@
 package org.apache.ctakes.coreference.ae;
 
+import org.apache.ctakes.core.ae.NamedEngine;
 import org.apache.ctakes.core.patient.PatientViewUtil;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.util.DotLogger;
@@ -12,7 +13,6 @@ import org.apache.ctakes.coreference.util.MarkableUtilities;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
-import org.apache.ctakes.temporal.utils.PatientViewsUtil;
 import org.apache.ctakes.typesystem.type.refsem.*;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelationIdentifiedAnnotationRelation;
@@ -25,7 +25,6 @@ import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.CASException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
@@ -57,7 +56,7 @@ import static org.apache.ctakes.coreference.util.ClusterMentionFetcher.Collectio
         dependencies = { BASE_TOKEN, SENTENCE, SECTION, IDENTIFIED_ANNOTATION, MARKABLE },
         products = { COREFERENCE_RELATION }
 )
-public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String> {
+public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String> implements NamedEngine {
   static private final Logger LOGGER = Logger.getLogger( MentionClusterCoreferenceAnnotator.class.getSimpleName() );
 
   public static final String NO_RELATION_CATEGORY = "-NONE-";
@@ -134,6 +133,18 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
   private List<ClusterMentionPairer_ImplBase> pairExtractors = this.getPairExtractors();
 
 //  private Set<String> markableStrings = null;
+
+   /**
+    * @return the simple name f this class or that name with "_Training" appending if the annotator is for training.
+    */
+   @Override
+   public String getEngineName() {
+      final String simpleName = getClass().getSimpleName();
+      if ( isTraining() ) {
+         return simpleName + "_Training";
+      }
+      return simpleName;
+   }
 
   protected List<RelationFeaturesExtractor<CollectionTextRelation,IdentifiedAnnotation>> getFeatureExtractors() {
     List<RelationFeaturesExtractor<CollectionTextRelation,IdentifiedAnnotation>> extractors = new ArrayList<>();
