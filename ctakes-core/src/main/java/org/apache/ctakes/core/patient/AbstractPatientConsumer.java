@@ -32,6 +32,7 @@ import java.util.Collection;
 abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase implements NamedEngine {
 
    static public final String REMOVE_PATIENT = "RemovePatient";
+   static public final String ENGINE_NAME = "EngineName";
 
    @ConfigurationParameter(
          name = REMOVE_PATIENT,
@@ -40,12 +41,30 @@ abstract public class AbstractPatientConsumer extends JCasAnnotator_ImplBase imp
    )
    private boolean _removePatient;
 
+   @ConfigurationParameter(
+         name = ENGINE_NAME,
+         description = "The Name to use for this Patient Consumer.  Must be unique in the pipeline",
+         mandatory = false
+   )
+   private String _engineName;
+
    private final String _action;
    private final Logger _logger;
 
    protected AbstractPatientConsumer( final String aeName, final String action ) {
       _action = action;
       _logger = Logger.getLogger( aeName );
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public String getEngineName() {
+      if ( _engineName != null && !_engineName.isEmpty() ) {
+         return _engineName;
+      }
+      return getClass().getSimpleName();
    }
 
    /**
