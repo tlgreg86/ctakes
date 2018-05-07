@@ -32,7 +32,7 @@ public class MentionClusterAgreementFeaturesExtractor implements RelationFeature
       throw new RuntimeException("This extractor requires a call to setCache()");
     }
     List<Feature> features = new ArrayList<>();
-    
+
     String s = mention.getCoveredText().toLowerCase();
     boolean isDem = isDemonstrative(s);
     boolean isDef = isDefinite(s);

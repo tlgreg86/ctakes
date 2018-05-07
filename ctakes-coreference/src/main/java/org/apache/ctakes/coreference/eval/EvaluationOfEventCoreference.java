@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 import de.bwaldvogel.liblinear.FeatureNode;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.ctakes.assertion.medfacts.cleartk.*;
 import org.apache.ctakes.core.config.ConfigParameterConstants;
 import org.apache.ctakes.core.patient.AbstractPatientConsumer;
@@ -58,6 +59,7 @@ import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.pipeline.JCasIterator;
 import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.FSCollectionFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
@@ -85,6 +87,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_ImplBase {
  
@@ -253,7 +256,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
       aggregateBuilder.add(HistoryCleartkAnalysisEngine.createAnnotatorDescription());
       aggregateBuilder.add(SubjectCleartkAnalysisEngine.createAnnotatorDescription());
 
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ViewCreatorAnnotator.class, ViewCreatorAnnotator.PARAM_VIEW_NAME, "Baseline"));
+//      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ViewCreatorAnnotator.class, ViewCreatorAnnotator.PARAM_VIEW_NAME, "Baseline"));
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphAnnotator.class));
       //      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(ParagraphVectorAnnotator.class));
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RelationPropagator.class));
@@ -261,21 +264,18 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
       aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
       aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
       if(this.goldMarkables){
-        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyGoldMarkablesInChains.class));
+        throw new NotImplementedException("Using gold markables needs to be rewritten to be compatible with patient-level annotations.");
+//        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyGoldMarkablesInChains.class));
       }else{
         aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DeterministicMarkableAnnotator.class));
         //    aggregateBuilder.add(CopyFromGold.getDescription(/*Markable.class,*/ CoreferenceRelation.class, CollectionTextRelation.class));
         aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(RemovePersonMarkables.class));
       }
-      // MarkableHeadTreeCreator creates a cache of mappings from Markables to dependency heads since so many feature extractors use that information
-      // major speedup
-//      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(MarkableHeadTreeCreator.class));
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyCoreferenceRelations.class), CopyCoreferenceRelations.PARAM_GOLD_VIEW, GOLD_VIEW_NAME);
-      // the coreference module uses segments to index markables, but we don't have them in the gold standard.
       aggregateBuilder.add(CopyFromSystem.getDescription(Segment.class), GOLD_VIEW_NAME, GOLD_VIEW_NAME);
 
       aggregateBuilder.add(MarkableSalienceAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/salience/model.jar"));
       if(this.evalType == EVAL_SYSTEM.MENTION_PAIR){
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyCoreferenceRelations.class), CopyCoreferenceRelations.PARAM_GOLD_VIEW, GOLD_VIEW_NAME);
         aggregateBuilder.add(EventCoreferenceAnnotator.createDataWriterDescription(
             //        TKSVMlightStringOutcomeDataWriter.class,
             FlushingDataWriter.class,
@@ -287,6 +287,8 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         Logger.getLogger(EventCoreferenceAnnotator.class).setLevel(Level.WARN);
       }else if(this.evalType == EVAL_SYSTEM.MENTION_CLUSTER){
         aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PatientNoteCollector.class));
+        aggregateBuilder.add(ThymeAnaforaCrossDocCorefXmlReader.getDescription(this.xmlDirectory.getAbsolutePath(), true ) );
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyCrossDocCoreferenceRelations.class));
         aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(
                 PatientMentionClusterCoreferencer.class,
                 CleartkAnnotator.PARAM_IS_TRAINING,
@@ -300,6 +302,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
                 MentionClusterCoreferenceAnnotator.PARAM_SINGLE_DOCUMENT,
                 false));
       }else if(this.evalType == EVAL_SYSTEM.CLUSTER_RANK){
+        aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyCoreferenceRelations.class), CopyCoreferenceRelations.PARAM_GOLD_VIEW, GOLD_VIEW_NAME);
         aggregateBuilder.add(MentionClusterRankingCoreferenceAnnotator.createDataWriterDescription(
             SvmLightRankDataWriter.class,
             directory,
@@ -308,9 +311,6 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         logger.warn("Encountered a training configuration that does not add an annotator: " + this.evalType);
       }
 
-      // If we are using mention-cluster algorithm, it is aware of multiple documents so we only have to call it once.
-      //      FlowControllerDescription corefFlowControl = FlowControllerFactory.createFlowControllerDescription(CoreferenceFlowController.class);
-      //      aggregateBuilder.setFlowControllerDescription(corefFlowControl);
       AnalysisEngineDescription aed = aggregateBuilder.createAggregateDescription();
       SimplePipeline.runPipeline(collectionReader, AnalysisEngineFactory.createEngine(aed));
     }
@@ -350,7 +350,6 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     AggregateBuilder aggregateBuilder = this.getPreprocessorAggregateBuilder();
     aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DocumentIdFromURI.class));
     aggregateBuilder.add("Patient id printer", AnalysisEngineFactory.createEngineDescription(DocumentIDPrinter.class));
-//      AggregateBuilder singleNoteBuilder = new AggregateBuilder();
     aggregateBuilder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());
     aggregateBuilder.add(UncertaintyCleartkAnalysisEngine.createAnnotatorDescription());
     aggregateBuilder.add(GenericCleartkAnalysisEngine.createAnnotatorDescription());
@@ -362,15 +361,10 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     aggregateBuilder.add(BackwardsTimeAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
     aggregateBuilder.add(EventAnnotator.createAnnotatorDescription());
     aggregateBuilder.add(DocTimeRelAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
-//      singleNoteBuilder.add(AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
-//          ConfigParameterConstants.PARAM_OUTPUTDIR,
-//          this.outputDirectory + File.separator + goldOut,
-//          CoreferenceChainScoringOutput.PARAM_GOLD_VIEW_NAME,
-//          goldViewName),
-//          CAS.NAME_DEFAULT_SOFA,
-//          viewName);
+
     if(this.goldMarkables){
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyGoldMarkablesInChains.class)); //CopyFromGold.getDescription(Markable.class));
+      throw new NotImplementedException("Using gold markables needs to be rewritten to be compatible with patient-level annotations.");
+//      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(CopyGoldMarkablesInChains.class)); //CopyFromGold.getDescription(Markable.class));
     }else{
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(DeterministicMarkableAnnotator.class));
       //    aggregateBuilder.add(CopyFromGold.getDescription(/*Markable.class,*/ CoreferenceRelation.class, CollectionTextRelation.class));
@@ -379,7 +373,8 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     aggregateBuilder.add(MarkableSalienceAnnotator.createAnnotatorDescription("/org/apache/ctakes/temporal/ae/salience/model.jar"));
     if(this.evalType == EVAL_SYSTEM.MENTION_CLUSTER) {
       // Do nothing but we still need this here so the else clause works right
-      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(EvaluationPatientNoteCollector.class));
+      aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PatientNoteCollector.class));
+      aggregateBuilder.add(ThymeAnaforaCrossDocCorefXmlReader.getDescription(this.xmlDirectory.getAbsolutePath(), false));
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PatientMentionClusterCoreferencer.class,
               CleartkAnnotator.PARAM_IS_TRAINING,
               false,
@@ -716,155 +711,92 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
   }
 
   @PipeBitInfo(
-        name = "Coreference Copier",
-        description = "Sets Modality based upon context.",
+        name = "CrossDoc Coreference Copier",
+        description = "Copies markables and relations from gold to system view",
         role = PipeBitInfo.Role.SPECIAL,
         dependencies = { PipeBitInfo.TypeProduct.MARKABLE, PipeBitInfo.TypeProduct.COREFERENCE_RELATION }
   )
-  public static class CopyCoreferenceRelations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
-    // TODO - make document aware for mention-cluster coreference? Not as easy as relation remover because this should work for
-    // non-document-aware annotators.
-    public static final String PARAM_GOLD_VIEW = "GoldViewName";
-    @ConfigurationParameter(name=PARAM_GOLD_VIEW, mandatory=false, description="View containing gold standard annotations")
-    private String goldViewName=GOLD_VIEW_NAME;
-    
-    public static final String PARAM_DROP_ELEMENTS = "Dropout";
-    @ConfigurationParameter(name = PARAM_DROP_ELEMENTS, mandatory=false)
-    private boolean dropout = false;
+  public static class CopyCrossDocCoreferenceRelations extends AbstractPatientConsumer {
 
-    @SuppressWarnings("synthetic-access")
+    public CopyCrossDocCoreferenceRelations() {
+      super("CopyCrossDocCoreferenceRelations", "Copy gold coreference relations from gold cas to system cas for training");
+    }
+
     @Override
-    public void process(JCas jcas) throws AnalysisEngineProcessException {
-      JCas goldView = null;
-      try {
-        goldView = jcas.getView(goldViewName);
-      } catch (CASException e) {
-        e.printStackTrace();
-        throw new AnalysisEngineProcessException(e);
-      }
-      
-      HashMap<Markable,Markable> gold2sys = new HashMap<>();
-      Map<ConllDependencyNode,Collection<Markable>> depIndex = JCasUtil.indexCovering(jcas, ConllDependencyNode.class, Markable.class);
-      // remove those with removed markables (person mentions)
-      List<CollectionTextRelation> toRemove = new ArrayList<>();
-      
-      for(CollectionTextRelation goldChain : JCasUtil.select(goldView, CollectionTextRelation.class)){
-        FSList head = goldChain.getMembers();
-//        NonEmptyFSList sysList = new NonEmptyFSList(jcas);
-//        NonEmptyFSList listEnd = sysList;
-        List<List<Markable>> systemLists = new ArrayList<>(); // the gold list can be split up into many lists if we allow dropout.
-        boolean removeChain = false;
-        List<Markable> prevList = null;
-        
-        // first one is guaranteed to be nonempty otherwise it would not be in cas
-        do{
-          NonEmptyFSList element = (NonEmptyFSList) head;
-          Markable goldMarkable = (Markable) element.getHead();
-          if(goldMarkable == null){
-            logger.error(String.format("Found an unexpected null gold markable"));
-          }
-          boolean mapped = mapGoldMarkable(jcas, goldMarkable, gold2sys, depIndex);
-          
-          // if we can't align the gold markable with one in the system cas then don't add it:
-          if(!mapped){
-            String text = "<Out of bounds>";
-            if(!(goldMarkable.getBegin() < 0 || goldMarkable.getEnd() >= jcas.getDocumentText().length())){
-              text = goldMarkable.getCoveredText();
-            }
-            logger.warn(String.format("There is a gold markable %s [%d, %d] which could not map to a system markable.", 
-                text, goldMarkable.getBegin(), goldMarkable.getEnd()));
-            removeChain = true;
-            break;
-          }
-          
-          Markable sysMarkable = gold2sys.get(goldMarkable);
-          if(!dropout || systemLists.size() == 0){
-            if(systemLists.size() == 0) systemLists.add(new ArrayList<>());
-            systemLists.get(0).add(sysMarkable);
-//            prevList = systemLists.get(0);
-//            // if this is not first time through move listEnd to end.
-//            if(listEnd.getHead() != null){
-//              listEnd.setTail(new NonEmptyFSList(jcas));
-//              listEnd.addToIndexes();
-//              listEnd = (NonEmptyFSList) listEnd.getTail();
-//            }
-//
-//            // add markable to end of list:
-//            listEnd.setHead(gold2sys.get(goldMarkable));
-          }else{
-            // 3 options: Do correctly (append to same list as last element), ii) Start its own list, iii) Randomly join another list
-            if(Math.random() > DROPOUT_RATE){
-              // most of the time do the right thing:
-              systemLists.get(0).add(sysMarkable);
-            }else{
-              int listIndex = (int) Math.ceil(Math.random() * systemLists.size());
-              if(listIndex == systemLists.size()){
-                systemLists.add(new ArrayList<>());
-              }
-              systemLists.get(listIndex).add(sysMarkable);
-            }
-          }
-          head = element.getTail();
-        }while(head instanceof NonEmptyFSList);
-        
-        // don't bother copying over -- the gold chain was of person mentions
-        if(!removeChain){
-//          listEnd.setTail(new EmptyFSList(jcas));
-//          listEnd.addToIndexes();
-//          listEnd.getTail().addToIndexes();
-//          sysList.addToIndexes();
-          for(List<Markable> chain : systemLists){
-            if(chain.size() > 1){
-              CollectionTextRelation sysRel = new CollectionTextRelation(jcas);
-              sysRel.setMembers(ListFactory.buildList(jcas, chain));
-              sysRel.addToIndexes();
-            }
+    public String getEngineName() {
+      return "CopyCrossDocCoreferenceRelations";
+    }
+
+    @Override
+    public void initialize(final UimaContext context) throws ResourceInitializationException {
+      super.initialize(context);
+    }
+
+    @Override
+    protected void processPatientCas(JCas patientJcas) throws AnalysisEngineProcessException {
+      Collection<JCas> docCases = PatientViewUtil.getAllViews(patientJcas).
+              stream().
+              filter(s -> (s.getViewName().contains(CAS.NAME_DEFAULT_SOFA) && !s.getViewName().equals(CAS.NAME_DEFAULT_SOFA))).
+              collect(Collectors.toList());
+      Collection<JCas> goldCases = PatientViewUtil.getAllViews(patientJcas).
+              stream().
+              filter(s -> s.getViewName().contains(GOLD_VIEW_NAME)).
+              collect(Collectors.toList());
+      Map<Markable, Markable> gold2sys = new HashMap<>();
+
+      // Map all markables in gold cases to equivalents in docCases
+      for (JCas goldCas : goldCases) {
+        JCas docCas = getAlignedDocCas(docCases, goldCas);
+        if (docCas == null) {
+          logger.error("Could not find aligned document CAS for this gold CAS.");
+          throw new AnalysisEngineProcessException();
+        }
+        Map<ConllDependencyNode, Collection<Markable>> depIndex = JCasUtil.indexCovering(docCas, ConllDependencyNode.class, Markable.class);
+
+        for (Markable goldMarkable : JCasUtil.select(goldCas, Markable.class)) {
+          boolean match = CopyCoreferenceRelations.mapGoldMarkable(docCas, goldMarkable, gold2sys, depIndex);
+          if (!match) {
+            logger.warn(String.format("There is a gold markable %s [%d, %d] which could not map to a system markable.",
+                    goldMarkable.getCoveredText(), goldMarkable.getBegin(), goldMarkable.getEnd()));
+
           }
         }
       }
-      
-      for(CoreferenceRelation goldRel : JCasUtil.select(goldView, CoreferenceRelation.class)){
-        if((gold2sys.containsKey(goldRel.getArg1().getArgument()) && gold2sys.containsKey(goldRel.getArg2().getArgument()))){
-          CoreferenceRelation sysRel = new CoreferenceRelation(jcas);
-          sysRel.setCategory(goldRel.getCategory());
-          sysRel.setDiscoveryTechnique(CONST.REL_DISCOVERY_TECH_GOLD_ANNOTATION);
-
-          RelationArgument arg1 = new RelationArgument(jcas);
-          arg1.setArgument(gold2sys.get(goldRel.getArg1().getArgument()));
-          sysRel.setArg1(arg1);
-          arg1.addToIndexes();
-
-          RelationArgument arg2 = new RelationArgument(jcas);
-          arg2.setArgument(gold2sys.get(goldRel.getArg2().getArgument()));
-          sysRel.setArg2(arg2);
-          arg2.addToIndexes();         
-          
-          sysRel.addToIndexes();        
+      // now go through all gold chains:
+      for (JCas goldCas : goldCases) {
+        JCas docCas = getAlignedDocCas(docCases, goldCas);
+        if (docCas == null) {
+          logger.error("Could not find aligned document CAS for this gold CAS.");
+          throw new AnalysisEngineProcessException();
+        }
+        // create system chains from all the mapped markables
+        for (CollectionTextRelation chain : JCasUtil.select(goldCas, CollectionTextRelation.class)) {
+          ArrayList<Markable> mappedElements = new ArrayList<>();
+          for (Markable goldElement : JCasUtil.select(chain.getMembers(), Markable.class)) {
+            Markable sysElement = gold2sys.get(goldElement);
+            if (sysElement != null) mappedElements.add(sysElement);
+          }
+          if (mappedElements.size() <= 1) {
+            logger.warn("Gold chain did not have enough markables map to system markables.");
+          } else {
+            CollectionTextRelation sysChain = new CollectionTextRelation(docCas);
+            sysChain.setMembers(FSCollectionFactory.createFSList(docCas, mappedElements));
+            sysChain.addToIndexes();
+          }
         }
       }
     }
-    
-    private static boolean mapGoldMarkable(JCas jcas, Markable goldMarkable, Map<Markable,Markable> gold2sys, Map<ConllDependencyNode, Collection<Markable>> depIndex){
-      if(!(goldMarkable.getBegin() < 0 || goldMarkable.getEnd() >= jcas.getDocumentText().length())){
-        
-        
-        ConllDependencyNode headNode = DependencyUtility.getNominalHeadNode(jcas, goldMarkable);
 
-        for(Markable sysMarkable : depIndex.get(headNode)){
-          ConllDependencyNode markNode = DependencyUtility.getNominalHeadNode(jcas, sysMarkable);
-          if(markNode == headNode){
-            gold2sys.put(goldMarkable, sysMarkable);
-            return true;
-          }
+    private static JCas getAlignedDocCas(Collection<JCas> docCases, JCas goldCas) {
+      JCas docCas = null;
+
+      for (JCas candidate : docCases) {
+        if (goldCas.getViewName().replace(GOLD_VIEW_NAME, CAS.NAME_DEFAULT_SOFA).equals(candidate.getViewName())) {
+          docCas = candidate;
+          break;
         }
-      }else{
-        // Have seen some instances where anafora writes a span that is not possible, log them
-        // so they can be found and fixed:
-        logger.warn(String.format("There is a markable with span [%d, %d] in a document with length %d\n", 
-            goldMarkable.getBegin(), goldMarkable.getEnd(), jcas.getDocumentText().length()));
-        return false;
       }
-      return false;
+      return docCas;
     }
   }
   
@@ -914,7 +846,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
             !markable.getCoveredText().toLowerCase().equals("it")){
           toRemove.add(markable);
         }else if(coveredTokens.size() > 0 && (coveredTokens.get(0).getCoveredText().startsWith("Mr.") || coveredTokens.get(0).getCoveredText().startsWith("Dr.") ||
-                coveredTokens.get(0).getCoveredText().startsWith("Mrs.") || coveredTokens.get(0).getCoveredText().startsWith("Ms."))){
+                coveredTokens.get(0).getCoveredText().startsWith("Mrs.") || coveredTokens.get(0).getCoveredText().startsWith("Ms.") || coveredTokens.get(0).getCoveredText().startsWith("Miss"))){
           toRemove.add(markable);
         }else if(markable.getCoveredText().toLowerCase().endsWith("patient") || markable.getCoveredText().toLowerCase().equals("pt")){
           toRemove.add(markable);

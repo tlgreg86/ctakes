@@ -28,6 +28,9 @@ public class MentionClusterStackFeaturesExtractor implements
     
     NonEmptyFSList members = ((NonEmptyFSList)cluster.getMembers());
     Annotation mostRecent = ClusterUtils.getMostRecent(members, mention);
+    if(mostRecent == null){
+      return feats;
+    }
     int mentionEnd = mostRecent.getEnd();
     int numIntervening = 0;
     int numNonSingletonIntervening = 0;

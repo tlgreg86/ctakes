@@ -47,7 +47,7 @@ public class MorphosyntacticFeatureExtractor implements FeatureExtractor1<Markab
       feats.add(new Feature("MorphoIsPronoun", false));
     }
     
-    feats.add(new Feature("MorphoIsProper", head.getPostag().equals("NNP")));
+    feats.add(new Feature("MorphoIsProper", (head != null && head.getPostag() != null && head.getPostag().equals("NNP"))));
     
     // skip animacy and person features for now -- planning to not do person mentions
     

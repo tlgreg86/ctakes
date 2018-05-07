@@ -19,7 +19,7 @@
 package org.apache.ctakes.coreference.ae.pairing.cluster;
 
 import org.apache.ctakes.coreference.util.ClusterMentionFetcher;
-import org.apache.ctakes.temporal.utils.PatientViewsUtil;
+import org.apache.ctakes.coreference.util.ThymeCasOrderer;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.uima.fit.util.JCasUtil;
@@ -31,11 +31,10 @@ import java.util.List;
 /**
  * Created by tmill on 9/21/17.
  */
-public class PreviousDocumentPairer extends ClusterMentionPairer_ImplBase {
+public class PreviousDocumentPairer extends CrossDocumentPairer_ImplBase {
     @Override
-    public List<ClusterMentionFetcher.CollectionTextRelationIdentifiedAnnotationPair> getPairs(JCas jcas, Markable m) {
+    public List<ClusterMentionFetcher.CollectionTextRelationIdentifiedAnnotationPair> getPairs(JCas jcas, Markable m, JCas prevCas) {
         List<ClusterMentionFetcher.CollectionTextRelationIdentifiedAnnotationPair> clusters = new ArrayList<>();
-        JCas prevCas = PatientViewsUtil.getPreviousDocumentCas(jcas);
         if(prevCas == null) return clusters;
 
         for(CollectionTextRelation chain : JCasUtil.select(prevCas, CollectionTextRelation.class)){

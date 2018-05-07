@@ -10,6 +10,7 @@ import org.apache.ctakes.coreference.ae.pairing.cluster.*;
 import org.apache.ctakes.coreference.util.ClusterMentionFetcher;
 import org.apache.ctakes.coreference.util.MarkableCacheRelationExtractor;
 import org.apache.ctakes.coreference.util.MarkableUtilities;
+import org.apache.ctakes.coreference.util.ThymeCasOrderer;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
 import org.apache.ctakes.relationextractor.ae.features.RelationFeaturesExtractor;
 import org.apache.ctakes.relationextractor.eval.RelationExtractorEvaluation.HashableArguments;
@@ -203,10 +204,15 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
 
   protected Iterable<CollectionTextRelationIdentifiedAnnotationPair> getCandidateRelationArgumentPairs(
           JCas jcas,
-          Markable mention){
+          Markable mention,
+          JCas prevCas){
     LinkedHashSet<CollectionTextRelationIdentifiedAnnotationPair> pairs = new LinkedHashSet<>();
     for(ClusterMentionPairer_ImplBase pairer : this.pairExtractors){
-      pairs.addAll(pairer.getPairs(jcas, mention));
+      if(prevCas != null && pairer instanceof CrossDocumentPairer_ImplBase){
+        pairs.addAll(((CrossDocumentPairer_ImplBase)pairer).getPairs(jcas, mention, prevCas));
+      }else {
+        pairs.addAll(pairer.getPairs(jcas, mention));
+      }
     }
 
     return pairs;
@@ -237,16 +243,19 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
     LOGGER.info( "Finding Coreferences ..." );
 
     // It is possible that the cas for an entire patient has been passed through.  Try to process all documents.
-    final Collection<JCas> docViews = PatientViewUtil.getDocumentViews( jCas );
-    if ( docViews.isEmpty() ) {
+    final Collection<JCas> views = PatientViewUtil.getDocumentViews( jCas );
+    if ( views.isEmpty() ) {
       // There is only one document in the cas - the default
-      processDocument( jCas );
+      processDocument( jCas, null );
       LOGGER.info( "Finished." );
       return;
     }
+    JCas prevView = null;
     try ( DotLogger dotter = new DotLogger() ) {
-      for ( JCas view : docViews ) {
-        processDocument( view );
+      for ( JCas view : ThymeCasOrderer.getOrderedCases(jCas) ) {
+        LOGGER.info("Processing document with view name: " + view.getViewName());
+        processDocument( view, prevView );
+        prevView = view;
       }
     } catch ( IOException ioE ) {
       LOGGER.error( ioE.getMessage() );
@@ -254,7 +263,7 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
     LOGGER.info( "Finished." );
   }
 
-  private void processDocument( final JCas jCas ) throws AnalysisEngineProcessException {
+  private void processDocument( final JCas jCas, final JCas prevCas ) throws AnalysisEngineProcessException {
     // lookup from pair of annotations to binary text relation
     // note: assumes that there will be at most one relation per pair
     Map<CollectionTextRelationIdentifiedAnnotationPair, CollectionTextRelationIdentifiedAnnotationRelation>
@@ -292,7 +301,7 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
         CollectionTextRelation maxCluster = null;
         String mentionView = mention.getView().getViewName();
 
-        for ( CollectionTextRelationIdentifiedAnnotationPair pair : this.getCandidateRelationArgumentPairs( jCas, mention ) ) {
+        for ( CollectionTextRelationIdentifiedAnnotationPair pair : this.getCandidateRelationArgumentPairs( jCas, mention, prevCas ) ) {
           CollectionTextRelation cluster = pair.getCluster();
           Markable firstElement = JCasUtil.select(cluster.getMembers(), Markable.class).iterator().next();
           String clusterHeadView = firstElement.getView().getViewName();
@@ -337,6 +346,10 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
             // create a classification instance and write it to the training data
             this.dataWriter.write( new Instance<>( category, features ) );
             if ( !category.equals( NO_RELATION_CATEGORY ) ) {
+//              LOGGER.warn("Coref training: Writing link between mention: " + mention.getCoveredText() + " and previous cluster containing mention: " + firstElement.getCoveredText());
+              if(!clusterHeadView.equals(mentionView)){
+                LOGGER.info("Writing positive instance linking mention [" + mention.getCoveredText() + "] to cluster with elements from previous document");
+              }
               singleton = false;
               break;
             }
