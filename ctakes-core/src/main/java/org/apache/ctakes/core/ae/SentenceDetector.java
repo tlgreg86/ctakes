@@ -43,7 +43,6 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import javax.swing.text.Segment;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
