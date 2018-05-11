@@ -349,22 +349,29 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 					}
 				}
 			}
-		} else if ( this.xmlFormat == XMLFormat.AnaforaCoref){
-      Set<String> ids = new HashSet<>();
-      for ( Integer set : patientSets ) {
-        if ( this.subcorpus == Subcorpus.Colon ) {
-          ids.add( String.format( "ID%03d", set ) );
-        } else {
-          LOGGER.warn("No coreference annotations exist for this corpus!");
-        }
-      }
-      for(File dir : this.xmlDirectory.listFiles() ){
-        if(dir.isDirectory()){
-          if(ids.contains(dir.getName())){
-            files.add(dir);
-          }
-        }
-      }
+		} else if ( this.xmlFormat == XMLFormat.AnaforaCoref) {
+			Set<String> ids = new HashSet<>();
+			for (Integer set : patientSets) {
+				if (this.subcorpus == Subcorpus.Colon) {
+					ids.add(String.format("ID%03d", set));
+				} else {
+					LOGGER.warn("No coreference annotations exist for this corpus!");
+				}
+			}
+			for (File dir : this.xmlDirectory.listFiles()) {
+				// this gets us into train/dev/test subdirectory
+				for (File ptDir : dir.listFiles()) {
+					if (ids.contains(ptDir.getName())) {
+						for (File subDir : ptDir.listFiles()) {
+							if (subDir.isDirectory()) {
+								// for document 001 for patient 001, directory is ID001/ID001_clinic_001
+								// and text file within is ID001_clinic_001
+								files.add(new File(subDir, subDir.getName()));
+							}
+						}
+					}
+				}
+			}
 		} else if ( this.xmlFormat == XMLFormat.I2B2 ) {
 			File trainDir = new File( this.xmlDirectory, "training" );
 			File testDir = new File( this.xmlDirectory, "test" );
@@ -426,7 +433,7 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
 			}
 			docCounts.add(ptidPrefix);
 		}
-      docCounts.forEach( PatientNoteStore.getInstance()::setWantedDocCount );
+        docCounts.forEach( PatientNoteStore.getInstance()::setWantedDocCount );
 
 		return UriCollectionReader.getCollectionReaderFromFiles( collectedFiles );
 	}
@@ -483,6 +490,8 @@ org.cleartk.eval.Evaluation_ImplBase<Integer, STATISTICS_TYPE> {
         goldViewName ) );
     switch ( this.xmlFormat ) {
     case AnaforaCoref:
+    	// do nothing: only runs at the end of the patient
+		break;
     case Anafora:
       if(this.subcorpus == Subcorpus.DeepPhe){
         aggregateBuilder.add(

@@ -46,6 +46,7 @@ public class THYMEQAAnaforaXMLReader extends THYMEAnaforaXMLReader {
         new String[]{ ".THYME_QA.timi4508.completed.xml",
             ".THYME_QA.gusa3085.completed.xml",
             ".THYME_QA.bethard.completed.xml",
+            ".THYME_QA.timi4508.completed.xml",
             ".THYME_QA.dligach.completed.xml"},
         THYMEAnaforaXMLReader.PARAM_ANAFORA_DIRECTORY,
         anaforaDirectory);
