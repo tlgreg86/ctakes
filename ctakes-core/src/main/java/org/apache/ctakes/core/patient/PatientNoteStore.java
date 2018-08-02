@@ -274,7 +274,7 @@ public enum PatientNoteStore {
          }
       }
       // Cache view into patient using encoded view name
-      LOGGER.info( "Caching view for" + patientId + " " + docId + " " + sourceViewName
+      LOGGER.info( "Caching view for " + patientId + " " + docId + " " + sourceViewName
             + (sourceViewName.equals( storeViewName ) ? "" : " as " + storeViewName) + " ..." );
       final ViewInfo viewInfo = new ViewInfo( patientId, docId, storeViewName );
       try {

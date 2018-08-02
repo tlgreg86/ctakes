@@ -72,7 +72,7 @@ public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
       description = "Whether output should be appended or newly created"
   )
   private boolean append = false;
-  
+
   private int docNum = 0;
   
   @Override
@@ -101,7 +101,6 @@ public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
   
   @Override
   public void process(JCas jCas) throws AnalysisEngineProcessException {
-    String myView = jCas.getViewName();
     File filename = null;
     try{
       filename = new File(ViewUriUtil.getURI(jCas));
@@ -120,6 +119,7 @@ public class CoreferenceChainScoringOutput extends JCasAnnotator_ImplBase{
         throw new AnalysisEngineProcessException(e2);
       }
     }
+    String myView = chainsCas.getViewName();
     int chainNum = 1;
     HashMap<Annotation, Integer> ent2chain = new HashMap<>();
     

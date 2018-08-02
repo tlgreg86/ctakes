@@ -1,6 +1,7 @@
 package org.apache.ctakes.coreference.util;
 
 
+import org.apache.ctakes.core.patient.PatientViewUtil;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelation;
 import org.apache.ctakes.typesystem.type.relation.CollectionTextRelationIdentifiedAnnotationRelation;
 import org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation;
@@ -32,30 +33,48 @@ final public class ClusterMentionFetcher {
    }
 
    static public Map<CollectionTextRelationIdentifiedAnnotationPair,
-         CollectionTextRelationIdentifiedAnnotationRelation> getPairRelations( final JCas jCas )
+           CollectionTextRelationIdentifiedAnnotationRelation> getPairRelationsForDocument( final JCas jCas ) throws AnalysisEngineProcessException {
+      final Map<CollectionTextRelationIdentifiedAnnotationPair,
+              CollectionTextRelationIdentifiedAnnotationRelation> relationLookup = new HashMap<>();
+      return addToRelationLookup(jCas, relationLookup);
+   }
+
+   static public Map<CollectionTextRelationIdentifiedAnnotationPair,
+         CollectionTextRelationIdentifiedAnnotationRelation> getPairRelationsForPatient( final JCas ptCas )
          throws AnalysisEngineProcessException {
 
-      final Map<CollectionTextRelationIdentifiedAnnotationPair,
-            CollectionTextRelationIdentifiedAnnotationRelation> relationLookup = new HashMap<>();
+      Map<CollectionTextRelationIdentifiedAnnotationPair,
+              CollectionTextRelationIdentifiedAnnotationRelation> relationLookup = new HashMap<>();
 
-      for ( CollectionTextRelation cluster : JCasUtil.select( jCas, CollectionTextRelation.class ) ) {
-         for ( IdentifiedAnnotation mention : JCasUtil.select( cluster.getMembers(), Markable.class ) ) {
-            final CollectionTextRelationIdentifiedAnnotationRelation relation =
-                  new CollectionTextRelationIdentifiedAnnotationRelation( jCas );
-            relation.setCluster( cluster );
-            relation.setMention( mention );
-            relation.setCategory( "CoreferenceClusterMember" );
-            relation.addToIndexes();
-            // The key is a list of args so we can do bi-directional lookup
-            final CollectionTextRelationIdentifiedAnnotationPair key = new CollectionTextRelationIdentifiedAnnotationPair( cluster, mention );
-            if ( relationLookup.containsKey( key ) ) {
-               String category = relationLookup.get( key ).getCategory();
-               //System.err.println( "Error in: " + ViewUriUtil.getURI( jCas ).toString() );
-               System.err.println( "Error! This attempted relation " + relation.getCategory() + " already has a relation " + category + " at this span: " + mention.getCoveredText() );
-            }
-            relationLookup.put( key, relation );
-         }
+      JCas[] cases = ThymeCasOrderer.getOrderedCases(ptCas).toArray(new JCas[]{}); //PatientViewUtil.getDocumentViews(ptCas).toArray(new JCas[]{});
+
+      for (JCas docCas : cases) {
+         relationLookup = addToRelationLookup(docCas, relationLookup);
       }
+      return relationLookup;
+   }
+
+   static private Map<CollectionTextRelationIdentifiedAnnotationPair,
+           CollectionTextRelationIdentifiedAnnotationRelation> addToRelationLookup( final JCas docCas, final Map<CollectionTextRelationIdentifiedAnnotationPair,
+           CollectionTextRelationIdentifiedAnnotationRelation> relationLookup){
+         for (CollectionTextRelation cluster : JCasUtil.select(docCas, CollectionTextRelation.class)) {
+            for (IdentifiedAnnotation mention : JCasUtil.select(cluster.getMembers(), Markable.class)) {
+               final CollectionTextRelationIdentifiedAnnotationRelation relation =
+                       new CollectionTextRelationIdentifiedAnnotationRelation(docCas);
+               relation.setCluster(cluster);
+               relation.setMention(mention);
+               relation.setCategory("CoreferenceClusterMember");
+               relation.addToIndexes();
+               // The key is a list of args so we can do bi-directional lookup
+               final CollectionTextRelationIdentifiedAnnotationPair key = new CollectionTextRelationIdentifiedAnnotationPair(cluster, mention);
+               if (relationLookup.containsKey(key)) {
+                  String category = relationLookup.get(key).getCategory();
+                  //System.err.println( "Error in: " + ViewUriUtil.getURI( jCas ).toString() );
+                  System.err.println("Error! This attempted relation " + relation.getCategory() + " already has a relation " + category + " at this span: " + mention.getCoveredText());
+               }
+               relationLookup.put(key, relation);
+            }
+         }
       return relationLookup;
    }
 

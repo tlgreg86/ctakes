@@ -3,6 +3,7 @@ package org.apache.ctakes.core.patient;
 
 import org.apache.ctakes.core.util.NumberedSuffixComparator;
 import org.apache.log4j.Logger;
+import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.jcas.JCas;
 
@@ -127,4 +128,17 @@ final public class PatientViewUtil {
       }
    }
 
+   public static JCas getAlignedGoldCas(final JCas patientJCas, final JCas docView) throws CASException {
+      String pid = PatientNoteStore.getDefaultPatientId( patientJCas );
+      String docId = PatientNoteStore.getDefaultDocumentId( docView ).replace(CAS.NAME_DEFAULT_SOFA, "");
+      String goldViewName = PatientNoteStore.getInternalViewname( pid, docId, GOLD_PREFIX );
+      return patientJCas.getView(goldViewName);
+   }
+
+   public static JCas getAlignedDocCas(final JCas patientJCas, final JCas goldView) throws CASException {
+      String pid = PatientNoteStore.getDefaultPatientId( patientJCas );
+      String docId = PatientNoteStore.getDefaultDocumentId( goldView ).replace("GoldView_", "");
+      String docViewName = PatientNoteStore.getInternalViewname( pid, docId, CAS.NAME_DEFAULT_SOFA );
+      return patientJCas.getView(docViewName);
+   }
 }

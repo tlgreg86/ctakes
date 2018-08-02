@@ -6,6 +6,7 @@ import org.apache.ctakes.typesystem.type.syntax.BaseToken;
 import org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode;
 import org.apache.ctakes.typesystem.type.syntax.TerminalTreebankNode;
 import org.apache.ctakes.typesystem.type.syntax.TreebankNode;
+import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.ctakes.typesystem.type.textsem.Markable;
 import org.apache.ctakes.typesystem.type.textsem.TimeMention;
 import org.apache.ctakes.typesystem.type.textspan.Segment;
@@ -84,50 +85,8 @@ public class DeterministicMarkableAnnotator extends JCasAnnotator_ImplBase {
         // 2) get determiners like "this" and "these"
         // 3) non-passive "it"
         if(node.getPostag().startsWith("NN") && term != null && term.getNodeType().startsWith("N")){
-          if(node.getForm().matches("\\s+")) continue;
-          // TODO fix this godawful hack:
-          if(nodeText.equals("date") || nodeText.equals("tablet") || nodeText.equals("hg") || nodeText.equals("lb") || nodeText.equals("status")
-              || nodeText.equals("capsule") || nodeText.equals("mg") || nodeText.equals("cm")){
-            
-            continue;
-          }
-          int begin = node.getBegin();
-          int end = node.getEnd();
-//          if(node.getHead().getId() != 0){
-            List<ConllDependencyNode> progeny = getProgeny(node, getDependencyNodes(jCas, getSentence(jCas, node)));
-            progeny = removeUnannotatedNodes(node, progeny);
-            if(progeny.size() > 0){
-              for(ConllDependencyNode child : progeny){
-                if(child.getBegin() < begin){
-                  begin = child.getBegin();
-                }
-                if(child.getEnd() > end){
-                  end = child.getEnd();
-                }
-              }
-            }
-//          }
-          ConllDependencyNode parent = node.getHead();
-          if(parent != null && parent.getId() != 0){ 
-            // if parent is inside the bounds of the proposed markable prune it a bit.
-            if(parent.getBegin() < node.getBegin() && parent.getBegin() > begin){
-              // get the following token:
-              BaseToken nextToken = JCasUtil.selectFollowing(BaseToken.class, parent, 1).get(0);
-              begin = nextToken.getBegin();              
-            }
-            // parent is after the current head node but before the proposed markable is meant to end:
-            if(parent.getEnd() >  node.getEnd() && parent.getEnd() < end){
-              BaseToken prevToken = JCasUtil.selectPreceding(BaseToken.class, parent, 1).get(0);
-              end = prevToken.getEnd();
-            }
-          }
-          
-          Matcher m = headerPatt.matcher(nodeText);
-          if(m.find()){
-            begin = begin + m.end();
-          }
-
-          Markable markable = new Markable(jCas, begin, end);
+          Markable markable = expandNodeToMarkable(jCas, node);
+          if(markable == null) continue;
           markable.addToIndexes();
         }else if(node.getPostag().equals("DT") && !node.getDeprel().equals("det")){
           Markable markable = new Markable(jCas, node.getBegin(), node.getEnd());
@@ -165,6 +124,63 @@ public class DeterministicMarkableAnnotator extends JCasAnnotator_ImplBase {
     }
     
     return filtered;
+  }
+
+  public static Markable expandEventToMarkable(JCas jCas, EventMention event){
+    ConllDependencyNode head = DependencyUtility.getNominalHeadNode(jCas, event);
+    if(head == null) return null;
+    return expandNodeToMarkable(jCas, head);
+  }
+
+  public static Markable expandNodeToMarkable(JCas jCas, ConllDependencyNode node){
+    Markable markable = null;
+    String nodeText = node.getCoveredText();
+
+    if(node.getForm().matches("\\s+")) return null;
+    // TODO fix this godawful hack:
+    if(nodeText.equals("date") || nodeText.equals("tablet") || nodeText.equals("hg") || nodeText.equals("lb") || nodeText.equals("status")
+            || nodeText.equals("capsule") || nodeText.equals("mg") || nodeText.equals("cm")){
+
+      return null;
+    }
+    int begin = node.getBegin();
+    int end = node.getEnd();
+//          if(node.getHead().getId() != 0){
+    List<ConllDependencyNode> progeny = getProgeny(node, getDependencyNodes(jCas, getSentence(jCas, node)));
+    progeny = removeUnannotatedNodes(node, progeny);
+    if(progeny.size() > 0){
+      for(ConllDependencyNode child : progeny){
+        if(child.getBegin() < begin){
+          begin = child.getBegin();
+        }
+        if(child.getEnd() > end){
+          end = child.getEnd();
+        }
+      }
+    }
+//          }
+    ConllDependencyNode parent = node.getHead();
+    if(parent != null && parent.getId() != 0){
+      // if parent is inside the bounds of the proposed markable prune it a bit.
+      if(parent.getBegin() < node.getBegin() && parent.getBegin() > begin){
+        // get the following token:
+        BaseToken nextToken = JCasUtil.selectFollowing(BaseToken.class, parent, 1).get(0);
+        begin = nextToken.getBegin();
+      }
+      // parent is after the current head node but before the proposed markable is meant to end:
+      if(parent.getEnd() >  node.getEnd() && parent.getEnd() < end){
+        BaseToken prevToken = JCasUtil.selectPreceding(BaseToken.class, parent, 1).get(0);
+        end = prevToken.getEnd();
+      }
+    }
+
+    Matcher m = headerPatt.matcher(nodeText);
+    if(m.find()){
+      begin = begin + m.end();
+    }
+
+    markable = new Markable(jCas, begin, end);
+    return markable;
   }
 
   @SuppressWarnings("unused")

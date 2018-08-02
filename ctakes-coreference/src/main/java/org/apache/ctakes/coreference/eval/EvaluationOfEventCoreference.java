@@ -17,7 +17,6 @@ import org.apache.ctakes.core.patient.PatientViewUtil;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.core.util.DocumentIDAnnotationUtil;
-import org.apache.ctakes.core.util.ListFactory;
 import org.apache.ctakes.coreference.ae.*;
 import org.apache.ctakes.coreference.factory.CoreferenceAnnotatorFactory;
 import org.apache.ctakes.dependency.parser.util.DependencyUtility;
@@ -27,7 +26,6 @@ import org.apache.ctakes.temporal.ae.DocTimeRelAnnotator;
 import org.apache.ctakes.temporal.ae.EventAnnotator;
 import org.apache.ctakes.temporal.eval.EvaluationOfEventTimeRelations.ParameterSettings;
 import org.apache.ctakes.temporal.eval.EvaluationOfTemporalRelations_ImplBase;
-import org.apache.ctakes.typesystem.type.constants.CONST;
 import org.apache.ctakes.typesystem.type.relation.*;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.structured.DocumentIdPrefix;
@@ -52,9 +50,6 @@ import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.component.NoOpAnnotator;
-import org.apache.uima.fit.component.ViewCreatorAnnotator;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.pipeline.JCasIterator;
@@ -388,7 +383,7 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
       aggregateBuilder.add(AnalysisEngineFactory.createEngineDescription(PatientScoringWriter.class,
               ConfigParameterConstants.PARAM_OUTPUTDIR,
               this.outputDirectory,
-              CoreferenceChainScoringOutput.PARAM_CONFIG,
+              PatientScoringWriter.PARAM_CONFIG,
               config));
     }else{
       if(!this.goldMarkables){
@@ -468,11 +463,11 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
     
     // Then run the preprocessing engine on all views
     preprocess.add(AnalysisEngineFactory.createEngineDescription( UriToDocumentTextAnnotatorCtakes.class ));
-    preprocess.add(AnalysisEngineFactory.createEngineDescription(DocumentIdFromURI.class));
 
     preprocess.add(getLinguisticProcessingDescription());
     // Mapping explanation: Grab the text from the specific document URI and write to the gold view for this document
     preprocess.add(getGoldWritingAggregate(GOLD_VIEW_NAME));
+    preprocess.add(AnalysisEngineFactory.createEngineDescription(DocumentIdFromURI.class));
 
     // write out the CAS after all the above annotations
     preprocess.add( AnalysisEngineFactory.createEngineDescription(
@@ -490,14 +485,6 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         XMIReader.PARAM_XMI_DIRECTORY,
         this.xmiDirectory ) );
     return aggregateBuilder;
-  }
-
-  public static class NewDocSentinelAnnotator extends NoOpAnnotator {
-    // Purposefully empty; doesn't do anything
-  }
-  
-  public static class EndDocsSentinelAnnotator extends NoOpAnnotator {
-    // Purposefully empty; doesn't do anything
   }
 
   public static class AnnotationComparator implements Comparator<Annotation> {
@@ -754,11 +741,19 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         Map<ConllDependencyNode, Collection<Markable>> depIndex = JCasUtil.indexCovering(docCas, ConllDependencyNode.class, Markable.class);
 
         for (Markable goldMarkable : JCasUtil.select(goldCas, Markable.class)) {
+          ConllDependencyNode headNode = DependencyUtility.getNominalHeadNode(docCas, goldMarkable);
+          // for markables that are events, the headword and the markable itself have the same span -- we need to
+          // expand those in the training data to match the
+          if(headNode == null){
+            logger.warn(String.format("The markable %s has no head node, probably because of poorly-segmented text.", goldMarkable.getCoveredText()));
+            continue;
+          }
+
+          // map the gold markable to a system markable if they have the same headword
           boolean match = CopyCoreferenceRelations.mapGoldMarkable(docCas, goldMarkable, gold2sys, depIndex);
           if (!match) {
             logger.warn(String.format("There is a gold markable %s [%d, %d] which could not map to a system markable.",
                     goldMarkable.getCoveredText(), goldMarkable.getBegin(), goldMarkable.getEnd()));
-
           }
         }
       }
@@ -773,12 +768,20 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
         for (CollectionTextRelation chain : JCasUtil.select(goldCas, CollectionTextRelation.class)) {
           ArrayList<Markable> mappedElements = new ArrayList<>();
           for (Markable goldElement : JCasUtil.select(chain.getMembers(), Markable.class)) {
+            // since we have cross-doc chains, the different markables in a chain may not be in the same gold cas as the
+            // chain (which will share a cas with the _earliest_ mention).
             Markable sysElement = gold2sys.get(goldElement);
             if (sysElement != null) mappedElements.add(sysElement);
           }
           if (mappedElements.size() <= 1) {
             logger.warn("Gold chain did not have enough markables map to system markables.");
           } else {
+            System.out.println("Mapped a gold chain to system using system markables:");
+            System.out.print("     ");
+            for(Markable m : mappedElements){
+              System.out.print(" -> " + m.getCoveredText());
+            }
+            System.out.println();
             CollectionTextRelation sysChain = new CollectionTextRelation(docCas);
             sysChain.setMembers(FSCollectionFactory.createFSList(docCas, mappedElements));
             sysChain.addToIndexes();
@@ -889,6 +892,12 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
 
           JCas jCas = it.next();
           String uri = new File(ViewUriUtil.getURI(jCas)).getName();
+          // if some default DocumentID was added earlier, delete it:
+
+          Collection<DocumentID> oldDocIDs = JCasUtil.select(jCas, DocumentID.class);
+          for(DocumentID oldDocID : oldDocIDs) {
+            oldDocID.removeFromIndexes();
+          }
           DocumentID docId = new DocumentID(jCas);
           if(jCas.getViewName().equals(GOLD_VIEW_NAME)){
             docId.setDocumentID(GOLD_VIEW_NAME + "_" + uri);
@@ -906,71 +915,6 @@ public class EvaluationOfEventCoreference extends EvaluationOfTemporalRelations_
       }catch(CASException e){
         throw new AnalysisEngineProcessException(e);
       }
-    }
-  }
-
-  public static class PatientScoringWriter extends AbstractPatientConsumer {
-
-    private PatientNoteStore notes = PatientNoteStore.INSTANCE;
-    private Object[] sysParams, goldParams;
-    private boolean append = false;
-
-    public PatientScoringWriter(){
-      super("PatientScoringWriter", "Writes conll output that can be used in standard scoring scripts.");
-    }
-
-    @Override
-    protected void processPatientCas(JCas patientJcas) throws AnalysisEngineProcessException {
-
-      AggregateBuilder agg = new AggregateBuilder();
-      AnalysisEngineDescription aed = null;
-
-      try {
-        for(JCas docView : PatientViewUtil.getAllViews(patientJcas)){
-          if(docView.getViewName().equals(CAS.NAME_DEFAULT_SOFA) || !docView.getViewName().contains("Initial")) {
-            continue;
-          }
-           String pid = PatientNoteStore.getDefaultPatientId( docView );
-           String docId = PatientNoteStore.getDefaultDocumentId( docView );
-          sysParams[sysParams.length-2] = goldParams[goldParams.length-2] = CoreferenceChainScoringOutput.PARAM_APPEND;
-          sysParams[sysParams.length-1] = goldParams[goldParams.length-1] = append;
-          aed = AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
-                  goldParams);
-          agg.add(aed,
-                  CAS.NAME_DEFAULT_SOFA,
-                PatientNoteStore.getInternalViewname( pid, docId, CAS.NAME_DEFAULT_SOFA ),
-                  GOLD_VIEW_NAME,
-                PatientNoteStore.getInternalViewname( pid, docId, GOLD_VIEW_NAME ) );
-
-          aed = AnalysisEngineFactory.createEngineDescription(CoreferenceChainScoringOutput.class,
-                  sysParams);
-          agg.add(aed,
-                  CAS.NAME_DEFAULT_SOFA,
-                PatientNoteStore.getInternalViewname( pid, docId, CAS.NAME_DEFAULT_SOFA ) );
-          append=true;
-        }
-        SimplePipeline.runPipeline(patientJcas, agg.createAggregateDescription());
-      }catch(ResourceInitializationException e){
-        throw new AnalysisEngineProcessException(e);
-      }
-    }
-
-    /**
-     * Call initialize() on super and the delegate
-     * {@inheritDoc}
-     */
-    @Override
-    public void initialize( final UimaContext context ) throws ResourceInitializationException {
-      super.initialize( context );
-      String[] paramNames = context.getConfigParameterNames();
-      sysParams = new Object[(paramNames.length+1) * 2];
-      goldParams = new Object[(paramNames.length+2) * 2];
-      for(int i = 0; i < paramNames.length; i++){
-        goldParams[2*i] = sysParams[2*i] = paramNames[i];
-        goldParams[2*i+1] = sysParams[2*i+1] = context.getConfigParameterValue(paramNames[i]);
-      }
-      goldParams[goldParams.length-4] = CoreferenceChainScoringOutput.PARAM_GOLD_VIEW_NAME;
-      goldParams[goldParams.length-3] = GOLD_VIEW_NAME;
     }
   }
 

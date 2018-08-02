@@ -345,7 +345,7 @@ public class MentionClusterRankingCoreferenceAnnotator extends CleartkAnnotator<
     
     Map<CollectionTextRelationIdentifiedAnnotationPair, CollectionTextRelationIdentifiedAnnotationRelation> relationLookup;
     if (this.isTraining()) {
-      relationLookup = ClusterMentionFetcher.getPairRelations( jCas );
+      relationLookup = ClusterMentionFetcher.getPairRelationsForDocument( jCas );
     } else {
       relationLookup = new HashMap<>();
     }

@@ -241,21 +241,37 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
   public void process( final JCas jCas ) throws AnalysisEngineProcessException {
     //this.dataWriter.write(new Instance<String>("#DEBUG " + ViewUriUtil.getURI(docCas)));
     LOGGER.info( "Finding Coreferences ..." );
-
+    Map<CollectionTextRelationIdentifiedAnnotationPair, CollectionTextRelationIdentifiedAnnotationRelation>
+            relationLookup;
     // It is possible that the cas for an entire patient has been passed through.  Try to process all documents.
     final Collection<JCas> views = PatientViewUtil.getDocumentViews( jCas );
     if ( views.isEmpty() ) {
       // There is only one document in the cas - the default
-      processDocument( jCas, null );
+      if ( this.isTraining() ) {
+        relationLookup = ClusterMentionFetcher.getPairRelationsForDocument( jCas );
+      } else {
+        relationLookup = new HashMap<>();
+      }
+      processDocument( jCas, null, relationLookup );
+      removeSingletonClusters( jCas );
       LOGGER.info( "Finished." );
       return;
     }
+    // If we get this far then we have multiple views, so we are processing a patient CAS.
     JCas prevView = null;
+    if ( this.isTraining() ) {
+      relationLookup = ClusterMentionFetcher.getPairRelationsForPatient( jCas );
+    } else {
+      relationLookup = new HashMap<>();
+    }
     try ( DotLogger dotter = new DotLogger() ) {
       for ( JCas view : ThymeCasOrderer.getOrderedCases(jCas) ) {
         LOGGER.info("Processing document with view name: " + view.getViewName());
-        processDocument( view, prevView );
+        processDocument( view, prevView, relationLookup );
         prevView = view;
+      }
+      for ( JCas view : ThymeCasOrderer.getOrderedCases(jCas) ) {
+        removeSingletonClusters(view);
       }
     } catch ( IOException ioE ) {
       LOGGER.error( ioE.getMessage() );
@@ -263,16 +279,10 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
     LOGGER.info( "Finished." );
   }
 
-  private void processDocument( final JCas jCas, final JCas prevCas ) throws AnalysisEngineProcessException {
+  private void processDocument( final JCas jCas, final JCas prevCas, final Map<CollectionTextRelationIdentifiedAnnotationPair, CollectionTextRelationIdentifiedAnnotationRelation>
+          relationLookup) throws AnalysisEngineProcessException {
     // lookup from pair of annotations to binary text relation
     // note: assumes that there will be at most one relation per pair
-    Map<CollectionTextRelationIdentifiedAnnotationPair, CollectionTextRelationIdentifiedAnnotationRelation>
-            relationLookup;
-    if ( this.isTraining() ) {
-      relationLookup = ClusterMentionFetcher.getPairRelations( jCas );
-    } else {
-      relationLookup = new HashMap<>();
-    }
 
     Map<Markable,ConllDependencyNode> depHeadMap = new HashMap<>();
     for(Markable m: JCasUtil.select(jCas, Markable.class)){
@@ -325,6 +335,13 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
 
           // here is where feature conjunctions can go (dupFeatures)
           List<Feature> dupFeatures = new ArrayList<>();
+          if(!mentionView.equals(clusterHeadView)){
+            features.add(new Feature("IsCrossDoc", true));
+            for( Feature feature : features ){
+              dupFeatures.add(new Feature("CrossDoc_" + feature.getName(), feature.getValue()));
+            }
+          }
+          features.addAll( dupFeatures );
           // sanity check on feature values
           for ( Feature feature : features ) {
             if ( feature.getValue() == null ) {
@@ -334,7 +351,6 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
             }
           }
 
-          features.addAll( dupFeatures );
 
           // during training, feed the features to the data writer
           if ( this.isTraining() ) {
@@ -358,6 +374,9 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
           // during classification feed the features to the classifier and create
           // annotations
           else {
+            if(!clusterHeadView.equals(mentionView)){
+              LOGGER.info("Comparing new mention to cluster with elements from previous document");
+            }
             String predictedCategory = this.classify( features );
 //System.out.println( "      MCCA Predicted Category: " + predictedCategory + "    Scores:" );
             // TODO look at scores in classifier and try best-pair rather than first-pair?
@@ -404,11 +423,7 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
         }
       }
     }
-
-    removeSingletonClusters( jCas );
-
     createEventClusters( jCas );
-
   }
 
 
@@ -558,52 +573,6 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
   }
 
 
-//  private static final boolean dominates(Annotation arg1, Annotation arg2) {
-//    return (arg1.getBegin() <= arg2.getBegin() && arg1.getEnd() >= arg2.getEnd());
-//  }
-
-  /*
-  public Set<String> getBestEnt(JCas jcas, CollectionTextRelation cluster){
-    Set<String> semTypes = new HashSet<>();
-    for(Markable member : JCasUtil.select(cluster.getMembers(), Markable.class)){
-      semTypes.addAll(getBestEnt(jcas, member));
-    }
-    return semTypes;
-  }
-  
-  public Set<String> getBestEnt(JCas jcas, Markable markable){
-    Set<String> bestEnts = new HashSet<>();
-    IdentifiedAnnotation bestEnt = null;
-    Set<IdentifiedAnnotation> otherBestEnts = new HashSet<>();
-    ConllDependencyNode head = DependencyUtility.getNominalHeadNode(jcas, markable);
-    Collection<IdentifiedAnnotation> coveringEnts = nodeEntMap.get(head);
-    for(IdentifiedAnnotation ent : coveringEnts){
-      if(ent.getOntologyConceptArr() == null) continue; // skip non-umls entities.
-      ConllDependencyNode entHead = DependencyUtility.getNominalHeadNode(jcas, ent);
-      if(entHead == head){
-        if(bestEnt == null){
-          bestEnt = ent;
-        }else if((ent.getEnd()-ent.getBegin()) > (bestEnt.getEnd() - bestEnt.getBegin())){
-          // if the span of this entity is bigger than the biggest existing one:
-          bestEnt = ent;
-          otherBestEnts = new HashSet<>();
-        }else if((ent.getEnd()-ent.getBegin()) == (bestEnt.getEnd() - bestEnt.getBegin())){
-          // there is another one with the exact same span and possibly different type!
-          otherBestEnts.add(ent);
-        }
-      }
-    }
-
-    if(bestEnt!=null){
-      bestEnts.add(bestEnt.getClass().getSimpleName());
-      for(IdentifiedAnnotation other : otherBestEnts){
-        bestEnts.add(other.getClass().getSimpleName());
-      }
-    }
-    return bestEnts;
-  }
-  */
-
   public Map<HashableArguments, Double> getMarkablePairScores(JCas jCas){
     Map<HashableArguments, Double> scoreMap = new HashMap<>();
     for(CoreferenceRelation reln : JCasUtil.select(jCas, CoreferenceRelation.class)){
@@ -612,35 +581,5 @@ public class MentionClusterCoreferenceAnnotator extends CleartkAnnotator<String>
     }
     return scoreMap;
   }
-
-//  public static class CollectionTextRelationIdentifiedAnnotationPair {
-//    private final CollectionTextRelation cluster;
-//    private final IdentifiedAnnotation mention;
-//
-//    public CollectionTextRelationIdentifiedAnnotationPair(CollectionTextRelation cluster, IdentifiedAnnotation mention){
-//      this.cluster = cluster;
-//      this.mention = mention;
-//    }
-//
-//    public final CollectionTextRelation getCluster(){
-//      return this.cluster;
-//    }
-//
-//    public final IdentifiedAnnotation getMention(){
-//      return this.mention;
-//    }
-//
-//    @Override
-//    public boolean equals(Object obj) {
-//      CollectionTextRelationIdentifiedAnnotationPair other = (CollectionTextRelationIdentifiedAnnotationPair) obj;
-//      return (this.cluster == other.cluster &&
-//          this.mention == other.mention);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//      return 31*cluster.hashCode() + (mention==null ? 0 : mention.hashCode());
-//    }
-//  }
 
 }

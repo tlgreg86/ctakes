@@ -26,6 +26,7 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -38,9 +39,15 @@ public class PreviousDocumentPairer extends CrossDocumentPairer_ImplBase {
         if(prevCas == null) return clusters;
 
         for(CollectionTextRelation chain : JCasUtil.select(prevCas, CollectionTextRelation.class)){
-            int numElements = JCasUtil.select(chain.getMembers(), Markable.class).size();
-            if(numElements > 1) {
+            Collection<Markable> members = JCasUtil.select(chain.getMembers(), Markable.class);
+            if(members.size() > 1) {
                 clusters.add(new ClusterMentionFetcher.CollectionTextRelationIdentifiedAnnotationPair(chain, m));
+            }else{
+                Markable singleton = members.iterator().next();
+                if(singleton.getCoveredText().contains(m.getCoveredText()) ||
+                        m.getCoveredText().contains(singleton.getCoveredText())){
+                    clusters.add(new ClusterMentionFetcher.CollectionTextRelationIdentifiedAnnotationPair(chain, m));
+                }
             }
         }
         return clusters;
