@@ -17,6 +17,9 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.apache.ctakes.core.util.DocumentIDAnnotationUtil.NO_DOCUMENT_ID_PREFIX;
+import static org.apache.ctakes.core.util.SourceMetadataUtil.UNKNOWN_PATIENT;
+
 /**
  * Contains information on a note.  This is information can exist beyond the life of a cas.
  *
@@ -52,7 +55,7 @@ final public class NoteSpecs {
       _documentId = DocumentIDAnnotationUtil.getDocumentID( jCas );
       _documentType = createDocumentType( sourceData );
       _documentText = jCas.getDocumentText();
-      _patientName = createPatientName( jCas );
+      _patientName = createPatientName( jCas, _documentId );
       _subjects = createSubjects( jCas );
    }
 
@@ -121,17 +124,26 @@ final public class NoteSpecs {
    }
 
    /**
+    * The patient name according to: Source Metadata, Note file parent directory, note name prefixing '_'.
     * @param jCas ye olde ...
     * @return the patient name, often specified by the collection reader, or the default "Generic".
     */
-   static private String createPatientName( final JCas jCas ) {
+   static private String createPatientName( final JCas jCas, final String documentId ) {
       final String patientId = SourceMetadataUtil.getPatientIdentifier( jCas );
-      if ( patientId != null && !patientId.isEmpty() ) {
+      if ( patientId != null && !patientId.isEmpty() && !patientId.equals( UNKNOWN_PATIENT ) ) {
          return patientId;
       }
       final String idPrefix = DocumentIDAnnotationUtil.getDocumentIdPrefix( jCas );
-      if ( idPrefix != null && !idPrefix.isEmpty() ) {
+      if ( idPrefix != null && !idPrefix.isEmpty() && !idPrefix.equals( NO_DOCUMENT_ID_PREFIX ) ) {
          return idPrefix;
+      }
+      if ( !documentId.isEmpty() ) {
+         final int firstScore = documentId.indexOf( '_' );
+         if ( firstScore > 2 ) {
+            // assume that the note id begins with the patient name.
+            // This could cause serious problems if note id begins with note type or some other item.
+            return documentId.substring( 0, firstScore );
+         }
       }
       return DEFAULT_PATIENT_NAME;
    }
