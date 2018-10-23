@@ -58,7 +58,8 @@ public class KuRuleBasedClassifierAnnotator extends JCasAnnotator_ImplBase {
 					.getConfigParameterValue("CaseSensitive");
 			if (paramValue != null)
 				caseSensitive = ((Boolean) paramValue).booleanValue();
-
+			
+			//421554 SmokingWordsFile specify through .piper  
 			classAttributeName = (String) aContext
 					.getConfigParameterValue("classAttribute");
 			String smokingWordsFileName = (String) aContext
@@ -66,6 +67,8 @@ public class KuRuleBasedClassifierAnnotator extends JCasAnnotator_ImplBase {
 
 			smokingWords = readLinesFromFile(FileLocator.getFile(
 					smokingWordsFileName).getAbsolutePath());
+			
+			//421554 UnknownWordsFile specify through .piper
 			String unknownWordsFileName = (String) aContext
 					.getConfigParameterValue("UnknownWordsFile");
 			unknownWords = readLinesFromFile(FileLocator.getFile(

@@ -130,21 +130,42 @@ public class ClassifiableEntries extends JCasAnnotator_ImplBase {
 				windowsSystem = false;
 			
 			// load TAE from XML descriptor
-			FileResource fResrc = (FileResource) aContext.getResourceObject(PARAM_SMOKING_STATUS_DESC_STEP1KEY);
-			File descFile = fResrc.getFile();
+			/**
+			 * aContext.getResourceObject not working 
+			 * commented FileResource
+			 * getting as getConfigParameterValue
+			 */
+			
+			//FileResource fResrc = (FileResource) aContext.getResourceObject(PARAM_SMOKING_STATUS_DESC_STEP1KEY);
+			//File descFile = fResrc.getFile();
+			String fResrc =(String) aContext.getConfigParameterValue(PARAM_SMOKING_STATUS_DESC_STEP1KEY);
+			//File descFile = fResrc.getFile();
+			
+			//taeSpecifierStep1 = UIMAFramework.getXMLParser().parseResourceSpecifier(
+			//new XMLInputSource(fResrc.getFile()));		
 			taeSpecifierStep1 = UIMAFramework.getXMLParser().parseResourceSpecifier(
-			new XMLInputSource(fResrc.getFile()));			
+			new XMLInputSource(fResrc));
 
-			fResrc = (FileResource) aContext.getResourceObject(PARAM_SMOKING_STATUS_DESC_STEP2KEY);
-			descFile = fResrc.getFile();
+			/**
+			 * aContext.getResourceObject not working 
+			 * commented FileResource
+			 * getting as getConfigParameterValue
+			 */
+			//fResrc = (FileResource) aContext.getResourceObject(PARAM_SMOKING_STATUS_DESC_STEP2KEY);
+			//descFile = fResrc.getFile();
+			fResrc =(String) aContext.getConfigParameterValue(PARAM_SMOKING_STATUS_DESC_STEP2KEY);
+			//descFile = fResrc.getFile();
+
+			//taeSpecifierStep2 = UIMAFramework.getXMLParser().parseResourceSpecifier(
+			//		new XMLInputSource(fResrc.getFile()));	
 
 			taeSpecifierStep2 = UIMAFramework.getXMLParser().parseResourceSpecifier(
-					new XMLInputSource(fResrc.getFile()));			
+					new XMLInputSource(fResrc));
 
 			ra = new ResolutionAnnotator();
 			ra.initialize(aContext);
 			String dataPath  = aContext.getDataPath();
-			System.out.println("descFile "+descFile.getAbsolutePath());
+			//System.out.println("descFile "+descFile.getAbsolutePath());
 //			if (!descFile.getAbsolutePath().contains(apiMacroHome)) {
 //				ClassLoader thisBundle = this.getClass().getClassLoader();
 //				iv_logger.info("Using data path : "+dataPath);

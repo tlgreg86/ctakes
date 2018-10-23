@@ -29,6 +29,7 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorContextException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -59,8 +60,22 @@ public class SentenceAdjuster extends JCasAnnotator_ImplBase {
 
 	// LOG4J logger based on class name
 	public Logger iv_logger = Logger.getLogger(getClass().getName());
-
-
+	/**
+	 * 421554 added @ConfigurationParameter and PARAM_SKIP_SEGMENTS
+	 * 
+	 * 
+	 * Value is "SegmentsToSkip". This parameter specifies which sections to
+	 * skip. The parameter should be of type String, should be multi-valued and
+	 * optional.
+	 */
+	public static final String PARAM_SKIP_SEGMENTS = "SegmentsToSkip";
+	@ConfigurationParameter(
+	    name = PARAM_SKIP_SEGMENTS,
+	    mandatory = false,
+	    defaultValue = {},
+	    description = "Segment IDs to skip during processing"
+	    )
+	private String[] skipSegmentIDs;
 
 	/**
 	 * Performs initialization logic. This implementation just reads values for
@@ -115,12 +130,14 @@ public class SentenceAdjuster extends JCasAnnotator_ImplBase {
 
 		useSegments = ((Boolean) context.getConfigParameterValue("UseSegments"))
 				.booleanValue();
+		System.out.println("SegmentsToSkip1");
+
 		String[] skipSegmentIDs = (String[]) context
 				.getConfigParameterValue("SegmentsToSkip");
+		System.out.println("SegmentsToSkip2");
 		skipSegmentsSet = new HashSet<String>();
 		for (int i = 0; i < skipSegmentIDs.length; i++)
 			skipSegmentsSet.add(skipSegmentIDs[i]);
-
 		if (iv_logger.isInfoEnabled())
 			iv_logger.info("List of words to ignore during adjustment:");
 

@@ -69,10 +69,20 @@ public class ResolutionAnnotator
 		{
 			//String conWordsFileName = (String) aContext.getConfigParameterValue("ConWordsFile");
 			//conWords = readLinesFromFile(FileLocator.locateFile(conWordsFileName.replaceAll(apiMacroHome, ".")).getAbsolutePath());
+			/**
+			 * aContext.getResourceObject not working 
+			 * commented FileResource
+			 * commented conWordsFile
+			 * getting as getConfigParameterValue
+			 */
+			//FileResource fResrc = (FileResource) aContext.getResourceObject("negationContradictionWordsKey");
+			//File conWordsFile = fResrc.getFile();
 			
-			FileResource fResrc = (FileResource) aContext.getResourceObject("negationContradictionWordsKey");
-			File conWordsFile = fResrc.getFile();
-			conWords = readLinesFromFile(conWordsFile.getAbsolutePath());
+			String fResrc =(String) aContext.getResourceObject("negationContradictionWordsKey");
+			//File conWordsFile = new File("resources\\org\\apache\\ctakes\\smokingstatus\\data\\context\\negationContradictionWords.txt");
+			conWords = readLinesFromFile("resources\\org\\apache\\ctakes\\smokingstatus\\data\\context\\negationContradictionWords.txt");
+			//conWords = readLinesFromFile("org\\apache\\ctakes\\smokingstatus\\data\\context\\negationContradictionWords.txt");
+
 			
 		}
 		catch (Exception ace)

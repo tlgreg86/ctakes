@@ -268,10 +268,10 @@ public enum PipeBitLocator {
     */
    static private void assertClassType( final Class<?> classType, final Class<?> wantedClassType )
          throws ResourceInitializationException {
-      if ( !isClassType( classType, wantedClassType ) ) {
-         throw new ResourceInitializationException(
-               "Not " + wantedClassType.getSimpleName() + " " + classType.getName(), EMPTY_OBJECT_ARRAY );
-      }
+//      if ( !isClassType( classType, wantedClassType ) ) {
+//         throw new ResourceInitializationException(
+//               "Not " + wantedClassType.getSimpleName() + " " + classType.getName(), EMPTY_OBJECT_ARRAY );
+//      }
    }
 
    /**

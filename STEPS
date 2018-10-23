@@ -1,0 +1,16 @@
+Download or clone ctakes from https://github.com/apache/ctakes.git 
+set Java_home
+set  maven home 
+configure eclipse (with uima )
+run mvn clean install -Dmaven.test.skip=true from root
+import ctakes to eclipse and build it (maven update ,clean install) if any error occured 
+copy apache-ctakes-4.0.1-SNAPSHOT-bin.zip from  ctakes-distribution target extract to user folder
+
+create input,output and pipeline folder in ctakes home 
+create piper files using .....bin....
+
+
+
+runPiperFile -p D:\sw\apache-ctakes\apache-ctakes-4.0.1-SNAPSHOT\pipeline\DefaultTokenizerPipeline.piper -u developer123 -w mFRcXijihhAdADMBE6QbYn)h
+we should use cli cmd to run the dictionary 
+can use --user --pass when we are using default pipeline
